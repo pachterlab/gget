@@ -115,7 +115,7 @@ gget(["searchword1", "searchword2", "searchword3"], "genus_species")
 
 Terminal:
 ```
-gget search -w searchword1 searchword2 searchword3 -sp genus_species
+gget search -sw searchword1 searchword2 searchword3 -sp genus_species
 ```
 
 ### Query Ensembl for genes from a specific species using a single searchword
@@ -126,7 +126,7 @@ gget("searchword1", "genus_species")
 
 Terminal:
 ```
-gget search -w searchword1 -sp genus_species
+gget search -sw searchword1 -sp genus_species
 ```
 
 ### Query Ensembl for genes from a specific species using multiple searchwords while limiting the number of returned search results 
@@ -138,7 +138,7 @@ gget(["searchword1", searchword2, searchword3"], "genus_species", limit=10)
 
 Terminal:
 ```
-gget search -w searchword1 searchword2 searchword3 -sp genus_species -l 10
+gget search -sw searchword1 searchword2 searchword3 -sp genus_species -l 10
 ```
 
 ### Query Ensembl for genes from any of the 236 species databases found [here](http://ftp.ensembl.org/pub/release-105/mysql/). 
@@ -150,6 +150,6 @@ gget("searchword1", "nothobranchius_furzeri_core_105_2")
 
 Terminal:
 ```
-gget search -w searchword1 -sp nothobranchius_furzeri_core_105_2 
+gget search -sw searchword1 -sp nothobranchius_furzeri_core_105_2 
 ```
 
