@@ -13,54 +13,54 @@ import argparse
 
 def gget(searchwords, species, limit=None):
     """
-    Function to query Ensembl for genes based on species and free form search terms. 
-    
+    Function to query Ensembl for genes based on species and free form search terms.
+
     Parameters:
     - searchwords
-    The parameter "searchwords" is a list of one or more strings containing free form search terms 
+    The parameter "searchwords" is a list of one or more strings containing free form search terms
     (e.g.searchwords = ["GABA", "gamma-aminobutyric acid"]).
     All results that contain at least one of the search terms are returned.
     The search is not case-sensitive.
-    
+
     - species
     Possible entries for species are:
     "homo_sapiens" (or "human")
     "mus_musculus" (or "mouse")
     "taeniopygia_guttata" (or "zebra finch")
     "caenorhabditis_elegans" (or "roundworm")
-    Note: If you would like to access results from a different species, or restrain your results to a certain mouse strain, 
+    Note: If you would like to access results from a different species, or restrain your results to a certain mouse strain,
     you can instead enter the core database as the "species" variable (e.g. species = "rattus_norvegicus_core_105_72").
     You can find all availabale species databases here: http://ftp.ensembl.org/pub/release-105/mysql/
-    
+
     - limit
     "Limit" limits the number of search results to the top {limit} genes found.
-    
+
     Returns a data frame with the query results.
     """
     start_time = time.time()
-    
+
     if species == "caenorhabditis_elegans" or species == "roundworm":
-        db = "caenorhabditis_elegans_core_105_269"   
+        db = "caenorhabditis_elegans_core_105_269"
     elif species == "homo_sapiens" or species == "human":
         db = "homo_sapiens_core_105_38"
     elif species == "mus_musculus" or species == "mouse":
         db = "mus_musculus_core_105_39"
     elif species == "taeniopygia_guttata" or species == "zebra finch":
         db = "taeniopygia_guttata_core_105_12"
-    else: 
+    else:
         db = species
-        
+
     print(f"Results fetched from database: {db}")
 
-    db_connection = sql.connect(host='ensembldb.ensembl.org', 
-                                database=db, 
-                                user='anonymous', 
+    db_connection = sql.connect(host='ensembldb.ensembl.org',
+                                database=db,
+                                user='anonymous',
                                 password='')
-    
+
     # If single searchword passed as string, convert to list
     if type(searchwords) == str:
         searchwords = [searchwords]
-        
+
     # For human and mouse, the gene name is saved in gene_attrib.value where gene_attrib.attrib_type_id = 4
     if db == "homo_sapiens_core_105_38" or db == "mus_musculus_core_105_39":
         for i, searchword in enumerate(searchwords):
@@ -71,9 +71,9 @@ def gget(searchwords, species, limit=None):
                 FROM gene
                 LEFT JOIN xref ON gene.display_xref_id = xref.xref_id
                 LEFT JOIN gene_attrib ON gene.gene_id = gene_attrib.gene_id
-                WHERE (gene_attrib.attrib_type_id = 4) 
-                AND (gene_attrib.value LIKE '%{searchword}%' OR 
-                gene.description LIKE '%{searchword}%' OR 
+                WHERE (gene_attrib.attrib_type_id = 4)
+                AND (gene_attrib.value LIKE '%{searchword}%' OR
+                gene.description LIKE '%{searchword}%' OR
                 xref.description LIKE '%{searchword}%')
                 LIMIT {limit}
                 """
@@ -84,9 +84,9 @@ def gget(searchwords, species, limit=None):
                 FROM gene
                 LEFT JOIN xref ON gene.display_xref_id = xref.xref_id
                 LEFT JOIN gene_attrib ON gene.gene_id = gene_attrib.gene_id
-                WHERE (gene_attrib.attrib_type_id = 4) 
-                AND (gene_attrib.value LIKE '%{searchword}%' OR 
-                gene.description LIKE '%{searchword}%' OR 
+                WHERE (gene_attrib.attrib_type_id = 4)
+                AND (gene_attrib.value LIKE '%{searchword}%' OR
+                gene.description LIKE '%{searchword}%' OR
                 xref.description LIKE '%{searchword}%')
                 """
 
@@ -103,15 +103,15 @@ def gget(searchwords, species, limit=None):
                 df = pd.concat([df, df_temp])
 
         # Rename columns
-        df = df.rename(columns={"stable_id": "Ensembl_ID", 
+        df = df.rename(columns={"stable_id": "Ensembl_ID",
                                 "value": "Gene_name",
                                 "biotype": "Biotype"})
         # Changing description columns name by column index since they were returned with the same name ("description")
         df.columns.values[2] = "Ensembl_description"
         df.columns.values[3] = "Ext_ref_description"
-        
-    # For other species, the gene name will not be fetched      
-    else: 
+
+    # For other species, the gene name will not be fetched
+    else:
         for i, searchword in enumerate(searchwords):
             # If limit is specified, fetch only the first {limit} genes for which the searchword appears in the description
             if limit != None:
@@ -144,30 +144,30 @@ def gget(searchwords, species, limit=None):
                 df = pd.concat([df, df_temp])
 
         # Rename columns
-        df = df.rename(columns={"stable_id": "Ensembl_ID", 
+        df = df.rename(columns={"stable_id": "Ensembl_ID",
                                 "biotype": "Biotype"})
         # Changing description columns name by column index since they were returned with the same name ("description")
         df.columns.values[1] = "Ensembl_description"
         df.columns.values[2] = "Ext_ref_description"
-    
+
     # Add URL to gene summary on Ensembl
     df["URL"] = "https://uswest.ensembl.org/" + "_".join(db.split("_")[:2]) + "/Gene/Summary?g=" + df["Ensembl_ID"]
-    
+
     # Remove any duplicate search results from the master data frame and reset the index
     df = df.drop_duplicates().reset_index(drop=True)
-    
+
     print(f"Query time: {round(time.time() - start_time, 2)} seconds")
     print(f"Genes fetched: {len(df)}")
-    
+
     return df
 
-def fetchtp(species, return_val="json", release=None):
+def fetchtp(species, return_val="json", release="latest"):
     """
     Function to fetch GTF and FASTA (cDNA and DNA) files from the Ensemble FTP site.
-    
+
     Parameters:
     - species
-    Defines the species for which the files should be fetched in the format "<genus>_<species>", 
+    Defines the species for which the files should be fetched in the format "<genus>_<species>",
     e.g.species = "homo_sapiens".
     - return_val
     Defines which results to return. Possible entries are:
@@ -175,7 +175,7 @@ def fetchtp(species, return_val="json", release=None):
     "gtf" - Returns the GTF FTP link as a string.
     "cdna" - Returns the cDNA FTP link as a string.
     "dna" - Returns the DNA FTP link as a string.
-    
+
     - release
     Defines the Ensembl release number from which the files are fetched, e.g. release = 104.
     (Ensembl releases < 48 are not suupported.)
@@ -195,19 +195,19 @@ def fetchtp(species, return_val="json", release=None):
 
     # Find highest release number (= latest release)
     ENS_rel = np.array(rels).astype(int).max()
-        
-    # If release != "latest", use user-defined Ensembl release    
-    if release != None:
+
+    # If release != "latest", use user-defined Ensembl release
+    if release != "latest":
         if release > ENS_rel:
             raise ValueError("Defined Ensembl release number cannot be greater than latest release.")
         else:
             ENS_rel = release
-    
+
     # Get GTF link for this species and release
     url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/gtf/{species}/"
     html = requests.get(url)
     soup = BeautifulSoup(html.text, "html.parser")
-    
+
     nones = []
     a_elements = []
     pre = soup.find('pre')
@@ -216,19 +216,19 @@ def fetchtp(species, return_val="json", release=None):
             a_elements.append(element)
         elif element.name != "a":
             nones.append(element)
-    
+
     for i, string in enumerate(a_elements):
         if f"{ENS_rel}.gtf.gz" in string.text:
             gtf_str = string
-            
+
     gtf_url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/gtf/{species}/{gtf_str['href']}"
-            
-    
+
+
     # Get release date and time of this GTF link
     for i, string in enumerate(nones):
         if f"{ENS_rel}.gtf.gz" in string.text:
             gtf_date_size = nones[i+1]
-            
+
     gtf_date = gtf_date_size.strip().split("  ")[0]
     gtf_size = gtf_date_size.strip().split("  ")[-1]
 
@@ -236,7 +236,7 @@ def fetchtp(species, return_val="json", release=None):
     url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/cdna"
     html = requests.get(url)
     soup = BeautifulSoup(html.text, "html.parser")
-    
+
     nones = []
     a_elements = []
     pre = soup.find('pre')
@@ -245,26 +245,26 @@ def fetchtp(species, return_val="json", release=None):
             a_elements.append(element)
         elif element.name != "a":
             nones.append(element)
-            
+
     for i, string in enumerate(a_elements):
         if "cdna.all.fa" in string.text:
             cdna_str = string
-            
+
     cdna_url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/cdna/{cdna_str['href']}"
-    
+
     # Get release date
     for i, string in enumerate(nones):
         if "cdna.all.fa" in string.text:
             cdna_date_size = nones[i+1]
-            
+
     cdna_date = cdna_date_size.strip().split("  ")[0]
     cdna_size = cdna_date_size.strip().split("  ")[-1]
-    
+
     # Get DNA FASTA link for this species and release
     url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/dna"
     html = requests.get(url)
     soup = BeautifulSoup(html.text, "html.parser")
-    
+
     nones = []
     a_elements = []
     pre = soup.find('pre')
@@ -280,24 +280,24 @@ def fetchtp(species, return_val="json", release=None):
         if ".dna.primary_assembly.fa" in string.text:
             dna_str = string
             dna_search = ".dna.primary_assembly.fa"
-            
+
     if dna_str == None:
         for string in a_elements:
             if ".dna.toplevel.fa" in string.text:
                 dna_str = string
                 dna_search = ".dna.toplevel.fa"
-        
+
     dna_url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/dna/{dna_str['href']}"
-    
-    # Get release date          
+
+    # Get release date
     for i, string in enumerate(nones):
         if dna_search in string.text:
-            dna_date_size = nones[i+1]  
-      
+            dna_date_size = nones[i+1]
+
     dna_date = dna_date_size.strip().split("  ")[0]
     dna_size = dna_date_size.strip().split("  ")[-1]
-    
-    # Return results    
+
+    # Return results
     if return_val == "json":
         return {
             species: {
@@ -324,25 +324,25 @@ def fetchtp(species, return_val="json", release=None):
                 }
             }
         }
-    
+
     elif return_val == "gtf":
         print(f"Fetching from Ensembl release: {ENS_rel}")
         print(f"GTF release date and time: {gtf_date}")
         return gtf_url
-        
+
     elif return_val == "cdna":
         print(f"Fetching from Ensembl release: {ENS_rel}")
         print(f"Transcriptome release date and time: {cdna_date}")
         return cdna_url
-    
+
     elif return_val == "dna":
         print(f"Fetching from Ensembl release: {ENS_rel}")
         print(f"Genome release date and time:{dna_date}")
         return dna_url
-    
+
     else:
         raise ValueError("Parameter return_val must be one of the following: 'json', 'gtf', 'cdna', 'dna'.")
-    
+        
 def main():
     """
     Function containing argparse parsers and arguments to allow use of gget from terminal.
@@ -366,26 +366,9 @@ def main():
                                                description="Query Ensembl for genes based on species and free form search terms.", 
                                                add_help=False)
     # Search arguments
-    parser_gget.add_argument(
-        "-w", "--searchwords", 
-        nargs="*",     # 0 or more values expected => creates a list
-        type=str, 
-        required=True, 
-        metavar="",    # Cleans up help message
-        help="One or more free form searchwords for the query (if more than one: use space between searchwords), e.g. gaba nmda."
-    )
-    parser_gget.add_argument(
-        "-sp", "--species",  
-        required=True, 
-        metavar="",
-        help="Species to be queried, e.g. homo_sapiens or human."
-    )
-    parser_gget.add_argument(
-        "-l", "--limit", 
-        type=int, 
-        metavar="",
-        help="Limits the number of results, e.g. 10 (default: None)."
-    )
+    parser_gget.add_argument("-w", "--searchwords", metavar="", required=True, help="Free form searchwords for the query.")
+    parser_gget.add_argument("-sp", "--species", metavar="", required=True, help="Species to be queried.")
+    parser_gget.add_argument("-l", "--limit", metavar="", help="Limits the number of results (default: None).")
 
 
     # gget FetchTP subparser
@@ -394,24 +377,9 @@ def main():
                                                   description="Fetch GTF and/or FASTA (cDNA and/or DNA) files for a specific species from the Ensemble FTP site.",
                                                   add_help=False)
     # FetchTP arguments
-    parser_fetchtp.add_argument(
-        "-sp", "--species", 
-        required=True,
-        type=str,
-        metavar="", 
-        help="Species for which the FTPs will be fetched, e.g. homo_sapiens."
-    )
-    parser_fetchtp.add_argument(
-        "-rv", "--returnval", 
-        default="json", 
-        type=str,
-        metavar="",
-        help=" Defines which results to return. Possible entries are: 'json' - Returns all links in a json/dictionary format (default). 'gtf' - Returns the GTF FTP link as a string. 'cdna' - Returns the cDNA FTP link as a string. 'dna' - Returns the DNA FTP link as a string.")
-    parser_fetchtp.add_argument(
-        "-r", "--release",  
-        type=int, 
-        metavar="",
-        help="Ensemble release the FTPs will be fetched from, e.g. 104 (default: latest Ensembl release).")
+    parser_fetchtp.add_argument("-sp", "--species", metavar="", required=True, help="Species for which the FTPs will be fetched.")
+    parser_fetchtp.add_argument("-rv", "--returnval", metavar="", help=" Defines which results to return. Possible entries are: 'json' - Returns all links in a json/dictionary format (default). 'gtf' - Returns the GTF FTP link as a string. 'cdna' - Returns the cDNA FTP link as a string. 'dna' - Returns the DNA FTP link as a string.")
+    parser_fetchtp.add_argument("-r", "--release", metavar="", help="Ensemble release the FTPs will be fetched from (default: latest).")
 
     args = parent_parser.parse_args()
 

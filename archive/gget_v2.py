@@ -9,8 +9,6 @@ import requests
 import re
 import numpy as np
 
-import argparse
-
 def gget(searchwords, species, limit=None):
     """
     Function to query Ensembl for genes based on species and free form search terms. 
@@ -161,7 +159,7 @@ def gget(searchwords, species, limit=None):
     
     return df
 
-def fetchtp(species, return_val="json", release=None):
+def ftpget(species, return_val="json", release="latest"):
     """
     Function to fetch GTF and FASTA (cDNA and DNA) files from the Ensemble FTP site.
     
@@ -197,7 +195,7 @@ def fetchtp(species, return_val="json", release=None):
     ENS_rel = np.array(rels).astype(int).max()
         
     # If release != "latest", use user-defined Ensembl release    
-    if release != None:
+    if release != "latest":
         if release > ENS_rel:
             raise ValueError("Defined Ensembl release number cannot be greater than latest release.")
         else:
@@ -343,88 +341,3 @@ def fetchtp(species, return_val="json", release=None):
     else:
         raise ValueError("Parameter return_val must be one of the following: 'json', 'gtf', 'cdna', 'dna'.")
     
-def main():
-    """
-    Function containing argparse parsers and arguments to allow use of gget from terminal.
-    """
-    # Define parent parser 
-    parent_parser = argparse.ArgumentParser(description="gget parent parser")
-    # Initiate subparsers
-    parent_subparsers = parent_parser.add_subparsers(dest="command")
-    # Define parent (not sure why I need both parent parser and parent, but otherwise it does not work)
-    parent = argparse.ArgumentParser(add_help=False)
-    # Add debug argument to parent parser
-    parent.add_argument(
-            '--debug',
-            action='store_true',
-            help='Print debug info'
-        )
-
-    # gget search subparser
-    parser_gget = parent_subparsers.add_parser("search",
-                                               parents=[parent],
-                                               description="Query Ensembl for genes based on species and free form search terms.", 
-                                               add_help=False)
-    # Search arguments
-    parser_gget.add_argument(
-        "-w", "--searchwords", 
-        nargs="*",     # 0 or more values expected => creates a list
-        type=str, 
-        required=True, 
-        metavar="",    # Cleans up help message
-        help="One or more free form searchwords for the query (if more than one: use space between searchwords), e.g. gaba nmda."
-    )
-    parser_gget.add_argument(
-        "-sp", "--species",  
-        required=True, 
-        metavar="",
-        help="Species to be queried, e.g. homo_sapiens or human."
-    )
-    parser_gget.add_argument(
-        "-l", "--limit", 
-        type=int, 
-        metavar="",
-        help="Limits the number of results, e.g. 10 (default: None)."
-    )
-
-
-    # gget FetchTP subparser
-    parser_fetchtp = parent_subparsers.add_parser("fetchtp",
-                                                  parents=[parent],
-                                                  description="Fetch GTF and/or FASTA (cDNA and/or DNA) files for a specific species from the Ensemble FTP site.",
-                                                  add_help=False)
-    # FetchTP arguments
-    parser_fetchtp.add_argument(
-        "-sp", "--species", 
-        required=True,
-        type=str,
-        metavar="", 
-        help="Species for which the FTPs will be fetched, e.g. homo_sapiens."
-    )
-    parser_fetchtp.add_argument(
-        "-rv", "--returnval", 
-        default="json", 
-        type=str,
-        metavar="",
-        help=" Defines which results to return. Possible entries are: 'json' - Returns all links in a json/dictionary format (default). 'gtf' - Returns the GTF FTP link as a string. 'cdna' - Returns the cDNA FTP link as a string. 'dna' - Returns the DNA FTP link as a string.")
-    parser_fetchtp.add_argument(
-        "-r", "--release",  
-        type=int, 
-        metavar="",
-        help="Ensemble release the FTPs will be fetched from, e.g. 104 (default: latest Ensembl release).")
-
-    args = parent_parser.parse_args()
-
-    if args.debug:
-        print("debug: " + str(args))
-    if args.command == "search":
-        gget_results = gget(args.searchwords, args.species, args.limit)
-        print(gget_results)
-    if args.command == "fetchtp":
-        fetchtp_results = fetchtp(args.species, args.returnval, args.release)
-        print(fetchtp_results)
-    else:
-        print(f"gget first positional argument must be one of the following: 'search', 'fetchtp'. It is currently: {args.command}")
-
-if __name__ == '__main__':
-    main()
