@@ -105,6 +105,7 @@ cellranger mkref \
 ```
 
 ## gget search usage
+> :warning: **gget search currently only supports genes listed in the Ensembl core API, which includes limited external references.** Searching the [Ensembl website](https://uswest.ensembl.org/index.html) might yield more results.
 
 ### Query Ensembl for genes from a specific species using multiple searchwords
 Jupyter Lab:
@@ -128,7 +129,8 @@ Terminal:
 gget search -w searchword1 -sp genus_species
 ```
 
-### Query Ensembl for genes from a specific species using multiple searchwords, limiting the number of results to 10
+### Query Ensembl for genes from a specific species using multiple searchwords while limiting the number of returned search results 
+For example, limiting the number of results to 10:
 Jupyter Lab:
 ```python
 gget(["searchword1", searchword2, searchword3"], "genus_species", limit=10)
@@ -139,7 +141,8 @@ Terminal:
 gget search -w searchword1 searchword2 searchword3 -sp genus_species -l 10
 ```
 
-### Query Ensembl for genes from any of the 236 species databases found [here](http://ftp.ensembl.org/pub/release-105/mysql/). For example, for the database "nothobranchius_furzeri_core_105_2":
+### Query Ensembl for genes from any of the 236 species databases found [here](http://ftp.ensembl.org/pub/release-105/mysql/). 
+For example, for the database "nothobranchius_furzeri_core_105_2":
 Jupyter Lab:
 ```python
 gget("searchword1", "nothobranchius_furzeri_core_105_2")
