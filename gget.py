@@ -1,6 +1,13 @@
+# Packages for gget
 import pandas as pd
-# pure-Python MySQL client library
-import pymysql
+import mysql.connector as sql
+import time
+
+# Packages for ftpget
+from bs4 import BeautifulSoup
+import requests
+import re
+import numpy as np
 
 def gget(searchwords, species, limit=None):
     """
@@ -8,6 +15,7 @@ def gget(searchwords, species, limit=None):
     
     The variable "searchwords" is a list strings containing the free form search terms 
     (e.g.searchwords = ["GABA", "gamma-aminobutyric acid"]).
+    All results that contain at least one of the search term are returned.
     The search is not case-sensitive.
     
     "Limit" limits the number of search results to the top {limit} genes found.
@@ -26,6 +34,7 @@ def gget(searchwords, species, limit=None):
     a dictionary containing the raw results for each searchword (the searchwords are the dictionary keys and the values 
     for each key are the search results).
     """
+    start_time = time.time()
     
     if species == "caenorhabditis_elegans" or species == "roundworm":
         db = "caenorhabditis_elegans_core_105_269"   
@@ -39,71 +48,227 @@ def gget(searchwords, species, limit=None):
         db = species
         
     print(f"Results fetched from database: {db}")
+
+    db_connection = sql.connect(host='ensembldb.ensembl.org', 
+                                database=db, 
+                                user='anonymous', 
+                                password='')
     
-    database = pymysql.connect(
-        host="ensembldb.ensembl.org",
-        user="anonymous",
-        password="",
-        database=db
-    )
-
-    results = {}
-
-    for searchword in searchwords:
-        cursor = database.cursor()
-        # If limit is specified, fetch only the first {limit} genes for which the searchword appears in the description
-        if limit != None:
-            cursor.execute(
-                f"select * from gene where description like '%{searchword}%' limit {limit};"
-            )
-        # Else, fetch all genes for which the searchword appears in the description
-        else:
-            cursor.execute(f"select * from gene where description like '%{searchword}%';")
+    # If single searchword passed as string, convert to list
+    if type(searchwords) == str:
+        searchwords = [searchwords]
         
-        # Fetch the search results and save as "res"
-        res = cursor.fetchall()
+    # For human and mouse, the gene name is saved in gene_attrib.value where gene_attrib.attrib_type_id = 4
+    if db == "homo_sapiens_core_105_38" or db == "mus_musculus_core_105_39":
+        for i, searchword in enumerate(searchwords):
+            # If limit is specified, fetch only the first {limit} genes for which the searchword appears in the description
+            if limit != None:
+                query = f"""
+                SELECT gene.stable_id, gene_attrib.value, gene.description, xref.description, gene.biotype
+                FROM gene
+                LEFT JOIN xref ON gene.display_xref_id = xref.xref_id
+                LEFT JOIN gene_attrib ON gene.gene_id = gene_attrib.gene_id
+                WHERE (gene_attrib.attrib_type_id = 4) 
+                AND (gene_attrib.value LIKE '%{searchword}%' OR 
+                gene.description LIKE '%{searchword}%' OR 
+                xref.description LIKE '%{searchword}%')
+                LIMIT {limit}
+                """
+            # Else, fetch all genes for which the searchword appears in the description
+            else:
+                query = f"""
+                SELECT gene.stable_id, gene_attrib.value, gene.description, xref.description, gene.biotype
+                FROM gene
+                LEFT JOIN xref ON gene.display_xref_id = xref.xref_id
+                LEFT JOIN gene_attrib ON gene.gene_id = gene_attrib.gene_id
+                WHERE (gene_attrib.attrib_type_id = 4) 
+                AND (gene_attrib.value LIKE '%{searchword}%' OR 
+                gene.description LIKE '%{searchword}%' OR 
+                xref.description LIKE '%{searchword}%')
+                """
 
-        # Add search results for this searchword to the dictionary
-        results[searchword] = res
+            # Fetch the search results form the host using the specified query
+            df_temp = pd.read_sql(query, con=db_connection)
+            # Order by ENSEMBL ID (I am using pandas for this instead of SQL to increase speed)
+            df_temp = df_temp.sort_values("stable_id").reset_index(drop=True)
 
-    # Add the results for all search words to a data frame
-    for i, res in enumerate(results):
-        # Create dataframe from search results
-        df_temp = pd.DataFrame(
-            results[res],
-            columns=[
-                "gene_id", 
-                "Biotype", 
-                "analysis_id", 
-                "seq_region_id", 
-                "seq_region_start", 
-                "seq_region_end", 
-                "seq_region_strand", 
-                "display_xref_id", 
-                "source", 
-                "description", 
-                "is_current", 
-                "canonical_transcript_id", 
-                "stable_id", 
-                "version", 
-                "created_date", 
-                "modified_date",
-            ],
-        )
+            # In the first iteration, make the search results equal to the master data frame
+            if i == 0:
+                df = df_temp.copy()
+            # Add new search results to master data frame
+            else:
+                df = pd.concat([df, df_temp])
 
-        # In the first iteration, make the search results equal to the master data frame
-        if i == 0:
-            df = df_temp.copy()
-        # Add new search results to master data frame
-        else:
-            df = pd.concat([df, df_temp])
+        # Rename columns
+        df = df.rename(columns={"stable_id": "Ensembl_ID", 
+                                "value": "Gene_name",
+                                "biotype": "Biotype"})
+        # Changing description columns name by column index since they were returned with the same name ("description")
+        df.columns.values[2] = "Ensembl_description"
+        df.columns.values[3] = "Ext_ref_description"
+        
+    # For other species, the gene name will not be fetched      
+    else: 
+        for i, searchword in enumerate(searchwords):
+            # If limit is specified, fetch only the first {limit} genes for which the searchword appears in the description
+            if limit != None:
+                query = f"""
+                SELECT gene.stable_id, gene.description, xref.description, gene.biotype
+                FROM gene
+                LEFT JOIN xref ON gene.display_xref_id = xref.xref_id
+                WHERE (gene.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%')
+                LIMIT {limit}
+                """
+            # Else, fetch all genes for which the searchword appears in the description
+            else:
+                query = f"""
+                SELECT gene.stable_id, gene.description, xref.description, gene.biotype
+                FROM gene
+                LEFT JOIN xref ON gene.display_xref_id = xref.xref_id
+                WHERE (gene.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%')
+                """
 
-    # Remove any duplicate search results from the master data frame and reset the index
-    df = df.drop_duplicates()
-    df = df.reset_index(drop=True)
+            # Fetch the search results form the host using the specified query
+            df_temp = pd.read_sql(query, con=db_connection)
+            # Order by ENSEMBL ID (I am using pandas for this instead of SQL to increase speed)
+            df_temp = df_temp.sort_values("stable_id").reset_index(drop=True)
 
-    # Close cursor and database
-    cursor.close()
-    database.close()
+            # In the first iteration, make the search results equal to the master data frame
+            if i == 0:
+                df = df_temp.copy()
+            # Add new search results to master data frame
+            else:
+                df = pd.concat([df, df_temp])
+
+        # Rename columns
+        df = df.rename(columns={"stable_id": "Ensembl_ID", 
+                                "biotype": "Biotype"})
+        # Changing description columns name by column index since they were returned with the same name ("description")
+        df.columns.values[1] = "Ensembl_description"
+        df.columns.values[2] = "Ext_ref_description"
     
-    return df, results
+    # Add URL to gene summary on Ensembl
+    df["URL"] = "https://uswest.ensembl.org/" + "_".join(db.split("_")[:2]) + "/Gene/Summary?g=" + df["Ensembl_ID"]
+    
+    # Remove any duplicate search results from the master data frame and reset the index
+    df = df.drop_duplicates().reset_index(drop=True)
+    
+    print(f"Query time: {round(time.time() - start_time, 2)} seconds")
+    print(f"Genes fetched: {len(df)}")
+    
+    return df
+
+def ftpget(species, release="latest"):
+    """
+    Funciton to fetch GTF and FASTA (cDNA and DNA) files from an Ensemble reference genome.
+    
+    Species defined the species for which the files should be fetched, e.g. "homo_sapiens".
+    
+    Variable "release" defines the Ensembl release from which the files are fetched. 
+    If no release is passed, the latest Ensembl release is used.
+    """
+    if release == "latest":
+        # Find latest Ensembl release
+        url = "http://ftp.ensembl.org/pub/"
+        html = requests.get(url)
+        soup = BeautifulSoup(html.text, "html.parser")
+        # Find all releases
+        releases = soup.body.findAll(text=re.compile('release-'))
+        # Get release numbers
+        rels = []
+        for rel in releases:
+            rels.append(rel.split("/")[0].split("-")[-1])
+
+        # Find highest release number (= latest release)
+        ENS_rel = np.array(rels).astype(int).max()
+        
+    # If release != "latest", use user-defined Ensembl release    
+    else:
+        ENS_rel = release
+        
+    print(f"Fetching from Ensembl release: {ENS_rel}")
+    
+    # Get GTF link for this species and release
+    url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/gtf/{species}/"
+    html = requests.get(url)
+    soup = BeautifulSoup(html.text, "html.parser")
+    
+    nones = []
+    a_elements = []
+    pre = soup.find('pre')
+    for element in pre.descendants:
+        if element.name == "a":
+            a_elements.append(element)
+        elif element.name != "a":
+            nones.append(element)
+    
+    for i, string in enumerate(a_elements):
+        if f"{ENS_rel}.gtf.gz" in string.text:
+            gtf_str = string
+            
+    gtf_url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/gtf/{species}/{gtf_str['href']}"
+            
+    
+    # Get release date and time of this GTF link
+    for i, string in enumerate(nones):
+        if f"{ENS_rel}.gtf.gz" in string.text:
+            gtf_date = nones[i+1]
+    
+    print(f"GTF download link: {gtf_url}")
+    print(f"GTF release date: {gtf_date}")
+    
+    # Get cDNA FASTA link for this species and release
+    url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/cdna"
+    html = requests.get(url)
+    soup = BeautifulSoup(html.text, "html.parser")
+    
+    nones = []
+    a_elements = []
+    pre = soup.find('pre')
+    for element in pre.descendants:
+        if element.name == "a":
+            a_elements.append(element)
+        elif element.name != "a":
+            nones.append(element)
+            
+    for i, string in enumerate(a_elements):
+        if "cdna.all.fa" in string.text:
+            cdna_str = string
+            
+    cdna_url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/cdna/{cdna_str['href']}"
+    
+    # Get release date
+    for i, string in enumerate(nones):
+        if "cdna.all.fa" in string.text:
+            cdna_date = nones[i+1]
+    
+    print(f"cDNA FASTA download link: {cdna_url}")
+    print(f"cDNA FASTA release date: {cdna_date}")
+    
+    # Get DNA FASTA link for this species and release
+    url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/dna"
+    html = requests.get(url)
+    soup = BeautifulSoup(html.text, "html.parser")
+    
+    nones = []
+    a_elements = []
+    pre = soup.find('pre')
+    for element in pre.descendants:
+        if element.name == "a":
+            a_elements.append(element)
+        elif element.name != "a":
+            nones.append(element)
+            
+    for string in a_elements:
+        if "dna.toplevel" in string.text:
+            dna_str = string
+            
+    dna_url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/dna/{dna_str['href']}"
+            
+    for i, string in enumerate(nones):
+        if "dna.toplevel" in string.text:
+            dna_date = nones[i+1]       
+    
+    print(f"DNA FASTA download link: {dna_url}")
+    print(f"DNA FASTA release date:{dna_date}")
+    
