@@ -1,6 +1,11 @@
 # gget
+![github version](https://img.shields.io/badge/Version-0.0.1-informational)
+[![pypi version](https://img.shields.io/pypi/v/gget)](https://pypi.org/project/gget/0.0.1/)
+![python versions](https://img.shields.io/pypi/pyversions/gget)
+[![pypi downloads](https://img.shields.io/pypi/dm/gget)](https://pypi.org/project/gget/)
+[![license](https://img.shields.io/pypi/l/gget)](LICENSE)
 
-Query ENSEMBL for genes using free form search words (gget **search**) or fetch FTP download links by species (gget **FetchTP**).
+Query [Ensembl](https://www.ensembl.org/) for genes using free form search words (gget **search**) or fetch FTP download links by species (gget **FetchTP**).
 
 ## Installation
 ```
@@ -67,7 +72,7 @@ Terminal:
 ```
 gget fetchtp -sp genus_species -r 104
 ```
-where `release` / `-r` defines the Ensembl release from which the FTPs are fetched (by default the latest release is used).
+where the parameter `release` / `-r` defines the Ensembl release from which the FTPs are fetched. By default, the latest release is used.
 
 ### Fetch only the GTF link for a specific species 
 
@@ -80,7 +85,7 @@ Terminal:
 ```
 gget fetchtp -sp genus_species -rv gtf
 ```
-where `gtf` alters the return value from the default `json` such that only the annotation (GTF) download link for the defined species is returned. Alternative entries for `return_val` / `-rv` are `dna` or `cdna`, which return only the genome (DNA) or the transcriptome (cDNA) download links, respectively.
+where `return_val="gtf"` /  `-rv gtf` alters the return value from the default `json` such that only the annotation (GTF) download link for the defined species is returned. Alternative entries for `return_val` / `-rv` are `dna` or `cdna`, which return only the genome (DNA) or the transcriptome (cDNA) download links, respectively.
 
 This functionality can be combined with single-cell RNA-seq data pre-processing tools such as [kallisto bustools](https://pachterlab.github.io/kallistobustools/kb_usage/kb_ref/) or [cellranger](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/advanced/references) to build a transcriptome index by automatically fetching the latest FTP links from Ensembl:
 ```
