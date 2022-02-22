@@ -471,7 +471,6 @@ def main():
     if args.command == "search":
         gget_results = gget(args.searchwords, args.species, args.limit)
         # Only print if '-o' flag not True
-        print(args.out)
         if args.out == False:
             print(gget_results)
         # Save in current working directory if no path defined
@@ -487,9 +486,10 @@ def main():
         # Print or save json file
         if args.returnval == "json":
             import json
+            print(args.out)
             # Only print if '-o' flag not True
             if args.out == False:
-                print(json.dump(fetchtp_results, f, ensure_ascii=False, indent=4)))
+                print(json.dump(fetchtp_results, f, ensure_ascii=False, indent=4))
             # Save in current working directory if no path defined
             if args.out == True and args.out == None:
                 with open('fetchtp.json', 'w', encoding='utf-8') as f:
