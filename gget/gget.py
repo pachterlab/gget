@@ -488,7 +488,7 @@ def main():
             import json
             # Only print if '-o' flag not True
             if args.out == False:
-                print(json.dump(fetchtp_results, f, ensure_ascii=False, indent=4))
+                print(json.dump(fetchtp_results, f, ensure_ascii=False, indent=4)))
             # Save in current working directory if no path defined
             if args.out == True and args.out == None:
                 with open('fetchtp.json', 'w', encoding='utf-8') as f:
