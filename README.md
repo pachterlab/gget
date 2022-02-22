@@ -1,6 +1,6 @@
 # gget
-![github version](https://img.shields.io/badge/Version-0.0.2-informational)
-[![pypi version](https://img.shields.io/pypi/v/gget)](https://pypi.org/project/gget/0.0.2/)
+![github version](https://img.shields.io/badge/Version-0.0.3-informational)
+[![pypi version](https://img.shields.io/pypi/v/gget)](https://pypi.org/project/gget/0.0.3/)
 [![pypi downloads](https://img.shields.io/pypi/dm/gget)](https://pypi.org/project/gget/)
 [![license](https://img.shields.io/pypi/l/gget)](LICENSE)
 
