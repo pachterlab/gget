@@ -1,6 +1,6 @@
 # gget (gene-get)
 [![pypi version](https://img.shields.io/pypi/v/gget)](https://pypi.org/project/gget/0.0.4/)
-[![pypi downloads](https://img.shields.io/pypi/dm/gget)](https://pypi.org/project/gget/)
+[![pypi downloads](https://img.shields.io/pypi/d/gget)](https://pypi.org/project/gget/)
 [![license](https://img.shields.io/pypi/l/gget)](LICENSE)
 [![DOI](https://zenodo.org/badge/458943224.svg)](https://zenodo.org/badge/latestdoi/458943224)
 
