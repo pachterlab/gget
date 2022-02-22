@@ -471,11 +471,12 @@ def main():
     if args.command == "search":
         gget_results = gget(args.searchwords, args.species, args.limit)
         # Only print if '-o' flag not True
+        print(args.out)
         if args.out == False:
             print(gget_results)
         # Save in current working directory if no path defined
         if args.out == True and args.out == None:
-            gget_results).to_csv("gget_results.csv", index=False)
+            gget_results.to_csv("gget_results.csv", index=False)
         # Save in defined path
         if args.out == True and args.out != None:
             gget_results.to_csv(f"{args.out}gget_results.csv", index=False)
