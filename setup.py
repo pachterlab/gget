@@ -8,7 +8,7 @@ long_description = read('README.md')
 
 setup(
     name='gget',
-    version='0.0.3',
+    version='0.0.4',
     license='MIT',
     author='Laura Luebbert',
     author_email='lauraluebbert@caltech.edu',
