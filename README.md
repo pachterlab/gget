@@ -59,8 +59,8 @@ This returns a json with the GTF, DNA, and cDNA links, their respective release 
         }
 ```
 
-### Fetch GTF, DNA, and cDNA FTP links for a specific species from a specific Ensembl release, e.g. release 104
-
+### Fetch GTF, DNA, and cDNA FTP links for a specific species from a specific Ensembl release
+For example, for Ensembl release 104:  
 Jupyter Lab:
 ```python
 fetchtp("genus_species", release=104)
@@ -113,7 +113,7 @@ gget search -sw searchword1 -sp genus_species
 ```
 
 ### Query Ensembl for genes from a specific species using multiple searchwords while limiting the number of returned search results 
-For example, limiting the number of results to 10:
+For example, limiting the number of results to 10:  
 Jupyter Lab:
 ```python
 gget(["searchword1", searchword2, searchword3"], "genus_species", limit=10)
