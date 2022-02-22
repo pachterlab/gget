@@ -1,0 +1,25 @@
+{
+    "homo_sapiens": {
+        "transcriptome": {
+            "ftp": "http://ftp.ensembl.org/pub/release-105/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh38.cdna.all.fa.gz",
+            "ensembl_release": 105,
+            "release_date": "18-Jun-2021",
+            "release_time": "12:56",
+            "bytes": "76085001"
+        },
+        "genome": {
+            "ftp": "http://ftp.ensembl.org/pub/release-105/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz",
+            "ensembl_release": 105,
+            "release_date": "18-Jun-2021",
+            "release_time": "13:38",
+            "bytes": " 881211416"
+        },
+        "annotation": {
+            "ftp": "http://ftp.ensembl.org/pub/release-105/gtf/homo_sapiens/Homo_sapiens.GRCh38.105.gtf.gz",
+            "ensembl_release": 105,
+            "release_date": "18-Jun-2021",
+            "release_time": "13:28",
+            "bytes": "50829040"
+        }
+    }
+}
