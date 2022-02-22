@@ -13,6 +13,9 @@ setup(
     long_description_content_type='text/markdown',
     author_email='email@example.com',
     packages=find_packages(),
+    install_requires=[
+          'mysql-connector-python',
+      ],
     url='https://github.com/lauraluebbert/gget',
     keywords='gget',
 )
