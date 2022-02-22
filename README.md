@@ -124,8 +124,8 @@ Terminal:
 gget search -sw searchword1 searchword2 searchword3 -sp genus_species -l 10
 ```
 
-### Query Ensembl for genes from any of the 236 species databases found [here](http://ftp.ensembl.org/pub/release-105/mysql/). 
-For example, for the database "nothobranchius_furzeri_core_105_2": 
+### Query Ensembl for genes from any of the 236 species databases found [here](http://ftp.ensembl.org/pub/release-105/mysql/).   
+For example, for the database "nothobranchius_furzeri_core_105_2":  
 Jupyter Lab:
 ```python
 gget("searchword1", "nothobranchius_furzeri_core_105_2")
