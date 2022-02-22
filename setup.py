@@ -22,6 +22,6 @@ setup(
     url='https://github.com/lauraluebbert/gget',
     keywords='gget',
     entry_points={
-        'console_scripts': ['gget=gget.main:main'],
+        'console_scripts': ['gget=gget.gget:main'],
     },
 )
