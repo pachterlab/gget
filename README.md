@@ -86,23 +86,6 @@ gget fetchtp -sp genus_species -rv gtf
 ```
 where `return_val="gtf"` /  `-rv gtf` alters the return value from the default `json` such that only the annotation (GTF) download link for the defined species is returned. Alternative entries for `return_val` / `-rv` are `dna` or `cdna`, which return only the genome (DNA) or the transcriptome (cDNA) download links, respectively.
 
-This functionality can be combined with single-cell RNA-seq data pre-processing tools such as [kallisto bustools](https://pachterlab.github.io/kallistobustools/kb_usage/kb_ref/) or [cellranger](https://support.10xgenomics.com/single-cell-gene-expression/software/pipelines/latest/advanced/references) to build a transcriptome index by automatically fetching the latest FTP links from Ensembl:
-```
-# kb ref
-kb ref \
--i INDEX \
--g T2G \
--f1 FASTA \
-$(gget fetchtp -sp homo_sapiens -rv dna) \
-$(gget fetchtp -sp homo_sapiens -rv gtf)
-
-# cellranger mkref
-cellranger mkref \
---genome=output_genome \
---fasta=$(gget fetchtp -sp genus_species -rv dna)
---genes=$(gget fetchtp -sp genus_species -rv gtf)
-```
-
 ## gget search usage
 > :warning: **gget search currently only supports genes listed in the Ensembl core API, which includes limited external references.** Searching the [Ensembl website](https://uswest.ensembl.org/index.html) might yield more results.
 
