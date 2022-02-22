@@ -48,7 +48,7 @@ def gget(searchwords, species, limit=None, save=False):
         db = "homo_sapiens_core_105_38"
     elif species == "mus_musculus" or species == "mouse":
         db = "mus_musculus_core_105_39"
-    elif species == "taeniopygia_guttata" or species == "zebra finch":
+    elif species == "taeniopygia_guttata" or species == "zebra_finch":
         db = "taeniopygia_guttata_core_105_12"
     else: 
         db = species
@@ -191,7 +191,7 @@ def fetchtp(species, return_val="json", release=None, save=True):
     If "save=True", the json containing all results is saved in the current directory. Only works if "returnval='json'".
     """
 
-    # Find latest Ensembl release
+    ## Find latest Ensembl release
     url = "http://ftp.ensembl.org/pub/"
     html = requests.get(url)
     soup = BeautifulSoup(html.text, "html.parser")
@@ -205,18 +205,21 @@ def fetchtp(species, return_val="json", release=None, save=True):
     # Find highest release number (= latest release)
     ENS_rel = np.array(rels).astype(int).max()
         
-    # If release != "latest", use user-defined Ensembl release    
+    # If release != None, use user-defined Ensembl release    
     if release != None:
+        # Do not allow user-defined release if it is higher than the latest release
         if release > ENS_rel:
             raise ValueError("Defined Ensembl release number cannot be greater than latest release.")
         else:
             ENS_rel = release
     
-    # Get GTF link for this species and release
+    ## Get GTF link for this species and release
     url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/gtf/{species}/"
     html = requests.get(url)
     soup = BeautifulSoup(html.text, "html.parser")
     
+    # The url can be found under an <a> object tag in the html, 
+    # but the date and size do not have an object tag (element=None)
     nones = []
     a_elements = []
     pre = soup.find('pre')
@@ -226,14 +229,14 @@ def fetchtp(species, return_val="json", release=None, save=True):
         elif element.name != "a":
             nones.append(element)
     
+    # Find the <a> element containing the url
     for i, string in enumerate(a_elements):
         if f"{ENS_rel}.gtf.gz" in string.text:
             gtf_str = string
             
     gtf_url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/gtf/{species}/{gtf_str['href']}"
             
-    
-    # Get release date and time of this GTF link
+    # Get release date and time of this GTF link by searching the <None> elements
     for i, string in enumerate(nones):
         if f"{ENS_rel}.gtf.gz" in string.text:
             gtf_date_size = nones[i+1]
@@ -241,11 +244,13 @@ def fetchtp(species, return_val="json", release=None, save=True):
     gtf_date = gtf_date_size.strip().split("  ")[0]
     gtf_size = gtf_date_size.strip().split("  ")[-1]
 
-    # Get cDNA FASTA link for this species and release
+    ## Get cDNA FASTA link for this species and release
     url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/cdna"
     html = requests.get(url)
     soup = BeautifulSoup(html.text, "html.parser")
     
+    # The url can be found under an <a> object tag in the html, 
+    # but the date and size do not have an object tag (element=None)
     nones = []
     a_elements = []
     pre = soup.find('pre')
@@ -255,13 +260,14 @@ def fetchtp(species, return_val="json", release=None, save=True):
         elif element.name != "a":
             nones.append(element)
             
+    # Find the <a> element containing the url       
     for i, string in enumerate(a_elements):
         if "cdna.all.fa" in string.text:
             cdna_str = string
             
     cdna_url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/cdna/{cdna_str['href']}"
     
-    # Get release date
+    # Get release date and time of this url by searching the <None> elements
     for i, string in enumerate(nones):
         if "cdna.all.fa" in string.text:
             cdna_date_size = nones[i+1]
@@ -269,11 +275,13 @@ def fetchtp(species, return_val="json", release=None, save=True):
     cdna_date = cdna_date_size.strip().split("  ")[0]
     cdna_size = cdna_date_size.strip().split("  ")[-1]
     
-    # Get DNA FASTA link for this species and release
+    ## Get DNA FASTA link for this species and release
     url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/dna"
     html = requests.get(url)
     soup = BeautifulSoup(html.text, "html.parser")
     
+    # The url can be found under an <a> object tag in the html, 
+    # but the date and size do not have an object tag (element=None)
     nones = []
     a_elements = []
     pre = soup.find('pre')
@@ -290,6 +298,7 @@ def fetchtp(species, return_val="json", release=None, save=True):
             dna_str = string
             dna_search = ".dna.primary_assembly.fa"
             
+    # Find the <a> element containing the url        
     if dna_str == None:
         for string in a_elements:
             if ".dna.toplevel.fa" in string.text:
@@ -298,7 +307,7 @@ def fetchtp(species, return_val="json", release=None, save=True):
         
     dna_url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/dna/{dna_str['href']}"
     
-    # Get release date          
+    # Get release date and time of this url by searching the <None> elements          
     for i, string in enumerate(nones):
         if dna_search in string.text:
             dna_date_size = nones[i+1]  
@@ -306,7 +315,7 @@ def fetchtp(species, return_val="json", release=None, save=True):
     dna_date = dna_date_size.strip().split("  ")[0]
     dna_size = dna_date_size.strip().split("  ")[-1]
     
-    # Return results    
+    ## Return results    
     if return_val == "json":
         print(f"Fetching from Ensembl release: {ENS_rel}")
         fetchtp_dict = {
@@ -361,7 +370,7 @@ def fetchtp(species, return_val="json", release=None, save=True):
     
 def main():
     """
-    Function containing argparse parsers and arguments to allow use of gget from terminal.
+    Function containing argparse parsers and arguments to allow the use of gget from the terminal.
     """
     # Define parent parser 
     parent_parser = argparse.ArgumentParser(description="gget parent parser")
