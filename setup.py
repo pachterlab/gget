@@ -1,5 +1,9 @@
 from setuptools import setup, find_packages
 
+def read(path):
+    with open(path, 'r') as f:
+        return f.read()
+
 long_description = read('README.md')
 
 setup(
