@@ -449,6 +449,11 @@ def main():
         metavar="",
         help="Path to directory where ouput json file is saved (only for '-rv json'). Default: None (saves in the current directory)"
     )
+    
+    # Show help when no arguments are given
+    if len(sys.argv) == 1:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
 
     args = parent_parser.parse_args()
 
@@ -469,12 +474,12 @@ def main():
     # FetchTP return
     if args.command == "fetchtp":
         fetchtp_results = fetchtp(args.species, args.returnval, args.release)
-        # Save json file
+        # Print or save json file
         if args.returnval == "json":
             import json
             if args.out == None:
-                with open('fetchtp.json', 'w', encoding='utf-8') as f:
-                    json.dump(fetchtp_results, f, ensure_ascii=False, indent=4)
+                print(json.dump(fetchtp_results, f, ensure_ascii=False, indent=4))
+            # Save if args.out is defined
             else:
                 with open(f'{args.out}fetchtp.json', 'w', encoding='utf-8') as f:
                     json.dump(fetchtp_results, f, ensure_ascii=False, indent=4)
