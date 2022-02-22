@@ -17,7 +17,8 @@ setup(
     long_description_content_type='text/markdown',
     packages=find_packages(),
     install_requires=[
-          'mysql-connector-python',
+        'mysql-connector-python',
+        'beautifulsoup4>=4.10.0',
       ],
     url='https://github.com/lauraluebbert/gget',
     keywords='gget',
