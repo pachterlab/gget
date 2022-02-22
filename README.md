@@ -100,6 +100,7 @@ Terminal:
 ```
 gget search -sw searchword1 searchword2 searchword3 -sp genus_species
 ```
+where `-sw` is followed by one or more **searchwords separated by a space**. For Jupyter lab, the searchwords are passed as a list of strings (or a single string for one searchword).
 
 ### Query Ensembl for genes from a specific species using a single searchword
 Jupyter Lab:
