@@ -8,7 +8,7 @@ long_description = read('README.md')
 
 setup(
     name='gget',
-    version='0.0.2',
+    version='0.0.3',
     license='MIT',
     author='Laura Luebbert',
     author_email='lauraluebbert@caltech.edu',
@@ -21,4 +21,7 @@ setup(
       ],
     url='https://github.com/lauraluebbert/gget',
     keywords='gget',
+    entry_points={
+        'console_scripts': ['gget=gget.main:main'],
+    },
 )
