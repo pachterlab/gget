@@ -453,7 +453,7 @@ def main():
     
     # Show help when no arguments are given
     if len(sys.argv) == 1:
-        parser.print_help(sys.stderr)
+        parent_parser.print_help(sys.stderr)
         sys.exit(1)
 
     args = parent_parser.parse_args()
