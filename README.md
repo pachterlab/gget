@@ -153,11 +153,11 @@ Terminal:
 gget search -sw searchword1 -sp nothobranchius_furzeri_core_105_2 
 ```
 
-**Note:** 
-`gget search` supports the following species abbreviations:
-"homo_sapiens" -> "human"
-"mus_musculus" -> "mouse"
-"taeniopygia_guttata" -> "zebra finch"
-"caenorhabditis_elegans" -> "roundworm"
+**Note:**  
+`gget search` supports the following species abbreviations:  
+"homo_sapiens" -> "human"  
+"mus_musculus" -> "mouse"  
+"taeniopygia_guttata" -> "zebra finch"  
+"caenorhabditis_elegans" -> "roundworm"  
 All other species have to be called using their specific database, as shown in the example above.
 
