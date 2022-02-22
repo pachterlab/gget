@@ -416,6 +416,8 @@ def main():
         "-o", "--out",
         type=str,
         metavar="",
+        default=False,
+        action='store_true',
         help="Path to directory where ouput csv filec containing query results is saved. Default: None (saves in the current directory)"
     )
 
@@ -447,7 +449,9 @@ def main():
     parser_fetchtp.add_argument(
         "-o", "--out",
         type=str,
+        default=False,
         metavar="",
+        action='store_true',
         help="Path to directory where ouput json file is saved (only for '-rv json'). Default: None (saves in the current directory)"
     )
     
@@ -466,10 +470,14 @@ def main():
     # search return
     if args.command == "search":
         gget_results = gget(args.searchwords, args.species, args.limit)
-        # Save df to csv
-        if args.out == None:
-            gget_results.to_csv("gget_results.csv", index=False)
-        else:
+        # Only print if '-o' flag not True
+        if args.out == False:
+            print(gget_results)
+        # Save in current working directory if no path defined
+        if args.out == True and args.out == None:
+            gget_results).to_csv("gget_results.csv", index=False)
+        # Save in defined path
+        if args.out == True and args.out != None:
             gget_results.to_csv(f"{args.out}gget_results.csv", index=False)
             
     # FetchTP return
@@ -478,10 +486,15 @@ def main():
         # Print or save json file
         if args.returnval == "json":
             import json
-            if args.out == None:
+            # Only print if '-o' flag not True
+            if args.out == False:
                 print(json.dump(fetchtp_results, f, ensure_ascii=False, indent=4))
-            # Save if args.out is defined
-            else:
+            # Save in current working directory if no path defined
+            if args.out == True and args.out == None:
+                with open('fetchtp.json', 'w', encoding='utf-8') as f:
+                    json.dump(fetchtp_results, f, ensure_ascii=False, indent=4)
+            # Save in defined path
+            if args.out == True and args.out != None:
                 with open(f'{args.out}fetchtp.json', 'w', encoding='utf-8') as f:
                     json.dump(fetchtp_results, f, ensure_ascii=False, indent=4)
 
