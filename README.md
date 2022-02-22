@@ -142,7 +142,7 @@ gget search -sw searchword1 -sp nothobranchius_furzeri_core_105_2
 "mus_musculus" -> "mouse"  
 "taeniopygia_guttata" -> "zebra finch"  
 "caenorhabditis_elegans" -> "roundworm"  
-All other species have to be called using their specific [database](http://ftp.ensembl.org/pub/release-105/mysql/), as shown in the example above.
+All other species can be called using their specific [database](http://ftp.ensembl.org/pub/release-105/mysql/), as shown in the example above.
 
 ### [Examples](https://github.com/lauraluebbert/gget/tree/main/examples)
 
