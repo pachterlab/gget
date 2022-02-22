@@ -86,6 +86,8 @@ gget fetchtp -sp genus_species -rv gtf
 ```
 where `return_val="gtf"` /  `-rv gtf` alters the return value from the default `json` such that only the annotation (GTF) download link for the defined species is returned. Alternative entries for `return_val` / `-rv` are `dna` or `cdna`, which return only the genome (DNA) or the transcriptome (cDNA) download links, respectively.
 
+Both `gget fetchtp` and `gget search` take a `-o path/to/directory/` argument that specifies which directory the output files should be saved to (by default, the files are saved in the current working directory). In Jupyter Lab, the files can be saved in the current working directory by defining `save=True`.
+
 ## gget search usage
 > :warning: **gget search currently only supports genes listed in the Ensembl core API, which includes limited external references.** Searching the [Ensembl website](https://uswest.ensembl.org/index.html) might yield more results.
 
@@ -141,7 +143,7 @@ gget search -sw searchword1 -sp nothobranchius_furzeri_core_105_2
 "mus_musculus" -> "mouse"  
 "taeniopygia_guttata" -> "zebra finch"  
 "caenorhabditis_elegans" -> "roundworm"  
-All other species have to be called using their specific database, as shown in the example above.
+All other species have to be called using their specific [database](http://ftp.ensembl.org/pub/release-105/mysql/), as shown in the example above.
 
-## [Examples](https://github.com/lauraluebbert/gget/tree/main/examples)
+### [Examples](https://github.com/lauraluebbert/gget/tree/main/examples)
 
