@@ -10,6 +10,7 @@ import re
 import numpy as np
 
 import argparse
+import sys
 
 def gget(searchwords, species, limit=None, save=False):
     """
