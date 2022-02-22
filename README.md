@@ -140,7 +140,6 @@ gget search -sw searchword1 -sp nothobranchius_furzeri_core_105_2
 `gget search` supports the following species abbreviations:  
 "homo_sapiens" -> "human"  
 "mus_musculus" -> "mouse"  
-"taeniopygia_guttata" -> "zebra finch"  
 "caenorhabditis_elegans" -> "roundworm"  
 All other species can be called using their specific [database](http://ftp.ensembl.org/pub/release-105/mysql/), as shown in the example above.
 
