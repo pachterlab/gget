@@ -146,3 +146,5 @@ All other species can be called using their specific [database](http://ftp.ensem
 
 ### [Examples](https://github.com/lauraluebbert/gget/tree/main/examples)
 
+Author: Laura Luebbert
+[![DOI](https://zenodo.org/badge/458943224.svg)](https://zenodo.org/badge/latestdoi/458943224)
