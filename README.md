@@ -88,7 +88,7 @@ where `return_val="gtf"` /  `-rv gtf` alters the return value from the default `
 Both `gget fetchtp` and `gget search` take a `-o path/to/directory/` argument that specifies which directory the output files should be saved to (by default, the files are saved in the current working directory). In Jupyter Lab, the files can be saved in the current working directory by defining `save=True`.
 
 ## gget search 
-> :warning: **gget search currently only supports genes listed in the Ensembl core API, which includes limited external references.** Searching the [Ensembl website](https://uswest.ensembl.org/index.html) might yield more results.
+> :warning: **gget search currently only supports genes listed in the Ensembl core API, which includes limited external references.** Manually searching the [Ensembl website](https://uswest.ensembl.org/index.html) might yield more results.
 
 ### Query Ensembl for genes from a specific species using multiple searchwords
 Jupyter Lab:
