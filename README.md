@@ -73,7 +73,7 @@ gget fetchtp -sp genus_species -r 104
 ```
 where the parameter `release` / `-r` defines the Ensembl release from which the FTPs are fetched. By default, the latest release is used.
 
-### Fetch only the GTF link for a specific species 
+### Fetch only one type of link for a specific species 
 
 Jupyter Lab:
 ```python
