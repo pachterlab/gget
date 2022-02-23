@@ -168,7 +168,7 @@ def gget(searchwords, species, limit=None, save=False):
     
     return df
 
-def fetchtp(species, which="json", release=None, save=True):
+def ref(species, which="json", release=None, save=True):
     """
     Function to fetch GTF and FASTA (cDNA and DNA) files from the Ensemble FTP site.
     
@@ -326,7 +326,7 @@ def fetchtp(species, which="json", release=None, save=True):
     if len(which) == 1:
         if which == ["json"]:
             print(f"Fetching from Ensembl release: {ENS_rel}")
-            fetchtp_dict = {
+            ref_dict = {
                 species: {
                     "transcriptome": {
                         "ftp":cdna_url,
@@ -353,10 +353,10 @@ def fetchtp(species, which="json", release=None, save=True):
             }
             if save == True:
                 import json
-                with open('fetchtp.json', 'w', encoding='utf-8') as f:
-                    json.dump(fetchtp_dict, f, ensure_ascii=False, indent=4)
+                with open('ref.json', 'w', encoding='utf-8') as f:
+                    json.dump(ref_dict, f, ensure_ascii=False, indent=4)
 
-            return fetchtp_dict
+            return ref_dict
 
         elif which == ["gtf"]:
             print(f"Fetching from Ensembl release: {ENS_rel}")
@@ -445,32 +445,32 @@ def main():
     )
 
 
-    # gget FetchTP subparser
-    parser_fetchtp = parent_subparsers.add_parser("fetchtp",
+    # gget ref subparser
+    parser_ref = parent_subparsers.add_parser("ref",
                                                   parents=[parent],
                                                   description="Fetch GTF and/or FASTA (cDNA and/or DNA) files for a specific species from the Ensemble FTP site.",
                                                   add_help=False)
-    # FetchTP arguments
-    parser_fetchtp.add_argument(
+    # ref arguments
+    parser_ref.add_argument(
         "-sp", "--species", 
         required=True,
         type=str,
         metavar="", 
         help="Species for which the FTPs will be fetched, e.g. homo_sapiens."
     )
-    parser_fetchtp.add_argument(
+    parser_ref.add_argument(
         "-w", "--which", 
         default="json", 
         nargs="*", 
         type=str,
         metavar="",
         help=" Defines which results to return. Possible entries are: 'json' - Returns all links in a json/dictionary format (default). 'gtf' - Returns the GTF FTP link as a string. 'cdna' - Returns the cDNA FTP link as a string. 'dna' - Returns the DNA FTP link as a string.")
-    parser_fetchtp.add_argument(
+    parser_ref.add_argument(
         "-r", "--release",  
         type=int, 
         metavar="",
         help="Ensemble release the FTPs will be fetched from, e.g. 104 (default: latest Ensembl release).")
-    parser_fetchtp.add_argument(
+    parser_ref.add_argument(
         "-o", "--out",
         default=False,
         action="store_true",
@@ -501,25 +501,25 @@ def main():
             gget_results.to_csv("gget_results.csv", index=False)
             print("Results saved in current working directory.")
             
-    # FetchTP return
-    if args.command == "fetchtp":
-        fetchtp_results = fetchtp(args.species, args.which, args.release)
+    # ref return
+    if args.command == "ref":
+        ref_results = ref(args.species, args.which, args.release)
         # Print or save json file
         if args.which == "json":
             import json
             # Print if '-o' flag not True
             if args.out == False:
-                print(json.dumps(fetchtp_results, ensure_ascii=False, indent=4))
+                print(json.dumps(ref_results, ensure_ascii=False, indent=4))
                 print("To save these results in the current working directory, add the flag '-o'.")
             # Save in current working directory if args.out=True
             if args.out == True:
-                with open('fetchtp.json', 'w', encoding='utf-8') as f:
-                    json.dump(fetchtp_results, f, ensure_ascii=False, indent=4)
+                with open('ref.json', 'w', encoding='utf-8') as f:
+                    json.dump(ref_results, f, ensure_ascii=False, indent=4)
                 print("Results saved in current working directory.")
         # If not json, return space sparated list of requested urls
         else:
             if args.out == False:
-                print(" ".join(fetchtp_results))
+                print(" ".join(ref_results))
 #             if args.out == True:
                 
 if __name__ == '__main__':
