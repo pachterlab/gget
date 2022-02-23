@@ -168,7 +168,7 @@ def gget(searchwords, species, limit=None, save=False):
     
     return df
 
-def fetchtp(species, return_val="json", release=None, save=True):
+def fetchtp(species, which="json", release=None, save=True):
     """
     Function to fetch GTF and FASTA (cDNA and DNA) files from the Ensemble FTP site.
     
@@ -176,9 +176,10 @@ def fetchtp(species, return_val="json", release=None, save=True):
     - species
     Defines the species for which the files should be fetched in the format "<genus>_<species>", 
     e.g.species = "homo_sapiens".
-    - return_val
+    - which
     Defines which results to return. Possible entries are:
     "json" - Returns all links in a dictionary format (default).
+    Or one or a combination (as a list of strings) of any of the following:  
     "gtf" - Returns the GTF FTP link as a string.
     "cdna" - Returns the cDNA FTP link as a string.
     "dna" - Returns the DNA FTP link as a string.
@@ -316,58 +317,82 @@ def fetchtp(species, return_val="json", release=None, save=True):
     dna_date = dna_date_size.strip().split("  ")[0]
     dna_size = dna_date_size.strip().split("  ")[-1]
     
-    ## Return results    
-    if return_val == "json":
-        print(f"Fetching from Ensembl release: {ENS_rel}")
-        fetchtp_dict = {
-            species: {
-                "transcriptome": {
-                    "ftp":cdna_url,
-                    "ensembl_release": int(ENS_rel),
-                    "release_date": cdna_date.split(" ")[0],
-                    "release_time": cdna_date.split(" ")[1],
-                    "bytes": cdna_size
-                },
-                "genome": {
-                    "ftp":dna_url,
-                    "ensembl_release": int(ENS_rel),
-                    "release_date": dna_date.split(" ")[0],
-                    "release_time": dna_date.split(" ")[1],
-                    "bytes": dna_size
-                },
-                "annotation": {
-                    "ftp":gtf_url,
-                    "ensembl_release": int(ENS_rel),
-                    "release_date": gtf_date.split(" ")[0],
-                    "release_time": gtf_date.split(" ")[1],
-                    "bytes": gtf_size
+    # If single which passed as string, convert to list
+    if type(which) == str:
+        which = [which]
+    
+    ## Return results
+    # Return single results
+    if len(which) == 1:
+        if which == ["json"]:
+            print(f"Fetching from Ensembl release: {ENS_rel}")
+            fetchtp_dict = {
+                species: {
+                    "transcriptome": {
+                        "ftp":cdna_url,
+                        "ensembl_release": int(ENS_rel),
+                        "release_date": cdna_date.split(" ")[0],
+                        "release_time": cdna_date.split(" ")[1],
+                        "bytes": cdna_size
+                    },
+                    "genome": {
+                        "ftp":dna_url,
+                        "ensembl_release": int(ENS_rel),
+                        "release_date": dna_date.split(" ")[0],
+                        "release_time": dna_date.split(" ")[1],
+                        "bytes": dna_size
+                    },
+                    "annotation": {
+                        "ftp":gtf_url,
+                        "ensembl_release": int(ENS_rel),
+                        "release_date": gtf_date.split(" ")[0],
+                        "release_time": gtf_date.split(" ")[1],
+                        "bytes": gtf_size
+                    }
                 }
             }
-        }
-        if save == True:
-            import json
-            with open('fetchtp.json', 'w', encoding='utf-8') as f:
-                json.dump(fetchtp_dict, f, ensure_ascii=False, indent=4)
-                    
-        return fetchtp_dict
-    
-    elif return_val == "gtf":
-        print(f"Fetching from Ensembl release: {ENS_rel}")
-        print(f"GTF release date and time: {gtf_date}")
-        return gtf_url
-        
-    elif return_val == "cdna":
-        print(f"Fetching from Ensembl release: {ENS_rel}")
-        print(f"Transcriptome release date and time: {cdna_date}")
-        return cdna_url
-    
-    elif return_val == "dna":
-        print(f"Fetching from Ensembl release: {ENS_rel}")
-        print(f"Genome release date and time:{dna_date}")
-        return dna_url
-    
+            if save == True:
+                import json
+                with open('fetchtp.json', 'w', encoding='utf-8') as f:
+                    json.dump(fetchtp_dict, f, ensure_ascii=False, indent=4)
+
+            return fetchtp_dict
+
+        elif which == ["gtf"]:
+            print(f"Fetching from Ensembl release: {ENS_rel}")
+            print(f"GTF release date and time: {gtf_date}")
+            return gtf_url
+
+        elif which == ["cdna"]:
+            print(f"Fetching from Ensembl release: {ENS_rel}")
+            print(f"Transcriptome release date and time: {cdna_date}")
+            return cdna_url
+
+        elif which == ["dna"]:
+            print(f"Fetching from Ensembl release: {ENS_rel}")
+            print(f"Genome release date and time:{dna_date}")
+            return dna_url
+            
+        else:
+            raise ValueError("Parameter 'which' must be 'json', or any one or a combination of the following: 'gtf', 'cdna', 'dna'.")
+                
+    # Return multiple results
     else:
-        raise ValueError("Parameter return_val must be one of the following: 'json', 'gtf', 'cdna', 'dna'.")
+        results = []
+        for return_val in which:
+            if return_val == "json":
+                raise ValueError("Parameter 'which' must be 'json', or any one or a combination of the following: 'gtf', 'cdna', 'dna'.")
+            elif return_val == "gtf":
+                results.append(gtf_url)
+            elif return_val == "cdna":
+                results.append(cdna_url)
+            elif return_val == "dna":
+                results.append(dna_url)
+            else:
+                raise ValueError("Parameter 'which' must be 'json', or any one or a combination of the following: 'gtf', 'cdna', 'dna'.")
+                
+        print(f"Fetching from Ensembl release: {ENS_rel}")
+        return results
     
 def main():
     """
@@ -414,11 +439,9 @@ def main():
     )
     parser_gget.add_argument(
         "-o", "--out",
-        type=str,
-        metavar="",
         default=False,
         action='store_true',
-        help="Path to directory where ouput csv filec containing query results is saved. Default: None (saves in the current directory)"
+        help="Defines whether ouput csv files containing query results is saved in current working directory. Default: False (just prints results)"
     )
 
 
@@ -436,8 +459,9 @@ def main():
         help="Species for which the FTPs will be fetched, e.g. homo_sapiens."
     )
     parser_fetchtp.add_argument(
-        "-rv", "--returnval", 
+        "-w", "--which", 
         default="json", 
+        nargs="*", 
         type=str,
         metavar="",
         help=" Defines which results to return. Possible entries are: 'json' - Returns all links in a json/dictionary format (default). 'gtf' - Returns the GTF FTP link as a string. 'cdna' - Returns the cDNA FTP link as a string. 'dna' - Returns the DNA FTP link as a string.")
@@ -448,11 +472,9 @@ def main():
         help="Ensemble release the FTPs will be fetched from, e.g. 104 (default: latest Ensembl release).")
     parser_fetchtp.add_argument(
         "-o", "--out",
-        type=str,
         default=False,
-        metavar="",
-        action='store_true',
-        help="Path to directory where ouput json file is saved (only for '-rv json'). Default: None (saves in the current directory)"
+        action="store_true",
+        help="Defines whether ouput json file is saved in current working directory (only works for '-rv json'). Default: False (just prints results)"
     )
     
     # Show help when no arguments are given
@@ -470,34 +492,35 @@ def main():
     # search return
     if args.command == "search":
         gget_results = gget(args.searchwords, args.species, args.limit)
-        # Only print if '-o' flag not True
+        # Print if '-o' flag not True
         if args.out == False:
             print(gget_results)
-        # Save in current working directory if no path defined
-        if args.out == True and args.out == None:
+            print("To save these results in the current working directory, add the flag '-o'.")
+        # Save in current working directory if args.out=True
+        if args.out == True:
             gget_results.to_csv("gget_results.csv", index=False)
-        # Save in defined path
-        if args.out == True and args.out != None:
-            gget_results.to_csv(f"{args.out}gget_results.csv", index=False)
+            print("Results saved in current working directory.")
             
     # FetchTP return
     if args.command == "fetchtp":
-        fetchtp_results = fetchtp(args.species, args.returnval, args.release)
+        fetchtp_results = fetchtp(args.species, args.which, args.release)
         # Print or save json file
-        if args.returnval == "json":
+        if args.which == "json":
             import json
-            print(args.out)
-            # Only print if '-o' flag not True
+            # Print if '-o' flag not True
             if args.out == False:
-                print(json.dump(fetchtp_results, f, ensure_ascii=False, indent=4))
-            # Save in current working directory if no path defined
-            if args.out == True and args.out == None:
+                print(json.dumps(fetchtp_results, ensure_ascii=False, indent=4))
+                print("To save these results in the current working directory, add the flag '-o'.")
+            # Save in current working directory if args.out=True
+            if args.out == True:
                 with open('fetchtp.json', 'w', encoding='utf-8') as f:
                     json.dump(fetchtp_results, f, ensure_ascii=False, indent=4)
-            # Save in defined path
-            if args.out == True and args.out != None:
-                with open(f'{args.out}fetchtp.json', 'w', encoding='utf-8') as f:
-                    json.dump(fetchtp_results, f, ensure_ascii=False, indent=4)
-
+                print("Results saved in current working directory.")
+        # If not json, return space sparated list of requested urls
+        else:
+            if args.out == False:
+                print(" ".join(fetchtp_results))
+#             if args.out == True:
+                
 if __name__ == '__main__':
     main()
