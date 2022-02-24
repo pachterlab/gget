@@ -687,7 +687,7 @@ def main():
         type=str, 
         required=True, 
         metavar="",  
-        help="One or more free form searchwords for the query (if more than one: use space between searchwords), e.g. gaba nmda."
+        help="One or more free form searchwords for the query, e.g. gaba, nmda."
     )
     parser_gget.add_argument(
         "-s", "--species",
