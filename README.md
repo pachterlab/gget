@@ -249,9 +249,23 @@ Terminal:
 $ gget spy -id ENSG00000034713, ENSG00000104853, ENSG00000170296
 ```
 &rarr; Returns a json containing information about each ID, amongst others the common name, description, and corresponding transcript/gene, in the format:
-
-#ADD spy OUTPUT!!!
-
+```
+{
+            "Ensembl ID": {
+                        "species": genus_species,
+                        "object_type": e.g. Gene,
+                        "biotype": e.g. protein_coding,
+                        "canonical_transcript": Transcript ID,
+                        "display_name": copmmon gene name,
+                        "description": Ensemble description,
+                        "assembly_name": Name of species assmebly,
+                        "seq_region_name": Sequence region,
+                        "start": Sequence start position,
+                        "end": Sequence end position,
+                        "strand": strand
+                        },
+}
+```
 #### Look up one Ensembl ID and include sequence, homology information and external reference description
 Jupyter Lab / Google Colab:
 ```python
