@@ -8,7 +8,7 @@ gget features 3 main functionalities:
 Fetch genome references (GTF and FASTAs) from the [Ensembl FTP site](http://ftp.ensembl.org/pub/) for a specific species and release.
 - [**gget search**](#gget-search)   
 Query [Ensembl](https://www.ensembl.org/) for genes from a defined species using free form search words.
-- [**gget spy**](#gget-spy)
+- [**gget spy**](#gget-spy)  
 Look up gene or transcript Ensembl IDs for their common name, description, sequence, homologs, synonyms, corresponding transcript/gene and more.
 
 ## Installation
@@ -48,13 +48,12 @@ For Jupyter Lab / Google Colab: `save=True` will save the output to the current 
 
 ### gget ref EXAMPLES
 #### Fetch GTF, DNA, and cDNA FTP links for a specific species
-Jupyter Lab / Google Colab:
-```python
-ref("homo_sapiens")
-```
 
-Terminal:
-```
+```python
+# Jupyter Lab / Google Colab:
+ref("homo_sapiens")
+
+# Terminal:
 $ gget ref -s homo_sapiens
 ```
 &rarr; Returns a json with the latest human reference genome GTF, DNA, and cDNA links, their respective release dates and time, and the Ensembl release from which the links were fetched, in the format:
@@ -88,41 +87,49 @@ $ gget ref -s homo_sapiens
 
 #### Fetch GTF, DNA, and cDNA FTP links for a specific species from a specific Ensembl release
 For example, for Ensembl release 104:  
-Jupyter Lab / Google Colab:
-```python
-ref("homo_sapiens", release=104)
-```
 
-Terminal:
-```
+```python
+# Jupyter Lab / Google Colab:
+ref("homo_sapiens", release=104)
+
+# Terminal
 $ gget ref -s homo_sapiens -r 104
 ```
-&rarr; Returns a json with the human reference genome GTF, DNA, and cDNA links, and their respective release dates and time, from Ensembl release 104
+&rarr; Returns a json with the human reference genome GTF, DNA, and cDNA links, and their respective release dates and time, from Ensembl release 104.
 
 #### Save the results
-Jupyter Lab / Google Colab:
-```python
-ref("homo_sapiens", save=True)
-```
 
-Terminal:
-```
+```python
+# Jupyter Lab / Google Colab:
+ref("homo_sapiens", save=True)
+
+# Terminal 
 $ gget ref -s homo_sapiens -o path/to/directory/ref_results.json
 ```
 &rarr; Saves the results in path/to/directory/ref_results.json.  
 For Jupyter Lab / Google Colab: Saves the results in a json file named ref_results.json in the current working directory.
 
 #### Fetch only certain types of links for a specific species 
-Jupyter Lab / Google Colab:
-```python
-ref("homo_sapiens", which=["gtf", "dna"])
-```
 
-Terminal:
-```
+```python
+# Jupyter Lab / Google Colab:
+ref("homo_sapiens", which=["gtf", "dna"])
+
+# Terminal 
 $ gget ref -s homo_sapiens -w gtf, dna
 ```
-&rarr; Returns only the links to the latest human reference GTF and DNA files, in this order, in a space-separated list (terminal), or comma-separated list (Jupyter Lab / Google Colab).    
+&rarr; Returns a dictionary/json containing the latest human reference GTF and DNA files, in this order, and their respective release dates and time.    
+
+#### Fetch only certain types of links for a specific species and return only the links
+
+```python
+# Jupyter Lab / Google Colab:
+ref("homo_sapiens", which=["gtf", "dna"], ftp=True)
+
+# Terminal 
+$ gget ref -s homo_sapiens -w gtf, dna -ftp
+```
+&rarr; Returns only the links (wihtout additional information) to the latest human reference GTF and DNA files, in this order, in a space-separated list (terminal), or comma-separated list (Jupyter Lab / Google Colab).    
 For Jupyter Lab / Google Colab: Combining this command with `save=True`, will save the results in a text file named ref_results.txt in the current working directory.
 
 #### [Click here for more examples](https://github.com/lauraluebbert/gget/tree/main/examples)
@@ -149,13 +156,12 @@ For Jupyter Lab / Google Colab: `save=True` will save the output to the current 
 
 ### gget search EXAMPLES
 #### Query Ensembl for genes from a specific species using multiple searchwords
-Jupyter Lab / Google Colab:
-```python
-search(["gaba", "gamma-aminobutyric acid"], "homo_sapiens")
-```
 
-Terminal:
-```
+```python
+# Jupyter Lab / Google Colab:
+search(["gaba", "gamma-aminobutyric acid"], "homo_sapiens")
+
+# Terminal 
 $ gget search -sw gaba, gamma-aminobutyric acid -s homo_sapiens
 ```
 &rarr; Returns all genes that contain at least one of the searchwords in their Ensembl or external reference description, in the format:
@@ -167,37 +173,34 @@ $ gget search -sw gaba, gamma-aminobutyric acid -s homo_sapiens
 
 
 #### Query Ensembl for genes from a specific species using a single searchword
-Jupyter Lab:
-```python
-search("gaba", "homo_sapiens")
-```
 
-Terminal:
-```
+```python
+# Jupyter Lab / Google Colab:
+search("gaba", "homo_sapiens")
+
+# Terminal 
 $ gget search -sw gaba -s homo_sapiens
 ```
 &rarr; Returns all genes that contain the searchword in their Ensembl or external reference description.
 
 #### Query Ensembl for genes from a specific species using multiple searchwords while limiting the number of returned search results 
-Jupyter Lab:
-```python
-search(["gaba", "gamma-aminobutyric acid"], "homo_sapiens", limit=10)
-```
 
-Terminal:
-```
+```python
+# Jupyter Lab / Google Colab:
+search(["gaba", "gamma-aminobutyric acid"], "homo_sapiens", limit=10)
+
+# Terminal 
 $ gget search -sw gaba, gamma-aminobutyric acid -s homo_sapiens -l 10
 ```
 &rarr; Returns the first 10 genes that contain at least one of the searchwords in their Ensembl or external reference description.
 
 #### Query Ensembl for genes from any of the 236 species databases found [here](http://ftp.ensembl.org/pub/release-105/mysql/), e.g. a specific mouse strain.   
-Jupyter Lab:
-```python
-search("brain", "mus_musculus_cbaj_core_105_1")
-```
 
-Terminal:
-```
+```python
+# Jupyter Lab / Google Colab:
+search("brain", "mus_musculus_cbaj_core_105_1")
+
+# Terminal 
 $ gget search -sw brain -s mus_musculus_cbaj_core_105_1 
 ```
 &rarr; Returns genes from the CBA/J mouse strain that contain the searchword in their Ensembl or external reference description.
@@ -227,26 +230,39 @@ For Jupyter Lab / Google Colab: `save=True` will save the output to the current 
 
 ### gget spy EXAMPLES
 #### Look up a list of Ensembl IDs
-Jupyter Lab / Google Colab:
-```python
-spy(["ENSG00000034713, ENSG00000104853, ENSG00000170296"])
-```
 
-Terminal:
-```
+```python
+# Jupyter Lab / Google Colab:
+spy(["ENSG00000034713", "ENSG00000104853", "ENSG00000170296"])
+
+# Terminal 
 $ gget spy -id ENSG00000034713, ENSG00000104853, ENSG00000170296
 ```
 &rarr; Returns a json containing information about each ID, amongst others the common name, description, and corresponding transcript/gene, in the format:
-
-#ADD spy OUTPUT!!!
-
+```
+{
+            "Ensembl ID": {
+                        "species": genus_species,
+                        "object_type": e.g. Gene,
+                        "biotype": e.g. protein_coding,
+                        "canonical_transcript": Transcript ID,
+                        "display_name": copmmon gene name,
+                        "description": Ensemble description,
+                        "assembly_name": Name of species assmebly,
+                        "seq_region_name": Sequence region,
+                        "start": Sequence start position,
+                        "end": Sequence end position,
+                        "strand": strand
+                        },
+}
+```
 #### Look up one Ensembl ID and include sequence, homology information and external reference description
-Jupyter Lab / Google Colab:
+
 ```python
+# Jupyter Lab / Google Colab:
 spy("ENSG00000034713", seq=True, homology=True, xref=True)
-```
-Terminal:
-```
+
+# Terminal 
 $ gget spy -id ENSG00000034713 -seq -H -x
 ```
 &rarr; Returns a json containing the sequence, homology information, and external reference description of each ID in addition to the standard information mentioned above.
