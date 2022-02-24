@@ -9,7 +9,7 @@ Fetch genome references (GTF and FASTAs) from the [Ensembl FTP site](http://ftp.
 - [**gget search**](#gget-search)   
 Query [Ensembl](https://www.ensembl.org/) for genes from a defined species using free form search words.
 - [**gget lookup**](#gget-lookup)  
-Look up gene or transcript Ensembl IDs for their common name, description, sequence, homologs, synonyms, corresponding transcript/gene and more from the Ensembl database as well as external references.
+Look up gene or transcript Ensembl IDs for their common name, description, sequence, homologs, synonyms, corresponding transcript/gene and more.
 
 ## Installation
 ```
