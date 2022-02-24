@@ -1,4 +1,5 @@
 # Examples
+> :warning: **EXAMPLES NOT YET UPDATED FOR v0.0.5**
 
 ## gget FetchTP usage examples
 
