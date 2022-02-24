@@ -223,7 +223,6 @@ def gget(searchwords, species, limit=None, save=False):
     # Return data frame
     return df
 
-
 def ref_species_options(release, which):
     """
     Function to find all available species for gget ref.
@@ -538,7 +537,6 @@ def ref(species, which="all", release=None, FTP=False, save=False):
 
         print(f"Fetching from Ensembl release: {ENS_rel}")
         return results
-        
     
 def main():
     """
@@ -700,8 +698,7 @@ def main():
             else:
                 print(" ".join(ref_results))
                 print("To save these results, use flag '-o' in the format: '-o path/to/directory/results.txt'.")
-        
-        
+             
         # Print or save json file
         else:
             import json
