@@ -8,7 +8,7 @@ gget features 3 main functionalities:
 Fetch genome references (GTF and FASTAs) from the [Ensembl FTP site](http://ftp.ensembl.org/pub/) for a specific species and release.
 - [**gget search**](#gget-search)   
 Query [Ensembl](https://www.ensembl.org/) for genes from a defined species using free form search words.
-- [**gget spy**](#gget-spy)
+- [**gget spy**](#gget-spy)  
 Look up gene or transcript Ensembl IDs for their common name, description, sequence, homologs, synonyms, corresponding transcript/gene and more.
 
 ## Installation
