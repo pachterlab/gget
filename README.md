@@ -1,56 +1,83 @@
 # gget (gene-get)
-[![pypi version](https://img.shields.io/pypi/v/gget)](https://pypi.org/project/gget/0.0.4/)
+[![pypi version](https://img.shields.io/pypi/v/gget)](https://pypi.org/project/gget/0.0.5/)
 [![license](https://img.shields.io/pypi/l/gget)](LICENSE)
 [![DOI](https://zenodo.org/badge/458943224.svg)](https://zenodo.org/badge/latestdoi/458943224)
 
-Query [Ensembl](https://www.ensembl.org/) for genes using free form search words (gget **search**) or fetch FTP download links by species (gget **FetchTP**).
+gget features 3 main functionalities:  
+- [**gget ref**](#gget-ref)  
+Fetch genome references (GTF and FASTAs) from the [Ensembl FTP site](http://ftp.ensembl.org/pub/) for a specific species and release.
+- [**gget search**](#gget-search)   
+Query [Ensembl](https://www.ensembl.org/) for genes from a defined species using free form search words.
+- [**gget lookup**](#gget-lookup)  
+Look up gene or transcript Ensembl IDs for their common name, description, sequence, homologs, synonyms, corresponding transcript/gene and more from the Ensembl database as well as external references.
 
 ## Installation
 ```
 pip install gget
 ```
 
-For use in Jupyter Lab:
+For use in Jupyter Lab / Google Colab:
 ```python
-from gget import gget, fetchtp
+from gget import ref, search, lookup
 ```
 
-## gget FetchTP 
+## gget ref
+Function to fetch GTF and FASTA (cDNA and DNA) URLs from the [Ensembl FTP site](http://ftp.ensembl.org/pub/). Returns a dictionary/json containing the requested URLs with their respective Ensembl version and release date and time.
 
-### Fetch GTF, DNA, and cDNA FTP links for a specific species
+### Options
+`-s` `--species`  
+Species for which the FTPs will be fetched in the format genus_species, e.g. homo_sapiens.
 
-Jupyter Lab:
+`-w` `--which`  
+Defines which results to return. Possible entries are:
+'all' - Returns GTF, cDNA, and DNA links and associated info (default). 
+Or one or a combination of the following:
+'gtf' - Returns the GTF FTP link and associated info.
+'cdna' - Returns the cDNA FTP link and associated info.
+'dna' - Returns the DNA FTP link and associated info.
+
+`-r` `--release`  
+Ensemble release the FTPs will be fetched from, e.g. 104 (default: None &rarr; uses latest Ensembl release).
+
+`-ftp` `--ftp`  
+If True: returns only a list containing the requested FTP links (default: False).
+
+`-o` `--out`  
+Path to the file the results will be saved in, e.g. path/to/directory/results.json (default: None &rarr; just prints results).  
+For Jupyter Lab / Google Colab: `save=True` will save the output to the current working directory.
+
+### gget ref EXAMPLES
+#### Fetch GTF, DNA, and cDNA FTP links for a specific species
+Jupyter Lab / Google Colab:
 ```python
-fetchtp("genus_species")
+ref("homo_sapiens")
 ```
 
 Terminal:
 ```
-gget fetchtp -sp genus_species
+$ gget ref -s homo_sapiens
 ```
-where `genus_species` defines the species for which the FTPs are fetched, e.g. `homo_sapiens`.
-
-This returns a json with the GTF, DNA, and cDNA links, their respective release dates and time, and the Ensembl release from which the links were fetched in the format:
-```python
+&rarr; Returns a json with the latest human reference genome GTF, DNA, and cDNA links, their respective release dates and time, and the Ensembl release from which the links were fetched, in the format:
+```
 {
             species: {
-                "transcriptome": {
+                "transcriptome_cdna": {
                     "ftp": cDNA FTP download URL,
-                    "ensembl_release": Ensembl release #,
+                    "ensembl_release": Ensembl release,
                     "release_date": Day-Month-Year,
                     "release_time": HH:MM,
                     "bytes": cDNA FTP file size in bytes
                 },
-                "genome": {
+                "genome_dna": {
                     "ftp": DNA FTP download URL,
-                    "ensembl_release": Ensembl release #,
+                    "ensembl_release": Ensembl release,
                     "release_date": Day-Month-Year,
                     "release_time": HH:MM,
                     "bytes": DNA FTP file size in bytes
                 },
-                "annotation": {
+                "annotation_gtf": {
                     "ftp": GTF FTP download URL,
-                    "ensembl_release": Ensembl release #,
+                    "ensembl_release": Ensembl release,
                     "release_date": Day-Month-Year,
                     "release_time": HH:MM,
                     "bytes": GTF FTP file size in bytes
@@ -59,48 +86,75 @@ This returns a json with the GTF, DNA, and cDNA links, their respective release 
         }
 ```
 
-### Fetch GTF, DNA, and cDNA FTP links for a specific species from a specific Ensembl release
+#### Fetch GTF, DNA, and cDNA FTP links for a specific species from a specific Ensembl release
 For example, for Ensembl release 104:  
-Jupyter Lab:
+Jupyter Lab / Google Colab:
 ```python
-fetchtp("genus_species", release=104)
+ref("homo_sapiens", release=104)
 ```
 
 Terminal:
 ```
-gget fetchtp -sp genus_species -r 104
+$ gget ref -s homo_sapiens -r 104
 ```
-where the parameter `release` / `-r` defines the Ensembl release from which the FTPs are fetched. By default, the latest release is used.
+&rarr; Returns a json with the human reference genome GTF, DNA, and cDNA links, and their respective release dates and time, from Ensembl release 104
 
-### Fetch only one type of link for a specific species 
-
-Jupyter Lab:
+#### Save the results
+Jupyter Lab / Google Colab:
 ```python
-fetchtp("genus_species", return_val="gtf")
+ref("homo_sapiens", save=True)
 ```
 
 Terminal:
 ```
-gget fetchtp -sp genus_species -rv gtf
+$ gget ref -s homo_sapiens -o path/to/directory/ref_results.json
 ```
-where `return_val="gtf"` /  `-rv gtf` alters the return value from the default `json` such that only the annotation (GTF) download link for the defined species is returned. Alternative entries for `return_val` / `-rv` are `dna` or `cdna`, which return only the genome (DNA) or the transcriptome (cDNA) download links, respectively.
+&rarr; Saves the results in path/to/directory/ref_results.json.  
+For Jupyter Lab / Google Colab: Saves the results in a json file named ref_results.json in the current working directory.
 
-Both `gget fetchtp` and `gget search` take a `-o path/to/directory/` argument that specifies which directory the output files should be saved to (by default, the files are saved in the current working directory). In Jupyter Lab, the files can be saved in the current working directory by defining `save=True`.
+#### Fetch only certain types of links for a specific species 
+Jupyter Lab / Google Colab:
+```python
+ref("homo_sapiens", which=["gtf", "dna"])
+```
+
+Terminal:
+```
+$ gget ref -s homo_sapiens -w gtf, dna
+```
+&rarr; Returns only the links to the latest human reference GTF and DNA files, in this order, in a space-separated list (terminal), or comma-separated list (Jupyter Lab / Google Colab).    
+For Jupyter Lab / Google Colab: Combining this command with `save=True`, will save the results in a text file named ref_results.txt in the current working directory.
 
 ## gget search 
-> :warning: **gget search currently only supports genes listed in the Ensembl core API, which includes limited external references.** Manually searching the [Ensembl website](https://uswest.ensembl.org/index.html) might yield more results.
+> :warning: **gget search currently only supports genes listed in the Ensembl core API, which includes limited external references.** Manually searching the [Ensembl website](https://uswest.ensembl.org/) might yield more results.
 
-### Query Ensembl for genes from a specific species using multiple searchwords
-Jupyter Lab:
+### Options
+`-sw` `--searchwords`  
+One or more free form searchwords for the query, e.g. gaba, nmda. Searchwords are not case-sensitive.
+
+`-s` `--species`  
+Species or database to be searched.  
+Species can be passed in the format 'genus_species', e.g. 'homo_sapiens'. To pass a specific CORE database (e.g. a specific mouse strain), enter the name of the CORE database, e.g. 'mus_musculus_dba2j_core_105_1'. All availabale species databases can be found here: http://ftp.ensembl.org/pub/release-105/mysql/
+
+`-l` `--limit`  
+Limits the number of search results to the top `[limit]` genes found.
+
+`-o` `--out`  
+Path to the file the results will be saved in, e.g. path/to/directory/results.csv (default: None &rarr; just prints results).  
+For Jupyter Lab / Google Colab: `save=True` will save the output to the current working directory.
+
+### gget search EXAMPLES
+#### Query Ensembl for genes from a specific species using multiple searchwords
+Jupyter Lab / Google Colab:
 ```python
-gget(["searchword1", "searchword2", "searchword3"], "genus_species")
+search(["gaba", "gamma-aminobutyric acid"], "homo_sapiens")
 ```
 
 Terminal:
 ```
-gget search -sw searchword1 searchword2 searchword3 -sp genus_species
+$ gget search -sw gaba, gamma-aminobutyric acid -s homo_sapiens
 ```
-where `-sw` is followed by one or more **searchwords separated by a space**. For Jupyter lab, the searchwords are passed as a list of strings (or a single string for one searchword).
+&rarr; 
 
 ### Query Ensembl for genes from a specific species using a single searchword
 Jupyter Lab:
