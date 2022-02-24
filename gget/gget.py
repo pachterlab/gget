@@ -1,23 +1,140 @@
-# Packages for gget
+# Packages for gget search
 import pandas as pd
 import mysql.connector as sql
 import time
 
-# Packages for ftpget
+# Packages for ref
 from bs4 import BeautifulSoup
 import requests
 import re
 import numpy as np
+import json
 
 # Packages for use from terminal
 import argparse
 import sys
 import os
 
+def rest_query(server, query, content_type):
+    """
+    Function to query a 
+
+    Parameters:
+    - server
+    Serve to query.
+    - Query
+    Query that is passed to server.
+    - content_type
+    Contect type requested from server.
+
+    Returns server output.
+    """
+
+    r = requests.get(
+        server + query, 
+        headers={ "Content-Type" : content_type}
+    )
+
+    if not r.ok:
+        r.raise_for_status()
+        sys.exit()
+
+    if content_type == 'application/json':
+        return r.json()
+    else:
+        return r.text
+
+def lookup(ens_ids, seq=False, homology=False, xref=False, save=False):
+    """
+    Looks up information about Ensembl IDs.
+
+    Parameters:
+    - ens_ids
+    One or more Ensembl IDs to look up (passed as string or list of strings).
+    - seq
+    If True, returns bp sequence of gene (or parent gene if transcript ID passed) (default: False).
+    - homology
+    If True, returns homology information of ID (default: False).
+    - xref
+    If True, returns information from external references (default: False).
+    -save
+    If True, saves json with query results in current working directory.
+
+    Returns a dictionary/json file containing the requested information about the Ensembl IDs.
+    """
+    # Define Ensembl REST API server
+    server = "http://rest.ensembl.org/"
+    # Define type of returned content from REST
+    content_type = "application/json"
+
+    master_dict = {}
+
+    # If single Ensembl ID passed as string, convert to list
+    if type(ens_ids) == str:
+        ens_ids = [ens_ids]
+
+    # Query REST APIs from https://rest.ensembl.org/
+    for ensembl_ID in ens_ids:
+        # Create dict to save query results
+        results_dict = {ensembl_ID:{}}
+
+        ## lookup/id/ query: Find the species and database for a single identifier 
+        # Define the REST query
+        query = "lookup/id/" + ensembl_ID + "?"
+        # Submit query
+        df_temp = rest_query(server, query, content_type)
+        # Delete superfluous entries
+        del df_temp["version"], df_temp["source"], df_temp["db_type"], df_temp["logic_name"]
+
+        # Add results to main dict
+        results_dict[ensembl_ID].update(df_temp)
+
+        ## sequence/id/ query: Request sequence by stable identifier
+        if seq == True:
+            # Define the REST query
+            query = "sequence/id/" + ensembl_ID + "?"
+            # Submit query
+            df_temp = rest_query(server, query, content_type)
+
+            # Add results to main dict
+            results_dict[ensembl_ID].update({"seq":df_temp["seq"]})
+
+        ## homology/id/ query: Retrieves homology information (orthologs) by Ensembl gene id
+        if homology == True:
+            # Define the REST query
+            query = "homology/id/" + ensembl_ID + "?"
+            # Submit query
+            df_temp = rest_query(server, query, content_type)
+
+            # Add results to main dict
+            results_dict[ensembl_ID].update({"homology":df_temp["data"][0]["homologies"]})
+
+        ## xrefs/id/ query: Retrieves external reference information by Ensembl gene id
+        if xref == True:
+            # Define the REST query
+            query = "xrefs/id/" + ensembl_ID + "?"
+            # Submit query
+            df_temp = rest_query(server, query, content_type)
+
+            # Add results to main dict
+            results_dict[ensembl_ID].update({"xrefs":df_temp})
+    
+        # Add results to master dict
+        master_dict.update(results_dict)
+
+    # Save
+    if save == True:
+        with open('lookup.json', 'w', encoding='utf-8') as f:
+            json.dump(master_dict, f, ensure_ascii=False, indent=4)
+
+    # Return dictionary containing results
+    return master_dict   
+
 def gget_species_options(release=105):
     """
     Function to find all available species core databases for gget.
 
+    Parameters:
     - release
     Ensembl release for which the databases are fetched.
 
@@ -36,7 +153,7 @@ def gget_species_options(release=105):
     
     return databases
 
-def gget(searchwords, species, limit=None, save=False):
+def search(searchwords, species, limit=None, save=False):
     """
     Function to query Ensembl for genes based on species and free form search terms. 
     
@@ -46,17 +163,14 @@ def gget(searchwords, species, limit=None, save=False):
     (e.g.searchwords = ["GABA", "gamma-aminobutyric acid"]).
     All results that contain at least one of the search terms are returned.
     The search is not case-sensitive.
-    
     - species
     Species or database. 
     Species can be passed in the format 'genus_species', e.g. 'homo_sapiens'.
     To pass a specific database (e.g. specific mouse strain),
     enter the name of the core database without "/", e.g. 'mus_musculus_dba2j_core_105_1'. 
     All availabale species databases here: http://ftp.ensembl.org/pub/release-105/mysql/
-    
     - limit
     "Limit" limits the number of search results to the top {limit} genes found.
-    
     - save
     If "save=True", the data frame is saved as a csv in the current directory.
     
@@ -103,7 +217,7 @@ def gget(searchwords, species, limit=None, save=False):
     else:
         db = db[0]
         
-    print(f"Results fetched from database: {db}")
+    print(f"Fetching results from database: {db}")
 
     ## Connect to data base
     db_connection = sql.connect(host='ensembldb.ensembl.org', 
@@ -117,100 +231,60 @@ def gget(searchwords, species, limit=None, save=False):
         searchwords = [searchwords]
     
     ## Find genes
-    # For human and mouse, the gene name is saved in gene_attrib.value where gene_attrib.attrib_type_id = 4
-    if db == "homo_sapiens_core_105_38" or db == "mus_musculus_core_105_39":
-        for i, searchword in enumerate(searchwords):
-            # If limit is specified, fetch only the first {limit} genes for which the searchword appears in the description
-            if limit != None:
-                query = f"""
-                SELECT gene.stable_id, gene_attrib.value, gene.description, xref.description, gene.biotype
-                FROM gene
-                LEFT JOIN xref ON gene.display_xref_id = xref.xref_id
-                LEFT JOIN gene_attrib ON gene.gene_id = gene_attrib.gene_id
-                WHERE (gene_attrib.attrib_type_id = 4) 
-                AND (gene_attrib.value LIKE '%{searchword}%' OR 
-                gene.description LIKE '%{searchword}%' OR 
-                xref.description LIKE '%{searchword}%')
-                LIMIT {limit}
-                """
-            # Else, fetch all genes for which the searchword appears in the description
-            else:
-                query = f"""
-                SELECT gene.stable_id, gene_attrib.value, gene.description, xref.description, gene.biotype
-                FROM gene
-                LEFT JOIN xref ON gene.display_xref_id = xref.xref_id
-                LEFT JOIN gene_attrib ON gene.gene_id = gene_attrib.gene_id
-                WHERE (gene_attrib.attrib_type_id = 4) 
-                AND (gene_attrib.value LIKE '%{searchword}%' OR 
-                gene.description LIKE '%{searchword}%' OR 
-                xref.description LIKE '%{searchword}%')
-                """
+    for i, searchword in enumerate(searchwords):
+        # If limit is specified, fetch only the first {limit} genes for which the searchword appears in the description
+        if limit != None:
+            query = f"""
+            SELECT gene.stable_id, gene.description, xref.description, gene.biotype
+            FROM gene
+            LEFT JOIN xref ON gene.display_xref_id = xref.xref_id
+            WHERE (gene.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%')
+            LIMIT {limit}
+            """
+        # Else, fetch all genes for which the searchword appears in the description
+        else:
+            query = f"""
+            SELECT gene.stable_id, gene.description, xref.description, gene.biotype
+            FROM gene
+            LEFT JOIN xref ON gene.display_xref_id = xref.xref_id
+            WHERE (gene.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%')
+            """
 
-            # Fetch the search results form the host using the specified query
-            df_temp = pd.read_sql(query, con=db_connection)
-            # Order by ENSEMBL ID (I am using pandas for this instead of SQL to increase speed)
-            df_temp = df_temp.sort_values("stable_id").reset_index(drop=True)
+        # Fetch the search results form the host using the specified query
+        df_temp = pd.read_sql(query, con=db_connection)
+        # Order by ENSEMBL ID (I am using pandas for this instead of SQL to increase speed)
+        df_temp = df_temp.sort_values("stable_id").reset_index(drop=True)
 
-            # In the first iteration, make the search results equal to the master data frame
-            if i == 0:
-                df = df_temp.copy()
-            # Add new search results to master data frame
-            else:
-                df = pd.concat([df, df_temp])
+        # In the first iteration, make the search results equal to the master data frame
+        if i == 0:
+            df = df_temp.copy()
+        # Add new search results to master data frame
+        else:
+            df = pd.concat([df, df_temp])
 
-        # Rename columns
-        df = df.rename(columns={"stable_id": "Ensembl_ID", 
-                                "value": "Gene_name",
-                                "biotype": "Biotype"})
-        # Changing description columns name by column index since they were returned with the same name ("description")
-        df.columns.values[2] = "Ensembl_description"
-        df.columns.values[3] = "Ext_ref_description"
-        
-    # For other species, the gene name will not be fetched      
-    else: 
-        for i, searchword in enumerate(searchwords):
-            # If limit is specified, fetch only the first {limit} genes for which the searchword appears in the description
-            if limit != None:
-                query = f"""
-                SELECT gene.stable_id, gene.description, xref.description, gene.biotype
-                FROM gene
-                LEFT JOIN xref ON gene.display_xref_id = xref.xref_id
-                WHERE (gene.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%')
-                LIMIT {limit}
-                """
-            # Else, fetch all genes for which the searchword appears in the description
-            else:
-                query = f"""
-                SELECT gene.stable_id, gene.description, xref.description, gene.biotype
-                FROM gene
-                LEFT JOIN xref ON gene.display_xref_id = xref.xref_id
-                WHERE (gene.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%')
-                """
+    # Rename columns
+    df = df.rename(columns={"stable_id": "Ensembl_ID", 
+                            "biotype": "Biotype"})
+    # Changing description columns name by column index since they were returned with the same name ("description")
+    df.columns.values[1] = "Ensembl_description"
+    df.columns.values[2] = "Ext_ref_description"
 
-            # Fetch the search results form the host using the specified query
-            df_temp = pd.read_sql(query, con=db_connection)
-            # Order by ENSEMBL ID (I am using pandas for this instead of SQL to increase speed)
-            df_temp = df_temp.sort_values("stable_id").reset_index(drop=True)
-
-            # In the first iteration, make the search results equal to the master data frame
-            if i == 0:
-                df = df_temp.copy()
-            # Add new search results to master data frame
-            else:
-                df = pd.concat([df, df_temp])
-
-        # Rename columns
-        df = df.rename(columns={"stable_id": "Ensembl_ID", 
-                                "biotype": "Biotype"})
-        # Changing description columns name by column index since they were returned with the same name ("description")
-        df.columns.values[1] = "Ensembl_description"
-        df.columns.values[2] = "Ext_ref_description"
-    
-    # Add URL to gene summary on Ensembl
-    df["URL"] = "https://uswest.ensembl.org/" + "_".join(db.split("_")[:2]) + "/Gene/Summary?g=" + df["Ensembl_ID"]
-    
     # Remove any duplicate search results from the master data frame and reset the index
     df = df.drop_duplicates().reset_index(drop=True)
+
+    # Find name of gene using lookup function and add to df
+    gene_names = []
+    for ens_id in df["Ensembl_ID"].values:
+        try:
+            gene_names.append(lookup(ens_id)[ens_id]["display_name"])
+        # If no gene name is found, add "None" instead
+        except KeyError:
+            gene_names.append(None)
+    # Add gene names to df
+    df["Gene_name"] = gene_names
+
+    # Add URL to gene summary on Ensembl
+    df["URL"] = "https://uswest.ensembl.org/" + "_".join(db.split("_")[:2]) + "/Gene/Summary?g=" + df["Ensembl_ID"]
     
     # Print query time and number of genes fetched
     print(f"Query time: {round(time.time() - start_time, 2)} seconds")
@@ -223,13 +297,14 @@ def gget(searchwords, species, limit=None, save=False):
     # Return data frame
     return df
 
+
 def ref_species_options(release, which):
     """
     Function to find all available species for gget ref.
 
+    Parameters:
     - release
     Ensembl release for which available species should be fetched.
-
     - which
     Which type of FTP. Possible entries: 'dna', 'cdna', 'gtf'.
 
@@ -261,7 +336,6 @@ def ref(species, which="all", release=None, FTP=False, save=False):
     - species
     Defines the species for which the files should be fetched in the format "<genus>_<species>", 
     e.g.species = "homo_sapiens".
-
     - which
     Defines which results to return. Possible entries are:
     "all" - Returns all links (default).
@@ -269,15 +343,12 @@ def ref(species, which="all", release=None, FTP=False, save=False):
     "gtf" - Returns the GTF FTP link and associated information.
     "cdna" - Returns the cDNA FTP link and associated information.
     "dna" - Returns the DNA FTP link and associated information.
-    
     - release
     Defines the Ensembl release number from which the files are fetched, e.g. release = 104.
     (Ensembl releases earlier than release 48 are not suupported.)
     By default, the latest Ensembl release is used.
-
     - FTP
     If True, returns a list containing only the requested URLs instead of the comprehensive json/dictionary.
-    
     - save
     If "save=True", the json containing all results is saved in the current directory. Only works if "returnval='json'".
 
@@ -505,7 +576,6 @@ def ref(species, which="all", release=None, FTP=False, save=False):
                 raise ValueError("Parameter 'which' must be 'all', or any one or a combination of the following: 'gtf', 'cdna', 'dna'.")
 
         if save == True:
-            import json
             with open('ref.json', 'w', encoding='utf-8') as f:
                 json.dump(ref_dict, f, ensure_ascii=False, indent=4)
 
@@ -537,7 +607,7 @@ def ref(species, which="all", release=None, FTP=False, save=False):
 
         print(f"Fetching from Ensembl release: {ENS_rel}")
         return results
-    
+ 
 def main():
     """
     Function containing argparse parsers and arguments to allow the use of gget from the terminal.
@@ -555,17 +625,68 @@ def main():
             help='Print debug info'
         )
 
+    # gget lookup subparser
+    parser_lookup = parent_subparsers.add_parser(
+        "lookup",
+        parents=[parent],
+        description="Look up information about Ensembl IDs.", 
+        add_help=False
+        )
+    # Lookup parser arguments
+    parser_lookup.add_argument(
+        "-id", "--ens_ids", 
+        type=str, 
+        required=True, 
+        metavar="",    # Cleans up help message
+        help="One or more Ensembl IDs."
+    )
+    parser_lookup.add_argument(
+        "-seq", "--seq",
+        default=False, 
+        action='store_true',
+        required=False, 
+        metavar="",
+        help="Returns bp sequence of gene (or parent gene if transcript ID passed) (default: False)."
+    )
+    parser_lookup.add_argument(
+        "-H", "--homology",
+        default=False, 
+        action='store_true',
+        required=False, 
+        metavar="",
+        help="Returns homology information of ID (default: False)."
+    )
+    parser_lookup.add_argument(
+        "-x", "--xref",
+        default=False, 
+        action='store_true',
+        required=False, 
+        metavar="",
+        help="Returns information from external references (default: False)."
+    )
+    parser_lookup.add_argument(
+        "-o", "--out",
+        type=str,
+        required=False,
+        help=(
+            "Path to the json file the results will be saved in, e.g. path/to/directory/results.json." 
+            "Default: None (just prints results)."
+        )
+    )
+
     # gget search subparser
-    parser_gget = parent_subparsers.add_parser("search",
-                                               parents=[parent],
-                                               description="Query Ensembl for genes based on species and free form search terms.", 
-                                               add_help=False)
-    # Search arguments
+    parser_gget = parent_subparsers.add_parser(
+        "search",
+         parents=[parent],
+         description="Query Ensembl for genes based on species and free form search terms.", 
+         add_help=False
+         )
+    # Search parser arguments
     parser_gget.add_argument(
         "-sw", "--searchwords", 
         type=str, 
         required=True, 
-        metavar="",    # Cleans up help message
+        metavar="",  
         help="One or more free form searchwords for the query (if more than one: use space between searchwords), e.g. gaba nmda."
     )
     parser_gget.add_argument(
@@ -592,13 +713,14 @@ def main():
         )
     )
 
-
     # gget ref subparser
-    parser_ref = parent_subparsers.add_parser("ref",
-                                              parents=[parent],
-                                              description="Fetch FTP links for a specific species from Ensemble.",
-                                              add_help=False)
-    # ref arguments
+    parser_ref = parent_subparsers.add_parser(
+        "ref",
+        parents=[parent],
+        description="Fetch FTP links for a specific species from Ensemble.",
+        add_help=False
+        )
+    # ref parser arguments
     parser_ref.add_argument(
         "-s", "--species", 
         type=str,
@@ -652,18 +774,39 @@ def main():
 
     args = parent_parser.parse_args()
 
-    ## Define return values
-    # debug return
+    ### Define return values
+    ## Debug return
     if args.debug:
         print("debug: " + str(args))
+
+    ## lookup return
+    if args.command == "lookup":
+
+        # Clean up args.ens_ids
+        ens_ids_clean = [x.strip() for x in args.ens_ids.split(',').split(' ')]
+
+        # Look up requested Ensembl IDs
+        lookup_results = lookup(ens_ids_clean, args.seq, args.homology, args.xref)
+
+        # Print or save json file
+        # Save in specified directory if -o specified
+        if args.out:
+            os.makedirs(args.out, exist_ok=True)
+            with open(args.out, 'w', encoding='utf-8') as f:
+                json.dump(lookup_results, f, ensure_ascii=False, indent=4)
+            print(f"Results saved as {args.out}.")
+        # Print results if no directory specified
+        else:
+            print(json.dumps(lookup_results, ensure_ascii=False, indent=4))
+            print("To save these results, use flag '-o' in the format: '-o path/to/directory/results.json'.")
         
-    # search return
+    ## search return
     if args.command == "search":
         # Clean up args.searchwords
         sw_clean = [x.strip() for x in args.searchwords.split(',').split(' ')]
 
-        # Query Ensembl for genes based on species and searchwords using function gget
-        gget_results = gget(sw_clean, args.species, args.limit)
+        # Query Ensembl for genes based on species and searchwords using function search
+        gget_results = search(sw_clean, args.species, args.limit)
         
         # Save in specified directory if -o specified
         if args.out:
@@ -676,7 +819,7 @@ def main():
             print(gget_results)
             print("To save these results, use flag '-o' in the format: '-o path/to/directory/results.csv'.")
             
-    # ref return
+    ## ref return
     if args.command == "ref":
 
         # Clean up args.which
@@ -698,10 +841,10 @@ def main():
             else:
                 print(" ".join(ref_results))
                 print("To save these results, use flag '-o' in the format: '-o path/to/directory/results.txt'.")
-             
+        
+        
         # Print or save json file
         else:
-            import json
             # Save in specified directory if -o specified
             if args.out:
                 os.makedirs(args.out, exist_ok=True)
