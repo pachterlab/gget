@@ -241,7 +241,7 @@ For Jupyter Lab / Google Colab: `save=True` will save the output to the current 
 #### Look up a list of Ensembl IDs
 Jupyter Lab / Google Colab:
 ```python
-spy(["ENSG00000034713, ENSG00000104853, ENSG00000170296"])
+spy(["ENSG00000034713", "ENSG00000104853", "ENSG00000170296"])
 ```
 
 Terminal:
