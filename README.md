@@ -97,7 +97,7 @@ Terminal:
 ```
 $ gget ref -s homo_sapiens -r 104
 ```
-&rarr; Returns a json with the human reference genome GTF, DNA, and cDNA links, and their respective release dates and time, from Ensembl release 104
+&rarr; Returns a json with the human reference genome GTF, DNA, and cDNA links, and their respective release dates and time, from Ensembl release 104.
 
 #### Save the results
 Jupyter Lab / Google Colab:
@@ -122,7 +122,19 @@ Terminal:
 ```
 $ gget ref -s homo_sapiens -w gtf, dna
 ```
-&rarr; Returns only the links to the latest human reference GTF and DNA files, in this order, in a space-separated list (terminal), or comma-separated list (Jupyter Lab / Google Colab).    
+&rarr; Returns a dictionary/json containing the latest human reference GTF and DNA files, in this order, and their respective release dates and time.    
+
+#### Fetch only certain types of links for a specific species and return only the links
+Jupyter Lab / Google Colab:
+```python
+ref("homo_sapiens", which=["gtf", "dna"], ftp=True)
+```
+
+Terminal:
+```
+$ gget ref -s homo_sapiens -w gtf, dna -ftp
+```
+&rarr; Returns only the links (wihtout additional information) to the latest human reference GTF and DNA files, in this order, in a space-separated list (terminal), or comma-separated list (Jupyter Lab / Google Colab).    
 For Jupyter Lab / Google Colab: Combining this command with `save=True`, will save the results in a text file named ref_results.txt in the current working directory.
 
 #### [Click here for more examples](https://github.com/lauraluebbert/gget/tree/main/examples)
