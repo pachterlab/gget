@@ -9,8 +9,10 @@ import requests
 import re
 import numpy as np
 
+# Packages for use from terminal
 import argparse
 import sys
+import os
 
 def gget(searchwords, species, limit=None, save=False):
     """
@@ -168,7 +170,7 @@ def gget(searchwords, species, limit=None, save=False):
     
     return df
 
-def ref(species, which="json", release=None, save=True):
+def ref(species, which="all", release=None, save=False, FTP=False):
     """
     Function to fetch GTF and FASTA (cDNA and DNA) files from the Ensemble FTP site.
     
@@ -178,11 +180,11 @@ def ref(species, which="json", release=None, save=True):
     e.g.species = "homo_sapiens".
     - which
     Defines which results to return. Possible entries are:
-    "json" - Returns all links in a dictionary format (default).
-    Or one or a combination (as a list of strings) of any of the following:  
-    "gtf" - Returns the GTF FTP link as a string.
-    "cdna" - Returns the cDNA FTP link as a string.
-    "dna" - Returns the DNA FTP link as a string.
+    "all" - Returns all links (default).
+    Or one or a combination (as a list of strings) of the following:  
+    "gtf" - Returns the GTF FTP link and associated information.
+    "cdna" - Returns the cDNA FTP link and associated information.
+    "dna" - Returns the DNA FTP link and associated information.
     
     - release
     Defines the Ensembl release number from which the files are fetched, e.g. release = 104.
@@ -322,35 +324,78 @@ def ref(species, which="json", release=None, save=True):
         which = [which]
     
     ## Return results
-    # Return single results
-    if len(which) == 1:
-        if which == ["json"]:
-            print(f"Fetching from Ensembl release: {ENS_rel}")
-            ref_dict = {
-                species: {
-                    "transcriptome": {
-                        "ftp":cdna_url,
-                        "ensembl_release": int(ENS_rel),
-                        "release_date": cdna_date.split(" ")[0],
-                        "release_time": cdna_date.split(" ")[1],
-                        "bytes": cdna_size
-                    },
-                    "genome": {
-                        "ftp":dna_url,
-                        "ensembl_release": int(ENS_rel),
-                        "release_date": dna_date.split(" ")[0],
-                        "release_time": dna_date.split(" ")[1],
-                        "bytes": dna_size
-                    },
-                    "annotation": {
+    if FTP == False:
+        # Single entry for which
+        if len(which) == 1:
+            if which == ["all"]:
+                ref_dict = {
+                    species: {
+                        "transcriptome": {
+                            "ftp":cdna_url,
+                            "ensembl_release": int(ENS_rel),
+                            "release_date": cdna_date.split(" ")[0],
+                            "release_time": cdna_date.split(" ")[1],
+                            "bytes": cdna_size
+                        },
+                        "genome": {
+                            "ftp":dna_url,
+                            "ensembl_release": int(ENS_rel),
+                            "release_date": dna_date.split(" ")[0],
+                            "release_time": dna_date.split(" ")[1],
+                            "bytes": dna_size
+                        },
+                        "annotation": {
+                            "ftp":gtf_url,
+                            "ensembl_release": int(ENS_rel),
+                            "release_date": gtf_date.split(" ")[0],
+                            "release_time": gtf_date.split(" ")[1],
+                            "bytes": gtf_size
+                        }
+                    }
+                }
+
+            elif which == ["gtf"]:
+                ref_dict = {
+                    species: {
+                        "annotation": {
                         "ftp":gtf_url,
                         "ensembl_release": int(ENS_rel),
                         "release_date": gtf_date.split(" ")[0],
                         "release_time": gtf_date.split(" ")[1],
                         "bytes": gtf_size
+                        }
                     }
                 }
-            }
+
+            elif which == ["cdna"]:
+                ref_dict = {
+                    species: {
+                        "transcriptome": {
+                            "ftp":cdna_url,
+                            "ensembl_release": int(ENS_rel),
+                            "release_date": cdna_date.split(" ")[0],
+                            "release_time": cdna_date.split(" ")[1],
+                            "bytes": cdna_size
+                        },
+                    }
+                }
+
+            elif which == ["dna"]:
+                ref_dict = {
+                    species: {
+                        "genome": {
+                            "ftp":dna_url,
+                            "ensembl_release": int(ENS_rel),
+                            "release_date": dna_date.split(" ")[0],
+                            "release_time": dna_date.split(" ")[1],
+                            "bytes": dna_size
+                        }
+                    }
+                }
+
+            else:
+                raise ValueError("Parameter 'which' must be 'json', or any one or a combination of the following: 'gtf', 'cdna', 'dna'.")
+
             if save == True:
                 import json
                 with open('ref.json', 'w', encoding='utf-8') as f:
@@ -358,41 +403,144 @@ def ref(species, which="json", release=None, save=True):
 
             return ref_dict
 
-        elif which == ["gtf"]:
-            print(f"Fetching from Ensembl release: {ENS_rel}")
-            print(f"GTF release date and time: {gtf_date}")
-            return gtf_url
-
-        elif which == ["cdna"]:
-            print(f"Fetching from Ensembl release: {ENS_rel}")
-            print(f"Transcriptome release date and time: {cdna_date}")
-            return cdna_url
-
-        elif which == ["dna"]:
-            print(f"Fetching from Ensembl release: {ENS_rel}")
-            print(f"Genome release date and time:{dna_date}")
-            return dna_url
-            
+        # Return multiple results
         else:
-            raise ValueError("Parameter 'which' must be 'json', or any one or a combination of the following: 'gtf', 'cdna', 'dna'.")
-                
-    # Return multiple results
-    else:
-        results = []
-        for return_val in which:
-            if return_val == "json":
-                raise ValueError("Parameter 'which' must be 'json', or any one or a combination of the following: 'gtf', 'cdna', 'dna'.")
-            elif return_val == "gtf":
-                results.append(gtf_url)
-            elif return_val == "cdna":
-                results.append(cdna_url)
-            elif return_val == "dna":
-                results.append(dna_url)
+            results = []
+            for return_val in which:
+                if return_val == "all":
+                    raise ValueError("Parameter 'which' must be 'all', or one or a combination of the following: 'gtf', 'cdna', 'dna'.")
+                elif return_val == "gtf":
+
+                    species: {
+                        "annotation": {
+                        "ftp":gtf_url,
+                        "ensembl_release": int(ENS_rel),
+                        "release_date": gtf_date.split(" ")[0],
+                        "release_time": gtf_date.split(" ")[1],
+                        "bytes": gtf_size
+                        }
+                    }
+                }
+                    results.append(gtf_url)
+                elif return_val == "cdna":
+                    results.append(cdna_url)
+                elif return_val == "dna":
+                    results.append(dna_url)
+                else:
+                    raise ValueError("Parameter 'which' must be 'all', or any one or a combination of the following: 'gtf', 'cdna', 'dna'.")
+
+            print(f"Fetching from Ensembl release: {ENS_rel}")
+            return results
+        
+    # Return only the URLs as a list (instead of a json) if FTP==True    
+    if FTP == True:
+        # Single entry for which
+        if len(which) == 1:
+            if which == ["all"]:
+                ref_dict = {
+                    species: {
+                        "transcriptome": {
+                            "ftp":cdna_url,
+                            "ensembl_release": int(ENS_rel),
+                            "release_date": cdna_date.split(" ")[0],
+                            "release_time": cdna_date.split(" ")[1],
+                            "bytes": cdna_size
+                        },
+                        "genome": {
+                            "ftp":dna_url,
+                            "ensembl_release": int(ENS_rel),
+                            "release_date": dna_date.split(" ")[0],
+                            "release_time": dna_date.split(" ")[1],
+                            "bytes": dna_size
+                        },
+                        "annotation": {
+                            "ftp":gtf_url,
+                            "ensembl_release": int(ENS_rel),
+                            "release_date": gtf_date.split(" ")[0],
+                            "release_time": gtf_date.split(" ")[1],
+                            "bytes": gtf_size
+                        }
+                    }
+                }
+
+            elif which == ["gtf"]:
+                ref_dict = {
+                    species: {
+                        "annotation": {
+                        "ftp":gtf_url,
+                        "ensembl_release": int(ENS_rel),
+                        "release_date": gtf_date.split(" ")[0],
+                        "release_time": gtf_date.split(" ")[1],
+                        "bytes": gtf_size
+                        }
+                    }
+                }
+
+            elif which == ["cdna"]:
+                ref_dict = {
+                    species: {
+                        "transcriptome": {
+                            "ftp":cdna_url,
+                            "ensembl_release": int(ENS_rel),
+                            "release_date": cdna_date.split(" ")[0],
+                            "release_time": cdna_date.split(" ")[1],
+                            "bytes": cdna_size
+                        },
+                    }
+                }
+
+            elif which == ["dna"]:
+                ref_dict = {
+                    species: {
+                        "genome": {
+                            "ftp":dna_url,
+                            "ensembl_release": int(ENS_rel),
+                            "release_date": dna_date.split(" ")[0],
+                            "release_time": dna_date.split(" ")[1],
+                            "bytes": dna_size
+                        }
+                    }
+                }
+
             else:
                 raise ValueError("Parameter 'which' must be 'json', or any one or a combination of the following: 'gtf', 'cdna', 'dna'.")
-                
-        print(f"Fetching from Ensembl release: {ENS_rel}")
-        return results
+
+            if save == True:
+                import json
+                with open('ref.json', 'w', encoding='utf-8') as f:
+                    json.dump(ref_dict, f, ensure_ascii=False, indent=4)
+
+            return ref_dict
+
+        # Return multiple results
+        else:
+            results = []
+            for return_val in which:
+                if return_val == "all":
+                    raise ValueError("Parameter 'which' must be 'all', or one or a combination of the following: 'gtf', 'cdna', 'dna'.")
+                elif return_val == "gtf":
+
+                    species: {
+                        "annotation": {
+                        "ftp":gtf_url,
+                        "ensembl_release": int(ENS_rel),
+                        "release_date": gtf_date.split(" ")[0],
+                        "release_time": gtf_date.split(" ")[1],
+                        "bytes": gtf_size
+                        }
+                    }
+                }
+                    results.append(gtf_url)
+                elif return_val == "cdna":
+                    results.append(cdna_url)
+                elif return_val == "dna":
+                    results.append(dna_url)
+                else:
+                    raise ValueError("Parameter 'which' must be 'all', or any one or a combination of the following: 'gtf', 'cdna', 'dna'.")
+
+            print(f"Fetching from Ensembl release: {ENS_rel}")
+            return results
+        
     
 def main():
     """
@@ -426,7 +574,7 @@ def main():
         help="One or more free form searchwords for the query (if more than one: use space between searchwords), e.g. gaba nmda."
     )
     parser_gget.add_argument(
-        "-sp", "--species",  
+        "-s", "--species",  
         required=True, 
         metavar="",
         help="Species to be queried, e.g. homo_sapiens or human."
@@ -439,20 +587,22 @@ def main():
     )
     parser_gget.add_argument(
         "-o", "--out",
-        default=False,
-        action='store_true',
-        help="Defines whether ouput csv files containing query results is saved in current working directory. Default: False (just prints results)"
+        type=str,
+        help=(
+            "Path to the csv file the results will be saved in, e.g. '-o path/to/directory/results.csv'." 
+            "Default: None (just prints results)."
+        )
     )
 
 
     # gget ref subparser
     parser_ref = parent_subparsers.add_parser("ref",
-                                                  parents=[parent],
-                                                  description="Fetch GTF and/or FASTA (cDNA and/or DNA) files for a specific species from the Ensemble FTP site.",
-                                                  add_help=False)
+                                              parents=[parent],
+                                              description="Fetch GTF and/or FASTA (cDNA and/or DNA) files for a specific species from the Ensemble FTP site.",
+                                              add_help=False)
     # ref arguments
     parser_ref.add_argument(
-        "-sp", "--species", 
+        "-s", "--species", 
         required=True,
         type=str,
         metavar="", 
@@ -460,21 +610,35 @@ def main():
     )
     parser_ref.add_argument(
         "-w", "--which", 
-        default="json", 
+        default="all", 
         nargs="*", 
         type=str,
         metavar="",
-        help=" Defines which results to return. Possible entries are: 'json' - Returns all links in a json/dictionary format (default). 'gtf' - Returns the GTF FTP link as a string. 'cdna' - Returns the cDNA FTP link as a string. 'dna' - Returns the DNA FTP link as a string.")
+        help=("Defines which results to return." 
+              "Possible entries are: 
+              "'all' - Returns GTF, cDNA, and DNA links and associated info (default)." 
+              "Or one or a combination of the following:"  
+              "'gtf' - Returns the GTF FTP link and associated info." 
+              "'cdna' - Returns the cDNA FTP link and associated info."
+              "'dna' - Returns the DNA FTP link and associated info."
+             )
     parser_ref.add_argument(
         "-r", "--release",  
         type=int, 
         metavar="",
         help="Ensemble release the FTPs will be fetched from, e.g. 104 (default: latest Ensembl release).")
     parser_ref.add_argument(
+        "-ftp", "--ftp",  
+        default=False, 
+        action='store_true'
+        help="If True: return only the FTP link instead of a json.")
+    parser_ref.add_argument(
         "-o", "--out",
-        default=False,
-        action="store_true",
-        help="Defines whether ouput json file is saved in current working directory (only works for '-rv json'). Default: False (just prints results)"
+        type=str,
+        help=(
+            "Path to the json file the results will be saved in, e.g. '-o path/to/directory/results.json'." 
+            "Default: None (just prints results)."
+        )
     )
     
     # Show help when no arguments are given
@@ -492,20 +656,28 @@ def main():
     # search return
     if args.command == "search":
         gget_results = gget(args.searchwords, args.species, args.limit)
-        # Print if '-o' flag not True
-        if args.out == False:
+        
+        # Save in specified directory if -o specified
+        if args.out:
+            os.makedirs(args.out, exist_ok=True)
+            gget_results.to_csv(args.out, index=False)
+            print(f"Results saved as {args.out}.")
+        
+        # Print results if no directory specified
+        else:
             print(gget_results)
-            print("To save these results in the current working directory, add the flag '-o'.")
-        # Save in current working directory if args.out=True
-        if args.out == True:
-            gget_results.to_csv("gget_results.csv", index=False)
-            print("Results saved in current working directory.")
+            print("To save these results, use flag '-o' in the format: '-o path/to/directory/results.csv'.")
             
     # ref return
     if args.command == "ref":
-        ref_results = ref(args.species, args.which, args.release)
+        ref_results = ref(args.species, args.which, args.release, args.ftp)
+        
+        if args.ftp:
+        
+        
+        
         # Print or save json file
-        if args.which == "json":
+        else:
             import json
             # Print if '-o' flag not True
             if args.out == False:
