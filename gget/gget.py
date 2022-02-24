@@ -576,7 +576,7 @@ def ref(species, which="all", release=None, ftp=False, save=False):
                 raise ValueError("Parameter 'which' must be 'all', or any one or a combination of the following: 'gtf', 'cdna', 'dna'.")
 
         if save == True:
-            with open('ref.json', 'w', encoding='utf-8') as f:
+            with open('ref_results.json', 'w', encoding='utf-8') as f:
                 json.dump(ref_dict, f, ensure_ascii=False, indent=4)
 
         print(f"Fetching from Ensembl release: {ENS_rel}")
