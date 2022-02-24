@@ -8,7 +8,7 @@ gget features 3 main functionalities:
 Fetch genome references (GTF and FASTAs) from the [Ensembl FTP site](http://ftp.ensembl.org/pub/) for a specific species and release.
 - [**gget search**](#gget-search)   
 Query [Ensembl](https://www.ensembl.org/) for genes from a defined species using free form search words.
-- [**gget lookup**](#gget-lookup)  
+- [**gget spy**](#gget-spy)
 Look up gene or transcript Ensembl IDs for their common name, description, sequence, homologs, synonyms, corresponding transcript/gene and more.
 
 ## Installation
@@ -18,7 +18,7 @@ pip install gget
 
 For use in Jupyter Lab / Google Colab:
 ```python
-from gget import ref, search, lookup
+from gget import ref, search, spy
 ```
 
 ## gget ref
@@ -205,7 +205,7 @@ $ gget search -sw brain -s mus_musculus_cbaj_core_105_1
 #### [Click here for more examples](https://github.com/lauraluebbert/gget/tree/main/examples)
 
 ___
-## gget lookup  
+## gget spy  
 Look up gene or transcript Ensembl IDs for their common name, description, sequence, homologs, synonyms, corresponding transcript/gene and more from the Ensembl database as well as external references.
 
 ### Options
@@ -225,29 +225,29 @@ Returns information from external references (default: False).
 Path to the file the results will be saved in, e.g. path/to/directory/results.json (default: None &rarr; just prints results).  
 For Jupyter Lab / Google Colab: `save=True` will save the output to the current working directory.
 
-### gget lookup EXAMPLES
+### gget spy EXAMPLES
 #### Look up a list of Ensembl IDs
 Jupyter Lab / Google Colab:
 ```python
-lookup(["ENSG00000034713, ENSG00000104853, ENSG00000170296"])
+spy(["ENSG00000034713, ENSG00000104853, ENSG00000170296"])
 ```
 
 Terminal:
 ```
-$ gget lookup -id ENSG00000034713, ENSG00000104853, ENSG00000170296
+$ gget spy -id ENSG00000034713, ENSG00000104853, ENSG00000170296
 ```
 &rarr; Returns a json containing information about each ID, amongst others the common name, description, and corresponding transcript/gene, in the format:
 
-#ADD LOOKUP OUTPUT!!!
+#ADD spy OUTPUT!!!
 
 #### Look up one Ensembl ID and include sequence, homology information and external reference description
 Jupyter Lab / Google Colab:
 ```python
-lookup("ENSG00000034713", seq=True, homology=True, xref=True)
+spy("ENSG00000034713", seq=True, homology=True, xref=True)
 ```
 Terminal:
 ```
-$ gget lookup -id ENSG00000034713 -seq -H -x
+$ gget spy -id ENSG00000034713 -seq -H -x
 ```
 &rarr; Returns a json containing the sequence, homology information, and external reference description of each ID in addition to the standard information mentioned above.
 
