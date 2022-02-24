@@ -20,7 +20,7 @@ For use in Jupyter Lab / Google Colab:
 ```python
 from gget import ref, search, lookup
 ```
-
+___
 ## gget ref
 Function to fetch GTF and FASTA (cDNA and DNA) URLs from the [Ensembl FTP site](http://ftp.ensembl.org/pub/). Returns a dictionary/json containing the requested URLs with their respective Ensembl version and release date and time.
 
@@ -125,6 +125,9 @@ $ gget ref -s homo_sapiens -w gtf, dna
 &rarr; Returns only the links to the latest human reference GTF and DNA files, in this order, in a space-separated list (terminal), or comma-separated list (Jupyter Lab / Google Colab).    
 For Jupyter Lab / Google Colab: Combining this command with `save=True`, will save the results in a text file named ref_results.txt in the current working directory.
 
+#### [Click here for more examples](https://github.com/lauraluebbert/gget/tree/main/examples)
+
+___
 ## gget search 
 > :warning: **gget search currently only supports genes listed in the Ensembl core API, which includes limited external references.** Manually searching the [Ensembl website](https://uswest.ensembl.org/) might yield more results.
 
@@ -154,51 +157,54 @@ Terminal:
 ```
 $ gget search -sw gaba, gamma-aminobutyric acid -s homo_sapiens
 ```
-&rarr; 
+&rarr; Returns all genes that contain at least one of the searchwords in their Ensembl or external reference description, in the format:
 
-### Query Ensembl for genes from a specific species using a single searchword
+| Ensembl_ID     | Ensembl_description     | Ext_ref_description     | Biotype        | Gene_name | URL |
+| -------------- |-------------------------| ------------------------| -------------- | ----------|-----|
+| ENSG00000034713| GABA type A receptor associated protein like 2 [Source:HGNC Symbol;Acc:HGNC:13291] | 	GABA type A receptor associated protein like 2 | protein_coding | GABARAPL2 | https://uswest.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000034713 |
+| . . .            | . . .                     | . . .                     | . . .            | . . .       | . . . |
+
+
+#### Query Ensembl for genes from a specific species using a single searchword
 Jupyter Lab:
 ```python
-gget("searchword1", "genus_species")
+search("gaba", "homo_sapiens")
 ```
 
 Terminal:
 ```
-gget search -sw searchword1 -sp genus_species
+$ gget search -sw gaba -s homo_sapiens
 ```
+&rarr; Returns all genes that contain the searchword in their Ensembl or external reference description.
 
-### Query Ensembl for genes from a specific species using multiple searchwords while limiting the number of returned search results 
-For example, limiting the number of results to 10:  
+#### Query Ensembl for genes from a specific species using multiple searchwords while limiting the number of returned search results 
 Jupyter Lab:
 ```python
-gget(["searchword1", searchword2, searchword3"], "genus_species", limit=10)
+search(["gaba", "gamma-aminobutyric acid"], "homo_sapiens", limit=10)
 ```
 
 Terminal:
 ```
-gget search -sw searchword1 searchword2 searchword3 -sp genus_species -l 10
+$ gget search -sw gaba, gamma-aminobutyric acid -s homo_sapiens -l 10
 ```
+&rarr; Returns the first 10 genes that contain at least one of the searchwords in their Ensembl or external reference description.
 
-### Query Ensembl for genes from any of the 236 species databases found [here](http://ftp.ensembl.org/pub/release-105/mysql/).   
-For example, for the database "nothobranchius_furzeri_core_105_2":  
+#### Query Ensembl for genes from any of the 236 species databases found [here](http://ftp.ensembl.org/pub/release-105/mysql/), e.g. a specific mouse strain.   
 Jupyter Lab:
 ```python
-gget("searchword1", "nothobranchius_furzeri_core_105_2")
+search("brain", "mus_musculus_cbaj_core_105_1")
 ```
 
 Terminal:
 ```
-gget search -sw searchword1 -sp nothobranchius_furzeri_core_105_2 
+$ gget search -sw brain -s mus_musculus_cbaj_core_105_1 
 ```
+&rarr; Returns genes from the CBA/J mouse strain that contain the searchword in their Ensembl or external reference description.
 
-**Note:**  
-`gget search` supports the following species abbreviations:  
-"homo_sapiens" -> "human"  
-"mus_musculus" -> "mouse"  
-"caenorhabditis_elegans" -> "roundworm"  
-All other species can be called using their specific [database](http://ftp.ensembl.org/pub/release-105/mysql/), as shown in the example above.
+#### [Click here for more examples](https://github.com/lauraluebbert/gget/tree/main/examples)
 
-### [Click here for examples](https://github.com/lauraluebbert/gget/tree/main/examples)
+___
 
+
+___ 
 Author: Laura Luebbert  
-[![DOI](https://zenodo.org/badge/458943224.svg)](https://zenodo.org/badge/latestdoi/458943224)
