@@ -20,7 +20,7 @@ For use in Jupyter Lab / Google Colab:
 ```python
 from gget import ref, search, lookup
 ```
-___
+
 ## gget ref
 Function to fetch GTF and FASTA (cDNA and DNA) URLs from the [Ensembl FTP site](http://ftp.ensembl.org/pub/). Returns a dictionary/json containing the requested URLs with their respective Ensembl version and release date and time.
 
@@ -129,6 +129,7 @@ For Jupyter Lab / Google Colab: Combining this command with `save=True`, will sa
 
 ___
 ## gget search 
+Query [Ensembl](https://www.ensembl.org/) for genes from a defined species using free form search words.  
 > :warning: **gget search currently only supports genes listed in the Ensembl core API, which includes limited external references.** Manually searching the [Ensembl website](https://uswest.ensembl.org/) might yield more results.
 
 ### Options
@@ -204,7 +205,61 @@ $ gget search -sw brain -s mus_musculus_cbaj_core_105_1
 #### [Click here for more examples](https://github.com/lauraluebbert/gget/tree/main/examples)
 
 ___
+## gget lookup  
+Look up gene or transcript Ensembl IDs for their common name, description, sequence, homologs, synonyms, corresponding transcript/gene and more from the Ensembl database as well as external references.
 
+### Options
+`-id` `--ens_ids`  
+One or more Ensembl IDs.
+
+`-w` `--which`  
+Defines which results to return. Possible entries are:
+'all' - Returns GTF, cDNA, and DNA links and associated info (default). 
+Or one or a combination of the following:
+'gtf' - Returns the GTF FTP link and associated info.
+'cdna' - Returns the cDNA FTP link and associated info.
+'dna' - Returns the DNA FTP link and associated info.
+
+`-seq` `--seq`  
+Returns basepair sequence of gene (or parent gene if transcript ID is passed) (default: False).
+
+`-H` `--homology`  
+Returns homology information of ID (default: False).
+
+`-x` `--xref` 
+Returns information from external references (default: False).
+
+`-o` `--out`  
+Path to the file the results will be saved in, e.g. path/to/directory/results.json (default: None &rarr; just prints results).  
+For Jupyter Lab / Google Colab: `save=True` will save the output to the current working directory.
+
+### gget lookup EXAMPLES
+#### Look up a list of Ensembl IDs
+Jupyter Lab / Google Colab:
+```python
+lookup(["ENSG00000034713, ENSG00000104853, ENSG00000170296"])
+```
+
+Terminal:
+```
+$ gget lookup -id ENSG00000034713, ENSG00000104853, ENSG00000170296
+```
+&rarr; Returns a json containing information about each ID, amongst others the common name, description, and corresponding transcript/gene, in the format:
+
+#ADD LOOKUP OUTPUT!!!
+
+#### Look up one Ensembl ID and include sequence, homology information and external reference description
+Jupyter Lab / Google Colab:
+```python
+lookup("ENSG00000034713", seq=True, homology=True, xref=True)
+```
+Terminal:
+```
+$ gget lookup -id ENSG00000034713 -seq -H -x
+```
+&rarr; Returns a json containing the sequence, homology information, and external reference description of each ID in addition to the standard information mentioned above.
+
+#### [Click here for more examples](https://github.com/lauraluebbert/gget/tree/main/examples)
 
 ___ 
 Author: Laura Luebbert  
