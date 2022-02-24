@@ -212,21 +212,13 @@ Look up gene or transcript Ensembl IDs for their common name, description, seque
 `-id` `--ens_ids`  
 One or more Ensembl IDs.
 
-`-w` `--which`  
-Defines which results to return. Possible entries are:
-'all' - Returns GTF, cDNA, and DNA links and associated info (default). 
-Or one or a combination of the following:
-'gtf' - Returns the GTF FTP link and associated info.
-'cdna' - Returns the cDNA FTP link and associated info.
-'dna' - Returns the DNA FTP link and associated info.
-
 `-seq` `--seq`  
 Returns basepair sequence of gene (or parent gene if transcript ID is passed) (default: False).
 
 `-H` `--homology`  
 Returns homology information of ID (default: False).
 
-`-x` `--xref` 
+`-x` `--xref`  
 Returns information from external references (default: False).
 
 `-o` `--out`  
