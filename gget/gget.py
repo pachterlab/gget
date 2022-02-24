@@ -168,7 +168,7 @@ def search(searchwords, species, limit=None, save=False):
     Species can be passed in the format 'genus_species', e.g. 'homo_sapiens'.
     To pass a specific database (e.g. specific mouse strain),
     enter the name of the core database without "/", e.g. 'mus_musculus_dba2j_core_105_1'. 
-    All availabale species databases here: http://ftp.ensembl.org/pub/release-105/mysql/
+    All availabale species databases can be found here: http://ftp.ensembl.org/pub/release-105/mysql/
     - limit
     "Limit" limits the number of search results to the top {limit} genes found.
     - save
