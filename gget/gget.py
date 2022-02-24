@@ -328,7 +328,7 @@ def ref_species_options(release, which):
     # Return list of all available species
     return species_list
 
-def ref(species, which="all", release=None, FTP=False, save=False):
+def ref(species, which="all", release=None, ftp=False, save=False):
     """
     Function to fetch GTF and FASTA (cDNA and DNA) URLs from the Ensemble FTP site.
     
@@ -510,7 +510,7 @@ def ref(species, which="all", release=None, FTP=False, save=False):
         raise ValueError("Parameter 'which' must be 'all', or any one or a combination of the following: 'gtf', 'cdna', 'dna'.")
 
     # If FTP=False, return dictionary/json of specified results
-    if FTP == False:
+    if ftp == False:
         ref_dict = {species:{}}
         for return_val in which:
             if return_val == "all":
@@ -583,7 +583,7 @@ def ref(species, which="all", release=None, FTP=False, save=False):
         return ref_dict
         
     # If FTP==True, return only the specified URLs as a list 
-    if FTP == True:
+    if ftp == True:
         results = []
         for return_val in which:
             if return_val == "all":
