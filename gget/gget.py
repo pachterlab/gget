@@ -44,7 +44,7 @@ def rest_query(server, query, content_type):
     else:
         return r.text
 
-def lookup(ens_ids, seq=False, homology=False, xref=False, save=False):
+def spy(ens_ids, seq=False, homology=False, xref=False, save=False):
     """
     Looks up information about Ensembl IDs.
 
@@ -84,7 +84,7 @@ def lookup(ens_ids, seq=False, homology=False, xref=False, save=False):
         # Submit query
         df_temp = rest_query(server, query, content_type)
         # Delete superfluous entries
-        del df_temp["version"], df_temp["source"], df_temp["db_type"], df_temp["logic_name"]
+        del df_temp["version"], df_temp["source"], df_temp["db_type"], df_temp["logic_name"], df_temp["id"],
 
         # Add results to main dict
         results_dict[ensembl_ID].update(df_temp)
@@ -124,7 +124,7 @@ def lookup(ens_ids, seq=False, homology=False, xref=False, save=False):
 
     # Save
     if save == True:
-        with open('lookup.json', 'w', encoding='utf-8') as f:
+        with open('spy_results.json', 'w', encoding='utf-8') as f:
             json.dump(master_dict, f, ensure_ascii=False, indent=4)
 
     # Return dictionary containing results
@@ -276,11 +276,11 @@ def search(searchwords, species, limit=None, save=False):
     # Remove any duplicate search results from the master data frame and reset the index
     df = df.drop_duplicates().reset_index(drop=True)
 
-    # Find name of gene using lookup function and add to df
+    # Find name of gene using spy function and add to df
     gene_names = []
     for ens_id in df["Ensembl_ID"].values:
         try:
-            gene_names.append(lookup(ens_id)[ens_id]["display_name"])
+            gene_names.append(spy(ens_id)[ens_id]["display_name"])
         # If no gene name is found, add "None" instead
         except KeyError:
             gene_names.append(None)
@@ -629,22 +629,22 @@ def main():
             help='Print debug info'
         )
 
-    # gget lookup subparser
-    parser_lookup = parent_subparsers.add_parser(
-        "lookup",
+    # gget spy subparser
+    parser_spy = parent_subparsers.add_parser(
+        "spy",
         parents=[parent],
         description="Look up information about Ensembl IDs.", 
         add_help=False
         )
-    # Lookup parser arguments
-    parser_lookup.add_argument(
+    # spy parser arguments
+    parser_spy.add_argument(
         "-id", "--ens_ids", 
         type=str, 
         required=True, 
         metavar="",    # Cleans up help message
         help="One or more Ensembl IDs."
     )
-    parser_lookup.add_argument(
+    parser_spy.add_argument(
         "-seq", "--seq",
         default=False, 
         action='store_true',
@@ -652,7 +652,7 @@ def main():
         metavar="",
         help="Returns bp sequence of gene (or parent gene if transcript ID passed) (default: False)."
     )
-    parser_lookup.add_argument(
+    parser_spy.add_argument(
         "-H", "--homology",
         default=False, 
         action='store_true',
@@ -660,7 +660,7 @@ def main():
         metavar="",
         help="Returns homology information of ID (default: False)."
     )
-    parser_lookup.add_argument(
+    parser_spy.add_argument(
         "-x", "--xref",
         default=False, 
         action='store_true',
@@ -668,7 +668,7 @@ def main():
         metavar="",
         help="Returns information from external references (default: False)."
     )
-    parser_lookup.add_argument(
+    parser_spy.add_argument(
         "-o", "--out",
         type=str,
         required=False,
@@ -783,25 +783,25 @@ def main():
     if args.debug:
         print("debug: " + str(args))
 
-    ## lookup return
-    if args.command == "lookup":
+    ## spy return
+    if args.command == "spy":
 
         # Clean up args.ens_ids
         ens_ids_clean = [x.strip() for x in args.ens_ids.split(',').split(' ')]
 
         # Look up requested Ensembl IDs
-        lookup_results = lookup(ens_ids_clean, args.seq, args.homology, args.xref)
+        spy_results = spy(ens_ids_clean, args.seq, args.homology, args.xref)
 
         # Print or save json file
         # Save in specified directory if -o specified
         if args.out:
             os.makedirs(args.out, exist_ok=True)
             with open(args.out, 'w', encoding='utf-8') as f:
-                json.dump(lookup_results, f, ensure_ascii=False, indent=4)
+                json.dump(spy_results, f, ensure_ascii=False, indent=4)
             print(f"Results saved as {args.out}.")
         # Print results if no directory specified
         else:
-            print(json.dumps(lookup_results, ensure_ascii=False, indent=4))
+            print(json.dumps(spy_results, ensure_ascii=False, indent=4))
             print("To save these results, use flag '-o' in the format: '-o path/to/directory/results.json'.")
         
     ## search return
