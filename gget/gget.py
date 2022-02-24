@@ -184,6 +184,10 @@ def search(searchwords, species, limit=None, save=False):
         species = "homo_sapiens"
     if species == "mouse":
         species = "mus_musculus"
+    
+    # If a specific database is passed with the "/" at the end, remove it
+    if "/" in species:
+        species = species.split("/")[0]
 
     # Fetch all available databases
     databases = gget_species_options(release=105)
