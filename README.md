@@ -187,12 +187,12 @@ $ gget search -sw gaba -s homo_sapiens
 
 ```python
 # Jupyter Lab / Google Colab:
-search(["gaba", "gamma-aminobutyric"], "homo_sapiens", limit=10)
+search("gaba", "homo_sapiens", limit=10)
 
 # Terminal 
-$ gget search -sw gaba, gamma-aminobutyric -s homo_sapiens -l 10
+$ gget search -sw gaba -s homo_sapiens -l 10
 ```
-&rarr; Returns the first 10 genes that contain at least one of the searchwords in their Ensembl or external reference description.
+&rarr; Returns the first 10 genes that contain the searchword in their Ensembl or external reference description. If more than one searchword is passed, `limit` will limit the number of genes per searchword. 
 
 #### Query Ensembl for genes from any of the 236 species databases found [here](http://ftp.ensembl.org/pub/release-105/mysql/), e.g. a specific mouse strain.   
 
