@@ -247,13 +247,13 @@ $ gget spy -id ENSG00000034713,ENSG00000104853,ENSG00000170296
                         "object_type": e.g. Gene,
                         "biotype": e.g. protein_coding,
                         "canonical_transcript": Transcript ID,
-                        "display_name": copmmon gene name,
+                        "display_name": Common gene name,
                         "description": Ensemble description,
                         "assembly_name": Name of species assmebly,
                         "seq_region_name": Sequence region,
                         "start": Sequence start position,
                         "end": Sequence end position,
-                        "strand": strand
+                        "strand": Strand
                         },
 }
 ```
