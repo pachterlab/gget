@@ -270,5 +270,4 @@ $ gget spy -id ENSG00000034713 -seq -H -x
 #### [Click here for more examples](https://github.com/lauraluebbert/gget/tree/main/examples)
 
 ___ 
-Author: Laura Luebbert  
-[![DOI](https://zenodo.org/badge/458943224.svg)](https://zenodo.org/badge/latestdoi/458943224)
+Author: Laura Luebbert 
