@@ -159,10 +159,10 @@ For Jupyter Lab / Google Colab: `save=True` will save the output to the current 
 
 ```python
 # Jupyter Lab / Google Colab:
-search(["gaba", "gamma-aminobutyric acid"], "homo_sapiens")
+search(["gaba", "gamma-aminobutyric"], "homo_sapiens")
 
 # Terminal 
-$ gget search -sw gaba,gamma-aminobutyric acid -s homo_sapiens
+$ gget search -sw gaba,gamma-aminobutyric -s homo_sapiens
 ```
 &rarr; Returns all genes that contain at least one of the searchwords in their Ensembl or external reference description, in the format:
 
@@ -187,10 +187,10 @@ $ gget search -sw gaba -s homo_sapiens
 
 ```python
 # Jupyter Lab / Google Colab:
-search(["gaba", "gamma-aminobutyric acid"], "homo_sapiens", limit=10)
+search(["gaba", "gamma-aminobutyric"], "homo_sapiens", limit=10)
 
 # Terminal 
-$ gget search -sw gaba, gamma-aminobutyric acid -s homo_sapiens -l 10
+$ gget search -sw gaba, gamma-aminobutyric -s homo_sapiens -l 10
 ```
 &rarr; Returns the first 10 genes that contain at least one of the searchwords in their Ensembl or external reference description.
 
