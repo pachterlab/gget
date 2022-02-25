@@ -609,7 +609,6 @@ def ref(species, which="all", release=None, ftp=False, save=False):
                 file.write(element + "\n")
             file.close()
 
-        print(f"Fetching from Ensembl release: {ENS_rel}")
         return results
  
 def main():
@@ -628,96 +627,8 @@ def main():
             action='store_true',
             help='Print debug info'
         )
-
-    # gget spy subparser
-    parser_spy = parent_subparsers.add_parser(
-        "spy",
-        parents=[parent],
-        description="Look up information about Ensembl IDs.", 
-        add_help=False
-        )
-    # spy parser arguments
-    parser_spy.add_argument(
-        "-id", "--ens_ids", 
-        type=str, 
-        required=True, 
-        metavar="",    # Cleans up help message
-        help="One or more Ensembl IDs."
-    )
-    parser_spy.add_argument(
-        "-seq", "--seq",
-        default=False, 
-        action='store_true',
-        required=False, 
-        metavar="",
-        help="Returns bp sequence of gene (or parent gene if transcript ID passed) (default: False)."
-    )
-    parser_spy.add_argument(
-        "-H", "--homology",
-        default=False, 
-        action='store_true',
-        required=False, 
-        metavar="",
-        help="Returns homology information of ID (default: False)."
-    )
-    parser_spy.add_argument(
-        "-x", "--xref",
-        default=False, 
-        action='store_true',
-        required=False, 
-        metavar="",
-        help="Returns information from external references (default: False)."
-    )
-    parser_spy.add_argument(
-        "-o", "--out",
-        type=str,
-        required=False,
-        help=(
-            "Path to the json file the results will be saved in, e.g. path/to/directory/results.json." 
-            "Default: None (just prints results)."
-        )
-    )
-
-    # gget search subparser
-    parser_gget = parent_subparsers.add_parser(
-        "search",
-         parents=[parent],
-         description="Query Ensembl for genes based on species and free form search terms.", 
-         add_help=False
-         )
-    # Search parser arguments
-    parser_gget.add_argument(
-        "-sw", "--searchwords", 
-        type=str, 
-        required=True, 
-        metavar="",  
-        help="One or more free form searchwords for the query, e.g. gaba, nmda."
-    )
-    parser_gget.add_argument(
-        "-s", "--species",
-        type=str,  
-        required=True, 
-        metavar="",
-        help="Species to be queried, e.g. homo_sapiens."
-    )
-    parser_gget.add_argument(
-        "-l", "--limit", 
-        type=int, 
-        required=False,
-        metavar="",
-        help="Limits the number of results, e.g. 10 (default: None)."
-    )
-    parser_gget.add_argument(
-        "-o", "--out",
-        type=str,
-        required=False,
-        help=(
-            "Path to the csv file the results will be saved in, e.g. path/to/directory/results.csv." 
-            "Default: None (just prints results)."
-        )
-    )
-
-    # gget ref subparser
+    
+    ## gget ref subparser
     parser_ref = parent_subparsers.add_parser(
         "ref",
         parents=[parent],
@@ -736,8 +647,8 @@ def main():
         "-w", "--which", 
         default="all", 
         type=str,
+        nargs='+',
         required=False,
-        metavar="",
         help=("Defines which results to return." 
               "Possible entries are:"
               "'all' - Returns GTF, cDNA, and DNA links and associated info (default)." 
@@ -770,8 +681,94 @@ def main():
             "Default: None (just prints results)."
         )
     )
+
+    ## gget search subparser
+    parser_gget = parent_subparsers.add_parser(
+        "search",
+         parents=[parent],
+         description="Query Ensembl for genes based on species and free form search terms.", 
+         add_help=False
+         )
+    # Search parser arguments
+    parser_gget.add_argument(
+        "-sw", "--searchwords", 
+        type=str, 
+        nargs="+",
+        required=True, 
+        metavar="",  
+        help="One or more free form searchwords for the query, e.g. gaba, nmda."
+    )
+    parser_gget.add_argument(
+        "-s", "--species",
+        type=str,  
+        required=True, 
+        metavar="",
+        help="Species to be queried, e.g. homo_sapiens."
+    )
+    parser_gget.add_argument(
+        "-l", "--limit", 
+        type=int, 
+        required=False,
+        metavar="",
+        help="Limits the number of results, e.g. 10 (default: None)."
+    )
+    parser_gget.add_argument(
+        "-o", "--out",
+        type=str,
+        required=False,
+        help=(
+            "Path to the csv file the results will be saved in, e.g. path/to/directory/results.csv." 
+            "Default: None (just prints results)."
+        )
+    )
     
-    # Show help when no arguments are given
+    ## gget spy subparser
+    parser_spy = parent_subparsers.add_parser(
+        "spy",
+        parents=[parent],
+        description="Look up information about Ensembl IDs.", 
+        add_help=False
+        )
+    # spy parser arguments
+    parser_spy.add_argument(
+        "-id", "--ens_ids", 
+        type=str, 
+        required=True, 
+        metavar="",    # Cleans up help message
+        help="One or more Ensembl IDs."
+    )
+    parser_spy.add_argument(
+        "-seq", "--seq",
+        default=False, 
+        action='store_true',
+        required=False, 
+        help="Returns bp sequence of gene (or parent gene if transcript ID passed) (default: False)."
+    )
+    parser_spy.add_argument(
+        "-H", "--homology",
+        default=False, 
+        action='store_true',
+        required=False, 
+        help="Returns homology information of ID (default: False)."
+    )
+    parser_spy.add_argument(
+        "-x", "--xref",
+        default=False, 
+        action='store_true',
+        required=False, 
+        help="Returns information from external references (default: False)."
+    )
+    parser_spy.add_argument(
+        "-o", "--out",
+        type=str,
+        required=False,
+        help=(
+            "Path to the json file the results will be saved in, e.g. path/to/directory/results.json." 
+            "Default: None (just prints results)."
+        )
+    )
+    
+    ## Show help when no arguments are given
     if len(sys.argv) == 1:
         parent_parser.print_help(sys.stderr)
         sys.exit(1)
@@ -782,7 +779,81 @@ def main():
     ## Debug return
     if args.debug:
         print("debug: " + str(args))
+        
+    ## ref return
+    if args.command == "ref":
+        
+        ## Clean up 'which' entry if passed
+        if type(args.which) != str:
+            which_clean = []
+            # Split by comma (spaces are automatically split by nargs:"+")
+            for which in args.which:
+                which_clean.append(which.split(","))
+            # Flatten which_clean
+            which_clean_final = [item for sublist in which_clean for item in sublist]   
+            # Remove empty strings resulting from split
+            while("" in which_clean_final) :
+                which_clean_final.remove("")   
+        else:
+            which_clean_final = args.which
 
+        # Query Ensembl for requested FTPs using function ref
+        ref_results = ref(args.species, which_clean_final, args.release, args.ftp)
+
+        # Print or save list of URLs
+        if args.ftp==True:
+            if args.out:
+                os.makedirs("/".join(args.out.split("/")[:-1]), exist_ok=True)
+                file = open(args.out, "w")
+                for element in ref_results:
+                    file.write(element + "\n")
+                file.close()
+                print(f"Results saved as {args.out}.")
+
+            else:
+                print(" ".join(ref_results))
+        
+        # Print or save json file
+        else:
+            # Save in specified directory if -o specified
+            if args.out:
+                os.makedirs("/".join(args.out.split("/")[:-1]), exist_ok=True)
+                with open(args.out, 'w', encoding='utf-8') as f:
+                    json.dump(ref_results, f, ensure_ascii=False, indent=4)
+                print(f"Results saved as {args.out}.")
+            # Print results if no directory specified
+            else:
+                print(json.dumps(ref_results, ensure_ascii=False, indent=4))
+                print("To save these results, use flag '-o' in the format: '-o path/to/directory/results.json'.")
+        
+    ## search return
+    if args.command == "search":
+        
+        ## Clean up args.searchwords
+        sw_clean = []
+        # Split by comma (spaces are automatically split by nargs:"+")
+        for sw in args.searchwords:
+            sw_clean.append(sw.split(","))
+        # Flatten which_clean
+        sw_clean_final = [item for sublist in sw_clean for item in sublist]   
+        # Remove empty strings resulting from split
+        while("" in sw_clean_final) :
+            sw_clean_final.remove("")   
+
+        # Query Ensembl for genes based on species and searchwords using function search
+        gget_results = search(sw_clean_final, args.species, args.limit)
+        
+        # Save in specified directory if -o specified
+        if args.out:
+            os.makedirs("/".join(args.out.split("/")[:-1]), exist_ok=True)
+            gget_results.to_csv(args.out, index=False)
+            print(f"Results saved as {args.out}.")
+        
+        # Print results if no directory specified
+        else:
+            print(gget_results)
+            print("To save these results, use flag '-o' in the format: '-o path/to/directory/results.csv'.")
+            
     ## spy return
     if args.command == "spy":
 
@@ -795,7 +866,7 @@ def main():
         # Print or save json file
         # Save in specified directory if -o specified
         if args.out:
-            os.makedirs(args.out, exist_ok=True)
+            os.makedirs("/".join(args.out.split("/")[:-1]), exist_ok=True)
             with open(args.out, 'w', encoding='utf-8') as f:
                 json.dump(spy_results, f, ensure_ascii=False, indent=4)
             print(f"Results saved as {args.out}.")
@@ -803,62 +874,6 @@ def main():
         else:
             print(json.dumps(spy_results, ensure_ascii=False, indent=4))
             print("To save these results, use flag '-o' in the format: '-o path/to/directory/results.json'.")
-        
-    ## search return
-    if args.command == "search":
-        # Clean up args.searchwords
-        sw_clean = [x.strip() for x in args.searchwords.split(',').split(' ')]
-
-        # Query Ensembl for genes based on species and searchwords using function search
-        gget_results = search(sw_clean, args.species, args.limit)
-        
-        # Save in specified directory if -o specified
-        if args.out:
-            os.makedirs(args.out, exist_ok=True)
-            gget_results.to_csv(args.out, index=False)
-            print(f"Results saved as {args.out}.")
-        
-        # Print results if no directory specified
-        else:
-            print(gget_results)
-            print("To save these results, use flag '-o' in the format: '-o path/to/directory/results.csv'.")
-            
-    ## ref return
-    if args.command == "ref":
-
-        # Clean up args.which
-        which_clean = [x.strip() for x in args.which.split(',').split(' ')]
-
-        # Query Ensembl for requested FTPs using function ref
-        ref_results = ref(args.species, which_clean, args.release, args.ftp)
-
-        # Print or save list of URLs
-        if args.ftp==True:
-            if args.out:
-                os.makedirs(args.out, exist_ok=True)
-                file = open(args.out, "w")
-                for element in ref_results:
-                    file.write(element + "\n")
-                file.close()
-                print(f"Results saved as {args.out}.")
-
-            else:
-                print(" ".join(ref_results))
-                print("To save these results, use flag '-o' in the format: '-o path/to/directory/results.txt'.")
-        
-        
-        # Print or save json file
-        else:
-            # Save in specified directory if -o specified
-            if args.out:
-                os.makedirs(args.out, exist_ok=True)
-                with open(args.out, 'w', encoding='utf-8') as f:
-                    json.dump(ref_results, f, ensure_ascii=False, indent=4)
-                print(f"Results saved as {args.out}.")
-            # Print results if no directory specified
-            else:
-                print(json.dumps(ref_results, ensure_ascii=False, indent=4))
-                print("To save these results, use flag '-o' in the format: '-o path/to/directory/results.json'.")
 
 if __name__ == '__main__':
     main()
