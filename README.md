@@ -116,7 +116,7 @@ For Jupyter Lab / Google Colab: Saves the results in a json file named ref_resul
 ref("homo_sapiens", which=["gtf", "dna"])
 
 # Terminal 
-$ gget ref -s homo_sapiens -w gtf, dna
+$ gget ref -s homo_sapiens -w gtf,dna
 ```
 &rarr; Returns a dictionary/json containing the latest human reference GTF and DNA files, in this order, and their respective release dates and time.    
 
@@ -127,7 +127,7 @@ $ gget ref -s homo_sapiens -w gtf, dna
 ref("homo_sapiens", which=["gtf", "dna"], ftp=True)
 
 # Terminal 
-$ gget ref -s homo_sapiens -w gtf, dna -ftp
+$ gget ref -s homo_sapiens -w gtf,dna -ftp
 ```
 &rarr; Returns only the links (wihtout additional information) to the latest human reference GTF and DNA files, in this order, in a space-separated list (terminal), or comma-separated list (Jupyter Lab / Google Colab).    
 For Jupyter Lab / Google Colab: Combining this command with `save=True`, will save the results in a text file named ref_results.txt in the current working directory.
@@ -162,7 +162,7 @@ For Jupyter Lab / Google Colab: `save=True` will save the output to the current 
 search(["gaba", "gamma-aminobutyric acid"], "homo_sapiens")
 
 # Terminal 
-$ gget search -sw gaba, gamma-aminobutyric acid -s homo_sapiens
+$ gget search -sw gaba,gamma-aminobutyric acid -s homo_sapiens
 ```
 &rarr; Returns all genes that contain at least one of the searchwords in their Ensembl or external reference description, in the format:
 
@@ -236,7 +236,7 @@ For Jupyter Lab / Google Colab: `save=True` will save the output to the current 
 spy(["ENSG00000034713", "ENSG00000104853", "ENSG00000170296"])
 
 # Terminal 
-$ gget spy -id ENSG00000034713, ENSG00000104853, ENSG00000170296
+$ gget spy -id ENSG00000034713,ENSG00000104853,ENSG00000170296
 ```
 &rarr; Returns a json containing information about each ID, amongst others the common name, description, and corresponding transcript/gene, in the format:
 ```
