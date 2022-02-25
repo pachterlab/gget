@@ -86,7 +86,7 @@ def spy(ens_ids, seq=False, homology=False, xref=False, save=False):
             df_temp = rest_query(server, query, content_type)
         # Raise error if ID not found
         except:
-            raise ValueError("Ensembl ID not found. Please double-check spelling.")
+            raise ValueError(f"Ensembl ID {ensembl_ID} not found. Please double-check spelling.")
         # Delete superfluous entries
         try:
             del df_temp["version"], df_temp["source"], df_temp["db_type"], df_temp["logic_name"], df_temp["id"]
