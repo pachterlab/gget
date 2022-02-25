@@ -271,3 +271,4 @@ $ gget spy -id ENSG00000034713 -seq -H -x
 
 ___ 
 Author: Laura Luebbert  
+[![DOI](https://zenodo.org/badge/458943224.svg)](https://zenodo.org/badge/latestdoi/458943224)
