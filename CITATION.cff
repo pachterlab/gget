@@ -10,6 +10,6 @@ identifiers:
   - description: "The concept DOI of the work."
     type: doi
     value: 10.5281/zenodo.6217244
-date-released: 2021-02-24
+date-released: "2021-02-24"
 repository-code: "https://github.com/lauraluebbert/gget"
 license: MIT
