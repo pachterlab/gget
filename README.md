@@ -10,7 +10,7 @@ Fetch genome references (GTF and FASTAs) from the [Ensembl FTP site](http://ftp.
 - [**gget search**](#gget-search)   
 Query [Ensembl](https://www.ensembl.org/) for genes from a defined species using free form search words.
 - [**gget spy**](#gget-spy)  
-Look up gene or transcript Ensembl IDs for their common name, description, sequence, homologs, synonyms, corresponding transcript/gene and more.
+"Spy" on gene or transcript Ensembl IDs for their common name, description, sequence, homologs, synonyms, corresponding transcript/gene and more.
 
 ## Installation
 ```
@@ -210,7 +210,7 @@ $ gget search -sw brain -s mus_musculus_cbaj_core_105_1
 
 ___
 ## gget spy  
-Look up gene or transcript Ensembl IDs for their common name, description, sequence, homologs, synonyms, corresponding transcript/gene and more from the Ensembl database as well as external references.
+"Spy" on gene or transcript Ensembl IDs for their common name, description, sequence, homologs, synonyms, corresponding transcript/gene and more from the Ensembl database as well as external references.
 
 ### Options
 `-id` `--ens_ids`  
