@@ -15,7 +15,6 @@ Look up gene or transcript Ensembl IDs for their common name, description, seque
 ```
 pip install gget
 ```
-> :warning: **v0.0.5 not yet pipy. Will update soon.**
 
 For use in Jupyter Lab / Google Colab:
 ```python
