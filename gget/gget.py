@@ -82,9 +82,16 @@ def spy(ens_ids, seq=False, homology=False, xref=False, save=False):
         # Define the REST query
         query = "lookup/id/" + ensembl_ID + "?"
         # Submit query
-        df_temp = rest_query(server, query, content_type)
+        try:
+            df_temp = rest_query(server, query, content_type)
+        # Raise error if ID not found
+        except:
+            raise ValueError("Ensembl ID not found. Please double-check spelling.")
         # Delete superfluous entries
-        del df_temp["version"], df_temp["source"], df_temp["db_type"], df_temp["logic_name"], df_temp["id"],
+        try:
+            del df_temp["version"], df_temp["source"], df_temp["db_type"], df_temp["logic_name"], df_temp["id"]
+        except:
+            continue
 
         # Add results to main dict
         results_dict[ensembl_ID].update(df_temp)
@@ -105,9 +112,12 @@ def spy(ens_ids, seq=False, homology=False, xref=False, save=False):
             query = "homology/id/" + ensembl_ID + "?"
             # Submit query
             df_temp = rest_query(server, query, content_type)
-
+                
             # Add results to main dict
-            results_dict[ensembl_ID].update({"homology":df_temp["data"][0]["homologies"]})
+            try:
+                results_dict[ensembl_ID].update({"homology":df_temp["data"][0]["homologies"]})
+            except:
+                print("No homology information found for this ID.")
 
         ## xrefs/id/ query: Retrieves external reference information by Ensembl gene id
         if xref == True:
@@ -117,7 +127,10 @@ def spy(ens_ids, seq=False, homology=False, xref=False, save=False):
             df_temp = rest_query(server, query, content_type)
 
             # Add results to main dict
-            results_dict[ensembl_ID].update({"xrefs":df_temp})
+            try:
+                results_dict[ensembl_ID].update({"xrefs":df_temp})
+            except:
+                print("No external reference information found for this ID.")
     
         # Add results to master dict
         master_dict.update(results_dict)
@@ -732,7 +745,8 @@ def main():
     # spy parser arguments
     parser_spy.add_argument(
         "-id", "--ens_ids", 
-        type=str, 
+        type=str,
+        nargs="+",
         required=True, 
         metavar="",    # Cleans up help message
         help="One or more Ensembl IDs."
@@ -838,10 +852,10 @@ def main():
         sw_clean_final = [item for sublist in sw_clean for item in sublist]   
         # Remove empty strings resulting from split
         while("" in sw_clean_final) :
-            sw_clean_final.remove("")   
-
+            sw_clean_final.remove("")  
+        
         # Query Ensembl for genes based on species and searchwords using function search
-        gget_results = search(sw_clean_final, args.species, args.limit)
+        gget_results = search(sw_clean_final, args.species, limit=args.limit)
         
         # Save in specified directory if -o specified
         if args.out:
@@ -857,11 +871,19 @@ def main():
     ## spy return
     if args.command == "spy":
 
-        # Clean up args.ens_ids
-        ens_ids_clean = [x.strip() for x in args.ens_ids.split(',').split(' ')]
+        ## Clean up args.ens_ids
+        ids_clean = []
+        # Split by comma (spaces are automatically split by nargs:"+")
+        for id_ in args.ens_ids:
+            ids_clean.append(id_.split(","))
+        # Flatten which_clean
+        ids_clean_final = [item for sublist in ids_clean for item in sublist]   
+        # Remove empty strings resulting from split
+        while("" in ids_clean_final) :
+            ids_clean_final.remove("")  
 
         # Look up requested Ensembl IDs
-        spy_results = spy(ens_ids_clean, args.seq, args.homology, args.xref)
+        spy_results = spy(ids_clean_final, args.seq, args.homology, args.xref)
 
         # Print or save json file
         # Save in specified directory if -o specified
