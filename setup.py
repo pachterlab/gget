@@ -8,7 +8,7 @@ long_description = read('README.md')
 
 setup(
     name='gget',
-    version='0.0.5',
+    version='0.0.6',
     license='MIT',
     author='Laura Luebbert',
     author_email='lauraluebbert@caltech.edu',
@@ -19,7 +19,7 @@ setup(
     long_description_content_type='text/markdown',
     packages=find_packages(),
     install_requires=[
-        'mysql-connector-python',
+        'mysql-connector-python>=8.0.28',
         'beautifulsoup4>=4.10.0',
         'pandas',
         'requests>=2.27.1',
@@ -30,7 +30,6 @@ setup(
         'console_scripts': ['gget=gget.gget:main'],
     },
     classifiers=[
-        'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
         'Framework :: Jupyter',
         'Intended Audience :: Science/Research',
