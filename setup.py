@@ -21,6 +21,8 @@ setup(
     install_requires=[
         'mysql-connector-python',
         'beautifulsoup4>=4.10.0',
+        'pandas',
+        'requests>=2.27.1',
       ],
     url='https://github.com/lauraluebbert/gget',
     keywords='gget',
