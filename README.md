@@ -1,21 +1,19 @@
 # gget (gene-get)
-> :warning: **Under active development, watch out for the next version. If using v0.0.5, make sure `pandas` and `requests` are installed (`pip install pandas` / `pip install requests`).**  
-  
 [![pypi version](https://img.shields.io/pypi/v/gget)](https://pypi.org/project/gget/0.0.5/)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/gget)
 [![license](https://img.shields.io/pypi/l/gget)](LICENSE)
 [![DOI](https://zenodo.org/badge/458943224.svg)](https://zenodo.org/badge/latestdoi/458943224)
 
-gget features 3 main functionalities:  
+gget has three main commands:  
 - [**gget ref**](#gget-ref)  
-Fetch genome references (GTF and FASTAs) from the [Ensembl FTP site](http://ftp.ensembl.org/pub/) for a specific species and release.
+Fetch links to GTF and FASTA files from the [Ensembl FTP site](http://ftp.ensembl.org/pub/).
 - [**gget search**](#gget-search)   
-Query [Ensembl](https://www.ensembl.org/) for genes from a defined species using free form search words.
+Query [Ensembl](https://www.ensembl.org/) for genes using free form search words.
 - [**gget spy**](#gget-spy)  
-"Spy" on gene or transcript Ensembl IDs for their common name, description, sequence, homologs, synonyms, corresponding transcript/gene and more.
+Look up genes or transcripts by their Ensembl ID.
 
 ## Installation
-```
+```bash
 pip install gget
 ```
 
@@ -24,6 +22,19 @@ For use in Jupyter Lab / Google Colab:
 from gget import ref, search, spy
 ```
 
+## Getting started
+```bash
+# Fetch Homo sapiens  GTF, DNA, and cDNA FTPs from Ensembl release 104
+$ gget ref -s homo_sapiens -r 104
+
+# Search zebra finch genes with "mito" in their description and limit to the top 10 genes
+$ gget search -sw mito -s taeniopygia_guttata -l 10
+
+# Look up Ensembl ID ENSSCUG00000017183 and return its sequence
+$ gget spy -id ENSSCUG00000017183 -seq
+```
+
+# Manual
 ## gget ref
 Function to fetch GTF and FASTA (cDNA and DNA) URLs from the [Ensembl FTP site](http://ftp.ensembl.org/pub/). Returns a dictionary/json containing the requested URLs with their respective Ensembl version and release date and time.
 
@@ -49,7 +60,7 @@ If True: returns only a list containing the requested FTP links (default: False)
 Path to the file the results will be saved in, e.g. path/to/directory/results.json (default: None &rarr; just prints results).  
 For Jupyter Lab / Google Colab: `save=True` will save the output to the current working directory.
 
-### gget ref EXAMPLES
+### gget ref examples
 #### Fetch GTF, DNA, and cDNA FTP links for a specific species
 
 ```python
