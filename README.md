@@ -1,4 +1,6 @@
 # gget (gene-get)
+> :warning: **Under active development, watch out for the next release. If using v0.0.5, make sure `pandas` and `requests` are installed (`pip install pandas` / `pip install requests`).**  
+  
 [![pypi version](https://img.shields.io/pypi/v/gget)](https://pypi.org/project/gget/0.0.5/)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/gget)
 [![license](https://img.shields.io/pypi/l/gget)](LICENSE)
