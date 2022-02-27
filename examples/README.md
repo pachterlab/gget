@@ -1,5 +1,5 @@
 # Examples
-> :warning: **EXAMPLES NOT YET UPDATED FOR v0.0.5**
+> :warning: **EXAMPLES NOT YET UPDATED FOR v0.0.6**
 
 ## gget FetchTP usage examples
 
