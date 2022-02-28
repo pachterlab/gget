@@ -112,7 +112,7 @@ def info(ens_ids, homology=False, xref=False, save=False):
     # Return dictionary containing results
     return master_dict   
 
-def search(searchwords, species, operator="or", limit=None, save=False):
+def search(searchwords, species, andor="or", limit=None, save=False):
     """
     Function to query Ensembl for genes based on species and free form search terms. 
     
@@ -128,8 +128,8 @@ def search(searchwords, species, operator="or", limit=None, save=False):
     To pass a specific database (e.g. specific mouse strain),
     enter the name of the core database without "/", e.g. 'mus_musculus_dba2j_core_105_1'. 
     All availabale species databases can be found here: http://ftp.ensembl.org/pub/release-105/mysql/
-    - operator
-    Possible entries: "or", "and"  
+    - andor
+    Possible entries: "and", "or"  
     "or": Returns all genes that include at least one of the searchwords in their description (default)  
     "and": Returns only genes that include all of the searchwords in their description 
     - limit
@@ -222,8 +222,8 @@ def search(searchwords, species, operator="or", limit=None, save=False):
         # Order by ENSEMBL ID (I am using pandas for this instead of SQL to increase speed)
         df_temp = df_temp.sort_values("stable_id").reset_index(drop=True)
     
-        # If operator="or", keep all results
-        if operator == "or":
+        # If andor="or", keep all results
+        if andor == "or":
             # In the first iteration, make the search results equal to the master data frame
             if i == 0:
                 df = df_temp.copy()
@@ -231,8 +231,8 @@ def search(searchwords, species, operator="or", limit=None, save=False):
             else:
                 df = pd.concat([df, df_temp])
                 
-        # If operator="and", only keep overlap between results
-        if operator == "and":
+        # If andor="and", only keep overlap between results
+        if andor == "and":
             # In the first iteration, make the search results equal to the master data frame
             if i == 0:
                 df = df_temp.copy()

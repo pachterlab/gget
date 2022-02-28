@@ -43,27 +43,25 @@ def main():
         )
     # ref parser arguments
     parser_ref.add_argument(
-        "--species", "-s", 
+        "-s", "--species", 
         default=None,
         type=str,
-        metavar="/ -s",
         help="Species for which the FTPs will be fetched, e.g. homo_sapiens."
     )
     # ref parser arguments
     parser_ref.add_argument(
-        "--list", "-l", 
+        "-l", "--list", 
         default=None, 
         action="store_true",
         required=False,
         help="List out all available species."
     )
     parser_ref.add_argument(
-        "--which", "-w", 
+        "-w", "--which", 
         default="all", 
         type=str,
         nargs='+',
         required=False,
-        metavar=(""),
         help=("Defines which results to return." 
               "Possible entries are:"
               "'all' - Returns GTF, cDNA, and DNA links and associated info (default)." 
@@ -74,11 +72,10 @@ def main():
              )
         )
     parser_ref.add_argument(
-        "--release", "-r",
+        "-r", "--release",
         default=None,  
         type=int, 
         required=False,
-        metavar="/ -r",
         help="Ensemble release the FTPs will be fetched from, e.g. 104 (default: latest Ensembl release).")
     parser_ref.add_argument(
         "-ftp", "--ftp",  
@@ -87,10 +84,9 @@ def main():
         required=False,
         help="If True: return only the FTP link instead of a json.")
     parser_ref.add_argument(
-        "--out", "-o",
+        "-o", "--out",
         type=str,
         required=False,
-        metavar=("/ -o"),
         help=(
             "Path to the json file the results will be saved in, e.g. path/to/directory/results.json." 
             "Default: None (just prints results)."
@@ -107,45 +103,39 @@ def main():
          )
     # Search parser arguments
     parser_gget.add_argument(
-        "--searchwords", "-sw", 
+        "-sw", "--searchwords", 
         type=str, 
         nargs="+",
         required=True, 
-        metavar="",  
         help="One or more free form searchwords for the query, e.g. gaba, nmda."
     )
     parser_gget.add_argument(
-        "--species", "-s",
+        "-s", "--species",
         type=str,  
         required=True, 
-        metavar="/ -s",
         help="Species to be queried, e.g. homo_sapiens."
     )
     parser_gget.add_argument(
-        "--operator", "-op",
-        type=str,
-        choices=["or", "and"],
+        "-ao", "--andor",
+        choices=["and", "or"],
         default="or",
+        type=str,  
         required=False, 
-        metavar="/ -op",
-        help=("'or': Returns all genes that include at least one of the searchwords."
-              "'and': Only returns genes that include all searchwords.")
+        help="Species to be queried, e.g. homo_sapiens."
     )
     parser_gget.add_argument(
-        "--limit", "-l",
+        "-l", "--limit",
         type=int, 
         default=None,
         required=False,
-        metavar="/ -l",
         help="Limits the number of results, e.g. 10 (default: None)."
     )
     parser_gget.add_argument(
-        "--out", "-o",
+        "-o", "--out",
         type=str,
         required=False,
-        metavar="/ -o",
         help=(
-            "Path to the csv file the results will be saved in, e.g. path/to/directory/results.csv." 
+            "Path to the json file the results will be saved in, e.g. path/to/directory/results.json." 
             "Default: None (just prints results)."
         )
     )
@@ -160,32 +150,30 @@ def main():
         )
     # info parser arguments
     parser_info.add_argument(
-        "--ens_ids", "-id", 
+        "-id", "--ens_ids", 
         type=str,
         nargs="+",
         required=True, 
-        metavar="",   
         help="One or more Ensembl IDs."
     )
     parser_info.add_argument(
-        "--homology", "-H",
+        "-H", "--homology", 
         default=False, 
         action='store_true',
         required=False, 
         help="Returns homology information of ID (default: False)."
     )
     parser_info.add_argument(
-        "--xref", "-x",
+        "-x", "--xref", 
         default=False, 
         action='store_true',
         required=False, 
         help="Returns information from external references (default: False)."
     )
     parser_info.add_argument(
-        "--out", "-o",
+        "-o", "--out",
         type=str,
         required=False,
-        metavar="/ -o",
         help=(
             "Path to the json file the results will be saved in, e.g. path/to/directory/results.json." 
             "Default: None (just prints results)."
@@ -206,7 +194,7 @@ def main():
         
     ## Version return
     if args.version:        
-        sys.stdout.write(f"gget version: {__init__.__version__}")
+        print(f"gget version: {__init__.__version__}")
         
     ## ref return
     if args.command == "ref":
@@ -222,7 +210,7 @@ def main():
                 species_list = list(set(species_list_gtf) & set(species_list_dna))
                 
                 # Print available species list
-                sys.stdout.write(f"{species_list}")
+                print(species_list)
                 
         # If list flag and release passed, return all available species for this release
         if args.list and args.release:
@@ -236,7 +224,7 @@ def main():
                 species_list = list(set(species_list_gtf) & set(species_list_dna))
                 
                 # Print available species list
-                sys.stdout.write(f"{species_list}\n")
+                print(species_list)
         
         # Raise error if neither species nor list flag passed
         if args.species is None and args.list is None:
@@ -274,7 +262,7 @@ def main():
 
                 else:
                     results = " ".join(ref_results)
-                    sys.stdout.write(f"{results}\n")
+                    print(results)
 
             # Print or save json file
             else:
@@ -286,7 +274,7 @@ def main():
                     sys.stderr.write(f"\nResults saved as {args.out}.\n")
                 # Print results if no directory specified
                 else:
-                    sys.stdout.write(f"{json.dumps(ref_results, ensure_ascii=False, indent=4)}\n")
+                    print(json.dumps(ref_results, ensure_ascii=False, indent=4))
                     sys.stderr.write("\nTo save these results, use flag '-o' in the format:\n" 
                                      "'-o path/to/directory/results.json'.\n")
         
@@ -305,7 +293,10 @@ def main():
             sw_clean_final.remove("")  
         
         # Query Ensembl for genes based on species and searchwords using function search
-        gget_results = search(sw_clean_final, args.species, operator=args.operator, limit=args.limit)
+        gget_results = search(sw_clean_final, 
+                              args.species, 
+                              andor=args.andor, 
+                              limit=args.limit)
         
         # Save in specified directory if -o specified
         if args.out:
@@ -315,7 +306,7 @@ def main():
         
         # Print results if no directory specified
         else:
-            sys.stdout.write(f"{gget_results}")
+            print(gget_results)
             sys.stderr.write("\nTo save these results, use flag '-o' in the format:\n" 
                              "'-o path/to/directory/results.json'.\n")
             
@@ -345,6 +336,6 @@ def main():
             sys.stderr.write(f"\nResults saved as {args.out}.\n")
         # Print results if no directory specified
         else:
-            sys.stdout.write(f"{json.dumps(info_results, ensure_ascii=False, indent=4)}\n")
+            print(json.dumps(info_results, ensure_ascii=False, indent=4))
             sys.stderr.write("\nTo save these results, use flag '-o' in the format:\n" 
                              "'-o path/to/directory/results.json'.\n")
