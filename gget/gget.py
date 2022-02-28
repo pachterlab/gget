@@ -21,6 +21,75 @@ import json
 # Package to write standard error output
 import sys
 
+def seq(ens_ids):
+    """
+    Looks up sequences from Ensembl IDs.
+
+    Parameters:
+    - ens_ids
+    One or more Ensembl IDs (passed as string or list of strings).
+
+    Returns a dictionary/json file containing the requested information about the Ensembl IDs.
+    """
+    # Define Ensembl REST API server
+    server = "http://rest.ensembl.org/"
+    # Define type of returned content from REST
+    content_type = "application/json"
+
+    ## Clean up Ensembl IDs
+    # If single Ensembl ID passed as string, convert to list
+    if type(ens_ids) == str:
+        ens_ids = [ens_ids]
+    # Remove Ensembl ID version if passed
+    ens_ids_clean = []
+    for ensembl_ID in ens_ids:
+        ens_ids_clean.append(ensembl_ID.split(".")[0])
+        
+    # Initiate dictionary to save results for all IDs in
+    master_dict = {}
+
+    # Query REST APIs from https://rest.ensembl.org/
+    for ensembl_ID in ens_ids_clean:
+        # Create dict to save query results
+        results_dict = {ensembl_ID:{}}
+        
+        ## SEQUENCE
+        # sequence/id/ query: Request sequence by stable identifier
+        if seq == True:
+            # Define the REST query
+            query = "sequence/id/" + ensembl_ID + "?"
+            # Submit query
+            df_temp = rest_query(server, query, content_type)
+
+            # Add results to main dict
+            results_dict[ensembl_ID].update({"seq":df_temp["seq"]})
+        
+        ## OVERLAP
+        # overlap/id/ query: Retrieves features (e.g. genes, transcripts, variants and more) that overlap a region defined by the given identifier.
+        query = "overlap/id/" + ensembl_ID + "?"
+        
+#         # Add results to main dict
+#         try:
+#             results_dict[ensembl_ID].update({"homology":df_temp["data"][0]["homologies"]})
+#         except:
+#             sys.stderr.write(f"No homology information found for {ensembl_ID}.\n")
+
+        # overlap/translation/:id query: Retrieves features related to a specific Translation as described by its stable ID (e.g. domains, variants).
+        query = "overlap/translation/" + ensembl_ID + "?"
+        
+#         # Add results to main dict
+#         try:
+#             results_dict[ensembl_ID].update({"homology":df_temp["data"][0]["homologies"]})
+#         except:
+#             sys.stderr.write(f"No homology information found for {ensembl_ID}.\n")
+        
+    
+        ## MAPPING
+        
+        
+        ## REGULATORY
+        # regulatory/species/:species/id/:id query: Returns a RegulatoryFeature given its stable ID
+        
 
 ## gget info
 def info(ens_ids, homology=False, xref=False, save=False):
