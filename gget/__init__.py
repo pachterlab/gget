@@ -1,5 +1,5 @@
-from .gget import *
+from gget import *
 
 __author__ = 'Laura Luebbert'
-__email__ = 'email@example.com'
-__version__ = '0.0.1'
+__email__ = 'lauraluebbert@caltech.edu'
+__version__ = '0.0.7'

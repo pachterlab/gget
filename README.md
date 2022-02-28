@@ -9,7 +9,7 @@ gget has three main commands:
 Fetch links to GTF and FASTA files from the [Ensembl FTP site](http://ftp.ensembl.org/pub/).
 - [**gget search**](#gget-search)   
 Query [Ensembl](https://www.ensembl.org/) for genes using free form search words.
-- [**gget spy**](#gget-spy)  
+- [**gget info**](#gget-info)  
 Look up genes or transcripts by their Ensembl ID.
 
 ## Installation
@@ -19,7 +19,7 @@ pip install gget
 
 For use in Jupyter Lab / Google Colab:
 ```python
-from gget import ref, search, spy
+from gget import ref, search, info
 ```
 
 ## Getting started
@@ -31,7 +31,7 @@ $ gget ref -s homo_sapiens -r 104
 $ gget search -sw mito -s taeniopygia_guttata -l 10
 
 # Look up Ensembl ID ENSSCUG00000017183 and return its sequence
-$ gget spy -id ENSSCUG00000017183 -seq
+$ gget info -id ENSSCUG00000017183 -seq
 ```
 
 # Manual
@@ -70,7 +70,7 @@ ref("homo_sapiens")
 # Terminal:
 $ gget ref -s homo_sapiens
 ```
-&rarr; Returns a json with the latest human reference genome GTF, DNA, and cDNA links, their respective release dates and time, and the Ensembl release from which the links were fetched, in the format:
+&rarr; Returns a json with the latest links to human GTF and FASTA files, their respective release dates and time, and the Ensembl release from which the links were fetched, in the format:
 ```
 {
             species: {
@@ -222,15 +222,12 @@ $ gget search -sw brain -s mus_musculus_cbaj_core_105_1
 #### [Click here for more examples](https://github.com/lauraluebbert/gget/tree/main/examples)
 
 ___
-## gget spy  
-"Spy" on gene or transcript Ensembl IDs for their common name, description, sequence, homologs, synonyms, corresponding transcript/gene and more from the Ensembl database as well as external references.
+## gget info  
+Look up gene or transcript Ensembl IDs. Returns their common name, description, homologs, synonyms, corresponding transcript/gene and more from the Ensembl database as well as external references.
 
 ### Options
 `-id` `--ens_ids`  
 One or more Ensembl IDs.
-
-`-seq` `--seq`  
-Returns basepair sequence of gene (or parent gene if transcript ID is passed) (default: False).
 
 `-H` `--homology`  
 Returns homology information of ID (default: False).
@@ -242,15 +239,15 @@ Returns information from external references (default: False).
 Path to the file the results will be saved in, e.g. path/to/directory/results.json (default: None &rarr; just prints results).  
 For Jupyter Lab / Google Colab: `save=True` will save the output to the current working directory.
 
-### gget spy EXAMPLES
+### gget info EXAMPLES
 #### Look up a list of Ensembl IDs
 
 ```python
 # Jupyter Lab / Google Colab:
-spy(["ENSG00000034713", "ENSG00000104853", "ENSG00000170296"])
+info(["ENSG00000034713", "ENSG00000104853", "ENSG00000170296"])
 
 # Terminal 
-$ gget spy -id ENSG00000034713,ENSG00000104853,ENSG00000170296
+$ gget info -id ENSG00000034713,ENSG00000104853,ENSG00000170296
 ```
 &rarr; Returns a json containing information about each ID, amongst others the common name, description, and corresponding transcript/gene, in the format:
 ```
@@ -274,10 +271,10 @@ $ gget spy -id ENSG00000034713,ENSG00000104853,ENSG00000170296
 
 ```python
 # Jupyter Lab / Google Colab:
-spy("ENSG00000034713", seq=True, homology=True, xref=True)
+info("ENSG00000034713", seq=True, homology=True, xref=True)
 
 # Terminal 
-$ gget spy -id ENSG00000034713 -seq -H -x
+$ gget info -id ENSG00000034713 -seq -H -x
 ```
 &rarr; Returns a json containing the sequence, homology information, and external reference description of each ID in addition to the standard information mentioned above.
 

@@ -1,4 +1,5 @@
 from setuptools import setup, find_packages
+from gget.__init__ import __version__
 
 def read(path):
     with open(path, 'r') as f:
@@ -8,7 +9,7 @@ long_description = read('README.md')
 
 setup(
     name='gget',
-    version='0.0.6',
+    version=__version__,
     license='MIT',
     author='Laura Luebbert',
     author_email='lauraluebbert@caltech.edu',

@@ -1,3 +1,7 @@
+# Import gget code
+import main
+import utils
+
 # Packages for gget search
 import pandas as pd
 import mysql.connector as sql
@@ -15,44 +19,13 @@ import argparse
 import sys
 import os
 
-def rest_query(server, query, content_type):
-    """
-    Function to query a 
-
-    Parameters:
-    - server
-    Serve to query.
-    - Query
-    Query that is passed to server.
-    - content_type
-    Contect type requested from server.
-
-    Returns server output.
-    """
-
-    r = requests.get(
-        server + query, 
-        headers={ "Content-Type" : content_type}
-    )
-
-    if not r.ok:
-        r.raise_for_status()
-        sys.exit()
-
-    if content_type == 'application/json':
-        return r.json()
-    else:
-        return r.text
-
-def spy(ens_ids, seq=False, homology=False, xref=False, save=False):
+def info(ens_ids, homology=False, xref=False, save=False):
     """
     Looks up information about Ensembl IDs.
 
     Parameters:
     - ens_ids
     One or more Ensembl IDs to look up (passed as string or list of strings).
-    - seq
-    If True, returns bp sequence of gene (or parent gene if transcript ID passed) (default: False).
     - homology
     If True, returns homology information of ID (default: False).
     - xref
@@ -67,14 +40,20 @@ def spy(ens_ids, seq=False, homology=False, xref=False, save=False):
     # Define type of returned content from REST
     content_type = "application/json"
 
-    master_dict = {}
-
+    ## Clean up Ensembl IDs
     # If single Ensembl ID passed as string, convert to list
     if type(ens_ids) == str:
         ens_ids = [ens_ids]
+    # Remove Ensembl ID version if passed
+    ens_ids_clean = []
+    for ensembl_ID in ens_ids:
+        ens_ids_clean.append(ensembl_ID.split(".")[0])
+        
+    # Initiate dictionary to save results for all IDs in
+    master_dict = {}
 
     # Query REST APIs from https://rest.ensembl.org/
-    for ensembl_ID in ens_ids:
+    for ensembl_ID in ens_ids_clean:
         # Create dict to save query results
         results_dict = {ensembl_ID:{}}
 
@@ -83,10 +62,10 @@ def spy(ens_ids, seq=False, homology=False, xref=False, save=False):
         query = "lookup/id/" + ensembl_ID + "?"
         # Submit query
         try:
-            df_temp = rest_query(server, query, content_type)
+            df_temp = utils.rest_query(server, query, content_type)
         # Raise error if ID not found
         except:
-            raise ValueError(f"Ensembl ID {ensembl_ID} not found. Please double-check spelling.")
+            sys.stderr.write(f"Ensembl ID {ensembl_ID} not found. Please double-check spelling.\n")
         # Delete superfluous entries
         try:
             del df_temp["version"], df_temp["source"], df_temp["db_type"], df_temp["logic_name"], df_temp["id"]
@@ -96,84 +75,51 @@ def spy(ens_ids, seq=False, homology=False, xref=False, save=False):
         # Add results to main dict
         results_dict[ensembl_ID].update(df_temp)
 
-        ## sequence/id/ query: Request sequence by stable identifier
-        if seq == True:
-            # Define the REST query
-            query = "sequence/id/" + ensembl_ID + "?"
-            # Submit query
-            df_temp = rest_query(server, query, content_type)
-
-            # Add results to main dict
-            results_dict[ensembl_ID].update({"seq":df_temp["seq"]})
-
         ## homology/id/ query: Retrieves homology information (orthologs) by Ensembl gene id
         if homology == True:
             # Define the REST query
             query = "homology/id/" + ensembl_ID + "?"
             # Submit query
-            df_temp = rest_query(server, query, content_type)
+            df_temp = utils.rest_query(server, query, content_type)
                 
             # Add results to main dict
             try:
                 results_dict[ensembl_ID].update({"homology":df_temp["data"][0]["homologies"]})
             except:
-                print("No homology information found for this ID.")
+                sys.stderr.write(f"No homology information found for {ensembl_ID}.\n")
 
         ## xrefs/id/ query: Retrieves external reference information by Ensembl gene id
         if xref == True:
             # Define the REST query
             query = "xrefs/id/" + ensembl_ID + "?"
             # Submit query
-            df_temp = rest_query(server, query, content_type)
+            df_temp = utils.rest_query(server, query, content_type)
 
             # Add results to main dict
             try:
                 results_dict[ensembl_ID].update({"xrefs":df_temp})
             except:
-                print("No external reference information found for this ID.")
+                sys.stderr.write(f"No external reference information found for {ensembl_ID}.\n")
     
         # Add results to master dict
         master_dict.update(results_dict)
 
     # Save
     if save == True:
-        with open('spy_results.json', 'w', encoding='utf-8') as f:
+        with open('info_results.json', 'w', encoding='utf-8') as f:
             json.dump(master_dict, f, ensure_ascii=False, indent=4)
 
     # Return dictionary containing results
     return master_dict   
 
-def gget_species_options(release=105):
-    """
-    Function to find all available species core databases for gget.
-
-    Parameters:
-    - release
-    Ensembl release for which the databases are fetched.
-
-    Returns list of available core databases.
-    """
-    # Find all available databases
-    url = f"http://ftp.ensembl.org/pub/release-{release}/mysql/"
-    html = requests.get(url)
-    soup = BeautifulSoup(html.text, "html.parser")
-
-    # Return list of all available databases
-    databases = []
-    for subsoup in soup.body.findAll('a'):
-        if "core" in subsoup["href"]:
-            databases.append(subsoup["href"].split("/")[0])
-    
-    return databases
-
-def search(searchwords, species, limit=None, save=False):
+def search(searchwords, species, operator="or", limit=None, save=False):
     """
     Function to query Ensembl for genes based on species and free form search terms. 
     
     Parameters:
     - searchwords
     The parameter "searchwords" is a list of one or more strings containing free form search terms 
-    (e.g.searchwords = ["GABA", "gamma-aminobutyric acid"]).
+    (e.g.searchwords = ["GABA", "gamma-aminobutyric"]).
     All results that contain at least one of the search terms are returned.
     The search is not case-sensitive.
     - species
@@ -182,6 +128,10 @@ def search(searchwords, species, limit=None, save=False):
     To pass a specific database (e.g. specific mouse strain),
     enter the name of the core database without "/", e.g. 'mus_musculus_dba2j_core_105_1'. 
     All availabale species databases can be found here: http://ftp.ensembl.org/pub/release-105/mysql/
+    - operator
+    Possible entries: "or", "and"  
+    "or": Returns all genes that include at least one of the searchwords in their description (default)  
+    "and": Returns only genes that include all of the searchwords in their description 
     - limit
     "Limit" limits the number of search results to the top {limit} genes found.
     - save
@@ -203,7 +153,7 @@ def search(searchwords, species, limit=None, save=False):
         species = species.split("/")[0]
 
     # Fetch all available databases
-    databases = gget_species_options(release=105)
+    databases = utils.gget_species_options(release=105)
     db = []
     for datab in databases:
         if species in datab:
@@ -217,30 +167,30 @@ def search(searchwords, species, limit=None, save=False):
     # Check for ambigious species matches in species other than mouse
     elif len(db) > 1 and "mus_musculus" not in species:
         raise ValueError(
-            "Species matches more than one database. "
-            "Please double-check spelling or pass specific database. " 
-            "All available databases can be found here: "
+            "Species matches more than one database.\n"
+            "Please double-check spelling or pass specific CORE database.\n" 
+            "All available databases can be found here:\n"
             "http://ftp.ensembl.org/pub/release-105/mysql/"
             )
     # Raise error if no matching database was found 
     elif len(db) == 0:
         raise ValueError(
-            "Species not found in database. "
-            "Please double-check spelling or pass specific database. " 
-            "All available databases can be found here: "
+            "Species not found in database.\n"
+            "Please double-check spelling or pass specific CORE database.\n" 
+            "All available databases can be found here:\n"
             "http://ftp.ensembl.org/pub/release-105/mysql/"
             )
 
     else:
         db = db[0]
         
-    print(f"Fetching results from database: {db}")
+    sys.stderr.write(f"Fetching results from database: {db}\n")
 
     ## Connect to data base
-    db_connection = sql.connect(host='ensembldb.ensembl.org', 
+    db_connection = sql.connect(host="ensembldb.ensembl.org", 
                                 database=db, 
-                                user='anonymous', 
-                                password='')
+                                user="anonymous", 
+                                password="")
 
     ## Clean up list of searchwords
     # If single searchword passed as string, convert to list
@@ -267,17 +217,29 @@ def search(searchwords, species, limit=None, save=False):
             WHERE (gene.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%')
             """
 
-        # Fetch the search results form the host using the specified query
+        # Fetch the search results from the host using the specified query
         df_temp = pd.read_sql(query, con=db_connection)
         # Order by ENSEMBL ID (I am using pandas for this instead of SQL to increase speed)
         df_temp = df_temp.sort_values("stable_id").reset_index(drop=True)
-
-        # In the first iteration, make the search results equal to the master data frame
-        if i == 0:
-            df = df_temp.copy()
-        # Add new search results to master data frame
-        else:
-            df = pd.concat([df, df_temp])
+    
+        # If operator="or", keep all results
+        if operator == "or":
+            # In the first iteration, make the search results equal to the master data frame
+            if i == 0:
+                df = df_temp.copy()
+            # Add new search results to master data frame
+            else:
+                df = pd.concat([df, df_temp])
+                
+        # If operator="and", only keep overlap between results
+        if operator == "and":
+            # In the first iteration, make the search results equal to the master data frame
+            if i == 0:
+                df = df_temp.copy()
+            # Only keep overlapping results in master data frame
+            else:
+                val = np.intersect1d(df["stable_id"], df_temp["stable_id"])
+                df = df[df.stable_id.isin(val)]
 
     # Rename columns
     df = df.rename(columns={"stable_id": "Ensembl_ID", 
@@ -289,11 +251,11 @@ def search(searchwords, species, limit=None, save=False):
     # Remove any duplicate search results from the master data frame and reset the index
     df = df.drop_duplicates().reset_index(drop=True)
 
-    # Find name of gene using spy function and add to df
+    # Find name of gene using info function and add to df
     gene_names = []
     for ens_id in df["Ensembl_ID"].values:
         try:
-            gene_names.append(spy(ens_id)[ens_id]["display_name"])
+            gene_names.append(info(ens_id)[ens_id]["display_name"])
         # If no gene name is found, add "None" instead
         except KeyError:
             gene_names.append(None)
@@ -304,8 +266,8 @@ def search(searchwords, species, limit=None, save=False):
     df["URL"] = "https://uswest.ensembl.org/" + "_".join(db.split("_")[:2]) + "/Gene/Summary?g=" + df["Ensembl_ID"]
     
     # Print query time and number of genes fetched
-    print(f"Query time: {round(time.time() - start_time, 2)} seconds")
-    print(f"Genes fetched: {len(df)}")
+    sys.stderr.write(f"Query time: {round(time.time() - start_time, 2)} seconds\n")
+    sys.stderr.write(f"Genes fetched: {len(df)}\n")
     
     # Save
     if save == True:
@@ -313,37 +275,6 @@ def search(searchwords, species, limit=None, save=False):
     
     # Return data frame
     return df
-
-
-def ref_species_options(release, which):
-    """
-    Function to find all available species for gget ref.
-
-    Parameters:
-    - release
-    Ensembl release for which available species should be fetched.
-    - which
-    Which type of FTP. Possible entries: 'dna', 'cdna', 'gtf'.
-
-    Returns list of available species.
-    """
-
-    # Find all available species for this release and FTP type
-    if which == "gtf":
-        url = f"http://ftp.ensembl.org/pub/release-{release}/gtf/"
-    if which == "dna" or which == "cdna":
-        url = f"http://ftp.ensembl.org/pub/release-{release}/fasta/"
-    html = requests.get(url)
-    soup = BeautifulSoup(html.text, "html.parser")
-
-    sps = []
-    for subsoup in soup.body.findAll('a'):
-        sps.append(subsoup["href"].split("/")[0])
-
-    species_list = sps[1:]
-    
-    # Return list of all available species
-    return species_list
 
 def ref(species, which="all", release=None, ftp=False, save=False):
     """
@@ -372,6 +303,12 @@ def ref(species, which="all", release=None, ftp=False, save=False):
     Returns a dictionary containing the requested URLs with their respective Ensembl version and release date and time.
     (If FTP=True, returns a list containing only the URLs.)
     """
+    
+    # Species shortcuts
+    if species == "human":
+        species = "homo_sapiens"
+    if species == "mouse":
+        species = "mus_musculus"
 
     ## Find latest Ensembl release
     url = "http://ftp.ensembl.org/pub/"
@@ -397,9 +334,9 @@ def ref(species, which="all", release=None, ftp=False, save=False):
 
     ## Raise error if species not found
     # Find all available species for GTFs for this Ensembl release
-    species_list_gtf = ref_species_options(ENS_rel, 'gtf')
+    species_list_gtf = utils.ref_species_options('gtf', release=ENS_rel)
     # Find all available species for FASTAs for this Ensembl release
-    species_list_dna = ref_species_options(ENS_rel, 'dna') 
+    species_list_dna = utils.ref_species_options('dna', release=ENS_rel) 
 
     # Find intersection of the two lists 
     # (Only species which have GTF and FASTAs available can continue)
@@ -407,9 +344,10 @@ def ref(species, which="all", release=None, ftp=False, save=False):
 
     if species not in species_list:
         raise ValueError(
-            f"Species does not match any available species for Ensembl release {ENS_rel}. "
-            f"All available species are: {species_list} "
-            "Please double-check spelling. "
+            f"Species does not match any available species for Ensembl release {ENS_rel}.\n"
+            "Please double-check spelling.\n"
+            "$ gget ref --list -> lists out all available species.\n"
+            "Combine with [-r] to define specific release (default: latest).\n"
             )
     
     ## Get GTF link for this species and release
@@ -596,7 +534,7 @@ def ref(species, which="all", release=None, ftp=False, save=False):
             with open('ref_results.json', 'w', encoding='utf-8') as f:
                 json.dump(ref_dict, f, ensure_ascii=False, indent=4)
 
-        print(f"Fetching from Ensembl release: {ENS_rel}")
+        sys.stderr.write(f"Fetching from Ensembl release: {ENS_rel}\n")
         return ref_dict
         
     # If FTP==True, return only the specified URLs as a list 
@@ -623,279 +561,7 @@ def ref(species, which="all", release=None, ftp=False, save=False):
             file.close()
 
         return results
- 
-def main():
-    """
-    Function containing argparse parsers and arguments to allow the use of gget from the terminal.
-    """
-    # Define parent parser 
-    parent_parser = argparse.ArgumentParser(description="gget parent parser")
-    # Initiate subparsers
-    parent_subparsers = parent_parser.add_subparsers(dest="command")
-    # Define parent (not sure why I need both parent parser and parent, but otherwise it does not work)
-    parent = argparse.ArgumentParser(add_help=False)
-    # Add debug argument to parent parser
-    parent.add_argument(
-            '--debug',
-            action='store_true',
-            help='Print debug info'
-        )
-    
-    ## gget ref subparser
-    parser_ref = parent_subparsers.add_parser(
-        "ref",
-        parents=[parent],
-        description="Fetch FTP links for a specific species from Ensemble.",
-        add_help=False
-        )
-    # ref parser arguments
-    parser_ref.add_argument(
-        "-s", "--species", 
-        type=str,
-        metavar="",
-        required=True, 
-        help="Species for which the FTPs will be fetched, e.g. homo_sapiens."
-    )
-    parser_ref.add_argument(
-        "-w", "--which", 
-        default="all", 
-        type=str,
-        nargs='+',
-        required=False,
-        help=("Defines which results to return." 
-              "Possible entries are:"
-              "'all' - Returns GTF, cDNA, and DNA links and associated info (default)." 
-              "Or one or a combination of the following:"  
-              "'gtf' - Returns the GTF FTP link and associated info." 
-              "'cdna' - Returns the cDNA FTP link and associated info."
-              "'dna' - Returns the DNA FTP link and associated info."
-             )
-        )
-    parser_ref.add_argument(
-        "-r", "--release",
-        default=None,  
-        type=int, 
-        required=False,
-        metavar="",
-        help="Ensemble release the FTPs will be fetched from, e.g. 104 (default: latest Ensembl release).")
-    parser_ref.add_argument(
-        "-ftp", "--ftp",  
-        default=False, 
-        action='store_true',
-        required=False,
-        help="If True: return only the FTP link instead of a json.")
-    parser_ref.add_argument(
-        "-o", "--out",
-        type=str,
-        required=False,
-        metavar="",
-        help=(
-            "Path to the json file the results will be saved in, e.g. path/to/directory/results.json." 
-            "Default: None (just prints results)."
-        )
-    )
 
-    ## gget search subparser
-    parser_gget = parent_subparsers.add_parser(
-        "search",
-         parents=[parent],
-         description="Query Ensembl for genes based on species and free form search terms.", 
-         add_help=False
-         )
-    # Search parser arguments
-    parser_gget.add_argument(
-        "-sw", "--searchwords", 
-        type=str, 
-        nargs="+",
-        required=True, 
-        metavar="",  
-        help="One or more free form searchwords for the query, e.g. gaba, nmda."
-    )
-    parser_gget.add_argument(
-        "-s", "--species",
-        type=str,  
-        required=True, 
-        metavar="",
-        help="Species to be queried, e.g. homo_sapiens."
-    )
-    parser_gget.add_argument(
-        "-l", "--limit", 
-        type=int, 
-        required=False,
-        metavar="",
-        help="Limits the number of results, e.g. 10 (default: None)."
-    )
-    parser_gget.add_argument(
-        "-o", "--out",
-        type=str,
-        required=False,
-        help=(
-            "Path to the csv file the results will be saved in, e.g. path/to/directory/results.csv." 
-            "Default: None (just prints results)."
-        )
-    )
-    
-    ## gget spy subparser
-    parser_spy = parent_subparsers.add_parser(
-        "spy",
-        parents=[parent],
-        description="Look up information about Ensembl IDs.", 
-        add_help=False
-        )
-    # spy parser arguments
-    parser_spy.add_argument(
-        "-id", "--ens_ids", 
-        type=str,
-        nargs="+",
-        required=True, 
-        metavar="",    # Cleans up help message
-        help="One or more Ensembl IDs."
-    )
-    parser_spy.add_argument(
-        "-seq", "--seq",
-        default=False, 
-        action='store_true',
-        required=False, 
-        help="Returns bp sequence of gene (or parent gene if transcript ID passed) (default: False)."
-    )
-    parser_spy.add_argument(
-        "-H", "--homology",
-        default=False, 
-        action='store_true',
-        required=False, 
-        help="Returns homology information of ID (default: False)."
-    )
-    parser_spy.add_argument(
-        "-x", "--xref",
-        default=False, 
-        action='store_true',
-        required=False, 
-        help="Returns information from external references (default: False)."
-    )
-    parser_spy.add_argument(
-        "-o", "--out",
-        type=str,
-        required=False,
-        help=(
-            "Path to the json file the results will be saved in, e.g. path/to/directory/results.json." 
-            "Default: None (just prints results)."
-        )
-    )
-    
-    ## Show help when no arguments are given
-    if len(sys.argv) == 1:
-        parent_parser.print_help(sys.stderr)
-        sys.exit(1)
-
-    args = parent_parser.parse_args()
-
-    ### Define return values
-    ## Debug return
-    if args.debug:
-        print("debug: " + str(args))
-        
-    ## ref return
-    if args.command == "ref":
-        
-        ## Clean up 'which' entry if passed
-        if type(args.which) != str:
-            which_clean = []
-            # Split by comma (spaces are automatically split by nargs:"+")
-            for which in args.which:
-                which_clean.append(which.split(","))
-            # Flatten which_clean
-            which_clean_final = [item for sublist in which_clean for item in sublist]   
-            # Remove empty strings resulting from split
-            while("" in which_clean_final) :
-                which_clean_final.remove("")   
-        else:
-            which_clean_final = args.which
-
-        # Query Ensembl for requested FTPs using function ref
-        ref_results = ref(args.species, which_clean_final, args.release, args.ftp)
-
-        # Print or save list of URLs
-        if args.ftp==True:
-            if args.out:
-                os.makedirs("/".join(args.out.split("/")[:-1]), exist_ok=True)
-                file = open(args.out, "w")
-                for element in ref_results:
-                    file.write(element + "\n")
-                file.close()
-                print(f"Results saved as {args.out}.")
-
-            else:
-                print(" ".join(ref_results))
-        
-        # Print or save json file
-        else:
-            # Save in specified directory if -o specified
-            if args.out:
-                os.makedirs("/".join(args.out.split("/")[:-1]), exist_ok=True)
-                with open(args.out, 'w', encoding='utf-8') as f:
-                    json.dump(ref_results, f, ensure_ascii=False, indent=4)
-                print(f"Results saved as {args.out}.")
-            # Print results if no directory specified
-            else:
-                print(json.dumps(ref_results, ensure_ascii=False, indent=4))
-                print("To save these results, use flag '-o' in the format: '-o path/to/directory/results.json'.")
-        
-    ## search return
-    if args.command == "search":
-        
-        ## Clean up args.searchwords
-        sw_clean = []
-        # Split by comma (spaces are automatically split by nargs:"+")
-        for sw in args.searchwords:
-            sw_clean.append(sw.split(","))
-        # Flatten which_clean
-        sw_clean_final = [item for sublist in sw_clean for item in sublist]   
-        # Remove empty strings resulting from split
-        while("" in sw_clean_final) :
-            sw_clean_final.remove("")  
-        
-        # Query Ensembl for genes based on species and searchwords using function search
-        gget_results = search(sw_clean_final, args.species, limit=args.limit)
-        
-        # Save in specified directory if -o specified
-        if args.out:
-            os.makedirs("/".join(args.out.split("/")[:-1]), exist_ok=True)
-            gget_results.to_csv(args.out, index=False)
-            print(f"Results saved as {args.out}.")
-        
-        # Print results if no directory specified
-        else:
-            print(gget_results)
-            print("To save these results, use flag '-o' in the format: '-o path/to/directory/results.csv'.")
-            
-    ## spy return
-    if args.command == "spy":
-
-        ## Clean up args.ens_ids
-        ids_clean = []
-        # Split by comma (spaces are automatically split by nargs:"+")
-        for id_ in args.ens_ids:
-            ids_clean.append(id_.split(","))
-        # Flatten which_clean
-        ids_clean_final = [item for sublist in ids_clean for item in sublist]   
-        # Remove empty strings resulting from split
-        while("" in ids_clean_final) :
-            ids_clean_final.remove("")  
-
-        # Look up requested Ensembl IDs
-        spy_results = spy(ids_clean_final, args.seq, args.homology, args.xref)
-
-        # Print or save json file
-        # Save in specified directory if -o specified
-        if args.out:
-            os.makedirs("/".join(args.out.split("/")[:-1]), exist_ok=True)
-            with open(args.out, 'w', encoding='utf-8') as f:
-                json.dump(spy_results, f, ensure_ascii=False, indent=4)
-            print(f"Results saved as {args.out}.")
-        # Print results if no directory specified
-        else:
-            print(json.dumps(spy_results, ensure_ascii=False, indent=4))
-            print("To save these results, use flag '-o' in the format: '-o path/to/directory/results.json'.")
-
+# Python interpreter
 if __name__ == '__main__':
-    main()
+    main.main()
