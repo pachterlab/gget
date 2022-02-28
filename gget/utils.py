@@ -1,3 +1,7 @@
+## File description:
+# utils.py contains supporting functions called by the functions contained in gget.py.
+
+## Import packages
 import re
 import requests
 import numpy as np

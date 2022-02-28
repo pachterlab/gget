@@ -1,4 +1,8 @@
-# Import gget code
+## File description:
+# gget.py contains all of the primary functions for the gget package (supporting functions are stored in utils.py).
+
+## Import packages
+# Import gget main and utils
 import main
 import utils
 
@@ -7,18 +11,18 @@ import pandas as pd
 import mysql.connector as sql
 import time
 
-# Packages for ref
+# Packages for gget ref/info
 from bs4 import BeautifulSoup
 import requests
 import re
 import numpy as np
 import json
 
-# Packages for use from terminal
-import argparse
+# Package to write standard error output
 import sys
-import os
 
+
+## gget info
 def info(ens_ids, homology=False, xref=False, save=False):
     """
     Looks up information about Ensembl IDs.
@@ -112,6 +116,8 @@ def info(ens_ids, homology=False, xref=False, save=False):
     # Return dictionary containing results
     return master_dict   
 
+
+## gget search
 def search(searchwords, species, andor="or", limit=None, save=False):
     """
     Function to query Ensembl for genes based on species and free form search terms. 
@@ -276,6 +282,7 @@ def search(searchwords, species, andor="or", limit=None, save=False):
     # Return data frame
     return df
 
+## gget ref
 def ref(species, which="all", release=None, ftp=False, save=False):
     """
     Function to fetch GTF and FASTA (cDNA and DNA) URLs from the Ensemble FTP site.
@@ -562,6 +569,7 @@ def ref(species, which="all", release=None, ftp=False, save=False):
 
         return results
 
-# Python interpreter
+    
+# Python interpreter to run main()
 if __name__ == '__main__':
     main.main()

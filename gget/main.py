@@ -1,3 +1,7 @@
+## File description:
+# main.py contains the parsers and arguments for use of gget from the terminal.
+
+## Import packages
 # Packages for use from terminal
 import __init__ 
 import argparse
