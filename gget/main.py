@@ -43,7 +43,7 @@ def main():
         parents=[parent],
         description="Fetch FTP links for a specific species from Ensemble.",
         help="Fetch FTP links for a specific species from Ensemble.",
-        add_help=False
+        add_help=True
         )
     # ref parser arguments
     parser_ref.add_argument(
@@ -66,12 +66,12 @@ def main():
         type=str,
         nargs='+',
         required=False,
-        help=("Defines which results to return." 
-              "Possible entries are:"
-              "'all' - Returns GTF, cDNA, and DNA links and associated info (default)." 
-              "Or one or a combination of the following:"  
-              "'gtf' - Returns the GTF FTP link and associated info." 
-              "'cdna' - Returns the cDNA FTP link and associated info."
+        help=("Defines which results to return.\n" 
+              "Possible entries are:\n"
+              "'all' - Returns GTF, cDNA, and DNA links and associated info (default).\n" 
+              "Or one or a combination of the following:\n"  
+              "'gtf' - Returns the GTF FTP link and associated info.\n" 
+              "'cdna' - Returns the cDNA FTP link and associated info.\n"
               "'dna' - Returns the DNA FTP link and associated info."
              )
         )
@@ -84,15 +84,21 @@ def main():
     parser_ref.add_argument(
         "-ftp", "--ftp",  
         default=False, 
-        action='store_true',
+        action="store_true",
         required=False,
-        help="If True: return only the FTP link instead of a json.")
+        help="Return only the FTP link instead of a json.")
+    parser_ref.add_argument(
+        "-d", "--download",  
+        default=False, 
+        action="store_true",
+        required=False,
+        help="Download FTPs to the current directory using wget.")
     parser_ref.add_argument(
         "-o", "--out",
         type=str,
         required=False,
         help=(
-            "Path to the json file the results will be saved in, e.g. path/to/directory/results.json." 
+            "Path to the json file the results will be saved in, e.g. path/to/directory/results.json.\n" 
             "Default: None (just prints results)."
         )
     )
@@ -103,7 +109,7 @@ def main():
          parents=[parent],
          description="Query Ensembl for genes based on species and free form search terms.", 
          help="Query Ensembl for genes based on species and free form search terms.",
-         add_help=False
+         add_help=True
          )
     # Search parser arguments
     parser_gget.add_argument(
@@ -125,7 +131,10 @@ def main():
         default="or",
         type=str,  
         required=False, 
-        help="Species to be queried, e.g. homo_sapiens."
+        help=(
+            "'or': Gene descriptions must include at least one of the searchwords (default).\n"
+            "'and': Only return genes whose descriptions include all searchwords.\n"
+        )
     )
     parser_gget.add_argument(
         "-l", "--limit",
@@ -139,7 +148,7 @@ def main():
         type=str,
         required=False,
         help=(
-            "Path to the json file the results will be saved in, e.g. path/to/directory/results.json." 
+            "Path to the json file the results will be saved in, e.g. path/to/directory/results.json.\n" 
             "Default: None (just prints results)."
         )
     )
@@ -150,7 +159,7 @@ def main():
         parents=[parent],
         description="Look up information about Ensembl IDs.", 
         help="Look up information about Ensembl IDs.",
-        add_help=False
+        add_help=True
         )
     # info parser arguments
     parser_info.add_argument(
@@ -163,14 +172,14 @@ def main():
     parser_info.add_argument(
         "-H", "--homology", 
         default=False, 
-        action='store_true',
+        action="store_true",
         required=False, 
         help="Returns homology information of ID (default: False)."
     )
     parser_info.add_argument(
         "-x", "--xref", 
         default=False, 
-        action='store_true',
+        action="store_true",
         required=False, 
         help="Returns information from external references (default: False)."
     )
@@ -179,7 +188,7 @@ def main():
         type=str,
         required=False,
         help=(
-            "Path to the json file the results will be saved in, e.g. path/to/directory/results.json." 
+            "Path to the json file the results will be saved in, e.g. path/to/directory/results.json.\n" 
             "Default: None (just prints results)."
         )
     )
@@ -251,36 +260,97 @@ def main():
             which_clean_final = args.which
 
         if args.species:
+            
             # Query Ensembl for requested FTPs using function ref
             ref_results = ref(args.species, which_clean_final, args.release, args.ftp)
 
-            # Print or save list of URLs
-            if args.ftp==True:
-                if args.out:
+            # Print or save list of URLs (ftp=True)
+            if args.ftp == True:
+                # Save in specified directory if -o specified
+                if args.out == True:
                     os.makedirs("/".join(args.out.split("/")[:-1]), exist_ok=True)
                     file = open(args.out, "w")
                     for element in ref_results:
                         file.write(element + "\n")
                     file.close()
-                    sys.stderr.write(f"\nResults saved as {args.out}.\n")
-
+                    sys.stderr.write(
+                        f"\nResults saved as {args.out}.\n"
+                    )
+                    
+                    if args.download == True:
+                        # Download list of URLs
+                        for link in ref_results:
+                            command = "wget " + link
+                            os.system(command)
+                    else:
+                        sys.stderr.write(
+                            "To download the FTPs to the current directory, add flag [-d].\n"
+                        )
+                
+                # Print results if no directory specified
                 else:
+                    # Print results
                     results = " ".join(ref_results)
                     print(results)
-
-            # Print or save json file
+                    sys.stderr.write(
+                        "\nTo save these results, use flag '-o' in the format:\n" 
+                        "'-o path/to/directory/results.txt'.\n"
+                    )
+                    
+                    if args.download == True:
+                        # Download list of URLs
+                        for link in ref_results:
+                            command = "wget " + link
+                            os.system(command)
+                    else:
+                        sys.stderr.write(
+                            "To download the FTPs to the current directory, add flag [-d].\n"
+                        )
+                    
+            # Print or save json file (ftp=False)
             else:
                 # Save in specified directory if -o specified
-                if args.out:
+                if args.out == True:
                     os.makedirs("/".join(args.out.split("/")[:-1]), exist_ok=True)
                     with open(args.out, 'w', encoding='utf-8') as f:
                         json.dump(ref_results, f, ensure_ascii=False, indent=4)
-                    sys.stderr.write(f"\nResults saved as {args.out}.\n")
+                    sys.stderr.write(
+                        f"\nResults saved as {args.out}.\n"
+                    )
+                    
+                    if args.download == True:
+                        # Download the URLs from the dictionary
+                        for link in ref_results:
+                            for sp in ref_results:
+                                for ftp_type in ref_results[sp]:
+                                    link = ref_results[sp][ftp_type]['ftp']
+                                    command = "wget " + link
+                                    os.system(command)    
+                    else:
+                        sys.stderr.write(
+                            "To download the FTPs to the current directory, add flag [-d].\n"
+                        )
+                    
                 # Print results if no directory specified
                 else:
                     print(json.dumps(ref_results, ensure_ascii=False, indent=4))
-                    sys.stderr.write("\nTo save these results, use flag '-o' in the format:\n" 
-                                     "'-o path/to/directory/results.json'.\n")
+                    sys.stderr.write(
+                        "\nTo save these results, use flag '-o' in the format:\n" 
+                        "'-o path/to/directory/results.json'.\n"
+                    )
+                    
+                    if args.download == True:
+                        # Download the URLs from the dictionary
+                        for link in ref_results:
+                            for sp in ref_results:
+                                for ftp_type in ref_results[sp]:
+                                    link = ref_results[sp][ftp_type]['ftp']
+                                    command = "wget " + link
+                                    os.system(command)
+                    else:
+                        sys.stderr.write(
+                            "To download the FTPs to the current directory, add flag [-d].\n"
+                        )
         
     ## search return
     if args.command == "search":

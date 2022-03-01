@@ -49,6 +49,11 @@ def gget_species_options(release=105):
     # Find all available databases
     url = f"http://ftp.ensembl.org/pub/release-{release}/mysql/"
     html = requests.get(url)
+    
+    # Raise error if status code not "OK" Response
+    if html.status_code != 200:
+        raise RuntimeError(f"HTTP response status code {html.status_code}. Please try again.")
+        
     soup = BeautifulSoup(html.text, "html.parser")
 
     # Return list of all available databases
@@ -75,6 +80,11 @@ def ref_species_options(which, release=None):
     ## Find latest Ensembl release
     url = "http://ftp.ensembl.org/pub/"
     html = requests.get(url)
+    
+    # Raise error if status code not "OK" Response
+    if html.status_code != 200:
+        raise RuntimeError(f"HTTP response status code {html.status_code}. Please try again.")
+        
     soup = BeautifulSoup(html.text, "html.parser")
     # Find all releases
     releases = soup.body.findAll(text=re.compile("release-"))
@@ -100,6 +110,11 @@ def ref_species_options(which, release=None):
     if which == "dna" or which == "cdna":
         url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/"
     html = requests.get(url)
+    
+    # Raise error if status code not "OK" Response
+    if html.status_code != 200:
+        raise RuntimeError(f"HTTP response status code {html.status_code}. Please try again.")
+    
     soup = BeautifulSoup(html.text, "html.parser")
 
     sps = []

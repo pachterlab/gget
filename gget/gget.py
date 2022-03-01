@@ -389,6 +389,11 @@ def ref(species, which="all", release=None, ftp=False, save=False):
     ## Find latest Ensembl release
     url = "http://ftp.ensembl.org/pub/"
     html = requests.get(url)
+    
+    # Raise error if status code not "OK" Response
+    if html.status_code != 200:
+        raise RuntimeError(f"HTTP response status code {html.status_code}. Please try again.")
+    
     soup = BeautifulSoup(html.text, "html.parser")
     # Find all releases
     releases = soup.body.findAll(text=re.compile("release-"))
@@ -429,6 +434,11 @@ def ref(species, which="all", release=None, ftp=False, save=False):
     ## Get GTF link for this species and release
     url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/gtf/{species}/"
     html = requests.get(url)
+    
+    # Raise error if status code not "OK" Response
+    if html.status_code != 200:
+        raise RuntimeError(f"HTTP response status code {html.status_code}. Please try again.")
+    
     soup = BeautifulSoup(html.text, "html.parser")
     
     # The url can be found under an <a> object tag in the html, 
@@ -460,6 +470,11 @@ def ref(species, which="all", release=None, ftp=False, save=False):
     ## Get cDNA FASTA link for this species and release
     url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/cdna"
     html = requests.get(url)
+    
+    # Raise error if status code not "OK" Response
+    if html.status_code != 200:
+        raise RuntimeError(f"HTTP response status code {html.status_code}. Please try again.")
+    
     soup = BeautifulSoup(html.text, "html.parser")
     
     # The url can be found under an <a> object tag in the html, 
@@ -491,6 +506,11 @@ def ref(species, which="all", release=None, ftp=False, save=False):
     ## Get DNA FASTA link for this species and release
     url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/dna"
     html = requests.get(url)
+    
+    # Raise error if status code not "OK" Response
+    if html.status_code != 200:
+        raise RuntimeError(f"HTTP response status code {html.status_code}. Please try again.")
+    
     soup = BeautifulSoup(html.text, "html.parser")
     
     # The url can be found under an <a> object tag in the html, 
