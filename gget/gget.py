@@ -187,7 +187,7 @@ def info(ens_ids, homology=False, xref=False, save=False):
 
 
 ## gget search
-def search(searchwords, species, andor="or", limit=None, save=False):
+def search(searchwords, species, d_type="gene", andor="or", limit=None, save=False):
     """
     Function to query Ensembl for genes based on species and free form search terms. 
     
@@ -203,6 +203,9 @@ def search(searchwords, species, andor="or", limit=None, save=False):
     To pass a specific database (e.g. specific mouse strain),
     enter the name of the core database without "/", e.g. 'mus_musculus_dba2j_core_105_1'. 
     All availabale species databases can be found here: http://ftp.ensembl.org/pub/release-105/mysql/
+    -d_type
+    "gene" (default) or "transcript". 
+    Defines whether genes or transcripts matching the searchwords are returned.
     - andor
     Possible entries: "and", "or"  
     "or": Returns all genes that include at least one of the searchwords in their description (default)  
@@ -274,68 +277,102 @@ def search(searchwords, species, andor="or", limit=None, save=False):
     
     ## Find genes
     for i, searchword in enumerate(searchwords):
-        # If limit is specified, fetch only the first {limit} genes for which the searchword appears in the description
-        if limit != None:
-            query = f"""
-            SELECT gene.stable_id, gene.description, xref.description, gene.biotype
-            FROM gene
-            LEFT JOIN xref ON gene.display_xref_id = xref.xref_id
-            WHERE (gene.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%')
-            LIMIT {limit}
-            """
-        # Else, fetch all genes for which the searchword appears in the description
-        else:
-            query = f"""
-            SELECT gene.stable_id, gene.description, xref.description, gene.biotype
-            FROM gene
-            LEFT JOIN xref ON gene.display_xref_id = xref.xref_id
-            WHERE (gene.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%')
-            """
+        if d_type == "gene":
+            # If limit is specified, fetch only the first {limit} genes for which the searchword appears in the description
+            if limit != None:
+                query = f"""
+                SELECT gene.stable_id, xref.display_label, gene.description, xref.description, gene.biotype
+                FROM gene
+                LEFT JOIN xref ON gene.display_xref_id = xref.xref_id
+                WHERE (gene.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%')
+                LIMIT {limit}
+                """
+            # Else, fetch all genes for which the searchword appears in the description
+            else:
+                query = f"""
+                SELECT gene.stable_id, xref.display_label, gene.description, xref.description, gene.biotype
+                FROM gene
+                LEFT JOIN xref ON gene.display_xref_id = xref.xref_id
+                WHERE (gene.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%')
+                """
 
-        # Fetch the search results from the host using the specified query
-        df_temp = pd.read_sql(query, con=db_connection)
-        # Order by ENSEMBL ID (I am using pandas for this instead of SQL to increase speed)
-        df_temp = df_temp.sort_values("stable_id").reset_index(drop=True)
-    
-        # If andor="or", keep all results
-        if andor == "or":
-            # In the first iteration, make the search results equal to the master data frame
-            if i == 0:
-                df = df_temp.copy()
-            # Add new search results to master data frame
+            # Fetch the search results from the host using the specified query
+            df_temp = pd.read_sql(query, con=db_connection)
+            # Order by ENSEMBL ID (I am using pandas for this instead of SQL to increase speed)
+            df_temp = df_temp.sort_values("stable_id").reset_index(drop=True)
+
+            # If andor="or", keep all results
+            if andor == "or":
+                # In the first iteration, make the search results equal to the master data frame
+                if i == 0:
+                    df = df_temp.copy()
+                # Add new search results to master data frame
+                else:
+                    df = pd.concat([df, df_temp])
+
+            # If andor="and", only keep overlap between results
+            if andor == "and":
+                # In the first iteration, make the search results equal to the master data frame
+                if i == 0:
+                    df = df_temp.copy()
+                # Only keep overlapping results in master data frame
+                else:
+                    val = np.intersect1d(df["stable_id"], df_temp["stable_id"])
+                    df = df[df.stable_id.isin(val)]
+        
+        if d_type == "transcript":
+            # If limit is specified, fetch only the first {limit} transcripts for which the searchword appears in the description
+            if limit != None:
+                query = f"""
+                SELECT transcript.stable_id, xref.display_label, transcript.description, xref.description, transcript.biotype
+                FROM transcript
+                LEFT JOIN xref ON transcript.display_xref_id = xref.xref_id
+                WHERE (transcript.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%')
+                LIMIT {limit}
+                """
+            # Else, fetch all transcripts for which the searchword appears in the description
             else:
-                df = pd.concat([df, df_temp])
-                
-        # If andor="and", only keep overlap between results
-        if andor == "and":
-            # In the first iteration, make the search results equal to the master data frame
-            if i == 0:
-                df = df_temp.copy()
-            # Only keep overlapping results in master data frame
-            else:
-                val = np.intersect1d(df["stable_id"], df_temp["stable_id"])
-                df = df[df.stable_id.isin(val)]
+                query = f"""
+                SELECT transcript.stable_id, xref.display_label, transcript.description, xref.description, transcript.biotype
+                FROM transcript
+                LEFT JOIN xref ON transcript.display_xref_id = xref.xref_id
+                WHERE (transcript.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%')
+                """
+
+            # Fetch the search results from the host using the specified query
+            df_temp = pd.read_sql(query, con=db_connection)
+            # Order by ENSEMBL ID (I am using pandas for this instead of SQL to increase speed)
+            df_temp = df_temp.sort_values("stable_id").reset_index(drop=True)
+
+            # If andor="or", keep all results
+            if andor == "or":
+                # In the first iteration, make the search results equal to the master data frame
+                if i == 0:
+                    df = df_temp.copy()
+                # Add new search results to master data frame
+                else:
+                    df = pd.concat([df, df_temp])
+
+            # If andor="and", only keep overlap between results
+            if andor == "and":
+                # In the first iteration, make the search results equal to the master data frame
+                if i == 0:
+                    df = df_temp.copy()
+                # Only keep overlapping results in master data frame
+                else:
+                    val = np.intersect1d(df["stable_id"], df_temp["stable_id"])
+                    df = df[df.stable_id.isin(val)]
 
     # Rename columns
     df = df.rename(columns={"stable_id": "Ensembl_ID", 
+                            "display_label":"Gene_name",
                             "biotype": "Biotype"})
     # Changing description columns name by column index since they were returned with the same name ("description")
-    df.columns.values[1] = "Ensembl_description"
-    df.columns.values[2] = "Ext_ref_description"
+    df.columns.values[2] = "Ensembl_description"
+    df.columns.values[3] = "Ext_ref_description"
 
     # Remove any duplicate search results from the master data frame and reset the index
     df = df.drop_duplicates().reset_index(drop=True)
-
-    # Find name of gene using info function and add to df
-    gene_names = []
-    for ens_id in df["Ensembl_ID"].values:
-        try:
-            gene_names.append(info(ens_id)[ens_id]["display_name"])
-        # If no gene name is found, add "None" instead
-        except KeyError:
-            gene_names.append(None)
-    # Add gene names to df
-    df["Gene_name"] = gene_names
 
     # Add URL to gene summary on Ensembl
     df["URL"] = "https://uswest.ensembl.org/" + "_".join(db.split("_")[:2]) + "/Gene/Summary?g=" + df["Ensembl_ID"]
