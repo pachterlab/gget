@@ -22,7 +22,7 @@ gget ref and search allow the following species abbreviations:
 ref("homo_sapiens", release=103, save=True)
 
 # Terminal
-$ gget ref -sp homo_sapiens -r 103 -o ref_human_r103.json
+$ gget ref -s homo_sapiens -r 103 -o ref_human_r103.json
 ```
 Ouput in file: [ref_human_r103.json](https://github.com/lauraluebbert/gget/blob/main/examples/ref_human_r103.json)
 
