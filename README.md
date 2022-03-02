@@ -37,7 +37,7 @@ $ gget search -sw mito -s taeniopygia_guttata -l 10
 $ gget info -id ENSSCUG00000017183 -H
 
 # Fetch the sequences of Ensembl ID ENSG00000034713 and all its transcript isoforms
-$ gget seq -id ENSMUSG00000025040 -iso
+$ gget seq -id ENSMUSG00000025040 -i
 ```
 
 # Manual
