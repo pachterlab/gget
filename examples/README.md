@@ -1,76 +1,95 @@
 # Examples
-> :warning: **EXAMPLES NOT YET UPDATED FOR v0.0.6**
 
-## gget FetchTP usage examples
-
+## gget ref examples
 ### Fetch *Homo sapiens* GTF, DNA, and cDNA FTPs from latest Ensemble release
-Jupyter Lab:
 ```python
-fetchtp("homo_sapiens", save=True)
-```
+# Jupyter Lab / Google Colab:
+ref("human", save=True)
 
-Terminal:
+# Terminal
+$ gget ref -s human -o ref_human.json
 ```
-gget fetchtp -sp homo_sapiens
-```
-Ouput in file: [fetchtp_human.json](https://github.com/lauraluebbert/gget/blob/main/examples/fetchtp_human.json)
+Ouput in file: [ref_human.json](https://github.com/lauraluebbert/gget/blob/main/examples/ref_human.json)
+
+Note:  
+gget ref and search allow the following species abbreviations:  
+"homo_sapiens" &rarr;  "human"  
+"mus_musculus" &rarr;  "mouse"  
 
 ### Fetch from a previous Ensembl release, e.g. release 103
-Jupyter Lab:
 ```python
-fetchtp("homo_sapiens", release=103, save=True)
+# Jupyter Lab / Google Colab:
+ref("homo_sapiens", release=103, save=True)
+
+# Terminal
+$ gget ref -sp homo_sapiens -r 103 -o ref_human_r103.json
 ```
-
-Terminal:
-```
-gget fetchtp -sp homo_sapiens -r 103
-```
-
-Ouput in file: [fetchtp_human_r103.json](https://github.com/lauraluebbert/gget/blob/main/examples/fetchtp_human_r103.json)
+Ouput in file: [ref_human_r103.json](https://github.com/lauraluebbert/gget/blob/main/examples/ref_human_r103.json)
 
 
-## gget search usage examples
-
-### Query Ensembl for *Homo sapiens* genes whose description contains the searchwords "gaba", "nmda", or "ampa"
-Jupyter Lab:
+## gget search examples
+### Query Ensembl for *Homo sapiens* genes whose description contains one of the searchwords "gaba", "nmda", or "ampa"
 ```python
-gget(["gaba", "nmda", "ampa"], "human", save=True)
-```
+# Jupyter Lab / Google Colab:
+search(["gaba", "nmda", "ampa"], "human", save=True)
 
-Terminal:
+# Terminal
+$ gget search -sw gaba nmda ampa -s human -o search_human_gaba_nmda_ampa.csv
 ```
-gget search -sw gaba nmda ampa -sp human
-```
-Output in file: [gget_human_gaba_nmda_ampa.csv](https://github.com/lauraluebbert/gget/blob/main/examples/gget_human_gaba_nmda_ampa.csv)
+Output in file: [search_human_gaba_nmda_ampa.csv](https://github.com/lauraluebbert/gget/blob/main/examples/search_human_gaba_nmda_ampa.csv)
 
-Note: gget search allows the following species abbreviations:
-"homo_sapiens" - "human"
-"mus_musculus" - "mouse"
-"taeniopygia_guttata" - "zebra finch"
-"caenorhabditis_elegans" - "roundworm"
-All other species have to be called using their specific database, as shown in the example below. All 236 databases can be found [here](http://ftp.ensembl.org/pub/release-105/mysql/).
-
-### Query Ensembl for *Mus musculus* genes whose description contains the searchword "mitochondrial", but limit the results to 10 genes
-Jupyter Lab:
+### Query Ensembl for killifish transcripts whose description contains the searchword "brain"
  ```python
-gget("mitochondrial", "mus_musculus", limit=10, save=True)
-```
+ # Jupyter Lab / Google Colab:
+search("brain", "nothobranchius_furzeri", d_type="transcript", save=True)
 
-Terminal:
+# Terminal
+$ gget search -sw brain -s nothobranchius_furzeri -t transcript -o search_killifish_brain.csv
 ```
-gget search -sw mitochondrial -sp mus_musculus -l 10
-```
-Output in file: [gget_mouse_mito.csv](https://github.com/lauraluebbert/gget/blob/main/examples/gget_mouse_mito.csv)
+Output in file: [search_killifish_brain.csv](https://github.com/lauraluebbert/gget/blob/main/examples/search_killifish_brain.csv)
 
-### Query Ensembl for genes from the killifish (*Nothobranchius furzeri*) database whose description contains the searchword "brain"
-Jupyter Lab:
-```python
-gget("brain", "nothobranchius_furzeri_core_105_2", save=True)
-```
+### Query Ensembl for goldfish genes whose description contains the searchwords "brain" AND "glycophorin"
+ ```python
+ # Jupyter Lab / Google Colab:
+search(["blood","glycophorin"], "carassius_auratus", andor="and", save=True)
 
-Terminal:
+# Terminal
+$ gget search -sw blood,glycophorin -s carassius_auratus -ao and -o search_goldfish_blood.csv
 ```
-gget search -sw brain -sp nothobranchius_furzeri_core_105_2
+Output in file: [search_goldfish_blood.csv](https://github.com/lauraluebbert/gget/blob/main/examples/search_goldfish_blood.csv)
+
+## gget info examples
+### Look up a list of gene Ensembl IDs including information on all isoforms
+ ```python
+# Jupyter Lab / Google Colab:
+info(["ENSG00000034713", "ENSG00000104853", "ENSG00000170296"], expand=True, save=True)
+
+# Terminal 
+$ gget info -id ENSG00000034713,ENSG00000104853,ENSG00000170296 -e -o info_results.json
 ```
-Output in file: [gget_killifish_brain.csv](https://github.com/lauraluebbert/gget/blob/main/examples/gget_killifish_brain.csv)
+Output in file: [info_results.json](https://github.com/lauraluebbert/gget/blob/main/examples/info_results.json)
+
+
+## gget seq examples
+### Fetch the sequences of several transcript Ensembl IDs
+ ```python
+# Jupyter Lab / Google Colab:
+seq(["ENST00000441207","ENST00000587537"], save=True)
+
+# Terminal 
+$ gget seq -id ENST00000441207,ENST00000587537 -o seq_results.fa
+```
+Output in file: [seq_results.fa](https://github.com/lauraluebbert/gget/blob/main/examples/seq_results.fa)
+
+### Fetch the sequences of a gene Ensembl ID and all its transcript isoforms
+ ```python
+# Jupyter Lab / Google Colab:
+seq("ENSMUSG00000025040", isoforms=True, save=True)
+
+# Terminal 
+$ gget seq -id ENSMUSG00000025040 -i -o seq_iso_results.fa
+```
+Output in file: [seq_iso_results.fa](https://github.com/lauraluebbert/gget/blob/main/examples/seq_iso_results.fa)
+
+
 
