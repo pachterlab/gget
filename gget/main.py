@@ -7,6 +7,7 @@ import __init__
 import argparse
 import sys
 import os
+from tabulate import tabulate
 
 # Import gget code
 from gget import *
@@ -126,6 +127,17 @@ def main():
         help="Species to be queried, e.g. homo_sapiens."
     )
     parser_gget.add_argument(
+        "-t", "--d_type",
+        choices=["gene", "transcript"],
+        default="gene",
+        type=str,  
+        required=False, 
+        help=(
+            "'gene': Returns genes that match the searchwords. (default).\n"
+            "'transcript': Returns transcripts that match the searchwords. \n"
+        )
+    )
+    parser_gget.add_argument(
         "-ao", "--andor",
         choices=["and", "or"],
         default="or",
@@ -170,6 +182,13 @@ def main():
         help="One or more Ensembl IDs."
     )
     parser_info.add_argument(
+        "-e", "--expand", 
+        default=False, 
+        action="store_true",
+        required=False, 
+        help="Expand returned information (default: False). For genes: add isoform information. For transcripts: add translation and exon information."
+    )
+    parser_info.add_argument(
         "-H", "--homology", 
         default=False, 
         action="store_true",
@@ -192,6 +211,40 @@ def main():
             "Default: None (just prints results)."
         )
     )
+    
+    ## gget seq subparser
+    parser_seq = parent_subparsers.add_parser(
+        "seq",
+        parents=[parent],
+        description="Look up DNA sequences from Ensembl IDs.", 
+        help="Look up DNA sequences from Ensembl IDs.",
+        add_help=True
+        )
+    # info parser arguments
+    parser_seq.add_argument(
+        "-id", "--ens_ids", 
+        type=str,
+        nargs="+",
+        required=True, 
+        help="One or more Ensembl IDs."
+    )
+    parser_seq.add_argument(
+        "-i", "--isoforms", 
+        default=False, 
+        action="store_true",
+        required=False, 
+        help="If searching a gene ID, returns sequences of all known transcripts (default: False)."
+    )
+    parser_seq.add_argument(
+        "-o", "--out",
+        type=str,
+        required=False,
+        help=(
+            "Path to the FASTA file the results will be saved in, e.g. path/to/directory/results.fa.\n" 
+            "Default: None (just prints results)."
+        )
+    )
+    
     
     ## Show help when no arguments are given
     if len(sys.argv) == 1:
@@ -268,7 +321,9 @@ def main():
             if args.ftp == True:
                 # Save in specified directory if -o specified
                 if args.out == True:
-                    os.makedirs("/".join(args.out.split("/")[:-1]), exist_ok=True)
+                    directory = "/".join(args.out.split("/")[:-1])
+                    if directory != "":
+                        os.makedirs(directory, exist_ok=True)
                     file = open(args.out, "w")
                     for element in ref_results:
                         file.write(element + "\n")
@@ -293,8 +348,7 @@ def main():
                     results = " ".join(ref_results)
                     print(results)
                     sys.stderr.write(
-                        "\nTo save these results, use flag '-o' in the format:\n" 
-                        "'-o path/to/directory/results.txt'.\n"
+                        "\nTo save these results, use flag '-o' in the format: '-o path/to/directory/results.txt'.\n"
                     )
                     
                     if args.download == True:
@@ -311,7 +365,9 @@ def main():
             else:
                 # Save in specified directory if -o specified
                 if args.out == True:
-                    os.makedirs("/".join(args.out.split("/")[:-1]), exist_ok=True)
+                    directory = "/".join(args.out.split("/")[:-1])
+                    if directory != "":
+                        os.makedirs(directory, exist_ok=True)
                     with open(args.out, 'w', encoding='utf-8') as f:
                         json.dump(ref_results, f, ensure_ascii=False, indent=4)
                     sys.stderr.write(
@@ -368,21 +424,23 @@ def main():
         
         # Query Ensembl for genes based on species and searchwords using function search
         gget_results = search(sw_clean_final, 
-                              args.species, 
+                              args.species,
+                              d_type=args.d_type,
                               andor=args.andor, 
                               limit=args.limit)
         
         # Save in specified directory if -o specified
         if args.out:
-            os.makedirs("/".join(args.out.split("/")[:-1]), exist_ok=True)
+            directory = "/".join(args.out.split("/")[:-1])
+            if directory != "":
+                os.makedirs(directory, exist_ok=True)
             gget_results.to_csv(args.out, index=False)
             sys.stderr.write(f"\nResults saved as {args.out}.\n")
         
         # Print results if no directory specified
         else:
-            print(gget_results)
-            sys.stderr.write("\nTo save these results, use flag '-o' in the format:\n" 
-                             "'-o path/to/directory/results.json'.\n")
+            print(tabulate(gget_results, headers = 'keys', tablefmt = 'plain'))
+            sys.stderr.write("\nTo save these results, use flag '-o' in the format: '-o path/to/directory/results.csv'.\n")
             
     ## info return
     if args.command == "info":
@@ -399,17 +457,55 @@ def main():
             ids_clean_final.remove("")  
 
         # Look up requested Ensembl IDs
-        info_results = info(ids_clean_final, homology=args.homology, xref=args.xref)
+        info_results = info(ids_clean_final, expand=args.expand, homology=args.homology, xref=args.xref)
 
         # Print or save json file
         # Save in specified directory if -o specified
         if args.out:
-            os.makedirs("/".join(args.out.split("/")[:-1]), exist_ok=True)
+            directory = "/".join(args.out.split("/")[:-1])
+            if directory != "":
+                os.makedirs(directory, exist_ok=True)
             with open(args.out, 'w', encoding='utf-8') as f:
                 json.dump(info_results, f, ensure_ascii=False, indent=4)
             sys.stderr.write(f"\nResults saved as {args.out}.\n")
         # Print results if no directory specified
         else:
             print(json.dumps(info_results, ensure_ascii=False, indent=4))
-            sys.stderr.write("\nTo save these results, use flag '-o' in the format:\n" 
-                             "'-o path/to/directory/results.json'.\n")
+            sys.stderr.write("\nTo save these results, use flag '-o' in the format: '-o path/to/directory/results.json'.\n")
+            
+    ## seq return
+    if args.command == "seq":
+
+        ## Clean up args.ens_ids
+        ids_clean = []
+        # Split by comma (spaces are automatically split by nargs:"+")
+        for id_ in args.ens_ids:
+            ids_clean.append(id_.split(","))
+        # Flatten which_clean
+        ids_clean_final = [item for sublist in ids_clean for item in sublist]   
+        # Remove empty strings resulting from split
+        while("" in ids_clean_final) :
+            ids_clean_final.remove("")  
+
+        # Look up requested Ensembl IDs
+        seq_results = seq(ids_clean_final, isoforms=args.isoforms)
+
+        # Save in specified directory if -o specified
+        if args.out:
+            directory = "/".join(args.out.split("/")[:-1])
+            if directory != "":
+                os.makedirs(directory, exist_ok=True)
+            file = open(args.out, "w")
+            for element in seq_results:
+                file.write(element + "\n")
+            file.close()
+            sys.stderr.write(
+                f"\nResults saved as {args.out}.\n"
+            )
+            
+        # Print results if no directory specified
+        else:
+            print(seq_results)
+            sys.stderr.write(
+                "\nTo save these results, use flag '-o' in the format: '-o path/to/directory/results.fa'.\n"
+            )

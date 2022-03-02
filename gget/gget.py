@@ -21,84 +21,17 @@ import json
 # Package to write standard error output
 import sys
 
-def seq(ens_ids):
-    """
-    Looks up sequences from Ensembl IDs.
-
-    Parameters:
-    - ens_ids
-    One or more Ensembl IDs (passed as string or list of strings).
-
-    Returns a dictionary/json file containing the requested information about the Ensembl IDs.
-    """
-    # Define Ensembl REST API server
-    server = "http://rest.ensembl.org/"
-    # Define type of returned content from REST
-    content_type = "application/json"
-
-    ## Clean up Ensembl IDs
-    # If single Ensembl ID passed as string, convert to list
-    if type(ens_ids) == str:
-        ens_ids = [ens_ids]
-    # Remove Ensembl ID version if passed
-    ens_ids_clean = []
-    for ensembl_ID in ens_ids:
-        ens_ids_clean.append(ensembl_ID.split(".")[0])
-        
-    # Initiate dictionary to save results for all IDs in
-    master_dict = {}
-
-    # Query REST APIs from https://rest.ensembl.org/
-    for ensembl_ID in ens_ids_clean:
-        # Create dict to save query results
-        results_dict = {ensembl_ID:{}}
-        
-        ## SEQUENCE
-        # sequence/id/ query: Request sequence by stable identifier
-        if seq == True:
-            # Define the REST query
-            query = "sequence/id/" + ensembl_ID + "?"
-            # Submit query
-            df_temp = rest_query(server, query, content_type)
-
-            # Add results to main dict
-            results_dict[ensembl_ID].update({"seq":df_temp["seq"]})
-        
-        ## OVERLAP
-        # overlap/id/ query: Retrieves features (e.g. genes, transcripts, variants and more) that overlap a region defined by the given identifier.
-        query = "overlap/id/" + ensembl_ID + "?"
-        
-#         # Add results to main dict
-#         try:
-#             results_dict[ensembl_ID].update({"homology":df_temp["data"][0]["homologies"]})
-#         except:
-#             sys.stderr.write(f"No homology information found for {ensembl_ID}.\n")
-
-        # overlap/translation/:id query: Retrieves features related to a specific Translation as described by its stable ID (e.g. domains, variants).
-        query = "overlap/translation/" + ensembl_ID + "?"
-        
-#         # Add results to main dict
-#         try:
-#             results_dict[ensembl_ID].update({"homology":df_temp["data"][0]["homologies"]})
-#         except:
-#             sys.stderr.write(f"No homology information found for {ensembl_ID}.\n")
-        
-    
-        ## MAPPING
-        
-        
-        ## REGULATORY
-        # regulatory/species/:species/id/:id query: Returns a RegulatoryFeature given its stable ID
-        
 
 ## gget info
-def info(ens_ids, homology=False, xref=False, save=False):
+def info(ens_ids, expand=False, homology=False, xref=False, save=False):
     """
     Looks up information about Ensembl IDs.
 
     Parameters:
     - ens_ids
     One or more Ensembl IDs to look up (passed as string or list of strings).
+    -expand
+    Expand returned information (default: False). For genes: add isoform information. For transcripts: add translation and exon information.
     - homology
     If True, returns homology information of ID (default: False).
     - xref
@@ -132,20 +65,68 @@ def info(ens_ids, homology=False, xref=False, save=False):
 
         ## lookup/id/ query: Find the species and database for a single identifier 
         # Define the REST query
-        query = "lookup/id/" + ensembl_ID + "?"
+        if expand == True:
+            query = "lookup/id/" + ensembl_ID + "?" + "expand=1"
+        else:
+            query = "lookup/id/" + ensembl_ID + "?"
         # Submit query
         try:
             df_temp = utils.rest_query(server, query, content_type)
         # Raise error if ID not found
         except:
             sys.stderr.write(f"Ensembl ID {ensembl_ID} not found. Please double-check spelling.\n")
-        # Delete superfluous entries
-        try:
-            del df_temp["version"], df_temp["source"], df_temp["db_type"], df_temp["logic_name"], df_temp["id"]
-        except:
-            continue
-
-        # Add results to main dict
+            
+        ## Delete superfluous entries
+        # Delete superfluous entries in general info
+        keys_to_delete = ["version", "source", "db_type", "logic_name", "id"]
+        for key in keys_to_delete:
+            # Pop keys, None -> do not raise an error if key to delete not found
+            df_temp.pop(key, None)
+        
+        # If looking up gene, delete superfluous entries in transcript isoforms info    
+        if "Transcript" in df_temp.keys():
+            transcript_keys_to_delete = ["assembly_name", "start", "is_canonical", "seq_region_name", "db_type", "source", "strand", "end", "Parent", "species", "version", "logic_name", "Exon", "Translation", "object_type"]
+        
+            try:
+                # More than one isoform present
+                for isoform in np.arange(len(df_temp["Transcript"])):
+                    for key in transcript_keys_to_delete:
+                        df_temp["Transcript"][isoform].pop(key, None)
+            except:           
+                # Just one isoform present
+                for key in transcript_keys_to_delete:
+                    df_temp["Transcript"].pop(key, None)
+                    
+        # If looking up transcript, delete superfluous entries in translation and exon info              
+        if "Translation" in df_temp.keys():
+            # Delete superfluous entries in Translation info
+            translation_keys_to_delete = ["Parent", "species", "db_type", "object_type", "version"]
+            
+            try:
+                # More than one translation present
+                for transl in np.arange(len(df_temp["Translation"])):
+                    for key in translation_keys_to_delete:
+                        df_temp["Translation"][transl].pop(key, None)
+            except:
+                # Just one translation present
+                for key in translation_keys_to_delete:
+                    df_temp["Translation"].pop(key, None)
+        
+        if "Exon" in df_temp.keys():        
+            # Delete superfluous entries in Exon info
+            exon_keys_to_delete = ["version", "species", "object_type", "db_type", "assembly_name", "seq_region_name", "strand"]
+            
+            try:
+                # More than one exon present
+                for exon in np.arange(len(df_temp["Exon"])):
+                    for key in exon_keys_to_delete:
+                        df_temp["Exon"][exon].pop(key, None)
+            except:
+                # Just one exon present
+                for key in translation_keys_to_delete:
+                    df_temp["Exon"].pop(key, None)
+            
+        ## Add results to main dict
         results_dict[ensembl_ID].update(df_temp)
 
         ## homology/id/ query: Retrieves homology information (orthologs) by Ensembl gene id
@@ -229,6 +210,9 @@ def search(searchwords, species, d_type="gene", andor="or", limit=None, save=Fal
     # If a specific database is passed with the "/" at the end, remove it
     if "/" in species:
         species = species.split("/")[0]
+    
+    # In case species was passed with upper case letters
+    species = species.lower()
 
     # Fetch all available databases
     databases = utils.gget_species_options(release=105)
@@ -422,6 +406,9 @@ def ref(species, which="all", release=None, ftp=False, save=False):
         species = "homo_sapiens"
     if species == "mouse":
         species = "mus_musculus"
+        
+    # In case species was passed with upper case letters
+    species = species.lower()
 
     ## Find latest Ensembl release
     url = "http://ftp.ensembl.org/pub/"
@@ -491,15 +478,12 @@ def ref(species, which="all", release=None, ftp=False, save=False):
     
     # Find the <a> element containing the url
     for i, string in enumerate(a_elements):
-        if f"{ENS_rel}.gtf.gz" in string.text:
+        if f"{ENS_rel}.gtf.gz" in string['href']:
             gtf_str = string
+            # Get release date and time from <None> elements (since there are twice as many, 2x and +1 to move from string to date)
+            gtf_date_size = nones[i*2+1]
             
     gtf_url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/gtf/{species}/{gtf_str['href']}"
-            
-    # Get release date and time of this GTF link by searching the <None> elements
-    for i, string in enumerate(nones):
-        if f"{ENS_rel}.gtf.gz" in string.text:
-            gtf_date_size = nones[i+1]
             
     gtf_date = gtf_date_size.strip().split("  ")[0]
     gtf_size = gtf_date_size.strip().split("  ")[-1]
@@ -527,15 +511,12 @@ def ref(species, which="all", release=None, ftp=False, save=False):
             
     # Find the <a> element containing the url       
     for i, string in enumerate(a_elements):
-        if "cdna.all.fa" in string.text:
+        if "cdna.all.fa" in string['href']:
             cdna_str = string
+            # Get release date and time from <None> elements (since there are twice as many, 2x and +1 to move from string to date)
+            cdna_date_size = nones[i*2+1]
             
     cdna_url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/cdna/{cdna_str['href']}"
-    
-    # Get release date and time of this url by searching the <None> elements
-    for i, string in enumerate(nones):
-        if "cdna.all.fa" in string.text:
-            cdna_date_size = nones[i+1]
             
     cdna_date = cdna_date_size.strip().split("  ")[0]
     cdna_size = cdna_date_size.strip().split("  ")[-1]
@@ -555,6 +536,7 @@ def ref(species, which="all", release=None, ftp=False, save=False):
     nones = []
     a_elements = []
     pre = soup.find('pre')
+    
     for element in pre.descendants:
         if element.name == "a":
             a_elements.append(element)
@@ -563,24 +545,23 @@ def ref(species, which="all", release=None, ftp=False, save=False):
 
     # Get primary assembly if available, otherwise toplevel assembly
     dna_str = None
-    for string in a_elements:
-        if ".dna.primary_assembly.fa" in string.text:
+    for i, string in enumerate(a_elements):
+        if ".dna.primary_assembly.fa" in string['href']:
             dna_str = string
             dna_search = ".dna.primary_assembly.fa"
+            # Get date from non-assigned values (since there are twice as many, 2x and +1 to move from string to date)
+            dna_date_size = nones[i*2+1]
             
     # Find the <a> element containing the url        
     if dna_str == None:
-        for string in a_elements:
-            if ".dna.toplevel.fa" in string.text:
+        for i, string in enumerate(a_elements):
+            if ".dna.toplevel.fa" in string['href']:
                 dna_str = string
                 dna_search = ".dna.toplevel.fa"
-        
-    dna_url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/dna/{dna_str['href']}"
+                # Get date from non-assigned values (since there are twice as many, 2x and +1 to move from string to date)
+                dna_date_size = nones[i*2+1]
     
-    # Get release date and time of this url by searching the <None> elements          
-    for i, string in enumerate(nones):
-        if dna_search in string.text:
-            dna_date_size = nones[i+1]  
+    dna_url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/dna/{dna_str['href']}"
       
     dna_date = dna_date_size.strip().split("  ")[0]
     dna_size = dna_date_size.strip().split("  ")[-1]
@@ -694,7 +675,150 @@ def ref(species, which="all", release=None, ftp=False, save=False):
             file.close()
 
         return results
+    
+# gget seq
+def seq(ens_ids, isoforms=False, save=False):
+    """
+    Fetch DNA sequences from gene or transcript Ensembl IDs. 
 
+    Parameters:
+    - ens_ids
+    One or more Ensembl IDs (passed as string or list of strings).
+    - isoforms
+    If true: If a gene Ensembl ID is passed, this returns sequences of all known transcript isoforms.
+    - save
+    If True: Save output FASTA to current directory.
+    
+    Returns a FASTA file containing sequences of the Ensembl IDs.
+    """
+    # Define Ensembl REST API server
+    server = "http://rest.ensembl.org/"
+    # Define type of returned content from REST
+    content_type = "application/json"
+
+    ## Clean up Ensembl IDs
+    # If single Ensembl ID passed as string, convert to list
+    if type(ens_ids) == str:
+        ens_ids = [ens_ids]
+    # Remove Ensembl ID version if passed
+    ens_ids_clean = []
+    for ensembl_ID in ens_ids:
+        ens_ids_clean.append(ensembl_ID.split(".")[0])
+        
+    # Initiate dictionary to save results for all IDs in
+    master_dict = {}
+
+    # Query REST APIs from https://rest.ensembl.org/
+    for ensembl_ID in ens_ids_clean:
+        # Create dict to save query results
+        results_dict = {ensembl_ID:{}}
+        
+        ## SEQUENCE
+        # sequence/id/ query: Request sequence by stable identifier
+        # Define the REST query
+        query = "sequence/id/" + ensembl_ID + "?"
+        # Submit query
+        df_temp = utils.rest_query(server, query, content_type)
+        
+        # Delete superfluous entries
+        keys_to_delete = ["query", "id", "version", "molecule"]
+        for key in keys_to_delete:
+            # Pop keys, None -> do not raise an error if key to delete not found
+            df_temp.pop(key, None)
+
+        # Add results to main dict
+        results_dict[ensembl_ID].update({"seq":df_temp})
+        
+        if isoforms == True:
+            # Get transcripts using gget info
+            info_dict = info(ensembl_ID, expand=True)
+            
+            # If this is a gene, get the sequence of all isoforms using gget info
+            try:
+                info_dict[ensembl_ID]["Transcript"]
+                
+                # If only one transcript present
+                try:
+                    transcipt_id = info_dict[ensembl_ID]["Transcript"]["id"]
+                    
+                    # Define the REST query
+                    query = "sequence/id/" + transcipt_id + "?"
+                    # Submit query
+                    df_temp = utils.rest_query(server, query, content_type)
+                    
+                    # Delete superfluous entries
+                    keys_to_delete = ["query", "version", "molecule"]
+                    for key in keys_to_delete:
+                        # Pop keys, None -> do not raise an error if key to delete not found
+                        df_temp.pop(key, None)
+
+                    # Add results to main dict
+                    results_dict[ensembl_ID].update({"transcript":df_temp})
+                    
+                # If more than one transcript present    
+                except:
+                    for isoform in np.arange(len(info_dict[ensembl_ID]["Transcript"])):
+                        transcipt_id = info_dict[ensembl_ID]["Transcript"][isoform]["id"]
+                        
+                        # Define the REST query
+                        query = "sequence/id/" + transcipt_id + "?"
+                        # Submit query
+                        df_temp = utils.rest_query(server, query, content_type)
+                        
+                        # Delete superfluous entries
+                        keys_to_delete = ["query", "version", "molecule"]
+                        for key in keys_to_delete:
+                            # Pop keys, None -> do not raise an error if key to delete not found
+                            df_temp.pop(key, None)
+
+                        # Add results to main dict
+                        results_dict[ensembl_ID].update({f"transcript{isoform}":df_temp})
+            except:
+                pass
+            
+#         ## OVERLAP
+#         # overlap/id/ query: Retrieves features (e.g. genes, transcripts, variants and more) that overlap a region defined by the given identifier.
+#         query = "overlap/id/" + ensembl_ID + "?" + "feature=gene"
+#         # Submit query
+#         df_temp = utils.rest_query(server, query, content_type)
+#         print(df_temp)
+
+
+#         ## MAPPING
+#         # map/cdna/:id/:region: Convert from cDNA coordinates to genomic coordinates. Output reflects forward orientation coordinates as returned from the Ensembl API.
+#         query = "map/cdna/" + ensembl_ID + "/100..300" + "?"
+#         # Submit query
+#         df_temp = utils.rest_query(server, query, content_type)
+#         print(df_temp)      
+        
+        
+#         # REGULATORY
+#         regulatory/species/:species/id/:id query: Returns a RegulatoryFeature given its stable ID
+        
+        # Add results to master dict
+        master_dict.update(results_dict)
+        
+    # Build FASTA file
+    fasta = []
+    for ens_ID in master_dict:
+        for key in master_dict[ens_ID].keys():
+            if key == 'seq':
+                fasta.append(">" + ens_ID + " " + master_dict[ens_ID][key]['desc'])
+                fasta.append(master_dict[ens_ID][key]['seq'])
+            else:
+                fasta.append(">" + master_dict[ens_ID][key]['id'] + " " + master_dict[ens_ID][key]['desc'])
+                fasta.append(master_dict[ens_ID][key]['seq'])
+                
+    
+    # Save
+    if save == True:
+        file = open("seq_results.fa", "w")
+        for element in fasta:
+            file.write(element + "\n")
+        file.close()
+
+    # Return dictionary containing results
+    return fasta   
     
 # Python interpreter to run main()
 if __name__ == '__main__':
