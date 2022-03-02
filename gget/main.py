@@ -10,9 +10,9 @@ import os
 from tabulate import tabulate
 
 # Import gget code
-from gget.gget import *
-import gget.help_ import *
-import gget.utils import *
+from gget import *
+import help_ import *
+import utils import *
 
 def main():
     """
