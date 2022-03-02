@@ -22,7 +22,7 @@ pip install gget
 
 For use in Jupyter Lab / Google Colab:
 ```python
-from gget import ref, search, info, seq
+from gget import *
 ```
 
 ## Getting started
