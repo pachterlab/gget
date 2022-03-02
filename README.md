@@ -66,7 +66,7 @@ Ensemble release the FTPs will be fetched from, e.g. 104 (default: None &rarr; u
 If True: returns only a list containing the requested FTP links (default: False).
 
 `-d` `--download`  
-Download the requested FTPs to the current directory.
+Download the requested FTPs to the current directory (requires [wget](https://linuxize.com/post/wget-command-examples/)).
 
 `-o` `--out`  
 Path to the file the results will be saved in, e.g. path/to/directory/results.json (default: None &rarr; just prints results).  
