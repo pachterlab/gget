@@ -14,7 +14,7 @@ import json
 import sys
 
 # Packages for use from terminal
-from . import __version__
+# from . import __version__
 import argparse
 import os
 from tabulate import tabulate
