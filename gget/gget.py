@@ -71,7 +71,7 @@ def info(ens_ids, expand=False, homology=False, xref=False, save=False):
             query = "lookup/id/" + ensembl_ID + "?"
         # Submit query
         try:
-            df_temp = utils.rest_query(server, query, content_type)
+            df_temp = rest_query(server, query, content_type)
         # Raise error if ID not found
         except:
             sys.stderr.write(f"Ensembl ID {ensembl_ID} not found. Please double-check spelling.\n")
@@ -134,7 +134,7 @@ def info(ens_ids, expand=False, homology=False, xref=False, save=False):
             # Define the REST query
             query = "homology/id/" + ensembl_ID + "?"
             # Submit query
-            df_temp = utils.rest_query(server, query, content_type)
+            df_temp = rest_query(server, query, content_type)
                 
             # Add results to main dict
             try:
@@ -147,7 +147,7 @@ def info(ens_ids, expand=False, homology=False, xref=False, save=False):
             # Define the REST query
             query = "xrefs/id/" + ensembl_ID + "?"
             # Submit query
-            df_temp = utils.rest_query(server, query, content_type)
+            df_temp = rest_query(server, query, content_type)
 
             # Add results to main dict
             try:
@@ -215,7 +215,7 @@ def search(searchwords, species, d_type="gene", andor="or", limit=None, save=Fal
     species = species.lower()
 
     # Fetch all available databases
-    databases = utils.gget_species_options(release=105)
+    databases = gget_species_options(release=105)
     db = []
     for datab in databases:
         if species in datab:
@@ -439,9 +439,9 @@ def ref(species, which="all", release=None, ftp=False, save=False):
 
     ## Raise error if species not found
     # Find all available species for GTFs for this Ensembl release
-    species_list_gtf = utils.ref_species_options('gtf', release=ENS_rel)
+    species_list_gtf = ref_species_options('gtf', release=ENS_rel)
     # Find all available species for FASTAs for this Ensembl release
-    species_list_dna = utils.ref_species_options('dna', release=ENS_rel) 
+    species_list_dna = ref_species_options('dna', release=ENS_rel) 
 
     # Find intersection of the two lists 
     # (Only species which have GTF and FASTAs available can continue)
@@ -718,7 +718,7 @@ def seq(ens_ids, isoforms=False, save=False):
         # Define the REST query
         query = "sequence/id/" + ensembl_ID + "?"
         # Submit query
-        df_temp = utils.rest_query(server, query, content_type)
+        df_temp = rest_query(server, query, content_type)
         
         # Delete superfluous entries
         keys_to_delete = ["query", "id", "version", "molecule"]
@@ -744,7 +744,7 @@ def seq(ens_ids, isoforms=False, save=False):
                     # Define the REST query
                     query = "sequence/id/" + transcipt_id + "?"
                     # Submit query
-                    df_temp = utils.rest_query(server, query, content_type)
+                    df_temp = rest_query(server, query, content_type)
                     
                     # Delete superfluous entries
                     keys_to_delete = ["query", "version", "molecule"]
@@ -763,7 +763,7 @@ def seq(ens_ids, isoforms=False, save=False):
                         # Define the REST query
                         query = "sequence/id/" + transcipt_id + "?"
                         # Submit query
-                        df_temp = utils.rest_query(server, query, content_type)
+                        df_temp = rest_query(server, query, content_type)
                         
                         # Delete superfluous entries
                         keys_to_delete = ["query", "version", "molecule"]
@@ -780,7 +780,7 @@ def seq(ens_ids, isoforms=False, save=False):
 #         # overlap/id/ query: Retrieves features (e.g. genes, transcripts, variants and more) that overlap a region defined by the given identifier.
 #         query = "overlap/id/" + ensembl_ID + "?" + "feature=gene"
 #         # Submit query
-#         df_temp = utils.rest_query(server, query, content_type)
+#         df_temp = rest_query(server, query, content_type)
 #         print(df_temp)
 
 
@@ -788,7 +788,7 @@ def seq(ens_ids, isoforms=False, save=False):
 #         # map/cdna/:id/:region: Convert from cDNA coordinates to genomic coordinates. Output reflects forward orientation coordinates as returned from the Ensembl API.
 #         query = "map/cdna/" + ensembl_ID + "/100..300" + "?"
 #         # Submit query
-#         df_temp = utils.rest_query(server, query, content_type)
+#         df_temp = rest_query(server, query, content_type)
 #         print(df_temp)      
         
         
@@ -822,4 +822,4 @@ def seq(ens_ids, isoforms=False, save=False):
     
 # Python interpreter to run main()
 if __name__ == '__main__':
-    main.main()
+    main()

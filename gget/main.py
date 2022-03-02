@@ -3,7 +3,7 @@
 
 ## Import packages
 # Packages for use from terminal
-from .__init__ import *
+from . import __version__
 import argparse
 import sys
 import os
@@ -19,7 +19,7 @@ def main():
     Function containing argparse parsers and arguments to allow the use of gget from the terminal.
     """
     # Define parent parser 
-    parent_parser = argparse.ArgumentParser(description=f"gget v{__init__.__version__}", add_help=False)
+    parent_parser = argparse.ArgumentParser(description=f"gget v{__version__}", add_help=False)
     # Initiate subparsers
     parent_subparsers = parent_parser.add_subparsers(dest="command")
     # Define parent (not sure why I need both parent parser and parent, but otherwise it does not work)
@@ -256,7 +256,7 @@ def main():
     ### Define return values
     ## Help return
     if args.help:
-        help_.help_()
+        help_()
         
     ## Version return
     if args.version:        
@@ -267,9 +267,9 @@ def main():
         # If list flag but no release passed, return all available species for latest release
         if args.list and args.release is None:
                 # Find all available species for GTFs for this Ensembl release
-                species_list_gtf = utils.ref_species_options('gtf')
+                species_list_gtf = ref_species_options('gtf')
                 # Find all available species for FASTAs for this Ensembl release
-                species_list_dna = utils.ref_species_options('dna') 
+                species_list_dna = ref_species_options('dna') 
 
                 # Find intersection of the two lists 
                 # (Only species which have GTF and FASTAs available can continue)
@@ -281,9 +281,9 @@ def main():
         # If list flag and release passed, return all available species for this release
         if args.list and args.release:
                 # Find all available species for GTFs for this Ensembl release
-                species_list_gtf = utils.ref_species_options('gtf', release=args.release)
+                species_list_gtf = ref_species_options('gtf', release=args.release)
                 # Find all available species for FASTAs for this Ensembl release
-                species_list_dna = utils.ref_species_options('dna', release=args.release) 
+                species_list_dna = ref_species_options('dna', release=args.release) 
 
                 # Find intersection of the two lists 
                 # (Only species which have GTF and FASTAs available can continue)
