@@ -3,16 +3,16 @@
 
 ## Import packages
 # Packages for use from terminal
-import __init__ 
+from .__init__ import *
 import argparse
 import sys
 import os
 from tabulate import tabulate
 
 # Import gget code
-from gget import *
-import help_
-import utils
+from .gget import *
+import .help_ import *
+import .utils import *
 
 def main():
     """
