@@ -1332,7 +1332,7 @@ def main():
             # Print or save list of URLs (ftp=True)
             if args.ftp == True:
                 # Save in specified directory if -o specified
-                if args.out == True:
+                if args.out:
                     directory = "/".join(args.out.split("/")[:-1])
                     if directory != "":
                         os.makedirs(directory, exist_ok=True)
@@ -1376,7 +1376,7 @@ def main():
             # Print or save json file (ftp=False)
             else:
                 # Save in specified directory if -o specified
-                if args.out == True:
+                if args.out:
                     directory = "/".join(args.out.split("/")[:-1])
                     if directory != "":
                         os.makedirs(directory, exist_ok=True)
@@ -1403,8 +1403,7 @@ def main():
                 else:
                     print(json.dumps(ref_results, ensure_ascii=False, indent=4))
                     sys.stderr.write(
-                        "\nTo save these results, use flag '-o' in the format:\n" 
-                        "'-o path/to/directory/results.json'.\n"
+                        "\nTo save these results, use flag '-o' in the format: '-o path/to/directory/results.json'.\n"
                     )
                     
                     if args.download == True:
