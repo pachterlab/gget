@@ -33,11 +33,11 @@ $ gget ref -s homo_sapiens -r 104
 # Search zebra finch genes with "mito" in their description and limit to the top 10 genes
 $ gget search -sw mito -s taeniopygia_guttata -l 10
 
-# Look up Ensembl ID ENSSCUG00000017183 and also return its homology information
-$ gget info -id ENSSCUG00000017183 -H
+# Look up gene ENSSCUG00000017183 with expanded info (returns all transcript isoforms for genes)
+$ gget info -id ENSSCUG00000017183 -e
 
-# Fetch the sequences of Ensembl ID ENSG00000034713 and all its transcript isoforms
-$ gget seq -id ENSMUSG00000025040 -i
+# Fetch the sequences of Ensembl ID ENSMUSG00000025040, all its transcript isoforms and save the output FASTA as mouse.fa
+$ gget seq -id ENSMUSG00000025040 -i -o mouse.fa
 ```
 
 # Manual
