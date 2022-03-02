@@ -3,8 +3,8 @@
 
 ## Import packages
 # Import gget main and utils
-from gget.main import *
-from gget.utils import *
+from .main import *
+from .utils import *
 
 # Packages for gget search
 import pandas as pd
