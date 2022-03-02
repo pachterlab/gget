@@ -13,7 +13,7 @@ Query [Ensembl](https://www.ensembl.org/) for genes using free form search words
 - [**gget info**](#gget-info)  
 Look up genes or transcripts by their Ensembl ID.
 - [**gget seq**](#gget-seq)  
-Fetch DNA sequences from Ensembl IDs.
+Fetch DNA sequences of Ensembl IDs.
 
 ## Installation
 ```bash
