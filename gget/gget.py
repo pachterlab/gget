@@ -19,7 +19,7 @@ import argparse
 import os
 from tabulate import tabulate
 
-version=0.0.16
+version = "0.0.16"
 
 def rest_query(server, query, content_type):
     """
