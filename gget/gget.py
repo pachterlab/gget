@@ -19,6 +19,8 @@ import argparse
 import os
 from tabulate import tabulate
 
+version=0.0.16
+
 def rest_query(server, query, content_type):
     """
     Function to query a 
@@ -1031,7 +1033,7 @@ def main():
     Function containing argparse parsers and arguments to allow the use of gget from the terminal.
     """
     # Define parent parser 
-    parent_parser = argparse.ArgumentParser(description=f"gget v0.0.16", add_help=False)
+    parent_parser = argparse.ArgumentParser(description=f"gget v{version}", add_help=False)
     # Initiate subparsers
     parent_subparsers = parent_parser.add_subparsers(dest="command")
     # Define parent (not sure why I need both parent parser and parent, but otherwise it does not work)
@@ -1272,7 +1274,7 @@ def main():
         
     ## Version return
     if args.version:        
-        print(f"gget version: {__init__.__version__}")
+        print(f"gget version: {version}")
         
     ## ref return
     if args.command == "ref":
