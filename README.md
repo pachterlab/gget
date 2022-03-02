@@ -12,7 +12,7 @@ Fetch links to GTF and FASTA files from the [Ensembl FTP site](http://ftp.ensemb
 Query [Ensembl](https://www.ensembl.org/) for genes using free form search words.
 - [**gget info**](#gget-info)  
 Look up genes or transcripts by their Ensembl ID.
-- [**gget seq**](#gget-seq) 
+- [**gget seq**](#gget-seq)  
 Fetch DNA sequences from Ensembl IDs.
 
 ## Installation
@@ -45,7 +45,7 @@ $ gget seq -id ENSMUSG00000025040 -iso
 Function to fetch GTF and FASTA (cDNA and DNA) URLs from the [Ensembl FTP site](http://ftp.ensembl.org/pub/). Returns a dictionary/json containing the requested URLs with their respective Ensembl version and release date and time.
 
 ### Options
-`-l` `--list`
+`-l` `--list`  
 List all available species.
 
 `-s` `--species`  
@@ -65,7 +65,7 @@ Ensemble release the FTPs will be fetched from, e.g. 104 (default: None &rarr; u
 `-ftp` `--ftp`  
 If True: returns only a list containing the requested FTP links (default: False).
 
-`-d` `--download`
+`-d` `--download`  
 Download the requested FTPs to the current directory.
 
 `-o` `--out`  
@@ -145,6 +145,7 @@ $ gget ref -s homo_sapiens -o path/to/directory/ref_results.json
 ```
 &rarr; Saves the results in path/to/directory/ref_results.json.  
 For Jupyter Lab / Google Colab: Saves the results in a json file named ref_results.json in the current working directory.  
+  
 Note: To download the files linked to by the FTPs into the current directory, add flag `-d`.
 
 #### Fetch only certain types of links for a specific species 
@@ -183,11 +184,11 @@ One or more free form searchwords for the query, e.g. gaba, nmda. Searchwords ar
 Species or database to be searched.  
 Species can be passed in the format 'genus_species', e.g. 'homo_sapiens'. To pass a specific CORE database (e.g. a specific mouse strain), enter the name of the CORE database, e.g. 'mus_musculus_dba2j_core_105_1'. All availabale species databases can be found here: http://ftp.ensembl.org/pub/release-105/mysql/
 
-`-t` `--d_type`
+`-t` `--d_type`  
 Possible entries: 'gene' (default), 'transcript'
 Returns either genes or transcripts, respectively, which match the searchwords.
 
-`-ao` `--andor`
+`-ao` `--andor`  
 Possible entries: 'or', 'and'
 'or': ID descriptions must include at least one of the searchwords (default). 
 'and': Only return IDs whose descriptions include all searchwords.
@@ -257,7 +258,7 @@ Look up gene or transcript Ensembl IDs. Returns their common name, description, 
 `-id` `--ens_ids`  
 One or more Ensembl IDs.
 
-`-e` `--expand`
+`-e` `--expand`  
 Expand returned information (default: False). For genes: add isoform information. For transcripts: add translation and exon information.
 
 `-H` `--homology`  
@@ -297,8 +298,8 @@ $ gget info -id ENSG00000034713,ENSG00000104853,ENSG00000170296 -e
                         "canonical_transcript": Transcript ID,
                         # All transcript isoforms:
                         "Transcript": [{'display_name': Transcript name,
-									    'biotype': Transcript biotype,
-									    'id': Transcript ID}, ...]
+					'biotype': Transcript biotype,
+					'id': Transcript ID}, ...]
                         },
 }
 ```
