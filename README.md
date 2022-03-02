@@ -343,10 +343,11 @@ $ gget seq -id ENST00000441207,ENST00000587537
 &rarr; Returns a FASTA containing the sequence of each ID, in the format:
 ```
 >Ensembl_ID chromosome:assembly:seq_region_name:seq_region_start:seq_region_end:strand
-GGGAATGGAAATCTGTCCCTCGTGCTGGAAGCCAACCAGTGGTGATGACTCTGTGTGCCACTCCGCCTCCTACAGCGCGGATCCTCTGCGTGTGTCCTCGCAAGACAAGCTCGATGAAATGGCCGAGTCCAGTCAAGCAAACTTTGAGGGAA...
+GGGAATGGAAATCTGTCCCTCGTGCTGGAAGCCAACCAGTGGTGATGACTCTGTGTGCCACTCCGCCTCCTACAGCGCGGATCCTCTG  
+CGTGTGTCCTCGCAAGACAAGCTCGATGAAATGGCCGAGTCCAGTCAAGCAAACTTTGAGGGAA...
 ```
 
-#### Fetch the sequences of gene Ensembl ID and all its transcript isoforms
+#### Fetch the sequences of a gene Ensembl ID and all its transcript isoforms
 ```python
 # Jupyter Lab / Google Colab:
 seq("ENSMUSG00000025040", isoforms=True)
