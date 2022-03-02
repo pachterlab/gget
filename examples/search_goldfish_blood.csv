@@ -1,0 +1,4 @@
+Ensembl_ID,Gene_name,Ensembl_description,Ext_ref_description,Biotype,URL
+ENSCARG00000012142,gypc,glycophorin C (Gerbich blood group) [Source:ZFIN;Acc:ZDB-GENE-030131-7930],glycophorin C (Gerbich blood group),protein_coding,https://uswest.ensembl.org/carassius_auratus/Gene/Summary?g=ENSCARG00000012142
+ENSCARG00000045757,gypc,glycophorin-C-like [Source:NCBI gene;Acc:113098486],glycophorin C (Gerbich blood group),protein_coding,https://uswest.ensembl.org/carassius_auratus/Gene/Summary?g=ENSCARG00000045757
+ENSCARG00000064118,gypc,glycophorin-C-like [Source:NCBI gene;Acc:113108657],glycophorin C (Gerbich blood group),protein_coding,https://uswest.ensembl.org/carassius_auratus/Gene/Summary?g=ENSCARG00000064118

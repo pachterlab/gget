@@ -1,0 +1,162 @@
+{
+    "ENSG00000034713": {
+        "display_name": "GABARAPL2",
+        "species": "homo_sapiens",
+        "end": 75577881,
+        "strand": 1,
+        "description": "GABA type A receptor associated protein like 2 [Source:HGNC Symbol;Acc:HGNC:13291]",
+        "biotype": "protein_coding",
+        "seq_region_name": "16",
+        "canonical_transcript": "ENST00000037243.7",
+        "Transcript": [
+            {
+                "biotype": "protein_coding",
+                "display_name": "GABARAPL2-203",
+                "id": "ENST00000565057"
+            },
+            {
+                "biotype": "protein_coding",
+                "display_name": "GABARAPL2-201",
+                "id": "ENST00000037243"
+            },
+            {
+                "biotype": "protein_coding",
+                "id": "ENST00000563744",
+                "display_name": "GABARAPL2-202"
+            },
+            {
+                "display_name": "GABARAPL2-205",
+                "id": "ENST00000568455",
+                "biotype": "protein_coding"
+            },
+            {
+                "display_name": "GABARAPL2-204",
+                "id": "ENST00000565985",
+                "biotype": "processed_transcript"
+            }
+        ],
+        "assembly_name": "GRCh38",
+        "start": 75566375,
+        "object_type": "Gene"
+    },
+    "ENSG00000104853": {
+        "object_type": "Gene",
+        "species": "homo_sapiens",
+        "description": "CLPTM1 regulator of GABA type A receptor forward trafficking [Source:HGNC Symbol;Acc:HGNC:2087]",
+        "end": 44993341,
+        "display_name": "CLPTM1",
+        "biotype": "protein_coding",
+        "assembly_name": "GRCh38",
+        "Transcript": [
+            {
+                "id": "ENST00000588855",
+                "display_name": "CLPTM1-209",
+                "biotype": "retained_intron"
+            },
+            {
+                "biotype": "protein_coding",
+                "display_name": "CLPTM1-203",
+                "id": "ENST00000546079"
+            },
+            {
+                "biotype": "protein_coding",
+                "display_name": "CLPTM1-202",
+                "id": "ENST00000541297"
+            },
+            {
+                "id": "ENST00000337392",
+                "biotype": "protein_coding",
+                "display_name": "CLPTM1-201"
+            },
+            {
+                "id": "ENST00000591304",
+                "display_name": "CLPTM1-212",
+                "biotype": "protein_coding"
+            },
+            {
+                "id": "ENST00000585961",
+                "display_name": "CLPTM1-204",
+                "biotype": "protein_coding"
+            },
+            {
+                "biotype": "retained_intron",
+                "display_name": "CLPTM1-207",
+                "id": "ENST00000587537"
+            },
+            {
+                "biotype": "processed_transcript",
+                "display_name": "CLPTM1-210",
+                "id": "ENST00000589158"
+            },
+            {
+                "id": "ENST00000588274",
+                "display_name": "CLPTM1-208",
+                "biotype": "retained_intron"
+            },
+            {
+                "display_name": "CLPTM1-211",
+                "biotype": "nonsense_mediated_decay",
+                "id": "ENST00000589347"
+            },
+            {
+                "biotype": "retained_intron",
+                "display_name": "CLPTM1-206",
+                "id": "ENST00000586975"
+            },
+            {
+                "biotype": "protein_coding",
+                "display_name": "CLPTM1-205",
+                "id": "ENST00000586915"
+            }
+        ],
+        "seq_region_name": "19",
+        "strand": 1,
+        "start": 44954585,
+        "canonical_transcript": "ENST00000337392.10"
+    },
+    "ENSG00000170296": {
+        "species": "homo_sapiens",
+        "display_name": "GABARAP",
+        "assembly_name": "GRCh38",
+        "seq_region_name": "17",
+        "biotype": "protein_coding",
+        "canonical_transcript": "ENST00000302386.10",
+        "Transcript": [
+            {
+                "id": "ENST00000302386",
+                "display_name": "GABARAP-201",
+                "biotype": "protein_coding"
+            },
+            {
+                "id": "ENST00000577035",
+                "biotype": "protein_coding",
+                "display_name": "GABARAP-206"
+            },
+            {
+                "biotype": "nonsense_mediated_decay",
+                "display_name": "GABARAP-202",
+                "id": "ENST00000570856"
+            },
+            {
+                "id": "ENST00000571129",
+                "biotype": "protein_coding",
+                "display_name": "GABARAP-203"
+            },
+            {
+                "display_name": "GABARAP-204",
+                "biotype": "protein_coding",
+                "id": "ENST00000571253"
+            },
+            {
+                "biotype": "protein_coding",
+                "display_name": "GABARAP-205",
+                "id": "ENST00000573928"
+            }
+        ],
+        "description": "GABA type A receptor-associated protein [Source:HGNC Symbol;Acc:HGNC:4067]",
+        "strand": -1,
+        "start": 7240008,
+        "end": 7242449,
+        "object_type": "Gene"
+    }
+}
