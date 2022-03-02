@@ -24,6 +24,7 @@ setup(
         'beautifulsoup4>=4.10.0',
         'pandas',
         'requests>=2.27.1',
+        'tabulate>=0.8.9'
       ],
     url='https://github.com/lauraluebbert/gget',
     keywords='gget',
