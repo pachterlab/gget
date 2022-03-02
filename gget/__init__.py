@@ -1,4 +1,4 @@
-from gget import *
+from .gget import *
 
 __author__ = 'Laura Luebbert'
 __email__ = 'lauraluebbert@caltech.edu'
