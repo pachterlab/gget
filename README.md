@@ -27,8 +27,8 @@ from gget import *
 
 ## Getting started
 ```bash
-# Fetch Homo sapiens  GTF, DNA, and cDNA FTPs from Ensembl release 104
-$ gget ref -s homo_sapiens -r 104
+# Fetch Homo sapiens  GTF, DNA, and cDNA FTPs from the latest Ensembl release
+$ gget ref -s homo_sapiens 
 
 # Search zebra finch genes with "mito" in their description and limit to the top 10 genes
 $ gget search -sw mito -s taeniopygia_guttata -l 10
