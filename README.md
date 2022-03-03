@@ -30,8 +30,8 @@ from gget import *
 # Fetch Homo sapiens  GTF, DNA, and cDNA FTPs from the latest Ensembl release
 $ gget ref -s homo_sapiens 
 
-# Search zebra finch genes with "mito" in their description and limit to the top 10 genes
-$ gget search -sw mito -s taeniopygia_guttata -l 10
+# Search **Drosophila** genes with "swiss" and "cheese" in their description
+$ gget search -sw swiss,cheese -s drosophila -ao and 
 
 # Look up gene ENSSCUG00000017183 with expanded info (returns all transcript isoforms for genes)
 $ gget info -id ENSSCUG00000017183 -e
