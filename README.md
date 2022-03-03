@@ -42,7 +42,7 @@ $ gget seq -id ENSMUSG00000025040 -i -o mouse.fa
 
 # Manual
 ## gget ref
-Function to fetch GTF and FASTA (cDNA and DNA) URLs from the [Ensembl FTP site](http://ftp.ensembl.org/pub/). Returns a dictionary/json containing the requested URLs with their respective Ensembl version and release date and time.
+Function to fetch GTF and FASTA (cDNA and DNA) URLs from the [Ensembl FTP site](http://ftp.ensembl.org/pub/). Returns a dictionary/json containing the requested URLs with their respective Ensembl version and release date and time (or use flag `ftp` to only return the links).
 
 ### Options
 `-l` `--list`  
