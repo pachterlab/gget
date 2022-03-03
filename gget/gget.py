@@ -506,6 +506,9 @@ def ref(species, which="all", release=None, ftp=False, save=False):
     "gtf" - Returns the GTF FTP link and associated information.
     "cdna" - Returns the cDNA FTP link and associated information.
     "dna" - Returns the DNA FTP link and associated information.
+    "cds" - Returns the coding sequences corresponding to Ensembl genes. (Does not contain UTR or intronic sequence.)
+    "cdrna" - Returns transcript sequences corresponding to non-coding RNA genes (ncRNA).
+    "pep" - Returns the protein translations of Ensembl genes.
     - release
     Defines the Ensembl release number from which the files are fetched, e.g. release = 104.
     (Ensembl releases earlier than release 48 are not suupported.)
@@ -687,6 +690,105 @@ def ref(species, which="all", release=None, ftp=False, save=False):
     dna_date = dna_date.strip()
     dna_size = dna_size.strip()
     
+    ## Get CDS FASTA link for this species and release
+    url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/cds"
+    html = requests.get(url)
+    
+    # Raise error if status code not "OK" Response
+    if html.status_code != 200:
+        raise RuntimeError(f"HTTP response status code {html.status_code}. Please try again.")
+    
+    soup = BeautifulSoup(html.text, "html.parser")
+    
+    # The url can be found under an <a> object tag in the html, 
+    # but the date and size do not have an object tag (element=None)
+    nones = []
+    a_elements = []
+    pre = soup.find('pre')
+    for element in pre.descendants:
+        if element.name == "a":
+            a_elements.append(element)
+        elif element.name != "a":
+            nones.append(element)
+            
+    # Find the <a> element containing the url       
+    for i, string in enumerate(a_elements):
+        if "cds.all.fa" in string['href']:
+            cds_str = string
+            # Get release date and time from <None> elements (since there are twice as many, 2x and +1 to move from string to date)
+            cds_date_size = nones[i*2+1]
+            
+    cds_url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/cds/{cds_str['href']}"
+            
+    cds_date = cds_date_size.strip().split("  ")[0]
+    cds_size = cds_date_size.strip().split("  ")[-1]
+    
+    ## Get ncRNA FASTA link for this species and release
+    url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/ncrna"
+    html = requests.get(url)
+    
+    # Raise error if status code not "OK" Response
+    if html.status_code != 200:
+        raise RuntimeError(f"HTTP response status code {html.status_code}. Please try again.")
+    
+    soup = BeautifulSoup(html.text, "html.parser")
+    
+    # The url can be found under an <a> object tag in the html, 
+    # but the date and size do not have an object tag (element=None)
+    nones = []
+    a_elements = []
+    pre = soup.find('pre')
+    for element in pre.descendants:
+        if element.name == "a":
+            a_elements.append(element)
+        elif element.name != "a":
+            nones.append(element)
+            
+    # Find the <a> element containing the url       
+    for i, string in enumerate(a_elements):
+        if ".ncrna.fa" in string['href']:
+            ncrna_str = string
+            # Get release date and time from <None> elements (since there are twice as many, 2x and +1 to move from string to date)
+            ncrna_date_size = nones[i*2+1]
+            
+    ncrna_url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/ncrna/{ncrna_str['href']}"
+            
+    ncrna_date = ncrna_date_size.strip().split("  ")[0]
+    ncrna_size = ncrna_date_size.strip().split("  ")[-1]
+    
+    ## Get pep FASTA link for this species and release
+    url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/pep"
+    html = requests.get(url)
+    
+    # Raise error if status code not "OK" Response
+    if html.status_code != 200:
+        raise RuntimeError(f"HTTP response status code {html.status_code}. Please try again.")
+    
+    soup = BeautifulSoup(html.text, "html.parser")
+    
+    # The url can be found under an <a> object tag in the html, 
+    # but the date and size do not have an object tag (element=None)
+    nones = []
+    a_elements = []
+    pre = soup.find('pre')
+    for element in pre.descendants:
+        if element.name == "a":
+            a_elements.append(element)
+        elif element.name != "a":
+            nones.append(element)
+            
+    # Find the <a> element containing the url       
+    for i, string in enumerate(a_elements):
+        if ".pep.all.fa" in string['href']:
+            pep_str = string
+            # Get release date and time from <None> elements (since there are twice as many, 2x and +1 to move from string to date)
+            pep_date_size = nones[i*2+1]
+            
+    pep_url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/pep/{pep_str['href']}"
+            
+    pep_date = pep_date_size.strip().split("  ")[0]
+    pep_size = pep_date_size.strip().split("  ")[-1]
+    
     ## Return results
     # If single which passed as string, convert to list
     if type(which) == str:
@@ -694,7 +796,7 @@ def ref(species, which="all", release=None, ftp=False, save=False):
 
     # Raise error if several values are passed and 'all' is included
     if len(which) > 1 and "all" in which:
-        raise ValueError("Parameter 'which' must be 'all', or any one or a combination of the following: 'gtf', 'cdna', 'dna'.")
+        raise ValueError("Parameter 'which' must be 'all', or any one or a combination of the following: 'gtf', 'cdna', 'dna', 'cds', 'ncrna' 'pep'.")
 
     # If FTP=False, return dictionary/json of specified results
     if ftp == False:
@@ -723,39 +825,93 @@ def ref(species, which="all", release=None, ftp=False, save=False):
                             "release_date": gtf_date.split(" ")[0],
                             "release_time": gtf_date.split(" ")[1],
                             "bytes": gtf_size
+                        },
+                        "coding_seq_cds": {
+                            "ftp":cds_url,
+                            "ensembl_release": int(ENS_rel),
+                            "release_date": cds_date.split(" ")[0],
+                            "release_time": cds_date.split(" ")[1],
+                            "bytes": cds_size
+                        },
+                        "non-coding_seq_ncRNA": {
+                            "ftp":ncrna_url,
+                            "ensembl_release": int(ENS_rel),
+                            "release_date": ncrna_date.split(" ")[0],
+                            "release_time": ncrna_date.split(" ")[1],
+                            "bytes": ncrna_size
+                        },
+                        "protein_translation_pep": {
+                            "ftp":pep_url,
+                            "ensembl_release": int(ENS_rel),
+                            "release_date": pep_date.split(" ")[0],
+                            "release_time": pep_date.split(" ")[1],
+                            "bytes": pep_size
                         }
                     }
                 }
             elif return_val == "gtf":
                 dict_temp = {
                         "annotation_gtf": {
-                        "ftp":gtf_url,
-                        "ensembl_release": int(ENS_rel),
-                        "release_date": gtf_date.split(" ")[0],
-                        "release_time": gtf_date.split(" ")[1],
-                        "bytes": gtf_size
+                            "ftp":gtf_url,
+                            "ensembl_release": int(ENS_rel),
+                            "release_date": gtf_date.split(" ")[0],
+                            "release_time": gtf_date.split(" ")[1],
+                            "bytes": gtf_size
                     },
                 }
                 ref_dict[species].update(dict_temp)
             elif return_val == "cdna":
                 dict_temp = {
                         "transcriptome_cdna": {
-                        "ftp":cdna_url,
-                        "ensembl_release": int(ENS_rel),
-                        "release_date": cdna_date.split(" ")[0],
-                        "release_time": cdna_date.split(" ")[1],
-                        "bytes": cdna_size
+                            "ftp":cdna_url,
+                            "ensembl_release": int(ENS_rel),
+                            "release_date": cdna_date.split(" ")[0],
+                            "release_time": cdna_date.split(" ")[1],
+                            "bytes": cdna_size
                     },
                 }
                 ref_dict[species].update(dict_temp)
             elif return_val == "dna":
                 dict_temp = {
                         "genome_dna": {
-                        "ftp":dna_url,
-                        "ensembl_release": int(ENS_rel),
-                        "release_date": dna_date.split(" ")[0],
-                        "release_time": dna_date.split(" ")[1],
-                        "bytes": dna_size
+                            "ftp":dna_url,
+                            "ensembl_release": int(ENS_rel),
+                            "release_date": dna_date.split(" ")[0],
+                            "release_time": dna_date.split(" ")[1],
+                            "bytes": dna_size
+                    },
+                }
+                ref_dict[species].update(dict_temp)
+            elif return_val == "cds":
+                dict_temp = {
+                        "coding_seq_cds": {
+                            "ftp":cds_url,
+                            "ensembl_release": int(ENS_rel),
+                            "release_date": cds_date.split(" ")[0],
+                            "release_time": cds_date.split(" ")[1],
+                            "bytes": cds_size
+                    },
+                }
+                ref_dict[species].update(dict_temp)
+            elif return_val == "ncrna":
+                dict_temp = {
+                        "non-coding_seq_ncRNA": {
+                            "ftp":ncrna_url,
+                            "ensembl_release": int(ENS_rel),
+                            "release_date": ncrna_date.split(" ")[0],
+                            "release_time": ncrna_date.split(" ")[1],
+                            "bytes": ncrna_size
+                    },
+                }
+                ref_dict[species].update(dict_temp)
+            elif return_val == "pep":
+                dict_temp = {
+                        "protein_translation_pep": {
+                            "ftp":pep_url,
+                            "ensembl_release": int(ENS_rel),
+                            "release_date": pep_date.split(" ")[0],
+                            "release_time": pep_date.split(" ")[1],
+                            "bytes": pep_size
                     },
                 }
                 ref_dict[species].update(dict_temp)
@@ -783,8 +939,14 @@ def ref(species, which="all", release=None, ftp=False, save=False):
                 results.append(cdna_url)
             elif return_val == "dna":
                 results.append(dna_url)
+            elif return_val == "cds":
+                results.append(cds_url)
+            elif return_val == "ncrna":
+                results.append(ncrna_url)
+            elif return_val == "pep":
+                results.append(pep_url)
             else:
-                raise ValueError("Parameter 'which' must be 'all', or any one or a combination of the following: 'gtf', 'cdna', 'dna'.")
+                raise ValueError("Parameter 'which' must be 'all', or any one or a combination of the following: 'gtf', 'cdna', 'dna', 'cds', 'ncrna', 'pep'.")
 
         if save == True:
             file = open("ref_results.txt", "w")
