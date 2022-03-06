@@ -31,7 +31,7 @@ from gget import *
 $ gget ref -s homo_sapiens 
 
 # Search **Drosophila** genes with "swiss" and "cheese" in their description
-$ gget search -sw swiss,cheese -s drosophila -ao and 
+$ gget search -sw swiss,cheese -s drosophila_melanogaster -ao and 
 
 # Look up gene ENSSCUG00000017183 with expanded info (returns all transcript isoforms for genes)
 $ gget info -id ENSSCUG00000017183 -e
