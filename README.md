@@ -30,7 +30,7 @@ from gget import *
 # Fetch Homo sapiens  GTF, DNA, and cDNA FTPs from the latest Ensembl release
 $ gget ref -s homo_sapiens 
 
-# Search **Drosophila** genes with "swiss" and "cheese" in their description
+# Search Drosophila genes with "swiss" and "cheese" in their description
 $ gget search -sw swiss,cheese -s drosophila_melanogaster -ao and 
 
 # Look up gene ENSSCUG00000017183 with expanded info (returns all transcript isoforms for genes)
