@@ -73,6 +73,13 @@ Path to the file the results will be saved in, e.g. path/to/directory/results.js
 For Jupyter Lab / Google Colab: `save=True` will save the output to the current working directory.
 
 ### Examples
+#### Use in combination with [kallisto | bustools](https://www.kallistobus.tools/kb_usage/kb_ref/) to build a reference
+
+```bash
+kb ref -i INDEX -g T2G -f1 FASTA $(gget ref --ftp -w dna,gtf -s homo_sapiens)
+```
+&rarr; kb ref builds a reference using the latest DNA and GTF files of species **Homo sapiens** passed to it by gget ref
+
 #### Show all available species
 
 ```python
