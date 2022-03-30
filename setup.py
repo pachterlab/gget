@@ -1,5 +1,5 @@
 from setuptools import setup, find_packages
-from gget.__init__ import __version__
+from gget.__init__ import __version__, __author__, __email__
 
 def read(path):
     with open(path, 'r') as f:
@@ -11,10 +11,10 @@ setup(
     name='gget',
     version=__version__,
     license='MIT',
-    author='Laura Luebbert',
-    author_email='lauraluebbert@caltech.edu',
-    maintainer='Laura Luebbert',
-    maintainer_email='lauraluebbert@caltech.edu',
+    author=__author__,
+    author_email=__email__,
+    maintainer=__author__,
+    maintainer_email=__email__,
     description='Query Ensembl for genes using free form search words, look up genes/transcripts by Ensembl ID or fetch the latest FTPs by species.',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -24,7 +24,7 @@ setup(
         'beautifulsoup4>=4.10.0',
         'pandas',
         'requests>=2.27.1',
-        'tabulate>=0.8.9'
+        'tabulate>=0.8.9',
       ],
     url='https://github.com/lauraluebbert/gget',
     keywords='gget',
