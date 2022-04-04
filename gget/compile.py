@@ -1,6 +1,9 @@
 import os
 
-MUSCLE_GITHUB_LINK = "https://github.com/rcedgar/muscle.git"
+# Constants
+from .constants import (
+    MUSCLE_GITHUB_LINK
+)
 
 def compile_muscle():
     f"""

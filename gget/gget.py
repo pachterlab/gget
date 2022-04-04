@@ -1,6 +1,5 @@
 # Copyright 2022 Laura Luebbert
 
-
 ## Packages for gget search
 import pandas as pd
 import mysql.connector as sql
@@ -28,16 +27,18 @@ from urllib.request import Request
 import sys
 
 ## Custom functions
-from utils import (
+from .utils import (
     rest_query,
     ref_species_options,
     gget_species_options,
     parse_blast_ref_page
 )
-
-
-BLAST_URL = "https://blast.ncbi.nlm.nih.gov/Blast.cgi"
-BLAST_CLIENT = "gget_client"
+# Constants
+from .constants import (
+    BLAST_URL,
+    BLAST_CLIENT,
+    ENSEMBL_REST_API
+)
 
 
 ## gget info
@@ -66,7 +67,7 @@ def info(
     Returns a dictionary/json file containing the requested information about the Ensembl IDs.
     """
     # Define Ensembl REST API server
-    server = "http://rest.ensembl.org/"
+    server = ENSEMBL_REST_API
     # Define type of returned content from REST
     content_type = "application/json"
 
@@ -878,7 +879,7 @@ def seq(ens_ids, isoforms=False, save=False):
     Returns a FASTA file containing sequences of the Ensembl IDs.
     """
     # Define Ensembl REST API server
-    server = "http://rest.ensembl.org/"
+    server = ENSEMBL_REST_API
     # Define type of returned content from REST
     content_type = "application/json"
 
@@ -1006,6 +1007,7 @@ def seq(ens_ids, isoforms=False, save=False):
     # Return dictionary containing results
     return fasta   
 
+## gget blast
 def blast(
     sequence,
     program="blastn",
