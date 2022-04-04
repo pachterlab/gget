@@ -33,12 +33,20 @@ from .utils import (
     gget_species_options,
     parse_blast_ref_page
 )
+from .compile import (
+    compile_muscle
+)
 # Constants
 from .constants import (
     BLAST_URL,
     BLAST_CLIENT,
     ENSEMBL_REST_API
 )
+
+
+## gget muscle
+def muscle():
+    compile_muscle()
 
 
 ## gget info
