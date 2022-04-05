@@ -23,6 +23,9 @@ from urllib.request import urlopen
 from urllib.parse import urlencode
 from urllib.request import Request
 
+## Packages for gget muscle
+import os
+
 ## To write standard error output
 import sys
 
@@ -34,20 +37,64 @@ from .utils import (
     parse_blast_ref_page
 )
 from .compile import (
-    compile_muscle
+    compile_muscle,
+    MUSCLE_PATH
 )
 # Constants
 from .constants import (
     BLAST_URL,
     BLAST_CLIENT,
-    ENSEMBL_REST_API
+    ENSEMBL_REST_API,
+    MUSCLE_GITHUB_LINK
 )
 
 
 ## gget muscle
-def muscle():
-    compile_muscle()
-
+def muscle(fasta_path, super5=False):
+    f"""
+    Perform MUSCLE algorithm on sequences in provided fasta using the 'muscle' package.
+    'muscle' Github repository: {MUSCLE_GITHUB_LINK}
+    Args:
+    - fasta_path
+    Path to fasta file containing the sequences to be aligned.
+    - super5
+    True/False (default: False). 
+    If True, align input using Super5 algorithm to decrease time and memory.
+    Use for large inputs (a few hundred sequences).
+        
+    Returns alignment results in "aligned FASTA" format.
+    """
+    # Get absolute path to fasta file
+    abs_fasta_path = os.path.abspath(fasta_path)
+    abs_out_path = os.path.join(os.getcwd(), "muscle_results.afa")
+    
+    # Compile muscle if it is not already compiled
+    if os.path.isfile(MUSCLE_PATH) == False:
+        # Compile muscle
+        compile_muscle()
+        
+    else:
+        logging.warning(
+            "MUSCLE already compiled. "
+        )
+        
+    # Define muscle terminal command
+    if super5:
+        command = f"{MUSCLE_PATH} -super5 {abs_fasta_path} -output {abs_out_path}"
+    else:
+        command = f"{MUSCLE_PATH} -align {abs_fasta_path} -output {abs_out_path}"
+        
+    logging.warning(
+            "MUSCLE is aligning... "
+        )
+    
+    start_time = time.time()
+        
+    # Run align command
+    os.system(command)
+    
+    logging.warning(f"MUSCLE alignment complete. Alignment time: {round(time.time() - start_time, 2)} seconds")
+    
 
 ## gget info
 def info(
@@ -58,18 +105,20 @@ def info(
     save=False
 ):
     """
-    Looks up information about Ensembl IDs.
+    Look up information about Ensembl IDs.
 
-    Parameters:
+    Args:
     - ens_ids
-    One or more Ensembl IDs to look up (passed as string or list of strings).
-    -expand
-    Expand returned information (default: False). For genes: add isoform information. For transcripts: add translation and exon information.
-    - homology
+    One or more Ensembl IDs to look up (string or list of strings).
+    - expand
+    Expand returned information (default: False). 
+    For genes, this adds isoform information. 
+    For transcripts, this adds translation and exon information.
+    - homology 
     If True, returns homology information of ID (default: False).
     - xref
     If True, returns information from external references (default: False).
-    -save
+    - save
     If True, saves json with query results in current working directory.
 
     Returns a dictionary/json file containing the requested information about the Ensembl IDs.
@@ -205,13 +254,13 @@ def search(searchwords, species, d_type="gene", andor="or", limit=None, save=Fal
     """
     Function to query Ensembl for genes based on species and free form search terms. 
     
-    Parameters:
+    Args:
     - searchwords
     The parameter "searchwords" is a list of one or more strings containing free form search terms 
     (e.g.searchwords = ["GABA", "gamma-aminobutyric"]).
     All results that contain at least one of the search terms are returned.
     The search is not case-sensitive.
-    - species
+    - species 
     Species or database. 
     Species can be passed in the format 'genus_species', e.g. 'homo_sapiens'.
     To pass a specific database (e.g. specific mouse strain),
@@ -410,7 +459,7 @@ def ref(species, which="all", release=None, ftp=False, save=False):
     """
     Function to fetch GTF and FASTA (cDNA and DNA) URLs from the Ensemble FTP site.
     
-    Parameters:
+    Args:
     - species
     Defines the species for which the files should be fetched in the format "<genus>_<species>", 
     e.g.species = "homo_sapiens".
@@ -876,7 +925,7 @@ def seq(ens_ids, isoforms=False, save=False):
     """
     Fetch DNA sequences from gene or transcript Ensembl IDs. 
 
-    Parameters:
+    Args:
     - ens_ids
     One or more Ensembl IDs (passed as string or list of strings).
     - isoforms
@@ -1031,7 +1080,7 @@ def blast(
 ):
     """
     BLAST search using NCBI's QBLAST server.
-    Parameters:
+    Args:
      - sequence       Sequence (str) or path to fasta file to BLAST.
      - program        'blastn', 'blastp', 'blastx', 'tblastn', or 'tblastx'. Default: 'blastn'.
      - database       'nt', 'nr', 'refseq_rna', 'refseq_protein', 'swissprot', 'pdbaa', or 'pdbnt'. Default: 'nt'.
@@ -1051,11 +1100,11 @@ def blast(
 
     Please note that NCBI uses the new Common URL API for BLAST searches
     on the internet (http://ncbi.github.io/blast-cloud/dev/api.html). Thus,
-    some of the parameters used by this function are not (or are no longer)
+    some of the arguments used by this function are not (or are no longer)
     officially supported by NCBI. Although they are still functioning, this
     may change in the future.
 
-    This function does not check the validity of the parameters
+    This function does not check the validity of the arguments
     and passes the values to the server as is. More help is available at:
     https://ncbi.github.io/blast-cloud/dev/api.html
 
@@ -1077,7 +1126,7 @@ def blast(
     url = BLAST_URL
     client = BLAST_CLIENT
 
-    ## Clean up parameters
+    ## Clean up arguments
     # If the path to a fasta file was provided instead of a nucleotide sequence,
     # read the file and extract the sequence
     if ".fa" in sequence:
@@ -1095,7 +1144,7 @@ def blast(
             % (program, ", ".join(programs))
         )
 
-    # Translate filter and ncbi_gi parameters
+    # Translate filter and ncbi_gi arguments
     if low_comp_filt == False:
         low_comp_filt = None
     else:
@@ -1112,8 +1161,8 @@ def blast(
         megablast = "on"
 
     ## Submit search
-    # Parameters for the PUT command
-    put_parameters = [
+    # Args for the PUT command
+    put_args = [
         ("PROGRAM", program),
         ("DATABASE", database),
         ("QUERY", sequence),
@@ -1128,7 +1177,7 @@ def blast(
     ]
 
     # Define query
-    put_query = [x for x in put_parameters if x[1] is not None]
+    put_query = [x for x in put_args if x[1] is not None]
     put_message = urlencode(put_query).encode()
 
     # Submit search to server
@@ -1152,8 +1201,8 @@ def blast(
         time.sleep(int(RTOE))
 
     ## Poll server for status and fetch search results
-    # Parameters for the GET command
-    get_parameters = [
+    # Args for the GET command
+    get_args = [
         ("RID", RID),
         ("ALIGNMENTS", alignments),
         ("DESCRIPTIONS", descriptions),
@@ -1162,7 +1211,7 @@ def blast(
         ("NCBI_GI", ncbi_gi),
         ("CMD", "Get"),
     ]
-    get_query = [x for x in get_parameters if x[1] is not None]
+    get_query = [x for x in get_args if x[1] is not None]
     get_message = urlencode(get_query).encode()
 
     ## Poll NCBI until the results are ready
