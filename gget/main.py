@@ -9,7 +9,7 @@ import json
 from tabulate import tabulate
 
 # Custom functions
-from . import __version__
+from .__init__ import __version__
 from ._help import help_
 from .gget import (
     info,
