@@ -2,7 +2,7 @@
 
 from bs4 import BeautifulSoup
 import requests
-
+import re
 
 def rest_query(server, query, content_type):
     """
