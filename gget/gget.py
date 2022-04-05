@@ -1084,7 +1084,7 @@ def blast(
     """
     BLAST search using NCBI's QBLAST server.
     Args:
-     - sequence       Sequence (str) or path to fasta file to BLAST.
+     - sequence       Sequence (str) or path to fasta file containing one sequence.
      - program        'blastn', 'blastp', 'blastx', 'tblastn', or 'tblastx'. Default: 'blastn'.
      - database       'nt', 'nr', 'refseq_rna', 'refseq_protein', 'swissprot', 'pdbaa', or 'pdbnt'. Default: 'nt'.
                       (More info: https://ncbi.github.io/blast-cloud/blastdb/available-blastdbs.html)
@@ -1136,8 +1136,6 @@ def blast(
         from Bio import SeqIO
 
         sequence = SeqIO.read(sequence, format="fasta").seq
-        print(len(sequence))
-        print(sequence)
 
     # Convert program to lower case
     program = program.lower()
