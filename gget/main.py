@@ -11,13 +11,13 @@ from tabulate import tabulate
 # Custom functions
 from .__init__ import __version__
 from ._help import help_
-from .gget import (
-    info,
-    search,
-    ref,
-    seq,
-    blast
-)
+# from .gget import (
+#     info,
+#     search,
+#     ref,
+#     seq,
+#     blast
+# )
 
 
 def main():
