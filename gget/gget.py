@@ -86,7 +86,7 @@ def muscle(fasta_path, super5=False):
         command = f"{MUSCLE_PATH} -align {abs_fasta_path} -output {abs_out_path}"
         
     logging.warning(
-            "MUSCLE is aligning... "
+            "MUSCLE aligning... "
         )
     
     start_time = time.time()
