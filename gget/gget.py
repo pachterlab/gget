@@ -59,6 +59,7 @@ def muscle(fasta_path, super5=False):
     Path to fasta file containing the sequences to be aligned.
     - super5
     True/False (default: False). 
+    If False, align input using PPP algorithm.
     If True, align input using Super5 algorithm to decrease time and memory.
     Use for large inputs (a few hundred sequences).
         
@@ -93,7 +94,9 @@ def muscle(fasta_path, super5=False):
     # Run align command
     os.system(command)
     
-    logging.warning(f"MUSCLE alignment complete. Alignment time: {round(time.time() - start_time, 2)} seconds")
+    logging.warning(
+        f"MUSCLE alignment complete. Alignment time: {round(time.time() - start_time, 2)} seconds."
+    )
     
 
 ## gget info
