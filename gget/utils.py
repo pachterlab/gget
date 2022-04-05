@@ -3,6 +3,7 @@
 from bs4 import BeautifulSoup
 import requests
 import re
+import numpy as np
 
 def rest_query(server, query, content_type):
     """
