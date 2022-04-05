@@ -514,7 +514,3 @@ def main():
             sys.stderr.write(
                 "\nTo save these results, use flag '-o' in the format: '-o path/to/directory/results.fa'.\n"
             )
-    
-# Python interpreter to run main()
-if __name__ == '__main__':
-    main()
