@@ -40,6 +40,7 @@ from .compile import (
     compile_muscle,
     MUSCLE_PATH
 )
+from .main import main
 # Constants
 from .constants import (
     BLAST_URL,
@@ -47,7 +48,6 @@ from .constants import (
     ENSEMBL_REST_API,
     MUSCLE_GITHUB_LINK
 )
-
 
 ## gget muscle
 def muscle(fasta_path, super5=False):
