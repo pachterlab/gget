@@ -1136,6 +1136,8 @@ def blast(
         from Bio import SeqIO
 
         sequence = SeqIO.read(sequence, format="fasta").seq
+        print(len(sequence))
+        print(sequence)
 
     # Convert program to lower case
     program = program.lower()
