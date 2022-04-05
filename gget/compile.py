@@ -22,7 +22,7 @@ def compile_muscle():
     """
     
     logging.warning(
-        "Compiling MUSCLE binary from source. "
+        "Compiling MUSCLE binary from source... "
     )
     
     # Change path to package path
