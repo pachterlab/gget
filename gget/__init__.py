@@ -1,11 +1,4 @@
-from .gget import (
-    info,
-    search,
-    ref,
-    seq,
-    blast,
-    muscle
-)
+from .gget import *
 
 __version__ = '0.0.18'
 __author__ = 'Laura Luebbert'
