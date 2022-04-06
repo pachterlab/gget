@@ -51,9 +51,10 @@ from .constants import (
 
 ## gget muscle
 def muscle(fasta_path, super5=False):
-    f"""
-    Perform MUSCLE algorithm on sequences in provided fasta using the 'muscle' package.
-    'muscle' Github repository: {MUSCLE_GITHUB_LINK}
+    """
+    Align the sequences in the provided fasta using the Muscle v5 algorithm.
+    Muscle v5 documentation: https://drive5.com/muscle5
+    
     Args:
     - fasta_path
     Path to fasta file containing the sequences to be aligned.
@@ -63,7 +64,7 @@ def muscle(fasta_path, super5=False):
     If True, align input using Super5 algorithm to decrease time and memory.
     Use for large inputs (a few hundred sequences).
         
-    Returns alignment results in "aligned FASTA" format.
+    Returns alignment results in an "aligned FASTA" (.afa) file.
     """
     # Get absolute path to fasta file
     abs_fasta_path = os.path.abspath(fasta_path)
@@ -79,19 +80,17 @@ def muscle(fasta_path, super5=False):
             "MUSCLE already compiled. "
         )
         
-    # Define muscle terminal command
+    # Define muscle command
     if super5:
         command = f"{MUSCLE_PATH} -super5 {abs_fasta_path} -output {abs_out_path}"
     else:
         command = f"{MUSCLE_PATH} -align {abs_fasta_path} -output {abs_out_path}"
-        
+     
+    # Run align command  
     logging.warning(
             "MUSCLE aligning... "
         )
-    
     start_time = time.time()
-        
-    # Run align command
     os.system(command)
     
     logging.warning(
