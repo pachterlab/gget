@@ -18,7 +18,7 @@ from ._help import help_
 #     blast
 # )
 
-from gget import gget
+from .gget import gget
 ref = gget.ref
 info = gget.info
 search = gget.search
