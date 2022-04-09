@@ -1,6 +1,5 @@
 # Copyright 2022 Laura Luebbert
 
-
 # Packages for use from terminal
 import argparse
 import sys
@@ -11,13 +10,13 @@ from tabulate import tabulate
 # Custom functions
 from .__init__ import __version__
 from ._help import help_
-# from .gget import (
-#     info,
-#     search,
-#     ref,
-#     seq,
-#     blast
-# )
+from gget.gget import (
+    info,
+    search,
+    ref,
+    seq,
+    blast
+)
 
 
 def main():
