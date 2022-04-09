@@ -10,21 +10,15 @@ from tabulate import tabulate
 # Custom functions
 from .__init__ import __version__
 from ._help import help_
-# from .gget import (
-#     info,
-#     search,
-#     ref,
-#     seq,
-#     blast
-# )
+from .gget import muscle
 
-from .gget import gget
-ref = gget.ref
-info = gget.info
-search = gget.search
-seq = gget.seq
-blast = gget.blast
-muscle = gget.muscle
+# from . import gget
+# ref = gget.ref
+# info = gget.info
+# search = gget.search
+# seq = gget.seq
+# blast = gget.blast
+# muscle = gget.muscle
 
 def main():
     """
