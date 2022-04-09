@@ -25,7 +25,7 @@ def main():
     Function containing argparse parsers and arguments to allow the use of gget from the terminal.
     """
     # Define parent parser 
-    parent_parser = argparse.ArgumentParser(description=f"gget v{version}", add_help=False)
+    parent_parser = argparse.ArgumentParser(description=f"gget v{__version__}", add_help=False)
     # Initiate subparsers
     parent_subparsers = parent_parser.add_subparsers(dest="command")
     # Define parent (not sure why I need both parent parser and parent, but otherwise it does not work)
