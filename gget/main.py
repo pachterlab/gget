@@ -19,6 +19,12 @@ from ._help import help_
 # )
 
 from . import gget
+ref = gget.ref
+info = gget.info
+search = gget.search
+seq = gget.seq
+blast = gget.blast
+muscle = gget.muscle
 
 def main():
     """
