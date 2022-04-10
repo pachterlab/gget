@@ -11,7 +11,9 @@ from tabulate import tabulate
 from .__init__ import __version__
 from ._help import help_
 
-import gget.search as search
+import ref, search, info, seq, blast, muscle
+
+# import gget.gget
 # from .gget import muscle
 
 # from . import gget
