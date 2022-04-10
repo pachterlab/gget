@@ -40,7 +40,6 @@ from .compile import (
     compile_muscle,
     MUSCLE_PATH
 )
-from .main import main
 # Constants
 from .constants import (
     BLAST_URL,
