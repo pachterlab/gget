@@ -1268,7 +1268,3 @@ def blast(
             or post an issue on Github: https://github.com/lauraluebbert/gget\n
             """
             )
-    
-# Python interpreter to run main()
-if __name__ == '__main__':
-    main()
