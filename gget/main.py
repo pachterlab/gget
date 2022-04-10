@@ -11,7 +11,7 @@ from tabulate import tabulate
 from .__init__ import __version__
 from ._help import help_
 
-import .gget_funcs
+import gget_funcs
 # import gget.gget_funcs
 # from .gget_funcs import muscle
 
