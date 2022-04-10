@@ -10,18 +10,7 @@ from tabulate import tabulate
 # Custom functions
 from .__init__ import __version__
 from ._help import help_
-
-# import .gget_funcs
-# import gget.gget_funcs
 from .gget_funcs import *
-
-# import gget_funcs
-# ref = gget_funcs.ref
-# info = gget_funcs.info
-# search = gget_funcs.search
-# seq = gget_funcs.seq
-# blast = gget_funcs.blast
-# muscle = gget_funcs.muscle
 
 def main():
     """
