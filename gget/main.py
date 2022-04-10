@@ -13,7 +13,7 @@ from ._help import help_
 
 # import .gget_funcs
 # import gget.gget_funcs
-from .gget_funcs import *
+from .gget_funcs import search
 
 # import gget_funcs
 # ref = gget_funcs.ref
