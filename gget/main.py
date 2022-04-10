@@ -8,11 +8,10 @@ import json
 from tabulate import tabulate
 
 # Custom functions
-from .gget_funcs import *
 from .__init__ import __version__
 from ._help import help_
 
-# import ref, search, info, seq, blast, muscle
+import gget_funcs.search
 # import gget.gget
 # from .gget import muscle
 
