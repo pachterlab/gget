@@ -10,7 +10,9 @@ from tabulate import tabulate
 # Custom functions
 from .__init__ import __version__
 from ._help import help_
-from .gget import muscle
+
+import gget.search as search
+# from .gget import muscle
 
 # from . import gget
 # ref = gget.ref
