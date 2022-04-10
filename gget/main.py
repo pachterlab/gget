@@ -11,19 +11,19 @@ from tabulate import tabulate
 from .__init__ import __version__
 from ._help import help_
 
-from .gget import *
+from .gget_funcs import *
 
 # import ref, search, info, seq, blast, muscle
 # import gget.gget
 # from .gget import muscle
 
 # import gget
-ref = gget.ref
-info = gget.info
-search = gget.search
-seq = gget.seq
-blast = gget.blast
-muscle = gget.muscle
+# ref = gget.ref
+# info = gget.info
+# search = gget.search
+# seq = gget.seq
+# blast = gget.blast
+# muscle = gget.muscle
 
 def main():
     """
