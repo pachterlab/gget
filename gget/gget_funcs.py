@@ -48,25 +48,34 @@ from .constants import (
 )
 
 ## gget muscle
-def muscle(fasta_path, super5=False):
+def muscle(fasta, 
+           super5=False, 
+           out="default"
+          ):
     """
-    Align the sequences in the provided fasta using the Muscle v5 algorithm.
+    Align the nucleotide or amino acid sequences in a fasta file using the Muscle v5 algorithm.
     Muscle v5 documentation: https://drive5.com/muscle5
     
     Args:
-    - fasta_path
+    - fasta
     Path to fasta file containing the sequences to be aligned.
     - super5
     True/False (default: False). 
-    If False, align input using PPP algorithm.
-    If True, align input using Super5 algorithm to decrease time and memory.
+    If True, align input using Super5 algorithm instead of PPP algorithm to decrease time and memory.
     Use for large inputs (a few hundred sequences).
+    - out
+    Path to the 'aligned FASTA' (.afa) file the results will be saved in (default: "muscle_results.afa").
         
     Returns alignment results in an "aligned FASTA" (.afa) file.
     """
-    # Get absolute path to fasta file
-    abs_fasta_path = os.path.abspath(fasta_path)
-    abs_out_path = os.path.join(os.getcwd(), "muscle_results.afa")
+    # Get absolute path to input fasta file
+    abs_fasta_path = os.path.abspath(fasta)
+    
+    # Get absolute path to output .afa file
+    if out == "default":
+        abs_out_path = os.path.join(os.getcwd(), "muscle_results.afa")
+    else:
+        abs_out_path = os.path.abspath(out)
     
     # Compile muscle if it is not already compiled
     if os.path.isfile(MUSCLE_PATH) == False:
@@ -250,7 +259,13 @@ def info(
 
 
 ## gget search
-def search(searchwords, species, d_type="gene", andor="or", limit=None, save=False):
+def search(searchwords, 
+           species, 
+           seqtype="gene", 
+           andor="or", 
+           limit=None, 
+           save=False
+          ):
     """
     Function to query Ensembl for genes based on species and free form search terms. 
     
@@ -262,12 +277,12 @@ def search(searchwords, species, d_type="gene", andor="or", limit=None, save=Fal
     The search is not case-sensitive.
     - species 
     Species or database. 
-    Species can be passed in the format 'genus_species', e.g. 'homo_sapiens'.
+    Species can be passed in the format "genus_species", e.g. "homo_sapiens".
     To pass a specific database (e.g. specific mouse strain),
     enter the name of the core database without "/", e.g. 'mus_musculus_dba2j_core_105_1'. 
     All availabale species databases can be found here: http://ftp.ensembl.org/pub/release-105/mysql/
-    -d_type
-    "gene" (default) or "transcript". 
+    - seqtype
+    Possible entries: "gene" (default) or "transcript". 
     Defines whether genes or transcripts matching the searchwords are returned.
     - andor
     Possible entries: "and", "or"  
@@ -281,6 +296,23 @@ def search(searchwords, species, d_type="gene", andor="or", limit=None, save=Fal
     Returns a data frame with the query results.
     """
     start_time = time.time()
+    
+    ## Check validity or arguments
+    # Check if seqtype is valid
+    seqtypes = ["gene", "transcript"]
+    seqtype = seqtype.lower()
+    if seqtype not in seqtypes:
+        raise ValueError(
+            f"Sequence type specified is {seqtype}. Expected one of {', '.join(seqtypes)}"
+        )
+        
+    # Check if 'andor' arg is valid
+    andors = ["and", "or"]
+    andor = andor.lower()
+    if andor not in andors:
+        raise ValueError(
+            f"'andor' argument specified as {andor}. Expected one of {', '.join(andors)}"
+        )
 
     ## Get database for specified species
     # Species shortcuts
@@ -343,7 +375,7 @@ def search(searchwords, species, d_type="gene", andor="or", limit=None, save=Fal
     
     ## Find genes
     for i, searchword in enumerate(searchwords):
-        if d_type == "gene":
+        if seqtype == "gene":
             # If limit is specified, fetch only the first {limit} genes for which the searchword appears in the description
             if limit != None:
                 query = f"""
@@ -386,7 +418,7 @@ def search(searchwords, species, d_type="gene", andor="or", limit=None, save=Fal
                     val = np.intersect1d(df["stable_id"], df_temp["stable_id"])
                     df = df[df.stable_id.isin(val)]
         
-        if d_type == "transcript":
+        if seqtype == "transcript":
             # If limit is specified, fetch only the first {limit} transcripts for which the searchword appears in the description
             if limit != None:
                 query = f"""
@@ -443,9 +475,9 @@ def search(searchwords, species, d_type="gene", andor="or", limit=None, save=Fal
     # Add URL to gene summary on Ensembl
     df["URL"] = "https://uswest.ensembl.org/" + "_".join(db.split("_")[:2]) + "/Gene/Summary?g=" + df["Ensembl_ID"]
     
-    # Print query time and number of genes fetched
+    # Print query time and number of genes/transcripts fetched
     logging.warning(f"Query time: {round(time.time() - start_time, 2)} seconds")
-    logging.warning(f"Genes fetched: {len(df)}")
+    logging.warning(f"Matches found: {len(df)}")
     
     # Save
     if save == True:
@@ -921,26 +953,40 @@ def ref(species, which="all", release=None, ftp=False, save=False):
         return results
     
 # gget seq
-def seq(ens_ids, isoforms=False, save=False):
+def seq(ens_ids, 
+        isoforms=False, 
+        seqtype="gene",
+        save=False,
+       ):
     """
-    Fetch DNA sequences from gene or transcript Ensembl IDs. 
+    Fetch nucleotide or amino acid sequences from gene or transcript Ensembl IDs. 
 
     Args:
     - ens_ids
     One or more Ensembl IDs (passed as string or list of strings).
     - isoforms
-    If true: If a gene Ensembl ID is passed, this returns sequences of all known transcript isoforms.
+    If True, this returns the sequences of all known transcript isoforms (default: False).
+    - seqtype
+    'gene' (default) or 'transcript'. 
+    Defines whether nucleotide or amino acid sequences are returned.
+    Nucleotide sequences are fetched from the Ensembl REST API server.
+    Amino acid sequences are fetched from the Ensembl REST API server.
     - save
     If True: Save output FASTA to current directory.
     
-    Returns a FASTA file containing sequences of the Ensembl IDs.
+    Returns a list (or FASTA file if 'save=True') containing the sequences of the Ensembl IDs.
     """
-    # Define Ensembl REST API server
-    server = ENSEMBL_REST_API
-    # Define type of returned content from REST
-    content_type = "application/json"
-
-    ## Clean up Ensembl IDs
+    
+    ## Clean up arguments
+    # Check if seqtype is valid
+    seqtypes = ["gene", "transcript"]
+    seqtype = seqtype.lower()
+    if seqtype not in seqtypes:
+        raise ValueError(
+            f"Sequence type specified is {seqtype}. Expected one of {', '.join(seqtypes)}"
+        )
+        
+    # Clean up Ensembl IDs
     # If single Ensembl ID passed as string, convert to list
     if type(ens_ids) == str:
         ens_ids = [ens_ids]
@@ -948,67 +994,64 @@ def seq(ens_ids, isoforms=False, save=False):
     ens_ids_clean = []
     for ensembl_ID in ens_ids:
         ens_ids_clean.append(ensembl_ID.split(".")[0])
-        
-    # Initiate dictionary to save results for all IDs in
-    master_dict = {}
+    
+    ## Fetch nucleotide sequences
+    if seqtype == "gene":
+        # Define Ensembl REST API server
+        server = ENSEMBL_REST_API
+        # Define type of returned content from REST
+        content_type = "application/json"
 
-    # Query REST APIs from https://rest.ensembl.org/
-    for ensembl_ID in ens_ids_clean:
-        # Create dict to save query results
-        results_dict = {ensembl_ID:{}}
-        
-        ## SEQUENCE
-        # sequence/id/ query: Request sequence by stable identifier
-        # Define the REST query
-        query = "sequence/id/" + ensembl_ID + "?"
-        # Submit query
-        df_temp = rest_query(server, query, content_type)
-        
-        # Delete superfluous entries
-        keys_to_delete = ["query", "id", "version", "molecule"]
-        for key in keys_to_delete:
-            # Pop keys, None -> do not raise an error if key to delete not found
-            df_temp.pop(key, None)
+        ## Clean up Ensembl IDs
+        # If single Ensembl ID passed as string, convert to list
+        if type(ens_ids) == str:
+            ens_ids = [ens_ids]
+        # Remove Ensembl ID version if passed
+        ens_ids_clean = []
+        for ensembl_ID in ens_ids:
+            ens_ids_clean.append(ensembl_ID.split(".")[0])
 
-        # Add results to main dict
-        results_dict[ensembl_ID].update({"seq":df_temp})
-        
-        if isoforms == True:
-            # Get transcripts using gget info
-            info_dict = info(ensembl_ID, expand=True)
-            
-            # If this is a gene, get the sequence of all isoforms using gget info
-            try:
-                info_dict[ensembl_ID]["Transcript"]
-                
-                # If only one transcript present
+        # Initiate dictionary to save results for all IDs in
+        master_dict = {}
+
+        # Query REST APIs from https://rest.ensembl.org/
+        for ensembl_ID in ens_ids_clean:
+            # Create dict to save query results
+            results_dict = {ensembl_ID:{}}
+
+            ## SEQUENCE
+            # sequence/id/ query: Request sequence by stable identifier
+            # Define the REST query
+            query = "sequence/id/" + ensembl_ID + "?"
+            # Submit query
+            df_temp = rest_query(server, query, content_type)
+
+            # Delete superfluous entries
+            keys_to_delete = ["query", "id", "version", "molecule"]
+            for key in keys_to_delete:
+                # Pop keys, None -> do not raise an error if key to delete not found
+                df_temp.pop(key, None)
+
+            # Add results to main dict
+            results_dict[ensembl_ID].update({"seq":df_temp})
+
+            if isoforms == True:
+                # Get transcripts using gget info
+                info_dict = info(ensembl_ID, expand=True)
+
+                # If this is a gene, get the sequence of all isoforms using gget info
                 try:
-                    transcipt_id = info_dict[ensembl_ID]["Transcript"]["id"]
-                    
-                    # Define the REST query
-                    query = "sequence/id/" + transcipt_id + "?"
-                    # Submit query
-                    df_temp = rest_query(server, query, content_type)
-                    
-                    # Delete superfluous entries
-                    keys_to_delete = ["query", "version", "molecule"]
-                    for key in keys_to_delete:
-                        # Pop keys, None -> do not raise an error if key to delete not found
-                        df_temp.pop(key, None)
+                    info_dict[ensembl_ID]["Transcript"]
 
-                    # Add results to main dict
-                    results_dict[ensembl_ID].update({"transcript":df_temp})
-                    
-                # If more than one transcript present    
-                except:
-                    for isoform in np.arange(len(info_dict[ensembl_ID]["Transcript"])):
-                        transcipt_id = info_dict[ensembl_ID]["Transcript"][isoform]["id"]
-                        
+                    # If only one transcript present
+                    try:
+                        transcipt_id = info_dict[ensembl_ID]["Transcript"]["id"]
+
                         # Define the REST query
                         query = "sequence/id/" + transcipt_id + "?"
                         # Submit query
                         df_temp = rest_query(server, query, content_type)
-                        
+
                         # Delete superfluous entries
                         keys_to_delete = ["query", "version", "molecule"]
                         for key in keys_to_delete:
@@ -1016,50 +1059,50 @@ def seq(ens_ids, isoforms=False, save=False):
                             df_temp.pop(key, None)
 
                         # Add results to main dict
-                        results_dict[ensembl_ID].update({f"transcript{isoform}":df_temp})
-            except:
-                pass
-            
-#         ## OVERLAP
-#         # overlap/id/ query: Retrieves features (e.g. genes, transcripts, variants and more) that overlap a region defined by the given identifier.
-#         query = "overlap/id/" + ensembl_ID + "?" + "feature=gene"
-#         # Submit query
-#         df_temp = rest_query(server, query, content_type)
-#         print(df_temp)
+                        results_dict[ensembl_ID].update({"transcript":df_temp})
+
+                    # If more than one transcript present    
+                    except:
+                        for isoform in np.arange(len(info_dict[ensembl_ID]["Transcript"])):
+                            transcipt_id = info_dict[ensembl_ID]["Transcript"][isoform]["id"]
+
+                            # Define the REST query
+                            query = "sequence/id/" + transcipt_id + "?"
+                            # Submit query
+                            df_temp = rest_query(server, query, content_type)
+
+                            # Delete superfluous entries
+                            keys_to_delete = ["query", "version", "molecule"]
+                            for key in keys_to_delete:
+                                # Pop keys, None -> do not raise an error if key to delete not found
+                                df_temp.pop(key, None)
+
+                            # Add results to main dict
+                            results_dict[ensembl_ID].update({f"transcript{isoform}":df_temp})
+                except:
+                    pass
+
+            # Add results to master dict
+            master_dict.update(results_dict)
+
+        # Build FASTA file
+        fasta = []
+        for ens_ID in master_dict:
+            for key in master_dict[ens_ID].keys():
+                if key == 'seq':
+                    fasta.append(">" + ens_ID + " " + master_dict[ens_ID][key]['desc'])
+                    fasta.append(master_dict[ens_ID][key]['seq'])
+                else:
+                    fasta.append(">" + master_dict[ens_ID][key]['id'] + " " + master_dict[ens_ID][key]['desc'])
+                    fasta.append(master_dict[ens_ID][key]['seq'])
 
 
-#         ## MAPPING
-#         # map/cdna/:id/:region: Convert from cDNA coordinates to genomic coordinates. Output reflects forward orientation coordinates as returned from the Ensembl API.
-#         query = "map/cdna/" + ensembl_ID + "/100..300" + "?"
-#         # Submit query
-#         df_temp = rest_query(server, query, content_type)
-#         print(df_temp)      
-        
-        
-#         # REGULATORY
-#         regulatory/species/:species/id/:id query: Returns a RegulatoryFeature given its stable ID
-        
-        # Add results to master dict
-        master_dict.update(results_dict)
-        
-    # Build FASTA file
-    fasta = []
-    for ens_ID in master_dict:
-        for key in master_dict[ens_ID].keys():
-            if key == 'seq':
-                fasta.append(">" + ens_ID + " " + master_dict[ens_ID][key]['desc'])
-                fasta.append(master_dict[ens_ID][key]['seq'])
-            else:
-                fasta.append(">" + master_dict[ens_ID][key]['id'] + " " + master_dict[ens_ID][key]['desc'])
-                fasta.append(master_dict[ens_ID][key]['seq'])
-                
-    
-    # Save
-    if save == True:
-        file = open("seq_results.fa", "w")
-        for element in fasta:
-            file.write(element + "\n")
-        file.close()
+        # Save
+        if save == True:
+            file = open("seq_results.fa", "w")
+            for element in fasta:
+                file.write(element + "\n")
+            file.close()
 
     # Return dictionary containing results
     return fasta   
@@ -1067,8 +1110,8 @@ def seq(ens_ids, isoforms=False, save=False):
 ## gget blast
 def blast(
     sequence,
-    program="auto",
-    database="auto",
+    program="default",
+    database="default",
     ncbi_gi=False,
     descriptions=500,
     alignments=500,
@@ -1088,10 +1131,10 @@ def blast(
                       Default: 'nt' for nucleotide sequences; 'nr' for amino acid sequences.
                       More info on BLAST databases: https://ncbi.github.io/blast-cloud/blastdb/available-blastdbs.html
      - ncbi_gi        True/False whether to return NCBI GI identifiers. Default False.
-     - descriptions   int or None. Limit number of descriptions to show. Default 500.
-     - alignments     int or None. Limit number of alignments to show. Default 500.
+     - descriptions   int or None. Limit number of descriptions to return. Default 500.
+     - alignments     int or None. Limit number of alignments to return. Default 500.
      - hitlist_size   int or None. Limit number of hits to return. Default 50.
-     - expect         int or None. An expect value cutoff. Default 10.0.
+     - expect         float or None. An expect value cutoff. Default 10.0.
      - low_comp_filt  True/False whether to apply low complexity filter. Default False.
      - megablast      True/False whether to use the MegaBLAST algorithm (blastn only). Default True.
      - verbose        True/False whether to print progress information. Default True.
@@ -1151,8 +1194,8 @@ def blast(
     dbs = ["nt", "nr", "refseq_rna", "refseq_protein", "swissprot", "pdbaa", "pdbnt"]
     
     # If user does not specify the program, 
-    # check if a nulceotide or protein sequence was passed
-    if program == "auto":
+    # check if a nulceotide or amino acid sequence was passed
+    if program == "default":
         # Set of all possible nucleotides and amino acids
         nucleotides = set("ATGC")
         amino_acids = set("ARNDCQEGHILKMFPSTWYVBZ") 
@@ -1162,7 +1205,7 @@ def blast(
             program = "blastn"
             
             # Set database to nt (unless user specified another database)
-            if database == "auto":
+            if database == "default":
                 database = "nt"
                 if verbose == True:
                     logging.warning("Sequence recognized as nucleotide sequence. "
@@ -1177,12 +1220,12 @@ def blast(
                     if verbose == True:
                         logging.warning("Sequence recognized as nucleotide sequence. "
                                         "BLAST will use program 'blastn' with user-specified database.")
-        # If sequence is a protein sequence, set program to blastp        
+        # If sequence is an amino acid sequence, set program to blastp        
         elif set(sequence) <= amino_acids:
             program = "blastp"
             
             # Set database to nr (unless user specified another database)
-            if database == "auto":
+            if database == "default":
                 database = "nr"
                 if verbose == True:
                     logging.warning("Sequence recognized as amino acid sequence. "

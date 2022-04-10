@@ -33,15 +33,15 @@ def compile_muscle():
     os.chdir("bins/compiled/")
     
     # Clone MUSCLE repo into PACKAGE_PATH/bins/compiled/
-    command1 = "git clone " + MUSCLE_GITHUB_LINK
+    command1 = "git clone " + MUSCLE_GITHUB_LINK + " -q"
     os.system(command1)
     
     # Change path to PACKAGE_PATH/bins/compiled/muscle/src/
     os.chdir("muscle/src/")
     
     # Run make command
-    command3 = "make"
-    os.system(command3)
+    command2 = "make -s"
+    os.system(command2)
     
     logging.warning(
         "MUSCLE compiled. "

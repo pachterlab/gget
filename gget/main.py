@@ -5,7 +5,6 @@ import argparse
 import sys
 import os
 import json
-from tabulate import tabulate
 
 # Custom functions
 from .__init__ import __version__
@@ -125,7 +124,7 @@ def main():
         help="Species to be queried, e.g. homo_sapiens."
     )
     parser_gget.add_argument(
-        "-t", "--d_type",
+        "-t", "--seqtype",
         choices=["gene", "transcript"],
         default="gene",
         type=str,  
@@ -218,7 +217,7 @@ def main():
         help="Look up DNA sequences from Ensembl IDs.",
         add_help=True
         )
-    # info parser arguments
+    # seq parser arguments
     parser_seq.add_argument(
         "-id", "--ens_ids", 
         type=str,
@@ -243,6 +242,134 @@ def main():
         )
     )
     
+    ## gget muscle subparser
+    parser_muscle = parent_subparsers.add_parser(
+        "muscle",
+        parents=[parent],
+        description="Align the nucleotide or protein sequences in a fasta file using the Muscle v5 algorithm.", 
+        help="Align the nucleotide or protein sequences in a fasta file using the Muscle v5 algorithm.",
+        add_help=True
+        )
+    # muscle parser arguments
+    parser_muscle.add_argument(
+        "-fa", "--fasta", 
+        type=str,
+        required=True, 
+        help="Path to fasta file containing the sequences to be aligned."
+    )
+    parser_muscle.add_argument(
+        "-s5", "--super5", 
+        default=False, 
+        action="store_true",
+        required=False,
+        help="If True, align input using Super5 algorithm instead of PPP algorithm to decrease time and memory. Use for large inputs (a few hundred sequences)."
+    )
+    parser_muscle.add_argument(
+        "-o", "--out",
+        type=str,
+        required=True,
+        help="Path to the 'aligned FASTA' (.afa) file the results will be saved in, e.g. path/to/directory/results.afa." 
+    )
+    
+    ## gget blast subparser
+    parser_blast = parent_subparsers.add_parser(
+        "blast",
+        parents=[parent],
+        description="BLAST search using NCBI's QBLAST server.", 
+        help="BLAST search using NCBI's QBLAST server.",
+        add_help=True
+        )
+    # blast parser arguments
+    parser_blast.add_argument(
+        "-s", "--sequence", 
+        type=str,
+        required=True, 
+        help="Sequence (str) or path to fasta file containing one sequence."
+    )
+    parser_blast.add_argument(
+        "-p", "--program", 
+        choices=["blastn", "blastp", "blastx", "tblastn", "tblastx"],
+        default="default",
+        type=str,
+        required=False, 
+        help=("'blastn', 'blastp', 'blastx', 'tblastn', or 'tblastx'. "
+              "Default: 'blastn' for nucleotide sequences; 'blastp' for amino acid sequences.")
+    )
+    parser_blast.add_argument(
+        "-db", "--database", 
+        choices=["nt", "nr", "refseq_rna", "refseq_protein", "swissprot", "pdbaa", "pdbnt"],
+        default="default",
+        type=str,
+        required=False, 
+        help=("'nt', 'nr', 'refseq_rna', 'refseq_protein', 'swissprot', 'pdbaa', or 'pdbnt'. "
+              "Default: 'nt' for nucleotide sequences; 'nr' for amino acid sequences. "
+              "More info on BLAST databases: https://ncbi.github.io/blast-cloud/blastdb/available-blastdbs.html")
+    )
+    parser_blast.add_argument(
+        "-ng", "--ncbi_gi", 
+        default=False, 
+        action="store_true",
+        required=False,
+        help="Return NCBI GI identifiers. Default False."
+    )
+    parser_blast.add_argument(
+        "-d", "--descriptions", 
+        type=int,
+        default=500, 
+        required=False,
+        help="int or None. Limit number of descriptions to return. Default 500."
+    )
+    parser_blast.add_argument(
+        "-a", "--alignments", 
+        type=int,
+        default=500, 
+        required=False,
+        help="int or None. Limit number of alignments to return. Default 500."
+    )
+    parser_blast.add_argument(
+        "-hs", "--hitlist_size", 
+        type=int,
+        default=50, 
+        required=False,
+        help="int or None. Limit number of hits to return. Default 50."
+    )
+    parser_blast.add_argument(
+        "-e", "--expect", 
+        type=float,
+        default=10.0, 
+        required=False,
+        help="float or None. An expect value cutoff. Default 10.0."
+    )
+    parser_blast.add_argument(
+        "-lcf", "--low_comp_filt", 
+        default=False, 
+        action="store_true",
+        required=False,
+        help="Turn on low complexity filter. Default off."
+    )
+    parser_blast.add_argument(
+        "-mbo", "--megablast_off", 
+        default=True, 
+        action="store_false",
+        required=False,
+        help="Turn off MegaBLAST algorithm. Default on (blastn only)."
+    )
+    parser_blast.add_argument(
+        "-q", "--quiet",
+        default=True, 
+        action="store_false",
+        required=False,
+        help="Do not print progress information. Default True." 
+    )
+    parser_blast.add_argument(
+        "-o", "--out",
+        type=str,
+        required=False,
+        help=(
+            "Path to the csv file the results will be saved in, e.g. path/to/directory/results.csv.\n" 
+            "Default: None (just prints results)."
+        )
+    )
     
     ## Show help when no arguments are given
     if len(sys.argv) == 1:
@@ -259,6 +386,40 @@ def main():
     ## Version return
     if args.version:        
         print(f"gget version: {version}")
+        
+    ## blast return
+    if args.command == "blast":
+        blast_results = blast(
+            sequence = args.sequence,
+            program = args.program,
+            database = args.database,
+            ncbi_gi = args.ncbi_gi,
+            descriptions = args.descriptions,
+            alignments = args.alignments,
+            hitlist_size = args.hitlist_size,
+            expect = args.expect,
+            low_comp_filt = args.low_comp_filt,
+            megablast = args.megablast_off,
+            verbose = args.quiet,
+            )
+        # Save blast results if args.out specified
+        if args.out:
+            directory = "/".join(args.out.split("/")[:-1])
+            if directory != "":
+                os.makedirs(directory, exist_ok=True)
+            blast_results.to_csv(args.out, index=False)
+            sys.stderr.write(f"\nResults saved as {args.out}.\n")
+        
+        # Print results if no directory specified
+        else:
+            blast_results.to_csv(sys.stdout, index=False)
+        
+    ## muscle return
+    if args.command == "muscle":
+        muscle(fasta=args.fasta, 
+               super5=args.super5,
+               out=args.out
+              )
         
     ## ref return
     if args.command == "ref":
@@ -345,9 +506,7 @@ def main():
                     # Print results
                     results = " ".join(ref_results)
                     print(results)
-                    sys.stderr.write(
-                        "\nTo save these results, use flag '-o' in the format: '-o path/to/directory/results.txt'.\n"
-                    )
+#                     sys.stderr.write("\nTo save these results, use flag '-o' in the format: '-o path/to/directory/results.txt'.\n")
                     
                     if args.download == True:
                         # Download list of URLs
@@ -388,9 +547,7 @@ def main():
                 # Print results if no directory specified
                 else:
                     print(json.dumps(ref_results, ensure_ascii=False, indent=4))
-                    sys.stderr.write(
-                        "\nTo save these results, use flag '-o' in the format: '-o path/to/directory/results.json'.\n"
-                    )
+#                     sys.stderr.write("\nTo save these results, use flag '-o' in the format: '-o path/to/directory/results.json'.\n")
                     
                     if args.download == True:
                         # Download the URLs from the dictionary
@@ -422,7 +579,7 @@ def main():
         # Query Ensembl for genes based on species and searchwords using function search
         gget_results = search(sw_clean_final, 
                               args.species,
-                              d_type=args.d_type,
+                              seqtype=args.seqtype,
                               andor=args.andor, 
                               limit=args.limit)
         
@@ -436,8 +593,8 @@ def main():
         
         # Print results if no directory specified
         else:
-            print(tabulate(gget_results, headers = 'keys', tablefmt = 'plain'))
-            sys.stderr.write("\nTo save these results, use flag '-o' in the format: '-o path/to/directory/results.csv'.\n")
+            gget_results.to_csv(sys.stdout, index=False)
+#             sys.stderr.write("\nTo save these results, use flag '-o' in the format: '-o path/to/directory/results.csv'.\n")
             
     ## info return
     if args.command == "info":
@@ -468,7 +625,7 @@ def main():
         # Print results if no directory specified
         else:
             print(json.dumps(info_results, ensure_ascii=False, indent=4))
-            sys.stderr.write("\nTo save these results, use flag '-o' in the format: '-o path/to/directory/results.json'.\n")
+#             sys.stderr.write("\nTo save these results, use flag '-o' in the format: '-o path/to/directory/results.json'.\n")
             
     ## seq return
     if args.command == "seq":
@@ -503,6 +660,4 @@ def main():
         # Print results if no directory specified
         else:
             print(seq_results)
-            sys.stderr.write(
-                "\nTo save these results, use flag '-o' in the format: '-o path/to/directory/results.fa'.\n"
-            )
+#             sys.stderr.write("\nTo save these results, use flag '-o' in the format: '-o path/to/directory/results.fa'.\n")

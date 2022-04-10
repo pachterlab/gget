@@ -23,8 +23,7 @@ setup(
         'mysql-connector-python>=8.0.28',
         'beautifulsoup4>=4.10.0',
         'pandas',
-        'requests>=2.27.1',
-        'tabulate>=0.8.9',
+        'requests>=2.27.1'
       ],
     url='https://github.com/lauraluebbert/gget',
     keywords='gget',
