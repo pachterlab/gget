@@ -18,12 +18,12 @@ from .gget import *
 # from .gget import muscle
 
 # import gget
-# ref = gget.ref
-# info = gget.info
-# search = gget.search
-# seq = gget.seq
-# blast = gget.blast
-# muscle = gget.muscle
+ref = gget.ref
+info = gget.info
+search = gget.search
+seq = gget.seq
+blast = gget.blast
+muscle = gget.muscle
 
 def main():
     """
