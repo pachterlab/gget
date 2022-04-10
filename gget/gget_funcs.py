@@ -13,7 +13,6 @@ import numpy as np
 import json
 
 ## Packages for gget blast
-from bs4 import Comment
 import logging
 # Add and format time stamp in logging messages
 logging.basicConfig(format="%(asctime)s %(message)s", datefmt="%d %b %Y %H:%M:%S")
@@ -1068,8 +1067,8 @@ def seq(ens_ids, isoforms=False, save=False):
 ## gget blast
 def blast(
     sequence,
-    program="blastn",
-    database="nt",
+    program="auto",
+    database="auto",
     ncbi_gi=False,
     descriptions=500,
     alignments=500,
@@ -1083,9 +1082,11 @@ def blast(
     BLAST search using NCBI's QBLAST server.
     Args:
      - sequence       Sequence (str) or path to fasta file containing one sequence.
-     - program        'blastn', 'blastp', 'blastx', 'tblastn', or 'tblastx'. Default: 'blastn'.
-     - database       'nt', 'nr', 'refseq_rna', 'refseq_protein', 'swissprot', 'pdbaa', or 'pdbnt'. Default: 'nt'.
-                      (More info: https://ncbi.github.io/blast-cloud/blastdb/available-blastdbs.html)
+     - program        'blastn', 'blastp', 'blastx', 'tblastn', or 'tblastx'. 
+                      Default: 'blastn' for nucleotide sequences; 'blastp' for amino acid sequences.
+     - database       'nt', 'nr', 'refseq_rna', 'refseq_protein', 'swissprot', 'pdbaa', or 'pdbnt'. 
+                      Default: 'nt' for nucleotide sequences; 'nr' for amino acid sequences.
+                      More info on BLAST databases: https://ncbi.github.io/blast-cloud/blastdb/available-blastdbs.html
      - ncbi_gi        True/False whether to return NCBI GI identifiers. Default False.
      - descriptions   int or None. Limit number of descriptions to show. Default 500.
      - alignments     int or None. Limit number of alignments to show. Default 500.
@@ -1095,24 +1096,12 @@ def blast(
      - megablast      True/False whether to use the MegaBLAST algorithm (blastn only). Default True.
      - verbose        True/False whether to print progress information. Default True.
 
-    Please note this NCBI server rule:
+    NCBI server rule: 
     Run scripts weekends or between 9 pm and 5 am Eastern time
     on weekdays if more than 50 searches will be submitted.
 
-    Please note that NCBI uses the new Common URL API for BLAST searches
-    on the internet (http://ncbi.github.io/blast-cloud/dev/api.html). Thus,
-    some of the arguments used by this function are not (or are no longer)
-    officially supported by NCBI. Although they are still functioning, this
-    may change in the future.
-
     This function does not check the validity of the arguments
-    and passes the values to the server as is. More help is available at:
-    https://ncbi.github.io/blast-cloud/dev/api.html
-
-    Code partly adapted from the Biopython BLAST NCBIWWW project written
-    by Jeffrey Chang (Copyright 1999), Brad Chapman, and Chris Wroe distributed under the
-    Biopython License Agreement and BSD 3-Clause License
-    https://github.com/biopython/biopython/blob/171697883aca6894f8367f8f20f1463ce7784d0c/LICENSE.rst
+    and passes the values to the server as is. 
     """
     # Server rules:
     # 1. Do not contact the server more often than once every 10 seconds.
@@ -1122,6 +1111,12 @@ def blast(
     # 4. Run scripts weekends or between 9 pm and 5 am Eastern time
     #    on weekdays if more than 50 searches will be submitted.
     # Reference: https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=DeveloperInfo
+    
+    # Please note that NCBI uses the new Common URL API for BLAST searches
+    # on the internet (http://ncbi.github.io/blast-cloud/dev/api.html). Thus,
+    # some of the arguments used by this function are not (or are no longer)
+    # officially supported by NCBI. Although they are still functioning, this
+    # may change in the future.
 
     # Define server URL and client
     url = BLAST_URL
@@ -1129,23 +1124,94 @@ def blast(
 
     ## Clean up arguments
     # If the path to a fasta file was provided instead of a nucleotide sequence,
-    # read the file and extract the sequence
+    # read the file and extract the first sequence
     if ".fa" in sequence:
-        from Bio import SeqIO
-
-        sequence = SeqIO.read(sequence, format="fasta").seq
-
-    # Convert program to lower case
+        # Read the fasta file and append its entries to 'fasta_values'
+        from Bio.SeqIO import FastaIO
+        fasta_values = []
+        with open(sequence) as handle:
+            for value in FastaIO.SimpleFastaParser(handle):
+                fasta_values.append(value)
+        # Set the first sequence from the fasta file as 'sequence'
+        sequence = fasta_values[0][1]
+        
+        if len(fasta_values) > 2:
+            logging.warning(
+                "More than one sequence was passed in the .fa file. "
+                "Only the first sequence will be submitted to BLAST."
+            )
+    
+    ## Set program and database
+    
+    # Convert program and database to lower case
     program = program.lower()
-    # Check if programs was defined as expected
+    database = database.lower()
+    # Valid program and database options
     programs = ["blastn", "blastp", "blastx", "tblastn", "tblastx"]
-    if program not in programs:
-        raise ValueError(
-            "Program specified is %s. Expected one of %s"
-            % (program, ", ".join(programs))
-        )
+    dbs = ["nt", "nr", "refseq_rna", "refseq_protein", "swissprot", "pdbaa", "pdbnt"]
+    
+    # If user does not specify the program, 
+    # check if a nulceotide or protein sequence was passed
+    if program == "auto":
+        # Set of all possible nucleotides and amino acids
+        nucleotides = set("ATGC")
+        amino_acids = set("ARNDCQEGHILKMFPSTWYVBZ") 
+        
+        # If sequence is a nucleotide sequence, set program to blastn
+        if set(sequence) <= nucleotides:
+            program = "blastn"
+            
+            # Set database to nt (unless user specified another database)
+            if database == "auto":
+                database = "nt"
+                if verbose == True:
+                    logging.warning("Sequence recognized as nucleotide sequence. "
+                                    "BLAST will use program 'blastn' with database 'nt'.")
+            else:
+                # Check if the user specified database is valid
+                if database not in dbs:
+                    raise ValueError(
+                        f"Database specified is {database}. Expected one of {', '.join(dbs)}"
+                    )
+                else:
+                    if verbose == True:
+                        logging.warning("Sequence recognized as nucleotide sequence. "
+                                        "BLAST will use program 'blastn' with user-specified database.")
+        # If sequence is a protein sequence, set program to blastp        
+        elif set(sequence) <= amino_acids:
+            program = "blastp"
+            
+            # Set database to nr (unless user specified another database)
+            if database == "auto":
+                database = "nr"
+                if verbose == True:
+                    logging.warning("Sequence recognized as amino acid sequence. "
+                                    "BLAST will use program 'blastp' with database 'nr'.")
+            else:
+                # Check if the user specified database is valid
+                if database not in dbs:
+                    raise ValueError(
+                        f"Database specified is {database}. Expected one of {', '.join(dbs)}"
+                    )
+                else:
+                    if verbose == True:
+                        logging.warning("Sequence recognized as amino acid sequence. "
+                                        "BLAST will use program 'blastp' with user-specified database.")
+        else:
+            raise ValueError(f"""
+                Sequence not automatically recognized as a nucleotide or amino acid sequence.
+                Please specify 'program' and 'database'.
+                Program options: {', '.join(programs)} 
+                Database options:  {', '.join(dbs)} 
+                """)
+    # Check if the user specified program is valid
+    else:
+        if program not in programs:
+            raise ValueError(
+                f"Program specified is {program}. Expected one of {', '.join(programs)}"
+            )
 
-    # Translate filter and ncbi_gi arguments
+    ## Translate filter and ncbi_gi arguments
     if low_comp_filt == False:
         low_comp_filt = None
     else:
@@ -1162,6 +1228,11 @@ def blast(
         megablast = "on"
 
     ## Submit search
+    #  The following code was partly adapted from the Biopython BLAST NCBIWWW project written
+    #  by Jeffrey Chang (Copyright 1999), Brad Chapman, and Chris Wroe distributed under the
+    #  Biopython License Agreement and BSD 3-Clause License
+    #  https://github.com/biopython/biopython/blob/171697883aca6894f8367f8f20f1463ce7784d0c/LICENSE.rst
+                             
     # Args for the PUT command
     put_args = [
         ("PROGRAM", program),
@@ -1208,7 +1279,7 @@ def blast(
         ("ALIGNMENTS", alignments),
         ("DESCRIPTIONS", descriptions),
         ("HITLIST_SIZE", hitlist_size),
-        ("FORMAT_TYPE", "TEXT"),
+        ("FORMAT_TYPE", "HTML"),
         ("NCBI_GI", ncbi_gi),
         ("CMD", "Get"),
     ]
@@ -1253,12 +1324,18 @@ def blast(
             searching = False
 
             ## Return results
+#             if verbose == True:
+#                 logging.warning("BLAST complete.")
+                
+            # Parse HTML results
             soup = BeautifulSoup(results, "html.parser")
-
-            if verbose == True:
-                logging.warning("BLAST complete.")
-    
-            return soup.find("pre")
+            # Get the descriptions table
+            dsc_table = soup.find(lambda tag: tag.name=='table' and tag.has_attr('id') and tag['id']=="dscTable") 
+            results_df = pd.read_html(str(dsc_table))[0]
+            # Drop the first column
+            results_df = results_df.iloc[: , 1:]
+            
+            return results_df
 
         else:
             raise ValueError(f"""
