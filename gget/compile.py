@@ -25,6 +25,9 @@ def compile_muscle():
         "Compiling MUSCLE binary from source... "
     )
     
+    # Record current working directory
+    cwd = os.getcwd()
+    
     # Change path to package path
     os.chdir(PACKAGE_PATH)
     # Create folders 'bins/compiled/' inside gget package
@@ -46,3 +49,6 @@ def compile_muscle():
     logging.warning(
         "MUSCLE compiled. "
     )
+    
+    # Change path back to cwd
+    os.chdir(cwd)
