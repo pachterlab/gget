@@ -1019,7 +1019,7 @@ def get_uniprot_seqs(server, ensembl_ids):
     
     except:
         sys.stderr.write(f"No UniProt transcript sequences were found for these Ensembl ID(s).\n")
-        return "no matches found"
+        return None
 
 # gget seq
 def seq(ens_ids,
