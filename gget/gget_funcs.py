@@ -1171,7 +1171,7 @@ def seq(ens_ids,
         # Fetch amino acid sequences from UniProt REST API
         df_uniprot = get_uniprot_seqs(UNIPROT_REST_API, ens_ids_clean)
         
-        if df_uniprot == None:
+        if df_uniprot.empty:
             return
         
         # Build FASTA file
