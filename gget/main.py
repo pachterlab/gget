@@ -656,7 +656,7 @@ def main():
         seq_results = seq(ids_clean_final, seqtype=args.seqtype, isoforms=args.isoforms)
 
         # Save in specified directory if -o specified
-        if args.out and len(seq_results) != 0:
+        if args.out and seq_results != None:
             directory = "/".join(args.out.split("/")[:-1])
             if directory != "":
                 os.makedirs(directory, exist_ok=True)
