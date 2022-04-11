@@ -26,8 +26,10 @@ def rest_query(server, query, content_type):
     )
 
     if not r.ok:
-        r.raise_for_status()
-        sys.exit()
+        raise RuntimeError(
+            f"HTTP response status code {r.status_code}. "
+            "Please double-check arguments and try again.\n"
+            )
 
     if content_type == 'application/json':
         return r.json()

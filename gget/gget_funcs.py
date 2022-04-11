@@ -58,8 +58,7 @@ def muscle(fasta,
            out="default"
           ):
     """
-    Align the nucleotide or amino acid sequences in a fasta file using the Muscle v5 algorithm.
-    Muscle v5 documentation: https://drive5.com/muscle5
+    Align multiple nucleotide or amino acid sequences against each other (using the Muscle v5 algorithm).
     
     Args:
     - fasta
@@ -73,6 +72,8 @@ def muscle(fasta,
         
     Returns alignment results in an "aligned FASTA" (.afa) file.
     """
+    # Muscle v5 documentation: https://drive5.com/muscle5
+
     # Get absolute path to input fasta file
     abs_fasta_path = os.path.abspath(fasta)
     
@@ -119,13 +120,13 @@ def info(
     save=False
 ):
     """
-    Look up information about Ensembl IDs.
+    Fetch gene and transcript metadata using Ensembl IDs.
 
     Args:
     - ens_ids
     One or more Ensembl IDs to look up (string or list of strings).
     - expand
-    Expand returned information (default: False). 
+    Expand returned information (only for genes and transcripts) (default: False). 
     For genes, this adds isoform information. 
     For transcripts, this adds translation and exon information.
     - homology 
@@ -168,13 +169,23 @@ def info(
         # Submit query
         try:
             df_temp = rest_query(server, query, content_type)
-        # Raise error if ID not found
+        # If query returns in an error:
         except:
-            sys.stderr.write(f"Ensembl ID {ensembl_ID} not found. Please double-check spelling.\n")
+            # Try submitting query without expand (expand does not work for exons and translation IDs)
+            try:
+                query = "lookup/id/" + ensembl_ID + "?"
+                df_temp = rest_query(server, query, content_type)
+            # Raise error if this also did not work
+            except:
+                sys.stderr.write(
+                    f"Ensembl ID {ensembl_ID} not found. "
+                    "Please double-check spelling/arguments and try again.\n"
+                )
+                sys.exit()
             
         ## Delete superfluous entries
         # Delete superfluous entries in general info
-        keys_to_delete = ["version", "source", "db_type", "logic_name", "id"]
+        keys_to_delete = ["version", "source", "db_type", "logic_name"]
         for key in keys_to_delete:
             # Pop keys, None -> do not raise an error if key to delete not found
             df_temp.pop(key, None)
@@ -229,11 +240,11 @@ def info(
         if homology == True:
             # Define the REST query
             query = "homology/id/" + ensembl_ID + "?"
-            # Submit query
-            df_temp = rest_query(server, query, content_type)
                 
-            # Add results to main dict
             try:
+                # Submit query
+                df_temp = rest_query(server, query, content_type)
+                # Add results to main dict
                 results_dict[ensembl_ID].update({"homology":df_temp["data"][0]["homologies"]})
             except:
                 sys.stderr.write(f"No homology information found for {ensembl_ID}.\n")
@@ -242,11 +253,11 @@ def info(
         if xref == True:
             # Define the REST query
             query = "xrefs/id/" + ensembl_ID + "?"
-            # Submit query
-            df_temp = rest_query(server, query, content_type)
 
-            # Add results to main dict
             try:
+                # Submit query
+                df_temp = rest_query(server, query, content_type)
+                # Add results to main dict
                 results_dict[ensembl_ID].update({"xrefs":df_temp})
             except:
                 sys.stderr.write(f"No external reference information found for {ensembl_ID}.\n")
@@ -259,7 +270,33 @@ def info(
         with open('info_results.json', 'w', encoding='utf-8') as f:
             json.dump(master_dict, f, ensure_ascii=False, indent=4)
 
-    # Return dictionary containing results
+    ## Sort nested master_dict alphabetically at all levels
+    # Sort IDs keys alphabetically 
+    master_dict = {key: value for key, value in sorted(master_dict.items())}
+    # Sort ID info level keys alphabetically
+    for dict_ens_id in master_dict.keys():
+        master_dict[dict_ens_id] = {
+            key: value for key, value in sorted(master_dict[dict_ens_id].items())
+        }
+        # Sort transcript/translation/exon level keys alphabetically
+        for trans_id in master_dict[dict_ens_id].keys():
+            # Sort if entry is a dict
+            if type(master_dict[dict_ens_id][trans_id]) == dict:
+                master_dict[dict_ens_id][trans_id] = {
+                    key: value
+                    for key, value in sorted(master_dict[dict_ens_id][trans_id].items())
+                }
+            # Sort if entry is a list of dicts
+            if type(master_dict[dict_ens_id][trans_id]) == list:
+                for index, list_item in enumerate(master_dict[dict_ens_id][trans_id]):
+                    master_dict[dict_ens_id][trans_id][index] = {
+                        key: value
+                        for key, value in sorted(
+                            master_dict[dict_ens_id][trans_id][index].items()
+                        )
+                    }
+    
+    # Return sorted dictionary containing results
     return master_dict   
 
 
@@ -467,18 +504,18 @@ def search(searchwords,
                     df = df[df.stable_id.isin(val)]
 
     # Rename columns
-    df = df.rename(columns={"stable_id": "Ensembl_ID", 
-                            "display_label":"Gene_name",
-                            "biotype": "Biotype"})
+    df = df.rename(columns={"stable_id": "ensembl_id", 
+                            "display_label":"gene_name",
+                            "biotype": "biotype"})
     # Changing description columns name by column index since they were returned with the same name ("description")
-    df.columns.values[2] = "Ensembl_description"
-    df.columns.values[3] = "Ext_ref_description"
+    df.columns.values[2] = "ensembl_description"
+    df.columns.values[3] = "ext_ref_description"
 
     # Remove any duplicate search results from the master data frame and reset the index
     df = df.drop_duplicates().reset_index(drop=True)
 
     # Add URL to gene summary on Ensembl
-    df["URL"] = "https://uswest.ensembl.org/" + "_".join(db.split("_")[:2]) + "/Gene/Summary?g=" + df["Ensembl_ID"]
+    df["url"] = "https://uswest.ensembl.org/" + "_".join(db.split("_")[:2]) + "/Gene/Summary?g=" + df["ensembl_id"]
     
     # Print query time and number of genes/transcripts fetched
     logging.warning(f"Query time: {round(time.time() - start_time, 2)} seconds")
@@ -494,7 +531,7 @@ def search(searchwords,
 ## gget ref
 def ref(species, which="all", release=None, ftp=False, save=False):
     """
-    Function to fetch GTF and FASTA (cDNA and DNA) URLs from the Ensemble FTP site.
+    Fetch FTPs for reference genomes and annotations by species.
     
     Args:
     - species
@@ -979,13 +1016,16 @@ def get_uniprot_seqs(server, ensembl_ids):
     # Check whether first Ensembl ID is gene or transcript using gget info
     # The first Ensembl ID defines the input type for all IDs
     id_ = ensembl_ids[0]
-    
-    if info(id_)[id_]["object_type"] == "Gene":
+    id_type = info(id_)[id_]["object_type"]
+    if id_type == "Gene":
         input_id = "ENSEMBL_ID"
-    elif info(id_)[id_]["object_type"] == "Transcript":
+        # sys.stderr.write("Ensembl ID recognized as gene.\n")
+    elif id_type == "Transcript":
         input_id = "ENSEMBL_TRS_ID"
+        # sys.stderr.write("Ensembl ID recognized as transcript.\n")
     else: 
-        raise ValueError(f"Object type of Ensembl ID {id_} not recognized.")
+        sys.stderr.write(f"Object type of Ensembl ID {id_} not recognized.")
+        sys.exit()
     
     # Define query arguments
     # Columns documentation: https://www.uniprot.org/help/uniprotkb%5Fcolumn%5Fnames
@@ -1019,8 +1059,7 @@ def get_uniprot_seqs(server, ensembl_ids):
     
     except:
         sys.stderr.write(f"No UniProt transcript sequences were found for these Ensembl ID(s).\n")
-        # Return empty data frame
-        return pd.DataFrame()
+        sys.exit()
 
 # gget seq
 def seq(ens_ids,
@@ -1029,7 +1068,8 @@ def seq(ens_ids,
         save=False,
        ):
     """
-    Fetch nucleotide or amino acid sequences from gene or transcript Ensembl IDs. 
+    Fetch nucleotide or amino acid sequence (FASTA) of a gene 
+    (and all isoforms) or transcript by Ensembl ID. 
 
     Args:
     - ens_ids
@@ -1040,7 +1080,8 @@ def seq(ens_ids,
     Nucleotide sequences are fetched from the Ensembl REST API server.
     Amino acid sequences are fetched from the UniProt REST API server.
     - isoforms
-    If True, also returns the sequences of all known transcript isoforms (default: False).
+    If True, returns the sequences of all known transcripts (for gene IDs only)
+    (default: False).
     - save
     If True: Save output FASTA to current directory.
     
@@ -1089,22 +1130,26 @@ def seq(ens_ids,
             # Create dict to save query results
             results_dict = {ensembl_ID:{}}
 
-            ## SEQUENCE
+            ## Fetch nucleotide sequece
             # sequence/id/ query: Request sequence by stable identifier
-            # Define the REST query
-            query = "sequence/id/" + ensembl_ID + "?"
-            # Submit query
-            df_temp = rest_query(server, query, content_type)
 
-            # Delete superfluous entries
-            keys_to_delete = ["query", "id", "version", "molecule"]
-            for key in keys_to_delete:
-                # Pop keys, None -> do not raise an error if key to delete not found
-                df_temp.pop(key, None)
+            # If isoforms false, just fetch sequences of passed Ensembl ID
+            if isoforms == False:
+                # Define the REST query
+                query = "sequence/id/" + ensembl_ID + "?"
+                # Submit query
+                df_temp = rest_query(server, query, content_type)
 
-            # Add results to main dict
-            results_dict[ensembl_ID].update({"seq":df_temp})
+                # Delete superfluous entries
+                keys_to_delete = ["query", "id", "version", "molecule"]
+                for key in keys_to_delete:
+                    # Pop keys, None -> do not raise an error if key to delete not found
+                    df_temp.pop(key, None)
 
+                # Add results to main dict
+                results_dict[ensembl_ID].update({"seq":df_temp})
+
+            # If isoforms true, fetch sequences of isoforms instead
             if isoforms == True:
                 # Get transcripts using gget info
                 info_dict = info(ensembl_ID, expand=True)
@@ -1150,7 +1195,10 @@ def seq(ens_ids,
                             # Add results to main dict
                             results_dict[ensembl_ID].update({f"transcript{isoform}":df_temp})
                 except:
-                    pass
+                    # If the gget info results do not include "Trancript" 
+                    # (i.e. because input is not a gene), raise value error
+                    sys.stderr.write("Isoform option not availabale for non-gene Ensembl IDs.")
+                    sys.exit()
 
             # Add results to master dict
             master_dict.update(results_dict)
@@ -1168,13 +1216,42 @@ def seq(ens_ids,
     
     ## Fetch amino acid sequences from UniProt
     if seqtype == "transcript":
-        # Fetch amino acid sequences from UniProt REST API
-        df_uniprot = get_uniprot_seqs(UNIPROT_REST_API, ens_ids_clean)
+        if isoforms == False:
+            # Fetch amino acid sequences of the passed Ensembl iD from UniProt REST API
+            df_uniprot = get_uniprot_seqs(UNIPROT_REST_API, ens_ids_clean)
         
-        if df_uniprot.empty:
-            return
+        if isoforms == True:
+            # Get the transcript isoforms using gget info
+            info_dict = info(ensembl_ID, expand=True)
+
+            # If this is a gene, get the sequence of all isoforms
+            try:
+                info_dict[ensembl_ID]["Transcript"]
+
+                # If only one transcript present
+                try:
+                    # Get the ID of the transcript from the gget info results
+                    transcipt_id = info_dict[ensembl_ID]["Transcript"]["id"]
+                    # Fetch amino acid sequence from the UniProt REST API
+                    df_uniprot = get_uniprot_seqs(UNIPROT_REST_API, transcipt_id)
+
+                # If more than one transcript present    
+                except:
+                    # Get the ID of all transcripts from the gget info results
+                    transcipt_ids = []
+                    for isoform_idx in np.arange(len(info_dict[ensembl_ID]["Transcript"])):
+                        transcipt_ids.append(info_dict[ensembl_ID]["Transcript"][isoform_idx]["id"])
+                    
+                    # Fetch amino acid sequences of all isoforms from the UniProt REST API
+                    df_uniprot = get_uniprot_seqs(UNIPROT_REST_API, transcipt_ids)
+                
+            # If the gget info results do not include "Trancript" 
+            # (i.e. because input is not a gene), raise value error
+            except:
+                sys.stderr.write("Isoform option not availabale for non-gene Ensembl IDs.")
+                sys.exit()
         
-        # Build FASTA file
+        # Build UniProt results FASTA file
         fasta = []
         for uniprot_id, query_ensembl_id, gene_name, organism, uniprot_seq in zip(
             df_uniprot["UniProt ID"].values,
@@ -1187,8 +1264,8 @@ def seq(ens_ids,
                 ">"
                 + "uniprot_id: " + uniprot_id
                 + " ensembl_id: " + query_ensembl_id 
-#                 + " gene_name:" + gene_name 
-#                 + " organism:" + organism
+    #                 + " gene_name:" + gene_name 
+    #                 + " organism:" + organism
             )
             fasta.append(uniprot_seq)
             
@@ -1216,7 +1293,7 @@ def blast(
     verbose=True,
 ):
     """
-    BLAST search using NCBI's QBLAST server.
+    BLAST a nucleotide or amino acid sequence against any BLAST DB.
     Args:
      - sequence       Sequence (str) or path to fasta file containing one sequence.
      - program        'blastn', 'blastp', 'blastx', 'tblastn', or 'tblastx'. 

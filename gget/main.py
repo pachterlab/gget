@@ -8,7 +8,6 @@ import json
 
 # Custom functions
 from .__init__ import __version__
-from ._help import help_
 from .gget_funcs import *
 
 def main():
@@ -36,11 +35,12 @@ def main():
     )
     
     ## gget ref subparser
+    ref_desc = "Fetch FTPs for reference genomes and annotations by species."
     parser_ref = parent_subparsers.add_parser(
         "ref",
         parents=[parent],
-        description="Fetch FTP links for a specific species from Ensemble.",
-        help="Fetch FTP links for a specific species from Ensemble.",
+        description=ref_desc,
+        help=ref_desc,
         add_help=True
         )
     # ref parser arguments
@@ -97,7 +97,7 @@ def main():
         required=False,
         help=(
             "Path to the json file the results will be saved in, e.g. path/to/directory/results.json.\n" 
-            "Default: None (just prints results)."
+            "Default: Standard out."
         )
     )
 
@@ -158,16 +158,17 @@ def main():
         required=False,
         help=(
             "Path to the json file the results will be saved in, e.g. path/to/directory/results.json.\n" 
-            "Default: None (just prints results)."
+            "Default: Standard out."
         )
     )
     
     ## gget info subparser
+    info_desc = "Fetch gene and transcript metadata using Ensembl IDs."
     parser_info = parent_subparsers.add_parser(
         "info",
         parents=[parent],
-        description="Look up information about Ensembl IDs.", 
-        help="Look up information about Ensembl IDs.",
+        description=info_desc, 
+        help=info_desc,
         add_help=True
         )
     # info parser arguments
@@ -183,7 +184,11 @@ def main():
         default=False, 
         action="store_true",
         required=False, 
-        help="Expand returned information (default: False). For genes: add isoform information. For transcripts: add translation and exon information."
+        help=(
+            "Expand returned information (only for genes and transcripts) (default: False). "
+            "For genes: add isoform information. "
+            "For transcripts: add translation and exon information."
+        )
     )
     parser_info.add_argument(
         "-H", "--homology", 
@@ -205,16 +210,17 @@ def main():
         required=False,
         help=(
             "Path to the json file the results will be saved in, e.g. path/to/directory/results.json.\n" 
-            "Default: None (just prints results)."
+            "Default: Standard out."
         )
     )
     
     ## gget seq subparser
+    seq_desc = "Fetch nucleotide or amino acid sequence (FASTA) of a gene (and all isoforms) or transcript by Ensembl ID. "
     parser_seq = parent_subparsers.add_parser(
         "seq",
         parents=[parent],
-        description="Look up DNA sequences from Ensembl IDs.", 
-        help="Look up DNA sequences from Ensembl IDs.",
+        description=seq_desc, 
+        help=seq_desc,
         add_help=True
         )
     # seq parser arguments
@@ -226,7 +232,7 @@ def main():
         help="One or more Ensembl IDs."
     )
     parser_seq.add_argument(
-        "-t", "--seqtype",
+        "-st", "--seqtype",
         choices=["gene", "transcript"],
         default="gene",
         type=str,  
@@ -241,7 +247,7 @@ def main():
         default=False, 
         action="store_true",
         required=False, 
-        help="If searching a gene ID, returns sequences of all known transcripts (default: False)."
+        help="Returns sequences of all known transcripts (for gene IDs only) (default: False)."
     )
     parser_seq.add_argument(
         "-o", "--out",
@@ -249,16 +255,17 @@ def main():
         required=False,
         help=(
             "Path to the FASTA file the results will be saved in, e.g. path/to/directory/results.fa.\n" 
-            "Default: None (just prints results)."
+            "Default: Standard out."
         )
     )
     
     ## gget muscle subparser
+    muscle_desc = "Align multiple nucleotide or amino acid sequences against each other (using the Muscle v5 algorithm)."
     parser_muscle = parent_subparsers.add_parser(
         "muscle",
         parents=[parent],
-        description="Align the nucleotide or protein sequences in a fasta file using the Muscle v5 algorithm.", 
-        help="Align the nucleotide or protein sequences in a fasta file using the Muscle v5 algorithm.",
+        description=muscle_desc, 
+        help=muscle_desc,
         add_help=True
         )
     # muscle parser arguments
@@ -283,11 +290,12 @@ def main():
     )
     
     ## gget blast subparser
+    blast_desc = "BLAST a nucleotide or amino acid sequence against any BLAST DB."
     parser_blast = parent_subparsers.add_parser(
         "blast",
         parents=[parent],
-        description="BLAST search using NCBI's QBLAST server.", 
-        help="BLAST search using NCBI's QBLAST server.",
+        description=blast_desc, 
+        help=blast_desc,
         add_help=True
         )
     # blast parser arguments
@@ -378,7 +386,7 @@ def main():
         required=False,
         help=(
             "Path to the csv file the results will be saved in, e.g. path/to/directory/results.csv.\n" 
-            "Default: None (just prints results)."
+            "Default: Standard out."
         )
     )
     
@@ -392,14 +400,22 @@ def main():
     ### Define return values
     ## Help return
     if args.help:
-        help_()
+        # Retrieve all subparsers from the parent parser
+        subparsers_actions = [
+            action for action in parent_parser._actions 
+            if isinstance(action, argparse._SubParsersAction)]
+        for subparsers_action in subparsers_actions:
+            # Get all subparsers and print help
+            for choice, subparser in subparsers_action.choices.items():
+                print("Subparser '{}'".format(choice))
+                print(subparser.format_help())
         
     ## Version return
     if args.version:        
-        print(f"gget version: {version}")
-        
-    ## blast return
+        print(f"gget version: {__version__}")
+
     if args.command == "blast":
+        # Run gget blast function
         blast_results = blast(
             sequence = args.sequence,
             program = args.program,
