@@ -419,7 +419,7 @@ def main():
             if directory != "":
                 os.makedirs(directory, exist_ok=True)
             blast_results.to_csv(args.out, index=False)
-            sys.stderr.write(f"\nResults saved as {args.out}.\n")
+#             sys.stderr.write(f"\nResults saved as {args.out}.\n")
         
         # Print results if no directory specified
         else:
@@ -498,9 +498,9 @@ def main():
                     for element in ref_results:
                         file.write(element + "\n")
                     file.close()
-                    sys.stderr.write(
-                        f"\nResults saved as {args.out}.\n"
-                    )
+#                     sys.stderr.write(
+#                         f"\nResults saved as {args.out}.\n"
+#                     )
                     
                     if args.download == True:
                         # Download list of URLs
@@ -538,9 +538,9 @@ def main():
                         os.makedirs(directory, exist_ok=True)
                     with open(args.out, 'w', encoding='utf-8') as f:
                         json.dump(ref_results, f, ensure_ascii=False, indent=4)
-                    sys.stderr.write(
-                        f"\nResults saved as {args.out}.\n"
-                    )
+#                     sys.stderr.write(
+#                         f"\nResults saved as {args.out}.\n"
+#                     )
                     
                     if args.download == True:
                         # Download the URLs from the dictionary
@@ -600,7 +600,7 @@ def main():
             if directory != "":
                 os.makedirs(directory, exist_ok=True)
             gget_results.to_csv(args.out, index=False)
-            sys.stderr.write(f"\nResults saved as {args.out}.\n")
+#             sys.stderr.write(f"\nResults saved as {args.out}.\n")
         
         # Print results if no directory specified
         else:
@@ -632,7 +632,7 @@ def main():
                 os.makedirs(directory, exist_ok=True)
             with open(args.out, 'w', encoding='utf-8') as f:
                 json.dump(info_results, f, ensure_ascii=False, indent=4)
-            sys.stderr.write(f"\nResults saved as {args.out}.\n")
+#             sys.stderr.write(f"\nResults saved as {args.out}.\n")
         # Print results if no directory specified
         else:
             print(json.dumps(info_results, ensure_ascii=False, indent=4))
@@ -664,9 +664,9 @@ def main():
             for element in seq_results:
                 file.write(element + "\n")
             file.close()
-            sys.stderr.write(
-                f"\nResults saved as {args.out}.\n"
-            )
+#             sys.stderr.write(
+#                 f"\nResults saved as {args.out}.\n"
+#             )
             
         # Print results if no directory specified
         else:
