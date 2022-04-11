@@ -1007,14 +1007,19 @@ def get_uniprot_seqs(server, ensembl_ids):
     # Read and clean up results
     with urllib.request.urlopen(request) as response:
         res = response.read()
-    df = pd.read_csv(StringIO(res.decode("utf-8")), sep="\t")
+        
+    try:
+        df = pd.read_csv(StringIO(res.decode("utf-8")), sep="\t")
+        # Rename columns
+        df.columns = ["UniProt ID", "Gene name", "Organism", "Sequence", "Sequence Length", "Query"]
+        # Split rows if two different UniProt IDs for a single query ID are returned
+        df = df.assign(Query=df["Query"].str.split(",")).explode("Query")
+
+        return df
     
-    # Rename columns
-    df.columns = ["UniProt ID", "Gene name", "Organism", "Sequence", "Sequence Length", "Query"]
-    # Split rows if two different UniProt IDs for a single query ID are returned
-    df = df.assign(Query=df["Query"].str.split(",")).explode("Query")
-    
-    return df
+    except:
+        sys.stderr.write(f"No UniProt amino acid sequences were found for these Ensembl ID(s) {ensembl_ids}.")
+        return "no matches found"
 
 # gget seq
 def seq(ens_ids,
@@ -1164,6 +1169,9 @@ def seq(ens_ids,
     if seqtype == "transcript":
         # Fetch amino acid sequences from UniProt REST API
         df_uniprot = get_uniprot_seqs(UNIPROT_REST_API, ens_ids_clean)
+        
+        if df_uniprot == "no matches found":
+            return
         
         # Build FASTA file
         fasta = []
