@@ -29,7 +29,7 @@ setup(
     url='https://github.com/lauraluebbert/gget',
     keywords='gget',
     entry_points={
-        'console_scripts': ['gget=gget:main'],
+        'console_scripts': ['gget=gget.main:main'],
     },
     classifiers=[
         'Environment :: Console',
