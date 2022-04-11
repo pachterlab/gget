@@ -22,6 +22,10 @@ from urllib.request import urlopen
 from urllib.parse import urlencode
 from urllib.request import Request
 
+## Packages for gget seq
+import urllib
+from io import StringIO 
+
 ## Packages for gget muscle
 import os
 
@@ -44,7 +48,8 @@ from .constants import (
     BLAST_URL,
     BLAST_CLIENT,
     ENSEMBL_REST_API,
-    MUSCLE_GITHUB_LINK
+    MUSCLE_GITHUB_LINK,
+    UNIPROT_REST_API
 )
 
 ## gget muscle
@@ -952,10 +957,69 @@ def ref(species, which="all", release=None, ftp=False, save=False):
 
         return results
     
+# gget seq helper function (here and not in .utils because it uses gget info)
+def get_uniprot_seqs(server, ensembl_ids):
+    """
+    Retrieve UniProt sequences based on Ensemsbl identifiers.
+
+    Args:
+    - server
+    Link to UniProt REST API server.
+    - ensembl_ids: 
+    One or more Ensembl IDs (string or list of strings).
+    All passed Ensembl IDs must be of the same object type (gene or transcript).
+
+    Returns data frame with UniProt ID, gene name, organism, sequence, sequence length, and query ID.
+    """
+    
+    # If a single UniProt ID is passed as string, convert to list
+    if type(ensembl_ids) == str:
+        ensembl_ids = [ensembl_ids]
+        
+    # Check whether first Ensembl ID is gene or transcript using gget info
+    # The first Ensembl ID defines the input type for all IDs
+    id_ = ensembl_ids[0]
+    
+    if info(id_)[id_]["object_type"] == "Gene":
+        input_id = "ENSEMBL_ID"
+    elif info(id_)[id_]["object_type"] == "Transcript":
+        input_id = "ENSEMBL_TRS_ID"
+    else: 
+        raise ValueError(f"Object type of Ensembl ID {id_} not recognized.")
+    
+    # Define query arguments
+    # Columns documentation: https://www.uniprot.org/help/uniprotkb%5Fcolumn%5Fnames
+    # from/to IDs documentation: https://www.uniprot.org/help/api_idmapping
+    query_args = {
+        "from": input_id,
+        "to": "ACC",
+        "format": "tab",
+        "query": " ".join(ensembl_ids),
+        "columns": "id,genes,organism,sequence,length",
+    }
+    # Reformat query arguments
+    query_args = urllib.parse.urlencode(query_args)
+    query_args = query_args.encode("ascii")
+    
+    # Submit query to UniProt server
+    request = urllib.request.Request(server, query_args)
+    
+    # Read and clean up results
+    with urllib.request.urlopen(request) as response:
+        res = response.read()
+    df = pd.read_csv(StringIO(res.decode("utf-8")), sep="\t")
+    
+    # Rename columns
+    df.columns = ["UniProt ID", "Gene name", "Organism", "Sequence", "Sequence Length", "Query"]
+    # Split rows if two different UniProt IDs for a single query ID are returned
+    df = df.assign(Query=df["Query"].str.split(",")).explode("Query")
+    
+    return df
+
 # gget seq
-def seq(ens_ids, 
-        isoforms=False, 
+def seq(ens_ids,
         seqtype="gene",
+        isoforms=False, 
         save=False,
        ):
     """
@@ -964,13 +1028,13 @@ def seq(ens_ids,
     Args:
     - ens_ids
     One or more Ensembl IDs (passed as string or list of strings).
-    - isoforms
-    If True, this returns the sequences of all known transcript isoforms (default: False).
     - seqtype
     'gene' (default) or 'transcript'. 
     Defines whether nucleotide or amino acid sequences are returned.
     Nucleotide sequences are fetched from the Ensembl REST API server.
-    Amino acid sequences are fetched from the Ensembl REST API server.
+    Amino acid sequences are fetched from the UniProt REST API server.
+    - isoforms
+    If True, also returns the sequences of all known transcript isoforms (default: False).
     - save
     If True: Save output FASTA to current directory.
     
@@ -1095,16 +1159,37 @@ def seq(ens_ids,
                 else:
                     fasta.append(">" + master_dict[ens_ID][key]['id'] + " " + master_dict[ens_ID][key]['desc'])
                     fasta.append(master_dict[ens_ID][key]['seq'])
-
-
-        # Save
-        if save == True:
-            file = open("seq_results.fa", "w")
-            for element in fasta:
-                file.write(element + "\n")
-            file.close()
-
-    # Return dictionary containing results
+    
+    ## Fetch amino acid sequences from UniProt
+    if seqtype == "transcript":
+        # Fetch amino acid sequences from UniProt REST API
+        df_uniprot = get_uniprot_seqs(UNIPROT_REST_API, ens_ids_clean)
+        
+        # Build FASTA file
+        fasta = []
+        for uniprot_id, query_ensembl_id, gene_name, organism, uniprot_seq in zip(
+            df_uniprot["UniProt ID"].values,
+            df_uniprot["Query"].values,
+            df_uniprot["Gene name"].values,
+            df_uniprot["Organism"].values,
+            df_uniprot["Sequence"].values
+        ):
+            fasta.append(
+                ">"
+                + "uniprot_id: " + uniprot_id
+                + " ensembl_id: " + query_ensembl_id 
+#                 + " gene_name:" + gene_name 
+#                 + " organism:" + organism
+            )
+            fasta.append(uniprot_seq)
+            
+    # Save
+    if save == True:
+        file = open("seq_results.fa", "w")
+        for element in fasta:
+            file.write(element + "\n")
+        file.close()
+    
     return fasta   
 
 ## gget blast

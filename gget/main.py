@@ -226,7 +226,18 @@ def main():
         help="One or more Ensembl IDs."
     )
     parser_seq.add_argument(
-        "-i", "--isoforms", 
+        "-t", "--seqtype",
+        choices=["gene", "transcript"],
+        default="gene",
+        type=str,  
+        required=False, 
+        help=(
+            "'gene': Returns nucleotide sequences of the Ensembl IDs (from Ensembl API) (default).\n"
+            "'transcript': Returns amino acid sequences of the Ensembl IDs (from UniProt API). \n"
+        )
+    )
+    parser_seq.add_argument(
+        "-iso", "--isoforms", 
         default=False, 
         action="store_true",
         required=False, 
@@ -642,7 +653,7 @@ def main():
             ids_clean_final.remove("")  
 
         # Look up requested Ensembl IDs
-        seq_results = seq(ids_clean_final, isoforms=args.isoforms)
+        seq_results = seq(ids_clean_final, seqtype=args.seqtype, isoforms=args.isoforms)
 
         # Save in specified directory if -o specified
         if args.out:
