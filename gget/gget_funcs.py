@@ -1018,7 +1018,7 @@ def get_uniprot_seqs(server, ensembl_ids):
         return df
     
     except:
-        sys.stderr.write(f"No UniProt amino acid sequences were found for these Ensembl ID(s) {ensembl_ids}.\n")
+        sys.stderr.write(f"No UniProt transcript sequences were found for these Ensembl ID(s).\n")
         return "no matches found"
 
 # gget seq
