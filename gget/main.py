@@ -670,5 +670,6 @@ def main():
             
         # Print results if no directory specified
         else:
-            print(seq_results)
-#             sys.stderr.write("\nTo save these results, use flag '-o' in the format: '-o path/to/directory/results.fa'.\n")
+            if seq_results != None:
+                print(seq_results)
+#               sys.stderr.write("\nTo save these results, use flag '-o' in the format: '-o path/to/directory/results.fa'.\n")
