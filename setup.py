@@ -26,6 +26,7 @@ setup(
         'requests>=2.27.1',
         'biopython'
       ],
+    python_requires='>=3.6',
     url='https://github.com/lauraluebbert/gget',
     keywords='gget',
     entry_points={
