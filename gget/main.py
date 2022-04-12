@@ -15,7 +15,10 @@ from .gget_seq import seq
 from .gget_muscle import muscle
 from .gget_blast import blast
 
-from .utils import ref_species_options
+from .utils import (
+    ref_species_options,
+    find_latest_ens_rel
+)
 
 def main():
     """
