@@ -28,20 +28,16 @@ def seq(ens_ids,
     (and all its isoforms) or transcript by Ensembl ID. 
 
     Args:
-    - ens_ids
-    One or more Ensembl IDs (passed as string or list of strings).
-    - seqtype
-    'gene' (default) or 'transcript'. 
-    Defines whether nucleotide or amino acid sequences are returned.
-    Nucleotide sequences are fetched from the Ensembl REST API server.
-    Amino acid sequences are fetched from the UniProt REST API server.
-    - isoforms
-    If True, returns the sequences of all known transcripts (for gene IDs only)
-    (default: False).
-    - save
-    If True: Save output FASTA to current directory.
+    - ens_ids   One or more Ensembl IDs (passed as string or list of strings).
+    - seqtype   'gene' (default) or 'transcript'. 
+                Defines whether nucleotide or amino acid sequences are returned.
+                Nucleotide sequences are fetched from the Ensembl REST API server.
+                Amino acid sequences are fetched from the UniProt REST API server.
+    - isoforms  If True, returns the sequences of all known transcripts 
+                (for gene IDs only) (default: False).
+    - save      If True: Save output FASTA to current directory.
     
-    Returns a list (or FASTA file if 'save=True') containing the sequences of the Ensembl IDs.
+    Returns a list (or FASTA file if 'save=True') containing the requested sequences.
     """
     
     ## Clean up arguments
