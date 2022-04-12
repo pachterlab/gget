@@ -124,7 +124,7 @@ def blast(
             else:
                 # Check if the user specified database is valid
                 if database not in dbs:
-                    raise ValueError(
+                    sys.exit(
                         f"Database specified is {database}. Expected one of {', '.join(dbs)}"
                     )
                 else:
@@ -144,7 +144,7 @@ def blast(
             else:
                 # Check if the user specified database is valid
                 if database not in dbs:
-                    raise ValueError(
+                    sys.exit(
                         f"Database specified is {database}. Expected one of {', '.join(dbs)}"
                     )
                 else:
@@ -152,7 +152,7 @@ def blast(
                         logging.warning("Sequence recognized as amino acid sequence. "
                                         "BLAST will use program 'blastp' with user-specified database.")
         else:
-            raise ValueError(f"""
+            sys.exit(f"""
                 Sequence not automatically recognized as a nucleotide or amino acid sequence.
                 Please specify 'program' and 'database'.
                 Program options: {', '.join(programs)} 
@@ -161,7 +161,7 @@ def blast(
     # Check if the user specified program is valid
     else:
         if program not in programs:
-            raise ValueError(
+            sys.exit(
                 f"Program specified is {program}. Expected one of {', '.join(programs)}"
             )
 
@@ -266,10 +266,10 @@ def blast(
             continue
 
         if status == "FAILED":
-            raise ValueError(f"Search {RID} failed; please report to blast-help@ncbi.nlm.nih.gov.")
+            sys.exit(f"Search {RID} failed; please try again and/or report to blast-help@ncbi.nlm.nih.gov.")
 
         if status == "UNKNOWN":
-            raise ValueError(f"NCBI status {status}. Search {RID} expired.")
+            sys.exit(f"NCBI status {status}. Search {RID} expired.")
 
         if status == "READY":
             if verbose == True:
@@ -292,9 +292,8 @@ def blast(
             return results_df
 
         else:
-            raise ValueError(f"""
-            Something unexpected happened. \n
-            Search {RID} possibly failed; please report to blast-help@ncbi.nlm.nih.gov\n
-            or post an issue on Github: https://github.com/lauraluebbert/gget\n
-            """
+            sys.exit(f"""
+                Something unexpected happened. \n
+                Search {RID} possibly failed; please try again and/or report to blast-help@ncbi.nlm.nih.gov\n
+                """
             )
