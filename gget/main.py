@@ -480,7 +480,7 @@ def main():
                 species_list = list(set(species_list_gtf) & set(species_list_dna))
                 
                 # Print available species list
-                sys.stderr.write(f"Available genomes in Ensembl release {find_latest_ens_rel()} (latest).")
+                sys.stderr.write(f"Available genomes in Ensembl release {find_latest_ens_rel()} (latest):")
                 print(species_list)
                 
         # If list flag and release passed, return all available species for this release
@@ -495,7 +495,7 @@ def main():
                 species_list = list(set(species_list_gtf) & set(species_list_dna))
                 
                 # Print available species list
-                sys.stderr.write(f"Available genomes in Ensembl release {args.release}.")
+                sys.stderr.write(f"Available genomes in Ensembl release {args.release}:")
                 print(species_list)
         
         # Raise error if neither species nor list flag passed
