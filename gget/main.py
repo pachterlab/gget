@@ -8,7 +8,12 @@ import json
 
 # Custom functions
 from .__init__ import __version__
-from .gget_funcs import *
+from .gget_ref import ref
+from .gget_search import search
+from .gget_info import info
+from .gget_seq import seq
+from .gget_muscle import muscle
+from .gget_blast import blast
 
 def main():
     """

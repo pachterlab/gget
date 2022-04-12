@@ -5,6 +5,59 @@ import requests
 import re
 import numpy as np
 
+# gget seq helper function 
+def get_uniprot_seqs(server, ensembl_ids):
+    """
+    Retrieve UniProt sequences based on Ensemsbl identifiers.
+
+    Args:
+    - server
+    Link to UniProt REST API server.
+    - ensembl_ids: 
+    One or more transcript Ensembl IDs (string or list of strings).
+
+    Returns data frame with UniProt ID, gene name, organism, sequence, sequence length, and query ID.
+    """
+    
+    # If a single UniProt ID is passed as string, convert to list
+    if type(ensembl_ids) == str:
+        ensembl_ids = [ensembl_ids]
+    
+    # Define query arguments
+    # Columns documentation: https://www.uniprot.org/help/uniprotkb%5Fcolumn%5Fnames
+    # from/to IDs documentation: https://www.uniprot.org/help/api_idmapping
+    query_args = {
+        "from": "ENSEMBL_TRS_ID",
+        "to": "ACC",
+        "format": "tab",
+        "query": " ".join(ensembl_ids),
+        "columns": "id,genes,organism,sequence,length",
+    }
+    # Reformat query arguments
+    query_args = urllib.parse.urlencode(query_args)
+    query_args = query_args.encode("ascii")
+    
+    # Submit query to UniProt server
+    request = urllib.request.Request(server, query_args)
+    
+    # Read and clean up results
+    with urllib.request.urlopen(request) as response:
+        res = response.read()
+    
+    # Initiate data frame so empty df will be returned if no matches are found
+    df = pd.DataFrame()   
+    try:
+        df = pd.read_csv(StringIO(res.decode("utf-8")), sep="\t")
+        # Rename columns
+        df.columns = ["uniprot_id", "gene_name", "organism", "sequence", "sequence_length", "query"]
+        # Split rows if two different UniProt IDs for a single query ID are returned
+        df = df.assign(Query=df["Query"].str.split(",")).explode("Query")
+
+    except:
+        None
+
+    return df
+
 def rest_query(server, query, content_type):
     """
     Function to query a 
