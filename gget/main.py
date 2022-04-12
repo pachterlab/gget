@@ -481,7 +481,8 @@ def main():
                 
                 # Print available species list
                 # sys.stderr.write(f"Available genomes in Ensembl release {find_latest_ens_rel()} (latest):")
-                print(species_list)
+                for species in species_list:
+                    print(species)
                 
         # If list flag and release passed, return all available species for this release
         if args.list and args.release:
@@ -496,7 +497,8 @@ def main():
                 
                 # Print available species list
                 # sys.stderr.write(f"Available genomes in Ensembl release {args.release}:")
-                print(species_list)
+                for species in species_list:
+                    print(species)
         
         # Raise error if neither species nor list flag passed
         if args.species is None and args.list is None:
