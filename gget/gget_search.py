@@ -21,28 +21,22 @@ def search(searchwords,
     Function to query Ensembl for genes based on species and free form search terms. 
     
     Args:
-    - searchwords
-    The parameter "searchwords" is a list of one or more strings containing free form search terms 
-    (e.g.searchwords = ["GABA", "gamma-aminobutyric"]).
-    All results that contain at least one of the search terms are returned.
-    The search is not case-sensitive.
-    - species 
-    Species or database. 
-    Species can be passed in the format "genus_species", e.g. "homo_sapiens".
-    To pass a specific database (e.g. specific mouse strain),
-    enter the name of the core database without "/", e.g. 'mus_musculus_dba2j_core_105_1'. 
-    All availabale species databases can be found here: http://ftp.ensembl.org/pub/release-105/mysql/
-    - seqtype
-    Possible entries: "gene" (default) or "transcript". 
-    Defines whether genes or transcripts matching the searchwords are returned.
-    - andor
-    Possible entries: "and", "or"  
-    "or": Returns all genes that include at least one of the searchwords in their description (default)  
-    "and": Returns only genes that include all of the searchwords in their description 
-    - limit
-    "Limit" limits the number of search results to the top {limit} genes found.
-    - save
-    If "save=True", the data frame is saved as a csv in the current directory.
+    - searchwords     The parameter "searchwords" is a list of one or more strings containing free form search terms 
+                      (e.g.searchwords = ["GABA", "gamma-aminobutyric"]).
+                      All results that contain at least one of the search terms are returned.
+                      The search is not case-sensitive.
+    - species         Species or database. 
+                      Species can be passed in the format "genus_species", e.g. "homo_sapiens".
+                      To pass a specific database (e.g. specific mouse strain),
+                      enter the name of the core database, e.g. 'mus_musculus_dba2j_core_105_1'. 
+                      All availabale species databases can be found here: http://ftp.ensembl.org/pub/release-105/mysql/
+    - seqtype         Possible entries: "gene" (default) or "transcript".
+                      Defines whether genes or transcripts matching the searchwords are returned.
+    - andor           Possible entries: "or" (default) or "and".
+                      "or": Returns all genes that include at least one of the searchwords in their description (default).  
+                      "and": Returns only genes that include all of the searchwords in their description. 
+    - limit           "Limit" limits the number of search results to the top {limit} genes found (default: None).
+    - save            If True, the data frame is saved as a csv in the current directory (default: False).
     
     Returns a data frame with the query results.
     """
