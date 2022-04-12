@@ -6,8 +6,8 @@ import re
 import pandas as pd
 import numpy as np
 import urllib
+from io import StringIO
 
-# gget seq helper function 
 def get_uniprot_seqs(server, ensembl_ids):
     """
     Retrieve UniProt sequences based on Ensemsbl identifiers.
@@ -48,18 +48,30 @@ def get_uniprot_seqs(server, ensembl_ids):
     
     # Initiate data frame so empty df will be returned if no matches are found
     df = pd.DataFrame()   
-    try:
-        df = pd.read_csv(StringIO(res.decode("utf-8")), sep="\t")
-        # Rename columns
-        df.columns = ["uniprot_id", "gene_name", "organism", "sequence", "sequence_length", "query"]
-        # Split rows if two different UniProt IDs for a single query ID are returned
-        df = df.assign(Query=df["Query"].str.split(",")).explode("Query")
 
-    except:
+    try:
+        # This will throw an EmptyDataError if no results were found
+        df = pd.read_csv(StringIO(res.decode("utf-8")), sep="\t")
+
+        if len(df.columns) == 6:
+            # Rename columns
+            df.columns = ["uniprot_id", "gene_name", "organism", "sequence", "sequence_length", "query"]
+        # Sometimes a seventh "isomap" column is returned.
+        if len(df.columns) == 7:
+            # Drop isoform column (last column)
+            df = df.iloc[: , :-1]
+            # Rename columns
+            df.columns = ["uniprot_id", "gene_name", "organism", "sequence", "sequence_length", "query"]
+        
+        # Split rows if two different UniProt IDs for a single query ID are returned
+        df = df.assign(Query=df["query"].str.split(",")).explode("query")
+        
+    # If no results were found, do nothing (returns the empty data frame)
+    except pd.io.common.EmptyDataError:
         None
 
     return df
-
+    
 def rest_query(server, query, content_type):
     """
     Function to query a 

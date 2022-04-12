@@ -87,7 +87,7 @@ def seq(ens_ids,
                 
                 # Try if query valid
                 try:
-                    # Submit query
+                    # Submit query; this will throw RuntimeError if ID not found
                     df_temp = rest_query(server, query, content_type)
 
                     # Delete superfluous entries
@@ -101,7 +101,7 @@ def seq(ens_ids,
 
                     logging.warning(f"Requesting nucleotide sequence of {ensembl_ID} from Ensembl.")
 
-                except:
+                except RuntimeError:
                     sys.stderr.write(
                         f"Ensembl ID {ensembl_ID} not found. "
                         "Please double-check spelling/arguments and try again.\n"
@@ -129,7 +129,7 @@ def seq(ens_ids,
                     try:
                         transcipt_id = info_dict[ensembl_ID]["Transcript"]["id"]
                         
-                        # Try if query valid
+                        # Try if query is valid
                         try:
                             # Define the REST query
                             query = "sequence/id/" + transcipt_id + "?"
@@ -144,14 +144,15 @@ def seq(ens_ids,
 
                             # Add results to main dict
                             results_dict[ensembl_ID].update({"transcript":df_temp})
-                        except:
+                        
+                        except RuntimeError:
                             sys.stderr.write(
                                 f"Ensembl ID {ensembl_ID} not found. "
                                 "Please double-check spelling/arguments and try again.\n"
                                 )
 
                     # If more than one transcript present    
-                    except:
+                    except TypeError:
                         for isoform in np.arange(len(info_dict[ensembl_ID]["Transcript"])):
                             transcipt_id = info_dict[ensembl_ID]["Transcript"][isoform]["id"]
 
@@ -170,7 +171,8 @@ def seq(ens_ids,
 
                                 # Add results to main dict
                                 results_dict[ensembl_ID].update({f"transcript{isoform}":df_temp})
-                            except:
+                            
+                            except RuntimeError:
                                 sys.stderr.write(
                                     f"Ensembl ID {ensembl_ID} not found. "
                                     "Please double-check spelling/arguments and try again.\n"
@@ -199,7 +201,8 @@ def seq(ens_ids,
                             f"Requesting nucleotide sequence of {ensembl_ID} from Ensembl. "
                             "Note: The isoform option only applies to gene IDs."
                             )
-                    except:
+                    
+                    except RuntimeError:
                         sys.stderr.write(
                             f"Ensembl ID {ensembl_ID} not found. "
                             "Please double-check spelling/arguments and try again.\n"
@@ -285,7 +288,7 @@ def seq(ens_ids,
                         trans_ids.append(transcipt_id.split(".")[0])
 
                     # If more than one transcript present    
-                    except:
+                    except TypeError:
                         # Get the IDs of all transcripts from the gget info results
                         for isoform_idx in np.arange(len(info_dict[ensembl_ID]["Transcript"])):
                             transcipt_id = info_dict[ensembl_ID]["Transcript"][isoform_idx]["id"]
@@ -294,7 +297,7 @@ def seq(ens_ids,
                     
                     logging.warning(f"Requesting amino acid sequences of all transcripts of gene {ensembl_ID} from UniProt.")
 
-                elif ens_ID_type == "protein_coding": 
+                elif ens_ID_type == "Transcript": 
                     # Append transcript ID to list of transcripts to fetch
                     trans_ids.append(ensembl_ID)
                     logging.warning(
