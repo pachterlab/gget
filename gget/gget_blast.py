@@ -159,13 +159,27 @@ def blast(
                 Program options: {', '.join(programs)} 
                 Database options:  {', '.join(dbs)} 
                 """)
-    # Check if the user specified program is valid
     else:
+        # Check if the user specified program is valid
         if program not in programs:
             sys.exit(
                 f"Program specified is {program}. Expected one of {', '.join(programs)}"
             )
-
+            
+        # Ask user to also specify database
+        if database == "default":
+            sys.exit(f"""
+                User-specified program requires user-specified database. Please also specify database. 
+                Database options:  {', '.join(dbs)}
+                """
+            )
+        else:
+            # Check if the user specified database is valid
+            if database not in dbs:
+                sys.exit(
+                    f"Database specified is {database}. Expected one of {', '.join(dbs)}"
+                )
+            
     ## Translate filter and ncbi_gi arguments
     if low_comp_filt == False:
         low_comp_filt = None
