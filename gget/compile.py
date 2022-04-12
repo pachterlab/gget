@@ -22,7 +22,7 @@ def compile_muscle():
     """
     
     logging.warning(
-        "Compiling MUSCLE binary from source... "
+        "Compiling MUSCLE binary from source... \nmuscle 5.2.linux64 version:"
     )
     
     # Record current working directory
