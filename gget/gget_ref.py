@@ -16,27 +16,22 @@ def ref(species, which="all", release=None, ftp=False, save=False):
     Fetch FTPs for reference genomes and annotations by species.
     
     Args:
-    - species
-    Defines the species for which the files should be fetched in the format "<genus>_<species>", 
-    e.g.species = "homo_sapiens".
-    - which
-    Defines which results to return. Possible entries are:
-    "all" - Returns all links (default).
-    Or one or a combination (as a list of strings) of the following:  
-    "gtf" - Returns the GTF FTP link and associated information.
-    "cdna" - Returns the cDNA FTP link and associated information.
-    "dna" - Returns the DNA FTP link and associated information.
-    "cds" - Returns the coding sequences corresponding to Ensembl genes. (Does not contain UTR or intronic sequence.)
-    "cdrna" - Returns transcript sequences corresponding to non-coding RNA genes (ncRNA).
-    "pep" - Returns the protein translations of Ensembl genes.
-    - release
-    Defines the Ensembl release number from which the files are fetched, e.g. release = 104.
-    (Ensembl releases earlier than release 48 are not suupported.)
-    By default, the latest Ensembl release is used.
-    - FTP
-    If True, returns a list containing only the requested URLs instead of the comprehensive json/dictionary.
-    - save
-    If "save=True", the json containing all results is saved in the current directory. Only works if "returnval='json'".
+    - species   Defines the species for which the files should be fetched in the format "<genus>_<species>", 
+                e.g.species = "homo_sapiens".
+    - which     Defines which results to return. Possible entries are:
+                "all" - Returns all links (default).
+                Or one or a combination (as a list of strings) of the following:  
+                "gtf" - Returns the GTF FTP link and associated information.
+                "cdna" - Returns the cDNA FTP link and associated information.
+                "dna" - Returns the DNA FTP link and associated information.
+                "cds" - Returns the coding sequences corresponding to Ensembl genes. (Does not contain UTR or intronic sequence.)
+                "cdrna" - Returns transcript sequences corresponding to non-coding RNA genes (ncRNA).
+                "pep" - Returns the protein translations of Ensembl genes.
+    - release   Defines the Ensembl release number from which the files are fetched, e.g. release = 104.
+                (Ensembl releases earlier than release 48 are not suupported.)
+                By default, the latest Ensembl release is used.
+    - FTP       If True, returns a list containing only the requested URLs instead of the comprehensive json/dictionary.
+    - save      If True, saves results in the current directory.
 
     Returns a dictionary containing the requested URLs with their respective Ensembl version and release date and time.
     (If FTP=True, returns a list containing only the URLs.)
