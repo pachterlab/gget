@@ -3,6 +3,7 @@
 import pandas as pd
 import time
 from bs4 import BeautifulSoup
+import sys
 import logging
 # Add and format time stamp in logging messages
 logging.basicConfig(format="%(asctime)s %(message)s", datefmt="%d %b %Y %H:%M:%S")
