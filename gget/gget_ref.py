@@ -11,7 +11,12 @@ logging.basicConfig(format="%(asctime)s %(message)s", datefmt="%d %b %Y %H:%M:%S
 # Custom functions
 from .utils import ref_species_options
 
-def ref(species, which="all", release=None, ftp=False, save=False):
+def ref(species, 
+        which="all", 
+        release=None, 
+        ftp=False, 
+        save=False
+       ):
     """
     Fetch FTPs for reference genomes and annotations by species.
     
@@ -30,7 +35,7 @@ def ref(species, which="all", release=None, ftp=False, save=False):
     - release   Defines the Ensembl release number from which the files are fetched, e.g. release = 104.
                 (Ensembl releases earlier than release 48 are not suupported.)
                 By default, the latest Ensembl release is used.
-    - FTP       If True, returns a list containing only the requested URLs instead of the comprehensive json/dictionary.
+    - ftp       If True, returns a list containing only the requested URLs instead of the comprehensive json/dictionary.
     - save      If True, saves results in the current directory.
 
     Returns a dictionary containing the requested URLs with their respective Ensembl version and release date and time.
