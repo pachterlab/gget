@@ -64,13 +64,13 @@ def info(
         try:
             df_temp = rest_query(server, query, content_type)
         # If query returns in an error:
-        except:
+        except RuntimeError:
             # Try submitting query without expand (expand does not work for exons and translation IDs)
             try:
                 query = "lookup/id/" + ensembl_ID + "?"
                 df_temp = rest_query(server, query, content_type)
             # Raise error if this also did not work
-            except:
+            except RuntimeError:
                 if verbose == True:
                     sys.stderr.write(
                         f"Ensembl ID {ensembl_ID} not found. "
