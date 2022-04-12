@@ -10,4 +10,3 @@ BLAST_CLIENT = "gget_client"
 
 # MUSCLE constants
 MUSCLE_GITHUB_LINK = "https://github.com/rcedgar/muscle.git"
-

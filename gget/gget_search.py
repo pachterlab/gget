@@ -8,7 +8,10 @@ import logging
 # Add and format time stamp in logging messages
 logging.basicConfig(format="%(asctime)s %(message)s", datefmt="%d %b %Y %H:%M:%S")
 # Custom functions
-from .utils import gget_species_options
+from .utils import (
+    gget_species_options,
+    find_latest_ens_rel
+)
 
 def search(searchwords, 
            species, 
@@ -17,8 +20,9 @@ def search(searchwords,
            limit=None, 
            save=False
           ):
-    """
-    Function to query Ensembl for genes based on species and free form search terms. 
+    f"""
+    Function to query Ensembl for genes based on species and free form search terms.
+    Automatically fetches results from latest Ensembl release, unless user specifies database.
     
     Args:
     - searchwords     The parameter "searchwords" is a list of one or more strings containing free form search terms 
@@ -29,7 +33,7 @@ def search(searchwords,
                       Species can be passed in the format "genus_species", e.g. "homo_sapiens".
                       To pass a specific database (e.g. specific mouse strain),
                       enter the name of the core database, e.g. 'mus_musculus_dba2j_core_105_1'. 
-                      All availabale species databases can be found here: http://ftp.ensembl.org/pub/release-105/mysql/
+                      All availabale species databases can be found here: http://ftp.ensembl.org/pub/release-{find_latest_ens_rel()}/mysql/
     - seqtype         Possible entries: "gene" (default) or "transcript".
                       Defines whether genes or transcripts matching the searchwords are returned.
     - andor           Possible entries: "or" (default) or "and".
@@ -41,6 +45,9 @@ def search(searchwords,
     Returns a data frame with the query results.
     """
     start_time = time.time()
+
+    # Find latest Ensembl release
+    ens_rel = find_latest_ens_rel()
     
     ## Check validity or arguments
     # Check if seqtype is valid
@@ -74,7 +81,7 @@ def search(searchwords,
     species = species.lower()
 
     # Fetch all available databases
-    databases = gget_species_options(release=105)
+    databases = gget_species_options()
     db = []
     for datab in databases:
         if species in datab:
@@ -83,7 +90,7 @@ def search(searchwords,
     # Unless an unambigious mouse database is specified, 
     # the standard core database will be used
     if len(db) > 1 and "mus_musculus" in species:
-        db = "mus_musculus_core_105_39"
+        db = f"mus_musculus_core_{ens_rel}_39"
 
     # Check for ambigious species matches in species other than mouse
     elif len(db) > 1 and "mus_musculus" not in species:
@@ -91,7 +98,7 @@ def search(searchwords,
             "Species matches more than one database.\n"
             "Please double-check spelling or pass specific CORE database.\n" 
             "All available databases can be found here:\n"
-            "http://ftp.ensembl.org/pub/release-105/mysql/"
+            f"http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/"
             )
     # Raise error if no matching database was found 
     elif len(db) == 0:
@@ -99,7 +106,7 @@ def search(searchwords,
             "Species not found in database.\n"
             "Please double-check spelling or pass specific CORE database.\n" 
             "All available databases can be found here:\n"
-            "http://ftp.ensembl.org/pub/release-105/mysql/"
+            f"http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/"
             )
 
     else:

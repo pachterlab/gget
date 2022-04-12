@@ -109,11 +109,12 @@ def main():
     )
 
     ## gget search subparser
+    search_desc = "Fetch gene and transcript IDs from Ensembl using free-form search terms."
     parser_gget = parent_subparsers.add_parser(
         "search",
          parents=[parent],
-         description="Query Ensembl for genes based on species and free form search terms.", 
-         help="Query Ensembl for genes based on species and free form search terms.",
+         description=search_desc, 
+         help=search_desc,
          add_help=True
          )
     # Search parser arguments
