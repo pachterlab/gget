@@ -15,6 +15,8 @@ from .gget_seq import seq
 from .gget_muscle import muscle
 from .gget_blast import blast
 
+from .utils import ref_species_options
+
 def main():
     """
     Function containing argparse parsers and arguments to allow the use of gget from the terminal.
