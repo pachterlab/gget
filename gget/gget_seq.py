@@ -198,7 +198,7 @@ def seq(ens_ids,
                         results_dict[ensembl_ID].update({"seq":df_temp})
 
                         logging.warning(
-                            f"Requesting nucleotide sequence of {ensembl_ID} from Ensembl. "
+                            f"Requesting nucleotide sequence of {ensembl_ID} from Ensembl.\n"
                             "Note: The isoform option only applies to gene IDs."
                             )
                     
@@ -301,7 +301,7 @@ def seq(ens_ids,
                     # Append transcript ID to list of transcripts to fetch
                     trans_ids.append(ensembl_ID)
                     logging.warning(
-                        f"Requesting amino acid sequence of {ensembl_ID} from UniProt. "
+                        f"Requesting amino acid sequence of {ensembl_ID} from UniProt.\n"
                         "Note: The isoform option only applies to gene IDs."
                     )
                 else:
