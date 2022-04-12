@@ -14,24 +14,21 @@ def info(
     expand=False, 
     homology=False, 
     xref=False, 
-    save=False
+    save=False,
+    verbose=True
 ):
     """
     Fetch gene and transcript metadata using Ensembl IDs.
 
     Args:
-    - ens_ids
-    One or more Ensembl IDs to look up (string or list of strings).
-    - expand
-    Expand returned information (only for genes and transcripts) (default: False). 
-    For genes, this adds isoform information. 
-    For transcripts, this adds translation and exon information.
-    - homology 
-    If True, returns homology information of ID (default: False).
-    - xref
-    If True, returns information from external references (default: False).
-    - save
-    If True, saves json with query results in current working directory.
+    - ens_ids   One or more Ensembl IDs to look up (string or list of strings).
+    - expand    Expand returned information (only for genes and transcripts) (default: False). 
+                For genes, this adds isoform information. 
+                For transcripts, this adds translation and exon information.
+    - homology  If True, also returns homology information of ID (default: False).
+    - xref      If True, also returns information from external references (default: False).
+    - save      If True, saves json with query results in current working directory (default: False).
+    - verbose   If True, prints progress information (default: True).
 
     Returns a dictionary/json file containing the requested information about the Ensembl IDs.
     """
@@ -74,11 +71,12 @@ def info(
                 df_temp = rest_query(server, query, content_type)
             # Raise error if this also did not work
             except:
-                sys.stderr.write(
-                    f"Ensembl ID {ensembl_ID} not found. "
-                    "Please double-check spelling/arguments and try again.\n"
-                )
-                sys.exit()
+                if verbose == True:
+                    sys.stderr.write(
+                        f"Ensembl ID {ensembl_ID} not found. "
+                        "Please double-check spelling/arguments and try again.\n"
+                    )
+                return
             
         ## Delete superfluous entries
         # Delete superfluous entries in general info
@@ -144,7 +142,8 @@ def info(
                 # Add results to main dict
                 results_dict[ensembl_ID].update({"homology":df_temp["data"][0]["homologies"]})
             except:
-                sys.stderr.write(f"No homology information found for {ensembl_ID}.\n")
+                if verbose == True:
+                    sys.stderr.write(f"No homology information found for {ensembl_ID}.\n")
 
         ## xrefs/id/ query: Retrieves external reference information by Ensembl gene id
         if xref == True:
@@ -157,7 +156,8 @@ def info(
                 # Add results to main dict
                 results_dict[ensembl_ID].update({"xrefs":df_temp})
             except:
-                sys.stderr.write(f"No external reference information found for {ensembl_ID}.\n")
+                if verbose == True:
+                    sys.stderr.write(f"No external reference information found for {ensembl_ID}.\n")
     
         # Add results to master dict
         master_dict.update(results_dict)

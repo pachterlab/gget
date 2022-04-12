@@ -3,7 +3,9 @@
 from bs4 import BeautifulSoup
 import requests
 import re
+import pandas as pd
 import numpy as np
+import urllib
 
 # gget seq helper function 
 def get_uniprot_seqs(server, ensembl_ids):

@@ -218,6 +218,13 @@ def main():
             "Default: Standard out."
         )
     )
+    parser_info.add_argument(
+        "-q", "--quiet",
+        default=True, 
+        action="store_false",
+        required=False,
+        help="Do not print progress information." 
+    )
     
     ## gget seq subparser
     seq_desc = "Fetch nucleotide or amino acid sequence (FASTA) of a gene (and all isoforms) or transcript by Ensembl ID. "
@@ -383,7 +390,7 @@ def main():
         default=True, 
         action="store_false",
         required=False,
-        help="Do not print progress information. Default True." 
+        help="Do not print progress information." 
     )
     parser_blast.add_argument(
         "-o", "--out",
@@ -643,7 +650,7 @@ def main():
             ids_clean_final.remove("")  
 
         # Look up requested Ensembl IDs
-        info_results = info(ids_clean_final, expand=args.expand, homology=args.homology, xref=args.xref)
+        info_results = info(ids_clean_final, expand=args.expand, homology=args.homology, xref=args.xref, verbose=args.quiet)
 
         # Print or save json file
         # Save in specified directory if -o specified
