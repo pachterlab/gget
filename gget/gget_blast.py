@@ -125,9 +125,10 @@ def blast(
             else:
                 # Check if the user specified database is valid
                 if database not in dbs:
-                    sys.exit(
+                    raise ValueError(
                         f"Database specified is {database}. Expected one of {', '.join(dbs)}"
                     )
+
                 else:
                     if verbose == True:
                         logging.warning("Sequence recognized as nucleotide sequence. "
@@ -145,30 +146,32 @@ def blast(
             else:
                 # Check if the user specified database is valid
                 if database not in dbs:
-                    sys.exit(
+                    raise ValueError(
                         f"Database specified is {database}. Expected one of {', '.join(dbs)}"
                     )
+
                 else:
                     if verbose == True:
                         logging.warning("Sequence recognized as amino acid sequence. "
                                         "BLAST will use program 'blastp' with user-specified database.")
         else:
-            sys.exit(f"""
+            raise ValueError(f"""
                 Sequence not automatically recognized as a nucleotide or amino acid sequence.
                 Please specify 'program' and 'database'.
                 Program options: {', '.join(programs)} 
                 Database options:  {', '.join(dbs)} 
                 """)
+
     else:
         # Check if the user specified program is valid
         if program not in programs:
-            sys.exit(
+            raise ValueError(
                 f"Program specified is {program}. Expected one of {', '.join(programs)}"
             )
             
         # Ask user to also specify database
         if database == "default":
-            sys.exit(f"""
+            raise ValueError(f"""
                 User-specified program requires user-specified database. Please also specify database. 
                 Database options:  {', '.join(dbs)}
                 """
@@ -176,7 +179,7 @@ def blast(
         else:
             # Check if the user specified database is valid
             if database not in dbs:
-                sys.exit(
+                raise ValueError(
                     f"Database specified is {database}. Expected one of {', '.join(dbs)}"
                 )
             
@@ -281,10 +284,12 @@ def blast(
             continue
 
         if status == "FAILED":
-            sys.exit(f"Search {RID} failed; please try again and/or report to blast-help@ncbi.nlm.nih.gov.")
+            sys.stderr.write(f"Search {RID} failed; please try again and/or report to blast-help@ncbi.nlm.nih.gov.")
+            sys.exit()
 
         if status == "UNKNOWN":
-            sys.exit(f"NCBI status {status}. Search {RID} expired.")
+            sys.stderr.write(f"NCBI status {status}. Search {RID} expired.")
+            sys.exit()
 
         if status == "READY":
             if verbose == True:
