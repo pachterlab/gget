@@ -19,14 +19,11 @@ def muscle(fasta,
     Align multiple nucleotide or amino acid sequences against each other (using the Muscle v5 algorithm).
     
     Args:
-    - fasta
-    Path to fasta file containing the sequences to be aligned.
-    - super5
-    True/False (default: False). 
-    If True, align input using Super5 algorithm instead of PPP algorithm to decrease time and memory.
-    Use for large inputs (a few hundred sequences).
-    - out
-    Path to the 'aligned FASTA' (.afa) file the results will be saved in (default: "muscle_results.afa").
+    - fasta     Path to fasta file containing the sequences to be aligned.
+    - super5    True/False (default: False). 
+                If True, align input using Super5 algorithm instead of PPP algorithm to decrease time and memory.
+                Use for large inputs (a few hundred sequences).
+    - out       Path to the 'aligned FASTA' (.afa) file the results will be saved in (default: "muscle_results.afa").
         
     Returns alignment results in an "aligned FASTA" (.afa) file.
     """
