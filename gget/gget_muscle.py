@@ -65,10 +65,8 @@ def muscle(fasta,
         )
     start_time = time.time()
 
-    proc = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
-    (out, err) = proc.communicate()
-    print("program output:", out)
-    print("err output:", err)
+    # Spawn process
+    subprocess.run(command, capture_output=True, shell=True, check=True)
 
     # os.system(command)
     
