@@ -1,5 +1,3 @@
-# Copyright 2022 Laura Luebbert
-
 import numpy as np
 import json
 import sys

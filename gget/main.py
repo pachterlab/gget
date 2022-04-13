@@ -1,5 +1,3 @@
-# Copyright 2022 Laura Luebbert
-
 # Packages for use from terminal
 import argparse
 import sys
@@ -553,8 +551,8 @@ def main():
                 # Print results if no directory specified
                 else:
                     # Print results
-                    results = " ".join(ref_results)
-                    print(results)
+                    for ref_res in ref_results:
+                        print(ref_res)
 #                     sys.stderr.write("\nTo save these results, use flag '-o' in the format: '-o path/to/directory/results.txt'.\n")
                     
                     if args.download == True:
@@ -709,5 +707,6 @@ def main():
         # Print results if no directory specified
         else:
             if seq_results != None:
-                print(seq_results)
-#               sys.stderr.write("\nTo save these results, use flag '-o' in the format: '-o path/to/directory/results.fa'.\n")
+                for seq_res in seq_results:
+                    print(seq_res)
+#                   sys.stderr.write("\nTo save these results, use flag '-o' in the format: '-o path/to/directory/results.fa'.\n")

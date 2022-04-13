@@ -1,6 +1,4 @@
 
-# Copyright 2022 Laura Luebbert
-
 import pandas as pd
 import mysql.connector as sql
 import time

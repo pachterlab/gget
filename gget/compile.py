@@ -15,9 +15,8 @@ PACKAGE_PATH = os.path.abspath(os.path.dirname(__file__))
 MUSCLE_PATH = os.path.join(PACKAGE_PATH, "bins/compiled/muscle/src/Linux/muscle")
 
 def compile_muscle():
-    f"""
+    """
     Compiles MUSCLE from source. 
-    Link to MUSCLE Github repo: {MUSCLE_GITHUB_LINK}
     Currently does not support Windows platforms.
     """
     

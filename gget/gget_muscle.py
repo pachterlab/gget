@@ -1,5 +1,3 @@
-# Copyright 2022 Laura Luebbert
-
 import time
 import logging
 # Add and format time stamp in logging messages

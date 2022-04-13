@@ -1,5 +1,3 @@
-# Copyright 2022 Laura Luebbert
-
 import pandas as pd
 import time
 from bs4 import BeautifulSoup
@@ -241,7 +239,7 @@ def blast(
     else:
         # Communicate RTOE
         if verbose == True:
-            logging.warning(f"BLAST initiated. Estimated time to completion: {RTOE} seconds.")  
+            logging.warning(f"BLAST initiated with search ID {RID}. Estimated time to completion: {RTOE} seconds.")  
         time.sleep(int(RTOE))
 
     ## Poll server for status and fetch search results
@@ -284,11 +282,11 @@ def blast(
             continue
 
         if status == "FAILED":
-            sys.stderr.write(f"Search {RID} failed; please try again and/or report to blast-help@ncbi.nlm.nih.gov.")
+            sys.stderr.write(f"Search {RID} failed; please try again and/or report to blast-help@ncbi.nlm.nih.gov.\n")
             sys.exit()
 
         if status == "UNKNOWN":
-            sys.stderr.write(f"NCBI status {status}. Search {RID} expired.")
+            sys.stderr.write(f"NCBI status {status}. Search {RID} expired.\n")
             sys.exit()
 
         if status == "READY":
@@ -305,6 +303,14 @@ def blast(
             soup = BeautifulSoup(results, "html.parser")
             # Get the descriptions table
             dsc_table = soup.find(lambda tag: tag.name=='table' and tag.has_attr('id') and tag['id']=="dscTable") 
+
+            if dsc_table == None:
+                sys.stderr.write(
+                    f"No significant similarity found for search {RID}.\n"
+                    "If your sequence is very short, try increasing the 'expect' argument.\n"
+                    )
+                sys.exit()
+
             results_df = pd.read_html(str(dsc_table))[0]
             # Drop the first column
             results_df = results_df.iloc[: , 1:]
@@ -312,8 +318,5 @@ def blast(
             return results_df
 
         else:
-            sys.exit(f"""
-                Something unexpected happened. \n
-                Search {RID} possibly failed; please try again and/or report to blast-help@ncbi.nlm.nih.gov\n
-                """
-            )
+            sys.stderr.write(f"Something unexpected happened. Search {RID} possibly failed; please try again and/or report to blast-help@ncbi.nlm.nih.gov\n")
+            sys.exit()

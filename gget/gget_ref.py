@@ -1,5 +1,3 @@
-# Copyright 2022 Laura Luebbert
-
 from bs4 import BeautifulSoup
 import requests
 import re

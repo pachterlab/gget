@@ -1,5 +1,3 @@
-# Copyright 2022 Laura Luebbert
-
 from bs4 import BeautifulSoup
 import requests
 import re
@@ -166,7 +164,6 @@ def gget_species_options(release=None):
     
     return databases
     
-    
 def ref_species_options(which, release=None):
     """
     Function to find all available species for gget ref.
@@ -199,6 +196,7 @@ def ref_species_options(which, release=None):
     if html.status_code != 200:
         raise RuntimeError(f"HTTP response status code {html.status_code}. Please try again.")
     
+    # Parse the html and generate a clean list of the available genomes
     soup = BeautifulSoup(html.text, "html.parser")
 
     sps = []
@@ -209,7 +207,6 @@ def ref_species_options(which, release=None):
     
     # Return list of all available species
     return species_list
-
 
 def parse_blast_ref_page(handle):
     """

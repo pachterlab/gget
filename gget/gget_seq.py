@@ -1,5 +1,3 @@
-# Copyright 2022 Laura Luebbert
-
 import logging
 from tkinter import TRUE
 # Add and format time stamp in logging messages
@@ -193,10 +191,8 @@ def seq(ens_ids,
                         # Add results to main dict
                         results_dict[ensembl_ID].update({"seq":df_temp})
 
-                        logging.warning(
-                            f"Requesting nucleotide sequence of {ensembl_ID} from Ensembl.\n"
-                            "Note: The isoform option only applies to gene IDs."
-                            )
+                        logging.warning(f"Requesting nucleotide sequence of {ensembl_ID} from Ensembl.\n")
+                        sys.stderr.write("Note: The isoform option only applies to gene IDs.\n")
                     
                     except RuntimeError:
                         sys.stderr.write(
@@ -296,10 +292,8 @@ def seq(ens_ids,
                 elif ens_ID_type == "Transcript": 
                     # Append transcript ID to list of transcripts to fetch
                     trans_ids.append(ensembl_ID)
-                    logging.warning(
-                        f"Requesting amino acid sequence of {ensembl_ID} from UniProt.\n"
-                        "Note: The isoform option only applies to gene IDs."
-                    )
+                    logging.warning(f"Requesting amino acid sequence of {ensembl_ID} from UniProt.\n")
+                    sys.stderr.write("Note: The isoform option only applies to gene IDs.\n")
                 else:
                     sys.stderr.write(f"{ensembl_ID} not recognized as either a gene or transcript ID. It will not be included in the UniProt query.\n")
             
