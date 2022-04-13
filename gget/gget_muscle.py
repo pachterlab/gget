@@ -3,6 +3,7 @@ import logging
 # Add and format time stamp in logging messages
 logging.basicConfig(format="%(asctime)s %(message)s", datefmt="%d %b %Y %H:%M:%S")
 import os
+import subprocess
 # Custom functions
 from .compile import (
     compile_muscle,
@@ -63,7 +64,13 @@ def muscle(fasta,
             "MUSCLE aligning... "
         )
     start_time = time.time()
-    os.system(command)
+
+    proc = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
+    (out, err) = proc.communicate()
+    print("program output:", out)
+    print("err output:", err)
+
+    # os.system(command)
     
     logging.warning(
         f"MUSCLE alignment complete. Alignment time: {round(time.time() - start_time, 2)} seconds."
