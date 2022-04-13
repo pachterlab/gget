@@ -1,3 +1,4 @@
+import sys
 import time
 import logging
 # Add and format time stamp in logging messages
@@ -66,12 +67,23 @@ def muscle(fasta,
     start_time = time.time()
 
     # Assign read, write, and execute permission to muscle binary
-    subprocess.Popen(f"chmod 755 {muscle_path}", shell=True, stdout="PIPE", stderr="STDOUT", check=True)
-    # Run muscle command
-    subprocess.Popen(command, shell=True, stdout="PIPE", stderr="STDOUT", check=True)
+    process1 = subprocess.Popen(f"chmod 755 {muscle_path}", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = process1.communicate()
+    # Return standard output
+    sys.stderr.write(out)
+    # Exit system if process returned error code
+    if process1.returncode != 0:
+        sys.exit()
 
-    # os.system(command)
-    
-    # logging.warning(
-    #     f"MUSCLE alignment complete. Alignment time: {round(time.time() - start_time, 2)} seconds."
-    # )
+    # Run muscle command
+    process2 = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    out, err = process2.communicate()
+    # Return standard output
+    sys.stderr.write(out)
+    # Exit system if process returned error code
+    if process2.returncode != 0:
+        sys.exit()
+
+    logging.warning(
+        f"MUSCLE alignment complete. Alignment time: {round(time.time() - start_time, 2)} seconds."
+    )
