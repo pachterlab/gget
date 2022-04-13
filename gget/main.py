@@ -1,7 +1,6 @@
 import argparse
 import sys
 import os
-import subprocess
 import json
 # Custom functions
 from .__init__ import __version__
@@ -11,6 +10,7 @@ from .gget_info import info
 from .gget_seq import seq
 from .gget_muscle import muscle
 from .gget_blast import blast
+
 from .utils import (
     ref_species_options,
     find_latest_ens_rel
@@ -540,7 +540,7 @@ def main():
                         # Download list of URLs
                         for link in ref_results:
                             command = "wget " + link
-                            subprocess.run(command, capture_output=True, shell=True, check=True)
+                            os.system(command)
                     else:
                         sys.stderr.write(
                             "To download the FTPs to the current directory, add flag [-d].\n"
@@ -557,7 +557,7 @@ def main():
                         # Download list of URLs
                         for link in ref_results:
                             command = "wget " + link
-                            subprocess.run(command, capture_output=True, shell=True, check=True)
+                            os.system(command)
                     else:
                         sys.stderr.write(
                             "To download the FTPs to the current directory, add flag [-d].\n"
@@ -601,7 +601,7 @@ def main():
                                 for ftp_type in ref_results[sp]:
                                     link = ref_results[sp][ftp_type]['ftp']
                                     command = "wget " + link
-                                    subprocess.run(command, capture_output=True, shell=True, check=True)
+                                    os.system(command)
                     else:
                         sys.stderr.write(
                             "To download the FTPs to the current directory, add flag [-d].\n"

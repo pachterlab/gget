@@ -1,5 +1,4 @@
 import os
-import subprocess
 import platform
 import logging
 # Add and format time stamp in logging messages
@@ -37,15 +36,14 @@ def compile_muscle():
     
     # Clone MUSCLE repo into PACKAGE_PATH/bins/compiled/
     command1 = "git clone " + MUSCLE_GITHUB_LINK + " -q"
-    # Spawn process
-    subprocess.run(command1, capture_output=True, shell=True, check=True)
+    os.system(command1)
     
     # Change path to PACKAGE_PATH/bins/compiled/muscle/src/
     os.chdir("muscle/src/")
     
     # Run make command
     command2 = "make -s"
-    subprocess.run(command2, capture_output=True, shell=True, check=True)
+    os.system(command2)
     
     logging.warning(
         "MUSCLE compiled."
