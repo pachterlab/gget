@@ -46,7 +46,7 @@ def compile_muscle():
     os.system(command2)
     
     logging.warning(
-        "MUSCLE compiled. "
+        "MUSCLE compiled."
     )
     
     # Change path back to cwd

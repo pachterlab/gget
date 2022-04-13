@@ -6,8 +6,12 @@ import os
 # Custom functions
 from .compile import (
     compile_muscle,
-    MUSCLE_PATH
+    MUSCLE_PATH,
+    PACKAGE_PATH
 )
+
+# Path to precompiled muscle binary
+PRECOMPILED_MUSCLE_PATH = os.path.join(PACKAGE_PATH, "bins/linux/muscle")
 
 def muscle(fasta, 
            super5=False, 
@@ -37,20 +41,22 @@ def muscle(fasta,
         abs_out_path = os.path.abspath(out)
     
     # Compile muscle if it is not already compiled
-    if os.path.isfile(MUSCLE_PATH) == False:
+    if os.path.isfile(PRECOMPILED_MUSCLE_PATH) == False:
         # Compile muscle
         compile_muscle()
+        muscle_path = MUSCLE_PATH
         
     else:
         logging.warning(
-            "MUSCLE already compiled. "
+            "MUSCLE compiled. "
         )
-        
+        muscle_path = PRECOMPILED_MUSCLE_PATH
+
     # Define muscle command
     if super5:
-        command = f"{MUSCLE_PATH} -super5 {abs_fasta_path} -output {abs_out_path}"
+        command = f"{muscle_path} -super5 {abs_fasta_path} -output {abs_out_path}"
     else:
-        command = f"{MUSCLE_PATH} -align {abs_fasta_path} -output {abs_out_path}"
+        command = f"{muscle_path} -align {abs_fasta_path} -output {abs_out_path}"
      
     # Run align command  
     logging.warning(
