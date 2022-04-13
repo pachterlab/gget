@@ -7,14 +7,6 @@ def read(path):
 
 long_description = read('README.md')
 
-requirements = [
-        'mysql-connector-python>=8.0.28',
-        'beautifulsoup4>=4.10.0',
-        'pandas',
-        'requests>=2.27.1',
-        'biopython'
-      ]
-
 setup(
     name='gget',
     version=__version__,
@@ -27,9 +19,10 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     packages=find_packages(),
+    zip_safe=False,
+    include_package_data=True,
     python_requires='>=3.6',
-    install_requires=requirements,
-    setup_requires=requirements,
+    install_requires=read('requirements.txt').strip().split('\n'),
     url='https://github.com/lauraluebbert/gget',
     keywords='gget',
     entry_points={
