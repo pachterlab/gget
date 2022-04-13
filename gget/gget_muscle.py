@@ -65,11 +65,13 @@ def muscle(fasta,
         )
     start_time = time.time()
 
-    # Spawn process
-    subprocess.run(command, capture_output=True, shell=True, check=True)
+    # Assign read, write, and execute permission to muscle binary
+    subprocess.run(f"chmod 755 {muscle_path}", capture_output=True, shell=True, check=True)
+    # Run muscle command
+    subprocess.run(command, capture_output=True, shell=True)
 
     # os.system(command)
     
-    logging.warning(
-        f"MUSCLE alignment complete. Alignment time: {round(time.time() - start_time, 2)} seconds."
-    )
+    # logging.warning(
+    #     f"MUSCLE alignment complete. Alignment time: {round(time.time() - start_time, 2)} seconds."
+    # )
