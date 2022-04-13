@@ -66,9 +66,9 @@ def muscle(fasta,
     start_time = time.time()
 
     # Assign read, write, and execute permission to muscle binary
-    subprocess.Popen(f"chmod 755 {muscle_path}", shell=True, stdout=PIPE, stderr=STDOUT, check=True)
+    subprocess.Popen(f"chmod 755 {muscle_path}", shell=True, stdout="PIPE", stderr="STDOUT", check=True)
     # Run muscle command
-    subprocess.Popen(command, shell=True, stdout=PIPE, stderr=STDOUT, check=True)
+    subprocess.Popen(command, shell=True, stdout="PIPE", stderr="STDOUT", check=True)
 
     # os.system(command)
     
