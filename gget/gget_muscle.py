@@ -53,8 +53,6 @@ def muscle(fasta,
             "MUSCLE compiled. "
         )
         muscle_path = PRECOMPILED_MUSCLE_PATH
-
-    print(muscle_path)
     
     # Define muscle command
     if super5:
