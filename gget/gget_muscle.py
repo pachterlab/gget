@@ -54,6 +54,8 @@ def muscle(fasta,
         )
         muscle_path = PRECOMPILED_MUSCLE_PATH
 
+    print(muscle_path)
+    
     # Define muscle command
     if super5:
         command = f"{muscle_path} -super5 {abs_fasta_path} -output {abs_out_path}"
