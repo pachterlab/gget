@@ -6,6 +6,116 @@ import numpy as np
 import urllib
 from io import StringIO
 
+def n_colors(nucleotide):
+  """
+  Returns a string format to print the nucleotide
+  with its appropriate background color according to the Clustal Colour Scheme.
+  """
+
+  # Raw python background colors
+  # References: 
+  # https://stackabuse.com/how-to-print-colored-text-in-python/ 
+  # https://www.ditig.com/256-colors-cheat-sheet
+  raw_colors = {
+      "black": 0,
+      "red": 9,
+      "green": 10,
+      "yellow": 11,
+      "blue": 12,
+      "white": 15,
+  }
+
+  # Define nulceotide colors dict
+  n_colors_dict = {
+      "blue": ["C"], 
+      "red": ["A"],                         
+      "green": ["C"],                  
+      "yellow": ["G"],                            
+
+  }
+
+  # Define background color based on which nucleotide was passed
+  bkg_color = None
+  letter_color = None
+  for color in n_colors_dict:
+    if nucleotide in n_colors_dict[color]:
+      bkg_color = raw_colors[color]
+      letter_color = color
+
+  # If the nucleotide does not fall into the defined color categories,
+  # make it white (e.g. "-")
+  if bkg_color == None:
+    bkg_color = raw_colors["white"]
+
+  if letter_color is not None and letter_color in ["blue", "red"]:
+    # Define textcolor as white for darker colors
+    textcolor = raw_colors["white"]
+  else:
+    # Define textcolor as black
+    textcolor = raw_colors["black"]
+
+  return f"\033[38;5;{textcolor}m\033[48;5;{bkg_color}m{nucleotide}\033[0;0m"
+
+
+def aa_colors(amino_acid):
+  """
+  Returns a string format to print the amino acid 
+  with its appropriate background color according to the Clustal Colour Scheme:
+  http://www.jalview.org/help/html/colourSchemes/clustal.html
+  """
+
+  # Raw python background colors
+  # References: 
+  # https://stackabuse.com/how-to-print-colored-text-in-python/ 
+  # https://www.ditig.com/256-colors-cheat-sheet
+  raw_colors = {
+      "black": 0,
+      "red": 9,
+      "green": 10,
+      "yellow": 11,
+      "blue": 12,
+      "cyan": 14,
+      "magenta": 5,
+      "pink": 13,
+      "orange": 1, # This is maroon because the system colors don't have orange
+      "white": 15,
+  }
+
+  # Define amino acid colors dict according to http://www.jalview.org/help/html/colourSchemes/clustal.html
+  aa_colors_dict = {
+      "blue": ["A", "I", "L", "M", "F", "W", "V", "C"], # hydrophobic AAs
+      "red": ["K", "R"],                           # positive charge
+      "magenta": ["E", "D"],                            # negative charge 
+      "green": ["N", "Q", "S", "T"],                    # polar
+      "pink": ["C"],                                    # cysteines 
+      "orange": ["G"],                                  # glycines
+      "yellow": ["P"],                                  # prolines
+      "cyan": ["H", "Y"]                                # aromatic
+  }
+
+  # Define background color based on which amino acid was passed
+  bkg_color = None
+  letter_color = None
+  for color in aa_colors_dict:
+    if amino_acid in aa_colors_dict[color]:
+      bkg_color = raw_colors[color]
+      letter_color = color
+
+  # If the amino acid does not fall into the defined color categories,
+  # make it white (e.g. "-")
+  if bkg_color == None:
+    bkg_color = raw_colors["white"]
+
+  if letter_color is not None and letter_color in ["blue", "red", "magenta", "orange"]:
+    # Define textcolor as white for darker colors
+    textcolor = raw_colors["white"]
+  else:
+    # Define textcolor as black
+    textcolor = raw_colors["black"]
+
+  return f"\033[38;5;{textcolor}m\033[48;5;{bkg_color}m{amino_acid}\033[0;0m"
+
+
 def get_uniprot_seqs(server, ensembl_ids):
     """
     Retrieve UniProt sequences based on Ensemsbl identifiers.

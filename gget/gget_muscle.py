@@ -1,6 +1,7 @@
 import sys
 import time
 import logging
+from Bio import AlignIO
 # Add and format time stamp in logging messages
 logging.basicConfig(format="%(asctime)s %(message)s", datefmt="%d %b %Y %H:%M:%S")
 import os
@@ -10,6 +11,10 @@ from .compile import (
     compile_muscle,
     MUSCLE_PATH,
     PACKAGE_PATH
+)
+from .utils import (
+    aa_colors,
+    n_colors
 )
 
 # Path to precompiled muscle binary
@@ -82,3 +87,37 @@ def muscle(fasta,
     # logging.warning(
     #     f"MUSCLE alignment complete. Alignment time: {round(time.time() - start_time, 2)} seconds."
     # )
+
+
+    ## Print cleaned up muscle output
+    # Open the generated .afa file
+    aln = AlignIO.read(abs_out_path,'fasta')
+
+    # Get list of sequences from the aln file
+    seqs = [rec.seq for rec in (aln)]
+    # Get list of IDs from the aln file
+    ids = [rec.id for rec in aln]    
+
+    for id, seq in zip(ids, seqs):
+        # Extract the text from the sequence object
+        text = [i for s in list(seq) for i in s]
+
+        # Check if amino acid of nucleotide sequence was passed
+        # Set of all possible nucleotides and amino acids
+        nucleotides = set("ATGC-")
+        # amino_acids = set("ARNDCQEGHILKMFPSTWYVBZ-") 
+        
+        final_seq = []
+        # If sequence is a nucleotide sequence,
+        # assign nulceotide colors using custom func n_colors
+        if set(sequence) <= nucleotides:
+            for letter in text:
+                final_seq.append(n_colors(letter))
+        
+        # If sequence is an amino acid sequence,
+        # assign nulceotide colors using custom func aa_colors
+        else:
+            for letter in text:
+                final_seq.append(aa_colors(letter))
+
+        print(id, "".join(final_seq))

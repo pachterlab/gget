@@ -323,7 +323,8 @@ def seq(ens_ids,
             ):
                 fasta.append(
                     ">"
-                    + "uniprot_id: " + uniprot_id
+                    + query_ensembl_id 
+                    + " uniprot_id: " + uniprot_id
                     + " ensembl_id: " + query_ensembl_id 
                     + " gene_name(s): " + gene_name 
                     + " organism: " + organism
