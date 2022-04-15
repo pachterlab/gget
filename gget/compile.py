@@ -1,4 +1,5 @@
 import os
+import sys
 import platform
 import logging
 # Add and format time stamp in logging messages
@@ -12,7 +13,7 @@ from .constants import (
 # Get absolute package path
 PACKAGE_PATH = os.path.abspath(os.path.dirname(__file__))
 # Path to muscle binary (only exists after 'compile_muscle' was executed)
-MUSCLE_PATH = os.path.join(PACKAGE_PATH, "bins/compiled/muscle/src/Linux/muscle")
+MUSCLE_PATH = os.path.join(PACKAGE_PATH, f"bins/compiled/muscle/src/{platform.system()}/muscle")
 
 def compile_muscle():
     """
@@ -42,6 +43,12 @@ def compile_muscle():
     os.chdir("muscle/src/")
     
     # Run make command
+    if platform.system() == "Linux":
+        sys.stderr.write("Compiling MUSCLE requires that g++, make, sed and git are installed.\n")
+    if platform.system() == "Darwin":
+        sys.stderr.write("Compiling MUSCLE requires that gcc v11, make, sed and git are installed.\n")
+        sys.stderr.write("Please run 'brew install gcc' to install gcc v11 if the compile fails.\n")
+
     command2 = "make -s"
     os.system(command2)
     

@@ -5,7 +5,7 @@ from Bio import AlignIO
 # Add and format time stamp in logging messages
 logging.basicConfig(format="%(asctime)s %(message)s", datefmt="%d %b %Y %H:%M:%S")
 import os
-import subprocess
+import platform
 # Custom functions
 from .compile import (
     compile_muscle,
@@ -17,8 +17,8 @@ from .utils import (
     n_colors
 )
 
-# Path to precompiled muscle binary
-PRECOMPILED_MUSCLE_PATH = os.path.join(PACKAGE_PATH, "bins/linux/muscle")
+# Path to precompiled muscle binary for this system
+PRECOMPILED_MUSCLE_PATH = os.path.join(PACKAGE_PATH, f"bins/{platform.system()}/muscle")
 
 def muscle(fasta, 
            super5=False, 
