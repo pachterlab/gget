@@ -29,7 +29,7 @@ def n_colors(nucleotide):
   n_colors_dict = {
       "blue": ["C"], 
       "red": ["A"],                         
-      "green": ["C"],                  
+      "green": ["T"],                  
       "yellow": ["G"],                            
 
   }

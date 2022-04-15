@@ -98,6 +98,8 @@ def muscle(fasta,
     # Get list of IDs from the aln file
     ids = [rec.id for rec in aln]    
 
+    print("\nMUSCLE alignment:")
+
     for id, seq in zip(ids, seqs):
         # Extract the text from the sequence object
         text = [i for s in list(seq) for i in s]
