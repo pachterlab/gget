@@ -110,7 +110,7 @@ def muscle(fasta,
         final_seq = []
         # If sequence is a nucleotide sequence,
         # assign nulceotide colors using custom func n_colors
-        if set(sequence) <= nucleotides:
+        if set(text) <= nucleotides:
             for letter in text:
                 final_seq.append(n_colors(letter))
         
