@@ -175,7 +175,7 @@ def get_uniprot_seqs(server, ensembl_ids):
         df = df.assign(Query=df["query"].str.split(",")).explode("query")
         
     # If no results were found, do nothing (returns the empty data frame)
-    except pd.io.common.EmptyDataError:
+    except pd.errors.EmptyDataError:
         None
 
     return df
