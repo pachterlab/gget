@@ -96,7 +96,7 @@ def main():
         default=False, 
         action="store_true",
         required=False,
-        help="Download FTPs to the current directory using wget.")
+        help="Download FTPs to the current directory using curl.")
     parser_ref.add_argument(
         "-o", "--out",
         type=str,
@@ -539,7 +539,8 @@ def main():
                     if args.download == True:
                         # Download list of URLs
                         for link in ref_results:
-                            command = "wget " + link
+#                             command = "wget " + link
+                            command = "curl -O" + link
                             os.system(command)
                     else:
                         sys.stderr.write(
@@ -556,7 +557,8 @@ def main():
                     if args.download == True:
                         # Download list of URLs
                         for link in ref_results:
-                            command = "wget " + link
+#                             command = "wget " + link
+                            command = "curl -O" + link
                             os.system(command)
                     else:
                         sys.stderr.write(
@@ -582,7 +584,8 @@ def main():
                             for sp in ref_results:
                                 for ftp_type in ref_results[sp]:
                                     link = ref_results[sp][ftp_type]['ftp']
-                                    command = "wget " + link
+#                                     command = "wget " + link
+                                    command = "curl -O" + link
                                     os.system(command)    
                     else:
                         sys.stderr.write(
@@ -600,7 +603,8 @@ def main():
                             for sp in ref_results:
                                 for ftp_type in ref_results[sp]:
                                     link = ref_results[sp][ftp_type]['ftp']
-                                    command = "wget " + link
+#                                     command = "wget " + link
+                                    command = "curl -O" + link
                                     os.system(command)
                     else:
                         sys.stderr.write(

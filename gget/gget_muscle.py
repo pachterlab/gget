@@ -1,11 +1,13 @@
 import sys
 import time
 import logging
-from Bio import AlignIO
 # Add and format time stamp in logging messages
 logging.basicConfig(format="%(asctime)s %(message)s", datefmt="%d %b %Y %H:%M:%S")
 import os
 import platform
+import subprocess
+import itertools
+
 # Custom functions
 from .compile import (
     compile_muscle,
@@ -58,6 +60,16 @@ def muscle(fasta,
             "MUSCLE compiled. "
         )
         muscle_path = PRECOMPILED_MUSCLE_PATH
+        
+    # Assign read, write, and execute permission to muscle binary
+    with subprocess.Popen(f"chmod 755 {muscle_path}", shell=True, stderr=subprocess.PIPE) as process_1:
+        stderr_1 = process_1.stderr.read().decode("utf-8")
+        # Log the standard error if it is not empty
+        if stderr_1:
+            logging.warning(stderr_1)
+    # Exit system if the subprocess returned with an error
+    if process_1.wait() != 0:
+        return
     
     # Define muscle command
     if super5:
@@ -65,61 +77,63 @@ def muscle(fasta,
     else:
         command = f"{muscle_path} -align {abs_fasta_path} -output {abs_out_path}"
      
-    # Run align command  
-    logging.warning(
-            "MUSCLE aligning... "
-        )
+    # Record MUSCLE align start
     start_time = time.time()
-
-    # Assign read, write, and execute permission to muscle binary
-    os.system(f"chmod 755 {muscle_path}")
     
-    # Run muscle command
-    os.system(command)
+    # Run muscle command and write command output
+    with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process_2:
+        stderr_2 = process_2.stderr.read().decode("utf-8")
+        # Log the standard error if it is not empty
+        if stderr_2:
+            logging.warning("MUSCLE aligning... " + stderr_2)   
+    # Exit system if the subprocess returned with an error
+    if process_2.wait() != 0:
+        return
+    else:
+        logging.warning(
+            "MUSCLE alignment complete."
+        )
 
-    # process2 = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    # # Return standard output
-    # print(process2.stdout)
-    # # Exit system if process returned error code
-    # if process2.returncode != 0:
-    #     sys.exit()
+        ## Print cleaned up muscle output
+        # Get the titles and sequences from the generated .afa file
+        titles = []
+        seqs_master = []
+        with open(abs_out_path) as aln_file:
+            for i, line in enumerate(aln_file):
+                # Recognize title lines by the '>' character
+                if line[0] == ">":
+                    # Record first listed identifier as title and remove the '>'
+                    titles.append(line.split(" ")[0].split(">")[1])
 
-    # logging.warning(
-    #     f"MUSCLE alignment complete. Alignment time: {round(time.time() - start_time, 2)} seconds."
-    # )
-
-
-    ## Print cleaned up muscle output
-    # Open the generated .afa file
-    aln = AlignIO.read(abs_out_path,'fasta')
-
-    # Get list of sequences from the aln file
-    seqs = [rec.seq for rec in (aln)]
-    # Get list of IDs from the aln file
-    ids = [rec.id for rec in aln]    
-
-    print("\nMUSCLE alignment:")
-
-    for id, seq in zip(ids, seqs):
-        # Extract the text from the sequence object
-        text = [i for s in list(seq) for i in s]
-
-        # Check if amino acid of nucleotide sequence was passed
-        # Set of all possible nucleotides and amino acids
+                    # Append list containing seqs for the previous title to master list
+                    if i != 0:
+                        seqs_master.append(seqs)
+                    # Empty the seqs list to append the sequences for this new title
+                    seqs = []
+                else:
+                    seqs.append(line.strip())
+        # Append seqs of last title to master seq list
+        seqs_master.append(seqs)
+        
+        # Set of all possible nucleotides
         nucleotides = set("ATGC-")
-        # amino_acids = set("ARNDCQEGHILKMFPSTWYVBZ-") 
         
-        final_seq = []
-        # If sequence is a nucleotide sequence,
-        # assign nulceotide colors using custom func n_colors
-        if set(text) <= nucleotides:
-            for letter in text:
-                final_seq.append(n_colors(letter))
-        
-        # If sequence is an amino acid sequence,
-        # assign nulceotide colors using custom func aa_colors
-        else:
-            for letter in text:
-                final_seq.append(aa_colors(letter))
+        # zip_longest pads to the longest length 
+        for seq_pair in list(itertools.zip_longest(*seqs_master)):
+            print("\n")
+            for idx, seq in enumerate(seq_pair):
+                final_seq = []
+                # If sequence is a nucleotide sequence,
+                # assign nulceotide colors using the custom function n_colors
+                if set(seq) <= nucleotides:
+                    for letter in seq:
+                        final_seq.append(n_colors(letter))
 
-        print(id, "".join(final_seq))
+                # If sequence is not a nucleotide sequence, I assume it is an amino acid sequence
+                # and assign amino acid colors using the custom function aa_colors
+                else:
+                    for letter in seq:
+                        final_seq.append(aa_colors(letter))
+
+                print(titles[idx], "".join(final_seq))
+            
