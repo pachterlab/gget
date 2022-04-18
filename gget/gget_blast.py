@@ -78,7 +78,7 @@ def blast(
     ## Clean up arguments
     # If the path to a fasta file was provided instead of a nucleotide sequence,
     # read the file and extract the first sequence
-    if ".fa" in sequence:
+    if "." in sequence:
         # Read the FASTA
         titles = []
         seqs = []

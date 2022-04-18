@@ -65,9 +65,9 @@ def muscle(fasta,
             "MUSCLE compiled. "
         )
         muscle_path = PRECOMPILED_MUSCLE_PATH
-        
+    
     # Assign read, write, and execute permission to muscle binary
-    with subprocess.Popen(f"chmod 755 {muscle_path}", shell=True, stderr=subprocess.PIPE) as process_1:
+    with subprocess.Popen(f"chmod 755 '{muscle_path}'", shell=True, stderr=subprocess.PIPE) as process_1:
         stderr_1 = process_1.stderr.read().decode("utf-8")
         # Log the standard error if it is not empty
         if stderr_1:
@@ -78,9 +78,9 @@ def muscle(fasta,
     
     # Define muscle command
     if super5:
-        command = f"{muscle_path} -super5 {abs_fasta_path} -output {abs_out_path}"
+        command = f"'{muscle_path}' -super5 '{abs_fasta_path}' -output '{abs_out_path}'"
     else:
-        command = f"{muscle_path} -align {abs_fasta_path} -output {abs_out_path}"
+        command = f"'{muscle_path}' -align '{abs_fasta_path}' -output '{abs_out_path}'"
      
     # Record MUSCLE align start
     start_time = time.time()
@@ -127,6 +127,7 @@ def muscle(fasta,
         
         # zip_longest pads to the longest length 
         for seq_pair in list(itertools.zip_longest(*seqs_master)):
+            # Add some space between lines
             print("\n")
             for idx, seq in enumerate(seq_pair):
                 final_seq = []
@@ -145,5 +146,5 @@ def muscle(fasta,
                 print(titles[idx], "".join(final_seq))
         
         # Remove temporary .afa file
-        os.remove(abs_out_path)
+        os.remove(f'{abs_out_path}')
             
