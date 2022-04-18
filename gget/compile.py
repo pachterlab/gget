@@ -43,7 +43,7 @@ def compile_muscle():
         stderr_1 = process_1.stderr.read().decode("utf-8")
         # Log the standard error if it is not empty
         if stderr_1:
-            logging.warning(stderr_1)
+            sys.stderr.write(stderr_1)
     # Exit system if the subprocess returned with an error
     if process_1.wait() != 0:
         return
@@ -64,7 +64,7 @@ def compile_muscle():
         stderr_2 = process_2.stderr.read().decode("utf-8")
         # Log the standard error if it is not empty
         if stderr_2:
-            logging.warning(stderr_2)   
+            sys.stderr.write(stderr_2)   
     # Exit system if the subprocess returned with an error
     if process_2.wait() != 0:
         return

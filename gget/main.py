@@ -299,8 +299,12 @@ def main():
     parser_muscle.add_argument(
         "-o", "--out",
         type=str,
-        required=True,
-        help="Path to the 'aligned FASTA' (.afa) file the results will be saved in, e.g. path/to/directory/results.afa." 
+        required=False,
+        default=None,
+        help=(
+            "Path to save an 'aligned FASTA' (.afa) file with the results, e.g. path/to/directory/results.afa."
+            "Default: 'None' -> Standard out in Clustal format."
+        )
     )
     
     ## gget blast subparser

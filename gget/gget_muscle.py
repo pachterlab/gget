@@ -24,7 +24,7 @@ PRECOMPILED_MUSCLE_PATH = os.path.join(PACKAGE_PATH, f"bins/{platform.system()}/
 
 def muscle(fasta, 
            super5=False, 
-           out="default"
+           out=None
           ):
     """
     Align multiple nucleotide or amino acid sequences against each other (using the Muscle v5 algorithm).
@@ -34,7 +34,8 @@ def muscle(fasta,
     - super5    True/False (default: False). 
                 If True, align input using Super5 algorithm instead of PPP algorithm to decrease time and memory.
                 Use for large inputs (a few hundred sequences).
-    - out       Path to the 'aligned FASTA' (.afa) file the results will be saved in (default: "muscle_results.afa").
+    - out       Path to save an 'aligned FASTA' (.afa) file with the results, e.g. 'path/to/directory/results.afa'. 
+                Default: 'None' -> Results will be printed in Clustal format.
         
     Returns alignment results in an "aligned FASTA" (.afa) file.
     """
@@ -44,9 +45,13 @@ def muscle(fasta,
     abs_fasta_path = os.path.abspath(fasta)
     
     # Get absolute path to output .afa file
-    if out == "default":
-        abs_out_path = os.path.join(os.getcwd(), "muscle_results.afa")
+    if out == None:
+        # Create temporary .afa file
+        abs_out_path = os.path.join(os.getcwd(), "tmp.afa")
     else:
+        directory = "/".join(out.split("/")[:-1])
+        if directory != "":
+            os.makedirs(directory, exist_ok=True)
         abs_out_path = os.path.abspath(out)
     
     # Compile muscle if it is not already compiled
@@ -66,7 +71,7 @@ def muscle(fasta,
         stderr_1 = process_1.stderr.read().decode("utf-8")
         # Log the standard error if it is not empty
         if stderr_1:
-            logging.warning(stderr_1)
+            sys.stderr.write(stderr_1)
     # Exit system if the subprocess returned with an error
     if process_1.wait() != 0:
         return
@@ -79,21 +84,23 @@ def muscle(fasta,
      
     # Record MUSCLE align start
     start_time = time.time()
+    logging.warning("MUSCLE aligning... ")
     
     # Run muscle command and write command output
     with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process_2:
         stderr_2 = process_2.stderr.read().decode("utf-8")
         # Log the standard error if it is not empty
         if stderr_2:
-            logging.warning("MUSCLE aligning... " + stderr_2)   
+            sys.stderr.write(stderr_2)   
     # Exit system if the subprocess returned with an error
     if process_2.wait() != 0:
         return
     else:
         logging.warning(
-            "MUSCLE alignment complete."
+            f"MUSCLE alignment complete. Alignment time: {round(time.time() - start_time, 2)} seconds"
         )
-
+    
+    if out == None:
         ## Print cleaned up muscle output
         # Get the titles and sequences from the generated .afa file
         titles = []
@@ -136,4 +143,7 @@ def muscle(fasta,
                         final_seq.append(aa_colors(letter))
 
                 print(titles[idx], "".join(final_seq))
+        
+        # Remove temporary .afa file
+        os.remove(abs_out_path)
             
