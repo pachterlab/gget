@@ -440,12 +440,12 @@ def ref(species,
             with open('ref_results.json', 'w', encoding='utf-8') as f:
                 json.dump(ref_dict, f, ensure_ascii=False, indent=4)
 
-        logging.warning(f"Fetching reference FTPs of {species} from Ensembl release: {ENS_rel}\n")
+        logging.warning(f"Fetching reference information for {species} from Ensembl release: {ENS_rel}.")
         return ref_dict
         
     # If FTP==True, return only the specified URLs as a list 
     if ftp == True:
-        logging.warning(f"Fetching reference FTPs of {species} from Ensembl release: {ENS_rel}\n")
+        logging.warning(f"Fetching reference information for {species} from Ensembl release: {ENS_rel}.")
         results = []
         for return_val in which:
             if return_val == "all":
