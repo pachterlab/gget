@@ -70,13 +70,17 @@ def main():
         type=str,
         nargs='+',
         required=False,
-        help=("Defines which results to return.\n" 
-              "Possible entries are:\n"
-              "'all' - Returns GTF, cDNA, and DNA links and associated info (default).\n" 
-              "Or one or a combination of the following:\n"  
-              "'gtf' - Returns the GTF FTP link and associated info.\n" 
-              "'cdna' - Returns the cDNA FTP link and associated info.\n"
-              "'dna' - Returns the DNA FTP link and associated info."
+        help=("""
+        Defines which results to return. 
+        Default: 'all' -> Returns all available results.
+        Possible entries are one or a combination (as a list of strings) of the following: 
+        'gtf' - Returns the annotation (GTF).
+        'cdna' - Returns the trancriptome (cDNA).
+        'dna' - Returns the genome (DNA).
+        'cds - Returns the coding sequences corresponding to Ensembl genes. (Does not contain UTR or intronic sequence.)
+        'cdrna' - Returns transcript sequences corresponding to non-coding RNA genes (ncRNA).
+        'pep' - Returns the protein translations of Ensembl genes.
+        """
              )
         )
     parser_ref.add_argument(

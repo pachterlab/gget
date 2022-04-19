@@ -19,17 +19,17 @@ def ref(species,
     Fetch FTPs for reference genomes and annotations by species.
     
     Args:
-    - species   Defines the species for which the files should be fetched in the format "<genus>_<species>", 
-                e.g.species = "homo_sapiens".
-    - which     Defines which results to return. Possible entries are:
-                "all" - Returns all links (default).
-                Or one or a combination (as a list of strings) of the following:  
-                "gtf" - Returns the GTF FTP link and associated information.
-                "cdna" - Returns the cDNA FTP link and associated information.
-                "dna" - Returns the DNA FTP link and associated information.
-                "cds" - Returns the coding sequences corresponding to Ensembl genes. (Does not contain UTR or intronic sequence.)
-                "cdrna" - Returns transcript sequences corresponding to non-coding RNA genes (ncRNA).
-                "pep" - Returns the protein translations of Ensembl genes.
+    - species   Defines the species for which the reference should be fetched in the format "<genus>_<species>", 
+                e.g. species = "homo_sapiens".
+    - which     Defines which results to return. 
+                Default: 'all' -> Returns all available results.
+                Possible entries are one or a combination (as a list of strings) of the following: 
+                'gtf' - Returns the annotation (GTF).
+                'cdna' - Returns the trancriptome (cDNA).
+                'dna' - Returns the genome (DNA).
+                'cds - Returns the coding sequences corresponding to Ensembl genes. (Does not contain UTR or intronic sequence.)
+                'cdrna' - Returns transcript sequences corresponding to non-coding RNA genes (ncRNA).
+                'pep' - Returns the protein translations of Ensembl genes.
     - release   Defines the Ensembl release number from which the files are fetched, e.g. release = 104.
                 (Ensembl releases earlier than release 48 are not suupported.)
                 By default, the latest Ensembl release is used.
@@ -440,11 +440,12 @@ def ref(species,
             with open('ref_results.json', 'w', encoding='utf-8') as f:
                 json.dump(ref_dict, f, ensure_ascii=False, indent=4)
 
-        logging.warning(f"Fetching from Ensembl release: {ENS_rel}\n")
+        logging.warning(f"Fetching reference FTPs of {species} from Ensembl release: {ENS_rel}\n")
         return ref_dict
         
     # If FTP==True, return only the specified URLs as a list 
     if ftp == True:
+        logging.warning(f"Fetching reference FTPs of {species} from Ensembl release: {ENS_rel}\n")
         results = []
         for return_val in which:
             if return_val == "all":
