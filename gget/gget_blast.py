@@ -7,9 +7,8 @@ import logging
 logging.basicConfig(format="%(asctime)s %(message)s", datefmt="%d %b %Y %H:%M:%S")
 # Using urllib instead of requests here because requests does not 
 # allow long queries (queries very long here due to input sequence)
-from urllib.request import urlopen
+from urllib.request import urlopen, Request
 from urllib.parse import urlencode
-from urllib.request import Request
 # Custom functions
 from .utils import parse_blast_ref_page
 # Constants
@@ -30,6 +29,7 @@ def blast(
     low_comp_filt=False,
     megablast=True,
     verbose=True,
+    save=False
 ):
     """
     BLAST a nucleotide or amino acid sequence against any BLAST DB.
@@ -48,12 +48,15 @@ def blast(
      - low_comp_filt  True/False whether to apply low complexity filter. Default False.
      - megablast      True/False whether to use the MegaBLAST algorithm (blastn only). Default True.
      - verbose        True/False whether to print progress information. Default True.
+     - save           If True, the data frame is saved as a csv in the current directory (default: False).
 
+    Returns a data frame with the BLAST results.
+    
     NCBI server rule: 
     Run scripts weekends or between 9 pm and 5 am Eastern time
     on weekdays if more than 50 searches will be submitted.
 
-    This function does not check the validity of the arguments
+    Note: This function does not check the validity of the arguments
     and passes the values to the server as is. 
     """
     # Server rules:
@@ -348,6 +351,10 @@ def blast(
             # Drop the first column
             results_df = results_df.iloc[: , 1:]
             
+            # Save
+            if save == True:
+                results_df.to_csv("gget_blast_results.csv", index=False)
+        
             return results_df
 
         else:

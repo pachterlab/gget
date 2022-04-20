@@ -10,6 +10,7 @@ from .gget_info import info
 from .gget_seq import seq
 from .gget_muscle import muscle
 from .gget_blast import blast
+from .gget_blat import blat
 
 from .utils import (
     ref_species_options,
@@ -322,7 +323,7 @@ def main():
         )
     # blast parser arguments
     parser_blast.add_argument(
-        "-s", "--sequence", 
+        "-seq", "--sequence", 
         type=str,
         required=True, 
         help="Sequence (str) or path to fasta file containing one sequence."
@@ -412,6 +413,50 @@ def main():
         )
     )
     
+    ## gget blat subparser
+    blat_desc = "BLAT a nucleotide or amino acid sequence against any BLAT UCSC assembly."
+    parser_blat = parent_subparsers.add_parser(
+        "blat",
+        parents=[parent],
+        description=blat_desc, 
+        help=blat_desc,
+        add_help=True
+        )
+    # blat parser arguments
+    parser_blat.add_argument(
+        "-seq", "--sequence", 
+        type=str,
+        required=True, 
+        help="Sequence (str) or path to fasta file containing one sequence."
+    )
+    parser_blat.add_argument(
+        "-st", "--seqtype", 
+        choices=["DNA", "protein", "translated%20RNA", "translated%20DNA"],
+        default="default",
+        type=str,
+        required=False, 
+        help=("'DNA', 'protein', 'translated%%20RNA', or 'translated%%20DNA'. "
+              "Default: 'DNA' for nucleotide sequences; 'protein' for amino acid sequences.")
+    )
+    parser_blat.add_argument(
+        "-a", "--assembly", 
+        default="human",
+        type=str,
+        required=False, 
+        help=("'human', 'mouse', 'zebrafinch', "
+              "or one of the assemblies from https://genome.ucsc.edu/cgi-bin/hgBlat. "
+              "Default: 'human' (assembly hg38).")
+    )
+    parser_blat.add_argument(
+        "-o", "--out",
+        type=str,
+        required=False,
+        help=(
+            "Path to the csv file the results will be saved in, e.g. path/to/directory/results.csv." 
+            "Default: Standard out."
+        )
+    )
+    
     ## Show help when no arguments are given
     if len(sys.argv) == 1:
         parent_parser.print_help(sys.stderr)
@@ -436,6 +481,28 @@ def main():
     if args.version:        
         print(f"gget version: {__version__}")
 
+    ## blat return
+    if args.command == "blat":
+        # Run gget blast function
+        blat_results = blat(
+            sequence = args.sequence,
+            seqtype = args.seqtype,
+            assembly = args.assembly
+            )
+        
+        # Save blat results if args.out specified
+        if args.out:
+            directory = "/".join(args.out.split("/")[:-1])
+            if directory != "":
+                os.makedirs(directory, exist_ok=True)
+            blat_results.to_csv(args.out, index=False)
+#             sys.stderr.write(f"\nResults saved as {args.out}.\n")
+
+        # Print results if no directory specified
+        else:
+            blat_results.to_csv(sys.stdout, index=False)
+            
+    ## blast return
     if args.command == "blast":
         # Run gget blast function
         blast_results = blast(
@@ -719,4 +786,3 @@ def main():
             if seq_results != None:
                 for seq_res in seq_results:
                     print(seq_res)
-#                   sys.stderr.write("\nTo save these results, use flag '-o' in the format: '-o path/to/directory/results.fa'.\n")

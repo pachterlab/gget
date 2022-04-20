@@ -231,7 +231,7 @@ def search(searchwords,
     
     # Save
     if save == True:
-        df.to_csv("gget_results.csv", index=False)
+        df.to_csv("gget_search_results.csv", index=False)
     
     # Return data frame
     return df
