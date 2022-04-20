@@ -1,5 +1,12 @@
 import argparse
 import sys
+import logging
+# Add and format time stamp in logging messages
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(message)s", 
+    level=logging.INFO,
+    datefmt="%d %b %Y %H:%M:%S",
+)
 import os
 import json
 # Custom functions
@@ -496,7 +503,6 @@ def main():
             if directory != "":
                 os.makedirs(directory, exist_ok=True)
             blat_results.to_csv(args.out, index=False)
-#             sys.stderr.write(f"\nResults saved as {args.out}.\n")
 
         # Print results if no directory specified
         else:
@@ -524,7 +530,6 @@ def main():
             if directory != "":
                 os.makedirs(directory, exist_ok=True)
             blast_results.to_csv(args.out, index=False)
-#             sys.stderr.write(f"\nResults saved as {args.out}.\n")
         
         # Print results if no directory specified
         else:
@@ -551,7 +556,7 @@ def main():
                 species_list = list(set(species_list_gtf) & set(species_list_dna))
                 
                 # Print available species list
-                # sys.stderr.write(f"Available genomes in Ensembl release {find_latest_ens_rel()} (latest):")
+                logging.info(f"Fetching available genomes in Ensembl release {find_latest_ens_rel()} (latest).")
                 for species in species_list:
                     print(species)
                 
@@ -567,7 +572,7 @@ def main():
                 species_list = list(set(species_list_gtf) & set(species_list_dna))
                 
                 # Print available species list
-                # sys.stderr.write(f"Available genomes in Ensembl release {args.release}:")
+                logging.info(f"Fetching available genomes in Ensembl release {args.release}.")
                 for species in species_list:
                     print(species)
         
@@ -607,9 +612,6 @@ def main():
                     for element in ref_results:
                         file.write(element + "\n")
                     file.close()
-#                     sys.stderr.write(
-#                         f"\nResults saved as {args.out}.\n"
-#                     )
                     
                     if args.download == True:
                         # Download list of URLs
@@ -617,17 +619,16 @@ def main():
 #                             command = "wget " + link
                             command = "curl -O" + link
                             os.system(command)
-                    else:
-                        sys.stderr.write(
-                            "To download the FTPs to the current directory, add flag [-d].\n"
-                        )
+#                     else:
+#                         logging.info(
+#                             "To download the FTPs to the current directory, add flag [-d]."
+#                         )
                 
                 # Print results if no directory specified
                 else:
                     # Print results
                     for ref_res in ref_results:
                         print(ref_res)
-#                     sys.stderr.write("\nTo save these results, use flag '-o' in the format: '-o path/to/directory/results.txt'.\n")
                     
                     if args.download == True:
                         # Download list of URLs
@@ -635,10 +636,10 @@ def main():
 #                             command = "wget " + link
                             command = "curl -O" + link
                             os.system(command)
-                    else:
-                        sys.stderr.write(
-                            "To download the FTPs to the current directory, add flag [-d].\n"
-                        )
+#                     else:
+#                         logging.info(
+#                             "To download the FTPs to the current directory, add flag [-d]."
+#                         )
                     
             # Print or save json file (ftp=False)
             else:
@@ -649,9 +650,6 @@ def main():
                         os.makedirs(directory, exist_ok=True)
                     with open(args.out, 'w', encoding='utf-8') as f:
                         json.dump(ref_results, f, ensure_ascii=False, indent=4)
-#                     sys.stderr.write(
-#                         f"\nResults saved as {args.out}.\n"
-#                     )
                     
                     if args.download == True:
                         # Download the URLs from the dictionary
@@ -662,15 +660,14 @@ def main():
 #                                     command = "wget " + link
                                     command = "curl -O" + link
                                     os.system(command)    
-                    else:
-                        sys.stderr.write(
-                            "To download the FTPs to the current directory, add flag [-d].\n"
-                        )
+#                     else:
+#                         logging.info(
+#                             "To download the FTPs to the current directory, add flag [-d]."
+#                         )
                     
                 # Print results if no directory specified
                 else:
                     print(json.dumps(ref_results, ensure_ascii=False, indent=4))
-#                     sys.stderr.write("\nTo save these results, use flag '-o' in the format: '-o path/to/directory/results.json'.\n")
                     
                     if args.download == True:
                         # Download the URLs from the dictionary
@@ -681,10 +678,10 @@ def main():
 #                                     command = "wget " + link
                                     command = "curl -O" + link
                                     os.system(command)
-                    else:
-                        sys.stderr.write(
-                            "To download the FTPs to the current directory, add flag [-d].\n"
-                        )
+#                     else:
+#                         logging.info(
+#                             "To download the FTPs to the current directory, add flag [-d]."
+#                         )
         
     ## search return
     if args.command == "search":
@@ -713,12 +710,10 @@ def main():
             if directory != "":
                 os.makedirs(directory, exist_ok=True)
             gget_results.to_csv(args.out, index=False)
-#             sys.stderr.write(f"\nResults saved as {args.out}.\n")
         
         # Print results if no directory specified
         else:
             gget_results.to_csv(sys.stdout, index=False)
-#             sys.stderr.write("\nTo save these results, use flag '-o' in the format: '-o path/to/directory/results.csv'.\n")
             
     ## info return
     if args.command == "info":
@@ -745,11 +740,9 @@ def main():
                 os.makedirs(directory, exist_ok=True)
             with open(args.out, 'w', encoding='utf-8') as f:
                 json.dump(info_results, f, ensure_ascii=False, indent=4)
-#             sys.stderr.write(f"\nResults saved as {args.out}.\n")
         # Print results if no directory specified
         else:
             print(json.dumps(info_results, ensure_ascii=False, indent=4))
-#             sys.stderr.write("\nTo save these results, use flag '-o' in the format: '-o path/to/directory/results.json'.\n")
             
     ## seq return
     if args.command == "seq":
@@ -777,9 +770,6 @@ def main():
             for element in seq_results:
                 file.write(element + "\n")
             file.close()
-#             sys.stderr.write(
-#                 f"\nResults saved as {args.out}.\n"
-#             )
             
         # Print results if no directory specified
         else:

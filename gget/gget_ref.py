@@ -5,7 +5,11 @@ import numpy as np
 import json
 import logging
 # Add and format time stamp in logging messages
-logging.basicConfig(format="%(asctime)s %(message)s", datefmt="%d %b %Y %H:%M:%S")
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(message)s", 
+    level=logging.INFO,
+    datefmt="%d %b %Y %H:%M:%S",
+)
 # Custom functions
 from .utils import ref_species_options
 
@@ -440,12 +444,12 @@ def ref(species,
             with open('ref_results.json', 'w', encoding='utf-8') as f:
                 json.dump(ref_dict, f, ensure_ascii=False, indent=4)
 
-        logging.warning(f"Fetching reference information for {species} from Ensembl release: {ENS_rel}.")
+        logging.info(f"Fetching reference information for {species} from Ensembl release: {ENS_rel}.")
         return ref_dict
         
     # If FTP==True, return only the specified URLs as a list 
     if ftp == True:
-        logging.warning(f"Fetching reference information for {species} from Ensembl release: {ENS_rel}.")
+        logging.info(f"Fetching reference information for {species} from Ensembl release: {ENS_rel}.")
         results = []
         for return_val in which:
             if return_val == "all":

@@ -1,10 +1,13 @@
 import pandas as pd
 import time
 from bs4 import BeautifulSoup
-import sys
 import logging
 # Add and format time stamp in logging messages
-logging.basicConfig(format="%(asctime)s %(message)s", datefmt="%d %b %Y %H:%M:%S")
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(message)s", 
+    level=logging.INFO,
+    datefmt="%d %b %Y %H:%M:%S",
+)
 # Using urllib instead of requests here because requests does not 
 # allow long queries (queries very long here due to input sequence)
 from urllib.request import urlopen, Request
@@ -126,8 +129,8 @@ def blast(
         # Set the first sequence from the fasta file as 'sequence'
         sequence = seqs[0]
         if len(seqs) > 1:
-            sys.stderr.write(
-                "File contains more than one sequence. Only the first sequence will be submitted to BLAST.\n"
+            logging.warning(
+                "File contains more than one sequence. Only the first sequence will be submitted to BLAST."
             )
     
     ## Set program and database
@@ -154,8 +157,8 @@ def blast(
             if database == "default":
                 database = "nt"
                 if verbose == True:
-                    logging.warning("Sequence recognized as nucleotide sequence. "
-                                    "BLAST will use program 'blastn' with database 'nt'.")
+                    logging.info("Sequence recognized as nucleotide sequence.")
+                    logging.info("BLAST will use program 'blastn' with database 'nt'.")
             else:
                 # Check if the user specified database is valid
                 if database not in dbs:
@@ -165,8 +168,8 @@ def blast(
 
                 else:
                     if verbose == True:
-                        logging.warning("Sequence recognized as nucleotide sequence. "
-                                        "BLAST will use program 'blastn' with user-specified database.")
+                        logging.info("Sequence recognized as nucleotide sequence.")
+                        logging.info("BLAST will use program 'blastn' with user-specified database.")
         # If sequence is an amino acid sequence, set program to blastp        
         elif set(sequence) <= amino_acids:
             program = "blastp"
@@ -175,8 +178,8 @@ def blast(
             if database == "default":
                 database = "nr"
                 if verbose == True:
-                    logging.warning("Sequence recognized as amino acid sequence. "
-                                    "BLAST will use program 'blastp' with database 'nr'.")
+                    logging.info("Sequence recognized as amino acid sequence.")
+                    logging.info("BLAST will use program 'blastp' with database 'nr'.")
             else:
                 # Check if the user specified database is valid
                 if database not in dbs:
@@ -186,8 +189,8 @@ def blast(
 
                 else:
                     if verbose == True:
-                        logging.warning("Sequence recognized as amino acid sequence. "
-                                        "BLAST will use program 'blastp' with user-specified database.")
+                        logging.info("Sequence recognized as amino acid sequence.")
+                        logging.info("BLAST will use program 'blastp' with user-specified database.")
         else:
             raise ValueError(f"""
                 Sequence not automatically recognized as a nucleotide or amino acid sequence.
@@ -270,12 +273,12 @@ def blast(
     if RTOE < 11:
         # Communicate RTOE
         if verbose == True:
-            logging.warning(f"BLAST initiated. Estimated time to completion: 11 seconds.")
+            logging.info(f"BLAST initiated. Estimated time to completion: 11 seconds.")
         time.sleep(11)
     else:
         # Communicate RTOE
         if verbose == True:
-            logging.warning(f"BLAST initiated with search ID {RID}. Estimated time to completion: {RTOE} seconds.")  
+            logging.info(f"BLAST initiated with search ID {RID}. Estimated time to completion: {RTOE} seconds.")  
         time.sleep(int(RTOE))
 
     ## Poll server for status and fetch search results
@@ -313,27 +316,27 @@ def blast(
 
         if status == "WAITING":
             if verbose == True:
-                logging.warning("BLASTING...")
+                logging.info("BLASTING...")
             i += 1
             continue
 
         if status == "FAILED":
-            sys.stderr.write(f"Search {RID} failed; please try again and/or report to blast-help@ncbi.nlm.nih.gov.\n")
-            sys.exit()
+            logging.error(f"Search {RID} failed; please try again and/or report to blast-help@ncbi.nlm.nih.gov.")
+            return
 
         if status == "UNKNOWN":
-            sys.stderr.write(f"NCBI status {status}. Search {RID} expired.\n")
-            sys.exit()
+            logging.error(f"NCBI status {status}. Search {RID} expired.")
+            return
 
         if status == "READY":
             if verbose == True:
-                logging.warning("Retrieving results...")
+                logging.info("Retrieving results...")
             # Stop search
             searching = False
 
             ## Return results
 #             if verbose == True:
-#                 logging.warning("BLAST complete.")
+#                 logging.info("BLAST complete.")
                 
             # Parse HTML results
             soup = BeautifulSoup(results, "html.parser")
@@ -341,11 +344,10 @@ def blast(
             dsc_table = soup.find(lambda tag: tag.name=='table' and tag.has_attr('id') and tag['id']=="dscTable") 
 
             if dsc_table == None:
-                sys.stderr.write(
-                    f"No significant similarity found for search {RID}.\n"
-                    "If your sequence is very short, try increasing the 'expect' argument.\n"
+                logging.error(
+                    f"No significant similarity found for search {RID}. If your sequence is very short, try increasing the 'expect' argument."
                     )
-                sys.exit()
+                return
 
             results_df = pd.read_html(str(dsc_table))[0]
             # Drop the first column
@@ -358,5 +360,5 @@ def blast(
             return results_df
 
         else:
-            sys.stderr.write(f"Something unexpected happened. Search {RID} possibly failed; please try again and/or report to blast-help@ncbi.nlm.nih.gov\n")
-            sys.exit()
+            logging.error(f"Something unexpected happened. Search {RID} possibly failed; please try again and/or report to blast-help@ncbi.nlm.nih.gov")
+            return

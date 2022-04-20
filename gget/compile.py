@@ -4,7 +4,11 @@ import sys
 import platform
 import logging
 # Add and format time stamp in logging messages
-logging.basicConfig(format="%(asctime)s %(message)s", datefmt="%d %b %Y %H:%M:%S")
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(message)s", 
+    level=logging.INFO,
+    datefmt="%d %b %Y %H:%M:%S",
+)
 
 # Constants
 from .constants import (
@@ -22,7 +26,7 @@ def compile_muscle():
     Currently does not support Windows platforms.
     """
     
-    logging.warning(
+    logging.info(
         "Compiling MUSCLE binary from source... "
     )
     
@@ -53,10 +57,10 @@ def compile_muscle():
     
     # Run make command
     if platform.system() == "Linux":
-        sys.stderr.write("Note: Compiling MUSCLE requires that g++, make, sed and git are installed.\n")
+        logging.warning("Compiling MUSCLE requires that g++, make, sed and git are installed.")
     if platform.system() == "Darwin":
-        sys.stderr.write("Note: Compiling MUSCLE requires that gcc v11, make, sed and git are installed.\n")
-        sys.stderr.write("Please run 'brew install gcc' to install gcc v11 if the compile fails.\n")
+        logging.warning("Compiling MUSCLE requires that gcc v11, make, sed and git are installed.")
+        logging.warning("Please run 'brew install gcc' to install gcc v11 if the compile fails.")
 
     command2 = "make -s"
 
@@ -69,7 +73,7 @@ def compile_muscle():
     if process_2.wait() != 0:
         return
     
-    logging.warning(
+    logging.info(
         "MUSCLE compiled."
     )
     

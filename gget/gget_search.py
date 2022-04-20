@@ -1,10 +1,14 @@
-
 import pandas as pd
 import mysql.connector as sql
 import time
 import logging
 # Add and format time stamp in logging messages
-logging.basicConfig(format="%(asctime)s %(message)s", datefmt="%d %b %Y %H:%M:%S")
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(message)s", 
+    level=logging.INFO,
+    datefmt="%d %b %Y %H:%M:%S",
+)
+
 # Custom functions
 from .utils import (
     gget_species_options,
@@ -110,7 +114,7 @@ def search(searchwords,
     else:
         db = db[0]
         
-    logging.warning(f"Fetching results from database: {db}")
+    logging.info(f"Fetching results from database: {db}")
 
     ## Connect to data base
     db_connection = sql.connect(host="ensembldb.ensembl.org", 
@@ -226,8 +230,8 @@ def search(searchwords,
     df["url"] = "https://uswest.ensembl.org/" + "_".join(db.split("_")[:2]) + "/Gene/Summary?g=" + df["ensembl_id"]
     
     # Print query time and number of genes/transcripts fetched
-    logging.warning(f"Query time: {round(time.time() - start_time, 2)} seconds")
-    logging.warning(f"Matches found: {len(df)}")
+    logging.info(f"Query time: {round(time.time() - start_time, 2)} seconds")
+    logging.info(f"Matches found: {len(df)}")
     
     # Save
     if save == True:

@@ -1,5 +1,11 @@
 from urllib.request import urlopen
-import sys
+import logging
+# Add and format time stamp in logging messages
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(message)s", 
+    level=logging.INFO,
+    datefmt="%d %b %Y %H:%M:%S",
+)
 from bs4 import BeautifulSoup
 import json
 from json.decoder import JSONDecodeError
@@ -74,13 +80,13 @@ def blat(
         # Set the first sequence from the fasta file as 'sequence'
         sequence = seqs[0]
         if len(seqs) > 1:
-            sys.stderr.write(
-                "File contains more than one sequence. Only the first sequence will be submitted to BLAT.\n"
+            logging.info(
+                "File contains more than one sequence. Only the first sequence will be submitted to BLAT."
             )
             
     # Shorten sequence to length limit if necessary
     if len(sequence) > 8000:
-        sys.stderr.write("Length of sequence is > 8000. Only the fist 8000 characters will be submitted to BLAT.\n")
+        logging.info("Length of sequence is > 8000. Only the fist 8000 characters will be submitted to BLAT.")
         sequence = sequence[:8000]
             
     ## Set seqtype
@@ -97,10 +103,12 @@ def blat(
         # If sequence is a nucleotide sequence, set seqtype to DNA
         if set(sequence) <= nucleotides:
             seqtype = "DNA"
+            logging.info(f"Sequence recognized as nucleotide sequence. 'seqtype' will be set as {seqtype}.")
             
         # If sequence is an amino acid sequence, set seqtype to protein        
         elif set(sequence) <= amino_acids:
             seqtype = "protein"
+            logging.info(f"Sequence recognized as amino acid sequence. 'seqtype' will be set as {seqtype}.")
 
         else:
             raise ValueError(f"""
@@ -147,12 +155,13 @@ def blat(
                     )
     
     if len(results["blat"]) == 0:
-        sys.exit(f"No {seqtype} BLAT matches were found for this sequence in genome {results['genome']}.\n")
+        logging.error(f"No {seqtype} BLAT matches were found for this sequence in genome {results['genome']}.")
+        return
 
     # Let user know if assembly was not found
     # If this is the case, BLAT automatically defaults to human (hg38)
     if results["genome"] != database:
-        sys.stderr.write(f"Assembly {database} not recognized. Defaulted to {results['genome']} instead.\n")
+        logging.warning(f"Assembly {database} not recognized. Defaulted to {results['genome']} instead.")
         
     ## Build data frame to resemble BLAT web search results
     # Define dataframe from dictionary

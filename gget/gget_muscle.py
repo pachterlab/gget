@@ -2,7 +2,11 @@ import sys
 import time
 import logging
 # Add and format time stamp in logging messages
-logging.basicConfig(format="%(asctime)s %(message)s", datefmt="%d %b %Y %H:%M:%S")
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(message)s", 
+    level=logging.INFO,
+    datefmt="%d %b %Y %H:%M:%S",
+)
 import os
 import platform
 import subprocess
@@ -61,7 +65,7 @@ def muscle(fasta,
         muscle_path = MUSCLE_PATH
         
     else:
-        logging.warning(
+        logging.info(
             "MUSCLE compiled. "
         )
         muscle_path = PRECOMPILED_MUSCLE_PATH
@@ -84,7 +88,7 @@ def muscle(fasta,
      
     # Record MUSCLE align start
     start_time = time.time()
-    logging.warning("MUSCLE aligning... ")
+    logging.info("MUSCLE aligning... ")
     
     # Run muscle command and write command output
     with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process_2:
@@ -96,7 +100,7 @@ def muscle(fasta,
     if process_2.wait() != 0:
         return
     else:
-        logging.warning(
+        logging.info(
             f"MUSCLE alignment complete. Alignment time: {round(time.time() - start_time, 2)} seconds"
         )
     

@@ -1,6 +1,12 @@
 import numpy as np
 import json
-import sys
+import logging
+# Add and format time stamp in logging messages
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(message)s", 
+    level=logging.INFO,
+    datefmt="%d %b %Y %H:%M:%S",
+)
 # Custom functions
 from .utils import rest_query
 # Constants
@@ -70,9 +76,9 @@ def info(
             # Raise error if this also did not work
             except RuntimeError:
                 if verbose == True:
-                    sys.stderr.write(
+                    logging.error(
                         f"Ensembl ID {ensembl_ID} not found. "
-                        "Please double-check spelling/arguments and try again.\n"
+                        "Please double-check spelling/arguments and try again."
                     )
                 return
             
@@ -141,7 +147,7 @@ def info(
                 results_dict[ensembl_ID].update({"homology":df_temp["data"][0]["homologies"]})
             except:
                 if verbose == True:
-                    sys.stderr.write(f"No homology information found for {ensembl_ID}.\n")
+                    logging.warning(f"No homology information found for {ensembl_ID}.")
 
         ## xrefs/id/ query: Retrieves external reference information by Ensembl gene id
         if xref == True:
@@ -155,7 +161,7 @@ def info(
                 results_dict[ensembl_ID].update({"xrefs":df_temp})
             except:
                 if verbose == True:
-                    sys.stderr.write(f"No external reference information found for {ensembl_ID}.\n")
+                    logging.warning(f"No external reference information found for {ensembl_ID}.")
     
         # Add results to master dict
         master_dict.update(results_dict)
