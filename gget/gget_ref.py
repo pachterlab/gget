@@ -76,7 +76,7 @@ def ref(species,
     if release != None:
         # Do not allow user-defined release if it is higher than the latest release
         if release > ENS_rel:
-            raise ValueError("Defined Ensembl release number cannot be greater than latest release.")
+            raise ValueError("Defined Ensembl release number cannot be greater than latest release.\n")
         else:
             ENS_rel = release
 
@@ -104,7 +104,7 @@ def ref(species,
     
     # Raise error if status code not "OK" Response
     if html.status_code != 200:
-        raise RuntimeError(f"HTTP response status code {html.status_code}. Please try again.")
+        raise RuntimeError(f"HTTP response status code {html.status_code}. Please try again.\n")
     
     soup = BeautifulSoup(html.text, "html.parser")
     
@@ -137,7 +137,7 @@ def ref(species,
     
     # Raise error if status code not "OK" Response
     if html.status_code != 200:
-        raise RuntimeError(f"HTTP response status code {html.status_code}. Please try again.")
+        raise RuntimeError(f"HTTP response status code {html.status_code}. Please try again.\n")
     
     soup = BeautifulSoup(html.text, "html.parser")
     
@@ -170,7 +170,7 @@ def ref(species,
     
     # Raise error if status code not "OK" Response
     if html.status_code != 200:
-        raise RuntimeError(f"HTTP response status code {html.status_code}. Please try again.")
+        raise RuntimeError(f"HTTP response status code {html.status_code}. Please try again.\n")
     
     soup = BeautifulSoup(html.text, "html.parser")
     
@@ -218,7 +218,7 @@ def ref(species,
     
     # Raise error if status code not "OK" Response
     if html.status_code != 200:
-        raise RuntimeError(f"HTTP response status code {html.status_code}. Please try again.")
+        raise RuntimeError(f"HTTP response status code {html.status_code}. Please try again.\n")
     
     soup = BeautifulSoup(html.text, "html.parser")
     
@@ -251,7 +251,7 @@ def ref(species,
     
     # Raise error if status code not "OK" Response
     if html.status_code != 200:
-        raise RuntimeError(f"HTTP response status code {html.status_code}. Please try again.")
+        raise RuntimeError(f"HTTP response status code {html.status_code}. Please try again.\n")
     
     soup = BeautifulSoup(html.text, "html.parser")
     
@@ -284,7 +284,7 @@ def ref(species,
     
     # Raise error if status code not "OK" Response
     if html.status_code != 200:
-        raise RuntimeError(f"HTTP response status code {html.status_code}. Please try again.")
+        raise RuntimeError(f"HTTP response status code {html.status_code}. Please try again.\n")
     
     soup = BeautifulSoup(html.text, "html.parser")
     
@@ -318,7 +318,7 @@ def ref(species,
 
     # Raise error if several values are passed and 'all' is included
     if len(which) > 1 and "all" in which:
-        raise ValueError("Parameter 'which' must be 'all', or any one or a combination of the following: 'gtf', 'cdna', 'dna', 'cds', 'ncrna' 'pep'.")
+        raise ValueError("Parameter 'which' must be 'all', or any one or a combination of the following: 'gtf', 'cdna', 'dna', 'cds', 'ncrna' 'pep'.\n")
 
     # If FTP=False, return dictionary/json of specified results
     if ftp == False:
@@ -438,7 +438,7 @@ def ref(species,
                 }
                 ref_dict[species].update(dict_temp)
             else:
-                raise ValueError("Parameter 'which' must be 'all', or any one or a combination of the following: 'gtf', 'cdna', 'dna'.")
+                raise ValueError("Parameter 'which' must be 'all', or any one or a combination of the following: 'gtf', 'cdna', 'dna'.\n")
 
         if save == True:
             with open('ref_results.json', 'w', encoding='utf-8') as f:
