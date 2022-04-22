@@ -497,16 +497,18 @@ def main():
             assembly = args.assembly
             )
         
-        # Save blat results if args.out specified
-        if args.out:
-            directory = "/".join(args.out.split("/")[:-1])
-            if directory != "":
-                os.makedirs(directory, exist_ok=True)
-            blat_results.to_csv(args.out, index=False)
+        # Check if the function returned something
+        if not isinstance(blat_results, type(None)):
+            # Save blat results if args.out specified
+            if args.out:
+                directory = "/".join(args.out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+                blat_results.to_csv(args.out, index=False)
 
-        # Print results if no directory specified
-        else:
-            blat_results.to_csv(sys.stdout, index=False)
+            # Print results if no directory specified
+            else:
+                blat_results.to_csv(sys.stdout, index=False)
             
     ## blast return
     if args.command == "blast":
@@ -524,16 +526,19 @@ def main():
             megablast = args.megablast_off,
             verbose = args.quiet,
             )
-        # Save blast results if args.out specified
-        if args.out:
-            directory = "/".join(args.out.split("/")[:-1])
-            if directory != "":
-                os.makedirs(directory, exist_ok=True)
-            blast_results.to_csv(args.out, index=False)
         
-        # Print results if no directory specified
-        else:
-            blast_results.to_csv(sys.stdout, index=False)
+        # Check if the function returned something
+        if not isinstance(blast_results, type(None)):
+            # Save blast results if args.out specified
+            if args.out:
+                directory = "/".join(args.out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+                blast_results.to_csv(args.out, index=False)
+
+            # Print results if no directory specified
+            else:
+                blast_results.to_csv(sys.stdout, index=False)
         
     ## muscle return
     if args.command == "muscle":
@@ -732,17 +737,19 @@ def main():
         # Look up requested Ensembl IDs
         info_results = info(ids_clean_final, expand=args.expand, homology=args.homology, xref=args.xref, verbose=args.quiet)
 
-        # Print or save json file
-        # Save in specified directory if -o specified
-        if args.out:
-            directory = "/".join(args.out.split("/")[:-1])
-            if directory != "":
-                os.makedirs(directory, exist_ok=True)
-            with open(args.out, 'w', encoding='utf-8') as f:
-                json.dump(info_results, f, ensure_ascii=False, indent=4)
-        # Print results if no directory specified
-        else:
-            print(json.dumps(info_results, ensure_ascii=False, indent=4))
+        # Check if the function returned something
+        if not isinstance(info_results, type(None)):
+            # Print or save json file
+            # Save in specified directory if -o specified
+            if args.out:
+                directory = "/".join(args.out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+                with open(args.out, 'w', encoding='utf-8') as f:
+                    json.dump(info_results, f, ensure_ascii=False, indent=4)
+            # Print results if no directory specified
+            else:
+                print(json.dumps(info_results, ensure_ascii=False, indent=4))
             
     ## seq return
     if args.command == "seq":

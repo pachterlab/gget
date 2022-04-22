@@ -75,11 +75,10 @@ def info(
                 df_temp = rest_query(server, query, content_type)
             # Raise error if this also did not work
             except RuntimeError:
-                if verbose == True:
-                    logging.error(
-                        f"Ensembl ID {ensembl_ID} not found. "
-                        "Please double-check spelling/arguments and try again."
-                    )
+                logging.error(
+                    f"Ensembl ID {ensembl_ID} not found. "
+                    "Please double-check spelling/arguments and try again."
+                )
                 return
             
         ## Delete superfluous entries

@@ -50,7 +50,7 @@ def compile_muscle():
             sys.stderr.write(stderr_1)
     # Exit system if the subprocess returned with an error
     if process_1.wait() != 0:
-        return
+        sys.exit(f"'{command1}' command returned with error {process_1.wait()}.")
     
     # Change path to PACKAGE_PATH/bins/compiled/muscle/src/
     os.chdir("muscle/src/")
@@ -71,7 +71,7 @@ def compile_muscle():
             sys.stderr.write(stderr_2)   
     # Exit system if the subprocess returned with an error
     if process_2.wait() != 0:
-        return
+        sys.exit(f"'{command2}' command returned with error {process_2.wait()}.")
     
     logging.info(
         "MUSCLE compiled."

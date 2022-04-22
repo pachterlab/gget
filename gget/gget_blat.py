@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 import json
 from json.decoder import JSONDecodeError
 import pandas as pd
+import sys
 
 def blat(
     sequence,
@@ -150,12 +151,11 @@ def blat(
         # Read json results into a dictionary    
         results = json.load(r)
     except JSONDecodeError:
-        raise ValueError(
-                        "BLAT unsuccesful. Sequence possibly too short (required minimum: 20 characters)."
-                    )
+        logging.error("BLAT unsuccesful. Sequence possibly too short (required minimum: 20 characters).")
+        return
     
     if len(results["blat"]) == 0:
-        logging.error(f"No {seqtype} BLAT matches were found for this sequence in genome {results['genome']}.")
+        logging.info(f"No {seqtype} BLAT matches were found for this sequence in genome {results['genome']}.")
         return
 
     # Let user know if assembly was not found
