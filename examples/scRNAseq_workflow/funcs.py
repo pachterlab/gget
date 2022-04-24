@@ -116,9 +116,6 @@ def knee_library_sat_plot(adata, expected_num_cells):
     # Add linear graph
     yex(ax)
 
-    fig.savefig("figures/1_knee_+_library_sat_plots.png", dpi=300, bbox_inches='tight')  
-    fig.savefig("figures/1_knee_+_library_sat_plots.pdf", dpi=300, bbox_inches='tight')
-
     fig.show()
 
 def library_sat_gene_fraction(adata, genes, expected_num_cells, gene_type="QC"):
@@ -181,9 +178,6 @@ def library_sat_gene_fraction(adata, genes, expected_num_cells, gene_type="QC"):
     ax.set_axisbelow(True)
 
     plt.tight_layout()
-    
-    fig.savefig(f"figures/1_library_sat_{gene_type}_fraction.png", dpi=300, bbox_inches='tight')  
-    fig.savefig(f"figures/1_library_sat_{gene_type}_fraction.pdf", dpi=300, bbox_inches='tight')  
     
     fig.show()
     
@@ -278,9 +272,6 @@ def volcano_plot(df_volcano, min_fold_change=2, alpha=0.05, figsize=(8, 10)):
     ax.set_ylabel("$-log_{10}$ p-value", fontsize=fontsize)
     # Change fontsize of tick labels
     ax.tick_params(axis="both", labelsize=fontsize)
-
-    plt.savefig("figures/4_volcano_plot.png", dpi=300, bbox_inches="tight")
-    plt.savefig("figures/4_volcano_plot.pdf", dpi=300, bbox_inches="tight")
 
     ax.set_axisbelow(True)
 
