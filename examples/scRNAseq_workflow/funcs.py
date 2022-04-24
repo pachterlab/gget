@@ -216,6 +216,25 @@ def sc_heatmap(adata, marker_genes):
         swap_axes=True,
         figsize=(15, 7)
     )
+    
+def rank_marker_genes(adata, marker_genes, marker_gene_dict):
+    """
+    Use scanpy to rank marker genes.
+    """
+    adata_test = adata.copy()
+
+    # Find indices of all marker genes in adata
+    ens_idx = np.isin(adata_test.var_names, marker_genes)
+
+    # Slice adata based on these indices
+    adata_test = adata_test[:,ens_idx].copy()
+
+    # Rank marker genes
+    sc.tl.rank_genes_groups(adata_test, groupby='leiden', method='t-test', corr_method="bonferroni", use_raw=False)
+    
+    # Plot ranked genes per cluster
+    sc.pl.rank_genes_groups(adata_test, n_genes=5, sharey=False)
+    
 
 def volcano_df(adata, control_mask, experiment_mask):
     control = np.array(adata[control_mask].X.mean(axis=0))[0]
