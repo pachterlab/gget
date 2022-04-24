@@ -39,7 +39,7 @@ def main():
     parent_parser.add_argument(
             "-h","--help",
             action="store_true",
-            help="Print manual. Recommendation: pipe into less by running 'gget -h | less'"
+            help="Print manual."
     )
     # Add custom version argument to parent parser
     parent_parser.add_argument(
