@@ -3,6 +3,8 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 import scanpy as sc
+sc.set_figure_params(figsize=(6, 6), frameon=False)
+sc.settings.n_jobs=2
 
 # Plotting defaults
 color = "#e66101"
