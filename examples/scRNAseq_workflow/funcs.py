@@ -155,7 +155,7 @@ def library_sat_gene_fraction(adata, genes, expected_num_cells, gene_type="QC"):
     ax.axvline(x=min_umi, linewidth=1.5, color="k", ls="--", zorder=3)
 
     # Add a colorbar legend to the last graph
-    cb = fig.colorbar(scatter, ax=ax, location='top', shrink=0.5, pad=0.1)
+    cb = fig.colorbar(scatter, ax=ax)
     cb.set_label(label=f"Fraction of {gene_type} gene counts", fontsize=fontsize)
     # Set ticks below colorbar
     cb.ax.xaxis.set_ticks_position("bottom")
