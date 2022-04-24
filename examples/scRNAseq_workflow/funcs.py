@@ -2,12 +2,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from scipy import stats
+import scanpy as sc
 
+# Plotting defaults
 color = "#e66101"
 filter_color = "#f7dbc6"
 fontsize = 18
-
-
 
 def yex(ax, col="k", alpha=0.75):
     """
