@@ -7,6 +7,8 @@ color = "#e66101"
 filter_color = "#f7dbc6"
 fontsize = 18
 
+
+
 def yex(ax, col="k", alpha=0.75):
     """
     Function to add linear graph to plot.
@@ -199,6 +201,21 @@ def find_ids(adata, mito_ids):
         mito_gene_ids.append(gene_name_id)
         
     return mito_gene_ids
+
+def sc_heatmap(adata, marker_genes):
+    """
+    Use scanpy to plot heatmap of normalized gene expression.
+    """
+    sc.pl.heatmap(
+        adata,
+        marker_genes,
+        groupby="leiden",
+        use_raw=False, 
+        cmap="inferno", 
+        standard_scale="var",
+        swap_axes=True,
+        figsize=(15, 7)
+    )
 
 def volcano_df(adata, control_mask, experiment_mask):
     control = np.array(adata[control_mask].X.mean(axis=0))[0]
