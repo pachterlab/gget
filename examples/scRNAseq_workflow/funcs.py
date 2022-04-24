@@ -223,20 +223,57 @@ def rank_marker_genes(adata, marker_genes, marker_gene_dict):
     """
     Use scanpy to rank marker genes.
     """
+    # Create a copy of adata
     adata_test = adata.copy()
 
     # Find indices of all marker genes in adata
     ens_idx = np.isin(adata_test.var_names, marker_genes)
 
-    # Slice adata based on these indices
+    # Remove all genes from adata_test except marker genes
     adata_test = adata_test[:,ens_idx].copy()
 
     # Rank marker genes
-    sc.tl.rank_genes_groups(adata_test, groupby='leiden', method='t-test', corr_method="bonferroni", use_raw=False)
+    sc.tl.rank_genes_groups(
+        adata_test, 
+        groupby="leiden", 
+        method="wilcoxon", 
+        corr_method="bonferroni", 
+        use_raw=False
+    )
     
     # Plot ranked genes per cluster
     sc.pl.rank_genes_groups(adata_test, n_genes=5, sharey=False)
+
+def celltype_heatmap(adata, colors):
+    # Rank gene group based on celltype
+    sc.tl.rank_genes_groups(
+        adata,
+        groupby="celltype",
+        use_raw=False,
+        method="wilcoxon",
+        corr_method="bonferroni",
+    )
+
+    # Run sc.pl.rank_genes_groups_heatmap once to create adata.uns["celltype_colors"] object
+    sc.pl.rank_genes_groups_heatmap(
+        adata,
+        show_gene_labels=False,
+        use_raw=False,
+        show=False
+    )
+
+    # Relabel celltype colors
+    adata.uns["celltype_colors"] = colors
     
+    # Plot heatmap with dendrogram
+    sc.pl.rank_genes_groups_heatmap(
+        adata,
+        show_gene_labels=False,
+        use_raw=False,
+        cmap="inferno",
+        standard_scale="var",
+        figsize=(12, 12)
+    )
 
 def volcano_df(adata, control_mask, experiment_mask):
     control = np.array(adata[control_mask].X.mean(axis=0))[0]
