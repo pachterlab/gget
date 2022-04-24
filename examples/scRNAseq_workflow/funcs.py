@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 import scanpy as sc
-sc.set_figure_params(figsize=(6, 6), frameon=False)
+sc.set_figure_params(figsize=(6, 4), frameon=False)
 sc.settings.n_jobs=2
 
 # Plotting defaults
@@ -255,13 +255,13 @@ def celltype_heatmap(adata, colors):
     )
 
     # Run sc.pl.rank_genes_groups_heatmap once to create adata.uns["celltype_colors"] object
-    fig = sc.pl.rank_genes_groups_heatmap(
+    sc.pl.rank_genes_groups_heatmap(
         adata,
         show_gene_labels=False,
         use_raw=False,
         show=False
     )
-    plt.close(fig)
+    plt.close()
 
     # Relabel celltype colors
     adata.uns["celltype_colors"] = colors
