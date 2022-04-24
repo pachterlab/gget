@@ -255,12 +255,13 @@ def celltype_heatmap(adata, colors):
     )
 
     # Run sc.pl.rank_genes_groups_heatmap once to create adata.uns["celltype_colors"] object
-    sc.pl.rank_genes_groups_heatmap(
+    fig = sc.pl.rank_genes_groups_heatmap(
         adata,
         show_gene_labels=False,
         use_raw=False,
         show=False
     )
+    plt.close(fig)
 
     # Relabel celltype colors
     adata.uns["celltype_colors"] = colors
