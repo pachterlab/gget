@@ -4,7 +4,8 @@ import pandas as pd
 from scipy import stats
 import scanpy as sc
 from IPython.display import display, HTML
-sc.set_figure_params(figsize=(6, 4), frameon=False)
+%config InlineBackend.figure_format = 'retina'
+sc.set_figure_params(figsize=(4, 4), frameon=False)
 sc.settings.n_jobs=2
 
 # Plotting defaults
@@ -362,13 +363,11 @@ def volcano_plot(df_volcano, min_fold_change=2, alpha=0.05, figsize=(7, 7)):
 
     fig.show()
     
-def wrap_df_text(df):
-    return display(HTML(blast_results.to_html().replace("\\n","<br>")))
-    
 def pretty_print(blast_results):
     """
     Function to wrap the 'Description' column of 
     the BLAST results data frame for easier reading.
     """
     blast_results['Description'] = blast_results['Description'].str.wrap(30)
-    return wrap_df_text(blast_results)
+    
+    return display(HTML(blast_results.to_html().replace("\\n","<br>")))
