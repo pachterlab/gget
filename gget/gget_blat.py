@@ -177,13 +177,16 @@ def blat(
 
     df = pd.DataFrame(df_dict)
     
+    # Calculate % aligned sequence of submitted sequence
+    df["%_aligned"] = round((100/df["qName"])*(df["qEnd"]-df["qStart"]), 2)
+    # Calculate % matched sequence of aligned sequence
+    df["%_matched"] = round((100/df["query_cover"])*df["matches"], 2)
+    # Add genome column
+    df["genome"] = results["genome"]
+    
     # Adjust sequence start to match website
     df["qStart"] = df["qStart"] + 1
     df["tStart"] = df["tStart"] + 1
-    # Calculate % matched sequences of submitted sequence
-    df["total_%_aligned"] = round((100/df["qSize"])*df["matches"], 2)
-    # Add genome column
-    df["genome"] = results["genome"]
     
     # Rename columns
     columns_dict = {
@@ -207,7 +210,8 @@ def blat(
         "aligned_end",
         "matches",
         "mismatches",
-        "total_%_aligned",
+        "%_aligned",
+        "%_matched",
         "chromosome",
         "strand",
         "start",
