@@ -1,6 +1,7 @@
 ## Custom plotting functions for the scRNAseq workflow
 
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 import numpy as np
 import pandas as pd
 from scipy import stats
@@ -364,13 +365,13 @@ def volcano_plot(df_volcano, min_fold_change=2, alpha=0.05, figsize=(7, 7)):
 
     fig.show()
     
-def pretty_print(df, col):
+def pretty_print(df, cols):
     """
-    Function to wrap column col of 
+    Function to wrap columns cols of 
     a data frame df for easier reading.
     """
-    
-    df.loc[:, col] = df[col].str.wrap(30)
+    for col in cols:
+        df.loc[:, col] = df[col].str.wrap(30)
     
     return display(HTML(df.to_html().replace("\\n","<br>")))
 
@@ -382,13 +383,16 @@ def chr_locations(df_blat):
     edgecolor = color
 
     x = df_blat["chromosome"].value_counts().index
-    y = df_blat["chromosome"].value_counts().values.astype(int)
+    y = df_blat["chromosome"].value_counts().values
     ax.bar(x, y, color=color, edgecolor=edgecolor)
 
     ax.set_xlabel("Chromosome", fontsize=fontsize)
     ax.set_ylabel("Differentially Expressed Gene Counts", fontsize=fontsize)
     # Change fontsize of tick labels
     ax.tick_params(axis="both", labelsize=fontsize-1)
+    
+    # Set y axis to keep only integers since counts cannot be floats
+    ax.yaxis.set_major_locator(MaxNLocator(integer=True))
 
     # Add grid and set below graph
     ax.grid(True, which="both", color="lightgray")
