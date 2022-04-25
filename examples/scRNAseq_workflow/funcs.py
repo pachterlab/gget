@@ -370,3 +370,25 @@ def pretty_print(blast_results):
     blast_results['Description'] = blast_results['Description'].str.wrap(30)
     
     return display(HTML(blast_results.to_html().replace("\\n","<br>")))
+
+def chr_locations(df_blat):
+    fig, ax = plt.subplots(figsize=(10,5))
+
+    fontsize = 15
+    color = "#154A78"
+    edgecolor = color
+
+    x = df_blat["chromosome"].value_counts().index
+    y = df_blat["chromosome"].value_counts().values
+    ax.bar(x, y, color=color, edgecolor=edgecolor)
+
+    ax.set_xlabel("Chromosome", fontsize=fontsize)
+    ax.set_ylabel("Differentially Expressed Gene Counts", fontsize=fontsize)
+    # Change fontsize of tick labels
+    ax.tick_params(axis="both", labelsize=fontsize-3)
+
+    # Add grid and set below graph
+    ax.grid(True, which="both", color="lightgray")
+    ax.set_axisbelow(True)
+
+    fig.show()
