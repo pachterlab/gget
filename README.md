@@ -1,5 +1,5 @@
 
-> :warning: **This README is not up to date with the latest additions to gget yet.**
+> :warning: **This README is not yet up to date with the latest version of gget contained in the dev branch.**
 
 # gget (gene-get)
 [![pypi version](https://img.shields.io/pypi/v/gget)](https://pypi.org/project/gget)
