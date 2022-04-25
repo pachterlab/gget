@@ -370,7 +370,7 @@ def pretty_print(blast_results):
     the BLAST results data frame for easier reading.
     """
     
-    blast_results.loc[blast_results['Description']] = blast_results['Description'].str.wrap(30)
+    blast_results.loc["Description"] = blast_results["Description"].str.wrap(30)
     
     return display(HTML(blast_results.to_html().replace("\\n","<br>")))
 

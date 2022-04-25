@@ -178,9 +178,10 @@ def blat(
     df = pd.DataFrame(df_dict)
     
     # Calculate % aligned sequence of submitted sequence
-    df["%_aligned"] = round((100/df["qName"].astype(int))*(df["qEnd"].astype(int)-df["qStart"].astype(int)), 2)
+    aligned_size = df["qEnd"]-df["qStart"]
+    df["%_aligned"] = round((100/df["qSize"])*aligned_size, 2)
     # Calculate % matched sequence of aligned sequence
-    df["%_matched"] = round((100/df["%_aligned"])*df["matches"].astype(int), 2)
+    df["%_matched"] = round((100/aligned_size)*df["matches"], 2)
     # Add genome column
     df["genome"] = results["genome"]
     
