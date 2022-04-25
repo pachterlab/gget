@@ -364,31 +364,31 @@ def volcano_plot(df_volcano, min_fold_change=2, alpha=0.05, figsize=(7, 7)):
 
     fig.show()
     
-def pretty_print(blast_results):
+def pretty_print(df, col):
     """
-    Function to wrap the 'Description' column of 
-    the BLAST results data frame for easier reading.
+    Function to wrap column col of 
+    a data frame df for easier reading.
     """
     
-    blast_results.loc[:, "Description"] = blast_results["Description"].str.wrap(30)
+    df.loc[:, column] = df[column].str.wrap(30)
     
-    return display(HTML(blast_results.to_html().replace("\\n","<br>")))
+    return display(HTML(df.to_html().replace("\\n","<br>")))
 
 def chr_locations(df_blat):
     fig, ax = plt.subplots(figsize=(10,5))
 
-    fontsize = 15
+    fontsize = 13
     color = "#154A78"
     edgecolor = color
 
     x = df_blat["chromosome"].value_counts().index
-    y = df_blat["chromosome"].value_counts().values
+    y = df_blat["chromosome"].value_counts().values.astype(int)
     ax.bar(x, y, color=color, edgecolor=edgecolor)
 
     ax.set_xlabel("Chromosome", fontsize=fontsize)
     ax.set_ylabel("Differentially Expressed Gene Counts", fontsize=fontsize)
     # Change fontsize of tick labels
-    ax.tick_params(axis="both", labelsize=fontsize-3)
+    ax.tick_params(axis="both", labelsize=fontsize-1)
 
     # Add grid and set below graph
     ax.grid(True, which="both", color="lightgray")
