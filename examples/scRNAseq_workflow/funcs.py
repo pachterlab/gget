@@ -4,7 +4,6 @@ import pandas as pd
 from scipy import stats
 import scanpy as sc
 from IPython.display import display, HTML
-%config InlineBackend.figure_format = 'retina'
 sc.set_figure_params(figsize=(4, 4), frameon=False)
 sc.settings.n_jobs=2
 
