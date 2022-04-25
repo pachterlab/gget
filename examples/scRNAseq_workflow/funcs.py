@@ -370,7 +370,7 @@ def pretty_print(df, col):
     a data frame df for easier reading.
     """
     
-    df.loc[:, column] = df[column].str.wrap(30)
+    df.loc[:, col] = df[col].str.wrap(30)
     
     return display(HTML(df.to_html().replace("\\n","<br>")))
 
