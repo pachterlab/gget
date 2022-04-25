@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 import scanpy as sc
+from IPython.display import display, HTML
 sc.set_figure_params(figsize=(6, 4), frameon=False)
 sc.settings.n_jobs=2
 
@@ -253,7 +254,14 @@ def celltype_heatmap(adata, colors):
         method="wilcoxon",
         corr_method="bonferroni",
     )
-
+    
+    # Create dendrorgam
+    sc.tl.dendrogram(
+        adata,
+        use_raw=False,
+        cor_method="pearson"
+    )
+    
     # Run sc.pl.rank_genes_groups_heatmap once to create adata.uns["celltype_colors"] object
     sc.pl.rank_genes_groups_heatmap(
         adata,
@@ -273,7 +281,7 @@ def celltype_heatmap(adata, colors):
         use_raw=False,
         cmap="inferno",
         standard_scale="var",
-        figsize=(12, 12)
+        figsize=(7, 7)
     )
 
 def volcano_df(adata, control_mask, experiment_mask):
@@ -303,7 +311,7 @@ def volcano_df(adata, control_mask, experiment_mask):
 
     return df_volcano
 
-def volcano_plot(df_volcano, min_fold_change=2, alpha=0.05, figsize=(8, 10)):
+def volcano_plot(df_volcano, min_fold_change=2, alpha=0.05, figsize=(7, 7)):
     fig, ax = plt.subplots(figsize=figsize)
     
     # Define dotsize and translucence
@@ -352,3 +360,14 @@ def volcano_plot(df_volcano, min_fold_change=2, alpha=0.05, figsize=(8, 10)):
     ax.set_axisbelow(True)
 
     fig.show()
+    
+def wrap_df_text(df):
+    return display(HTML(blast_results.to_html().replace("\\n","<br>")))
+    
+def pretty_print_blast(blast_results):
+    """
+    Function to wrap the 'Description' column of 
+    the BLAST results data frame for easier reading.
+    """
+    blast_results['Description'] = blast_results['Description'].str.wrap(30)
+    return wrap_df_text(blast_results)
