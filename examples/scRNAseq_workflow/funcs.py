@@ -247,7 +247,7 @@ def rank_marker_genes(adata, marker_genes, marker_gene_dict):
     # Plot ranked genes per cluster
     sc.pl.rank_genes_groups(adata_test, n_genes=5, sharey=False)
 
-def celltype_heatmap(adata, colors):
+def celltype_heatmap(adata, colors, figsize=(8, 8)):
     # Rank gene group based on celltype
     sc.tl.rank_genes_groups(
         adata,
@@ -284,7 +284,7 @@ def celltype_heatmap(adata, colors):
         use_raw=False,
         cmap="inferno",
         standard_scale="var",
-        figsize=(7, 7)
+        figsize=figsize
     )
 
 def volcano_df(adata, control_mask, experiment_mask):
