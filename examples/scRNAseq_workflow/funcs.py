@@ -258,6 +258,7 @@ def celltype_heatmap(adata, colors):
     # Create dendrorgam
     sc.tl.dendrogram(
         adata,
+        groupby="celltype",
         use_raw=False,
         cor_method="pearson"
     )
@@ -364,7 +365,7 @@ def volcano_plot(df_volcano, min_fold_change=2, alpha=0.05, figsize=(7, 7)):
 def wrap_df_text(df):
     return display(HTML(blast_results.to_html().replace("\\n","<br>")))
     
-def pretty_print_blast(blast_results):
+def pretty_print(blast_results):
     """
     Function to wrap the 'Description' column of 
     the BLAST results data frame for easier reading.
