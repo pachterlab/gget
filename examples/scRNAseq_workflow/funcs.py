@@ -1,3 +1,5 @@
+## Custom plotting functions for the scRNAseq workflow
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -367,7 +369,8 @@ def pretty_print(blast_results):
     Function to wrap the 'Description' column of 
     the BLAST results data frame for easier reading.
     """
-    blast_results['Description'] = blast_results['Description'].str.wrap(30)
+    
+    blast_results.loc[blast_results['Description']] = blast_results['Description'].str.wrap(30)
     
     return display(HTML(blast_results.to_html().replace("\\n","<br>")))
 
