@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 import urllib
 from io import StringIO
+from IPython.display import display, HTML
 
 def n_colors(nucleotide):
   """
@@ -179,7 +180,88 @@ def get_uniprot_seqs(server, ensembl_ids):
         None
 
     return df
+
+def get_uniprot_info(server, ensembl_ids, id_type):
+        """
+        Retrieve UniProt synonyms and description based on Ensemsbl identifiers.
+
+        Args:
+        - server          Link to UniProt REST API server.
+        - ensembl_ids     One or more transcript Ensembl IDs (string or list of strings).
+        - id_type         "Gene" or "Transcript"
+
+        Returns data frame with UniProt ID, gene name, organism, sequence, sequence length, and query ID.
+        """
+        
+        # If a single Ensembl ID is passed as string, convert to list
+        if type(ensembl_ids) == str:
+            ensembl_ids = [ensembl_ids]
+            
+        if id_type == "Gene":
+            ens_id_type = "ENSEMBL_ID"
+        elif id_type == "Transcript":
+            ens_id_type = "ENSEMBL_TRS_ID"
+        else:
+            logging.warning(f"Ensembl_ID '{ensembl_ids}' was not recognized as either gene nor transcript. Gene name synonyms and description will not be fetched from UniProt.")
+            return
+        
+        # Define query arguments
+        # Columns documentation: https://www.uniprot.org/help/uniprotkb%5Fcolumn%5Fnames
+        # from/to IDs documentation: https://www.uniprot.org/help/api_idmapping
+        query_args = {
+            "from": ens_id_type,
+            "to": "ACC",
+            "format": "tab",
+            "query": " ".join(ensembl_ids),
+            "columns": "id,genes(PREFERRED),genes,protein names,comment(FUNCTION)",
+        }
+        # Reformat query arguments
+        query_args = urllib.parse.urlencode(query_args)
+        query_args = query_args.encode("ascii")
+
+        # Submit query to UniProt server
+        request = urllib.request.Request(server, query_args)
+
+        # Read and clean up results
+        with urllib.request.urlopen(request) as response:
+            res = response.read()
+
+        # Initiate data frame so empty df will be returned if no matches are found
+        df = pd.DataFrame()   
+
+        try:
+            # This will throw an EmptyDataError if no results were found
+            df = pd.read_csv(StringIO(res.decode("utf-8")), sep="\t")
+
+            if len(df.columns) == 6:
+                # Rename columns
+                df.columns = ["uniprot_id", "primary_gene_name", "synonyms", "protein_names", "description", "query"]
+            # Sometimes a seventh "isomap" column is returned.
+            if len(df.columns) == 7:
+                # Drop isoform column (last column)
+                df = df.iloc[: , :-1]
+                # Rename columns
+                df.columns = ["uniprot_id", "primary_gene_name", "synonyms", "protein_names", "description", "query"]
+
+            # Split gene names into list of strings
+            df["synonyms"] = df["synonyms"].str.split(" ")
+        
+        # If no results were found, return None
+        except pd.errors.EmptyDataError:
+            return None
+
+        return df
     
+def wrap_rows_func(df, rows):
+    """
+    Function to wrap rows of a
+    data frame df for easier reading.
+    """
+    for row in rows:
+        df.loc[row, :] = df.loc[row].str.wrap(30)
+    
+    return display(HTML(df.to_html().replace("\\n","<br>")))
+
 def rest_query(server, query, content_type):
     """
     Function to query a 
