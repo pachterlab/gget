@@ -238,13 +238,13 @@ def main():
     )
     parser_seq.add_argument(
         "-st", "--seqtype",
-        choices=["gene", "protein"],
+        choices=["gene", "transcript"],
         default="gene",
         type=str,  
         required=False, 
         help=(
             "'gene': Returns nucleotide sequences of the Ensembl IDs from Ensembl (default).\n"
-            "'protein': Returns amino acid sequences of the Ensembl IDs from UniProt. \n"
+            "'transcript': Returns amino acid sequences of the Ensembl IDs from UniProt. \n"
         )
     )
     parser_seq.add_argument(
