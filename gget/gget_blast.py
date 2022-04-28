@@ -13,7 +13,10 @@ logging.basicConfig(
 from urllib.request import urlopen, Request
 from urllib.parse import urlencode
 # Custom functions
-from .utils import parse_blast_ref_page
+from .utils import (
+    parse_blast_ref_page,
+    wrap_cols_func
+)
 # Constants
 from .constants import (
     BLAST_URL,
@@ -32,6 +35,7 @@ def blast(
     low_comp_filt=False,
     megablast=True,
     verbose=True,
+    wrap_text=False,
     save=False
 ):
     """
@@ -51,6 +55,8 @@ def blast(
      - low_comp_filt  True/False whether to apply low complexity filter. Default False.
      - megablast      True/False whether to use the MegaBLAST algorithm (blastn only). Default True.
      - verbose        True/False whether to print progress information. Default True.
+     - wrap_text      True/False wether to wrap text in data frame for easier reading. Default: False. 
+                      Note: This transforms the data frame into a 'NoneType' object, restricting further operations.
      - save           If True, the data frame is saved as a csv in the current directory (default: False).
 
     Returns a data frame with the BLAST results.
@@ -357,6 +363,9 @@ def blast(
             if save == True:
                 results_df.to_csv("gget_blast_results.csv", index=False)
         
+            if wrap_text == True:
+                return wrap_cols_func(results_df, ["Description"])
+    
             return results_df
 
         else:

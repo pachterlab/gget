@@ -13,14 +13,16 @@ logging.basicConfig(
 # Custom functions
 from .utils import (
     gget_species_options,
-    find_latest_ens_rel
+    find_latest_ens_rel,
+    wrap_cols_func
 )
 
 def search(searchwords, 
            species, 
            seqtype="gene", 
            andor="or", 
-           limit=None, 
+           limit=None,
+           wrap_text=False,
            save=False
           ):
     f"""
@@ -43,6 +45,8 @@ def search(searchwords,
                       "or": Returns all genes that include at least one of the searchwords in their description (default).  
                       "and": Returns only genes that include all of the searchwords in their description. 
     - limit           "Limit" limits the number of search results to the top {limit} genes found (default: None).
+    - wrap_text       True/False wether to wrap text in data frame for easier reading. Default: False. 
+                      Note: This transforms the data frame into a 'NoneType' object, restricting further operations.
     - save            If True, the data frame is saved as a csv in the current directory (default: False).
     
     Returns a data frame with the query results.
@@ -237,6 +241,9 @@ def search(searchwords,
     # Save
     if save == True:
         df.to_csv("gget_search_results.csv", index=False)
+    
+    if wrap_text == True:
+        return wrap_cols_func(df, ["ensembl_description", "ext_ref_description", "url"])
     
     # Return data frame
     return df

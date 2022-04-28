@@ -94,7 +94,7 @@ def ref(species,
         raise ValueError(
             f"Species does not match any available species for Ensembl release {ENS_rel}.\n"
             "Please double-check spelling.\n"
-            "$ gget ref --list -> lists out all available species.\n"
+            "$ `gget ref --list` -> lists out all available species.\n"
             "Combine with [-r] to define specific release (default: latest).\n"
             )
     
@@ -318,7 +318,7 @@ def ref(species,
 
     # Raise error if several values are passed and 'all' is included
     if len(which) > 1 and "all" in which:
-        raise ValueError("Parameter 'which' must be 'all', or any one or a combination of the following: 'gtf', 'cdna', 'dna', 'cds', 'ncrna' 'pep'.\n")
+        raise ValueError("Parameter 'which' must be 'all', or any one or a combination of the following: 'gtf', 'cdna', 'dna', 'cds', 'ncrna', 'pep'.\n")
 
     # If FTP=False, return dictionary/json of specified results
     if ftp == False:
@@ -438,7 +438,7 @@ def ref(species,
                 }
                 ref_dict[species].update(dict_temp)
             else:
-                raise ValueError("Parameter 'which' must be 'all', or any one or a combination of the following: 'gtf', 'cdna', 'dna'.\n")
+                raise ValueError("Parameter 'which' must be 'all', or any one or a combination of the following: 'gtf', 'cdna', 'dna', 'cds', 'ncrna', 'pep'.\n")
 
         if save == True:
             with open('ref_results.json', 'w', encoding='utf-8') as f:
@@ -456,6 +456,9 @@ def ref(species,
                 results.append(gtf_url)
                 results.append(cdna_url)
                 results.append(dna_url)
+                results.append(cds_url)
+                results.append(ncrna_url)
+                results.append(pep_url)
             elif return_val == "gtf":
                 results.append(gtf_url)
             elif return_val == "cdna":
@@ -469,7 +472,7 @@ def ref(species,
             elif return_val == "pep":
                 results.append(pep_url)
             else:
-                raise ValueError("Parameter 'which' must be 'all', or any one or a combination of the following: 'gtf', 'cdna', 'dna', 'cds', 'ncrna', 'pep'.")
+                raise ValueError("Parameter 'which' must be 'all', or any one or a combination of the following: 'gtf', 'cdna', 'dna', 'cds', 'ncrna', 'pep'.\n")
 
         if save == True:
             file = open("ref_results.txt", "w")

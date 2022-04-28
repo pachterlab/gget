@@ -235,13 +235,13 @@ def get_uniprot_info(server, ensembl_ids, id_type):
 
             if len(df.columns) == 6:
                 # Rename columns
-                df.columns = ["uniprot_id", "primary_gene_name", "synonyms", "protein_names", "description", "query"]
+                df.columns = ["uniprot_id", "primary_gene_name", "synonyms", "protein_names", "uniprot_description", "query"]
             # Sometimes a seventh "isomap" column is returned.
             if len(df.columns) == 7:
                 # Drop isoform column (last column)
                 df = df.iloc[: , :-1]
                 # Rename columns
-                df.columns = ["uniprot_id", "primary_gene_name", "synonyms", "protein_names", "description", "query"]
+                df.columns = ["uniprot_id", "primary_gene_name", "synonyms", "protein_names", "uniprot_description", "query"]
 
             # Split gene names into list of strings
             df["synonyms"] = df["synonyms"].str.split(" ")
@@ -252,13 +252,13 @@ def get_uniprot_info(server, ensembl_ids, id_type):
 
         return df
     
-def wrap_rows_func(df, rows):
+def wrap_cols_func(df, cols):
     """
-    Function to wrap rows of a
+    Function to wrap columns cols of a
     data frame df for easier reading.
     """
-    for row in rows:
-        df.loc[row, :] = df.loc[row].str.wrap(30)
+    for col in cols:
+        df.loc[:, col] = df[col].str.wrap(30)
     
     return display(HTML(df.to_html().replace("\\n","<br>")))
 

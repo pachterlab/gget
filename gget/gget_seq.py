@@ -5,7 +5,6 @@ logging.basicConfig(
     level=logging.INFO,
     datefmt="%d %b %Y %H:%M:%S",
 )
-from tkinter import TRUE
 import numpy as np
 # Custom functions
 from .utils import (
@@ -47,7 +46,7 @@ def seq(ens_ids,
     seqtype = seqtype.lower()
     if seqtype not in seqtypes:
         raise ValueError(
-            f"Sequence type specified is {seqtype}. Expected one of {', '.join(seqtypes)}"
+            f"Argument 'seqtype' was specified as '{seqtype}'. Expected one of {', '.join(seqtypes)}"
         )
         
     # Clean up Ensembl IDs
@@ -107,25 +106,24 @@ def seq(ens_ids,
             # If isoforms true, fetch sequences of isoforms instead
             if isoforms == True:
                 # Get ID type (gene, transcript, ...) using gget info
-                info_dict = info(ensembl_ID, expand=True, verbose=False)
+                info_df = info(ensembl_ID, expand=True)
                 
                 # Check that Ensembl ID was found
-                if info_dict is None:
+                if isinstance(info_df, type(None)):
                     logging.error(
                         f"Ensembl ID {ensembl_ID} not found. "
                         "Please double-check spelling/arguments and try again."
                         )
                     continue
                 
-                ens_ID_type = info_dict[ensembl_ID]["object_type"]
+                ens_ID_type = info_df.loc[ensembl_ID]["object_type"]
 
                 # If the ID is a gene, get the IDs of all its transcripts
                 if ens_ID_type == "Gene":
                     logging.info(f"Requesting nucleotide sequences of all transcripts of {ensembl_ID} from Ensembl.")
-                    # If only one transcript present
-                    try:
-                        transcipt_id = info_dict[ensembl_ID]["Transcript"]["id"]
-                        
+  
+                    for transcipt_id in info_df.loc[ensembl_ID]["all_transcripts"]:
+
                         # Try if query is valid
                         try:
                             # Define the REST query
@@ -140,40 +138,13 @@ def seq(ens_ids,
                                 df_temp.pop(key, None)
 
                             # Add results to main dict
-                            results_dict[ensembl_ID].update({"transcript":df_temp})
-                        
+                            results_dict[ensembl_ID].update({f"{transcipt_id}":df_temp})
+
                         except RuntimeError:
                             logging.error(
-                                f"Ensembl ID {ensembl_ID} not found. "
+                                f"Ensembl ID {transcipt_id} not found. "
                                 "Please double-check spelling/arguments and try again."
                                 )
-
-                    # If more than one transcript present    
-                    except TypeError:
-                        for isoform in np.arange(len(info_dict[ensembl_ID]["Transcript"])):
-                            transcipt_id = info_dict[ensembl_ID]["Transcript"][isoform]["id"]
-
-                            # Try if query is valid
-                            try:
-                                # Define the REST query
-                                query = "sequence/id/" + transcipt_id + "?"
-                                # Submit query
-                                df_temp = rest_query(server, query, content_type)
-
-                                # Delete superfluous entries
-                                keys_to_delete = ["query", "version", "molecule"]
-                                for key in keys_to_delete:
-                                    # Pop keys, None -> do not raise an error if key to delete not found
-                                    df_temp.pop(key, None)
-
-                                # Add results to main dict
-                                results_dict[ensembl_ID].update({f"transcript{isoform}":df_temp})
-                            
-                            except RuntimeError:
-                                logging.error(
-                                    f"Ensembl ID {ensembl_ID} not found. "
-                                    "Please double-check spelling/arguments and try again."
-                                    )
 
                 # If isoform true, but ID is not a gene; ignore the isoform parameter
                 else:
@@ -224,22 +195,22 @@ def seq(ens_ids,
             
             for ensembl_ID in ens_ids_clean:
                 # Get ID type (gene, transcript, ...) using gget info
-                info_dict = info(ensembl_ID, verbose=False)
+                info_df = info(ensembl_ID)
                 
                 # Check that Ensembl ID was found
-                if info_dict is None:
+                if isinstance(info_df, type(None)):
                     logging.error(
                         f"Ensembl ID {ensembl_ID} not found. "
                         "Please double-check spelling/arguments and try again."
                         )
                     continue
 
-                ens_ID_type = info_dict[ensembl_ID]["object_type"]
+                ens_ID_type = info_df.loc[ensembl_ID]["object_type"]
 
                 # If the ID is a gene, use the ID of its canonical transcript
                 if ens_ID_type == "Gene":
                     # Get ID of canonical transcript
-                    can_trans = info_dict[ensembl_ID]["canonical_transcript"]
+                    can_trans = info_df.loc[ensembl_ID]["canonical_transcript"]
                     # Remove Ensembl ID version from transcript IDs and append to transcript IDs list
                     trans_ids.append(can_trans.split(".")[0])
                     logging.info(f"Requesting amino acid sequence of the canonical transcript {can_trans.split('.')[0]} of gene {ensembl_ID} from UniProt.")
@@ -261,34 +232,24 @@ def seq(ens_ids,
 
             for ensembl_ID in ens_ids_clean:
                 # Get ID type (gene, transcript, ...) using gget info
-                info_dict = info(ensembl_ID, expand=TRUE, verbose=False)
+                info_df = info(ensembl_ID, expand=True)
 
                 # Check that Ensembl ID was found
-                if info_dict is None:
+                if isinstance(info_df, type(None)):
                     logging.error(
                         f"Ensembl ID {ensembl_ID} not found. "
                         "Please double-check spelling/arguments and try again."
                         )
                     continue
 
-                ens_ID_type = info_dict[ensembl_ID]["object_type"]
+                ens_ID_type = info_df.loc[ensembl_ID]["object_type"]
 
                 # If the ID is a gene, get the IDs of all isoforms
                 if ens_ID_type == "Gene":
-                    # If only one transcript present
-                    try:
-                        # Get the ID of the transcript from the gget info results
-                        transcipt_id = info_dict[ensembl_ID]["Transcript"]["id"]
-                        # Append transcript ID (wihtout Ensembl version number) to list of transcripts to fetch
+                    # Get the IDs of all transcripts from the gget info results
+                    for transcipt_id in info_df.loc[ensembl_ID]["all_transcripts"]:
+                        # Append transcript ID (without Ensembl version number) to list of transcripts to fetch
                         trans_ids.append(transcipt_id.split(".")[0])
-
-                    # If more than one transcript present    
-                    except TypeError:
-                        # Get the IDs of all transcripts from the gget info results
-                        for isoform_idx in np.arange(len(info_dict[ensembl_ID]["Transcript"])):
-                            transcipt_id = info_dict[ensembl_ID]["Transcript"][isoform_idx]["id"]
-                            # Append transcript ID (wihtout Ensembl version number) to list of transcripts to fetch
-                            trans_ids.append(transcipt_id.split(".")[0])
                     
                     logging.info(f"Requesting amino acid sequences of all transcripts of gene {ensembl_ID} from UniProt.")
 
@@ -307,12 +268,12 @@ def seq(ens_ids,
         if len(df_uniprot) != len(trans_ids) and len(df_uniprot) > 0:
             logging.warning(
                 "The number of results does not match the number of IDs requested. "
-                "It is possible that UniProt transcript sequences were not found for some of the IDs."
+                "It is possible that UniProt amino acid sequences were not found for some of the IDs."
                 )
         
         # Check if no results were found
         if len(df_uniprot) < 1:
-            logging.error("No UniProt transcript sequences were found for these Ensembl ID(s).")
+            logging.error("No UniProt amino acid sequences were found for these Ensembl ID(s).")
         
         else:
             # Build UniProt results FASTA file
@@ -337,7 +298,7 @@ def seq(ens_ids,
             
     # Save
     if save == True:
-        file = open("seq_results.fa", "w")
+        file = open("gget_seq_results.fa", "w")
         for element in fasta:
             file.write(element + "\n")
         file.close()

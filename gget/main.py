@@ -210,20 +210,6 @@ def main():
         )
     )
     parser_info.add_argument(
-        "-H", "--homology", 
-        default=False, 
-        action="store_true",
-        required=False, 
-        help="Returns homology information of ID (default: False)."
-    )
-    parser_info.add_argument(
-        "-x", "--xref", 
-        default=False, 
-        action="store_true",
-        required=False, 
-        help="Returns information from external references (default: False)."
-    )
-    parser_info.add_argument(
         "-o", "--out",
         type=str,
         required=False,
@@ -231,13 +217,6 @@ def main():
             "Path to the json file the results will be saved in, e.g. path/to/directory/results.json.\n" 
             "Default: Standard out."
         )
-    )
-    parser_info.add_argument(
-        "-q", "--quiet",
-        default=True, 
-        action="store_false",
-        required=False,
-        help="Do not print progress information." 
     )
     
     ## gget seq subparser
@@ -259,13 +238,13 @@ def main():
     )
     parser_seq.add_argument(
         "-st", "--seqtype",
-        choices=["gene", "transcript"],
+        choices=["gene", "protein"],
         default="gene",
         type=str,  
         required=False, 
         help=(
-            "'gene': Returns nucleotide sequences of the Ensembl IDs (from Ensembl API) (default).\n"
-            "'transcript': Returns amino acid sequences of the Ensembl IDs (from UniProt API). \n"
+            "'gene': Returns nucleotide sequences of the Ensembl IDs from Ensembl (default).\n"
+            "'protein': Returns amino acid sequences of the Ensembl IDs from UniProt. \n"
         )
     )
     parser_seq.add_argument(
@@ -735,7 +714,7 @@ def main():
             ids_clean_final.remove("")  
 
         # Look up requested Ensembl IDs
-        info_results = info(ids_clean_final, expand=args.expand, homology=args.homology, xref=args.xref, verbose=args.quiet)
+        info_results = info(ids_clean_final, expand=args.expand)
 
         # Check if the function returned something
         if not isinstance(info_results, type(None)):
@@ -745,11 +724,11 @@ def main():
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
                     os.makedirs(directory, exist_ok=True)
-                with open(args.out, 'w', encoding='utf-8') as f:
-                    json.dump(info_results, f, ensure_ascii=False, indent=4)
+                info_results.to_csv(args.out, index=False)
             # Print results if no directory specified
             else:
-                print(json.dumps(info_results, ensure_ascii=False, indent=4))
+#                 print(json.dumps(info_results, ensure_ascii=False, indent=4))
+                info_results.to_csv(sys.stdout, index=False)
             
     ## seq return
     if args.command == "seq":

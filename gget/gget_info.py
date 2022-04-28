@@ -12,7 +12,7 @@ logging.basicConfig(
 from .utils import (
     rest_query,
     get_uniprot_info,
-    wrap_rows_func
+    wrap_cols_func
 )
 # Constants
 from .constants import (
@@ -32,12 +32,12 @@ def info(
 
     Args:
     - ens_ids       One or more Ensembl IDs to look up (string or list of strings).
-    - expand        Expand returned information (only for genes and transcripts) (default: False). 
-                    For genes, this adds isoform information. 
+    - expand        True/False wether to expand returned information (only for genes and transcripts). Default: False.  
+                    For genes, this adds transcript isoform information. 
                     For transcripts, this adds translation and exon information.
-    - wrap_text     If True, wrap text in data frame for easier reading. 
-                    Note: This restricts dataframe 
-    - save          If True, saves csv with query results in current working directory (default: False).
+    - wrap_text     True/False wether to wrap text in data frame for easier reading. Default: False. 
+                    Note: This transforms the data frame into a 'NoneType' object, restricting further operations.
+    - save          True/False wether to save csv with query results in current working directory. Default: False. 
 
     Returns a data frame containing the requested information about the Ensembl IDs.
     """
@@ -196,6 +196,10 @@ def info(
 #                         )
 #                     }
                     
+    # Return None if none of the Ensembl IDs were found
+    if len(master_dict) == 0:
+        return None
+
     ## Build data frame from dictionary
     df = pd.DataFrame.from_dict(master_dict)
     
@@ -218,16 +222,15 @@ def info(
                 # append the two IDs and their respective information
                 if len(df_uniprot) > 1:
                     df_uniprot = df_uniprot.iloc[[0]]
-                    logging.warning(f"More than one UniProt ID was found for Ensembl ID '{ens_id}'. Only the first UniProt ID and its associated information will be returned.")
+                    logging.warning(f"More than one UniProt ID was found for Ensembl ID {ens_id}. Only the first UniProt ID and its associated information will be returned.")
 
                 # Transpose UniProt data frame and rename columns to fit structure of df
                 df_uniprot = df_uniprot.T
                 df_uniprot.columns = df_uniprot.loc["query", :]
-
                 df_temp = pd.concat([df_temp, df_uniprot], axis=1)
             
             else:
-                logging.warning(f"No UniProt entry was found for Ensembl ID '{ens_id}'.")
+                logging.warning(f"No UniProt entry was found for Ensembl ID {ens_id}.")
             
     # Append UniProt info to df
     df = df.append(df_temp)
@@ -240,7 +243,8 @@ def info(
         "synonyms", 
         "parent_gene", 
         "protein_names", 
-        "description", 
+        "uniprot_description",
+        "ensembl_description",
         "object_type", 
         "biotype", 
         "canonical_transcript", 
@@ -365,14 +369,17 @@ def info(
             )
         )
     
-    # Save
+    ## Transpose data frame so each row corresponds to one Ensembl ID
+    df_final = df_final.T
+    
+    ## Save
     if save == True:
 #         with open('info_results.json', 'w', encoding='utf-8') as f:
 #             json.dump(master_dict, f, ensure_ascii=False, indent=4)
         df_final.to_csv("gget_info_results.csv", index=False)
     
     if wrap_text == True:
-        return wrap_rows_func(df_final, ["description"])
+        return wrap_cols_func(df_final, ["uniprot_description", "ensembl_description"])
     
     else:
-        return df_final  
+        return df_final 
