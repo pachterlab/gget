@@ -76,7 +76,7 @@ def ref(species,
     if release != None:
         # Do not allow user-defined release if it is higher than the latest release
         if release > ENS_rel:
-            raise ValueError("Defined Ensembl release number cannot be greater than latest release.\n")
+            raise ValueError(f"Defined Ensembl release number cannot be greater than latest release ({ENS_rel}).\n")
         else:
             ENS_rel = release
 
