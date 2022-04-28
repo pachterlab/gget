@@ -1,4 +1,3 @@
-import __version__ from gget.__init__
 authors:
   - family-names: Luebbert
     given-names: Laura
@@ -13,4 +12,4 @@ license: MIT
 message: "If you use this software, please cite it using these metadata."
 repository-code: "https://github.com/lauraluebbert/gget"
 title: "gget"
-version: __version__
+version: 0.0.18
