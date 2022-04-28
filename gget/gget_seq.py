@@ -3,7 +3,7 @@ import logging
 logging.basicConfig(
     format="%(asctime)s %(levelname)s %(message)s", 
     level=logging.INFO,
-    datefmt="%d %b %Y %H:%M:%S",
+    datefmt="%c",
 )
 import numpy as np
 # Custom functions

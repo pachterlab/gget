@@ -6,7 +6,7 @@ import logging
 logging.basicConfig(
     format="%(asctime)s %(levelname)s %(message)s", 
     level=logging.INFO,
-    datefmt="%d %b %Y %H:%M:%S",
+    datefmt="%c",
 )
 # Using urllib instead of requests here because requests does not 
 # allow long queries (queries very long here due to input sequence)
