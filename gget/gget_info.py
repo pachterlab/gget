@@ -379,7 +379,7 @@ def info(
         df_final.to_csv("gget_info_results.csv", index=False)
     
     if wrap_text == True:
-        return wrap_cols_func(df_final, ["uniprot_description", "ensembl_description"])
+        wrap_cols_func(df_final, ["uniprot_description", "ensembl_description"])
     
     else:
         return df_final 

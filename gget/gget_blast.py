@@ -364,7 +364,7 @@ def blast(
                 results_df.to_csv("gget_blast_results.csv", index=False)
         
             if wrap_text == True:
-                return wrap_cols_func(results_df, ["Description"])
+                wrap_cols_func(results_df, ["Description"])
     
             return results_df
 

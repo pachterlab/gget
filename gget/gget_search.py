@@ -243,7 +243,7 @@ def search(searchwords,
         df.to_csv("gget_search_results.csv", index=False)
     
     if wrap_text == True:
-        return wrap_cols_func(df, ["ensembl_description", "ext_ref_description", "url"])
+        wrap_cols_func(df, ["ensembl_description", "ext_ref_description", "url"])
     
     # Return data frame
     return df
