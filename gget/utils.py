@@ -402,80 +402,77 @@ def ref_species_options(which, release=None):
 
 def parse_blast_ref_page(handle):
     """
-    Extract a tuple of RID, RTOE from the NCBI 'please wait' page.
+    Extract RID and RTOE from the NCBI 'please wait' page.
     RTOE = 'Estimated time fo completion.'
     RID = 'Request ID'.
 
-    Code adapted from the Biopython BLAST NCBIWWW project written
+    Returns RID, RTOE
+
+    Code partly adapted from the Biopython BLAST NCBIWWW project written
     by Jeffrey Chang (Copyright 1999), Brad Chapman, and Chris Wroe distributed under the
     Biopython License Agreement and BSD 3-Clause License
     https://github.com/biopython/biopython/blob/171697883aca6894f8367f8f20f1463ce7784d0c/LICENSE.rst
     """
-    s = handle.read().decode()
-    i = s.find("RID =")
-    if i == -1:
+
+    # Decode handle
+    string = handle.read().decode()
+
+    # Find RID
+    idx = string.find("RID =")
+    if idx == -1:
         rid = None
     else:
-        j = s.find("\n", i)
-        rid = s[i + len("RID =") : j].strip()
-
-    i = s.find("RTOE =")
-    if i == -1:
+        jdx = string.find("\n", idx)
+        rid = string[idx + len("RID =") : jdx].strip()
+    
+    # Find RTOE
+    rtoe_idx = string.find("RTOE =")
+    if rtoe_idx == -1:
         rtoe = None
     else:
-        j = s.find("\n", i)
-        rtoe = s[i + len("RTOE =") : j].strip()
+        rtoe_jdx = string.find("\n", rtoe_idx)
+        rtoe = string[rtoe_idx + len("RTOE =") : rtoe_jdx].strip()
 
+    # If neither RID, nor RTOE were found, try to extract error message from HTML page
     if not rid and not rtoe:
-        # Can we reliably extract the error message from the HTML page?
-        # e.g.  "Message ID#24 Error: Failed to read the Blast query:
-        #       Nucleotide FASTA provided for protein sequence"
-        # or    "Message ID#32 Error: Query contains no data: Query
-        #       contains no sequence data"
-        #
-        # This used to occur inside a <div class="error msInf"> entry:
+        # Search for 'error msInf' div class
         i = s.find('<div class="error msInf">')
         if i != -1:
             msg = s[i + len('<div class="error msInf">') :].strip()
             msg = msg.split("</div>", 1)[0].split("\n", 1)[0].strip()
             if msg:
                 raise ValueError("Error message from NCBI: %s" % msg)
-        # In spring 2010 the markup was like this:
+        # Search for 'error' class
         i = s.find('<p class="error">')
         if i != -1:
             msg = s[i + len('<p class="error">') :].strip()
             msg = msg.split("</p>", 1)[0].split("\n", 1)[0].strip()
             if msg:
                 raise ValueError("Error message from NCBI: %s" % msg)
-        # Generic search based on the way the error messages start:
+        # Generic search for error messages
         i = s.find("Message ID#")
         if i != -1:
             # Break the message at the first HTML tag
             msg = s[i:].split("<", 1)[0].split("\n", 1)[0].strip()
             raise ValueError("Error message from NCBI: %s" % msg)
-        # If we cannot recognise the error layout:
+        # Raise general error, if the error layout was not recognized
         raise ValueError(
-            "No request ID and no estimated time to completion found in the NCBI 'please wait' page, "
-            "there was probably an error in your request but we "
-            "could not extract a helpful error message."
+            "No request ID and no estimated time to completion were found in the NCBI 'please wait' page."
         )
+    # Raise error if RTOE was found but RID was not
     elif not rid:
-        # Can this happen?
         raise ValueError(
-            "No request ID found in the 'please wait' page. (Although estimated time to completion = %r)"
-            % rtoe
+            f"No request ID (RID) was found in the NCBI 'please wait' page. (Although estimated time to completion = {rtoe}.)"
         )
+    # Raise error if RTOE was found but RID was not
     elif not rtoe:
-        # Can this happen?
         raise ValueError(
-            "No estimated time to completion found in the 'please wait' page. (Although request ID = %r)"
-            % rid
+            f"No estimated time to completion was found in the NCBI 'please wait' page. (Although request ID = {rid}.)"
         )
 
     try:
         return rid, int(rtoe)
     except ValueError:
         raise ValueError(
-            "A non-integer estimated time to completion found in the 'please wait' page, %r"
-            % rtoe
-        ) from None
+            f"A non-integer estimated time to completion was found in the NCBI 'please wait' page: '{rtoe}'."
+        )
