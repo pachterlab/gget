@@ -23,13 +23,16 @@ MUSCLE_PATH = os.path.join(PACKAGE_PATH, f"bins/compiled/muscle/src/{platform.sy
 def compile_muscle():
     """
     Compiles MUSCLE from source. 
-    Currently does not support Windows platforms.
+    Currently only supports Linux and Darwin.
     """
+
+    if platform.system() != "Linux" and platform.system() != "Darwin":
+        raise OSError(f"Muscle compiler currently only supports Linux and Darwin, not {platform.system()}.\n")
     
     logging.info(
         "Compiling MUSCLE binary from source... "
     )
-    
+
     # Record current working directory
     cwd = os.getcwd()
     
