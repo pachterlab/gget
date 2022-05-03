@@ -1,14 +1,16 @@
 import argparse
 import sys
 import logging
+
 # Add and format time stamp in logging messages
 logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s", 
+    format="%(asctime)s %(levelname)s %(message)s",
     level=logging.INFO,
     datefmt="%c",
 )
 import os
 import json
+
 # Custom functions
 from .__init__ import __version__
 from .gget_ref import ref
@@ -19,66 +21,62 @@ from .gget_muscle import muscle
 from .gget_blast import blast
 from .gget_blat import blat
 
-from .utils import (
-    ref_species_options,
-    find_latest_ens_rel
-)
+from .utils import ref_species_options, find_latest_ens_rel
+
 
 def main():
     """
     Function containing argparse parsers and arguments to allow the use of gget from the terminal.
     """
-    # Define parent parser 
-    parent_parser = argparse.ArgumentParser(description=f"gget v{__version__}", add_help=False)
+    # Define parent parser
+    parent_parser = argparse.ArgumentParser(
+        description=f"gget v{__version__}", add_help=False
+    )
     # Initiate subparsers
     parent_subparsers = parent_parser.add_subparsers(dest="command")
     # Define parent (not sure why I need both parent parser and parent, but otherwise it does not work)
     parent = argparse.ArgumentParser(add_help=False)
-    
+
     # Add custom help argument to parent parser
     parent_parser.add_argument(
-            "-h","--help",
-            action="store_true",
-            help="Print manual."
+        "-h", "--help", action="store_true", help="Print manual."
     )
     # Add custom version argument to parent parser
     parent_parser.add_argument(
-            "-v","--version",
-            action="store_true",
-            help="Print version."
+        "-v", "--version", action="store_true", help="Print version."
     )
-    
+
     ## gget ref subparser
     ref_desc = "Fetch FTPs for reference genomes and annotations by species."
     parser_ref = parent_subparsers.add_parser(
-        "ref",
-        parents=[parent],
-        description=ref_desc,
-        help=ref_desc,
-        add_help=True
-        )
+        "ref", parents=[parent], description=ref_desc, help=ref_desc, add_help=True
+    )
     # ref parser arguments
     parser_ref.add_argument(
-        "-s", "--species", 
+        "-s",
+        "--species",
         default=None,
         type=str,
-        help="Species for which the FTPs will be fetched, e.g. homo_sapiens."
+        help="Species for which the FTPs will be fetched, e.g. homo_sapiens.",
     )
     # ref parser arguments
     parser_ref.add_argument(
-        "-l", "--list", 
-        default=None, 
+        "-l",
+        "--list",
+        default=None,
         action="store_true",
         required=False,
-        help="List out all available species."
+        help="List out all available species.",
     )
     parser_ref.add_argument(
-        "-w", "--which", 
-        default="all", 
+        "-w",
+        "--which",
+        default="all",
         type=str,
-        nargs='+',
+        nargs="+",
         required=False,
-        help=("""
+        help=(
+            """
         Defines which results to return. 
         Default: 'all' -> Returns all available results.
         Possible entries are one or a combination (as a list of strings) of the following: 
@@ -89,360 +87,407 @@ def main():
         'cdrna' - Returns transcript sequences corresponding to non-coding RNA genes (ncRNA).
         'pep' - Returns the protein translations of Ensembl genes.
         """
-             )
-        )
+        ),
+    )
     parser_ref.add_argument(
-        "-r", "--release",
-        default=None,  
-        type=int, 
+        "-r",
+        "--release",
+        default=None,
+        type=int,
         required=False,
-        help="Ensemble release the FTPs will be fetched from, e.g. 104 (default: latest Ensembl release).")
+        help="Ensemble release the FTPs will be fetched from, e.g. 104 (default: latest Ensembl release).",
+    )
     parser_ref.add_argument(
-        "-ftp", "--ftp",  
-        default=False, 
+        "-ftp",
+        "--ftp",
+        default=False,
         action="store_true",
         required=False,
-        help="Return only the FTP link instead of a json.")
+        help="Return only the FTP link instead of a json.",
+    )
     parser_ref.add_argument(
-        "-d", "--download",  
-        default=False, 
+        "-d",
+        "--download",
+        default=False,
         action="store_true",
         required=False,
-        help="Download FTPs to the current directory using curl.")
+        help="Download FTPs to the current directory using curl.",
+    )
     parser_ref.add_argument(
-        "-o", "--out",
+        "-o",
+        "--out",
         type=str,
         required=False,
         help=(
-            "Path to the json file the results will be saved in, e.g. path/to/directory/results.json.\n" 
+            "Path to the json file the results will be saved in, e.g. path/to/directory/results.json.\n"
             "Default: Standard out."
-        )
+        ),
     )
 
     ## gget search subparser
-    search_desc = "Fetch gene and transcript IDs from Ensembl using free-form search terms."
+    search_desc = (
+        "Fetch gene and transcript IDs from Ensembl using free-form search terms."
+    )
     parser_gget = parent_subparsers.add_parser(
         "search",
-         parents=[parent],
-         description=search_desc, 
-         help=search_desc,
-         add_help=True
-         )
+        parents=[parent],
+        description=search_desc,
+        help=search_desc,
+        add_help=True,
+    )
     # Search parser arguments
     parser_gget.add_argument(
-        "-sw", "--searchwords", 
-        type=str, 
+        "-sw",
+        "--searchwords",
+        type=str,
         nargs="+",
-        required=True, 
-        help="One or more free form searchwords for the query, e.g. gaba, nmda."
+        required=True,
+        help="One or more free form searchwords for the query, e.g. gaba, nmda.",
     )
     parser_gget.add_argument(
-        "-s", "--species",
-        type=str,  
-        required=True, 
-        help="Species to be queried, e.g. homo_sapiens."
+        "-s",
+        "--species",
+        type=str,
+        required=True,
+        help="Species to be queried, e.g. homo_sapiens.",
     )
     parser_gget.add_argument(
-        "-t", "--seqtype",
+        "-t",
+        "--seqtype",
         choices=["gene", "transcript"],
         default="gene",
-        type=str,  
-        required=False, 
+        type=str,
+        required=False,
         help=(
             "'gene': Returns genes that match the searchwords. (default).\n"
             "'transcript': Returns transcripts that match the searchwords. \n"
-        )
+        ),
     )
     parser_gget.add_argument(
-        "-ao", "--andor",
+        "-ao",
+        "--andor",
         choices=["and", "or"],
         default="or",
-        type=str,  
-        required=False, 
+        type=str,
+        required=False,
         help=(
             "'or': Gene descriptions must include at least one of the searchwords (default).\n"
             "'and': Only return genes whose descriptions include all searchwords.\n"
-        )
+        ),
     )
     parser_gget.add_argument(
-        "-l", "--limit",
-        type=int, 
+        "-l",
+        "--limit",
+        type=int,
         default=None,
         required=False,
-        help="Limits the number of results, e.g. 10 (default: None)."
+        help="Limits the number of results, e.g. 10 (default: None).",
     )
     parser_gget.add_argument(
-        "-o", "--out",
+        "-o",
+        "--out",
         type=str,
         required=False,
         help=(
-            "Path to the json file the results will be saved in, e.g. path/to/directory/results.json.\n" 
+            "Path to the json file the results will be saved in, e.g. path/to/directory/results.json.\n"
             "Default: Standard out."
-        )
+        ),
     )
-    
+
     ## gget info subparser
     info_desc = "Fetch gene and transcript metadata using Ensembl IDs."
     parser_info = parent_subparsers.add_parser(
-        "info",
-        parents=[parent],
-        description=info_desc, 
-        help=info_desc,
-        add_help=True
-        )
+        "info", parents=[parent], description=info_desc, help=info_desc, add_help=True
+    )
     # info parser arguments
     parser_info.add_argument(
-        "-id", "--ens_ids", 
+        "-id",
+        "--ens_ids",
         type=str,
         nargs="+",
-        required=True, 
-        help="One or more Ensembl IDs."
+        required=True,
+        help="One or more Ensembl IDs.",
     )
     parser_info.add_argument(
-        "-e", "--expand", 
-        default=False, 
+        "-e",
+        "--expand",
+        default=False,
         action="store_true",
-        required=False, 
+        required=False,
         help=(
             "Expand returned information (only for genes and transcripts) (default: False). "
             "For genes: add isoform information. "
             "For transcripts: add translation and exon information."
-        )
+        ),
     )
     parser_info.add_argument(
-        "-o", "--out",
+        "-o",
+        "--out",
         type=str,
         required=False,
         help=(
-            "Path to the json file the results will be saved in, e.g. path/to/directory/results.json.\n" 
+            "Path to the json file the results will be saved in, e.g. path/to/directory/results.json.\n"
             "Default: Standard out."
-        )
+        ),
     )
-    
+
     ## gget seq subparser
     seq_desc = "Fetch nucleotide or amino acid sequence (FASTA) of a gene (and all isoforms) or transcript by Ensembl ID. "
     parser_seq = parent_subparsers.add_parser(
-        "seq",
-        parents=[parent],
-        description=seq_desc, 
-        help=seq_desc,
-        add_help=True
-        )
+        "seq", parents=[parent], description=seq_desc, help=seq_desc, add_help=True
+    )
     # seq parser arguments
     parser_seq.add_argument(
-        "-id", "--ens_ids", 
+        "-id",
+        "--ens_ids",
         type=str,
         nargs="+",
-        required=True, 
-        help="One or more Ensembl IDs."
+        required=True,
+        help="One or more Ensembl IDs.",
     )
     parser_seq.add_argument(
-        "-st", "--seqtype",
+        "-st",
+        "--seqtype",
         choices=["gene", "transcript"],
         default="gene",
-        type=str,  
-        required=False, 
-        help=(
-            "'gene': Returns nucleotide sequences of the Ensembl IDs from Ensembl (default).\n"
-            "'transcript': Returns amino acid sequences of the Ensembl IDs from UniProt. \n"
-        )
-    )
-    parser_seq.add_argument(
-        "-iso", "--isoforms", 
-        default=False, 
-        action="store_true",
-        required=False, 
-        help="Returns sequences of all known transcripts (for gene IDs only) (default: False)."
-    )
-    parser_seq.add_argument(
-        "-o", "--out",
         type=str,
         required=False,
         help=(
-            "Path to the FASTA file the results will be saved in, e.g. path/to/directory/results.fa.\n" 
-            "Default: Standard out."
-        )
+            "'gene': Returns nucleotide sequences of the Ensembl IDs from Ensembl (default).\n"
+            "'transcript': Returns amino acid sequences of the Ensembl IDs from UniProt. \n"
+        ),
     )
-    
+    parser_seq.add_argument(
+        "-iso",
+        "--isoforms",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Returns sequences of all known transcripts (for gene IDs only) (default: False).",
+    )
+    parser_seq.add_argument(
+        "-o",
+        "--out",
+        type=str,
+        required=False,
+        help=(
+            "Path to the FASTA file the results will be saved in, e.g. path/to/directory/results.fa.\n"
+            "Default: Standard out."
+        ),
+    )
+
     ## gget muscle subparser
     muscle_desc = "Align multiple nucleotide or amino acid sequences against each other (using the Muscle v5 algorithm)."
     parser_muscle = parent_subparsers.add_parser(
         "muscle",
         parents=[parent],
-        description=muscle_desc, 
+        description=muscle_desc,
         help=muscle_desc,
-        add_help=True
-        )
+        add_help=True,
+    )
     # muscle parser arguments
     parser_muscle.add_argument(
-        "-fa", "--fasta", 
+        "-fa",
+        "--fasta",
         type=str,
-        required=True, 
-        help="Path to fasta file containing the sequences to be aligned."
+        required=True,
+        help="Path to fasta file containing the sequences to be aligned.",
     )
     parser_muscle.add_argument(
-        "-s5", "--super5", 
-        default=False, 
+        "-s5",
+        "--super5",
+        default=False,
         action="store_true",
         required=False,
-        help="If True, align input using Super5 algorithm instead of PPP algorithm to decrease time and memory. Use for large inputs (a few hundred sequences)."
+        help="If True, align input using Super5 algorithm instead of PPP algorithm to decrease time and memory. Use for large inputs (a few hundred sequences).",
     )
     parser_muscle.add_argument(
-        "-o", "--out",
+        "-o",
+        "--out",
         type=str,
         required=False,
         default=None,
         help=(
             "Path to save an 'aligned FASTA' (.afa) file with the results, e.g. path/to/directory/results.afa."
             "Default: 'None' -> Standard out in Clustal format."
-        )
+        ),
     )
-    
+
     ## gget blast subparser
     blast_desc = "BLAST a nucleotide or amino acid sequence against any BLAST DB."
     parser_blast = parent_subparsers.add_parser(
         "blast",
         parents=[parent],
-        description=blast_desc, 
+        description=blast_desc,
         help=blast_desc,
-        add_help=True
-        )
+        add_help=True,
+    )
     # blast parser arguments
     parser_blast.add_argument(
-        "-seq", "--sequence", 
+        "-seq",
+        "--sequence",
         type=str,
-        required=True, 
-        help="Sequence (str) or path to fasta file containing one sequence."
+        required=True,
+        help="Sequence (str) or path to fasta file containing one sequence.",
     )
     parser_blast.add_argument(
-        "-p", "--program", 
+        "-p",
+        "--program",
         choices=["blastn", "blastp", "blastx", "tblastn", "tblastx"],
         default="default",
         type=str,
-        required=False, 
-        help=("'blastn', 'blastp', 'blastx', 'tblastn', or 'tblastx'. "
-              "Default: 'blastn' for nucleotide sequences; 'blastp' for amino acid sequences.")
+        required=False,
+        help=(
+            "'blastn', 'blastp', 'blastx', 'tblastn', or 'tblastx'. "
+            "Default: 'blastn' for nucleotide sequences; 'blastp' for amino acid sequences."
+        ),
     )
     parser_blast.add_argument(
-        "-db", "--database", 
-        choices=["nt", "nr", "refseq_rna", "refseq_protein", "swissprot", "pdbaa", "pdbnt"],
+        "-db",
+        "--database",
+        choices=[
+            "nt",
+            "nr",
+            "refseq_rna",
+            "refseq_protein",
+            "swissprot",
+            "pdbaa",
+            "pdbnt",
+        ],
         default="default",
-        type=str,
-        required=False, 
-        help=("'nt', 'nr', 'refseq_rna', 'refseq_protein', 'swissprot', 'pdbaa', or 'pdbnt'. "
-              "Default: 'nt' for nucleotide sequences; 'nr' for amino acid sequences. "
-              "More info on BLAST databases: https://ncbi.github.io/blast-cloud/blastdb/available-blastdbs.html")
-    )
-    parser_blast.add_argument(
-        "-ng", "--ncbi_gi", 
-        default=False, 
-        action="store_true",
-        required=False,
-        help="Return NCBI GI identifiers. Default False."
-    )
-    parser_blast.add_argument(
-        "-d", "--descriptions", 
-        type=int,
-        default=500, 
-        required=False,
-        help="int or None. Limit number of descriptions to return. Default 500."
-    )
-    parser_blast.add_argument(
-        "-a", "--alignments", 
-        type=int,
-        default=500, 
-        required=False,
-        help="int or None. Limit number of alignments to return. Default 500."
-    )
-    parser_blast.add_argument(
-        "-hs", "--hitlist_size", 
-        type=int,
-        default=50, 
-        required=False,
-        help="int or None. Limit number of hits to return. Default 50."
-    )
-    parser_blast.add_argument(
-        "-e", "--expect", 
-        type=float,
-        default=10.0, 
-        required=False,
-        help="float or None. An expect value cutoff. Default 10.0."
-    )
-    parser_blast.add_argument(
-        "-lcf", "--low_comp_filt", 
-        default=False, 
-        action="store_true",
-        required=False,
-        help="Turn on low complexity filter. Default off."
-    )
-    parser_blast.add_argument(
-        "-mbo", "--megablast_off", 
-        default=True, 
-        action="store_false",
-        required=False,
-        help="Turn off MegaBLAST algorithm. Default on (blastn only)."
-    )
-    parser_blast.add_argument(
-        "-q", "--quiet",
-        default=True, 
-        action="store_false",
-        required=False,
-        help="Do not print progress information." 
-    )
-    parser_blast.add_argument(
-        "-o", "--out",
         type=str,
         required=False,
         help=(
-            "Path to the csv file the results will be saved in, e.g. path/to/directory/results.csv.\n" 
-            "Default: Standard out."
-        )
+            "'nt', 'nr', 'refseq_rna', 'refseq_protein', 'swissprot', 'pdbaa', or 'pdbnt'. "
+            "Default: 'nt' for nucleotide sequences; 'nr' for amino acid sequences. "
+            "More info on BLAST databases: https://ncbi.github.io/blast-cloud/blastdb/available-blastdbs.html"
+        ),
     )
-    
+    parser_blast.add_argument(
+        "-ng",
+        "--ncbi_gi",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Return NCBI GI identifiers. Default False.",
+    )
+    parser_blast.add_argument(
+        "-d",
+        "--descriptions",
+        type=int,
+        default=500,
+        required=False,
+        help="int or None. Limit number of descriptions to return. Default 500.",
+    )
+    parser_blast.add_argument(
+        "-a",
+        "--alignments",
+        type=int,
+        default=500,
+        required=False,
+        help="int or None. Limit number of alignments to return. Default 500.",
+    )
+    parser_blast.add_argument(
+        "-hs",
+        "--hitlist_size",
+        type=int,
+        default=50,
+        required=False,
+        help="int or None. Limit number of hits to return. Default 50.",
+    )
+    parser_blast.add_argument(
+        "-e",
+        "--expect",
+        type=float,
+        default=10.0,
+        required=False,
+        help="float or None. An expect value cutoff. Default 10.0.",
+    )
+    parser_blast.add_argument(
+        "-lcf",
+        "--low_comp_filt",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Turn on low complexity filter. Default off.",
+    )
+    parser_blast.add_argument(
+        "-mbo",
+        "--megablast_off",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Turn off MegaBLAST algorithm. Default on (blastn only).",
+    )
+    parser_blast.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Do not print progress information.",
+    )
+    parser_blast.add_argument(
+        "-o",
+        "--out",
+        type=str,
+        required=False,
+        help=(
+            "Path to the csv file the results will be saved in, e.g. path/to/directory/results.csv.\n"
+            "Default: Standard out."
+        ),
+    )
+
     ## gget blat subparser
-    blat_desc = "BLAT a nucleotide or amino acid sequence against any BLAT UCSC assembly."
+    blat_desc = (
+        "BLAT a nucleotide or amino acid sequence against any BLAT UCSC assembly."
+    )
     parser_blat = parent_subparsers.add_parser(
-        "blat",
-        parents=[parent],
-        description=blat_desc, 
-        help=blat_desc,
-        add_help=True
-        )
+        "blat", parents=[parent], description=blat_desc, help=blat_desc, add_help=True
+    )
     # blat parser arguments
     parser_blat.add_argument(
-        "-seq", "--sequence", 
+        "-seq",
+        "--sequence",
         type=str,
-        required=True, 
-        help="Sequence (str) or path to fasta file containing one sequence."
+        required=True,
+        help="Sequence (str) or path to fasta file containing one sequence.",
     )
     parser_blat.add_argument(
-        "-st", "--seqtype", 
+        "-st",
+        "--seqtype",
         choices=["DNA", "protein", "translated%20RNA", "translated%20DNA"],
         default="default",
         type=str,
-        required=False, 
-        help=("'DNA', 'protein', 'translated%%20RNA', or 'translated%%20DNA'. "
-              "Default: 'DNA' for nucleotide sequences; 'protein' for amino acid sequences.")
+        required=False,
+        help=(
+            "'DNA', 'protein', 'translated%%20RNA', or 'translated%%20DNA'. "
+            "Default: 'DNA' for nucleotide sequences; 'protein' for amino acid sequences."
+        ),
     )
     parser_blat.add_argument(
-        "-a", "--assembly", 
+        "-a",
+        "--assembly",
         default="human",
-        type=str,
-        required=False, 
-        help=("'human', 'mouse', 'zebrafinch', "
-              "or one of the assemblies from https://genome.ucsc.edu/cgi-bin/hgBlat. "
-              "Default: 'human' (assembly hg38).")
-    )
-    parser_blat.add_argument(
-        "-o", "--out",
         type=str,
         required=False,
         help=(
-            "Path to the csv file the results will be saved in, e.g. path/to/directory/results.csv." 
-            "Default: Standard out."
-        )
+            "'human', 'mouse', 'zebrafinch', "
+            "or one of the assemblies from https://genome.ucsc.edu/cgi-bin/hgBlat. "
+            "Default: 'human' (assembly hg38)."
+        ),
     )
-    
+    parser_blat.add_argument(
+        "-o",
+        "--out",
+        type=str,
+        required=False,
+        help=(
+            "Path to the csv file the results will be saved in, e.g. path/to/directory/results.csv."
+            "Default: Standard out."
+        ),
+    )
+
     ## Show help when no arguments are given
     if len(sys.argv) == 1:
         parent_parser.print_help(sys.stderr)
@@ -455,27 +500,27 @@ def main():
     if args.help:
         # Retrieve all subparsers from the parent parser
         subparsers_actions = [
-            action for action in parent_parser._actions 
-            if isinstance(action, argparse._SubParsersAction)]
+            action
+            for action in parent_parser._actions
+            if isinstance(action, argparse._SubParsersAction)
+        ]
         for subparsers_action in subparsers_actions:
             # Get all subparsers and print help
             for choice, subparser in subparsers_action.choices.items():
                 print("Subparser '{}'".format(choice))
                 print(subparser.format_help())
-        
+
     ## Version return
-    if args.version:        
+    if args.version:
         print(f"gget version: {__version__}")
 
     ## blat return
     if args.command == "blat":
         # Run gget blast function
         blat_results = blat(
-            sequence = args.sequence,
-            seqtype = args.seqtype,
-            assembly = args.assembly
-            )
-        
+            sequence=args.sequence, seqtype=args.seqtype, assembly=args.assembly
+        )
+
         # Check if the function returned something
         if not isinstance(blat_results, type(None)):
             # Save blat results if args.out specified
@@ -488,24 +533,24 @@ def main():
             # Print results if no directory specified
             else:
                 blat_results.to_csv(sys.stdout, index=False)
-            
+
     ## blast return
     if args.command == "blast":
         # Run gget blast function
         blast_results = blast(
-            sequence = args.sequence,
-            program = args.program,
-            database = args.database,
-            ncbi_gi = args.ncbi_gi,
-            descriptions = args.descriptions,
-            alignments = args.alignments,
-            hitlist_size = args.hitlist_size,
-            expect = args.expect,
-            low_comp_filt = args.low_comp_filt,
-            megablast = args.megablast_off,
-            verbose = args.quiet,
-            )
-        
+            sequence=args.sequence,
+            program=args.program,
+            database=args.database,
+            ncbi_gi=args.ncbi_gi,
+            descriptions=args.descriptions,
+            alignments=args.alignments,
+            hitlist_size=args.hitlist_size,
+            expect=args.expect,
+            low_comp_filt=args.low_comp_filt,
+            megablast=args.megablast_off,
+            verbose=args.quiet,
+        )
+
         # Check if the function returned something
         if not isinstance(blast_results, type(None)):
             # Save blast results if args.out specified
@@ -518,54 +563,57 @@ def main():
             # Print results if no directory specified
             else:
                 blast_results.to_csv(sys.stdout, index=False)
-        
+
     ## muscle return
     if args.command == "muscle":
-        muscle(fasta=args.fasta, 
-               super5=args.super5,
-               out=args.out
-              )
-        
+        muscle(fasta=args.fasta, super5=args.super5, out=args.out)
+
     ## ref return
     if args.command == "ref":
         # If list flag but no release passed, return all available species for latest release
         if args.list and args.release is None:
-                # Find all available species for GTFs for this Ensembl release
-                species_list_gtf = ref_species_options('gtf')
-                # Find all available species for FASTAs for this Ensembl release
-                species_list_dna = ref_species_options('dna') 
+            # Find all available species for GTFs for this Ensembl release
+            species_list_gtf = ref_species_options("gtf")
+            # Find all available species for FASTAs for this Ensembl release
+            species_list_dna = ref_species_options("dna")
 
-                # Find intersection of the two lists 
-                # (Only species which have GTF and FASTAs available can continue)
-                species_list = list(set(species_list_gtf) & set(species_list_dna))
-                
-                # Print available species list
-                logging.info(f"Fetching available genomes in Ensembl release {find_latest_ens_rel()} (latest).")
-                for species in species_list:
-                    print(species)
-                
+            # Find intersection of the two lists
+            # (Only species which have GTF and FASTAs available can continue)
+            species_list = list(set(species_list_gtf) & set(species_list_dna))
+
+            # Print available species list
+            logging.info(
+                f"Fetching available genomes in Ensembl release {find_latest_ens_rel()} (latest)."
+            )
+            for species in species_list:
+                print(species)
+
         # If list flag and release passed, return all available species for this release
         if args.list and args.release:
-                # Find all available species for GTFs for this Ensembl release
-                species_list_gtf = ref_species_options('gtf', release=args.release)
-                # Find all available species for FASTAs for this Ensembl release
-                species_list_dna = ref_species_options('dna', release=args.release) 
+            # Find all available species for GTFs for this Ensembl release
+            species_list_gtf = ref_species_options("gtf", release=args.release)
+            # Find all available species for FASTAs for this Ensembl release
+            species_list_dna = ref_species_options("dna", release=args.release)
 
-                # Find intersection of the two lists 
-                # (Only species which have GTF and FASTAs available can continue)
-                species_list = list(set(species_list_gtf) & set(species_list_dna))
-                
-                # Print available species list
-                logging.info(f"Fetching available genomes in Ensembl release {args.release}.")
-                for species in species_list:
-                    print(species)
-        
+            # Find intersection of the two lists
+            # (Only species which have GTF and FASTAs available can continue)
+            species_list = list(set(species_list_gtf) & set(species_list_dna))
+
+            # Print available species list
+            logging.info(
+                f"Fetching available genomes in Ensembl release {args.release}."
+            )
+            for species in species_list:
+                print(species)
+
         # Raise error if neither species nor list flag passed
         if args.species is None and args.list is None:
-            parser_ref.error("\n\nThe following arguments are required to fetch FTPs: -s/--species, e.g. '-s homo_sapiens'\n\n"
-                             "gget ref --list -> lists out all available species. " 
-                             "Combine with [-r] to define specific Ensembl release (default: latest release).")
-        
+            parser_ref.error(
+                "\n\nThe following arguments are required to fetch FTPs: -s/--species, e.g. '-s homo_sapiens'\n\n"
+                "gget ref --list -> lists out all available species. "
+                "Combine with [-r] to define specific Ensembl release (default: latest release)."
+            )
+
         ## Clean up 'which' entry if passed
         if type(args.which) != str:
             which_clean = []
@@ -573,15 +621,15 @@ def main():
             for which in args.which:
                 which_clean.append(which.split(","))
             # Flatten which_clean
-            which_clean_final = [item for sublist in which_clean for item in sublist]   
+            which_clean_final = [item for sublist in which_clean for item in sublist]
             # Remove empty strings resulting from split
-            while("" in which_clean_final):
-                which_clean_final.remove("")   
+            while "" in which_clean_final:
+                which_clean_final.remove("")
         else:
             which_clean_final = args.which
 
         if args.species:
-            
+
             # Query Ensembl for requested FTPs using function ref
             ref_results = ref(args.species, which_clean_final, args.release, args.ftp)
 
@@ -596,35 +644,35 @@ def main():
                     for element in ref_results:
                         file.write(element + "\n")
                     file.close()
-                    
+
                     if args.download == True:
                         # Download list of URLs
                         for link in ref_results:
-#                             command = "wget " + link
+                            #                             command = "wget " + link
                             command = "curl -O" + link
                             os.system(command)
-#                     else:
-#                         logging.info(
-#                             "To download the FTPs to the current directory, add flag [-d]."
-#                         )
-                
+                #                     else:
+                #                         logging.info(
+                #                             "To download the FTPs to the current directory, add flag [-d]."
+                #                         )
+
                 # Print results if no directory specified
                 else:
                     # Print results
                     for ref_res in ref_results:
                         print(ref_res)
-                    
+
                     if args.download == True:
                         # Download list of URLs
                         for link in ref_results:
-#                             command = "wget " + link
+                            #                             command = "wget " + link
                             command = "curl -O" + link
                             os.system(command)
-#                     else:
-#                         logging.info(
-#                             "To download the FTPs to the current directory, add flag [-d]."
-#                         )
-                    
+            #                     else:
+            #                         logging.info(
+            #                             "To download the FTPs to the current directory, add flag [-d]."
+            #                         )
+
             # Print or save json file (ftp=False)
             else:
                 # Save in specified directory if -o specified
@@ -632,73 +680,75 @@ def main():
                     directory = "/".join(args.out.split("/")[:-1])
                     if directory != "":
                         os.makedirs(directory, exist_ok=True)
-                    with open(args.out, 'w', encoding='utf-8') as f:
+                    with open(args.out, "w", encoding="utf-8") as f:
                         json.dump(ref_results, f, ensure_ascii=False, indent=4)
-                    
+
                     if args.download == True:
                         # Download the URLs from the dictionary
                         for link in ref_results:
                             for sp in ref_results:
                                 for ftp_type in ref_results[sp]:
-                                    link = ref_results[sp][ftp_type]['ftp']
-#                                     command = "wget " + link
+                                    link = ref_results[sp][ftp_type]["ftp"]
+                                    #                                     command = "wget " + link
                                     command = "curl -O" + link
-                                    os.system(command)    
-#                     else:
-#                         logging.info(
-#                             "To download the FTPs to the current directory, add flag [-d]."
-#                         )
-                    
+                                    os.system(command)
+                #                     else:
+                #                         logging.info(
+                #                             "To download the FTPs to the current directory, add flag [-d]."
+                #                         )
+
                 # Print results if no directory specified
                 else:
                     print(json.dumps(ref_results, ensure_ascii=False, indent=4))
-                    
+
                     if args.download == True:
                         # Download the URLs from the dictionary
                         for link in ref_results:
                             for sp in ref_results:
                                 for ftp_type in ref_results[sp]:
-                                    link = ref_results[sp][ftp_type]['ftp']
-#                                     command = "wget " + link
+                                    link = ref_results[sp][ftp_type]["ftp"]
+                                    #                                     command = "wget " + link
                                     command = "curl -O" + link
                                     os.system(command)
-#                     else:
-#                         logging.info(
-#                             "To download the FTPs to the current directory, add flag [-d]."
-#                         )
-        
+    #                     else:
+    #                         logging.info(
+    #                             "To download the FTPs to the current directory, add flag [-d]."
+    #                         )
+
     ## search return
     if args.command == "search":
-        
+
         ## Clean up args.searchwords
         sw_clean = []
         # Split by comma (spaces are automatically split by nargs:"+")
         for sw in args.searchwords:
             sw_clean.append(sw.split(","))
         # Flatten which_clean
-        sw_clean_final = [item for sublist in sw_clean for item in sublist]   
+        sw_clean_final = [item for sublist in sw_clean for item in sublist]
         # Remove empty strings resulting from split
-        while("" in sw_clean_final) :
-            sw_clean_final.remove("")  
-        
+        while "" in sw_clean_final:
+            sw_clean_final.remove("")
+
         # Query Ensembl for genes based on species and searchwords using function search
-        gget_results = search(sw_clean_final, 
-                              args.species,
-                              seqtype=args.seqtype,
-                              andor=args.andor, 
-                              limit=args.limit)
-        
+        gget_results = search(
+            sw_clean_final,
+            args.species,
+            seqtype=args.seqtype,
+            andor=args.andor,
+            limit=args.limit,
+        )
+
         # Save in specified directory if -o specified
         if args.out:
             directory = "/".join(args.out.split("/")[:-1])
             if directory != "":
                 os.makedirs(directory, exist_ok=True)
             gget_results.to_csv(args.out, index=False)
-        
+
         # Print results if no directory specified
         else:
             gget_results.to_csv(sys.stdout, index=False)
-            
+
     ## info return
     if args.command == "info":
 
@@ -708,10 +758,10 @@ def main():
         for id_ in args.ens_ids:
             ids_clean.append(id_.split(","))
         # Flatten which_clean
-        ids_clean_final = [item for sublist in ids_clean for item in sublist]   
+        ids_clean_final = [item for sublist in ids_clean for item in sublist]
         # Remove empty strings resulting from split
-        while("" in ids_clean_final) :
-            ids_clean_final.remove("")  
+        while "" in ids_clean_final:
+            ids_clean_final.remove("")
 
         # Look up requested Ensembl IDs
         info_results = info(ids_clean_final, expand=args.expand)
@@ -727,9 +777,9 @@ def main():
                 info_results.to_csv(args.out, index=False)
             # Print results if no directory specified
             else:
-#                 print(json.dumps(info_results, ensure_ascii=False, indent=4))
+                #                 print(json.dumps(info_results, ensure_ascii=False, indent=4))
                 info_results.to_csv(sys.stdout, index=False)
-            
+
     ## seq return
     if args.command == "seq":
 
@@ -739,10 +789,10 @@ def main():
         for id_ in args.ens_ids:
             ids_clean.append(id_.split(","))
         # Flatten which_clean
-        ids_clean_final = [item for sublist in ids_clean for item in sublist]   
+        ids_clean_final = [item for sublist in ids_clean for item in sublist]
         # Remove empty strings resulting from split
-        while("" in ids_clean_final) :
-            ids_clean_final.remove("")  
+        while "" in ids_clean_final:
+            ids_clean_final.remove("")
 
         # Look up requested Ensembl IDs
         seq_results = seq(ids_clean_final, seqtype=args.seqtype, isoforms=args.isoforms)
@@ -756,7 +806,7 @@ def main():
             for element in seq_results:
                 file.write(element + "\n")
             file.close()
-            
+
         # Print results if no directory specified
         else:
             if seq_results != None:
