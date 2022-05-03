@@ -23,6 +23,7 @@ setup(
     include_package_data=True,
     python_requires='>=3.6',
     install_requires=open('requirements.txt').read().strip().split('\n'),
+    setup_requires=open('requirements.txt').read().strip().split('\n'),
     url='https://github.com/lauraluebbert/gget',
     keywords='gget',
     entry_points={
