@@ -24,7 +24,10 @@ from .utils import (
 )
 
 # Path to precompiled muscle binary for this system
-PRECOMPILED_MUSCLE_PATH = os.path.join(PACKAGE_PATH, f"bins/{platform.system()}/muscle")
+if platform.system() == "Windows":
+	PRECOMPILED_MUSCLE_PATH = os.path.join(PACKAGE_PATH, f"bins/{platform.system()}/muscle5.1.win64.exe")
+else:
+	PRECOMPILED_MUSCLE_PATH = os.path.join(PACKAGE_PATH, f"bins/{platform.system()}/muscle")
 
 def muscle(fasta, 
            super5=False, 
@@ -82,11 +85,15 @@ def muscle(fasta,
     
     # Define muscle command
     if super5:
-        command = f"'{muscle_path}' -super5 '{abs_fasta_path}' -output '{abs_out_path}'"
+        command = f"{muscle_path} -super5 {abs_fasta_path} -output {abs_out_path}"
     else:
-        command = f"'{muscle_path}' -align '{abs_fasta_path}' -output '{abs_out_path}'"
-     
-    # Record MUSCLE align start
+        command = f"{muscle_path} -align {abs_fasta_path} -output {abs_out_path}"
+    
+	# Replace slashes for Windows compatibility
+	if platform.system() == "Windows":
+        command = command.replace("/", "\\")
+
+	# Record MUSCLE align start
     start_time = time.time()
     logging.info("MUSCLE aligning... ")
     
