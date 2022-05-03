@@ -19,7 +19,7 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     zip_safe=False,
-    packages=find_packages(),
+    packages=find_packages(include=['gget', 'gget.*']),
     include_package_data=True,
     python_requires='>=3.6',
     install_requires=open('requirements.txt').read().strip().split('\n'),
