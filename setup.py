@@ -22,8 +22,8 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     python_requires='>=3.6',
-    install_requires=['mysql-connector-python>=8.0.5', 'beautifulsoup4>=4.10.0', 'numpy>=1.17.2', 'pandas>=1.0.0', 'requests>=2.22.0', 'ipython>=8.0.0'],
-    setup_requires=['mysql-connector-python>=8.0.5', 'beautifulsoup4>=4.10.0', 'numpy>=1.17.2', 'pandas>=1.0.0', 'requests>=2.22.0', 'ipython>=8.0.0'],
+    install_requires=open('requirements.txt').read().strip().split('\n'),
+    setup_requires=open('requirements.txt').read().strip().split('\n'),
     url='https://github.com/lauraluebbert/gget',
     keywords='gget',
     entry_points={
