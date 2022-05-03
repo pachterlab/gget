@@ -233,7 +233,7 @@ def info(
                 logging.warning(f"No UniProt entry was found for Ensembl ID {ens_id}.")
             
     # Append UniProt info to df
-    df = df.append(df_temp)
+    df = pd.concat([df, df_temp])
 
     # Reindex df (this also drops all unmentioned indeces)
     df_final = df.reindex([
@@ -361,12 +361,14 @@ def info(
                 data["translation_ends"].append(np.NaN)
             
         # Append cleaned up info to df_final
-        df_final = df_final.append(
-            pd.DataFrame.from_dict(
-                data, 
-                orient="index",
-                columns = ens_ids
-            )
+        df_final = pd.concat([
+                df_final,
+                pd.DataFrame.from_dict(
+                    data, 
+                    orient="index",
+                    columns = ens_ids
+                )
+            ]
         )
     
     ## Transpose data frame so each row corresponds to one Ensembl ID
