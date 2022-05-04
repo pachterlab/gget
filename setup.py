@@ -12,12 +12,12 @@ long_description = read("README.md")
 setup(
     name="gget",
     version=__version__,
-    license="MIT",
+    license="BSD-2",
     author=__author__,
     author_email=__email__,
     maintainer=__author__,
     maintainer_email=__email__,
-    description="Query Ensembl for genes using free form search words, look up genes/transcripts by Ensembl ID or fetch the latest FTPs by species.",
+    description="Efficient querying of genomic databases directly from a terminal or Python environment.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     zip_safe=False,
@@ -26,7 +26,7 @@ setup(
     python_requires=">=3.6",
     install_requires=open("requirements.txt").read().strip().split("\n"),
     setup_requires=open("requirements.txt").read().strip().split("\n"),
-    url="https://github.com/lauraluebbert/gget",
+    url="https://github.com/pachterlab/gget",
     keywords="gget",
     entry_points={
         "console_scripts": ["gget=gget.main:main"],
