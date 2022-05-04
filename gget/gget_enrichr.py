@@ -128,7 +128,7 @@ def enrichr(genes, database, plot=False, save=False):
     if plot:
         fig, ax = plt.subplots(figsize=(10, 10))
 
-        fontsize = 10
+        fontsize = 12
         barcolor = "indigo"
         p_val_color = "darkorange"
 
