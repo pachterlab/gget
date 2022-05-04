@@ -20,6 +20,7 @@ from .gget_seq import seq
 from .gget_muscle import muscle
 from .gget_blast import blast
 from .gget_blat import blat
+from .gget_enrichr import enrichr
 
 from .utils import ref_species_options, find_latest_ens_rel
 
@@ -488,6 +489,45 @@ def main():
         ),
     )
 
+    ## gget enrichr subparser
+    enrichr_desc = "Perform an enrichment analysis on a list of genes using Enrichr."
+    parser_enrichr = parent_subparsers.add_parser(
+        "enrichr",
+        parents=[parent],
+        description=enrichr_desc,
+        help=enrichr_desc,
+        add_help=True,
+    )
+    # enrichr parser arguments
+    parser_enrichr.add_argument(
+        "-g",
+        "--genes",
+        type=str,
+        nargs="+",
+        required=True,
+        help="Genes to perform enrichment analysis on.",
+    )
+    parser_enrichr.add_argument(
+        "-db",
+        "--database",
+        type=str,
+        required=True,
+        help=(
+            "'pathway', 'transcription', 'ontology', 'diseases_drugs', 'celltypes', "
+            "or any database listed at: https://maayanlab.cloud/Enrichr/#libraries"
+        ),
+    )
+    parser_enrichr.add_argument(
+        "-o",
+        "--out",
+        type=str,
+        required=False,
+        help=(
+            "Path to the csv file the results will be saved in, e.g. path/to/directory/results.csv."
+            "Default: Standard out."
+        ),
+    )
+
     ## Show help when no arguments are given
     if len(sys.argv) == 1:
         parent_parser.print_help(sys.stderr)
@@ -748,6 +788,34 @@ def main():
         # Print results if no directory specified
         else:
             gget_results.to_csv(sys.stdout, index=False)
+
+    ## enrichr return
+    if args.command == "enrichr":
+
+        ## Clean up args.genes
+        genes_clean = []
+        # Split by comma (spaces are automatically split by nargs:"+")
+        for gene in args.genes:
+            genes_clean.append(gene.split(","))
+        # Flatten genes_clean
+        genes_clean_final = [item for sublist in genes_clean for item in sublist]
+        # Remove empty strings resulting from split
+        while "" in genes_clean_final:
+            genes_clean_final.remove("")
+
+        # Submit Enrichr query
+        enrichr_results = enrichr(genes=genes_clean_final, database=args.database)
+
+        # Save in specified directory if -o specified
+        if args.out:
+            directory = "/".join(args.out.split("/")[:-1])
+            if directory != "":
+                os.makedirs(directory, exist_ok=True)
+            enrichr_results.to_csv(args.out, index=False)
+
+        # Print results if no directory specified
+        else:
+            enrichr_results.to_csv(sys.stdout, index=False)
 
     ## info return
     if args.command == "info":

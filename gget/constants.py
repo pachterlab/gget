@@ -13,3 +13,7 @@ BLAST_CLIENT = "gget_client-" + str(uuid.uuid4())
 
 # MUSCLE constants
 MUSCLE_GITHUB_LINK = "https://github.com/rcedgar/muscle.git"
+
+# Enrichr constants
+POST_ENRICHR_URL = "https://maayanlab.cloud/Enrichr/addList"
+GET_ENRICHR_URL = "https://maayanlab.cloud/Enrichr/enrich"
