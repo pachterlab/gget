@@ -138,7 +138,7 @@ def enrichr(genes, database, plot=False, save=False):
             path_names = df["path_name"].values[:15]
             adj_p_values = df["adj_p_val"].values[:15]
         else:
-            overlapping_genes = df["overlapping_genes"].value_counts
+            overlapping_genes = df["overlapping_genes"].values
             path_names = df["path_name"].values
             adj_p_values = df["adj_p_val"].values
 
