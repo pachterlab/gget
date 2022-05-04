@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Mac OS file that stores custom attributes of its containing folder
+.DS_Store
+
 # C extensions
 *.so
 

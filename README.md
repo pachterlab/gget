@@ -1,4 +1,6 @@
 
+> :warning: **This README is not yet up to date with the latest version of gget contained in the dev branch.**
+
 # gget (gene-get)
 [![pypi version](https://img.shields.io/pypi/v/gget)](https://pypi.org/project/gget)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/gget)
