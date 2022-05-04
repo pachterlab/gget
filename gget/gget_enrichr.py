@@ -197,7 +197,7 @@ def enrichr(genes, database, plot=False, save=False):
             0,
             "p = 0.05 ",
             ha="left",
-            va="top",
+            va="bottom",
             rotation="vertical",
             color=p_val_color,
             fontsize=fontsize,
