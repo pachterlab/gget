@@ -194,7 +194,7 @@ def enrichr(genes, database, plot=False, save=False):
         ax2.axvline(-np.log10(0.05), color=p_val_color, ls="--", lw=2, alpha=0.5)
         ax2.text(
             -np.log10(0.05) + 0.02,
-            -0.2,
+            -0.3,
             "p = 0.05",
             ha="left",
             va="top",
