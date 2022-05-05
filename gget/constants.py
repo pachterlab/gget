@@ -18,5 +18,6 @@ MUSCLE_GITHUB_LINK = "https://github.com/rcedgar/muscle.git"
 POST_ENRICHR_URL = "https://maayanlab.cloud/Enrichr/addList"
 GET_ENRICHR_URL = "https://maayanlab.cloud/Enrichr/enrich"
 
-# Gene correlation API endpoints
+# ARCHS4 API endpoints
 GENECORR_URL = "https://maayanlab.cloud/matrixapi/coltop"
+EXPRESSION_URL = "https://maayanlab.cloud/archs4/search/loadExpressionTissue.php?"

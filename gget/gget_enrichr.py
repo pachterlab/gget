@@ -24,17 +24,18 @@ def enrichr(genes, database, plot=False, save=False):
 
     Args:
     - genes       Genes to perform enrichment analysis on, passed as a list of strings,
-                  e.g. ['PHF14', 'RBM3', 'MSL1', 'PHF21A']
+                  e.g. ['PHF14', 'RBM3', 'MSL1', 'PHF21A'].
     - database    Database to use as reference for the enrichment analysis.
                   Supported shortcuts (and their default database):
-                  'pathway' (BioPlanet_2019)
+                  'pathway' (KEGG_2016)
                   'transcription' (ChEA_2016)
                   'ontology' (GO_Biological_Process_2021)
                   'diseases_drugs' (GWAS_Catalog_2019)
                   'celltypes' (PanglaoDB_Augmented_2021)
-                  or any database listed under Gene-set database at: https://maayanlab.cloud/Enrichr/#libraries
+                  'kinase_interactions' (KEA_2015)
+                  or any database listed under Gene-set Library at: https://maayanlab.cloud/Enrichr/#libraries
     - plot        True/False whether to provide a graphical overview of the first 15 results.
-    - save        True/False whether to save the results.
+    - save        True/False whether to save the results in the local directory.
 
     Returns a data frame with the Enrichr results.
     """
@@ -42,7 +43,7 @@ def enrichr(genes, database, plot=False, save=False):
     # Define database
     # All available libraries: https://maayanlab.cloud/Enrichr/#libraries
     if database == "pathway":
-        database = "BioPlanet_2019"
+        database = "KEGG_2016"
     elif database == "transcription":
         database = "ChEA_2016"
     elif database == "ontology":
@@ -51,8 +52,16 @@ def enrichr(genes, database, plot=False, save=False):
         database = "GWAS_Catalog_2019"
     elif database == "celltypes":
         database = "PanglaoDB_Augmented_2021"
+    elif database == "kinase_interactions":
+        database = "KEA_2015"
     else:
         database = database
+
+    logging.info(
+        f"Performing Enichr analysis using databse {database}. Please note that there might a more "
+        "appropriate database for your application. Go to https://maayanlab.cloud/Enrichr/#libraries "
+        "for a full list of supported databases."
+    )
 
     # Remove any NaNs/Nones from the gene list
     genes_clean = []
