@@ -6,6 +6,7 @@ from .gget_muscle import muscle
 from .gget_blast import blast
 from .gget_blat import blat
 from .gget_enrichr import enrichr
+from .gget_archs4 import archs4
 
 __version__ = "0.0.18"
 __author__ = "Laura Luebbert"

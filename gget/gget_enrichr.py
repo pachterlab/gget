@@ -1,5 +1,4 @@
 import requests
-import json
 import pandas as pd
 import numpy as np
 import logging
@@ -78,7 +77,7 @@ def enrichr(genes, database, plot=False, save=False):
         )
 
     # Get user ID
-    post_results = json.loads(r1.text)
+    post_results = r1.json()
     userListId = post_results["userListId"]
 
     ## Fetch results from Enrichr API
@@ -92,7 +91,7 @@ def enrichr(genes, database, plot=False, save=False):
             "Please double-check arguments and try again.\n"
         )
 
-    enrichr_results = json.loads(r2.text)
+    enrichr_results = r2.json()
 
     # Return error if no results were found
     if len(enrichr_results) > 1:

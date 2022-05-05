@@ -176,6 +176,7 @@ def get_uniprot_seqs(server, ensembl_ids):
                 "sequence_length",
                 "query",
             ]
+
         # Sometimes a seventh "isomap" column is returned.
         if len(df.columns) == 7:
             # Drop isoform column (last column)
@@ -277,9 +278,12 @@ def get_uniprot_info(server, ensembl_ids, id_type):
                 "uniprot_description",
                 "query",
             ]
-
-        # Split gene names into list of strings
-        df["synonyms"] = df["synonyms"].str.split(" ")
+        
+        try:
+            # Split gene names into list of strings
+            df["synonyms"] = df["synonyms"].str.split(" ")
+        except:
+            None
 
     # If no results were found, return None
     except pd.errors.EmptyDataError:

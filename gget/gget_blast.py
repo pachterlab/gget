@@ -15,7 +15,10 @@ from urllib.request import urlopen, Request
 from urllib.parse import urlencode
 
 # Custom functions
-from .utils import parse_blast_ref_page, wrap_cols_func
+from .utils import (
+    parse_blast_ref_page, 
+    wrap_cols_func
+)
 
 # Constants
 from .constants import (
