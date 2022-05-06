@@ -7,6 +7,7 @@ import urllib
 from io import StringIO
 from IPython.display import display, HTML
 
+
 def n_colors(nucleotide):
     """
     Returns a string format to print the nucleotide
@@ -159,6 +160,12 @@ def get_uniprot_seqs(server, ensembl_ids):
     with urllib.request.urlopen(request) as response:
         res = response.read()
 
+    # Check if URL retruned error code
+    if response.getcode() != 200:
+        raise RuntimeError(
+            f"The UniProt server returned error status code {response.getcode()}. Please try again."
+        )
+
     # Initiate data frame so empty df will be returned if no matches are found
     df = pd.DataFrame()
 
@@ -248,6 +255,12 @@ def get_uniprot_info(server, ensembl_ids, id_type):
     with urllib.request.urlopen(request) as response:
         res = response.read()
 
+    # Check if URL retruned error code
+    if response.getcode() != 200:
+        raise RuntimeError(
+            f"The UniProt server returned error status code {response.getcode()}. Please try again."
+        )
+
     # Initiate data frame so empty df will be returned if no matches are found
     df = pd.DataFrame()
 
@@ -278,7 +291,7 @@ def get_uniprot_info(server, ensembl_ids, id_type):
                 "uniprot_description",
                 "query",
             ]
-        
+
         try:
             # Split gene names into list of strings
             df["synonyms"] = df["synonyms"].str.split(" ")
@@ -305,15 +318,12 @@ def wrap_cols_func(df, cols):
 
 def rest_query(server, query, content_type):
     """
-    Function to query a
+    Function to perform a REST API query.
 
     Args:
-    - server
-    Serve to query.
-    - Query
-    Query that is passed to server.
-    - content_type
-    Contect type requested from server.
+    - server        Server to query.
+    - Query         Query that is passed to server.
+    - content_type  Content type requested from the server.
 
     Returns server output.
     """
@@ -322,7 +332,7 @@ def rest_query(server, query, content_type):
 
     if not r.ok:
         raise RuntimeError(
-            f"HTTP response status code {r.status_code}. "
+            f"{server} returned error status code {r.status_code}. "
             "Please double-check arguments and try again.\n"
         )
 
@@ -342,7 +352,7 @@ def find_latest_ens_rel():
     # Raise error if status code not "OK" Response
     if html.status_code != 200:
         raise RuntimeError(
-            f"HTTP response status code {html.status_code}. Please try again."
+            f"The Ensembl FTP server returned error status code {html.status_code}. Please try again."
         )
 
     soup = BeautifulSoup(html.text, "html.parser")
@@ -389,7 +399,7 @@ def gget_species_options(release=None):
     # Raise error if status code not "OK" Response
     if html.status_code != 200:
         raise RuntimeError(
-            f"HTTP response status code {html.status_code}. Please try again."
+            f"The Ensembl server returned error status code {html.status_code}. Please try again."
         )
 
     soup = BeautifulSoup(html.text, "html.parser")
@@ -408,8 +418,8 @@ def ref_species_options(which, release=None):
     Function to find all available species for gget ref.
 
     Args:
-    - release   Ensembl release for which available species should be fetched.
     - which     Which type of FTP. Possible entries: 'dna', 'cdna', 'gtf'.
+    - release   Ensembl release for which available species should be fetched.
 
     Returns list of available species.
     """
@@ -436,7 +446,7 @@ def ref_species_options(which, release=None):
     # Raise error if status code not "OK" Response
     if html.status_code != 200:
         raise RuntimeError(
-            f"HTTP response status code {html.status_code}. Please try again."
+            f"The Ensembl server returned error status code {html.status_code}. Please try again."
         )
 
     # Parse the html and generate a clean list of the available genomes
