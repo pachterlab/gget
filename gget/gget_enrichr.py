@@ -27,7 +27,7 @@ def enrichr(genes, database, plot=False, save=False):
                   e.g. ['PHF14', 'RBM3', 'MSL1', 'PHF21A'].
     - database    Database to use as reference for the enrichment analysis.
                   Supported shortcuts (and their default database):
-                  'pathway' (KEGG_2016)
+                  'pathway' (KEGG_2021_Human)
                   'transcription' (ChEA_2016)
                   'ontology' (GO_Biological_Process_2021)
                   'diseases_drugs' (GWAS_Catalog_2019)
@@ -43,7 +43,7 @@ def enrichr(genes, database, plot=False, save=False):
     # Define database
     # All available libraries: https://maayanlab.cloud/Enrichr/#libraries
     if database == "pathway":
-        database = "KEGG_2016"
+        database = "KEGG_2021_Human"
     elif database == "transcription":
         database = "ChEA_2016"
     elif database == "ontology":

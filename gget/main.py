@@ -514,7 +514,7 @@ def main():
         type=str,
         required=True,
         help=(
-            "'pathway', 'transcription', 'ontology', 'diseases_drugs', 'celltypes', "
+            "'pathway', 'transcription', 'ontology', 'diseases_drugs', 'celltypes', 'kinase_interactions'"
             "or any database listed at: https://maayanlab.cloud/Enrichr/#libraries"
         ),
     )
