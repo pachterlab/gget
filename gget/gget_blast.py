@@ -173,7 +173,7 @@ def blast(
                 # Check if the user specified database is valid
                 if database not in dbs:
                     raise ValueError(
-                        f"Database specified is {database}. Expected one of {', '.join(dbs)}"
+                        f"Database specified is {database}. Expected one of: {', '.join(dbs)}"
                     )
 
                 else:
@@ -196,7 +196,7 @@ def blast(
                 # Check if the user specified database is valid
                 if database not in dbs:
                     raise ValueError(
-                        f"Database specified is {database}. Expected one of {', '.join(dbs)}"
+                        f"Database specified is {database}. Expected one of: {', '.join(dbs)}"
                     )
 
                 else:
@@ -219,14 +219,14 @@ def blast(
         # Check if the user specified program is valid
         if program not in programs:
             raise ValueError(
-                f"Program specified is {program}. Expected one of {', '.join(programs)}"
+                f"Program specified is {program}. Expected one of: {', '.join(programs)}"
             )
 
         # Ask user to also specify database
         if database == "default":
             raise ValueError(
                 f"""
-                User-specified program requires user-specified database. Please also specify database. 
+                User-specified program requires user-specified database. Please also specify argument 'database'. 
                 Database options:  {', '.join(dbs)}
                 """
             )
@@ -234,7 +234,7 @@ def blast(
             # Check if the user specified database is valid
             if database not in dbs:
                 raise ValueError(
-                    f"Database specified is {database}. Expected one of {', '.join(dbs)}"
+                    f"Database specified is {database}. Expected one of: {', '.join(dbs)}"
                 )
 
     ## Translate filter and ncbi_gi arguments

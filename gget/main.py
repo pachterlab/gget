@@ -21,6 +21,7 @@ from .gget_muscle import muscle
 from .gget_blast import blast
 from .gget_blat import blat
 from .gget_enrichr import enrichr
+from .gget_archs4 import archs4
 
 from .utils import ref_species_options, find_latest_ens_rel
 
@@ -528,6 +529,66 @@ def main():
         ),
     )
 
+    ## gget archs4 subparser
+    archs4_desc = "Find the most correlated genes or the tissue expression atlas of a gene using data from the human and mouse RNA-seq database ARCHS4 (https://maayanlab.cloud/archs4/)."
+    parser_archs4= parent_subparsers.add_parser(
+        "archs4",
+        parents=[parent],
+        description=archs4_desc,
+        help=archs4_desc,
+        add_help=True,
+    )
+    # archs4 parser arguments
+    parser_archs4.add_argument(
+        "-g",
+        "--gene",
+        type=str,
+        required=True,
+        help="Short name (gene symbol) of gene of interest (str), e.g. 'STAT4'.",
+    )
+    parser_archs4.add_argument(
+        "-w",
+        "--which",
+        choices=[
+            "correlation",
+            "tissue",
+        ],
+        default="correlation",
+        type=str,
+        required=False,
+        help=("""
+            'correlation' (default) or 'tissue'.
+            - 'correlation' returns a gene correlation table that contains the
+            100 most correlated genes to the gene of interest. The Pearson
+            correlation is calculated over all samples and tissues in ARCHS4.
+            - 'tissue' returns a tissue expression atlas calculated from
+            human or mouse samples (as defined by 'species') in ARCHS4.
+            """
+        ),
+    )
+    parser_archs4.add_argument(
+        "-s",
+        "--species",
+        choices=[
+            "human",
+            "mouse",
+        ],
+        default="human",
+        type=str,
+        required=False,
+        help="'human' (default) or 'mouse'. (Only for tissue expression atlas.)",
+    )
+    parser_archs4.add_argument(
+        "-o",
+        "--out",
+        type=str,
+        required=False,
+        help=(
+            "Path to the csv file the results will be saved in, e.g. path/to/directory/results.csv.\n"
+            "Default: Standard out."
+        ),
+    )
+
     ## Show help when no arguments are given
     if len(sys.argv) == 1:
         parent_parser.print_help(sys.stderr)
@@ -603,6 +664,24 @@ def main():
             # Print results if no directory specified
             else:
                 blast_results.to_csv(sys.stdout, index=False)
+
+    ## archs4 return
+    if args.command == "archs4":
+        # Run gget archs4 function
+        archs4_results = archs4(gene=args.gene, which=args.which, species=args.species)
+        
+        # Check if the function returned something
+        if not isinstance(archs4_results, type(None)):
+            # Save archs4 results if args.out specified
+            if args.out:
+                directory = "/".join(args.out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+                archs4_results.to_csv(args.out, index=False)
+
+            # Print results if no directory specified
+            else:
+                archs4_results.to_csv(sys.stdout, index=False)
 
     ## muscle return
     if args.command == "muscle":

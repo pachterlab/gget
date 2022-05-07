@@ -14,7 +14,7 @@ class TestMuscle(unittest.TestCase):
         # File with sequences to align
         fasta = "tests/fixtures/muscle_nt_test.fa"
         # File the results will be saved in
-        out = "tests/fixtures/tmp1.afa"
+        out = "tests/fixtures/tmp.afa"
 
         # Run muscle
         with contextlib.redirect_stdout(open(os.devnull, "w")):
@@ -30,7 +30,29 @@ class TestMuscle(unittest.TestCase):
     def tearDown(self):
         super(TestMuscle, self).tearDown()
         # Delete temporary result file
-        os.remove("tests/fixtures/tmp1.afa")
+        os.remove("tests/fixtures/tmp.afa")
+
+    def test_muscle_nt_txt(self):
+        # File with sequences to align
+        fasta = "tests/fixtures/muscle_nt_test.txt"
+        # File the results will be saved in
+        out = "tests/fixtures/tmp.afa"
+
+        # Run muscle
+        with contextlib.redirect_stdout(open(os.devnull, "w")):
+            muscle(fasta, out=out)
+
+        # Expected result
+        ref_path = "tests/fixtures/muscle_nt_test.afa"
+        self.assertTrue(
+            filecmp.cmp(out, ref_path, shallow=False),
+            "The reference and muscle nucleotide alignment are not the same.",
+        )
+
+    def tearDown(self):
+        super(TestMuscle, self).tearDown()
+        # Delete temporary result file
+        os.remove("tests/fixtures/tmp.afa")
 
 
 class TestMuscleSuper(unittest.TestCase):
@@ -38,7 +60,7 @@ class TestMuscleSuper(unittest.TestCase):
         # File with sequences to align
         fasta = "tests/fixtures/muscle_nt_test.fa"
         # File the results will be saved in
-        out = "tests/fixtures/tmp2.afa"
+        out = "tests/fixtures/tmp.afa"
 
         # Run muscle
         with contextlib.redirect_stdout(open(os.devnull, "w")):
@@ -54,7 +76,7 @@ class TestMuscleSuper(unittest.TestCase):
     def tearDown(self):
         super(TestMuscleSuper, self).tearDown()
         # Delete temporary result file
-        os.remove("tests/fixtures/tmp2.afa")
+        os.remove("tests/fixtures/tmp.afa")
 
 
 class TestMuscleAA(unittest.TestCase):
@@ -62,7 +84,7 @@ class TestMuscleAA(unittest.TestCase):
         # File with sequences to align
         fasta = "tests/fixtures/muscle_aa_test.fa"
         # File the results will be saved in
-        out = "tests/fixtures/tmp3.afa"
+        out = "tests/fixtures/tmp.afa"
 
         # Run muscle
         with contextlib.redirect_stdout(open(os.devnull, "w")):
@@ -78,7 +100,7 @@ class TestMuscleAA(unittest.TestCase):
     def tearDown(self):
         super(TestMuscleAA, self).tearDown()
         # Delete temporary result file
-        os.remove("tests/fixtures/tmp3.afa")
+        os.remove("tests/fixtures/tmp.afa")
 
 
 class TestMuscleAASuper(unittest.TestCase):
@@ -86,7 +108,7 @@ class TestMuscleAASuper(unittest.TestCase):
         # File with sequences to align
         fasta = "tests/fixtures/muscle_aa_test.fa"
         # File the results will be saved in
-        out = "tests/fixtures/tmp4.afa"
+        out = "tests/fixtures/tmp.afa"
 
         # Run muscle
         with contextlib.redirect_stdout(open(os.devnull, "w")):
@@ -102,7 +124,7 @@ class TestMuscleAASuper(unittest.TestCase):
     def tearDown(self):
         super(TestMuscleAASuper, self).tearDown()
         # Delete temporary result file
-        os.remove("tests/fixtures/tmp4.afa")
+        os.remove("tests/fixtures/tmp.afa")
 
 
 class TestMusclePrints(unittest.TestCase):
@@ -116,4 +138,6 @@ class TestMusclePrints(unittest.TestCase):
             muscle(fasta)
             # print_mock.assert_called_with("\n")
             # print_mock.assert_called_with("test1\n", "\x1b[38;5;15m\x1b[48;5;9mA\x1b[0;0m")
-            print_mock.assert_called_with("test2\n", "\x1b[38;5;15m\x1b[48;5;9mA\x1b[0;0m")
+            print_mock.assert_called_with(
+                "test2\n", "\x1b[38;5;15m\x1b[48;5;9mA\x1b[0;0m"
+            )

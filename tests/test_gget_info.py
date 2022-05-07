@@ -1,5 +1,4 @@
 import unittest
-import math
 from gget.gget_info import info
 
 

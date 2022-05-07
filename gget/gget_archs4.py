@@ -38,14 +38,14 @@ def archs4(gene, which="correlation", species="human", save=False):
     whichs = ["correlation", "tissue"]
     if which not in whichs:
         raise ValueError(
-            f"'which' argument specified as {which}. Expected one of {', '.join(whichs)}"
+            f"'which' argument specified as {which}. Expected one of: {', '.join(whichs)}"
         )
 
     # Check if species argument is valid
     sps = ["human", "mouse"]
     if species not in sps:
         raise ValueError(
-            f"'species' argument specified as {species}. Expected one of {', '.join(sps)}"
+            f"'species' argument specified as {species}. Expected one of: {', '.join(sps)}"
         )
 
     # Make all gene letters uppercase

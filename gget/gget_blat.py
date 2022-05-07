@@ -1,4 +1,5 @@
 import logging
+
 # Add and format time stamp in logging messages
 logging.basicConfig(
     format="%(asctime)s %(levelname)s %(message)s",
@@ -10,6 +11,7 @@ from json.decoder import JSONDecodeError
 import pandas as pd
 from urllib.request import urlopen
 
+
 def blat(sequence, seqtype="default", assembly="human", save=False):
     """
     BLAT a nucleotide or amino acid sequence against any BLAT UCSC assembly.
@@ -18,9 +20,9 @@ def blat(sequence, seqtype="default", assembly="human", save=False):
      - sequence       Sequence (str) or path to fasta file containing one sequence.
      - seqtype        'DNA', 'protein', 'translated%20RNA', or 'translated%20DNA'.
                       Default: 'DNA' for nucleotide sequences; 'protein' for amino acid sequences.
-     - assembly       'human', 'mouse', 'zebrafinch',
-                      or one of the assemblies from https://genome.ucsc.edu/cgi-bin/hgBlat.
-                      Default: 'human' (assembly hg38).
+     - assembly       'human' (hg38) (default), 'mouse' (mm39), 'zebrafinch' (taeGut2),
+                      or any of the species assemblies available at https://genome.ucsc.edu/cgi-bin/hgBlat
+                      (use short assembly name as listed after the "/").
     - save            If True, the data frame is saved as a csv in the current directory (default: False).
 
     Returns a data frame with the BLAT results.
@@ -153,7 +155,10 @@ def blat(sequence, seqtype="default", assembly="human", save=False):
         results = json.load(r)
     except JSONDecodeError:
         logging.error(
-            "BLAT unsuccesful. Sequence possibly too short (required minimum: 20 characters)."
+            "BLAT of seq. type '{seqtype}' in assembly '{database}' was unsuccesful. "
+            "Possible causes: "
+            "- Sequence possibly too short (required minimum: 20 characters). "
+            "- Assembly possibly invalid. All available species with their respective assemblies are listed at https://genome.ucsc.edu/cgi-bin/hgBlat. "
         )
         return
 
