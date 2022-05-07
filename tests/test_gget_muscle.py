@@ -16,7 +16,7 @@ class TestMuscle(unittest.TestCase):
         # File the results will be saved in
         out = "tests/fixtures/tmp.afa"
 
-        # Run muscle
+        # Run muscle (trying to use contextlib here to silence muscle return (unsuccesfully))
         with contextlib.redirect_stdout(open(os.devnull, "w")):
             muscle(fasta, out=out)
 
