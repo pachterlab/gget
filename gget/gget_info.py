@@ -81,6 +81,7 @@ def info(
                 )
                 continue
 
+        # Commented out json structuring, since new output is data frame
         ## Delete superfluous entries
         #         # Delete superfluous entries in general info
         #         keys_to_delete = ["version", "source", "db_type", "logic_name", "id"]
@@ -207,7 +208,7 @@ def info(
         }
     )
 
-    ## For genes and transcript, get gene names and descriptions from UniProt
+    ## For genes and transcripts, get gene names and descriptions from UniProt
     df_temp = pd.DataFrame()
     for ens_id, id_type in zip(ens_ids_clean, df.loc["object_type"].values):
         if id_type == "Gene" or id_type == "Transcript":
@@ -369,10 +370,7 @@ def info(
     ## Transpose data frame so each row corresponds to one Ensembl ID
     df_final = df_final.T
 
-    ## Save
     if save:
-        #         with open('info_results.json', 'w', encoding='utf-8') as f:
-        #             json.dump(master_dict, f, ensure_ascii=False, indent=4)
         df_final.to_csv("gget_info_results.csv", index=False)
 
     if wrap_text:

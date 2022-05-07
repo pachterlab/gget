@@ -62,7 +62,7 @@ class TestSeq(unittest.TestCase):
         self.assertEqual(result_to_test, expected_result)
 
     def test_transcript_transcript_iso(self):
-        result_to_test = seq("ENST00000392653", isoforms=True, seqtype="transcript")
+        result_to_test = seq("ENST00000392653.2", isoforms=True, seqtype="transcript")
         # The isoform should not change the output for transcripts
         expected_result = [
             ">ENST00000392653 uniprot_id: P35326 ensembl_id: ENST00000392653 gene_name(s): SPRR2A organism: Homo sapiens (Human) sequence_length: 72",
@@ -71,7 +71,7 @@ class TestSeq(unittest.TestCase):
 
         self.assertEqual(result_to_test, expected_result)
 
-    # These will not work because bad type output was chagned to logging error instead of Python error
+    # These will not work because bad type output was changed to logging error instead of Python error
     # ## Test bad input errors
     # def test_gene_bad_type(self):
     #     data = "banana"
