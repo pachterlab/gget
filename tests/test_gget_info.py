@@ -3,7 +3,7 @@ import math
 from gget.gget_info import info
 
 
-class TestRef(unittest.TestCase):
+class TestInfo(unittest.TestCase):
     def test_info_gene(self):
         df = info("ENSTGUG00000006139")
         # Drop NaN columns, since np.nan != np.nan
@@ -28,7 +28,7 @@ class TestRef(unittest.TestCase):
             ]
         ]
 
-        self.assertEqual(result_to_test, expected_result)
+        self.assertListEqual(result_to_test, expected_result)
 
     def test_info_gene_expand(self):
         df = info("ENSTGUG00000006139", expand=True)
@@ -57,7 +57,7 @@ class TestRef(unittest.TestCase):
             ]
         ]
 
-        self.assertEqual(result_to_test, expected_result)
+        self.assertListEqual(result_to_test, expected_result)
 
     def test_info_transcript(self):
         df = info("ENSTGUT00000027003.1")
@@ -82,7 +82,7 @@ class TestRef(unittest.TestCase):
             ]
         ]
 
-        self.assertEqual(result_to_test, expected_result)
+        self.assertListEqual(result_to_test, expected_result)
 
     def test_info_transcript_expand(self):
         df = info("ENSTGUT00000027003.1", expand=True)
@@ -127,7 +127,7 @@ class TestRef(unittest.TestCase):
             ]
         ]
 
-        self.assertEqual(result_to_test, expected_result)
+        self.assertListEqual(result_to_test, expected_result)
 
     def test_info_mix(self):
         df = info(["ENSTGUT00000027003.1", "ENSTGUG00000006139"])
@@ -166,7 +166,7 @@ class TestRef(unittest.TestCase):
             ],
         ]
 
-        self.assertEqual(result_to_test, expected_result)
+        self.assertListEqual(result_to_test, expected_result)
 
     def test_info_exon(self):
         df = info(["ENSTGUEE00000179311"])
@@ -184,7 +184,7 @@ class TestRef(unittest.TestCase):
             ]
         ]
 
-        self.assertEqual(result_to_test, expected_result)
+        self.assertListEqual(result_to_test, expected_result)
 
     def test_info_exon_expand(self):
         df = info(["ENSTGUEE00000179311"], expand=True)
@@ -202,7 +202,7 @@ class TestRef(unittest.TestCase):
             ]
         ]
 
-        self.assertEqual(result_to_test, expected_result)
+        self.assertListEqual(result_to_test, expected_result)
 
     def test_info_bad_id(self):
         result = info(["banana"])
