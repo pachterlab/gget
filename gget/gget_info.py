@@ -237,6 +237,8 @@ def info(
     # Reindex df (this also drops all unmentioned indeces)
     df_final = df.reindex(
         [
+            "species",
+            "assembly_name",
             "uniprot_id",
             "primary_gene_name",
             "ensembl_gene_name",
@@ -248,8 +250,6 @@ def info(
             "object_type",
             "biotype",
             "canonical_transcript",
-            "species",
-            "assembly_name",
             "seq_region_name",
             "strand",
             "start",

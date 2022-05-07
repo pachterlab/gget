@@ -73,23 +73,33 @@ def muscle(fasta, super5=False, out=None):
         abs_fasta_path = abs_fasta_path.replace("/", "\\")
         abs_out_path = abs_out_path.replace("/", "\\")
 
-    # Assign read, write, and execute permission to muscle binary
-    with subprocess.Popen(
-        f"chmod 755 {muscle_path}", shell=True, stderr=subprocess.PIPE
-    ) as process_1:
-        stderr_1 = process_1.stderr.read().decode("utf-8")
-        # Log the standard error if it is not empty
-        if stderr_1:
-            sys.stderr.write(stderr_1)
-    # Exit system if the subprocess returned with an error
-    if process_1.wait() != 0:
-        return
+    if platform.system() != "Windows":
+        # Assign read, write, and execute permission to muscle binary
+        with subprocess.Popen(
+            # The double-quotation marks allow white spaces in muscle_path
+            f"chmod 755 '{muscle_path}'", shell=True, stderr=subprocess.PIPE 
+        ) as process_1:
+            stderr_1 = process_1.stderr.read().decode("utf-8")
+            # Log the standard error if it is not empty
+            if stderr_1:
+                sys.stderr.write(stderr_1)
+        # Exit system if the subprocess returned with an error
+        if process_1.wait() != 0:
+            return
 
     # Define muscle command
-    if super5:
-        command = f"{muscle_path} -super5 {abs_fasta_path} -output {abs_out_path}"
+    if platform.system() == "Windows":
+        if super5:
+            # The double-quotation marks allow white spaces in the path, but this does not work for Windows
+            command = f"{muscle_path} -super5 {abs_fasta_path} -output {abs_out_path}"
+        else:
+            command = f"{muscle_path} -align {abs_fasta_path} -output {abs_out_path}"
     else:
-        command = f"{muscle_path} -align {abs_fasta_path} -output {abs_out_path}"
+        if super5:
+            # The double-quotation marks allow white spaces in the path, but this does not work for Windows
+            command = f"'{muscle_path}' -super5 '{abs_fasta_path}' -output '{abs_out_path}'"
+        else:
+            command = f"'{muscle_path}' -align '{abs_fasta_path}' -output '{abs_out_path}'"
 
     # Record MUSCLE align start
     start_time = time.time()
