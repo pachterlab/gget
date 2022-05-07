@@ -464,7 +464,7 @@ def ref_species_options(which, release=None):
 
 def parse_blast_ref_page(handle):
     """
-    Extract RID and RTOE from the NCBI 'please wait' page.
+    Extract RID and RTOE from the NCBI 'please wait' page (handle).
     RTOE = 'Estimated time fo completion.'
     RID = 'Request ID'.
 
@@ -498,25 +498,25 @@ def parse_blast_ref_page(handle):
     # If neither RID, nor RTOE were found, try to extract error message from HTML page
     if not rid and not rtoe:
         # Search for 'error msInf' div class
-        i = s.find('<div class="error msInf">')
+        i = string.find('<div class="error msInf">')
         if i != -1:
-            msg = s[i + len('<div class="error msInf">') :].strip()
+            msg = string[i + len('<div class="error msInf">') :].strip()
             msg = msg.split("</div>", 1)[0].split("\n", 1)[0].strip()
             if msg:
-                raise ValueError("Error message from NCBI: %s" % msg)
+                raise ValueError(f"Error message from NCBI: {msg}")
         # Search for 'error' class
-        i = s.find('<p class="error">')
+        i = string.find('<p class="error">')
         if i != -1:
-            msg = s[i + len('<p class="error">') :].strip()
+            msg = string[i + len('<p class="error">') :].strip()
             msg = msg.split("</p>", 1)[0].split("\n", 1)[0].strip()
             if msg:
-                raise ValueError("Error message from NCBI: %s" % msg)
+                raise ValueError(f"Error message from NCBI: {msg}")
         # Generic search for error messages
-        i = s.find("Message ID#")
+        i = string.find("Message ID#")
         if i != -1:
             # Break the message at the first HTML tag
-            msg = s[i:].split("<", 1)[0].split("\n", 1)[0].strip()
-            raise ValueError("Error message from NCBI: %s" % msg)
+            msg = string[i:].split("<", 1)[0].split("\n", 1)[0].strip()
+            raise ValueError(f"Error message from NCBI: {msg}")
         # Raise general error, if the error layout was not recognized
         raise ValueError(
             "No request ID and no estimated time to completion were found in the NCBI 'please wait' page."

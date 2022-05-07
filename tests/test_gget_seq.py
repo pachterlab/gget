@@ -1,5 +1,4 @@
 import unittest
-import logging
 from gget.gget_seq import seq
 
 
@@ -76,24 +75,24 @@ class TestSeq(unittest.TestCase):
     # ## Test bad input errors
     # def test_gene_bad_type(self):
     #     data = "banana"
-    #     with self.assertRaises(logging.error):
+    #     with self.assertRaises(RuntimeError):
     #         result = seq(data)
 
     # def test_gene_iso_bad_type(self):
     #     data = "banana"
-    #     with self.assertRaises(logging.error):
+    #     with self.assertRaises(RuntimeError):
     #         result = seq(data, isoform=True)
 
     # def test_transcript_bad_type(self):
     #     data = "banana"
-    #     with self.assertRaises(logging.error):
+    #     with self.assertRaises(RuntimeError):
     #         result = seq(data, seqtype="transcript")
 
     # def test_transcript_iso_bad_type(self):
     #     data = "banana"
-    #     with self.assertRaises(logging.error):
+    #     with self.assertRaises(RuntimeError):
     #         result = seq(data, isoform=True, seqtype="transcript")
 
 
-if __name__ == "__main__":
-    unittest.main()
+# if __name__ == "__main__":
+#     unittest.main()

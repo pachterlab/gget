@@ -1,4 +1,5 @@
 import unittest
+import numpy as np
 from gget.utils import (
     n_colors,
     aa_colors,
@@ -30,7 +31,7 @@ class TestUtils(unittest.TestCase):
 
     def test_get_uniprot_seqs(self):
         df = get_uniprot_seqs(UNIPROT_REST_API, ["ENST00000392653", "ENST00000392657"])
-        result_to_test = df.values
+        result_to_test = df.values.tolist()
         expected_result = [
             [
                 "P35326",
@@ -52,106 +53,81 @@ class TestUtils(unittest.TestCase):
             ],
         ]
 
-        self.assertEqual(result_to_test, expected_result)
+        self.assertListEqual(result_to_test, expected_result)
 
     def test_get_uniprot_seqs_bad_type(self):
         result_to_test = get_uniprot_seqs(UNIPROT_REST_API, "banana")
-        expected_result = None
-
-        self.assertEqual(result_to_test, expected_result)
+        # Expect an empty data frame
+        self.assertTrue(result_to_test.empty)
 
     def test_get_uniprot_info_gene(self):
         df = get_uniprot_info(
             UNIPROT_REST_API,
-            ["ENSPFOG00000009362", "ENSGMOG00000033866"],
+            ["ENSG00000187140", "ENSG00000181449"],
             id_type="Gene",
         )
-        result_to_test = df.values
+        result_to_test = df.values.tolist()
         expected_result = [
-            ["A0A087XU86", nan, nan, "Fish-egg lectin-like", nan, "ENSPFOG00000009362"],
             [
-                "A0A8C5B536",
-                "LOC115543029",
-                list(["LOC115543029"]),
-                "Fish-egg lectin-like",
-                nan,
-                "ENSGMOG00000033866",
+                "Q9UJU5",
+                "FOXD3",
+                ["FOXD3", "HFH2"],
+                "Forkhead box protein D3 (HNF3/FH transcription factor genesis)",
+                "FUNCTION: Binds to the consensus sequence 5'-A[AT]T[AG]TTTGTTT-3' and acts as a transcriptional repressor. Also acts as a transcriptional activator. Promotes development of neural crest cells from neural tube progenitors. Restricts neural progenitor cells to the neural crest lineage while suppressing interneuron differentiation. Required for maintenance of pluripotent cells in the pre-implantation and peri-implantation stages of embryogenesis. {ECO:0000269|PubMed:11891324}.",
+                "ENSG00000187140",
             ],
             [
-                "A0A8C5B611",
-                "LOC115543029",
-                list(["LOC115543029"]),
-                "Fish-egg lectin-like",
-                nan,
-                "ENSGMOG00000033866",
-            ],
-            [
-                "A0A8C5BQR4",
-                "LOC115543029",
-                list(["LOC115543029"]),
-                "Fish-egg lectin-like",
-                nan,
-                "ENSGMOG00000033866",
-            ],
-            [
-                "A0A8C5C537",
-                "LOC115543029",
-                list(["LOC115543029"]),
-                "Fish-egg lectin-like",
-                nan,
-                "ENSGMOG00000033866",
-            ],
-            [
-                "A0A8C5CE04",
-                "LOC115543029",
-                list(["LOC115543029"]),
-                "Fish-egg lectin-like",
-                nan,
-                "ENSGMOG00000033866",
-            ],
-            [
-                "A0A8C5FPH9",
-                "LOC115543029",
-                list(["LOC115543029"]),
-                "Fish-egg lectin-like",
-                nan,
-                "ENSGMOG00000033866",
+                "P48431",
+                "SOX2",
+                ["SOX2"],
+                "Transcription factor SOX-2",
+                "FUNCTION: Transcription factor that forms a trimeric complex with OCT4 on DNA and controls the expression of a number of genes involved in embryonic development such as YES1, FGF4, UTF1 and ZFP206 (By similarity). Binds to the proximal enhancer region of NANOG (By similarity). Critical for early embryogenesis and for embryonic stem cell pluripotency (PubMed:18035408). Downstream SRRT target that mediates the promotion of neural stem cell self-renewal (By similarity). Keeps neural cells undifferentiated by counteracting the activity of proneural proteins and suppresses neuronal differentiation (By similarity). May function as a switch in neuronal development (By similarity). {ECO:0000250|UniProtKB:P48430, ECO:0000250|UniProtKB:P48432, ECO:0000269|PubMed:18035408}.",
+                "ENSG00000181449",
             ],
         ]
 
-        self.assertEqual(result_to_test, expected_result)
+        self.assertListEqual(result_to_test, expected_result)
 
     def test_get_uniprot_info_transcript(self):
         df = get_uniprot_info(
             UNIPROT_REST_API,
-            ["ENSPFOT00000009352", "ENSGMOT00000059188"],
+            ["ENST00000325404", "ENST00000251020"],
             id_type="Transcript",
-        ).values
-        result_to_test = df.values
+        )
+        result_to_test = df.values.tolist()
         expected_result = [
-            ["A0A087XU86", nan, nan, "Fish-egg lectin-like", nan, "ENSPFOT00000009352"],
             [
-                "A0A8C5B536",
-                "LOC115543029",
-                list(["LOC115543029"]),
-                "Fish-egg lectin-like",
-                nan,
-                "ENSGMOT00000059188",
+                "P48431",
+                "SOX2",
+                ["SOX2"],
+                "Transcription factor SOX-2",
+                "FUNCTION: Transcription factor that forms a trimeric complex with OCT4 on DNA and controls the expression of a number of genes involved in embryonic development such as YES1, FGF4, UTF1 and ZFP206 (By similarity). Binds to the proximal enhancer region of NANOG (By similarity). Critical for early embryogenesis and for embryonic stem cell pluripotency (PubMed:18035408). Downstream SRRT target that mediates the promotion of neural stem cell self-renewal (By similarity). Keeps neural cells undifferentiated by counteracting the activity of proneural proteins and suppresses neuronal differentiation (By similarity). May function as a switch in neuronal development (By similarity). {ECO:0000250|UniProtKB:P48430, ECO:0000250|UniProtKB:P48432, ECO:0000269|PubMed:18035408}.",
+                "ENST00000325404",
+            ],
+            [
+                "Q9NSC2",
+                "SALL1",
+                ["SALL1", "SAL1", "ZNF794"],
+                "Sal-like protein 1 (Spalt-like transcription factor 1) (Zinc finger protein 794) (Zinc finger protein SALL1) (Zinc finger protein Spalt-1) (HSal1) (Sal-1)",
+                "FUNCTION: Transcriptional repressor involved in organogenesis. Plays an essential role in ureteric bud invasion during kidney development. {ECO:0000250|UniProtKB:Q9ER74}.",
+                "ENST00000251020",
             ],
         ]
 
-        self.assertEqual(result_to_test, expected_result)
+        self.assertListEqual(result_to_test, expected_result)
 
     def test_get_uniprot_info_bad_type(self):
-        result_to_test = get_uniprot_info(UNIPROT_REST_API, "banana")
-        expected_result = None
-
-        self.assertEqual(result_to_test, expected_result)
+        result_to_test = get_uniprot_info(
+            UNIPROT_REST_API, "banana", id_type="Transcript"
+        )
+        # expected_result = None
+        self.assertIsNone(result_to_test)
 
     def test_rest_query(self):
         server = ENSEMBL_REST_API
         content_type = "application/json"
         ensembl_ID = "ENSPFOG00000009362"
+        query = "lookup/id/" + ensembl_ID + "?"
         result_to_test = rest_query(server, query, content_type)
         expected_result = {
             "source": "ensembl",
@@ -177,8 +153,9 @@ class TestUtils(unittest.TestCase):
         server = ENSEMBL_REST_API
         content_type = "application/json"
         ensembl_ID = "banana"
+        query = "lookup/id/" + ensembl_ID + "?"
         with self.assertRaises(RuntimeError):
-            result = rest_query(server, query, content_type)
+            rest_query(server, query, content_type)
 
     def test_find_latest_ens_rel(self):
         result_to_test = find_latest_ens_rel()

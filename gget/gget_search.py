@@ -1,4 +1,3 @@
-import pandas as pd
 import numpy as np
 import mysql.connector as sql
 import time
@@ -10,6 +9,11 @@ logging.basicConfig(
     level=logging.INFO,
     datefmt="%c",
 )
+
+import warnings
+warnings.simplefilter(action='ignore', category=UserWarning)
+import pandas as pd
+
 
 # Custom functions
 from .utils import gget_species_options, find_latest_ens_rel, wrap_cols_func
@@ -43,7 +47,7 @@ def search(
     - andor           Possible entries: "or" (default) or "and".
                       "or": Returns all genes that include at least one of the searchwords in their description (default).
                       "and": Returns only genes that include all of the searchwords in their description.
-    - limit           "Limit" limits the number of search results to the top {limit} genes found (default: None).
+    - limit           (int) Limit the number of search results returned (default: None).
     - wrap_text       True/False wether to wrap text in data frame for easier reading. Default: False.
                       Note: This transforms the data frame into a 'NoneType' object, restricting further operations.
     - save            If True, the data frame is saved as a csv in the current directory (default: False).
@@ -133,23 +137,12 @@ def search(
     ## Find genes
     for i, searchword in enumerate(searchwords):
         if seqtype == "gene":
-            # If limit is specified, fetch only the first {limit} genes for which the searchword appears in the description
-            if limit != None:
-                query = f"""
-                SELECT gene.stable_id, xref.display_label, gene.description, xref.description, gene.biotype
-                FROM gene
-                LEFT JOIN xref ON gene.display_xref_id = xref.xref_id
-                WHERE (gene.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%')
-                LIMIT {limit}
-                """
-            # Else, fetch all genes for which the searchword appears in the description
-            else:
-                query = f"""
-                SELECT gene.stable_id, xref.display_label, gene.description, xref.description, gene.biotype
-                FROM gene
-                LEFT JOIN xref ON gene.display_xref_id = xref.xref_id
-                WHERE (gene.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%')
-                """
+            query = f"""
+            SELECT gene.stable_id, xref.display_label, gene.description, xref.description, gene.biotype
+            FROM gene
+            LEFT JOIN xref ON gene.display_xref_id = xref.xref_id
+            WHERE (gene.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%')
+            """
 
             # Fetch the search results from the host using the specified query
             df_temp = pd.read_sql(query, con=db_connection)
@@ -176,23 +169,12 @@ def search(
                     df = df[df.stable_id.isin(val)]
 
         if seqtype == "transcript":
-            # If limit is specified, fetch only the first {limit} transcripts for which the searchword appears in the description
-            if limit != None:
-                query = f"""
-                SELECT transcript.stable_id, xref.display_label, transcript.description, xref.description, transcript.biotype
-                FROM transcript
-                LEFT JOIN xref ON transcript.display_xref_id = xref.xref_id
-                WHERE (transcript.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%')
-                LIMIT {limit}
-                """
-            # Else, fetch all transcripts for which the searchword appears in the description
-            else:
-                query = f"""
-                SELECT transcript.stable_id, xref.display_label, transcript.description, xref.description, transcript.biotype
-                FROM transcript
-                LEFT JOIN xref ON transcript.display_xref_id = xref.xref_id
-                WHERE (transcript.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%')
-                """
+            query = f"""
+            SELECT transcript.stable_id, xref.display_label, transcript.description, xref.description, transcript.biotype
+            FROM transcript
+            LEFT JOIN xref ON transcript.display_xref_id = xref.xref_id
+            WHERE (transcript.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%')
+            """
 
             # Fetch the search results from the host using the specified query
             df_temp = pd.read_sql(query, con=db_connection)
@@ -233,6 +215,20 @@ def search(
     # Remove any duplicate search results from the master data frame and reset the index
     df = df.drop_duplicates().reset_index(drop=True)
 
+    # If limit is not None, keep only the first {limit} rows
+    if limit != None:
+        # Print number of genes/transcripts found versus fetched
+        logging.info(f"Returning {limit} matches of {len(df)} total matches found.")
+        # Remove all but limit rows
+        df = df.head(limit)
+
+    else:
+        # Print number of genes/transcripts fetched
+        logging.info(f"Total matches found: {len(df)}.")
+    
+    # Print query time
+    logging.info(f"Query time: {round(time.time() - start_time, 2)} seconds.")
+
     # Add URL to gene summary on Ensembl
     df["url"] = (
         "https://uswest.ensembl.org/"
@@ -240,10 +236,6 @@ def search(
         + "/Gene/Summary?g="
         + df["ensembl_id"]
     )
-
-    # Print query time and number of genes/transcripts fetched
-    logging.info(f"Query time: {round(time.time() - start_time, 2)} seconds")
-    logging.info(f"Matches found: {len(df)}")
 
     # Save
     if save:
