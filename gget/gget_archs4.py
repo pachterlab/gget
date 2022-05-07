@@ -16,7 +16,7 @@ from .constants import GENECORR_URL, EXPRESSION_URL
 
 def archs4(gene, which="correlation", species="human", save=False):
     """
-    Function to find the most correlated genes or the tissue expression atlas
+    Find the most correlated genes or the tissue expression atlas
     of a gene of interest using data from the human and mouse RNA-seq
     database ARCHS4 (https://maayanlab.cloud/archs4/).
 
