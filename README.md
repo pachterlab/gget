@@ -1,6 +1,7 @@
 
 > :warning: **This README is not yet up to date with the latest version of gget.**
-<img src="img-buildkite-64/jupyter.png" width="20" height="20" alt="jupyter"/>
+![jl](https://user-images.githubusercontent.com/56094636/167274879-2785210c-890c-4b17-97c5-1ae766ccb6e2.png)
+<img src="https://user-images.githubusercontent.com/56094636/167274879-2785210c-890c-4b17-97c5-1ae766ccb6e2.png" width="20" height="20" alt="jupyter"/>
 # gget (gene-get)
 [![pypi version](https://img.shields.io/pypi/v/gget)](https://pypi.org/project/gget)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/gget)
