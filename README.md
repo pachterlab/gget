@@ -6,7 +6,7 @@
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/gget)
 [![license](https://img.shields.io/pypi/l/gget)](LICENSE)
 [![DOI](https://zenodo.org/badge/458943224.svg)](https://zenodo.org/badge/latestdoi/458943224)
-![Code Coverage](https://img.shields.io/badge/Coverage-56%25-orange.svg)
+![Code Coverage](https://img.shields.io/badge/Coverage-72%25-yellow.svg)
 
 gget has four main commands:  
 - [**gget ref**](#gget-ref)  
