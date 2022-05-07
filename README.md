@@ -6,6 +6,7 @@
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/gget)
 [![license](https://img.shields.io/pypi/l/gget)](LICENSE)
 [![DOI](https://zenodo.org/badge/458943224.svg)](https://zenodo.org/badge/latestdoi/458943224)
+![status](https://github.com/pachterlab/gget/workflows/CI/badge.svg)
 ![Code Coverage](https://img.shields.io/badge/Coverage-87%25-green.svg)
 
 gget has four main commands:  
