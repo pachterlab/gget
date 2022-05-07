@@ -17,7 +17,7 @@ setup(
     author_email=__email__,
     maintainer=__author__,
     maintainer_email=__email__,
-    description="Efficient querying of genomic databases directly from a terminal or Python environment.",
+    description="Efficient querying of genomic databases directly into programming environments.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     zip_safe=False,
