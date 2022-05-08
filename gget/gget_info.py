@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
-import json
+
+# import json
 import logging
 
 # Add and format time stamp in logging messages
@@ -215,12 +216,13 @@ def info(
             df_uniprot = get_uniprot_info(UNIPROT_REST_API, ens_id, id_type=id_type)
 
             if not isinstance(df_uniprot, type(None)):
-                # If two different UniProt IDs for a single query ID are returned,
-                # append the two IDs and their respective information
+                # If two different UniProt IDs for a single query ID are returned, they should be merged into one column
+                # So len(df_uniprot) should always be 1
                 if len(df_uniprot) > 1:
                     df_uniprot = df_uniprot.iloc[[0]]
+                    # This should not be necessary
                     logging.warning(
-                        f"More than one UniProt ID was found for Ensembl ID {ens_id}. Only the first UniProt ID and its associated information will be returned."
+                        f"More than match was found for Ensembl ID {ens_id} in UniProt. Only the first match and its associated information will be returned."
                     )
 
                 # Transpose UniProt data frame and rename columns to fit structure of df
@@ -373,7 +375,7 @@ def info(
         df_final.to_csv("gget_info_results.csv", index=False)
 
     if wrap_text:
-        wrap_cols_func(df_final, ["uniprot_description", "ensembl_description"])
+        df_wrapped = df_final.copy()
+        wrap_cols_func(df_wrapped, ["uniprot_description", "ensembl_description"])
 
-    else:
-        return df_final
+    return df_final

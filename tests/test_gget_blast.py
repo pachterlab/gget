@@ -6,9 +6,7 @@ class TestBlast(unittest.TestCase):
     def test_blast_nt(self):
         df = blast(
             "ATACTCAGTCACACAAGCCATAGCAGGAAACAGCGAGCTTGCAGCCTCACCGACGAGTCTCAACTAAAAGGGACTCCCGGAGCTAGGGGTGGGGACTCGGCCTCACACAGTGAGTGCCGG",
-            descriptions=1,
-            alignments=1,
-            hitlist_size=1,
+            limit=1,
         )
         result_to_test = df.values.tolist()
         expected_result = [
@@ -31,9 +29,7 @@ class TestBlast(unittest.TestCase):
     def test_blast_aa_fasta(self):
         df = blast(
             "tests/fixtures/muscle_aa_test.fa",
-            descriptions=1,
-            alignments=1,
-            hitlist_size=1,
+            limit=1,
         )
         result_to_test = df.values.tolist()
         expected_result = [
@@ -56,9 +52,7 @@ class TestBlast(unittest.TestCase):
     def test_blast_aa_txt(self):
         df = blast(
             "tests/fixtures/muscle_aa_test.txt",
-            descriptions=1,
-            alignments=1,
-            hitlist_size=1,
+            limit=1,
         )
         result_to_test = df.values.tolist()
         expected_result = [

@@ -2,6 +2,7 @@ import uuid
 
 # Ensembl REST API server for gget seq and info
 ENSEMBL_REST_API = "http://rest.ensembl.org/"
+ENSEMBL_FTP_URL = "http://ftp.ensembl.org/pub/"
 
 # UniProt REST API server for gget seq
 UNIPROT_REST_API = "https://www.uniprot.org/uploadlists/"

@@ -6,6 +6,16 @@ import numpy as np
 import urllib
 from io import StringIO
 from IPython.display import display, HTML
+import logging
+
+# Add and format time stamp in logging messages
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(message)s",
+    level=logging.INFO,
+    datefmt="%c",
+)
+
+from .constants import ENSEMBL_FTP_URL
 
 
 def n_colors(nucleotide):
@@ -208,21 +218,17 @@ def get_uniprot_seqs(server, ensembl_ids):
     return df
 
 
-def get_uniprot_info(server, ensembl_ids, id_type):
+def get_uniprot_info(server, ensembl_id, id_type):
     """
     Retrieve UniProt synonyms and description based on Ensemsbl identifiers.
 
     Args:
     - server          Link to UniProt REST API server.
-    - ensembl_ids     One or more transcript Ensembl IDs (string or list of strings).
+    - ensembl_id      Ensembl ID (str).
     - id_type         "Gene" or "Transcript"
 
     Returns data frame with UniProt ID, gene name, organism, sequence, sequence length, and query ID.
     """
-
-    # If a single Ensembl ID is passed as string, convert to list
-    if type(ensembl_ids) == str:
-        ensembl_ids = [ensembl_ids]
 
     if id_type == "Gene":
         ens_id_type = "ENSEMBL_ID"
@@ -230,7 +236,7 @@ def get_uniprot_info(server, ensembl_ids, id_type):
         ens_id_type = "ENSEMBL_TRS_ID"
     else:
         logging.warning(
-            f"Ensembl_ID '{ensembl_ids}' was not recognized as either gene nor transcript. Gene name synonyms and description will not be fetched from UniProt."
+            f"Ensembl_ID '{ensembl_id}' was not recognized as either gene nor transcript. Gene name synonyms and description will not be fetched from UniProt."
         )
         return
 
@@ -241,8 +247,8 @@ def get_uniprot_info(server, ensembl_ids, id_type):
         "from": ens_id_type,
         "to": "ACC",
         "format": "tab",
-        "query": " ".join(ensembl_ids),
-        "columns": "id,genes(PREFERRED),genes,protein names,comment(FUNCTION)",
+        "query": ensembl_id,
+        "columns": "id,genes(PREFERRED),genes,protein names,comment(FUNCTION),reviewed",
     }
     # Reformat query arguments
     query_args = urllib.parse.urlencode(query_args)
@@ -268,19 +274,19 @@ def get_uniprot_info(server, ensembl_ids, id_type):
         # This will throw an EmptyDataError if no results were found
         df = pd.read_csv(StringIO(res.decode("utf-8")), sep="\t")
 
-        if len(df.columns) == 6:
+        if len(df.columns) == 7:
             # Rename columns
             df.columns = [
-                "uniprot_id",
-                "primary_gene_name",
+                "uniprot_id" "primary_gene_name",
                 "synonyms",
                 "protein_names",
                 "uniprot_description",
+                "status",
                 "query",
             ]
-        # Sometimes a seventh "isomap" column is returned.
-        if len(df.columns) == 7:
-            # Drop isoform column (last column)
+        # Sometimes an extra "isomap" column is returned.
+        if len(df.columns) == 8:
+            # Drop isomap column (last column)
             df = df.iloc[:, :-1]
             # Rename columns
             df.columns = [
@@ -289,20 +295,55 @@ def get_uniprot_info(server, ensembl_ids, id_type):
                 "synonyms",
                 "protein_names",
                 "uniprot_description",
+                "status",
                 "query",
             ]
-
         try:
             # Split gene names into list of strings
             df["synonyms"] = df["synonyms"].str.split(" ")
         except:
             None
 
+        # If there are reviewed results, return only reviewed results
+        if "reviewed" in df["status"].values:
+            logging.info("Returning only reviewed UniProt results.")
+            # Only keep rows where status is "reviewed"
+            df = df[df.status == "reviewed"]
+
+        else:
+            logging.info(
+                "No reviewed UniProt results were found. Returning all unreviewed results."
+            )
+
+        # Return set of all results if more than one UniProt ID was found for this Ensembl ID
+        final_df = pd.DataFrame()
+        for column in df.columns:
+            if column == "synonyms":
+                # Flatten synonym lists
+                syn_lists = df[column].values
+                flat_list = [item for sublist in syn_lists for item in sublist]
+                final_df[column] = [list(set(flat_list))]
+
+            else:
+                final_df[column] = [list(set(df[column].values))]
+                # If onyl one value left, no need to return it as list
+                if len(final_df[column]) == 1:
+                    final_df[column] = final_df[column][0]
+
+        # Remove "FUNCTION: " from beginning of UniProt description
+        clean_desc = []
+        for desc in final_df["uniprot_description"].values:
+            clean_desc.append(desc.split("FUNCTION: ")[1])
+        final_df["uniprot_description"] = clean_desc
+
+        if len(final_df["uniprot_description"]) == 1:
+            final_df["uniprot_description"] = final_df["uniprot_description"][0]
+
     # If no results were found, return None
     except pd.errors.EmptyDataError:
         return None
 
-    return df
+    return final_df
 
 
 def wrap_cols_func(df, cols):
@@ -346,7 +387,7 @@ def find_latest_ens_rel():
     """
     Returns the latest Ensembl release number.
     """
-    url = "http://ftp.ensembl.org/pub/"
+    url = ENSEMBL_FTP_URL
     html = requests.get(url)
 
     # Raise error if status code not "OK" Response
@@ -393,7 +434,7 @@ def gget_species_options(release=None):
             ENS_rel = release
 
     # Find all available databases
-    url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/mysql/"
+    url = ENSEMBL_FTP_URL + f"release-{ENS_rel}/mysql/"
     html = requests.get(url)
 
     # Raise error if status code not "OK" Response
@@ -438,9 +479,9 @@ def ref_species_options(which, release=None):
 
     # Find all available species for this release and FTP type
     if which == "gtf":
-        url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/gtf/"
+        url = ENSEMBL_FTP_URL + f"release-{ENS_rel}/gtf/"
     if which == "dna" or which == "cdna":
-        url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/"
+        url = ENSEMBL_FTP_URL + f"release-{ENS_rel}/fasta/"
     html = requests.get(url)
 
     # Raise error if status code not "OK" Response

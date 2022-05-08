@@ -15,10 +15,7 @@ from urllib.request import urlopen, Request
 from urllib.parse import urlencode
 
 # Custom functions
-from .utils import (
-    parse_blast_ref_page, 
-    wrap_cols_func
-)
+from .utils import parse_blast_ref_page, wrap_cols_func
 
 # Constants
 from .constants import (
@@ -31,8 +28,7 @@ def blast(
     sequence,
     program="default",
     database="default",
-    descriptions=500,
-    hitlist_size=50,
+    limit=50,
     expect=10.0,
     low_comp_filt=False,
     megablast=True,
@@ -43,14 +39,14 @@ def blast(
     """
     BLAST a nucleotide or amino acid sequence against any BLAST DB.
     Args:
-     - sequence       Sequence (str) or path to fasta file containing one sequence.
+     - sequence       Sequence (str) or path to FASTA file.
+                      (If more than one sequence in FASTA file, only the first will be submitted to BLAST.)
      - program        'blastn', 'blastp', 'blastx', 'tblastn', or 'tblastx'.
                       Default: 'blastn' for nucleotide sequences; 'blastp' for amino acid sequences.
      - database       'nt', 'nr', 'refseq_rna', 'refseq_protein', 'swissprot', 'pdbaa', or 'pdbnt'.
                       Default: 'nt' for nucleotide sequences; 'nr' for amino acid sequences.
                       More info on BLAST databases: https://ncbi.github.io/blast-cloud/blastdb/available-blastdbs.html
-     - descriptions   int or None. Limit number of descriptions to return. Default 500.
-     - hitlist_size   int or None. Limit number of hits to return. Default 50.
+     - limit          Limits number of hits to return. Default 50.
      - expect         float or None. An expect value cutoff. Default 10.0.
      - low_comp_filt  True/False whether to apply low complexity filter. Default False.
      - megablast      True/False whether to use the MegaBLAST algorithm (blastn only). Default True.
@@ -232,7 +228,7 @@ def blast(
                     f"Database specified is {database}. Expected one of: {', '.join(dbs)}"
                 )
 
-    ## Translate filter and ncbi_gi arguments
+    ## Translate filter arguments
     if low_comp_filt is False:
         low_comp_filt = None
     else:
@@ -254,8 +250,9 @@ def blast(
         ("PROGRAM", program),
         ("DATABASE", database),
         ("QUERY", sequence),
-        ("DESCRIPTIONS", descriptions),
-        ("HITLIST_SIZE", hitlist_size),
+        ("DESCRIPTIONS", 500),
+        ("HITLIST_SIZE", limit),
+        ("ALIGNMENTS", 500),
         ("EXPECT", expect),
         ("FILTER", low_comp_filt),
         ("MEGABLAST", megablast),
@@ -292,8 +289,9 @@ def blast(
     # Args for the GET command
     get_args = [
         ("RID", RID),
-        ("DESCRIPTIONS", descriptions),
-        ("HITLIST_SIZE", hitlist_size),
+        ("DESCRIPTIONS", 500),
+        ("HITLIST_SIZE", limit),
+        ("ALIGNMENTS", 500),
         ("FORMAT_TYPE", "HTML"),
         ("CMD", "Get"),
     ]
@@ -366,7 +364,8 @@ def blast(
                 results_df.to_csv("gget_blast_results.csv", index=False)
 
             if wrap_text:
-                wrap_cols_func(results_df, ["Description"])
+                df_wrapped = results_df.copy()
+                wrap_cols_func(df_wrapped, ["Description"])
 
             return results_df
 

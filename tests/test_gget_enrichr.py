@@ -1,8 +1,9 @@
 import unittest
 import matplotlib
 import matplotlib.pyplot as plt
+
 # Prevent matplotlib from opening windows
-matplotlib.use('Agg')
+matplotlib.use("Agg")
 from gget.gget_enrichr import enrichr
 
 
@@ -26,23 +27,23 @@ class TestEnrichr(unittest.TestCase):
         expected_result = [
             [
                 1,
-                "One carbon pool by folate Homo sapiens hsa00670",
+                "One carbon pool by folate",
                 0.008965773496317424,
                 131.39473684210526,
                 619.439581424405,
                 ["MTHFD2L"],
                 0.01793154699263485,
-                "KEGG_2016",
+                "KEGG_2021_Human",
             ],
             [
                 2,
-                "Metabolic pathways Homo sapiens hsa01100",
-                0.43768106856779543,
-                1.8934773828756057,
-                1.5645136879532167,
-                ["MTHFD2L"],
-                0.43768106856779543,
-                "KEGG_2016",
+                "Mitophagy",
+                0.030192894641305958,
+                37.17164179104478,
+                130.10627217002806,
+                ["FUNDC1"],
+                0.030192894641305958,
+                "KEGG_2021_Human",
             ],
         ]
 
@@ -69,23 +70,23 @@ class TestEnrichr(unittest.TestCase):
         expected_result = [
             [
                 1,
-                "One carbon pool by folate Homo sapiens hsa00670",
+                "One carbon pool by folate",
                 0.008965773496317424,
                 131.39473684210526,
                 619.439581424405,
                 ["MTHFD2L"],
                 0.01793154699263485,
-                "KEGG_2016",
+                "KEGG_2021_Human",
             ],
             [
                 2,
-                "Metabolic pathways Homo sapiens hsa01100",
-                0.43768106856779543,
-                1.8934773828756057,
-                1.5645136879532167,
-                ["MTHFD2L"],
-                0.43768106856779543,
-                "KEGG_2016",
+                "Mitophagy",
+                0.030192894641305958,
+                37.17164179104478,
+                130.10627217002806,
+                ["FUNDC1"],
+                0.030192894641305958,
+                "KEGG_2021_Human",
             ],
         ]
 

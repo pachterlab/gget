@@ -14,6 +14,8 @@ logging.basicConfig(
 # Custom functions
 from .utils import ref_species_options, find_latest_ens_rel
 
+from .constants import ENSEMBL_FTP_URL
+
 
 def ref(species, which="all", release=None, ftp=False, save=False, list_species=False):
     """
@@ -37,31 +39,15 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
     - ftp           Return only the requested FTP links in a list (default: False).
     - save          Save the results in the local directory (default: False).
 
-    - list_species  If True and `species=None`, returns a list of all available species (default: False). 
+    - list_species  If True and `species=None`, returns a list of all available species (default: False).
                     (Can be combined with `release` to get the species for a specific Ensembl release.)
-    
+
     Returns a dictionary containing the requested URLs with their respective Ensembl version and release date and time.
     (If FTP=True, returns a list containing only the URLs.)
     """
-    # If list_species = True, return list of all available species
-    if list_species is True and release is None:
-        # Find all available species for GTFs for this Ensembl release
-        species_list_gtf = ref_species_options("gtf")
-        # Find all available species for FASTAs for this Ensembl release
-        species_list_dna = ref_species_options("dna")
 
-        # Find intersection of the two lists
-        # (Only species which have GTF and FASTAs available can continue)
-        species_list = list(set(species_list_gtf) & set(species_list_dna))
-
-        # Print available species list
-        logging.info(
-            f"Fetching available genomes (GTF and FASTAs present) in Ensembl release {find_latest_ens_rel()} (latest)."
-        )
-        
-        return species_list
-    
-    if list_species is True and release is not None:
+    # Return list of all available species
+    if list_species is True:
         # Find all available species for GTFs for this Ensembl release
         species_list_gtf = ref_species_options("gtf", release=release)
         # Find all available species for FASTAs for this Ensembl release
@@ -71,13 +57,22 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
         # (Only species which have GTF and FASTAs available can continue)
         species_list = list(set(species_list_gtf) & set(species_list_dna))
 
-        # Print available species list
-        logging.info(
-            f"Fetching available genomes (GTF and FASTAs present) in Ensembl release {release}."
-        )
-        
+        if release is None:
+            # Print available species list
+            logging.info(
+                f"Fetching available genomes (GTF and FASTAs present) from Ensembl release {find_latest_ens_rel()} (latest)."
+            )
+
+        else:
+            # Print available species list
+            logging.info(
+                f"Fetching available genomes (GTF and FASTAs present) from Ensembl release {release}."
+            )
+
         return species_list
-                
+
+        return species_list
+
     # Species shortcuts
     if species == "human":
         species = "homo_sapiens"
@@ -88,13 +83,13 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
     species = species.lower()
 
     ## Find latest Ensembl release
-    url = "http://ftp.ensembl.org/pub/"
+    url = ENSEMBL_FTP_URL
     html = requests.get(url)
 
     # Raise error if status code not "OK" Response
     if html.status_code != 200:
         raise RuntimeError(
-            f"HTTP response status code {html.status_code}. Please try again."
+            f"Ensembl FTP site returned error status code {html.status_code}. Please try again."
         )
 
     soup = BeautifulSoup(html.text, "html.parser")
@@ -137,7 +132,7 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
         )
 
     ## Get GTF link for this species and release
-    url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/gtf/{species}/"
+    url = ENSEMBL_FTP_URL + f"release-{ENS_rel}/gtf/{species}/"
     html = requests.get(url)
 
     # Raise error if status code not "OK" Response
@@ -166,15 +161,13 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
             # Get release date and time from <None> elements (since there are twice as many, 2x and +1 to move from string to date)
             gtf_date_size = nones[i * 2 + 1]
 
-    gtf_url = (
-        f"http://ftp.ensembl.org/pub/release-{ENS_rel}/gtf/{species}/{gtf_str['href']}"
-    )
+    gtf_url = ENSEMBL_FTP_URL + f"release-{ENS_rel}/gtf/{species}/{gtf_str['href']}"
 
     gtf_date = gtf_date_size.strip().split("  ")[0]
     gtf_size = gtf_date_size.strip().split("  ")[-1]
 
     ## Get cDNA FASTA link for this species and release
-    url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/cdna"
+    url = ENSEMBL_FTP_URL + f"release-{ENS_rel}/fasta/{species}/cdna"
     html = requests.get(url)
 
     # Raise error if status code not "OK" Response
@@ -203,13 +196,15 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
             # Get release date and time from <None> elements (since there are twice as many, 2x and +1 to move from string to date)
             cdna_date_size = nones[i * 2 + 1]
 
-    cdna_url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/cdna/{cdna_str['href']}"
+    cdna_url = (
+        ENSEMBL_FTP_URL + f"release-{ENS_rel}/fasta/{species}/cdna/{cdna_str['href']}"
+    )
 
     cdna_date = cdna_date_size.strip().split("  ")[0]
     cdna_size = cdna_date_size.strip().split("  ")[-1]
 
     ## Get DNA FASTA link for this species and release
-    url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/dna"
+    url = ENSEMBL_FTP_URL + f"release-{ENS_rel}/fasta/{species}/dna"
     html = requests.get(url)
 
     # Raise error if status code not "OK" Response
@@ -250,7 +245,9 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
                 # Get date from non-assigned values (since there are twice as many, 2x and +1 to move from string to date)
                 dna_date_size = nones[i * 2 + 1]
 
-    dna_url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/dna/{dna_str['href']}"
+    dna_url = (
+        ENSEMBL_FTP_URL + f"release-{ENS_rel}/fasta/{species}/dna/{dna_str['href']}"
+    )
 
     dna_date = dna_date_size.strip().split("  ")[0]
     dna_size = dna_date_size.strip().split("  ")[-1]
@@ -259,7 +256,7 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
     dna_size = dna_size.strip()
 
     ## Get CDS FASTA link for this species and release
-    url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/cds"
+    url = ENSEMBL_FTP_URL + f"release-{ENS_rel}/fasta/{species}/cds"
     html = requests.get(url)
 
     # Raise error if status code not "OK" Response
@@ -288,13 +285,15 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
             # Get release date and time from <None> elements (since there are twice as many, 2x and +1 to move from string to date)
             cds_date_size = nones[i * 2 + 1]
 
-    cds_url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/cds/{cds_str['href']}"
+    cds_url = (
+        ENSEMBL_FTP_URL + f"release-{ENS_rel}/fasta/{species}/cds/{cds_str['href']}"
+    )
 
     cds_date = cds_date_size.strip().split("  ")[0]
     cds_size = cds_date_size.strip().split("  ")[-1]
 
     ## Get ncRNA FASTA link for this species and release
-    url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/ncrna"
+    url = ENSEMBL_FTP_URL + f"release-{ENS_rel}/fasta/{species}/ncrna"
     html = requests.get(url)
 
     # Raise error if status code not "OK" Response
@@ -323,13 +322,15 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
             # Get release date and time from <None> elements (since there are twice as many, 2x and +1 to move from string to date)
             ncrna_date_size = nones[i * 2 + 1]
 
-    ncrna_url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/ncrna/{ncrna_str['href']}"
+    ncrna_url = (
+        ENSEMBL_FTP_URL + f"release-{ENS_rel}/fasta/{species}/ncrna/{ncrna_str['href']}"
+    )
 
     ncrna_date = ncrna_date_size.strip().split("  ")[0]
     ncrna_size = ncrna_date_size.strip().split("  ")[-1]
 
     ## Get pep FASTA link for this species and release
-    url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/pep"
+    url = ENSEMBL_FTP_URL + f"release-{ENS_rel}/fasta/{species}/pep"
     html = requests.get(url)
 
     # Raise error if status code not "OK" Response
@@ -358,7 +359,9 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
             # Get release date and time from <None> elements (since there are twice as many, 2x and +1 to move from string to date)
             pep_date_size = nones[i * 2 + 1]
 
-    pep_url = f"http://ftp.ensembl.org/pub/release-{ENS_rel}/fasta/{species}/pep/{pep_str['href']}"
+    pep_url = (
+        ENSEMBL_FTP_URL + f"release-{ENS_rel}/fasta/{species}/pep/{pep_str['href']}"
+    )
 
     pep_date = pep_date_size.strip().split("  ")[0]
     pep_size = pep_date_size.strip().split("  ")[-1]
