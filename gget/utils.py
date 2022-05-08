@@ -325,10 +325,10 @@ def get_uniprot_info(server, ensembl_id, id_type):
                 # Flatten synonym lists
                 syn_lists = df[column].values
                 flat_list = [item for sublist in syn_lists for item in sublist]
-                final_df[column] = [list(set(flat_list))]
+                final_df[column] = [sorted(list(set(flat_list)))]
 
             else:
-                final_df[column] = [list(set(df[column].values))]
+                final_df[column] = [sorted(list(set(df[column].values)))]
                 # If onyl one value left, no need to return it as list
                 if len(final_df[column]) == 1:
                     final_df[column] = [final_df[column][0]]

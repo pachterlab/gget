@@ -67,7 +67,7 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
                 f"Fetching available genomes (GTF and FASTAs present) from Ensembl release {release}."
             )
 
-        return species_list
+        return sorted(species_list)
 
     # Species shortcuts
     if species == "human":

@@ -290,7 +290,7 @@ def info(
                 {
                     "ncbi_gene_id": [ncbi_gene_id],
                     "ncbi_description": [ncbi_description],
-                    "synonyms": [synonyms],
+                    "synonyms": [sorted(synonyms)],
                 },
             )
 
