@@ -154,6 +154,10 @@ Limits the number of search results, e.g. 10. Default: None.
 `-o` `--out`  
 Path to the csv the results will be saved in, e.g. path/to/directory/results.csv. Default: Standard out.   
 Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
+
+**Flags**
+`wrap_text`  
+Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False). 
     
 #### [Examples](https://github.com/pachterlab/gget_examples)
 ___
@@ -227,13 +231,7 @@ Default: 'blastn' for nucleotide sequences; 'blastp' for amino acid sequences.
 Default: 'nt' for nucleotide sequences; 'nr' for amino acid sequences.  
 [More info on BLAST databases](https://ncbi.github.io/blast-cloud/blastdb/available-blastdbs.html)
 
-`-d` `--descriptions`  
-Limits number of descriptions returned. Default: 500.  
-
-`-a` `--alignments`  
-Limits number of alignments to return. Default: 500.  
-
-`-hs` `--hitlist_size`  
+`-l` `--limit`  
 Limits number of hits to return. Default: 50.  
 
 `-e` `--expect`  
@@ -244,9 +242,6 @@ Path to the csv the results will be saved in, e.g. path/to/directory/results.csv
 Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
 
 **Flags**  
-`-ng` `--ncbi_gi`  
-Also returns NCBI GI identifiers.  
-
 `-lcf` `--low_comp_filt`  
 Turns on [low complexity filter](https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=FAQ#LCR).  
 
