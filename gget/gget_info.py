@@ -278,7 +278,7 @@ def info(
             if ncbi_synonyms is not None and not isinstance(df_uniprot, type(None)):
                 # Collect and flatten UniProt synonyms
                 uni_synonyms = df_uniprot["uni_synonyms"].values[0]
-                synonyms = ([list(set().union(uni_synonyms, ncbi_synonyms))],)
+                synonyms = list(set().union(uni_synonyms, ncbi_synonyms))
             # Add only UniProt synonyms if NCBI syns not available
             elif ncbi_synonyms is None and not isinstance(df_uniprot, type(None)):
                 synonyms = df_uniprot["uni_synonyms"].values[0]

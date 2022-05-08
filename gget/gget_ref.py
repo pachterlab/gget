@@ -58,18 +58,14 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
         species_list = list(set(species_list_gtf) & set(species_list_dna))
 
         if release is None:
-            # Print available species list
             logging.info(
                 f"Fetching available genomes (GTF and FASTAs present) from Ensembl release {find_latest_ens_rel()} (latest)."
             )
 
         else:
-            # Print available species list
             logging.info(
                 f"Fetching available genomes (GTF and FASTAs present) from Ensembl release {release}."
             )
-
-        return species_list
 
         return species_list
 
