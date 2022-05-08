@@ -34,14 +34,14 @@ def archs4(gene, which="correlation", species="human", save=False):
 
     Returns a data frame with the requested results.
     """
-    # Check if which argument is valid
+    # Check if 'which' argument is valid
     whichs = ["correlation", "tissue"]
     if which not in whichs:
         raise ValueError(
             f"'which' argument specified as {which}. Expected one of: {', '.join(whichs)}"
         )
 
-    # Check if species argument is valid
+    # Check if 'species' argument is valid
     sps = ["human", "mouse"]
     if species not in sps:
         raise ValueError(
