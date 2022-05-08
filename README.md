@@ -97,12 +97,12 @@ Note: Not required when calling flag `--list_species`.
 `-w` `--which`  
 Defines which results to return. Default: 'all' -> Returns all available results.  
 Possible entries are one or a combination of the following:  
-'gtf'   - Returns the annotation (GTF).  
-'cdna'  - Returns the trancriptome (cDNA).  
-'dna'   - Returns the genome (DNA).  
-'cds    - Returns the coding sequences corresponding to Ensembl genes. (Does not contain UTR or intronic sequence.)  
-'cdrna' - Returns transcript sequences corresponding to non-coding RNA genes (ncRNA).  
-'pep'   - Returns the protein translations of Ensembl genes.  
+'gtf' - Returns the annotation (GTF).  
+'cdna' - Returns the trancriptome (cDNA).  
+'dna' - Returns the genome (DNA).  
+'cds' - Returns the coding sequences corresponding to Ensembl genes. (Does not contain UTR or intronic sequence.)  
+'cdrna' - Returns transcript sequences corresponding to non-coding RNA genes (ncRNA).  
+'pep' - Returns the protein translations of Ensembl genes.  
 
 `-r` `--release`  
 Defines the Ensembl release number from which the files are fetched, e.g. 104. Default: latest Ensembl release.  
@@ -320,13 +320,13 @@ Short names (gene symbols) of genes to perform enrichment analysis on, e.g. 'PHF
 
 `-db` `--database`  
 Database to use as reference for the enrichment analysis.  
-Supports any database listed [here](https://maayanlab.cloud/Enrichr/#libraries) under 'Gene-set Library' or one of the following shortcuts:  
-'pathway'              (KEGG_2021_Human)  
-'transcription'        (ChEA_2016)  
-'ontology'             (GO_Biological_Process_2021)  
-'diseases_drugs'       (GWAS_Catalog_2019)  
-'celltypes'            (PanglaoDB_Augmented_2021)  
-'kinase_interactions'  (KEA_2015)  
+Supports any database listed [here](https://maayanlab.cloud/Enrichr/#libraries) under 'Gene-set Library' or one of the following shortcuts:  <br />
+'pathway'       (KEGG_2021_Human)  
+'transcription'     (ChEA_2016)  
+'ontology'      (GO_Biological_Process_2021)  
+'diseases_drugs'   (GWAS_Catalog_2019)   
+'celltypes'      (PanglaoDB_Augmented_2021)  
+'kinase_interactions'   (KEA_2015)  
 
 **Optional arguments**  
 `-o` `--out`   
@@ -364,3 +364,4 @@ Path to the csv the results will be saved in, e.g. path/to/directory/results.csv
 Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
 
 #### [Examples](https://github.com/pachterlab/gget_examples)
+___
