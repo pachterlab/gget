@@ -689,39 +689,9 @@ def main():
 
     ## ref return
     if args.command == "ref":
-        # If list flag but no release passed, return all available species for latest release
-        if args.list and args.release is None:
-            # Find all available species for GTFs for this Ensembl release
-            species_list_gtf = ref_species_options("gtf")
-            # Find all available species for FASTAs for this Ensembl release
-            species_list_dna = ref_species_options("dna")
-
-            # Find intersection of the two lists
-            # (Only species which have GTF and FASTAs available can continue)
-            species_list = list(set(species_list_gtf) & set(species_list_dna))
-
-            # Print available species list
-            logging.info(
-                f"Fetching available genomes in Ensembl release {find_latest_ens_rel()} (latest)."
-            )
-            for species in species_list:
-                print(species)
-
-        # If list flag and release passed, return all available species for this release
-        if args.list and args.release:
-            # Find all available species for GTFs for this Ensembl release
-            species_list_gtf = ref_species_options("gtf", release=args.release)
-            # Find all available species for FASTAs for this Ensembl release
-            species_list_dna = ref_species_options("dna", release=args.release)
-
-            # Find intersection of the two lists
-            # (Only species which have GTF and FASTAs available can continue)
-            species_list = list(set(species_list_gtf) & set(species_list_dna))
-
-            # Print available species list
-            logging.info(
-                f"Fetching available genomes in Ensembl release {args.release}."
-            )
+        # Return all available species
+        if args.list:
+            species_list = ref(species=None, release=args.release, list=args.list)
             for species in species_list:
                 print(species)
 
