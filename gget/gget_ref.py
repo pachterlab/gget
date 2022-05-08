@@ -37,7 +37,7 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
     - ftp           Return only the requested FTP links in a list (default: False).
     - save          Save the results in the local directory (default: False).
 
-    - list_species  If True, returns a list of all available species (default: False). 
+    - list_species  If True and `species=None`, returns a list of all available species (default: False). 
                     (Can be combined with `release` to get the species for a specific Ensembl release.)
     
     Returns a dictionary containing the requested URLs with their respective Ensembl version and release date and time.
