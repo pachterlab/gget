@@ -79,180 +79,181 @@ gget.archs4("ACE2", which="tissue")
 ___
 
 # Instruction Manual
-Jupyter Lab / Google Colab arguments are equivalent to long-option arguments (`--arg`).
+Jupyter Lab / Google Colab arguments are equivalent to long-option arguments (`--arg`).  
 The manual to any gget tool can be called from terminal using a `-h` `--help` flag.
 
 ## gget ref
-Fetch FTPs and their respective metadata (or use flag `ftp` to only return the links) for reference genomes and annotations from [Ensembl](https://www.ensembl.org/) by species.
+Fetch FTPs and their respective metadata (or use flag `ftp` to only return the links) for reference genomes and annotations from [Ensembl](https://www.ensembl.org/) by species.  
 Return format: dictionary/json.
 
-#### Required arguments
+##### Required arguments
 `-s` `--species`  
-Species for which the FTPs will be fetched in the format genus_species, e.g. homo_sapiens.
+Species for which the FTPs will be fetched in the format genus_species, e.g. homo_sapiens.  
 Note: Not required when calling flag `--list_species`.  
 
-#### Optional arguments
-`-w` `--which`
-Defines which results to return. Default: 'all' -> Returns all available results.
-Possible entries are one or a combination of the following:
-'gtf'   - Returns the annotation (GTF).
-'cdna'  - Returns the trancriptome (cDNA).
-'dna'   - Returns the genome (DNA).
-'cds    - Returns the coding sequences corresponding to Ensembl genes. (Does not contain UTR or intronic sequence.)
-'cdrna' - Returns transcript sequences corresponding to non-coding RNA genes (ncRNA).
-'pep'   - Returns the protein translations of Ensembl genes.
+##### Optional arguments
+`-w` `--which`  
+Defines which results to return. Default: 'all' -> Returns all available results.  
+Possible entries are one or a combination of the following:  
+'gtf'   - Returns the annotation (GTF).  
+'cdna'  - Returns the trancriptome (cDNA).  
+'dna'   - Returns the genome (DNA).  
+'cds    - Returns the coding sequences corresponding to Ensembl genes. (Does not contain UTR or intronic sequence.)  
+'cdrna' - Returns transcript sequences corresponding to non-coding RNA genes (ncRNA).  
+'pep'   - Returns the protein translations of Ensembl genes.  
 
-`-r` `--release`
-Defines the Ensembl release number from which the files are fetched, e.g. 104. Default: latest Ensembl release.
+`-r` `--release`  
+Defines the Ensembl release number from which the files are fetched, e.g. 104. Default: latest Ensembl release.  
 
-`-o` `--out`  
-Path to the json file the results will be saved in, e.g. path/to/directory/results.json. Default: Standard out.
+`-o` `--out`    
+Path to the json file the results will be saved in, e.g. path/to/directory/results.json. Default: Standard out.  
 Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
 
-#### Flags
-`-l` `--list_species`  
-Lists all available species. (Jupyter Lab / Google Colab: combine with 'species=None'.)
+##### Flags
+`-l` `--list_species`   
+Lists all available species. (Jupyter Lab / Google Colab: combine with 'species=None'.)  
 
-`-ftp` `--ftp`  
-Returns only the requested FTP links.
+`-ftp` `--ftp`   
+Returns only the requested FTP links.  
 
-`-d` `--download`  
-Downloads the requested FTPs to the current directory (requires [curl](https://curl.se/docs/) to be installed).
+`-d` `--download`   
+Downloads the requested FTPs to the current directory (requires [curl](https://curl.se/docs/) to be installed).  
 
 #### [Examples](https://github.com/pachterlab/gget_examples)
 ___
 
-## gget search 
-Fetch genes and transcripts from [Ensembl](https://www.ensembl.org/) using free-form search terms. 
+## gget search   
+Fetch genes and transcripts from [Ensembl](https://www.ensembl.org/) using free-form search terms.   
 Return format: data frame.
 
-#### Required arguments
-`-sw` `--searchwords`  
-One or more free form search terms, e.g. gaba, nmda. (Note: Search is not case-sensitive.)
+##### Required arguments
+`-sw` `--searchwords`   
+One or more free form search terms, e.g. gaba, nmda. (Note: Search is not case-sensitive.)  
 
 `-s` `--species`  
-Species or database to be searched. 
-A species can be passed in the format 'genus_species', e.g. 'homo_sapiens'. 
-To pass a specific database, pass the name of the CORE database, e.g. 'mus_musculus_dba2j_core_105_1'. 
+Species or database to be searched.  
+A species can be passed in the format 'genus_species', e.g. 'homo_sapiens'.  
+To pass a specific database, pass the name of the CORE database, e.g. 'mus_musculus_dba2j_core_105_1'.  
 All availabale databases can be found [here](http://ftp.ensembl.org/pub/release-106/mysql/).
 
-#### Optional arguments
+##### Optional arguments  
 `-st` `--seqtype`  
-'gene' (default) or 'transcript'
+'gene' (default) or 'transcript'  
 Returns genes or transcripts, respectively.
 
 `-ao` `--andor`  
-'or' (default) or 'and'
-'or': Returns all genes that INCLUDE AT LEAST ONE of the searchwords in their name/description.
+'or' (default) or 'and'  
+'or': Returns all genes that INCLUDE AT LEAST ONE of the searchwords in their name/description.  
 'and': Returns only genes that INCLUDE ALL of the searchwords in their name/description.
 
-`-l` `--limit`  
-Limits the number of search results, e.g. 10. Default: None.
+`-l` `--limit`   
+Limits the number of search results, e.g. 10. Default: None.  
 
 `-o` `--out`  
-Path to the csv the results will be saved in, e.g. path/to/directory/results.csv. Default: Standard out.  
+Path to the csv the results will be saved in, e.g. path/to/directory/results.csv. Default: Standard out.   
 Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
     
 #### [Examples](https://github.com/pachterlab/gget_examples)
 ___
 
 ## gget info  
-Fetch extensive gene and transcript metadata from [Ensembl](https://www.ensembl.org/), [UniProt](https://www.uniprot.org/), and [NCBI](https://www.ncbi.nlm.nih.gov/) using Ensembl IDs.
+Fetch extensive gene and transcript metadata from [Ensembl](https://www.ensembl.org/), [UniProt](https://www.uniprot.org/), and [NCBI](https://www.ncbi.nlm.nih.gov/) using Ensembl IDs.  
 Return format: data frame.
 
-#### Required arguments
-`-id` `--ens_ids`  
+##### Required arguments
+`-id` `--ens_ids`   
 One or more Ensembl IDs.
 
-#### Optional arguments
-`-o` `--out`  
-Path to the csv the results will be saved in, e.g. path/to/directory/results.csv. Default: Standard out.  
+##### Optional arguments
+`-o` `--out`   
+Path to the csv the results will be saved in, e.g. path/to/directory/results.csv. Default: Standard out.    
 Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
 
-#### Flags
-`-e` `--expand`  
-Expands returned information (only for gene and transcript IDs). 
-For genes, adds information on all known transcripts.
+##### Flags
+`-e` `--expand`   
+Expands returned information (only for gene and transcript IDs).   
+For genes, adds information on all known transcripts.  
 For transcripts, adds information on all known translations and exons.
 
-`wrap_text`
+`wrap_text`  
 Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False). 
 
 #### [Examples](https://github.com/pachterlab/gget_examples)
 ___
 
 ## gget seq  
-Fetch nucleotide or amino acid sequence of a gene (and all its isoforms) or a transcript by Ensembl ID. 
+Fetch nucleotide or amino acid sequence of a gene (and all its isoforms) or a transcript by Ensembl ID.   
 Return format: FASTA.
 
-#### Required arguments
-`-id` `--ens_ids`  
+##### Required arguments
+`-id` `--ens_ids`   
 One or more Ensembl IDs.
 
-#### Optional arguments
-`-st` `--seqtype`
-'gene' (default) or 'transcript'.
-Defines whether nucleotide or amino acid sequences are returned.
-Nucleotide sequences are fetched from [Ensembl](https://www.ensembl.org/).
+##### Optional arguments
+`-st` `--seqtype`  
+'gene' (default) or 'transcript'.  
+Defines whether nucleotide or amino acid sequences are returned.  
+Nucleotide sequences are fetched from [Ensembl](https://www.ensembl.org/).  
 Amino acid sequences are fetched from [UniProt](https://www.uniprot.org/).
 
-`-o` `--out`  
-Path to the file the results will be saved in, e.g. path/to/directory/results.fa. Default: Standard out. 
+`-o` `--out`   
+Path to the file the results will be saved in, e.g. path/to/directory/results.fa. Default: Standard out.   
 Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
 
-#### Flags
-`-i` `--isoforms`  
+##### Flags
+`-i` `--isoforms`   
 Returns the sequences of all known transcripts (for `seqtype=gene` only).
 
 #### [Examples](https://github.com/pachterlab/gget_examples)
 ___
 
 ## gget blast
-BLAST a nucleotide or amino acid sequence against any [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi) database.
+BLAST a nucleotide or amino acid sequence against any [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi) database.  
 Return format: data frame.
 
-#### Required arguments
-`-seq` `--sequence`  
+##### Required arguments
+`-seq` `--sequence`   
 Nucleotise or amino acid sequence, or path to FASTA file.
 
-#### Optional arguments
-`-p` `--program`
-'blastn', 'blastp', 'blastx', 'tblastn', or 'tblastx'.
+##### Optional arguments
+`-p` `--program`  
+'blastn', 'blastp', 'blastx', 'tblastn', or 'tblastx'.  
 Default: 'blastn' for nucleotide sequences; 'blastp' for amino acid sequences.
 
-`-db` `--database`
-'nt', 'nr', 'refseq_rna', 'refseq_protein', 'swissprot', 'pdbaa', or 'pdbnt'.
-Default: 'nt' for nucleotide sequences; 'nr' for amino acid sequences.
+`-db` `--database`  
+'nt', 'nr', 'refseq_rna', 'refseq_protein', 'swissprot', 'pdbaa', or 'pdbnt'.  
+Default: 'nt' for nucleotide sequences; 'nr' for amino acid sequences.  
 [More info on BLAST databases](https://ncbi.github.io/blast-cloud/blastdb/available-blastdbs.html)
 
-`-d` `--descriptions`
-Limits number of descriptions returned. Default: 500.
+`-d` `--descriptions`  
+Limits number of descriptions returned. Default: 500.  
 
-`-a` `--alignments`
-Limits number of alignments to return. Default: 500.
+`-a` `--alignments`  
+Limits number of alignments to return. Default: 500.  
 
-`-hs` `--hitlist_size`
-Limits number of hits to return. Default: 50.
+`-hs` `--hitlist_size`  
+Limits number of hits to return. Default: 50.  
 
-`-e` `--expect`
-Defines the [expect value](https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=FAQ#expect) cutoff. Default: 10.0.
+`-e` `--expect`  
+Defines the [expect value](https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=FAQ#expect) cutoff. Default: 10.0.  
 
-`-o` `--out`  
-Path to the csv the results will be saved in, e.g. path/to/directory/results.csv. Default: Standard out.  
+`-o` `--out`   
+Path to the csv the results will be saved in, e.g. path/to/directory/results.csv. Default: Standard out.   
 Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
 
-#### Flags
-`-ng` `--ncbi_gi`
-Also returns NCBI GI identifiers.
+##### Flags
+`-ng` `--ncbi_gi`  
+Also returns NCBI GI identifiers.  
 
-`-lcf` `--low_comp_filt`
-Turns on [low complexity filter](https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=FAQ#LCR).
+`-lcf` `--low_comp_filt`  
+Turns on [low complexity filter](https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=FAQ#LCR).  
 
-`-mbo` `--megablast_off`
-Turns off MegaBLAST algorithm. Default: MegaBLAST on (blastn only).
+`-mbo` `--megablast_off`  
+Turns off MegaBLAST algorithm. Default: MegaBLAST on (blastn only).  
 
-`-q` `--quiet` 
-Prevents progress information from being displayed.
+`-q` `--quiet`   
+Prevents progress information from being displayed.  
 
-`wrap_text`
-Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False). 
+`wrap_text`  
+Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).  
+
