@@ -277,8 +277,9 @@ def get_uniprot_info(server, ensembl_id, id_type):
         if len(df.columns) == 7:
             # Rename columns
             df.columns = [
-                "uniprot_id" "primary_gene_name",
-                "synonyms",
+                "uniprot_id",
+                "primary_gene_name",
+                "uni_synonyms",
                 "protein_names",
                 "uniprot_description",
                 "status",
@@ -292,7 +293,7 @@ def get_uniprot_info(server, ensembl_id, id_type):
             df.columns = [
                 "uniprot_id",
                 "primary_gene_name",
-                "synonyms",
+                "uni_synonyms",
                 "protein_names",
                 "uniprot_description",
                 "status",
@@ -300,7 +301,7 @@ def get_uniprot_info(server, ensembl_id, id_type):
             ]
         try:
             # Split gene names into list of strings
-            df["synonyms"] = df["synonyms"].str.split(" ")
+            df["uni_synonyms"] = df["uni_synonyms"].str.split(" ")
         except:
             None
 
@@ -318,7 +319,7 @@ def get_uniprot_info(server, ensembl_id, id_type):
         # Return set of all results if more than one UniProt ID was found for this Ensembl ID
         final_df = pd.DataFrame()
         for column in df.columns:
-            if column == "synonyms":
+            if column == "uni_synonyms":
                 # Flatten synonym lists
                 syn_lists = df[column].values
                 flat_list = [item for sublist in syn_lists for item in sublist]

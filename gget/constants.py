@@ -4,6 +4,9 @@ import uuid
 ENSEMBL_REST_API = "http://rest.ensembl.org/"
 ENSEMBL_FTP_URL = "http://ftp.ensembl.org/pub/"
 
+# NCBI URL for gget info
+NCBI_URL = "https://www.ncbi.nlm.nih.gov"
+
 # UniProt REST API server for gget seq
 UNIPROT_REST_API = "https://www.uniprot.org/uploadlists/"
 

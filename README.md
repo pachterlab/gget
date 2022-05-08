@@ -8,7 +8,6 @@
 - Add 1 example for each tool to bottom of manual using as many flags as possible
 - Add extensive examples to the Examples repo
 - Add figure to readmes (add new modules to figure!)
-- Add NCBI accession to gget info output
 - Fix unittests for gget info
 
 `gget` is a free and open-source command-line tool and Python package that enables efficient querying of genomic databases. `gget`  consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.  

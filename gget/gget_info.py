@@ -1,5 +1,7 @@
 import numpy as np
 import pandas as pd
+import requests
+from bs4 import BeautifulSoup
 
 # import json
 import logging
@@ -14,7 +16,7 @@ logging.basicConfig(
 from .utils import rest_query, get_uniprot_info, wrap_cols_func
 
 # Constants
-from .constants import ENSEMBL_REST_API, UNIPROT_REST_API
+from .constants import ENSEMBL_REST_API, UNIPROT_REST_API, NCBI_URL
 
 ## gget info
 def info(
@@ -227,11 +229,66 @@ def info(
 
                 # Transpose UniProt data frame and rename columns to fit structure of df
                 df_uniprot = df_uniprot.T
-                df_uniprot.columns = df_uniprot.loc["query", :]
+                df_uniprot.columns = [ens_id]
                 df_temp = pd.concat([df_temp, df_uniprot], axis=1)
 
             else:
                 logging.warning(f"No UniProt entry was found for Ensembl ID {ens_id}.")
+
+            ## Get NCBI gene ID and description (for genes only)
+            url = NCBI_URL + f"/gene/?term={ens_id}"
+            html = requests.get(url)
+
+            # Raise error if status code not "OK" Response
+            if html.status_code != 200:
+                raise RuntimeError(
+                    f"NCBI returned error status code {html.status_code}. Please try again."
+                )
+
+            ## Web scrape NCBI website for gene ID and description
+            soup = BeautifulSoup(html.text, "html.parser")
+
+            # This will return None for IDs other than gene IDs
+            ID_input = soup.find("input", {"id": "gene-id-value"})
+
+            if not isinstance(ID_input, type(None)):
+                ncbi_gene_id = ID_input.get("value")
+                ncbi_description = (
+                    soup.find("div", class_="section", id="summaryDiv")
+                    .find("dt", text="Summary")
+                    .find_next_sibling("dd")
+                    .text
+                )
+                ncbi_synonyms = (
+                    soup.find("div", class_="section", id="summaryDiv")
+                    .find("dt", text="Also known as")
+                    .find_next_sibling("dd")
+                    .text
+                )
+                # Split NCBI synonyms
+                ncbi_synonyms = ncbi_synonyms.split("; ")
+
+                # Collect and flatten UniProt synonyms
+                uni_synonyms = df_uniprot.iloc[2].values
+                uni_synonyms = [item for sublist in uni_synonyms for item in sublist]
+
+                # Save NCBI info to data frame
+                df_ncbi = pd.DataFrame(
+                    {
+                        "ncbi_gene_id": [ncbi_gene_id],
+                        "ncbi_description": [ncbi_description],
+                        # Final synonyms list will be combined set of synonyms from NCBI and UniProt
+                        "synonyms": [list(set().union(uni_synonyms, ncbi_synonyms))],
+                    },
+                )
+
+                # Add NCBI info to df_temp
+                df_ncbi = df_ncbi.T
+                df_ncbi.columns = [ens_id]
+                df_temp = pd.concat([df_temp, df_ncbi])
+
+            else:
+                logging.warning(f"No NCBI entry was found for Ensembl ID {ens_id}.")
 
     # Append UniProt info to df
     df = pd.concat([df, df_temp])
@@ -239,16 +296,18 @@ def info(
     # Reindex df (this also drops all unmentioned indeces)
     df_final = df.reindex(
         [
+            "uniprot_id",
+            "ncbi_gene_id",
             "species",
             "assembly_name",
-            "uniprot_id",
             "primary_gene_name",
             "ensembl_gene_name",
             "synonyms",
             "parent_gene",
             "protein_names",
-            "uniprot_description",
             "ensembl_description",
+            "uniprot_description",
+            "ncbi_description",
             "object_type",
             "biotype",
             "canonical_transcript",
