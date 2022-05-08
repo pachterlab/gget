@@ -3,9 +3,11 @@
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/gget)
 [![license](https://img.shields.io/pypi/l/gget)](LICENSE)
 [![DOI](https://zenodo.org/badge/458943224.svg)](https://zenodo.org/badge/latestdoi/458943224)
-![Code Coverage](https://img.shields.io/badge/Coverage-87%25-green.svg)
+![Code Coverage](https://img.shields.io/badge/Coverage-87%25-green.svg)  
 
-**gget** consists of nine tools:
+`gget` is a free and open-source command-line tool and Python package that enables efficient querying of genomic databases. `gget`  consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.  
+
+`gget` currently consists of the following nine modules:
 - [**gget ref**](#gget-ref)  
 Fetch FTPs and metadata for reference genomes and annotations from [Ensembl](https://www.ensembl.org/) by species.
 - [**gget search**](#gget-search)   
@@ -347,8 +349,8 @@ Return format: data frame.
 Short name (gene symbol) of gene of interest, e.g. 'STAT4'.
 
 **Optional arguments**  
- `-w` `--which`
-'correlation' (default) or 'tissue'.
+ `-w` `--which`  
+'correlation' (default) or 'tissue'.  
 'correlation' returns a gene correlation table that contains the 100 most correlated genes to the gene of interest. The Pearson correlation is calculated over all samples and tissues in [ARCHS4](https://maayanlab.cloud/archs4/).  
 'tissue' returns a tissue expression atlas calculated from human or mouse samples (as defined by 'species') in [ARCHS4](https://maayanlab.cloud/archs4/).  
 
