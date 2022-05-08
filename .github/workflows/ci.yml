@@ -3,8 +3,8 @@ name: CI
 on:
   push:
     paths:
-    - 'gget/**'
-    - 'tests/**'
+#     - 'gget/**'
+#     - 'tests/**'
 
 jobs:
   check-code:
