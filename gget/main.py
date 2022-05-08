@@ -64,8 +64,8 @@ def main():
     # ref parser arguments
     parser_ref.add_argument(
         "-l",
-        "--list",
-        default=None,
+        "--list_species",
+        default=False,
         action="store_true",
         required=False,
         help="List out all available species.",
@@ -690,8 +690,8 @@ def main():
     ## ref return
     if args.command == "ref":
         # Return all available species
-        if args.list:
-            species_list = ref(species=None, release=args.release, list=args.list)
+        if args.list_species:
+            species_list = ref(species=None, release=args.release, list=args.list_species)
             for species in species_list:
                 print(species)
 
