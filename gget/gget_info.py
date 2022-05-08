@@ -30,8 +30,7 @@ def info(
     - expand        True/False wether to expand returned information (only for genes and transcripts). Default: False.
                     For genes, this adds transcript isoform information.
                     For transcripts, this adds translation and exon information.
-    - wrap_text     True/False wether to wrap text in data frame for easier reading. Default: False.
-                    Note: This transforms the data frame into a 'NoneType' object, restricting further operations.
+    - wrap_text     If True, displays data frame with wrapped text for easy reading. Default: False.
     - save          True/False wether to save csv with query results in current working directory. Default: False.
 
     Returns a data frame containing the requested information about the Ensembl IDs.
