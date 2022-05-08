@@ -5,6 +5,14 @@
 [![DOI](https://zenodo.org/badge/458943224.svg)](https://zenodo.org/badge/latestdoi/458943224)
 ![Code Coverage](https://img.shields.io/badge/Coverage-87%25-green.svg)  
 
+- Add 1 example for each tool to bottom of manual using as many flags as possible
+- Add extensive examples to the Examples repo
+- Add figure to readmes (add new modules to figure!)
+- gget blast: Replace hitlist and descriptions flag with limit flag
+- Add NCBI accession to gget info output
+- Fix unittests for gget info, gget blast
+- Add unittest for gget ref -l
+
 `gget` is a free and open-source command-line tool and Python package that enables efficient querying of genomic databases. `gget`  consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.  
 
 `gget` currently consists of the following nine modules:
