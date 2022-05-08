@@ -3,6 +3,7 @@
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/gget)
 [![license](https://img.shields.io/pypi/l/gget)](LICENSE)
 [![DOI](https://zenodo.org/badge/458943224.svg)](https://zenodo.org/badge/latestdoi/458943224)
+![status](https://github.com/pachterlab/gget/workflows/CI/badge.svg)
 ![Code Coverage](https://img.shields.io/badge/Coverage-91%25-green.svg)  
 
 `gget` is a free and open-source command-line tool and Python package that enables efficient querying of genomic databases. `gget`  consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.  
