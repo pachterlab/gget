@@ -10,7 +10,7 @@ logging.basicConfig(
     datefmt="%c",
 )
 # Using urllib instead of requests here because requests does not
-# allow long queries (queries very long here due to input sequence)
+# support long queries (queries very long here due to input sequence)
 from urllib.request import urlopen, Request
 from urllib.parse import urlencode
 
