@@ -308,7 +308,7 @@ def get_uniprot_info(server, ensembl_id, id_type):
         # If there are reviewed results, return only reviewed results
         if "reviewed" in df["status"].values:
             logging.info(
-                "Returning only reviewed UniProt results for Ensembl ID {ensembl_id}."
+                f"Returning only reviewed UniProt results for Ensembl ID {ensembl_id}."
             )
             # Only keep rows where status is "reviewed"
             df = df[df.status == "reviewed"]

@@ -49,28 +49,29 @@ class TestBlast(unittest.TestCase):
         ]
         self.assertListEqual(result_to_test, expected_result)
 
-    def test_blast_aa_txt(self):
-        df = blast(
-            "tests/fixtures/muscle_aa_test.txt",
-            limit=1,
-        )
-        result_to_test = df.values.tolist()
-        expected_result = [
-            [
-                "FUN14 domain-containing protein 1 isoform X2 [Taeniopygia guttata]",
-                "Taeniopygia guttata",
-                "zebra finch",
-                59729,
-                180,
-                180,
-                "100%",
-                3.9999999999999997e-56,
-                "100.00%",
-                156,
-                "XP_002190216.1",
-            ]
-        ]
-        self.assertListEqual(result_to_test, expected_result)
+    ## Turning this test off to reduce the number of BLASTs to run
+    # def test_blast_aa_txt(self):
+    #     df = blast(
+    #         "tests/fixtures/muscle_aa_test.txt",
+    #         limit=1,
+    #     )
+    #     result_to_test = df.values.tolist()
+    #     expected_result = [
+    #         [
+    #             "FUN14 domain-containing protein 1 isoform X2 [Taeniopygia guttata]",
+    #             "Taeniopygia guttata",
+    #             "zebra finch",
+    #             59729,
+    #             180,
+    #             180,
+    #             "100%",
+    #             3.9999999999999997e-56,
+    #             "100.00%",
+    #             156,
+    #             "XP_002190216.1",
+    #         ]
+    #     ]
+    #     self.assertListEqual(result_to_test, expected_result)
 
     def test_blast_bad_seq(self):
         with self.assertRaises(ValueError):
@@ -90,13 +91,13 @@ class TestBlast(unittest.TestCase):
 
     def test_blast_bad_program(self):
         with self.assertRaises(ValueError):
-            blast("tests/fixtures/muscle_aa_test.txt", hitlist_size=3, program="banana")
+            blast("tests/fixtures/muscle_aa_test.txt", limit=3, program="banana")
 
     def test_blast_db_missing(self):
         with self.assertRaises(ValueError):
             blast(
                 "tests/fixtures/muscle_aa_test.txt",
-                hitlist_size=3,
+                limit=3,
                 program="blastn",
             )
 
@@ -104,7 +105,7 @@ class TestBlast(unittest.TestCase):
         with self.assertRaises(ValueError):
             blast(
                 "tests/fixtures/muscle_aa_test.txt",
-                hitlist_size=3,
+                limit=3,
                 program="blastp",
                 database="banana",
             )
@@ -112,5 +113,5 @@ class TestBlast(unittest.TestCase):
     def test_blast_bad_db2(self):
         with self.assertRaises(ValueError):
             blast(
-                "tests/fixtures/muscle_aa_test.txt", hitlist_size=3, database="banana"
+                "tests/fixtures/muscle_aa_test.txt", limit=3, database="banana"
             )

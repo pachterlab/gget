@@ -63,7 +63,7 @@ class TestUtils(unittest.TestCase):
     def test_get_uniprot_info_gene(self):
         df = get_uniprot_info(
             UNIPROT_REST_API,
-            ["ENSG00000187140", "ENSG00000181449"],
+            "ENSG00000187140",
             id_type="Gene",
         )
         result_to_test = df.values.tolist()
@@ -74,16 +74,9 @@ class TestUtils(unittest.TestCase):
                 ["FOXD3", "HFH2"],
                 "Forkhead box protein D3 (HNF3/FH transcription factor genesis)",
                 "FUNCTION: Binds to the consensus sequence 5'-A[AT]T[AG]TTTGTTT-3' and acts as a transcriptional repressor. Also acts as a transcriptional activator. Promotes development of neural crest cells from neural tube progenitors. Restricts neural progenitor cells to the neural crest lineage while suppressing interneuron differentiation. Required for maintenance of pluripotent cells in the pre-implantation and peri-implantation stages of embryogenesis. {ECO:0000269|PubMed:11891324}.",
+                "reviewed",
                 "ENSG00000187140",
-            ],
-            [
-                "P48431",
-                "SOX2",
-                ["SOX2"],
-                "Transcription factor SOX-2",
-                "FUNCTION: Transcription factor that forms a trimeric complex with OCT4 on DNA and controls the expression of a number of genes involved in embryonic development such as YES1, FGF4, UTF1 and ZFP206 (By similarity). Binds to the proximal enhancer region of NANOG (By similarity). Critical for early embryogenesis and for embryonic stem cell pluripotency (PubMed:18035408). Downstream SRRT target that mediates the promotion of neural stem cell self-renewal (By similarity). Keeps neural cells undifferentiated by counteracting the activity of proneural proteins and suppresses neuronal differentiation (By similarity). May function as a switch in neuronal development (By similarity). {ECO:0000250|UniProtKB:P48430, ECO:0000250|UniProtKB:P48432, ECO:0000269|PubMed:18035408}.",
-                "ENSG00000181449",
-            ],
+            ]
         ]
 
         self.assertListEqual(result_to_test, expected_result)
@@ -91,7 +84,7 @@ class TestUtils(unittest.TestCase):
     def test_get_uniprot_info_transcript(self):
         df = get_uniprot_info(
             UNIPROT_REST_API,
-            ["ENST00000325404", "ENST00000251020"],
+            "ENST00000325404",
             id_type="Transcript",
         )
         result_to_test = df.values.tolist()
@@ -102,16 +95,9 @@ class TestUtils(unittest.TestCase):
                 ["SOX2"],
                 "Transcription factor SOX-2",
                 "FUNCTION: Transcription factor that forms a trimeric complex with OCT4 on DNA and controls the expression of a number of genes involved in embryonic development such as YES1, FGF4, UTF1 and ZFP206 (By similarity). Binds to the proximal enhancer region of NANOG (By similarity). Critical for early embryogenesis and for embryonic stem cell pluripotency (PubMed:18035408). Downstream SRRT target that mediates the promotion of neural stem cell self-renewal (By similarity). Keeps neural cells undifferentiated by counteracting the activity of proneural proteins and suppresses neuronal differentiation (By similarity). May function as a switch in neuronal development (By similarity). {ECO:0000250|UniProtKB:P48430, ECO:0000250|UniProtKB:P48432, ECO:0000269|PubMed:18035408}.",
+                "reviewed",
                 "ENST00000325404",
-            ],
-            [
-                "Q9NSC2",
-                "SALL1",
-                ["SALL1", "SAL1", "ZNF794"],
-                "Sal-like protein 1 (Spalt-like transcription factor 1) (Zinc finger protein 794) (Zinc finger protein SALL1) (Zinc finger protein Spalt-1) (HSal1) (Sal-1)",
-                "FUNCTION: Transcriptional repressor involved in organogenesis. Plays an essential role in ureteric bud invasion during kidney development. {ECO:0000250|UniProtKB:Q9ER74}.",
-                "ENST00000251020",
-            ],
+            ]
         ]
 
         self.assertListEqual(result_to_test, expected_result)
