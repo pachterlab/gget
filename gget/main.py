@@ -691,7 +691,7 @@ def main():
     if args.command == "ref":
         # Return all available species
         if args.list_species:
-            species_list = ref(species=None, release=args.release, list=args.list_species)
+            species_list = ref(species=None, release=args.release, list_species=args.list_species)
             for species in species_list:
                 print(species)
 
@@ -700,7 +700,7 @@ def main():
             parser_ref.error(
                 "\n\nThe following arguments are required to fetch FTPs: -s/--species, e.g. '-s homo_sapiens'\n\n"
                 "gget ref --list -> lists out all available species. "
-                "Combine with [-r] to define specific Ensembl release (default: latest release)."
+                "Combine with -r (int) to define specific Ensembl release (default: latest release)."
             )
 
         ## Clean up 'which' entry if passed
