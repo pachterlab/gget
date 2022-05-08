@@ -80,7 +80,7 @@ gget.archs4("ACE2", which="tissue")
 ```
 ___
 
-# Instruction Manual
+# Manual
 Jupyter Lab / Google Colab arguments are equivalent to long-option arguments (`--arg`).  
 The manual for any gget tool can be called from terminal using the `-h` `--help` flag.
 
