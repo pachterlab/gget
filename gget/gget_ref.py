@@ -15,36 +15,36 @@ logging.basicConfig(
 from .utils import ref_species_options
 
 
-def ref(species, which="all", release=None, ftp=False, save=False, list=False):
+def ref(species, which="all", release=None, ftp=False, save=False, list_species=False):
     """
     Fetch FTPs for reference genomes and annotations by species.
 
     Args:
-    - species   Defines the species for which the reference should be fetched in the format "<genus>_<species>",
-                e.g. species = "homo_sapiens".
-    - which     Defines which results to return.
-                Default: 'all' -> Returns all available results.
-                Possible entries are one or a combination (as a list of strings) of the following:
-                'gtf' - Returns the annotation (GTF).
-                'cdna' - Returns the trancriptome (cDNA).
-                'dna' - Returns the genome (DNA).
-                'cds - Returns the coding sequences corresponding to Ensembl genes. (Does not contain UTR or intronic sequence.)
-                'cdrna' - Returns transcript sequences corresponding to non-coding RNA genes (ncRNA).
-                'pep' - Returns the protein translations of Ensembl genes.
-    - release   Defines the Ensembl release number from which the files are fetched, e.g. release = 104.
-                (Ensembl releases earlier than release 48 are not suupported.)
-                By default, the latest Ensembl release is used.
-    - ftp       Return only the requested FTP links in a list (default: False).
-    - save      Save the results in the local directory (default: False).
+    - species       Defines the species for which the reference should be fetched in the format "<genus>_<species>",
+                    e.g. species = "homo_sapiens".
+    - which         Defines which results to return.
+                    Default: 'all' -> Returns all available results.
+                    Possible entries are one or a combination (as a list of strings) of the following:
+                    'gtf' - Returns the annotation (GTF).
+                    'cdna' - Returns the trancriptome (cDNA).
+                    'dna' - Returns the genome (DNA).
+                    'cds - Returns the coding sequences corresponding to Ensembl genes. (Does not contain UTR or intronic sequence.)
+                    'cdrna' - Returns transcript sequences corresponding to non-coding RNA genes (ncRNA).
+                    'pep' - Returns the protein translations of Ensembl genes.
+    - release       Defines the Ensembl release number from which the files are fetched, e.g. release = 104.
+                    (Ensembl releases earlier than release 48 are not suupported.)
+                    By default, the latest Ensembl release is used.
+    - ftp           Return only the requested FTP links in a list (default: False).
+    - save          Save the results in the local directory (default: False).
 
-    - list      If True, returns a list of all available species (default: False). 
-                (Can be combined with `release` to get the species for a specific Ensembl release.)
+    - list_species  If True, returns a list of all available species (default: False). 
+                    (Can be combined with `release` to get the species for a specific Ensembl release.)
     
     Returns a dictionary containing the requested URLs with their respective Ensembl version and release date and time.
     (If FTP=True, returns a list containing only the URLs.)
     """
-    # If list = True, return list of all available species
-    if list == True and release is None:
+    # If list_species = True, return list of all available species
+    if list_species is True and release is None:
         # Find all available species for GTFs for this Ensembl release
         species_list_gtf = ref_species_options("gtf")
         # Find all available species for FASTAs for this Ensembl release
@@ -61,7 +61,7 @@ def ref(species, which="all", release=None, ftp=False, save=False, list=False):
         
         return species_list
     
-    if list == True and release is not None:
+    if list_species is True and release is not None:
         # Find all available species for GTFs for this Ensembl release
         species_list_gtf = ref_species_options("gtf", release=release)
         # Find all available species for FASTAs for this Ensembl release
