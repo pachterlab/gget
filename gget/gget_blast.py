@@ -31,9 +31,7 @@ def blast(
     sequence,
     program="default",
     database="default",
-    ncbi_gi=False,
     descriptions=500,
-    alignments=500,
     hitlist_size=50,
     expect=10.0,
     low_comp_filt=False,
@@ -51,9 +49,7 @@ def blast(
      - database       'nt', 'nr', 'refseq_rna', 'refseq_protein', 'swissprot', 'pdbaa', or 'pdbnt'.
                       Default: 'nt' for nucleotide sequences; 'nr' for amino acid sequences.
                       More info on BLAST databases: https://ncbi.github.io/blast-cloud/blastdb/available-blastdbs.html
-     - ncbi_gi        True/False whether to return NCBI GI identifiers. Default False.
      - descriptions   int or None. Limit number of descriptions to return. Default 500.
-     - alignments     int or None. Limit number of alignments to return. Default 500.
      - hitlist_size   int or None. Limit number of hits to return. Default 50.
      - expect         float or None. An expect value cutoff. Default 10.0.
      - low_comp_filt  True/False whether to apply low complexity filter. Default False.
@@ -242,11 +238,6 @@ def blast(
     else:
         low_comp_filt = "T"
 
-    if ncbi_gi is False:
-        ncbi_gi = None
-    else:
-        ncbi_gi = "T"
-
     if megablast is False:
         megablast = None
     else:
@@ -263,9 +254,7 @@ def blast(
         ("PROGRAM", program),
         ("DATABASE", database),
         ("QUERY", sequence),
-        ("NCBI_GI", ncbi_gi),
         ("DESCRIPTIONS", descriptions),
-        ("ALIGNMENTS", alignments),
         ("HITLIST_SIZE", hitlist_size),
         ("EXPECT", expect),
         ("FILTER", low_comp_filt),
@@ -303,11 +292,9 @@ def blast(
     # Args for the GET command
     get_args = [
         ("RID", RID),
-        ("ALIGNMENTS", alignments),
         ("DESCRIPTIONS", descriptions),
         ("HITLIST_SIZE", hitlist_size),
         ("FORMAT_TYPE", "HTML"),
-        ("NCBI_GI", ncbi_gi),
         ("CMD", "Get"),
     ]
     get_query = [x for x in get_args if x[1] is not None]
