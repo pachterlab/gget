@@ -35,7 +35,7 @@ def ref(species, which="all", release=None, ftp=False, save=False):
                 (Ensembl releases earlier than release 48 are not suupported.)
                 By default, the latest Ensembl release is used.
     - ftp       Return only the requested FTP links in a list (default: False).
-    - save      Save the results to the local directory (default: False).
+    - save      Save the results in the local directory (default: False).
 
     Returns a dictionary containing the requested URLs with their respective Ensembl version and release date and time.
     (If FTP=True, returns a list containing only the URLs.)
