@@ -366,28 +366,12 @@ def main():
         ),
     )
     parser_blast.add_argument(
-        "-ng",
-        "--ncbi_gi",
-        default=False,
-        action="store_true",
-        required=False,
-        help="Return NCBI GI identifiers. Default False.",
-    )
-    parser_blast.add_argument(
         "-d",
         "--descriptions",
         type=int,
         default=500,
         required=False,
         help="int or None. Limit number of descriptions to return. Default 500.",
-    )
-    parser_blast.add_argument(
-        "-a",
-        "--alignments",
-        type=int,
-        default=500,
-        required=False,
-        help="int or None. Limit number of alignments to return. Default 500.",
     )
     parser_blast.add_argument(
         "-hs",
@@ -642,9 +626,7 @@ def main():
             sequence=args.sequence,
             program=args.program,
             database=args.database,
-            ncbi_gi=args.ncbi_gi,
             descriptions=args.descriptions,
-            alignments=args.alignments,
             hitlist_size=args.hitlist_size,
             expect=args.expect,
             low_comp_filt=args.low_comp_filt,
