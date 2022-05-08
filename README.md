@@ -5,7 +5,7 @@
 [![DOI](https://zenodo.org/badge/458943224.svg)](https://zenodo.org/badge/latestdoi/458943224)
 ![Code Coverage](https://img.shields.io/badge/Coverage-87%25-green.svg)
 
-**gget** consists of nine tools:  
+**gget** consists of nine tools:
 - [**gget ref**](#gget-ref)  
 Fetch FTPs and metadata for reference genomes and annotations from [Ensembl](https://www.ensembl.org/) by species.
 - [**gget search**](#gget-search)   
@@ -76,330 +76,183 @@ gget.muscle("path/to/file.fa")
 gget.enrichr(["ACE2", "AGT", "AGTR1", "ACE", "AGTRAP", "AGTR2", "ACE3P"], database="ontology", plot=True)
 gget.archs4("ACE2", which="tissue")
 ```
+___
 
 # Instruction Manual
+Jupyter Lab / Google Colab arguments are equivalent to long-option arguments (`--arg`).
+The manual to any gget tool can be called from terminal using a `-h` `--help` flag.
+
 ## gget ref
-Fetch FTPs and metadata for reference genomes and annotations from [Ensembl](https://www.ensembl.org/) by species. Returns a dictionary/json containing the requested URLs with their respective metadata (or use flag `ftp` to only return the links).
+Fetch FTPs and their respective metadata (or use flag `ftp` to only return the links) for reference genomes and annotations from [Ensembl](https://www.ensembl.org/) by species.
+Return format: dictionary/json.
 
-### Options
-`-l` `--list`  
-List all available species.
-
+#### Required arguments
 `-s` `--species`  
 Species for which the FTPs will be fetched in the format genus_species, e.g. homo_sapiens.
+Note: Not required when calling flag `--list_species`.  
 
-`-w` `--which`  
-Defines which results to return.
-Default: 'all' -> Returns all available results.
-Possible entries are one or a combination (as a list of strings) of the following:
-'gtf' - Returns the annotation (GTF).
-'cdna' - Returns the trancriptome (cDNA).
-'dna' - Returns the genome (DNA).
-'cds - Returns the coding sequences corresponding to Ensembl genes. (Does not contain UTR or intronic sequence.)
+#### Optional arguments
+`-w` `--which`
+Defines which results to return. Default: 'all' -> Returns all available results.
+Possible entries are one or a combination of the following:
+'gtf'   - Returns the annotation (GTF).
+'cdna'  - Returns the trancriptome (cDNA).
+'dna'   - Returns the genome (DNA).
+'cds    - Returns the coding sequences corresponding to Ensembl genes. (Does not contain UTR or intronic sequence.)
 'cdrna' - Returns transcript sequences corresponding to non-coding RNA genes (ncRNA).
-'pep' - Returns the protein translations of Ensembl genes.
+'pep'   - Returns the protein translations of Ensembl genes.
 
-`-r` `--release`  
-Defines the Ensembl release number from which the files are fetched, e.g. 104.
-
-`-ftp` `--ftp`  
-Return only the requested FTP links in a list (default: False).
-
-`-d` `--download`  
-Download the requested FTPs to the current directory (requires [curl](https://curl.se/docs/)).
+`-r` `--release`
+Defines the Ensembl release number from which the files are fetched, e.g. 104. Default: latest Ensembl release.
 
 `-o` `--out`  
 Path to the json file the results will be saved in, e.g. path/to/directory/results.json. Default: Standard out.
-For Jupyter Lab / Google Colab: `save=True` will save the output to the current working directory.
+Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
 
-### Examples
-#### Use in combination with [kallisto | bustools](https://www.kallistobus.tools/kb_usage/kb_ref/) to build a reference
+#### Flags
+`-l` `--list_species`  
+Lists all available species. (Jupyter Lab / Google Colab: combine with 'species=None'.)
 
-```bash
-kb ref -i INDEX -g T2G -f1 FASTA $(gget ref --ftp -w dna,gtf -s homo_sapiens)
-```
-&rarr; kb ref builds a reference using the latest DNA and GTF files of species **Homo sapiens** passed to it by gget ref
+`-ftp` `--ftp`  
+Returns only the requested FTP links.
 
-#### Show all available species
+`-d` `--download`  
+Downloads the requested FTPs to the current directory (requires [curl](https://curl.se/docs/) to be installed).
 
-```python
-# Jupyter Lab / Google Colab:
-!gget ref --list
-
-# Terminal:
-$ gget ref --list
-```
-&rarr; Returns a list with all available species from the latest Ensembl release.
-
-#### Fetch GTF, DNA, and cDNA FTP links for a specific species
-
-```python
-# Jupyter Lab / Google Colab:
-ref("homo_sapiens")
-
-# Terminal:
-$ gget ref -s homo_sapiens
-```
-&rarr; Returns a json with the latest links to human GTF and FASTA files, their respective release dates and time, and the Ensembl release from which the links were fetched, in the format:
-```
-{
-            species: {
-                "transcriptome_cdna": {
-                    "ftp": cDNA FTP download URL,
-                    "ensembl_release": Ensembl release,
-                    "release_date": Day-Month-Year,
-                    "release_time": HH:MM,
-                    "bytes": cDNA FTP file size in bytes
-                },
-                "genome_dna": {
-                    "ftp": DNA FTP download URL,
-                    "ensembl_release": Ensembl release,
-                    "release_date": Day-Month-Year,
-                    "release_time": HH:MM,
-                    "bytes": DNA FTP file size in bytes
-                },
-                "annotation_gtf": {
-                    "ftp": GTF FTP download URL,
-                    "ensembl_release": Ensembl release,
-                    "release_date": Day-Month-Year,
-                    "release_time": HH:MM,
-                    "bytes": GTF FTP file size in bytes
-                }
-            }
-        }
-```
-
-#### Fetch GTF, DNA, and cDNA FTP links for a specific species from a specific Ensembl release
-For example, for Ensembl release 104:  
-
-```python
-# Jupyter Lab / Google Colab:
-ref("homo_sapiens", release=104)
-
-# Terminal
-$ gget ref -s homo_sapiens -r 104
-```
-&rarr; Returns a json with the human reference genome GTF, DNA, and cDNA links, and their respective release dates and time, from Ensembl release 104.
-
-#### Save the results
-
-```python
-# Jupyter Lab / Google Colab:
-ref("homo_sapiens", save=True)
-
-# Terminal 
-$ gget ref -s homo_sapiens -o path/to/directory/ref_results.json
-```
-&rarr; Saves the results in path/to/directory/ref_results.json.  
-For Jupyter Lab / Google Colab: Saves the results in a json file named ref_results.json in the current working directory.  
-  
-Note: To download the files linked to by the FTPs into the current directory, add flag `-d`.
-
-#### Fetch only certain types of links for a specific species 
-
-```python
-# Jupyter Lab / Google Colab:
-ref("homo_sapiens", which=["gtf", "dna"])
-
-# Terminal 
-$ gget ref -s homo_sapiens -w gtf,dna
-```
-&rarr; Returns a dictionary/json containing the latest human reference GTF and DNA files, in this order, and their respective release dates and time.    
-
-#### Fetch only certain types of links for a specific species and return only the links
-
-```python
-# Jupyter Lab / Google Colab:
-ref("homo_sapiens", which=["gtf", "dna"], ftp=True)
-
-# Terminal 
-$ gget ref -s homo_sapiens -w gtf,dna -ftp
-```
-&rarr; Returns only the links (wihtout additional information) to the latest human reference GTF and DNA files, in this order, in a space-separated list (terminal), or comma-separated list (Jupyter Lab / Google Colab).    
-For Jupyter Lab / Google Colab: Combining this command with `save=True`, will save the results in a text file named ref_results.txt in the current working directory.
-
+#### [Examples](https://github.com/pachterlab/gget_examples)
 ___
-## gget search 
-Query [Ensembl](https://www.ensembl.org/) for genes or transcripts from a defined species using free form search words.  
-> :warning: **gget search currently only supports genes listed in the Ensembl core API, which includes limited external references.** Manually searching the [Ensembl website](https://uswest.ensembl.org/) might yield more results.
 
-### Options
+## gget search 
+Fetch genes and transcripts from [Ensembl](https://www.ensembl.org/) using free-form search terms. 
+Return format: data frame.
+
+#### Required arguments
 `-sw` `--searchwords`  
-One or more free form searchwords for the query, e.g. gaba, nmda. Searchwords are not case-sensitive.
+One or more free form search terms, e.g. gaba, nmda. (Note: Search is not case-sensitive.)
 
 `-s` `--species`  
-Species or database to be searched.  
-Species can be passed in the format 'genus_species', e.g. 'homo_sapiens'. To pass a specific CORE database (e.g. a specific mouse strain), enter the name of the CORE database, e.g. 'mus_musculus_dba2j_core_105_1'. All availabale species databases can be found here: http://ftp.ensembl.org/pub/release-105/mysql/
+Species or database to be searched. 
+A species can be passed in the format 'genus_species', e.g. 'homo_sapiens'. 
+To pass a specific database, pass the name of the CORE database, e.g. 'mus_musculus_dba2j_core_105_1'. 
+All availabale databases can be found [here](http://ftp.ensembl.org/pub/release-106/mysql/).
 
-`-t` `--d_type`  
-Possible entries: 'gene' (default), 'transcript'
-Returns either genes or transcripts, respectively, which match the searchwords.
+#### Optional arguments
+`-st` `--seqtype`  
+'gene' (default) or 'transcript'
+Returns genes or transcripts, respectively.
 
 `-ao` `--andor`  
-Possible entries: 'or', 'and'
-'or': ID descriptions must include at least one of the searchwords (default). 
-'and': Only return IDs whose descriptions include all searchwords.
+'or' (default) or 'and'
+'or': Returns all genes that INCLUDE AT LEAST ONE of the searchwords in their name/description.
+'and': Returns only genes that INCLUDE ALL of the searchwords in their name/description.
 
 `-l` `--limit`  
-Limits the number of search results to the top `[limit]` genes found (default: None).
+Limits the number of search results, e.g. 10. Default: None.
 
 `-o` `--out`  
-Path to the file the results will be saved in, e.g. path/to/directory/results.csv (default: None &rarr; just prints results).  
-For Jupyter Lab / Google Colab: `save=True` will save the output to the current working directory.
-
-### Examples
-#### Query Ensembl for genes from a specific species using multiple searchwords
-
-```python
-# Jupyter Lab / Google Colab:
-search(["gaba", "gamma-aminobutyric"], "homo_sapiens")
-
-# Terminal 
-$ gget search -sw gaba,gamma-aminobutyric -s homo_sapiens
-```
-&rarr; Returns all genes that contain at least one of the searchwords in their Ensembl or external reference description, in the format:
-
-| Ensembl_ID     | Ensembl_description     | Ext_ref_description     | Biotype        | Gene_name | URL |
-| -------------- |-------------------------| ------------------------| -------------- | ----------|-----|
-| ENSG00000034713| GABA type A receptor associated protein like 2 [Source:HGNC Symbol;Acc:HGNC:13291] | 	GABA type A receptor associated protein like 2 | protein_coding | GABARAPL2 | https://uswest.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000034713 |
-| . . .            | . . .                     | . . .                     | . . .            | . . .       | . . . |
-
-
-#### Query Ensembl for transcripts from a specific species which include ALL searchwords
-```python
-# Jupyter Lab / Google Colab:
-search(["gaba", "gamma-aminobutyric"], "nothobranchius_furzeri", d_type="transcript", andor="and")
-
-# Terminal 
-$ gget search -sw gaba,gamma-aminobutyric -s nothobranchius_furzeri -t transcript -ao and
-```
-&rarr; Returns all killifish transcripts that contain all of the searchwords in their Ensembl or external reference description.
-
-#### Query Ensembl for genes from a specific species using a single searchword and while limiting the number of returned search results 
-
-```python
-# Jupyter Lab / Google Colab:
-search("gaba", "homo_sapiens", limit=10)
-
-# Terminal 
-$ gget search -sw gaba -s homo_sapiens -l 10
-```
-&rarr; Returns the first 10 genes that contain the searchword in their Ensembl or external reference description. If more than one searchword is passed, `limit` will limit the number of genes per searchword. 
-
-#### Query Ensembl for genes from any of the 236 species databases found [here](http://ftp.ensembl.org/pub/release-105/mysql/), e.g. a specific mouse strain.   
-
-```python
-# Jupyter Lab / Google Colab:
-search("brain", "mus_musculus_cbaj_core_105_1")
-
-# Terminal 
-$ gget search -sw brain -s mus_musculus_cbaj_core_105_1 
-```
-&rarr; Returns genes from the CBA/J mouse strain that contain the searchword in their Ensembl or external reference description.
-
+Path to the csv the results will be saved in, e.g. path/to/directory/results.csv. Default: Standard out.  
+Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
+    
+#### [Examples](https://github.com/pachterlab/gget_examples)
 ___
+
 ## gget info  
-Look up gene or transcript Ensembl IDs. Returns their common name, description, homologs, synonyms, corresponding transcript/gene, transcript isoforms and more from the Ensembl database as well as external references.
+Fetch extensive gene and transcript metadata from [Ensembl](https://www.ensembl.org/), [UniProt](https://www.uniprot.org/), and [NCBI](https://www.ncbi.nlm.nih.gov/) using Ensembl IDs.
+Return format: data frame.
 
-### Options
+#### Required arguments
 `-id` `--ens_ids`  
 One or more Ensembl IDs.
 
+#### Optional arguments
+`-o` `--out`  
+Path to the csv the results will be saved in, e.g. path/to/directory/results.csv. Default: Standard out.  
+Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
+
+#### Flags
 `-e` `--expand`  
-Expand returned information (default: False). For genes: add isoform information. For transcripts: add translation and exon information.
+Expands returned information (only for gene and transcript IDs). 
+For genes, adds information on all known transcripts.
+For transcripts, adds information on all known translations and exons.
 
-`-H` `--homology`  
-Returns homology information of ID (default: False).
+`wrap_text`
+Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False). 
 
-`-x` `--xref`  
-Returns information from external references (default: False).
-
-`-o` `--out`  
-Path to the file the results will be saved in, e.g. path/to/directory/results.json (default: None &rarr; just prints results).  
-For Jupyter Lab / Google Colab: `save=True` will save the output to the current working directory.
-
-### Examples
-#### Look up a list of gene Ensembl IDs including information on all isoforms
-
-```python
-# Jupyter Lab / Google Colab:
-info(["ENSG00000034713", "ENSG00000104853", "ENSG00000170296"], expand=True)
-
-# Terminal 
-$ gget info -id ENSG00000034713,ENSG00000104853,ENSG00000170296 -e
-```
-&rarr; Returns a json containing information about each ID, amongst others the common name, description, and corresponding transcript/gene, in the format:
-```
-{
-            "Ensembl ID": {
-                        "species": genus_species,
-                        "object_type": e.g. Gene,
-                        "biotype": Gene biotype, e.g. protein_coding,
-                        "display_name": Common gene name,
-                        "description": Ensemble description,
-                        "assembly_name": Name of species assmebly,
-                        "seq_region_name": Sequence region,
-                        "start": Sequence start position,
-                        "end": Sequence end position,
-                        "strand": Strand
-                        "canonical_transcript": Transcript ID,
-                        # All transcript isoforms:
-                        "Transcript": [{'display_name': Transcript name,
-					'biotype': Transcript biotype,
-					'id': Transcript ID}, ...]
-                        },
-}
-```
-Note: When looking up Ensembl IDs of transcripts instead of genes, the "Transcript" entry above will be replaced by "Translation" and "Exon" information. 
-
-#### Look up a transcript Ensembl ID and include external reference descriptions
-
-```python
-# Jupyter Lab / Google Colab:
-info("ENSDART00000135343", xref=True)
-
-# Terminal 
-$ gget info -id ENSDART00000135343 -x
-```
-&rarr; Returns a json containing the homology information, and external reference description of each ID in addition to the standard information mentioned above.
-
+#### [Examples](https://github.com/pachterlab/gget_examples)
 ___
-## gget seq  
-Fetch DNA sequences from gene or transcript Ensembl IDs. 
 
-### Options
+## gget seq  
+Fetch nucleotide or amino acid sequence of a gene (and all its isoforms) or a transcript by Ensembl ID. 
+Return format: FASTA.
+
+#### Required arguments
 `-id` `--ens_ids`  
 One or more Ensembl IDs.
 
-`-i` `--isoforms`  
-If a gene Ensembl ID is passed, this returns sequences of all known transcript isoforms.
+#### Optional arguments
+`-st` `--seqtype`
+'gene' (default) or 'transcript'.
+Defines whether nucleotide or amino acid sequences are returned.
+Nucleotide sequences are fetched from [Ensembl](https://www.ensembl.org/).
+Amino acid sequences are fetched from [UniProt](https://www.uniprot.org/).
 
 `-o` `--out`  
-Path to the file the results will be saved in, e.g. path/to/directory/results.fa (default: None &rarr; just prints results).  
-For Jupyter Lab / Google Colab: `save=True` will save the output FASTA to the current working directory.
+Path to the file the results will be saved in, e.g. path/to/directory/results.fa. Default: Standard out. 
+Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
 
-### Examples
-#### Fetch the sequences of several transcript Ensembl IDs
-```python
-# Jupyter Lab / Google Colab:
-seq(["ENST00000441207","ENST00000587537"])
+#### Flags
+`-i` `--isoforms`  
+Returns the sequences of all known transcripts (for `seqtype=gene` only).
 
-# Terminal 
-$ gget seq -id ENST00000441207,ENST00000587537
-```
-&rarr; Returns a FASTA containing the sequence of each ID, in the format:
-```
->Ensembl_ID chromosome:assembly:seq_region_name:seq_region_start:seq_region_end:strand
-GGGAATGGAAATCTGTCCCTCGTGCTGGAAGCCAACCAGTGGTGATGACTCTGTGTGCCACTCCGCCTCCTACAGCGCGGATCCTCTG  
-CGTGTGTCCTCGCAAGACAAGCTCGATGAAATGGCCGAGTCCAGTCAAGCAAACTTTGAGGGAA...
-```
+#### [Examples](https://github.com/pachterlab/gget_examples)
+___
 
-#### Fetch the sequences of a gene Ensembl ID and all its transcript isoforms
-```python
-# Jupyter Lab / Google Colab:
-seq("ENSMUSG00000025040", isoforms=True)
+## gget blast
+BLAST a nucleotide or amino acid sequence against any [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi) database.
+Return format: data frame.
 
-# Terminal 
-$ gget seq -id ENSMUSG00000025040 -i
-```
-&rarr; Returns a FASTA containing the sequence of the gene ID and the sequences of all of each transcripts.
+#### Required arguments
+`-seq` `--sequence`  
+Nucleotise or amino acid sequence, or path to FASTA file.
+
+#### Optional arguments
+`-p` `--program`
+'blastn', 'blastp', 'blastx', 'tblastn', or 'tblastx'.
+Default: 'blastn' for nucleotide sequences; 'blastp' for amino acid sequences.
+
+`-db` `--database`
+'nt', 'nr', 'refseq_rna', 'refseq_protein', 'swissprot', 'pdbaa', or 'pdbnt'.
+Default: 'nt' for nucleotide sequences; 'nr' for amino acid sequences.
+[More info on BLAST databases](https://ncbi.github.io/blast-cloud/blastdb/available-blastdbs.html)
+
+`-d` `--descriptions`
+Limits number of descriptions returned. Default: 500.
+
+`-a` `--alignments`
+Limits number of alignments to return. Default: 500.
+
+`-hs` `--hitlist_size`
+Limits number of hits to return. Default: 50.
+
+`-e` `--expect`
+Defines the [expect value](https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=FAQ#expect) cutoff. Default: 10.0.
+
+`-o` `--out`  
+Path to the csv the results will be saved in, e.g. path/to/directory/results.csv. Default: Standard out.  
+Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
+
+#### Flags
+`-ng` `--ncbi_gi`
+Also returns NCBI GI identifiers.
+
+`-lcf` `--low_comp_filt`
+Turns on [low complexity filter](https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=FAQ#LCR).
+
+`-mbo` `--megablast_off`
+Turns off MegaBLAST algorithm. Default: MegaBLAST on (blastn only).
+
+`-q` `--quiet` 
+Prevents progress information from being displayed.
+
+`wrap_text`
+Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False). 
