@@ -307,13 +307,15 @@ def get_uniprot_info(server, ensembl_id, id_type):
 
         # If there are reviewed results, return only reviewed results
         if "reviewed" in df["status"].values:
-            logging.info("Returning only reviewed UniProt results.")
+            logging.info(
+                "Returning only reviewed UniProt results for Ensembl ID {ensembl_id}."
+            )
             # Only keep rows where status is "reviewed"
             df = df[df.status == "reviewed"]
 
         else:
-            logging.info(
-                "No reviewed UniProt results were found. Returning all unreviewed results."
+            logging.warning(
+                f"No reviewed UniProt results were found. Returning all unreviewed results for Ensembl ID {ensembl_id}."
             )
 
         # Return set of all results if more than one UniProt ID was found for this Ensembl ID
@@ -329,16 +331,15 @@ def get_uniprot_info(server, ensembl_id, id_type):
                 final_df[column] = [list(set(df[column].values))]
                 # If onyl one value left, no need to return it as list
                 if len(final_df[column]) == 1:
+                    final_df[column] = [final_df[column][0]]
+
+            # Try to clean up the entries (so they are not a bunch of lists of one item)
+            # I will not do this with the UniProt synonyms so I can later find the set between NCBI and UniProt synonyms
+            if len(final_df[column]) == 1 and column != "uni_synonyms":
+                try:
                     final_df[column] = final_df[column][0]
-
-        # Remove "FUNCTION: " from beginning of UniProt description
-        clean_desc = []
-        for desc in final_df["uniprot_description"].values:
-            clean_desc.append(desc.split("FUNCTION: ")[1])
-        final_df["uniprot_description"] = clean_desc
-
-        if len(final_df["uniprot_description"]) == 1:
-            final_df["uniprot_description"] = final_df["uniprot_description"][0]
+                except:
+                    None
 
     # If no results were found, return None
     except pd.errors.EmptyDataError:
