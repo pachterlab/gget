@@ -59,8 +59,7 @@ def blast(
      - low_comp_filt  True/False whether to apply low complexity filter. Default False.
      - megablast      True/False whether to use the MegaBLAST algorithm (blastn only). Default True.
      - verbose        True/False whether to print progress information. Default True.
-     - wrap_text      True/False wether to wrap text in data frame for easier reading. Default: False.
-                      Note: This transforms the data frame into a 'NoneType' object, restricting further operations.
+     - wrap_text      If True, displays data frame with wrapped text for easy reading. Default: False.
      - save           If True, the data frame is saved as a csv in the current directory (default: False).
 
     Returns a data frame with the BLAST results.
