@@ -44,7 +44,7 @@ def search(
                       "or": Returns all genes that INCLUDE AT LEAST ONE of the searchwords in their name/description.
                       "and": Returns only genes that INCLUDE ALL of the searchwords in their name/description.
     - limit           (int) Limit the number of search results returned (default: None).
-    - wrap_text       True/False wether to wrap text in data frame for easier reading. Default: False.
+    - wrap_text       If True, displays data frame with wrapped text for easy reading. Default: False.
     - save            If True, the data frame is saved as a csv in the current directory (default: False).
 
     Returns a data frame with the query results.
