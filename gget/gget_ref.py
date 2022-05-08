@@ -15,7 +15,7 @@ logging.basicConfig(
 from .utils import ref_species_options
 
 
-def ref(species, which="all", release=None, ftp=False, save=False):
+def ref(species, which="all", release=None, ftp=False, save=False, list=False):
     """
     Fetch FTPs for reference genomes and annotations by species.
 
@@ -37,10 +37,47 @@ def ref(species, which="all", release=None, ftp=False, save=False):
     - ftp       Return only the requested FTP links in a list (default: False).
     - save      Save the results in the local directory (default: False).
 
+    - list      If True, returns a list of all available species (default: False). 
+                (Can be combined with `release` to get the species for a specific Ensembl release.)
+    
     Returns a dictionary containing the requested URLs with their respective Ensembl version and release date and time.
     (If FTP=True, returns a list containing only the URLs.)
     """
+    # If list = True, return list of all available species
+    if list == True and release is None:
+        # Find all available species for GTFs for this Ensembl release
+        species_list_gtf = ref_species_options("gtf")
+        # Find all available species for FASTAs for this Ensembl release
+        species_list_dna = ref_species_options("dna")
 
+        # Find intersection of the two lists
+        # (Only species which have GTF and FASTAs available can continue)
+        species_list = list(set(species_list_gtf) & set(species_list_dna))
+
+        # Print available species list
+        logging.info(
+            f"Fetching available genomes (GTF and FASTAs present) in Ensembl release {find_latest_ens_rel()} (latest)."
+        )
+        
+        return species_list
+    
+    if list == True and release is not None:
+        # Find all available species for GTFs for this Ensembl release
+        species_list_gtf = ref_species_options("gtf", release=release)
+        # Find all available species for FASTAs for this Ensembl release
+        species_list_dna = ref_species_options("dna", release=release)
+
+        # Find intersection of the two lists
+        # (Only species which have GTF and FASTAs available can continue)
+        species_list = list(set(species_list_gtf) & set(species_list_dna))
+
+        # Print available species list
+        logging.info(
+            f"Fetching available genomes (GTF and FASTAs present) in Ensembl release {release}."
+        )
+        
+        return species_list
+                
     # Species shortcuts
     if species == "human":
         species = "homo_sapiens"
