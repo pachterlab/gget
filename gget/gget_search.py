@@ -41,8 +41,8 @@ def search(
     - seqtype         "gene" (default) or "transcript"
                       Defines whether genes or transcripts matching the searchwords are returned.
     - andor           "or" (default) or "and"
-                      "or": Returns all genes that include at least one of the searchwords in their name/description (default).
-                      "and": Returns only genes that include all of the searchwords in their name/description.
+                      "or": Returns all genes that INCLUDE AT LEAST ONE of the searchwords in their name/description.
+                      "and": Returns only genes that INCLUDE ALL of the searchwords in their name/description.
     - limit           (int) Limit the number of search results returned (default: None).
     - wrap_text       True/False wether to wrap text in data frame for easier reading. Default: False.
     - save            If True, the data frame is saved as a csv in the current directory (default: False).
