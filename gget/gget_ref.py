@@ -12,7 +12,7 @@ logging.basicConfig(
     datefmt="%c",
 )
 # Custom functions
-from .utils import ref_species_options
+from .utils import ref_species_options, find_latest_ens_rel
 
 
 def ref(species, which="all", release=None, ftp=False, save=False, list_species=False):
