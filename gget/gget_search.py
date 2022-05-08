@@ -28,28 +28,23 @@ def search(
     wrap_text=False,
     save=False,
 ):
-    f"""
+    """
     Function to query Ensembl for genes based on species and free form search terms.
     Automatically fetches results from latest Ensembl release, unless user specifies database.
 
     Args:
-    - searchwords     The parameter "searchwords" is a list of one or more strings containing free form search terms
+    - searchwords     Free form search terms (not case-sensitive) as a string or list of strings 
                       (e.g.searchwords = ["GABA", "gamma-aminobutyric"]).
-                      All results that contain at least one of the search terms are returned.
-                      The search is not case-sensitive.
-    - species         Species or database.
-                      Species can be passed in the format "genus_species", e.g. "homo_sapiens".
-                      To pass a specific database (e.g. specific mouse strain),
-                      enter the name of the core database, e.g. 'mus_musculus_dba2j_core_105_1'.
-                      All availabale species databases can be found here: http://ftp.ensembl.org/pub/release-{find_latest_ens_rel()}/mysql/
-    - seqtype         Possible entries: "gene" (default) or "transcript".
+    - species         Species can be passed in the format "genus_species", e.g. "homo_sapiens".
+                      To pass a specific database, enter the name of the core database, e.g. 'mus_musculus_dba2j_core_105_1'.
+                      All availabale species databases can be found here: http://ftp.ensembl.org/pub/release-106/mysql/
+    - seqtype         "gene" (default) or "transcript"
                       Defines whether genes or transcripts matching the searchwords are returned.
-    - andor           Possible entries: "or" (default) or "and".
-                      "or": Returns all genes that include at least one of the searchwords in their description (default).
-                      "and": Returns only genes that include all of the searchwords in their description.
+    - andor           "or" (default) or "and"
+                      "or": Returns all genes that include at least one of the searchwords in their name/description (default).
+                      "and": Returns only genes that include all of the searchwords in their name/description.
     - limit           (int) Limit the number of search results returned (default: None).
     - wrap_text       True/False wether to wrap text in data frame for easier reading. Default: False.
-                      Note: This transforms the data frame into a 'NoneType' object, restricting further operations.
     - save            If True, the data frame is saved as a csv in the current directory (default: False).
 
     Returns a data frame with the query results.
