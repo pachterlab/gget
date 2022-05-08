@@ -1,7 +1,4 @@
-
-> :warning: **This README is not yet up to date with the latest version of gget.**
-
-# gget (gene-get)
+# gget
 [![pypi version](https://img.shields.io/pypi/v/gget)](https://pypi.org/project/gget)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/gget)
 [![license](https://img.shields.io/pypi/l/gget)](LICENSE)
@@ -9,15 +6,25 @@
 ![status](https://github.com/pachterlab/gget/workflows/CI/badge.svg)
 ![Code Coverage](https://img.shields.io/badge/Coverage-87%25-green.svg)
 
-gget has four main commands:  
+**gget** consists of nine tools:  
 - [**gget ref**](#gget-ref)  
-Fetch links to GTF and FASTA files from the [Ensembl FTP site](http://ftp.ensembl.org/pub/).
+Fetch FTPs and metadata for reference genomes and annotations from [Ensembl](https://www.ensembl.org/) by species.
 - [**gget search**](#gget-search)   
-Query [Ensembl](https://www.ensembl.org/) for genes using free form search words.
+Fetch genes and transcripts from [Ensembl](https://www.ensembl.org/) using free-form search terms.
 - [**gget info**](#gget-info)  
-Look up genes or transcripts by their Ensembl ID.
+Fetch extensive gene and transcript metadata from [Ensembl](https://www.ensembl.org/), [UniProt](https://www.uniprot.org/), and [NCBI](https://www.ncbi.nlm.nih.gov/) using Ensembl IDs.
 - [**gget seq**](#gget-seq)  
-Fetch DNA sequences of Ensembl IDs.
+Fetch nucleotide or amino acid sequences of genes or transcripts from [Ensembl](https://www.ensembl.org/) or [UniProt](https://www.uniprot.org/), respectively.
+- [**gget blast**](#gget-blast)  
+BLAST a nucleotide or amino acid sequence against any [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi) database.
+- [**gget blat**](#gget-blat)  
+Find the genomic location of a nucleotide or amino acid sequence using [BLAT](https://genome.ucsc.edu/cgi-bin/hgBlat).
+- [**gget muscle**](#gget-muscle)  
+Align multiple nucleotide or amino acid sequences against each other using [Muscle5](https://www.drive5.com/muscle/).
+- [**gget enrichr**](#gget-enrichr)  
+Perform an enrichment analysis on a list of genes using [Enrichr](https://maayanlab.cloud/Enrichr/).
+- [**gget archs4**](#gget-archs4)  
+Find the most correlated genes or the tissue expression atlas of a gene of interest using [ARCHS4](https://maayanlab.cloud/archs4/).
 
 ## Installation
 ```bash
@@ -26,27 +33,54 @@ pip install gget
 
 For use in Jupyter Lab / Google Colab:
 ```python
-from gget import *
+import gget
 ```
 
-## Getting started
+## Quick start guide
 ```bash
-# Fetch Homo sapiens  GTF, DNA, and cDNA FTPs from the latest Ensembl release
-$ gget ref -s homo_sapiens 
+# Fetch all Homo sapiens reference and annotation FTPs from the latest Ensembl release
+$ gget ref -s homo_sapiens
 
-# Search Drosophila genes with "swiss" and "cheese" in their description
-$ gget search -sw swiss,cheese -s drosophila_melanogaster -ao and 
+# Search human genes with "ace2" AND "angiotensin" in their name/description
+$ gget search -sw ace2,angiotensin -s homo_sapiens -ao and 
 
-# Look up gene ENSSCUG00000017183 with expanded info (returns all transcript isoforms for genes)
-$ gget info -id ENSSCUG00000017183 -e
+# Look up gene ENSG00000130234 (ACE2) with expanded info (returns all transcript isoforms for genes)
+$ gget info -id ENSG00000130234 -e
 
-# Fetch the sequences of Ensembl ID ENSMUSG00000025040, all its transcript isoforms and save the output FASTA as mouse.fa
-$ gget seq -id ENSMUSG00000025040 -i -o mouse.fa
+# Fetch the amino acid sequence of the canonical transcript of gene ENSG00000130234
+$ gget seq -id ENSG00000130234 --seqtype transcript
+
+# Quickly find the genomic location of (the start of) that amino acid sequence
+$ gget blat -seq MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS
+
+# Blast (the start of) that amino acid sequence
+$ gget blast -seq MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS
+
+# Align nucleotide or amino acid sequences stored in a FASTA file
+$ gget muscle -fa path/to/file.fa
+
+# Use Enrichr to find the ontology of a list of genes
+$ gget enrichr -g ACE2 AGT AGTR1 ACE AGTRAP AGTR2 ACE3P -db ontology
+
+# Get the human tissue expression atlas of gene ACE2
+$ gget archs4 -g ACE2 -w tissue
+```
+Jupyter Lab / Google Colab:
+```python  
+gget.ref("homo_sapiens")
+gget.search(["ace2", "angiotensin"], "homo_sapiens", andor="and")
+gget.info("ENSG00000130234", expand=True)
+gget.seq("ENSG00000130234", seqtype="transcript")
+gget.blat("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")
+gget.blast("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")
+gget.muscle("path/to/file.fa")
+gget.enrichr(["ACE2", "AGT", "AGTR1", "ACE", "AGTRAP", "AGTR2", "ACE3P"], database="ontology", plot=True)
+gget.archs4("ACE2", which="tissue")
 ```
 
-# Manual
+# Instruction Manual
 ## gget ref
-Function to fetch GTF and FASTA (cDNA and DNA) URLs from the [Ensembl FTP site](http://ftp.ensembl.org/pub/). Returns a dictionary/json containing the requested URLs with their respective Ensembl version and release date and time (or use flag `ftp` to only return the links).
+Fetch FTPs and metadata for reference genomes and annotations from [Ensembl](https://www.ensembl.org/) by species. Returns a dictionary/json containing the requested URLs with their respective metadata (or use flag `ftp` to only return the links).
 
 ### Options
 `-l` `--list`  
@@ -56,24 +90,27 @@ List all available species.
 Species for which the FTPs will be fetched in the format genus_species, e.g. homo_sapiens.
 
 `-w` `--which`  
-Defines which results to return. Possible entries are:
-'all' - Returns GTF, cDNA, and DNA links and associated info (default). 
-Or one or a combination of the following:
-'gtf' - Returns the GTF FTP link and associated info.
-'cdna' - Returns the cDNA FTP link and associated info.
-'dna' - Returns the DNA FTP link and associated info.
+Defines which results to return.
+Default: 'all' -> Returns all available results.
+Possible entries are one or a combination (as a list of strings) of the following:
+'gtf' - Returns the annotation (GTF).
+'cdna' - Returns the trancriptome (cDNA).
+'dna' - Returns the genome (DNA).
+'cds - Returns the coding sequences corresponding to Ensembl genes. (Does not contain UTR or intronic sequence.)
+'cdrna' - Returns transcript sequences corresponding to non-coding RNA genes (ncRNA).
+'pep' - Returns the protein translations of Ensembl genes.
 
 `-r` `--release`  
-Ensemble release the FTPs will be fetched from, e.g. 104 (default: None &rarr; uses latest Ensembl release).
+Defines the Ensembl release number from which the files are fetched, e.g. 104.
 
 `-ftp` `--ftp`  
-If True: returns only a list containing the requested FTP links (default: False).
+Return only the requested FTP links in a list (default: False).
 
 `-d` `--download`  
-Download the requested FTPs to the current directory (requires [wget](https://linuxize.com/post/wget-command-examples/)).
+Download the requested FTPs to the current directory (requires [curl](https://curl.se/docs/)).
 
 `-o` `--out`  
-Path to the file the results will be saved in, e.g. path/to/directory/results.json (default: None &rarr; just prints results).  
+Path to the json file the results will be saved in, e.g. path/to/directory/results.json. Default: Standard out.
 For Jupyter Lab / Google Colab: `save=True` will save the output to the current working directory.
 
 ### Examples
@@ -367,6 +404,3 @@ seq("ENSMUSG00000025040", isoforms=True)
 $ gget seq -id ENSMUSG00000025040 -i
 ```
 &rarr; Returns a FASTA containing the sequence of the gene ID and the sequences of all of each transcripts.
-
-___ 
-Author: Laura Luebbert 
