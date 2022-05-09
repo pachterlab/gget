@@ -284,13 +284,17 @@ def info(
                 synonyms = df_uniprot["uni_synonyms"].values[0]
             else:
                 synonyms = np.nan
+            
+            # Sort synonyms alphabetically
+            if len(synonyms) > 1 and type(synonyms) != str and type(synonyms) != float:
+                synonyms = sorted(synonyms)
 
             # Save NCBI info to data frame
             df_ncbi = pd.DataFrame(
                 {
                     "ncbi_gene_id": [ncbi_gene_id],
                     "ncbi_description": [ncbi_description],
-                    "synonyms": [sorted(synonyms)],
+                    "synonyms": [synonyms],
                 },
             )
 
