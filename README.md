@@ -9,23 +9,23 @@
 `gget` is a free and open-source command-line tool and Python package that enables efficient querying of genomic databases. `gget`  consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.  
 
 `gget` currently consists of the following nine modules:
-- [**gget ref**](#gget-ref)  
+- [`gget ref`](#gget-ref)  
 Fetch FTPs and metadata for reference genomes and annotations from [Ensembl](https://www.ensembl.org/) by species.
-- [**gget search**](#gget-search)   
+- [`gget search`](#gget-search)   
 Fetch genes and transcripts from [Ensembl](https://www.ensembl.org/) using free-form search terms.
-- [**gget info**](#gget-info)  
+- [`gget info`](#gget-info)  
 Fetch extensive gene and transcript metadata from [Ensembl](https://www.ensembl.org/), [UniProt](https://www.uniprot.org/), and [NCBI](https://www.ncbi.nlm.nih.gov/) using Ensembl IDs.
-- [**gget seq**](#gget-seq)  
+- [`gget seq`](#gget-seq)  
 Fetch nucleotide or amino acid sequences of genes or transcripts from [Ensembl](https://www.ensembl.org/) or [UniProt](https://www.uniprot.org/), respectively.
-- [**gget blast**](#gget-blast)  
+- [`gget blast`](#gget-blast)  
 BLAST a nucleotide or amino acid sequence against any [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi) database.
-- [**gget blat**](#gget-blat)  
+- [`gget blat`](#gget-blat)  
 Find the genomic location of a nucleotide or amino acid sequence using [BLAT](https://genome.ucsc.edu/cgi-bin/hgBlat).
-- [**gget muscle**](#gget-muscle)  
+- [`gget muscle`](#gget-muscle)  
 Align multiple nucleotide or amino acid sequences against each other using [Muscle5](https://www.drive5.com/muscle/).
-- [**gget enrichr**](#gget-enrichr)  
+- [`gget enrichr`](#gget-enrichr)  
 Perform an enrichment analysis on a list of genes using [Enrichr](https://maayanlab.cloud/Enrichr/).
-- [**gget archs4**](#gget-archs4)  
+- [`gget archs4`](#gget-archs4)  
 Find the most correlated genes or the tissue expression atlas of a gene of interest using [ARCHS4](https://maayanlab.cloud/archs4/).
 
 ![alt text](https://github.com/pachterlab/gget/blob/main/figures/gget_overview.png?raw=true)
@@ -141,8 +141,8 @@ gget ref --list -r 103
 ```python
 gget.ref(species=None, list_species=True, release=103)
 ```
-&rarr; Returns a list with all available genomes (GTF and FASTAs must be available) from Ensembl release 103.   
-(If no release is specified, `gget ref` will return information from the latest Ensembl release.)  
+&rarr; Returns a list with all available genomes (checks if GTF and FASTAs are available) from Ensembl release 103.   
+(If no release is specified, `gget ref` will always return information from the latest Ensembl release.)  
   
 Get the genome reference for a specific species:   
 ```bash
@@ -183,7 +183,7 @@ Return format: data frame.
 
 **Required arguments**  
 `-sw` `--searchwords`   
-One or more free form search terms, e.g. gaba, nmda. (Note: Search is not case-sensitive.)  
+One or more free form search words, e.g. gaba, nmda. (Note: Search is not case-sensitive.)  
 
 `-s` `--species`  
 Species or database to be searched.  
@@ -222,7 +222,7 @@ gget search -sw gaba gamma-aminobutyric -s homo_sapiens
 ```python
 gget.search(["gaba", "gamma-aminobutyric"], "homo_sapiens")
 ```
-&rarr; Returns all genes that contain at least one of the searchwords in their name or Ensembl/external reference description, in the data frame format:
+&rarr; Returns all genes that contain at least one of the search words in their name or Ensembl/external reference description:
 
 | ensembl_id     | gene_name     | ensembl_description     | ext_ref_description        | biotype | url |
 | -------------- |-------------------------| ------------------------| -------------- | ----------|-----|
@@ -263,7 +263,7 @@ gget info -id ENSG00000034713 ENSG00000104853 ENSG00000170296 -e
 ```python
 gget.info(["ENSG00000034713", "ENSG00000104853", "ENSG00000170296"], expand=True)
 ```
-&rarr; Returns extensive information about each Ensembl ID in data frame format:  
+&rarr; Returns extensive information about each requested Ensembl ID in data frame format:  
 
 |      | uniprot_id     | ncbi_gene_id     | primary_gene_name | synonyms | protein_names | ensembl_description | uniprot_description | ncbi_description | biotype | canonical_transcript | ... |
 | -------------- |-------------------------| ------------------------| -------------- | ----------|-----|----|----|----|----|----|----|
@@ -294,8 +294,9 @@ Jupyter Lab / Google Colab: `save=True` will save the output in the current work
 
 **Flags**  
 `-i` `--isoforms`   
-Returns the sequences of all known transcripts (for `seqtype=gene` only).
-  
+Returns the sequences of all known transcripts.  
+(Only for gene IDs in combination with `seqtype=transcript`.)
+   
   
 ### Examples  
 ```bash
@@ -305,7 +306,7 @@ gget seq -id ENSG00000034713 ENSG00000104853 ENSG00000170296
 ```python
 gget.seq(["ENSG00000034713", "ENSG00000104853", "ENSG00000170296"])
 ```
-&rarr; Returns the nucleotide sequences of the requested genes in FASTA format.  
+&rarr; Returns the nucleotide sequences of ENSG00000034713, ENSG00000104853, and ENSG00000170296 in FASTA format.  
   
 
 ```bash
@@ -369,7 +370,12 @@ gget blast -seq MKWMFKEDHSLEHRCVESAKIRAKYPDRVPVIVEKVSGSQIVDIDKRKYLVPSDITVAQFMWII
 ```python
 gget.blast("MKWMFKEDHSLEHRCVESAKIRAKYPDRVPVIVEKVSGSQIVDIDKRKYLVPSDITVAQFMWIIRKRIQLPSEKAIFLFVDKTVPQSR")
 ```
-&rarr; Returns BLAST results in a data frame format.  `gget blast` automatically detects this sequence as an amino acid sequence and therefore sets the BLAST program to *blastp* with database *nr*.
+&rarr; Returns the BLAST result of the sequence of interest in data frame format. `gget blast` automatically detects this sequence as an amino acid sequence and therefore sets the BLAST program to *blastp* with database *nr*.  
+
+| Description     | Scientific Name	     | Common Name     | Taxid        | Max Score | Total Score | Query Cover | ... |
+| -------------- |-------------------------| ------------------------| -------------- | ----------|-----|---|---|
+| PREDICTED: gamma-aminobutyric acid receptor-as...| Colobus angolensis palliatus	 | 	NaN | 336983 | 180	 | 180 | 100% | ... |
+| . . . | . . . | . . . | . . . | . . . | . . . | . . . | ... | 
 
 BLAST from .fa or .txt file:  
 ```bash
@@ -379,13 +385,13 @@ gget blast -seq fasta.fa
 ```python
 gget.blast("fasta.fa")
 ```
-&rarr; Returns BLAST results in a data frame format. 
+&rarr; Returns the BLAST results of the first sequence contained in the fasta.fa file. 
 
 #### [More examples](https://github.com/pachterlab/gget_examples)
 ___
 
 ## gget blat
-Find the genomic location of a nucleotide or amino acid sequence using [BLAT](https://genome.ucsc.edu/cgi-bin/hgBlat).  
+Find the genomic location of a nucleotide or amino acid sequence using [BLAT](https://genome.ucsc.edu/cgi-bin/hgBlat).   
 Return format: data frame.
 
 **Required arguments**  
@@ -403,14 +409,29 @@ or any of the species assemblies available [here](https://genome.ucsc.edu/cgi-bi
 
 `-o` `--out`   
 Path to the csv the results will be saved in, e.g. path/to/directory/results.csv. Default: Standard out.   
-Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
+Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.  
+  
+  
+### Example
+```bash
+gget blat -seq MKWMFKEDHSLEHRCVESAKIRAKYPDRVPVIVEKVSGSQIVDIDKRKYLVPSDITVAQFMWIIRKRIQLPSEKAIFLFVDKTVPQSR -a taeGut2
+```
+*Jupyter Lab / Google Colab:*
+```python
+gget.blat("MKWMFKEDHSLEHRCVESAKIRAKYPDRVPVIVEKVSGSQIVDIDKRKYLVPSDITVAQFMWIIRKRIQLPSEKAIFLFVDKTVPQSR", assembly="taeGut2")
+```
+&rarr; Returns BLAT results for assembly taeGut2 (zebra finch) in data frame format. In the above example, `gget blat` automatically detects this sequence as an amino acid sequence and therefore sets the BLAT seqtype to *protein*.
 
-#### [Examples](https://github.com/pachterlab/gget_examples)  
+| genome     | query_size     | aligned_start     | aligned_end        | matches | mismatches | %_aligned | ... |
+| -------------- |-------------------------| ------------------------| -------------- | ----------|-----|---|---|
+| taeGut2| 88 | 	12 | 88 | 77 | 0 | 87.5 | ... |
+
+#### [More examples](https://github.com/pachterlab/gget_examples)
 ___
 
 ## gget muscle  
 Align multiple nucleotide or amino acid sequences against each other using [Muscle5](https://www.drive5.com/muscle/).  
-Return format: Clustal formatted standard out or aligned FASTA.  
+Return format: ClustalW formatted standard out or aligned FASTA.  
 
 **Required arguments**  
 `-fa` `--fasta`   
@@ -427,9 +448,22 @@ Aligns input using the [Super5 algorithm](https://drive5.com/muscle5/Muscle5_Sup
 Use for large inputs (a few hundred sequences).
 
 `wrap_text`  
-Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).  
-  
-#### [Examples](https://github.com/pachterlab/gget_examples)
+Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).   
+   
+   
+### Example
+```bash
+gget muscle -fa fasta.fa
+```
+*Jupyter Lab / Google Colab:*
+```python
+gget.muscle("fasta.fa")
+```
+&rarr; Returns an overview of the aligned sequences with ClustalW coloring. In the above example, the 'fasta.fa' includes several sequences to be aligned (e.g. isoforms returned from `gget seq`). 
+
+![alt text](https://github.com/pachterlab/gget/blob/main/figures/example_muscle_output.png?raw=true)
+
+#### [More examples](https://github.com/pachterlab/gget_examples)
 ___
 
 ## gget enrichr
@@ -459,7 +493,20 @@ Jupyter Lab / Google Colab: `save=True` will save the output in the current work
 `plot`  
 Jupyter Lab / Google Colab only. `plot=True` provides a graphical overview of the first 15 results (default: False).  
   
-#### [Examples](https://github.com/pachterlab/gget_examples)
+  
+### Example
+```bash
+gget enrichr -g ACE2 AGT AGTR1 -db ontology
+```
+*Jupyter Lab / Google Colab:*
+```python
+gget.enrichr(["ACE2", "AGT", "AGTR1"], database="ontology", plot=True, save=True)
+```
+&rarr; Returns pathways/functions involving genes ACE2, AGT, and AGTR1 from the *GO Biological Process 2021* database in data frame format. In Jupyter Lab / Google Colab, `plot=True` returns a graphical overview of the results:
+
+![alt text](https://github.com/pachterlab/gget/blob/main/figures/gget_enrichr_results.png?raw=true)
+
+#### [More examples](https://github.com/pachterlab/gget_examples)
 ___
 
 ## gget archs4
@@ -483,7 +530,39 @@ Defines whether to use human or mouse samples from [ARCHS4](https://maayanlab.cl
 
 `-o` `--out`   
 Path to the csv the results will be saved in, e.g. path/to/directory/results.csv. Default: Standard out.   
-Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
+Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.  
+  
+  
+### Examples
+```bash
+gget archs4 -g ACE2
+```
+*Jupyter Lab / Google Colab:*
+```python
+gget.archs4("ACE2")
+```
+&rarr; Returns the 100 most correlated genes to ACE2 in a data frame:  
 
-#### [Examples](https://github.com/pachterlab/gget_examples)
+| gene_symbol     | pearson_correlation     |
+| -------------- |-------------------------| 
+| SLC5A1 | 0.579634 | 	
+| CYP2C18 | 0.576577 | 	
+| . . . | . . . | 	
+
+```bash
+gget archs4 -g ACE2 -w tissue
+```
+*Jupyter Lab / Google Colab:*
+```python
+gget.archs4("ACE2", which="tissue")
+```
+&rarr; Returns the tissue expression of ACE2 in a data frame (by default, human data is used):
+
+| id     | min     | q1 |  median | q3 | max |
+| ------ |--------| ------ |--------| ------ |--------| 
+| System.Urogenital/Reproductive System.Kidney.RENAL CORTEX | 0.113644 | 8.274060 | 9.695840 | 10.51670 | 11.21970 |
+| System.Digestive System.Intestine.INTESTINAL EPITHELIAL CELL | 0.113644 | 	5.905560 | 9.570450 | 13.26470 | 13.83590 | 
+| . . . | . . . | . . . | . . . | . . . | . . . |
+
+#### [More examples](https://github.com/pachterlab/gget_examples)
 ___
