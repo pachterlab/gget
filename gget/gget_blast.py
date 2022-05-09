@@ -250,7 +250,7 @@ def blast(
         ("PROGRAM", program),
         ("DATABASE", database),
         ("QUERY", sequence),
-        ("DESCRIPTIONS", 500),
+        ("DESCRIPTIONS", limit),
         ("HITLIST_SIZE", limit),
         ("ALIGNMENTS", 0),
         ("EXPECT", expect),
@@ -289,7 +289,7 @@ def blast(
     # Args for the GET command
     get_args = [
         ("RID", RID),
-        ("DESCRIPTIONS", 500),
+        ("DESCRIPTIONS", limit),
         ("HITLIST_SIZE", limit),
         ("ALIGNMENTS", 0),
         ("FORMAT_TYPE", "HTML"),
