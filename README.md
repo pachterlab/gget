@@ -28,6 +28,8 @@ Perform an enrichment analysis on a list of genes using [Enrichr](https://maayan
 - [**gget archs4**](#gget-archs4)  
 Find the most correlated genes or the tissue expression atlas of a gene of interest using [ARCHS4](https://maayanlab.cloud/archs4/).
 
+![gget_overview_v3](https://user-images.githubusercontent.com/56094636/167336264-e5a1c453-ed00-4122-b3a2-ef56c657003d.png)
+
 ## Installation
 ```bash
 pip install gget
