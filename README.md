@@ -28,7 +28,7 @@ Perform an enrichment analysis on a list of genes using [Enrichr](https://maayan
 - [**gget archs4**](#gget-archs4)  
 Find the most correlated genes or the tissue expression atlas of a gene of interest using [ARCHS4](https://maayanlab.cloud/archs4/).
 
-![gget_overview_v3 (1)](https://user-images.githubusercontent.com/56094636/167496142-3e8261c3-e20c-45ab-873f-1d723e66818d.png)
+![gget_overview_v3 (3)](https://user-images.githubusercontent.com/56094636/167509907-d49fb974-af74-4f6d-9f72-54a1af76be16.png)
 
 ## Installation
 ```bash
@@ -131,24 +131,24 @@ Downloads the requested FTPs to the current directory (requires [curl](https://c
 ```bash
 kb ref -i INDEX -g T2G -f1 FASTA $(gget ref --ftp -w dna,gtf -s homo_sapiens)
 ```
-&rarr; kb ref builds a reference index using the latest DNA and GTF files of species **Homo sapiens** passed to it by `gget ref`.
+&rarr; kb ref builds a reference index using the latest DNA and GTF files of species **Homo sapiens** passed to it by `gget ref`.  
   
 Get all available genomes:  
 ```bash
 gget ref --list -r 103
 ```
-Jupyter Lab / Google Colab:  
+*Jupyter Lab / Google Colab: * 
 ```python
 gget.ref(species=None, list_species=True, release=103)
 ```
 &rarr; Returns a list with all available genomes (GTF and FASTAs must be available) from Ensembl release 103.   
-(If no release is specified, `gget ref` will return information from the latest Ensembl release.)
+(If no release is specified, `gget ref` will return information from the latest Ensembl release.)  
   
 Get the genome reference for a specific species:   
 ```bash
 gget ref -s homo_sapiens -w gtf dna
 ```
-Jupyter Lab / Google Colab:
+*Jupyter Lab / Google Colab:*
 ```python
 gget.ref("homo_sapiens", which=["gtf", "dna"])
 ```
@@ -211,18 +211,18 @@ Jupyter Lab / Google Colab: `save=True` will save the output in the current work
 
 **Flags**
 `wrap_text`  
-Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False). 
+Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).  
   
     
 ### Example
 ```bash
 gget search -sw gaba gamma-aminobutyric -s homo_sapiens
 ```
-Jupyter Lab / Google Colab:
+*Jupyter Lab / Google Colab:*
 ```python
 gget.search(["gaba", "gamma-aminobutyric"], "homo_sapiens")
 ```
-&rarr; Returns all genes that contain at least one of the searchwords in their name or Ensembl/external reference description, in the format:
+&rarr; Returns all genes that contain at least one of the searchwords in their name or Ensembl/external reference description, in the data frame format:
 
 | ensembl_id     | gene_name     | ensembl_description     | ext_ref_description        | biotype | url |
 | -------------- |-------------------------| ------------------------| -------------- | ----------|-----|
@@ -252,22 +252,22 @@ For genes, adds information on all known transcripts.
 For transcripts, adds information on all known translations and exons.
 
 `wrap_text`  
-Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False). 
+Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).  
 
   
 ### Example
 ```bash
 gget info -id ENSG00000034713 ENSG00000104853 ENSG00000170296 -e 
 ```
-Jupyter Lab / Google Colab:
+*Jupyter Lab / Google Colab:*
 ```python
 gget.info(["ENSG00000034713", "ENSG00000104853", "ENSG00000170296"], expand=True)
 ```
-&rarr; Returns information about each Ensembl ID in the format:  
+&rarr; Returns extensive information about each Ensembl ID in data frame format:  
 
 |      | uniprot_id     | ncbi_gene_id     | primary_gene_name | synonyms | protein_names | ensembl_description | uniprot_description | ncbi_description | biotype | canonical_transcript | ... |
 | -------------- |-------------------------| ------------------------| -------------- | ----------|-----|----|----|----|----|----|----|
-| ENSG00000034713| P60520 | 11345 | GABARAPL2 | [ATG8, ATG8C, FLC3A, GABARAPL2, GATE-16, GATE16, GEF-2, GEF2] | Gamma-aminobutyric acid receptor-associated protein like 2 (GABA(A) receptor-associated protein-like 2) (Ganglioside expression factor 2) (GEF-2) (General protein transport factor p16) (Golgi-associated ATPase enhancer of 16 kDa) (GATE-16) (MAP1 light chain 3-related protein) | GABA type A receptor associated protein like 2 [Source:HGNC Symbol;Acc:HGNC:13291] | FUNCTION: Ubiquitin-like modifier involved in intra- Golgi traffic (By similarity). Modulates intra-Golgi transport through coupling between NSF activity and SNAREs activation (By similarity). It first stimulates the ATPase activity of NSF which in turn stimulates the association with GOSR1 (By similarity). Involved in autophagy (PubMed:20418806, PubMed:23209295). Plays a role in ... | Enables ubiquitin protein ligase binding activity. Involved in negative regulation of proteasomal protein catabolic process and protein localization to endoplasmic reticulum. Located in Golgi membrane and autophagosome membrane. [provided by Alliance of Genome Resources, Apr 2022] | protein_coding | ENST00000037243.7 |... |
+| ENSG00000034713| P60520 | 11345 | GABARAPL2 | [ATG8, ATG8C, FLC3A, GABARAPL2, GATE-16, GATE16, GEF-2, GEF2] | Gamma-aminobutyric acid receptor-associated protein like 2 (GABA(A) receptor-associated protein-like 2)... | GABA type A receptor associated protein like 2 [Source:HGNC Symbol;Acc:HGNC:13291] | FUNCTION: Ubiquitin-like modifier involved in intra- Golgi traffic (By similarity). Modulates intra-Golgi transport through coupling between NSF activity and ... | Enables ubiquitin protein ligase binding activity. Involved in negative regulation of proteasomal protein catabolic process and protein... | protein_coding | ENST00000037243.7 |... |
 | . . .            | . . .                     | . . .                     | . . .            | . . .       | . . . | . . . | . . . | . . . | . . . | . . . | ... |
   
 #### [More examples](https://github.com/pachterlab/gget_examples)
@@ -295,8 +295,29 @@ Jupyter Lab / Google Colab: `save=True` will save the output in the current work
 **Flags**  
 `-i` `--isoforms`   
 Returns the sequences of all known transcripts (for `seqtype=gene` only).
+  
+  
+### Examples  
+```bash
+gget seq -id ENSG00000034713 ENSG00000104853 ENSG00000170296
+```
+*Jupyter Lab / Google Colab:*
+```python
+gget.seq(["ENSG00000034713", "ENSG00000104853", "ENSG00000170296"])
+```
+&rarr; Returns the nucleotide sequences of the requested genes in FASTA format.  
+  
 
-#### [Examples](https://github.com/pachterlab/gget_examples)
+```bash
+gget seq -id ENSG00000034713 -st transcript -iso
+```
+*Jupyter Lab / Google Colab:*
+```python
+gget.seq("ENSG00000034713", seqtype="transcript", isoforms=True)
+```
+&rarr; Returns the amino acid sequences of all known transcripts of ENSG00000034713 in FASTA format.
+
+#### [More examples](https://github.com/pachterlab/gget_examples)
 ___
 
 ## gget blast
@@ -305,7 +326,7 @@ Return format: data frame.
 
 **Required arguments**  
 `-seq` `--sequence`   
-Nucleotise or amino acid sequence, or path to FASTA file.
+Nucleotise or amino acid sequence, or path to FASTA or .txt file.
 
 **Optional arguments**  
 `-p` `--program`  
@@ -338,9 +359,29 @@ Turns off MegaBLAST algorithm. Default: MegaBLAST on (blastn only).
 Prevents progress information from being displayed.  
 
 `wrap_text`  
-Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).  
+Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).   
+  
+### Example
+```bash
+gget blast -seq MKWMFKEDHSLEHRCVESAKIRAKYPDRVPVIVEKVSGSQIVDIDKRKYLVPSDITVAQFMWIIRKRIQLPSEKAIFLFVDKTVPQSR
+```
+*Jupyter Lab / Google Colab:*
+```python
+gget.blast("MKWMFKEDHSLEHRCVESAKIRAKYPDRVPVIVEKVSGSQIVDIDKRKYLVPSDITVAQFMWIIRKRIQLPSEKAIFLFVDKTVPQSR")
+```
+&rarr; Returns BLAST results in a data frame format.  `gget blast` automatically detects this sequence as an amino acid sequence and therefore sets the BLAST program to *blastp* with database *nr*.
 
-#### [Examples](https://github.com/pachterlab/gget_examples)
+BLAST from .fa or .txt file:  
+```bash
+gget blast -seq fasta.fa
+```
+*Jupyter Lab / Google Colab:*
+```python
+gget.blast("fasta.fa")
+```
+&rarr; Returns BLAST results in a data frame format. 
+
+#### [More examples](https://github.com/pachterlab/gget_examples)
 ___
 
 ## gget blat
@@ -373,7 +414,7 @@ Return format: Clustal formatted standard out or aligned FASTA.
 
 **Required arguments**  
 `-fa` `--fasta`   
-Path to FASTA file containing the nucleotide or amino acid sequences to be aligned.  
+Path to FASTA or .txt file containing the nucleotide or amino acid sequences to be aligned.  
 
 **Optional arguments**  
 `-o` `--out`   
