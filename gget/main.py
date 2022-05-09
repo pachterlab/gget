@@ -144,7 +144,7 @@ def main():
         type=str,
         nargs="+",
         required=True,
-        help="One or more free form searchwords for the query, e.g. gaba, nmda.",
+        help="One or more free form search words for the query, e.g. gaba, nmda.",
     )
     parser_gget.add_argument(
         "-s",
@@ -265,7 +265,7 @@ def main():
         default=False,
         action="store_true",
         required=False,
-        help="Returns sequences of all known transcripts (for gene IDs only) (default: False).",
+        help="Returns sequences of all known transcripts (default: False). (Only for gene IDs in combination with '--seqtype transcript'.)",
     )
     parser_seq.add_argument(
         "-o",
