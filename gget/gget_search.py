@@ -33,7 +33,7 @@ def search(
     Automatically fetches results from latest Ensembl release, unless user specifies database.
 
     Args:
-    - searchwords     Free form search terms (not case-sensitive) as a string or list of strings 
+    - searchwords     Free form search words (not case-sensitive) as a string or list of strings 
                       (e.g.searchwords = ["GABA", "gamma-aminobutyric"]).
     - species         Species can be passed in the format "genus_species", e.g. "homo_sapiens".
                       To pass a specific database, enter the name of the core database, e.g. 'mus_musculus_dba2j_core_105_1'.
