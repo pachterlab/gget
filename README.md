@@ -28,7 +28,7 @@ Perform an enrichment analysis on a list of genes using [Enrichr](https://maayan
 - [**gget archs4**](#gget-archs4)  
 Find the most correlated genes or the tissue expression atlas of a gene of interest using [ARCHS4](https://maayanlab.cloud/archs4/).
 
-![gget_overview_v3](https://user-images.githubusercontent.com/56094636/167336264-e5a1c453-ed00-4122-b3a2-ef56c657003d.png)
+![gget_overview_v3 (1)](https://user-images.githubusercontent.com/56094636/167496142-3e8261c3-e20c-45ab-873f-1d723e66818d.png)
 
 ## Installation
 ```bash
@@ -94,7 +94,8 @@ Return format: dictionary/json.
 **Required arguments**  
 `-s` `--species`  
 Species for which the FTPs will be fetched in the format genus_species, e.g. homo_sapiens.  
-Note: Not required when calling flag `--list_species`.  
+Note: Not required when calling flag `--list_species`.   
+Supported shortcuts: 'human', 'mouse'
 
 **Optional arguments**  
 `-w` `--which`  
@@ -124,7 +125,56 @@ Returns only the requested FTP links.
 `-d` `--download`   
 Downloads the requested FTPs to the current directory (requires [curl](https://curl.se/docs/) to be installed).  
 
-#### [Examples](https://github.com/pachterlab/gget_examples)
+  
+### Examples
+**Use `gget ref` in combination with [kallisto | bustools](https://www.kallistobus.tools/kb_usage/kb_ref/) to build a reference index:**
+```bash
+kb ref -i INDEX -g T2G -f1 FASTA $(gget ref --ftp -w dna,gtf -s homo_sapiens)
+```
+&rarr; kb ref builds a reference index using the latest DNA and GTF files of species **Homo sapiens** passed to it by `gget ref`.
+  
+Get all available genomes:  
+```bash
+gget ref --list -r 103
+```
+Jupyter Lab / Google Colab:  
+```python
+gget.ref(species=None, list_species=True, release=103)
+```
+&rarr; Returns a list with all available genomes (GTF and FASTAs must be available) from Ensembl release 103.   
+(If no release is specified, `gget ref` will return information from the latest Ensembl release.)
+  
+Get the genome reference for a specific species:   
+```bash
+gget ref -s homo_sapiens -w gtf dna
+```
+Jupyter Lab / Google Colab:
+```python
+gget.ref("homo_sapiens", which=["gtf", "dna"])
+```
+&rarr; Returns a json with the latest human GTF and FASTA FTPs, and their respective metadata, in the format:
+```
+{
+    "homo_sapiens": {
+        "annotation_gtf": {
+            "ftp": "http://ftp.ensembl.org/pub/release-106/gtf/homo_sapiens/Homo_sapiens.GRCh38.106.gtf.gz",
+            "ensembl_release": 106,
+            "release_date": "28-Feb-2022",
+            "release_time": "23:27",
+            "bytes": "51379459"
+        },
+        "genome_dna": {
+            "ftp": "http://ftp.ensembl.org/pub/release-106/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz",
+            "ensembl_release": 106,
+            "release_date": "21-Feb-2022",
+            "release_time": "09:35",
+            "bytes": "881211416"
+        }
+    }
+}
+```
+
+#### [More examples](https://github.com/pachterlab/gget_examples)
 ___
 
 ## gget search   
@@ -139,7 +189,8 @@ One or more free form search terms, e.g. gaba, nmda. (Note: Search is not case-s
 Species or database to be searched.  
 A species can be passed in the format 'genus_species', e.g. 'homo_sapiens'.  
 To pass a specific database, pass the name of the CORE database, e.g. 'mus_musculus_dba2j_core_105_1'.  
-All availabale databases can be found [here](http://ftp.ensembl.org/pub/release-106/mysql/).
+All availabale databases can be found [here](http://ftp.ensembl.org/pub/release-106/mysql/).  
+Supported shortcuts: 'human', 'mouse'. 
 
 **Optional arguments**  
 `-st` `--seqtype`  
@@ -161,8 +212,24 @@ Jupyter Lab / Google Colab: `save=True` will save the output in the current work
 **Flags**
 `wrap_text`  
 Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False). 
+  
     
-#### [Examples](https://github.com/pachterlab/gget_examples)
+### Example
+```bash
+gget search -sw gaba gamma-aminobutyric -s homo_sapiens
+```
+Jupyter Lab / Google Colab:
+```python
+gget.search(["gaba", "gamma-aminobutyric"], "homo_sapiens")
+```
+&rarr; Returns all genes that contain at least one of the searchwords in their name or Ensembl/external reference description, in the format:
+
+| ensembl_id     | gene_name     | ensembl_description     | ext_ref_description        | biotype | url |
+| -------------- |-------------------------| ------------------------| -------------- | ----------|-----|
+| ENSG00000034713| GABARAPL2 | 	GABA type A receptor associated protein like 2 [Source:HGNC Symbol;Acc:HGNC:13291] | GABA type A receptor associated protein like 2 | protein_coding | https://uswest.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000034713 |
+| . . .            | . . .                     | . . .                     | . . .            | . . .       | . . . |
+    
+#### [More examples](https://github.com/pachterlab/gget_examples)
 ___
 
 ## gget info  
@@ -187,7 +254,23 @@ For transcripts, adds information on all known translations and exons.
 `wrap_text`  
 Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False). 
 
-#### [Examples](https://github.com/pachterlab/gget_examples)
+  
+### Example
+```bash
+gget info -id ENSG00000034713 ENSG00000104853 ENSG00000170296 -e 
+```
+Jupyter Lab / Google Colab:
+```python
+gget.info(["ENSG00000034713", "ENSG00000104853", "ENSG00000170296"], expand=True)
+```
+&rarr; Returns information about each Ensembl ID in the format:  
+
+|      | uniprot_id     | ncbi_gene_id     | primary_gene_name | synonyms | protein_names | ensembl_description | uniprot_description | ncbi_description | biotype | canonical_transcript | ... |
+| -------------- |-------------------------| ------------------------| -------------- | ----------|-----|----|----|----|----|----|----|
+| ENSG00000034713| P60520 | 11345 | GABARAPL2 | [ATG8, ATG8C, FLC3A, GABARAPL2, GATE-16, GATE16, GEF-2, GEF2] | Gamma-aminobutyric acid receptor-associated protein like 2 (GABA(A) receptor-associated protein-like 2) (Ganglioside expression factor 2) (GEF-2) (General protein transport factor p16) (Golgi-associated ATPase enhancer of 16 kDa) (GATE-16) (MAP1 light chain 3-related protein) | GABA type A receptor associated protein like 2 [Source:HGNC Symbol;Acc:HGNC:13291] | FUNCTION: Ubiquitin-like modifier involved in intra- Golgi traffic (By similarity). Modulates intra-Golgi transport through coupling between NSF activity and SNAREs activation (By similarity). It first stimulates the ATPase activity of NSF which in turn stimulates the association with GOSR1 (By similarity). Involved in autophagy (PubMed:20418806, PubMed:23209295). Plays a role in ... | Enables ubiquitin protein ligase binding activity. Involved in negative regulation of proteasomal protein catabolic process and protein localization to endoplasmic reticulum. Located in Golgi membrane and autophagosome membrane. [provided by Alliance of Genome Resources, Apr 2022] | protein_coding | ENST00000037243.7 |... |
+| . . .            | . . .                     | . . .                     | . . .            | . . .       | . . . | . . . | . . . | . . . | . . . | . . . | ... |
+  
+#### [More examples](https://github.com/pachterlab/gget_examples)
 ___
 
 ## gget seq  
