@@ -252,7 +252,7 @@ def blast(
         ("QUERY", sequence),
         ("DESCRIPTIONS", 500),
         ("HITLIST_SIZE", limit),
-        ("ALIGNMENTS", 500),
+        ("ALIGNMENTS", 0),
         ("EXPECT", expect),
         ("FILTER", low_comp_filt),
         ("MEGABLAST", megablast),
@@ -291,7 +291,7 @@ def blast(
         ("RID", RID),
         ("DESCRIPTIONS", 500),
         ("HITLIST_SIZE", limit),
-        ("ALIGNMENTS", 500),
+        ("ALIGNMENTS", 0),
         ("FORMAT_TYPE", "HTML"),
         ("CMD", "Get"),
     ]
