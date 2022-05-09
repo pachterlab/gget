@@ -461,7 +461,7 @@ gget.muscle("fasta.fa")
 ```
 &rarr; Returns an overview of the aligned sequences with ClustalW coloring. In the above example, the 'fasta.fa' includes several sequences to be aligned (e.g. isoforms returned from `gget seq`). 
 
-![alt text](https://github.com/pachterlab/gget/blob/main/figures/example_muscle_output.png?raw=true)
+![alt text](https://github.com/pachterlab/gget/blob/main/figures/example_muscle_return.png?raw=true)
 
 #### [More examples](https://github.com/pachterlab/gget_examples)
 ___
