@@ -17,7 +17,7 @@ logging.basicConfig(
 from .compile import compile_muscle, MUSCLE_PATH, PACKAGE_PATH
 from .utils import aa_colors, n_colors
 
-# Path to precompiled muscle binary for this system
+# Path to precompiled muscle binary
 if platform.system() == "Windows":
     PRECOMPILED_MUSCLE_PATH = os.path.join(
         PACKAGE_PATH, f"bins/{platform.system()}/muscle.win64.exe"
