@@ -7,7 +7,9 @@
 ![Code Coverage](https://img.shields.io/badge/Coverage-91%25-green.svg)  
 
 `gget` is a free and open-source command-line tool and Python package that enables efficient querying of genomic databases. `gget`  consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.  
-
+  
+![alt text](https://github.com/pachterlab/gget/blob/main/figures/gget_overview.png?raw=true)
+  
 `gget` currently consists of the following nine modules:
 - [`gget ref`](#gget-ref)  
 Fetch FTPs and metadata for reference genomes and annotations from [Ensembl](https://www.ensembl.org/) by species.
@@ -28,7 +30,6 @@ Perform an enrichment analysis on a list of genes using [Enrichr](https://maayan
 - [`gget archs4`](#gget-archs4)  
 Find the most correlated genes or the tissue expression atlas of a gene of interest using [ARCHS4](https://maayanlab.cloud/archs4/).
 
-![alt text](https://github.com/pachterlab/gget/blob/main/figures/gget_overview.png?raw=true)
 
 ## Installation
 ```bash
