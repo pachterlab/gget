@@ -317,35 +317,41 @@ def get_uniprot_info(server, ensembl_id, id_type):
             logging.warning(
                 f"No reviewed UniProt results were found. Returning all unreviewed results for Ensembl ID {ensembl_id}."
             )
-
         # Return set of all results if more than one UniProt ID was found for this Ensembl ID
-        final_df = pd.DataFrame()
-        for column in df.columns:
-            if column == "uni_synonyms":
-                # Flatten synonym lists
-                syn_lists = df[column].values
-                flat_list = [item for sublist in syn_lists for item in sublist]
-                final_df[column] = [sorted(list(set(flat_list)))]
+        if len(df) > 1:
+            final_df = pd.DataFrame()
+            for column in df.columns:
+                if column == "uni_synonyms":
+                    # Flatten synonym lists
+                    syn_lists = df[column].values
+                    try:
+                        flat_list = [item for sublist in syn_lists for item in sublist]
+                        final_df[column] = [sorted(list(set(flat_list)))]
+                    except:
+                        final_df[column] = syn_lists
 
-            else:
-                final_df[column] = [sorted(list(set(df[column].values)))]
-                # If onyl one value left, no need to return it as list
-                if len(final_df[column]) == 1:
-                    final_df[column] = [final_df[column][0]]
+                else:
+                    val_list = df[column].values
+                    try:
+                        final_df[column] = [sorted(list(set(val_list)))]
+                    except:
+                        final_df[column] = val_list
 
-            # Try to clean up the entries (so they are not a bunch of lists of one item)
-            # I will not do this with the UniProt synonyms so I can later find the set between NCBI and UniProt synonyms
-            if len(final_df[column]) == 1 and column != "uni_synonyms":
-                try:
-                    final_df[column] = final_df[column][0]
-                except:
-                    None
+                # Try to clean up the entries (so they are not a bunch of lists of one item)
+                # I will not do this with the UniProt synonyms so I can later find the set between NCBI and UniProt synonyms
+                if len(final_df[column]) == 1 and column != "uni_synonyms":
+                    try:
+                        final_df[column] = final_df[column][0]
+                    except:
+                        None
+            return final_df
+
+        else:
+            return df
 
     # If no results were found, return None
     except pd.errors.EmptyDataError:
         return None
-
-    return final_df
 
 
 def wrap_cols_func(df, cols):
