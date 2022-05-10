@@ -286,8 +286,9 @@ def info(
                 synonyms = np.nan
             
             # Sort synonyms alphabetically
-            if len(synonyms) > 1 and type(synonyms) != str and type(synonyms) != float:
-                synonyms = sorted(synonyms)
+            if type(synonyms) != float:
+                if len(synonyms) > 1 and type(synonyms) != str:
+                    synonyms = sorted(synonyms)
 
             # Save NCBI info to data frame
             df_ncbi = pd.DataFrame(
