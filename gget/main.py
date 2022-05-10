@@ -678,7 +678,7 @@ def main():
                 print(species)
 
         # Raise error if neither species nor list flag passed
-        if args.species is None and args.list is None:
+        if args.species is None and args.list_species is False:
             parser_ref.error(
                 "\n\nThe following arguments are required to fetch FTPs: -s/--species, e.g. '-s homo_sapiens'\n\n"
                 "gget ref --list -> lists out all available species. "
