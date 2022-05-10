@@ -8,6 +8,6 @@ from .gget_blat import blat
 from .gget_enrichr import enrichr
 from .gget_archs4 import archs4
 
-__version__ = "0.0.21"
+__version__ = "0.0.22"
 __author__ = "Laura Luebbert"
 __email__ = "lauraluebbert@caltech.edu"
