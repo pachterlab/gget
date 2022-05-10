@@ -366,20 +366,12 @@ def main():
         ),
     )
     parser_blast.add_argument(
-        "-d",
-        "--descriptions",
-        type=int,
-        default=500,
-        required=False,
-        help="int or None. Limit number of descriptions to return. Default 500.",
-    )
-    parser_blast.add_argument(
-        "-hs",
-        "--hitlist_size",
+        "-l",
+        "--limit",
         type=int,
         default=50,
         required=False,
-        help="int or None. Limit number of hits to return. Default 50.",
+        help="int or None. Limits number of hits to return. Default 50.",
     )
     parser_blast.add_argument(
         "-e",
@@ -626,8 +618,7 @@ def main():
             sequence=args.sequence,
             program=args.program,
             database=args.database,
-            descriptions=args.descriptions,
-            hitlist_size=args.hitlist_size,
+            limit=args.limit,
             expect=args.expect,
             low_comp_filt=args.low_comp_filt,
             megablast=args.megablast_off,
