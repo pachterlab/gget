@@ -328,14 +328,14 @@ def get_uniprot_info(server, ensembl_id, id_type):
                         flat_list = [item for sublist in syn_lists for item in sublist]
                         final_df[column] = [sorted(list(set(flat_list)))]
                     except:
-                        final_df[column] = syn_lists
+                        final_df[column] = [syn_lists]
 
                 else:
                     val_list = df[column].values
                     try:
                         final_df[column] = [sorted(list(set(val_list)))]
                     except:
-                        final_df[column] = val_list
+                        final_df[column] = [val_list]
 
                 # Try to clean up the entries (so they are not a bunch of lists of one item)
                 # I will not do this with the UniProt synonyms so I can later find the set between NCBI and UniProt synonyms
