@@ -501,7 +501,7 @@ gget enrichr -g ACE2 AGT AGTR1 -db ontology
 ```
 ```python
 # Jupyter Lab / Google Colab:
-gget.enrichr(["ACE2", "AGT", "AGTR1"], database="ontology", plot=True, save=True)
+gget.enrichr(["ACE2", "AGT", "AGTR1"], database="ontology", plot=True)
 ```
 &rarr; Returns pathways/functions involving genes ACE2, AGT, and AGTR1 from the *GO Biological Process 2021* database in data frame format. In Jupyter Lab / Google Colab, `plot=True` returns a graphical overview of the results:
 
