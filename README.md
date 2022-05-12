@@ -138,7 +138,7 @@ Get all available genomes:
 ```bash
 gget ref --list -r 103
 ```
-*Jupyter Lab / Google Colab: * 
+*Jupyter Lab / Google Colab:* 
 ```python
 gget.ref(species=None, list_species=True, release=103)
 ```
@@ -210,7 +210,7 @@ Limits the number of search results, e.g. 10. Default: None.
 Path to the csv the results will be saved in, e.g. path/to/directory/results.csv. Default: Standard out.   
 Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
 
-**Flags**
+**Flags**  
 `wrap_text`  
 Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).  
   
