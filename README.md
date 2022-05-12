@@ -328,7 +328,7 @@ Return format: data frame.
 
 **Required arguments**  
 `-seq` `--sequence`   
-Nucleotise or amino acid sequence, or path to FASTA or .txt file.
+Nucleotide or amino acid sequence, or path to FASTA or .txt file.
 
 **Optional arguments**  
 `-p` `--program`  
@@ -397,7 +397,7 @@ Return format: data frame.
 
 **Required arguments**  
 `-seq` `--sequence`   
-Nucleotise or amino acid sequence, or path to FASTA file.
+Nucleotide or amino acid sequence, or path to FASTA or .txt file.
 
 **Optional arguments**  
 `-st` `--seqtype`    
