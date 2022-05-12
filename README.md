@@ -138,8 +138,8 @@ Get all available genomes:
 ```bash
 gget ref --list -r 103
 ```
-*Jupyter Lab / Google Colab:* 
 ```python
+# Jupyter Lab / Google Colab:
 gget.ref(species=None, list_species=True, release=103)
 ```
 &rarr; Returns a list with all available genomes (checks if GTF and FASTAs are available) from Ensembl release 103.   
@@ -149,8 +149,8 @@ Get the genome reference for a specific species:
 ```bash
 gget ref -s homo_sapiens -w gtf dna
 ```
-*Jupyter Lab / Google Colab:*
 ```python
+# Jupyter Lab / Google Colab:
 gget.ref("homo_sapiens", which=["gtf", "dna"])
 ```
 &rarr; Returns a json with the latest human GTF and FASTA FTPs, and their respective metadata, in the format:
@@ -219,8 +219,8 @@ Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapp
 ```bash
 gget search -sw gaba gamma-aminobutyric -s homo_sapiens
 ```
-*Jupyter Lab / Google Colab:*
 ```python
+# Jupyter Lab / Google Colab:
 gget.search(["gaba", "gamma-aminobutyric"], "homo_sapiens")
 ```
 &rarr; Returns all genes that contain at least one of the search words in their name or Ensembl/external reference description:
@@ -260,8 +260,8 @@ Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapp
 ```bash
 gget info -id ENSG00000034713 ENSG00000104853 ENSG00000170296 -e 
 ```
-*Jupyter Lab / Google Colab:*
 ```python
+# Jupyter Lab / Google Colab:
 gget.info(["ENSG00000034713", "ENSG00000104853", "ENSG00000170296"], expand=True)
 ```
 &rarr; Returns extensive information about each requested Ensembl ID in data frame format:  
@@ -303,8 +303,8 @@ Returns the sequences of all known transcripts.
 ```bash
 gget seq -id ENSG00000034713 ENSG00000104853 ENSG00000170296
 ```
-*Jupyter Lab / Google Colab:*
 ```python
+# Jupyter Lab / Google Colab:
 gget.seq(["ENSG00000034713", "ENSG00000104853", "ENSG00000170296"])
 ```
 &rarr; Returns the nucleotide sequences of ENSG00000034713, ENSG00000104853, and ENSG00000170296 in FASTA format.  
@@ -313,8 +313,8 @@ gget.seq(["ENSG00000034713", "ENSG00000104853", "ENSG00000170296"])
 ```bash
 gget seq -id ENSG00000034713 -st transcript -iso
 ```
-*Jupyter Lab / Google Colab:*
 ```python
+# Jupyter Lab / Google Colab:
 gget.seq("ENSG00000034713", seqtype="transcript", isoforms=True)
 ```
 &rarr; Returns the amino acid sequences of all known transcripts of ENSG00000034713 in FASTA format.
@@ -367,8 +367,8 @@ Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapp
 ```bash
 gget blast -seq MKWMFKEDHSLEHRCVESAKIRAKYPDRVPVIVEKVSGSQIVDIDKRKYLVPSDITVAQFMWIIRKRIQLPSEKAIFLFVDKTVPQSR
 ```
-*Jupyter Lab / Google Colab:*
 ```python
+# Jupyter Lab / Google Colab:
 gget.blast("MKWMFKEDHSLEHRCVESAKIRAKYPDRVPVIVEKVSGSQIVDIDKRKYLVPSDITVAQFMWIIRKRIQLPSEKAIFLFVDKTVPQSR")
 ```
 &rarr; Returns the BLAST result of the sequence of interest in data frame format. `gget blast` automatically detects this sequence as an amino acid sequence and therefore sets the BLAST program to *blastp* with database *nr*.  
@@ -382,8 +382,8 @@ BLAST from .fa or .txt file:
 ```bash
 gget blast -seq fasta.fa
 ```
-*Jupyter Lab / Google Colab:*
 ```python
+# Jupyter Lab / Google Colab:
 gget.blast("fasta.fa")
 ```
 &rarr; Returns the BLAST results of the first sequence contained in the fasta.fa file. 
@@ -417,8 +417,8 @@ Jupyter Lab / Google Colab: `save=True` will save the output in the current work
 ```bash
 gget blat -seq MKWMFKEDHSLEHRCVESAKIRAKYPDRVPVIVEKVSGSQIVDIDKRKYLVPSDITVAQFMWIIRKRIQLPSEKAIFLFVDKTVPQSR -a taeGut2
 ```
-*Jupyter Lab / Google Colab:*
 ```python
+# Jupyter Lab / Google Colab:
 gget.blat("MKWMFKEDHSLEHRCVESAKIRAKYPDRVPVIVEKVSGSQIVDIDKRKYLVPSDITVAQFMWIIRKRIQLPSEKAIFLFVDKTVPQSR", assembly="taeGut2")
 ```
 &rarr; Returns BLAT results for assembly taeGut2 (zebra finch) in data frame format. In the above example, `gget blat` automatically detects this sequence as an amino acid sequence and therefore sets the BLAT seqtype to *protein*.
@@ -456,11 +456,11 @@ Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapp
 ```bash
 gget muscle -fa fasta.fa
 ```
-*Jupyter Lab / Google Colab:*
 ```python
+# Jupyter Lab / Google Colab:
 gget.muscle("fasta.fa")
 ```
-&rarr; Returns an overview of the aligned sequences with ClustalW coloring. In the above example, the 'fasta.fa' includes several sequences to be aligned (e.g. isoforms returned from `gget seq`). 
+&rarr; Returns an overview of the aligned sequences with ClustalW coloring (to return an aligned FASTA (.afa) file, use `--out` argument (or `save=True` in Jupyter Lab/Google Colab)). In the above example, the 'fasta.fa' includes several sequences to be aligned (e.g. isoforms returned from `gget seq`). 
 
 ![alt text](https://github.com/pachterlab/gget/blob/main/figures/example_muscle_return.png?raw=true)
 
@@ -499,8 +499,8 @@ Jupyter Lab / Google Colab only. `plot=True` provides a graphical overview of th
 ```bash
 gget enrichr -g ACE2 AGT AGTR1 -db ontology
 ```
-*Jupyter Lab / Google Colab:*
 ```python
+# Jupyter Lab / Google Colab:
 gget.enrichr(["ACE2", "AGT", "AGTR1"], database="ontology", plot=True, save=True)
 ```
 &rarr; Returns pathways/functions involving genes ACE2, AGT, and AGTR1 from the *GO Biological Process 2021* database in data frame format. In Jupyter Lab / Google Colab, `plot=True` returns a graphical overview of the results:
@@ -538,8 +538,8 @@ Jupyter Lab / Google Colab: `save=True` will save the output in the current work
 ```bash
 gget archs4 -g ACE2
 ```
-*Jupyter Lab / Google Colab:*
 ```python
+# Jupyter Lab / Google Colab:
 gget.archs4("ACE2")
 ```
 &rarr; Returns the 100 most correlated genes to ACE2 in a data frame:  
@@ -553,8 +553,8 @@ gget.archs4("ACE2")
 ```bash
 gget archs4 -g ACE2 -w tissue
 ```
-*Jupyter Lab / Google Colab:*
 ```python
+# Jupyter Lab / Google Colab:
 gget.archs4("ACE2", which="tissue")
 ```
 &rarr; Returns the tissue expression of ACE2 in a data frame (by default, human data is used):
