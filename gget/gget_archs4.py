@@ -91,7 +91,7 @@ def archs4(gene, which="correlation", species="human", save=False):
             corr_df = corr_df.iloc[1:, :]
 
         if save:
-            tissue_exp_df.to_csv("gget_archs4_gene-correlation_{gene}.csv", index=False)
+            corr_df.to_csv(f"gget_archs4_gene-correlation_{gene}.csv", index=False)
 
         return corr_df
 
@@ -135,7 +135,7 @@ def archs4(gene, which="correlation", species="human", save=False):
 
         if save:
             tissue_exp_df.to_csv(
-                "gget_archs4_tissue-expression_{gene}.csv", index=False
+                f"gget_archs4_tissue-expression_{gene}.csv", index=False
             )
 
         return tissue_exp_df
