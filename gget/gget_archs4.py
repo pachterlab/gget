@@ -14,23 +14,25 @@ logging.basicConfig(
 from .constants import GENECORR_URL, EXPRESSION_URL
 
 
-def archs4(gene, which="correlation", species="human", save=False):
+def archs4(gene, which="correlation", gene_count=100, species="human", save=False):
     """
     Find the most correlated genes or the tissue expression atlas
     of a gene of interest using data from the human and mouse RNA-seq
     database ARCHS4 (https://maayanlab.cloud/archs4/).
 
     Args:
-    - gene      Short name (gene symbol) of gene of interest (str), e.g. 'STAT4'.
-    - which     'correlation' (default) or 'tissue'.
-                - 'correlation' returns a gene correlation table that contains the
-                100 most correlated genes to the gene of interest. The Pearson
-                correlation is calculated over all samples and tissues in ARCHS4.
-                - 'tissue' returns a tissue expression atlas calculated from
-                human or mouse samples (as defined by 'species') in ARCHS4.
-    - species   'human' (default) or 'mouse'.
-                (Only for tissue expression atlas.)
-    - save      True/False whether to save the results in the local directory.
+    - gene          Short name (gene symbol) of gene of interest (str), e.g. 'STAT4'.
+    - which         'correlation' (default) or 'tissue'.
+                    - 'correlation' returns a gene correlation table that contains the
+                    100 most correlated genes to the gene of interest. The Pearson
+                    correlation is calculated over all samples and tissues in ARCHS4.
+                    - 'tissue' returns a tissue expression atlas calculated from
+                    human or mouse samples (as defined by 'species') in ARCHS4.
+    - gene_count    Number of correlated genes to return (default: 100).
+                    (Only for gene correlation.)
+    - species       'human' (default) or 'mouse'.
+                    (Only for tissue expression atlas.)
+    - save          True/False whether to save the results in the local directory.
 
     Returns a data frame with the requested results.
     """
@@ -52,11 +54,11 @@ def archs4(gene, which="correlation", species="human", save=False):
     gene = gene.upper()
 
     if which == "correlation":
-        logging.info(f"Fetching the 100 most correlated genes to {gene} from ARCHS4.")
+        logging.info(f"Fetching the {gene_count} most correlated genes to {gene} from ARCHS4.")
 
         ## Find most similar genes based on co-expression
-        # Number of correlated genes to return
-        gene_count = 101
+        # Define number of correlated genes to return (+1 to account for Python indexing)
+        gene_count = gene_count + 1
 
         # Dictionary with arguments
         json_dict = {"id": gene, "count": gene_count}
@@ -74,7 +76,7 @@ def archs4(gene, which="correlation", species="human", save=False):
         # Check if the request returned an error (e.g. gene not found)
         if "error" in corr_data.keys():
             if corr_data["error"] == f"{gene} not in colids":
-                logging.error(f"Search term '{gene}' did not return any results.")
+                logging.error(f"Search term '{gene}' did not return any gene correlation results.")
                 return
             else:
                 logging.error(
@@ -121,7 +123,7 @@ def archs4(gene, which="correlation", species="human", save=False):
         tissue_exp_df = pd.read_csv(io.StringIO(r.content.decode("utf-8")))
         # Check if any results were returned
         if len(tissue_exp_df) < 2:
-            logging.error(f"Search term '{gene}' did not return any results.")
+            logging.error(f"Search term '{gene}' did not return any tissue expression results.")
             return
 
         # Drop NaN rows
