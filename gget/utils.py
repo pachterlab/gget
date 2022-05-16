@@ -315,7 +315,7 @@ def get_uniprot_info(server, ensembl_id, id_type):
 
         else:
             logging.warning(
-                f"No reviewed UniProt results were found. Returning all unreviewed results for Ensembl ID {ensembl_id}."
+                f"No reviewed UniProt results were found for Ensembl ID {ensembl_id}. Returning all unreviewed results."
             )
         # Return set of all results if more than one UniProt ID was found for this Ensembl ID
         if len(df) > 1:

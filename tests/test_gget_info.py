@@ -31,6 +31,49 @@ class TestInfo(unittest.TestCase):
                 108053462,
             ]
         ]
+        self.assertListEqual(result_to_test, expected_result)
+
+    def test_info_gene_list_non_model(self):
+        df = info(
+            ["ENSMMUG00000054106.1", "ENSMMUG00000053116.1", "ENSMMUG00000021246.4"]
+        )
+        # Drop NaN columns, since np.nan != np.nan
+        result_to_test = df.dropna(axis=1).values.tolist()
+        expected_result = [
+            [
+                "macaca_mulatta",
+                "Mmul_10",
+                "Gene",
+                "lncRNA",
+                "ENSMMUT00000080640.1",
+                "8",
+                1,
+                64990191,
+                65000159,
+            ],
+            [
+                "macaca_mulatta",
+                "Mmul_10",
+                "Gene",
+                "protein_coding",
+                "ENSMMUT00000091015.1",
+                "3",
+                -1,
+                111461994,
+                111475279,
+            ],
+            [
+                "macaca_mulatta",
+                "Mmul_10",
+                "Gene",
+                "protein_coding",
+                "ENSMMUT00000029894.4",
+                "2",
+                -1,
+                98646979,
+                98755023,
+            ],
+        ]
 
         self.assertListEqual(result_to_test, expected_result)
 
@@ -65,6 +108,7 @@ class TestInfo(unittest.TestCase):
         ]
 
         self.assertListEqual(result_to_test, expected_result)
+
 
     def test_info_transcript(self):
         df = info("ENSMUST00000000001.1")
