@@ -1,6 +1,6 @@
 # gget
 [![pypi version](https://img.shields.io/pypi/v/gget)](https://pypi.org/project/gget)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/gget)
+[![Downloads](https://pepy.tech/badge/gget)](https://pepy.tech/project/gget)
 [![license](https://img.shields.io/pypi/l/gget)](LICENSE)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6534041.svg)](https://doi.org/10.5281/zenodo.6534041)
 ![status](https://github.com/pachterlab/gget/workflows/CI/badge.svg)
