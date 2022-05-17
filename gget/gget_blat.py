@@ -155,10 +155,12 @@ def blat(sequence, seqtype="default", assembly="human", save=False):
         results = json.load(r)
     except JSONDecodeError:
         logging.error(
-            "BLAT of seq. type '{seqtype}' in assembly '{database}' was unsuccesful. "
-            "Possible causes: "
-            "- Sequence possibly too short (required minimum: 20 characters). "
-            "- Assembly possibly invalid. All available species with their respective assemblies are listed at https://genome.ucsc.edu/cgi-bin/hgBlat. "
+            f"""
+            BLAT of seqtype '{seqtype}' using assembly '{database}' was unsuccesful. 
+            Possible causes: 
+            - Sequence possibly too short (required minimum: 20 characters). 
+            - Assembly possibly invalid. All available species with their respective assemblies are listed at https://genome.ucsc.edu/cgi-bin/hgBlat.
+            """
         )
         return
 
@@ -170,9 +172,9 @@ def blat(sequence, seqtype="default", assembly="human", save=False):
 
     # Let user know if assembly was not found
     # If this is the case, BLAT automatically defaults to human (hg38)
-    if results["genome"] != database:
+    if results["genome"][0] != database:
         logging.warning(
-            f"Assembly {database} not recognized. Defaulted to {results['genome']} instead."
+            f"Assembly {database} not recognized. Defaulted to {results['genome'][0]} instead."
         )
 
     ## Build data frame to resemble BLAT web search results
