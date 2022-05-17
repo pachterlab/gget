@@ -68,7 +68,12 @@ def main():
         default=False,
         action="store_true",
         required=False,
-        help="List out all available species.",
+        help=(
+            """
+            List all available species. 
+            (Combine with `--release` to get the available species from a specific Ensembl release.)
+            """
+        ),
     )
     parser_ref.add_argument(
         "-w",
@@ -450,9 +455,9 @@ def main():
         type=str,
         required=False,
         help=(
-            "'human', 'mouse', 'zebrafinch', "
-            "or one of the assemblies from https://genome.ucsc.edu/cgi-bin/hgBlat. "
-            "Default: 'human' (assembly hg38)."
+            "'human' (assembly hg38) (default), 'mouse' (assembly mm39), "
+            "or any of the species assemblies available at https://genome.ucsc.edu/cgi-bin/hgBlat "
+            "(use short assembly name as listed after the "/"). "
         ),
     )
     parser_blat.add_argument(
@@ -507,7 +512,7 @@ def main():
 
     ## gget archs4 subparser
     archs4_desc = "Find the most correlated genes or the tissue expression atlas of a gene using data from the human and mouse RNA-seq database ARCHS4 (https://maayanlab.cloud/archs4/)."
-    parser_archs4= parent_subparsers.add_parser(
+    parser_archs4 = parent_subparsers.add_parser(
         "archs4",
         parents=[parent],
         description=archs4_desc,
@@ -532,13 +537,27 @@ def main():
         default="correlation",
         type=str,
         required=False,
-        help=("""
+        help=(
+            """
             'correlation' (default) or 'tissue'.
             - 'correlation' returns a gene correlation table that contains the
             100 most correlated genes to the gene of interest. The Pearson
             correlation is calculated over all samples and tissues in ARCHS4.
             - 'tissue' returns a tissue expression atlas calculated from
             human or mouse samples (as defined by 'species') in ARCHS4.
+            """
+        ),
+    )
+    parser_archs4.add_argument(
+        "-gc",
+        "--gene_count",
+        default=100,
+        type=int,
+        required=False,
+        help=(
+            """
+            Number of correlated genes to return (default: 100).
+            (Only for gene correlation.)
             """
         ),
     )
@@ -641,8 +660,8 @@ def main():
     ## archs4 return
     if args.command == "archs4":
         # Run gget archs4 function
-        archs4_results = archs4(gene=args.gene, which=args.which, species=args.species)
-        
+        archs4_results = archs4(gene=args.gene, which=args.which, gene_count=args.gene_count, species=args.species)
+
         # Check if the function returned something
         if not isinstance(archs4_results, type(None)):
             # Save archs4 results if args.out specified
@@ -664,7 +683,9 @@ def main():
     if args.command == "ref":
         # Return all available species
         if args.list_species:
-            species_list = ref(species=None, release=args.release, list_species=args.list_species)
+            species_list = ref(
+                species=None, release=args.release, list_species=args.list_species
+            )
             for species in species_list:
                 print(species)
 
@@ -828,16 +849,18 @@ def main():
         # Submit Enrichr query
         enrichr_results = enrichr(genes=genes_clean_final, database=args.database)
 
-        # Save in specified directory if -o specified
-        if args.out:
-            directory = "/".join(args.out.split("/")[:-1])
-            if directory != "":
-                os.makedirs(directory, exist_ok=True)
-            enrichr_results.to_csv(args.out, index=False)
+        # Check if the function returned something
+        if not isinstance(enrichr_results, type(None)):
+            # Save in specified directory if -o specified
+            if args.out:
+                directory = "/".join(args.out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+                enrichr_results.to_csv(args.out, index=False)
 
-        # Print results if no directory specified
-        else:
-            enrichr_results.to_csv(sys.stdout, index=False)
+            # Print results if no directory specified
+            else:
+                enrichr_results.to_csv(sys.stdout, index=False)
 
     ## info return
     if args.command == "info":

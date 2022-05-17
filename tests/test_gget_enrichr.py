@@ -449,3 +449,16 @@ class TestEnrichr(unittest.TestCase):
             num_figures_before,
             "No matplotlib plt object was created.",
         )
+
+
+    def test_enrichr_bad_db(self):
+        result = enrichr(
+            ["HAND1", "HAND2", "HEG1", "HRAT17"], database="banana"
+        )
+        self.assertIsNone(result, "Invalid database result is not None.")
+        
+    def test_enrichr_bad_gene(self):
+        df = enrichr(
+            "banana", database="ontology"
+        )
+        self.assertTrue(df.empty, "Invalid gene result is not empty data frame.")

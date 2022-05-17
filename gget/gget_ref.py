@@ -34,13 +34,13 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
                     'cdrna' - Returns transcript sequences corresponding to non-coding RNA genes (ncRNA).
                     'pep' - Returns the protein translations of Ensembl genes.
     - release       Defines the Ensembl release number from which the files are fetched, e.g. release = 104.
-                    (Ensembl releases earlier than release 48 are not suupported.)
+                    (Ensembl releases earlier than release 48 are not supported.)
                     By default, the latest Ensembl release is used.
     - ftp           Return only the requested FTP links in a list (default: False).
     - save          Save the results in the local directory (default: False).
 
     - list_species  If True and `species=None`, returns a list of all available species (default: False).
-                    (Can be combined with `release` to get the species for a specific Ensembl release.)
+                    (Can be combined with `release` to get the available species from a specific Ensembl release.)
 
     Returns a dictionary containing the requested URLs with their respective Ensembl version and release date and time.
     (If FTP=True, returns a list containing only the URLs.)
@@ -123,8 +123,8 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
         raise ValueError(
             f"Species does not match any available species for Ensembl release {ENS_rel}.\n"
             "Please double-check spelling.\n"
-            "$ `gget ref --list` -> lists out all available species.\n"
-            "Combine with [-r] to define specific release (default: latest).\n"
+            "'gget ref --list' -> lists out all available species (Python: 'gget.ref(None, list_species=True)').\n"
+            "Combine with `release` argument to define specific Ensembl release (default: latest).\n"
         )
 
     ## Get GTF link for this species and release
@@ -228,7 +228,6 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
     for i, string in enumerate(a_elements):
         if ".dna.primary_assembly.fa" in string["href"]:
             dna_str = string
-            dna_search = ".dna.primary_assembly.fa"
             # Get date from non-assigned values (since there are twice as many, 2x and +1 to move from string to date)
             dna_date_size = nones[i * 2 + 1]
 
@@ -237,7 +236,6 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
         for i, string in enumerate(a_elements):
             if ".dna.toplevel.fa" in string["href"]:
                 dna_str = string
-                dna_search = ".dna.toplevel.fa"
                 # Get date from non-assigned values (since there are twice as many, 2x and +1 to move from string to date)
                 dna_date_size = nones[i * 2 + 1]
 
@@ -496,8 +494,8 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
                 )
 
         if save:
-            with open("ref_results.json", "w", encoding="utf-8") as f:
-                json.dump(ref_dict, f, ensure_ascii=False, indent=4)
+            with open("ref_results.json", "w", encoding="utf-8") as file:
+                json.dump(ref_dict, file, ensure_ascii=False, indent=4)
 
         logging.info(
             f"Fetching reference information for {species} from Ensembl release: {ENS_rel}."
