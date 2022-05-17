@@ -123,8 +123,8 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
         raise ValueError(
             f"Species does not match any available species for Ensembl release {ENS_rel}.\n"
             "Please double-check spelling.\n"
-            "$ `gget ref --list` -> lists out all available species.\n"
-            "Combine with [-r] to define specific release (default: latest).\n"
+            "'gget ref --list' -> lists out all available species (Python: 'gget.ref(None, list_species=True)').\n"
+            "Combine with `release` argument to define specific Ensembl release (default: latest).\n"
         )
 
     ## Get GTF link for this species and release
