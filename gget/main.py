@@ -849,16 +849,18 @@ def main():
         # Submit Enrichr query
         enrichr_results = enrichr(genes=genes_clean_final, database=args.database)
 
-        # Save in specified directory if -o specified
-        if args.out:
-            directory = "/".join(args.out.split("/")[:-1])
-            if directory != "":
-                os.makedirs(directory, exist_ok=True)
-            enrichr_results.to_csv(args.out, index=False)
+        # Check if the function returned something
+        if not isinstance(enrichr_results, type(None)):
+            # Save in specified directory if -o specified
+            if args.out:
+                directory = "/".join(args.out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+                enrichr_results.to_csv(args.out, index=False)
 
-        # Print results if no directory specified
-        else:
-            enrichr_results.to_csv(sys.stdout, index=False)
+            # Print results if no directory specified
+            else:
+                enrichr_results.to_csv(sys.stdout, index=False)
 
     ## info return
     if args.command == "info":

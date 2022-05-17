@@ -42,26 +42,45 @@ def enrichr(genes, database, plot=False, save=False):
 
     # Define database
     # All available libraries: https://maayanlab.cloud/Enrichr/#libraries
+    db_message = f"""
+    Please note that there might a more appropriate database for your application. 
+    Go to https://maayanlab.cloud/Enrichr/#libraries for a full list of supported databases.
+    """
+
     if database == "pathway":
         database = "KEGG_2021_Human"
+        logging.info(
+            f"Performing Enichr analysis using database {database}. " + db_message
+        )
     elif database == "transcription":
         database = "ChEA_2016"
+        logging.info(
+            f"Performing Enichr analysis using database {database}. " + db_message
+        )
     elif database == "ontology":
         database = "GO_Biological_Process_2021"
+        logging.info(
+            f"Performing Enichr analysis using database {database}. " + db_message
+        )
     elif database == "diseases_drugs":
         database = "GWAS_Catalog_2019"
+        logging.info(
+            f"Performing Enichr analysis using database {database}. " + db_message
+        )
     elif database == "celltypes":
         database = "PanglaoDB_Augmented_2021"
+        logging.info(
+            f"Performing Enichr analysis using database {database}. " + db_message
+        )
     elif database == "kinase_interactions":
         database = "KEA_2015"
+        logging.info(
+            f"Performing Enichr analysis using database {database}. " + db_message
+        )
     else:
         database = database
 
-    logging.info(
-        f"Performing Enichr analysis using databse {database}. Please note that there might a more "
-        "appropriate database for your application. Go to https://maayanlab.cloud/Enrichr/#libraries "
-        "for a full list of supported databases."
-    )
+    logging.info(f"Performing Enichr analysis using database {database}.")
 
     # Remove any NaNs/Nones from the gene list
     genes_clean = []
@@ -123,8 +142,16 @@ def enrichr(genes, database, plot=False, save=False):
         "Old p-value",
         "Old adjusted p-value",
     ]
-    # Create data frame from Enrichr results
-    df = pd.DataFrame(enrichr_results[database], columns=columns)
+    try:
+        # Create data frame from Enrichr results
+        df = pd.DataFrame(enrichr_results[database], columns=columns)
+
+    except KeyError:
+        logging.error(
+            f"Database {database} not found. Go to https://maayanlab.cloud/Enrichr/#libraries "
+            "for a full list of supported databases."
+        )
+        return
 
     # Drop last two columns ("Old p-value", "Old adjusted p-value")
     df = df.iloc[:, :-2]
