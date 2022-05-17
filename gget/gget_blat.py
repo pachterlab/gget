@@ -172,9 +172,9 @@ def blat(sequence, seqtype="default", assembly="human", save=False):
 
     # Let user know if assembly was not found
     # If this is the case, BLAT automatically defaults to human (hg38)
-    if results["genome"][0] != database:
+    if results["genome"] != database:
         logging.warning(
-            f"Assembly {database} not recognized. Defaulted to {results['genome'][0]} instead."
+            f"Assembly {database} not recognized. Defaulted to {results['genome']} instead."
         )
 
     ## Build data frame to resemble BLAT web search results
