@@ -455,9 +455,9 @@ def main():
         type=str,
         required=False,
         help=(
-            "'human', 'mouse', 'zebrafinch', "
-            "or one of the assemblies from https://genome.ucsc.edu/cgi-bin/hgBlat. "
-            "Default: 'human' (assembly hg38)."
+            "'human' (assembly hg38) (default), 'mouse' (assembly mm39), "
+            "or any of the species assemblies available at https://genome.ucsc.edu/cgi-bin/hgBlat "
+            "(use short assembly name as listed after the "/"). "
         ),
     )
     parser_blat.add_argument(
