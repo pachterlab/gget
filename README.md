@@ -95,7 +95,7 @@ Return format: dictionary/json.
 **Required arguments**  
 `-s` `--species`  
 Species for which the FTPs will be fetched in the format genus_species, e.g. homo_sapiens.  
-Note: Not required when calling flag `--list_species`.   
+Note: Not required when calling flag [--list_species].   
 Supported shortcuts: 'human', 'mouse'
 
 **Optional arguments**  
