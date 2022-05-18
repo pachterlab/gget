@@ -30,7 +30,7 @@ def search(
 ):
     """
     Function to query Ensembl for genes based on species and free form search terms.
-    Automatically fetches results from latest Ensembl release, unless user specifies database.
+    Automatically fetches results from latest Ensembl release, unless user specifies database (see 'species' argument).
 
     Args:
     - searchwords     Free form search words (not case-sensitive) as a string or list of strings 
