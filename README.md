@@ -20,11 +20,11 @@ Fetch extensive gene and transcript metadata from [Ensembl](https://www.ensembl.
 - [`gget seq`](#gget-seq)  
 Fetch nucleotide or amino acid sequences of genes or transcripts from [Ensembl](https://www.ensembl.org/) or [UniProt](https://www.uniprot.org/), respectively.
 - [`gget blast`](#gget-blast)  
-BLAST a nucleotide or amino acid sequence against any [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi) database.
+BLAST a nucleotide or amino acid sequence to any [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi) database.
 - [`gget blat`](#gget-blat)  
 Find the genomic location of a nucleotide or amino acid sequence using [BLAT](https://genome.ucsc.edu/cgi-bin/hgBlat).
 - [`gget muscle`](#gget-muscle)  
-Align multiple nucleotide or amino acid sequences against each other using [Muscle5](https://www.drive5.com/muscle/).
+Align multiple nucleotide or amino acid sequences to each other using [Muscle5](https://www.drive5.com/muscle/).
 - [`gget enrichr`](#gget-enrichr)  
 Perform an enrichment analysis on a list of genes using [Enrichr](https://maayanlab.cloud/Enrichr/).
 - [`gget archs4`](#gget-archs4)  
@@ -323,7 +323,7 @@ gget.seq("ENSG00000034713", seqtype="transcript", isoforms=True)
 ___
 
 ## gget blast
-BLAST a nucleotide or amino acid sequence against any [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi) database.  
+BLAST a nucleotide or amino acid sequence to any [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi) database.  
 Return format: data frame.
 
 **Required arguments**  
@@ -431,7 +431,7 @@ gget.blat("MKWMFKEDHSLEHRCVESAKIRAKYPDRVPVIVEKVSGSQIVDIDKRKYLVPSDITVAQFMWIIRKRIQ
 ___
 
 ## gget muscle  
-Align multiple nucleotide or amino acid sequences against each other using [Muscle5](https://www.drive5.com/muscle/).  
+Align multiple nucleotide or amino acid sequences to each other using [Muscle5](https://www.drive5.com/muscle/).  
 Return format: ClustalW formatted standard out or aligned FASTA.  
 
 **Required arguments**  
