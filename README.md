@@ -38,6 +38,10 @@ Find the most correlated genes to a gene of interest or find the gene's tissue e
 ```bash
 pip install gget
 ```
+or
+```bash
+conda install -c bioconda gget
+```
 
 For use in Jupyter Lab / Google Colab:
 ```python
