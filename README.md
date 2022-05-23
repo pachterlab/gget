@@ -580,7 +580,7 @@ ___
 If you use `gget` in a publication, please cite:   
 Luebbert L. & Pachter L. (2022). Efficient querying of genomic databases for single-cell RNA-seq with gget. bioRxiv 2022.05.17.492392; doi: https://doi.org/10.1101/2022.05.17.492392
 
-- If using gget archs4, please also cite:*   
+- If using gget archs4, please also cite:   
   Lachmann A, Torre D, Keenan AB, Jagodnik KM, Lee HJ, Wang L, Silverstein MC, Ma’ayan A. Massive mining of publicly available RNA-seq data from human and mouse. Nature Communications 9. Article number: 1366 (2018), doi:10.1038/s41467-018-03751-6
 
   Bray NL, Pimentel H, Melsted P and Pachter L, Near optimal probabilistic RNA-seq quantification, Nature Biotechnology 34, p 525--527 (2016). https://doi.org/10.1038/nbt.3519
