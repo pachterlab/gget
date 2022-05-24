@@ -89,6 +89,7 @@ gget.muscle("path/to/file.fa")
 gget.enrichr(["ACE2", "AGT", "AGTR1", "ACE", "AGTRAP", "AGTR2", "ACE3P"], database="ontology", plot=True)
 gget.archs4("ACE2", which="tissue")
 ```
+#### [More examples](https://github.com/pachterlab/gget_examples)
 ___
 
 # Manual
