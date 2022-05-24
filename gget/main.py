@@ -887,11 +887,10 @@ def main():
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
                     os.makedirs(directory, exist_ok=True)
-                info_results.to_csv(args.out, index=False)
+                info_results.to_csv(args.out, index_label="ensembl_id")
             # Print results if no directory specified
             else:
-                #                 print(json.dumps(info_results, ensure_ascii=False, indent=4))
-                info_results.to_csv(sys.stdout, index=False)
+                info_results.to_csv(sys.stdout, index_label="ensembl_id")
 
     ## seq return
     if args.command == "seq":

@@ -461,7 +461,7 @@ def info(
     df_final = df_final.T
 
     if save:
-        df_final.to_csv("gget_info_results.csv", index=False)
+        df_final.to_csv("gget_info_results.csv", index_label="ensembl_id")
 
     if wrap_text:
         df_wrapped = df_final.copy()
