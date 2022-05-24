@@ -37,8 +37,8 @@ class TestSearch(unittest.TestCase):
             json=True,
         )
 
-        expected_result = {
-            "0": {
+        expected_result = [
+            {
                 "ensembl_id": "FBgn0003656",
                 "gene_name": "sws",
                 "ensembl_description": "swiss cheese",
@@ -46,9 +46,9 @@ class TestSearch(unittest.TestCase):
                 "biotype": "protein_coding",
                 "url": "https://uswest.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656",
             }
-        }
+        ]
 
-        self.assertEqual(result_to_test, expected_result)
+        self.assertListEqual(result_to_test, expected_result)
 
     def test_search_gene_two_sw_or(self):
         searchwords = ["swiss", "cheese"]

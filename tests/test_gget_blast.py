@@ -31,8 +31,8 @@ class TestBlast(unittest.TestCase):
             "CACACATCCGGTTCTTCCGGGAGCTAGGGG",
             json=True,
         )
-        expected_result = {
-            "0": {
+        expected_result = [
+            {
                 "Description": "PREDICTED: Mus caroli G protein subunit alpha i3 (Gnai3), mRNA",
                 "Scientific Name": "Mus caroli",
                 "Common Name": "Ryukyu mouse",
@@ -45,7 +45,7 @@ class TestBlast(unittest.TestCase):
                 "Acc. Len": 3253,
                 "Accession": "XM_021157518.1",
             },
-            "1": {
+            {
                 "Description": "Mus musculus guanine nucleotide binding protein (G protein), alpha inhibiting 3 (Gnai3), mRNA",
                 "Scientific Name": "Mus musculus",
                 "Common Name": "house mouse",
@@ -58,7 +58,7 @@ class TestBlast(unittest.TestCase):
                 "Acc. Len": 3294,
                 "Accession": "NM_010306.3",
             },
-            "2": {
+            {
                 "Description": "Mus musculus adult male lung cDNA, RIKEN full-length enriched library, clone:1200003G10 product:guanine nucleotide binding protein, alpha inhibiting 3, full insert sequence",
                 "Scientific Name": "Mus musculus",
                 "Common Name": "house mouse",
@@ -71,7 +71,7 @@ class TestBlast(unittest.TestCase):
                 "Acc. Len": 3261,
                 "Accession": "AK004566.1",
             },
-            "3": {
+            {
                 "Description": "Mouse DNA sequence from clone RP23-89M15 on chromosome 3, complete sequence",
                 "Scientific Name": "Mus musculus",
                 "Common Name": "house mouse",
@@ -84,8 +84,8 @@ class TestBlast(unittest.TestCase):
                 "Acc. Len": 207265,
                 "Accession": "AL671854.14",
             },
-        }
-        self.assertEqual(result_to_test, expected_result)
+        ]
+        self.assertListEqual(result_to_test, expected_result)
 
     ## Turning this test off to reduce the number of BLASTs to run
     # def test_blast_aa_txt(self):

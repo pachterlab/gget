@@ -101,7 +101,7 @@ def archs4(
             corr_df = corr_df.iloc[1:, :]
 
         if json:
-            results_dict = json_package.loads(corr_df.to_json(orient="index"))
+            results_dict = json_package.loads(corr_df.to_json(orient="records"))
             if save:
                 with open(
                     f"gget_archs4_gene-correlation_{gene}.json", "w", encoding="utf-8"
@@ -158,7 +158,7 @@ def archs4(
         tissue_exp_df = tissue_exp_df.reset_index(drop=True)
 
         if json:
-            results_dict = json_package.loads(tissue_exp_df.to_json(orient="index"))
+            results_dict = json_package.loads(tissue_exp_df.to_json(orient="records"))
             if save:
                 with open(
                     f"gget_archs4_tissue-expression_{gene}.json", "w", encoding="utf-8"

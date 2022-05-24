@@ -243,7 +243,7 @@ def search(
         )
 
     if json:
-        results_dict = json_package.loads(df.to_json(orient="index"))
+        results_dict = json_package.loads(df.to_json(orient="records"))
         if save:
             with open("gget_search_results.json", "w", encoding="utf-8") as f:
                 json_package.dump(results_dict, f, ensure_ascii=False, indent=4)

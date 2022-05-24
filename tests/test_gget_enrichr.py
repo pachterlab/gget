@@ -51,8 +51,8 @@ class TestEnrichr(unittest.TestCase):
 
     def test_enrichr_json(self):
         result_to_test = enrichr("ACE2", database="KEGG_2021_Human", json=True)
-        expected_result = {
-            "0": {
+        expected_result = [
+            {
                 "rank": 1,
                 "path_name": "Renin-angiotensin system",
                 "p_val": 0.0011499749,
@@ -62,7 +62,7 @@ class TestEnrichr(unittest.TestCase):
                 "adj_p_val": 0.0034499246,
                 "database": "KEGG_2021_Human",
             },
-            "1": {
+            {
                 "rank": 2,
                 "path_name": "Protein digestion and absorption",
                 "p_val": 0.0051499318,
@@ -72,7 +72,7 @@ class TestEnrichr(unittest.TestCase):
                 "adj_p_val": 0.0077248977,
                 "database": "KEGG_2021_Human",
             },
-            "2": {
+            {
                 "rank": 3,
                 "path_name": "Coronavirus disease",
                 "p_val": 0.0115998901,
@@ -82,9 +82,9 @@ class TestEnrichr(unittest.TestCase):
                 "adj_p_val": 0.0115998901,
                 "database": "KEGG_2021_Human",
             },
-        }
+        ]
 
-        self.assertEqual(result_to_test, expected_result)
+        self.assertListEqual(result_to_test, expected_result)
 
     def test_enrichr_none(self):
         df = enrichr(

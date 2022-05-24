@@ -275,7 +275,7 @@ def enrichr(genes, database, plot=False, json=False, save=False):
             fig.savefig("gget_enrichr_results.png", dpi=300, bbox_inches="tight")
 
     if json:
-        results_dict = json_package.loads(df.to_json(orient="index"))
+        results_dict = json_package.loads(df.to_json(orient="records"))
         if save:
             with open("gget_enrichr_results.json", "w", encoding="utf-8") as f:
                 json_package.dump(results_dict, f, ensure_ascii=False, indent=4)

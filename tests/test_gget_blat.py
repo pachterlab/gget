@@ -16,8 +16,8 @@ class TestBlat(unittest.TestCase):
         result_to_test = blat(
             "CACACATCCGGTTCTTCCGGGAGCTAGGGG", assembly="mouse", json=True
         )
-        expected_result = {
-            "0": {
+        expected_result = [
+            {
                 "genome": "mm39",
                 "query_size": 30,
                 "aligned_start": 1,
@@ -31,9 +31,9 @@ class TestBlat(unittest.TestCase):
                 "start": 108053433,
                 "end": 108053462,
             }
-        }
+        ]
 
-        self.assertEqual(result_to_test, expected_result)
+        self.assertListEqual(result_to_test, expected_result)
 
     def test_blat_nt_DNA(self):
         df = blat("ATGCTGAATTTATGCTGAATTTATGCTGAATTTATGCTGAATTT", seqtype="DNA")

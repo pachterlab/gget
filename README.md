@@ -93,7 +93,7 @@ ___
 
 # Manual
 Jupyter Lab / Google Colab arguments are equivalent to long-option arguments (`--arg`).  
-All data frame results can be converted to json/dictionary format using the `--json` flag.  
+All data frame results can be converted to json format using the `--json` flag.  
 The manual for any gget tool can be called from terminal using the `-h` `--help` flag.  
 
 ## gget ref
