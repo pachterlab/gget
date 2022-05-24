@@ -49,6 +49,43 @@ class TestEnrichr(unittest.TestCase):
 
         self.assertListEqual(result_to_test, expected_result)
 
+    def test_enrichr_json(self):
+        result_to_test = enrichr("ACE2", database="KEGG_2021_Human", json=True)
+        expected_result = {
+            "0": {
+                "rank": 1,
+                "path_name": "Renin-angiotensin system",
+                "p_val": 0.0011499749,
+                "z_score": 19977.0,
+                "combined_score": 135204.6392226724,
+                "overlapping_genes": ["ACE2"],
+                "adj_p_val": 0.0034499246,
+                "database": "KEGG_2021_Human",
+            },
+            "1": {
+                "rank": 2,
+                "path_name": "Protein digestion and absorption",
+                "p_val": 0.0051499318,
+                "z_score": 19897.0,
+                "combined_score": 104832.7525292024,
+                "overlapping_genes": ["ACE2"],
+                "adj_p_val": 0.0077248977,
+                "database": "KEGG_2021_Human",
+            },
+            "2": {
+                "rank": 3,
+                "path_name": "Coronavirus disease",
+                "p_val": 0.0115998901,
+                "z_score": 19768.0,
+                "combined_score": 88101.2248015025,
+                "overlapping_genes": ["ACE2"],
+                "adj_p_val": 0.0115998901,
+                "database": "KEGG_2021_Human",
+            },
+        }
+
+        self.assertEqual(result_to_test, expected_result)
+
     def test_enrichr_none(self):
         df = enrichr(
             [
@@ -450,15 +487,10 @@ class TestEnrichr(unittest.TestCase):
             "No matplotlib plt object was created.",
         )
 
-
     def test_enrichr_bad_db(self):
-        result = enrichr(
-            ["HAND1", "HAND2", "HEG1", "HRAT17"], database="banana"
-        )
+        result = enrichr(["HAND1", "HAND2", "HEG1", "HRAT17"], database="banana")
         self.assertIsNone(result, "Invalid database result is not None.")
-        
+
     def test_enrichr_bad_gene(self):
-        df = enrichr(
-            "banana", database="ontology"
-        )
+        df = enrichr("banana", database="ontology")
         self.assertTrue(df.empty, "Invalid gene result is not empty data frame.")

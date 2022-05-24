@@ -1,5 +1,6 @@
 import requests
 import pandas as pd
+import json as json_package
 import numpy as np
 import logging
 
@@ -18,7 +19,7 @@ import textwrap
 from .constants import POST_ENRICHR_URL, GET_ENRICHR_URL
 
 
-def enrichr(genes, database, plot=False, save=False):
+def enrichr(genes, database, plot=False, json=False, save=False):
     """
     Perform an enrichment analysis on a list of genes using Enrichr (https://maayanlab.cloud/Enrichr/).
 
@@ -35,6 +36,7 @@ def enrichr(genes, database, plot=False, save=False):
                   'kinase_interactions' (KEA_2015)
                   or any database listed under Gene-set Library at: https://maayanlab.cloud/Enrichr/#libraries
     - plot        True/False whether to provide a graphical overview of the first 15 results.
+    - json        If True, returns results in json/dictionary format instead of data frame. Default: False.
     - save        True/False whether to save the results in the local directory.
 
     Returns a data frame with the Enrichr results.
@@ -81,6 +83,10 @@ def enrichr(genes, database, plot=False, save=False):
         database = database
 
     logging.info(f"Performing Enichr analysis using database {database}.")
+
+    # If single gene passed as string, convert to list
+    if type(genes) == str:
+        genes = [genes]
 
     # Remove any NaNs/Nones from the gene list
     genes_clean = []
@@ -159,8 +165,13 @@ def enrichr(genes, database, plot=False, save=False):
     # Add database column
     df["database"] = database
 
+    if len(df) == 0:
+        logging.warning(
+            f"No Enrichr results were found for genes {genes_clean} and database {database}."
+        )
+
     ## Plot if plot=True
-    if plot:
+    if plot and len(df) != 0:
         fig, ax = plt.subplots(figsize=(10, 10))
 
         fontsize = 12
@@ -263,8 +274,18 @@ def enrichr(genes, database, plot=False, save=False):
         if save:
             fig.savefig("gget_enrichr_results.png", dpi=300, bbox_inches="tight")
 
-    if save:
-        df.to_csv("gget_enrichr_results.csv", index=False)
+    if json:
+        results_dict = json_package.loads(df.to_json(orient="index"))
+        if save:
+            with open("gget_enrichr_results.json", "w", encoding="utf-8") as f:
+                json_package.dump(results_dict, f, ensure_ascii=False, indent=4)
 
-    # Return data frame
-    return df
+        # Return results in json format
+        return results_dict
+
+    else:
+        if save:
+            df.to_csv("gget_enrichr_results.csv", index=False)
+
+        # Return data frame
+        return df

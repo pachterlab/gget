@@ -1,4 +1,5 @@
 import numpy as np
+import json as json_package
 import mysql.connector as sql
 import time
 import logging
@@ -11,7 +12,8 @@ logging.basicConfig(
 )
 
 import warnings
-warnings.simplefilter(action='ignore', category=UserWarning)
+
+warnings.simplefilter(action="ignore", category=UserWarning)
 import pandas as pd
 
 
@@ -26,6 +28,7 @@ def search(
     andor="or",
     limit=None,
     wrap_text=False,
+    json=False,
     save=False,
 ):
     """
@@ -33,7 +36,7 @@ def search(
     Automatically fetches results from latest Ensembl release, unless user specifies database (see 'species' argument).
 
     Args:
-    - searchwords     Free form search words (not case-sensitive) as a string or list of strings 
+    - searchwords     Free form search words (not case-sensitive) as a string or list of strings
                       (e.g.searchwords = ["GABA", "gamma-aminobutyric"]).
     - species         Species can be passed in the format "genus_species", e.g. "homo_sapiens".
                       To pass a specific database, enter the name of the core database, e.g. 'mus_musculus_dba2j_core_105_1'.
@@ -45,6 +48,7 @@ def search(
                       "and": Returns only genes that INCLUDE ALL of the searchwords in their name/description.
     - limit           (int) Limit the number of search results returned (default: None).
     - wrap_text       If True, displays data frame with wrapped text for easy reading. Default: False.
+    - json            If True, returns results in json/dictionary format instead of data frame. Default: False.
     - save            If True, the data frame is saved as a csv in the current directory (default: False).
 
     Returns a data frame with the query results.
@@ -220,7 +224,7 @@ def search(
     else:
         # Print number of genes/transcripts fetched
         logging.info(f"Total matches found: {len(df)}.")
-    
+
     # Print query time
     logging.info(f"Query time: {round(time.time() - start_time, 2)} seconds.")
 
@@ -232,13 +236,25 @@ def search(
         + df["ensembl_id"]
     )
 
-    # Save
-    if save:
-        df.to_csv("gget_search_results.csv", index=False)
-
     if wrap_text:
         df_wrapped = df.copy()
-        wrap_cols_func(df_wrapped, ["ensembl_description", "ext_ref_description", "url"])
+        wrap_cols_func(
+            df_wrapped, ["ensembl_description", "ext_ref_description", "url"]
+        )
 
-    # Return data frame
-    return df
+    if json:
+        results_dict = json_package.loads(df.to_json(orient="index"))
+        if save:
+            with open("gget_search_results.json", "w", encoding="utf-8") as f:
+                json_package.dump(results_dict, f, ensure_ascii=False, indent=4)
+
+        # Return results in json format
+        return results_dict
+
+    else:
+        # Save
+        if save:
+            df.to_csv("gget_search_results.csv", index=False)
+
+        # Return data frame
+        return df

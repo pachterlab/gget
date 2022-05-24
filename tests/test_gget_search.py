@@ -27,6 +27,29 @@ class TestSearch(unittest.TestCase):
 
         self.assertListEqual(result_to_test, expected_result)
 
+    def test_search_gene_one_sw_json(self):
+        searchwords = "swiss"
+        species = "drosophila"
+        result_to_test = search(
+            searchwords,
+            species,
+            seqtype="gene",
+            json=True,
+        )
+
+        expected_result = {
+            "0": {
+                "ensembl_id": "FBgn0003656",
+                "gene_name": "sws",
+                "ensembl_description": "swiss cheese",
+                "ext_ref_description": None,
+                "biotype": "protein_coding",
+                "url": "https://uswest.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656",
+            }
+        }
+
+        self.assertEqual(result_to_test, expected_result)
+
     def test_search_gene_two_sw_or(self):
         searchwords = ["swiss", "cheese"]
         species = "drosophi"
@@ -297,7 +320,6 @@ class TestSearch(unittest.TestCase):
         ]
 
         self.assertListEqual(result_to_test, expected_result)
-
 
     ## Test bad input errors
     def test_search_gene_bad_species(self):

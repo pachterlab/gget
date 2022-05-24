@@ -1,5 +1,6 @@
 import requests
 import pandas as pd
+import json as json_package
 import io
 import logging
 
@@ -14,7 +15,9 @@ logging.basicConfig(
 from .constants import GENECORR_URL, EXPRESSION_URL
 
 
-def archs4(gene, which="correlation", gene_count=100, species="human", save=False):
+def archs4(
+    gene, which="correlation", gene_count=100, species="human", json=False, save=False
+):
     """
     Find the most correlated genes or the tissue expression atlas
     of a gene of interest using data from the human and mouse RNA-seq
@@ -32,6 +35,7 @@ def archs4(gene, which="correlation", gene_count=100, species="human", save=Fals
                     (Only for gene correlation.)
     - species       'human' (default) or 'mouse'.
                     (Only for tissue expression atlas.)
+    - json          If True, returns results in json/dictionary format instead of data frame. Default: False.
     - save          True/False whether to save the results in the local directory.
 
     Returns a data frame with the requested results.
@@ -54,7 +58,9 @@ def archs4(gene, which="correlation", gene_count=100, species="human", save=Fals
     gene = gene.upper()
 
     if which == "correlation":
-        logging.info(f"Fetching the {gene_count} most correlated genes to {gene} from ARCHS4.")
+        logging.info(
+            f"Fetching the {gene_count} most correlated genes to {gene} from ARCHS4."
+        )
 
         ## Find most similar genes based on co-expression
         # Define number of correlated genes to return (+1 to account for Python indexing)
@@ -76,7 +82,9 @@ def archs4(gene, which="correlation", gene_count=100, species="human", save=Fals
         # Check if the request returned an error (e.g. gene not found)
         if "error" in corr_data.keys():
             if corr_data["error"] == f"{gene} not in colids":
-                logging.error(f"Search term '{gene}' did not return any gene correlation results.")
+                logging.error(
+                    f"Search term '{gene}' did not return any gene correlation results."
+                )
                 return
             else:
                 logging.error(
@@ -92,10 +100,21 @@ def archs4(gene, which="correlation", gene_count=100, species="human", save=Fals
             # Drop the first row (since that is the searched gene against itself)
             corr_df = corr_df.iloc[1:, :]
 
-        if save:
-            corr_df.to_csv(f"gget_archs4_gene-correlation_{gene}.csv", index=False)
+        if json:
+            results_dict = json_package.loads(corr_df.to_json(orient="index"))
+            if save:
+                with open(
+                    f"gget_archs4_gene-correlation_{gene}.json", "w", encoding="utf-8"
+                ) as f:
+                    json_package.dump(results_dict, f, ensure_ascii=False, indent=4)
 
-        return corr_df
+            return results_dict
+
+        else:
+            if save:
+                corr_df.to_csv(f"gget_archs4_gene-correlation_{gene}.csv", index=False)
+
+            return corr_df
 
     if which == "tissue":
         logging.info(
@@ -123,7 +142,9 @@ def archs4(gene, which="correlation", gene_count=100, species="human", save=Fals
         tissue_exp_df = pd.read_csv(io.StringIO(r.content.decode("utf-8")))
         # Check if any results were returned
         if len(tissue_exp_df) < 2:
-            logging.error(f"Search term '{gene}' did not return any tissue expression results.")
+            logging.error(
+                f"Search term '{gene}' did not return any tissue expression results."
+            )
             return
 
         # Drop NaN rows
@@ -134,10 +155,22 @@ def archs4(gene, which="correlation", gene_count=100, species="human", save=Fals
 
         # Sort data frame by median expression
         tissue_exp_df = tissue_exp_df.sort_values("median", ascending=False)
+        tissue_exp_df = tissue_exp_df.reset_index(drop=True)
 
-        if save:
-            tissue_exp_df.to_csv(
-                f"gget_archs4_tissue-expression_{gene}.csv", index=False
-            )
+        if json:
+            results_dict = json_package.loads(tissue_exp_df.to_json(orient="index"))
+            if save:
+                with open(
+                    f"gget_archs4_tissue-expression_{gene}.json", "w", encoding="utf-8"
+                ) as f:
+                    json_package.dump(results_dict, f, ensure_ascii=False, indent=4)
 
-        return tissue_exp_df
+            return results_dict
+
+        else:
+            if save:
+                tissue_exp_df.to_csv(
+                    f"gget_archs4_tissue-expression_{gene}.csv", index=False
+                )
+
+            return tissue_exp_df

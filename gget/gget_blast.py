@@ -1,4 +1,5 @@
 import pandas as pd
+import json as json_package
 import time
 from bs4 import BeautifulSoup
 import logging
@@ -34,6 +35,7 @@ def blast(
     megablast=True,
     verbose=True,
     wrap_text=False,
+    json=False,
     save=False,
 ):
     """
@@ -52,6 +54,7 @@ def blast(
      - megablast      True/False whether to use the MegaBLAST algorithm (blastn only). Default True.
      - verbose        True/False whether to print progress information. Default True.
      - wrap_text      If True, displays data frame with wrapped text for easy reading. Default: False.
+     - json           If True, returns results in json/dictionary format instead of data frame. Default: False.
      - save           If True, the data frame is saved as a csv in the current directory (default: False).
 
     Returns a data frame with the BLAST results.
@@ -359,15 +362,24 @@ def blast(
             # Drop the first column
             results_df = results_df.iloc[:, 1:]
 
-            # Save
-            if save:
-                results_df.to_csv("gget_blast_results.csv", index=False)
-
             if wrap_text:
                 df_wrapped = results_df.copy()
                 wrap_cols_func(df_wrapped, ["Description"])
 
-            return results_df
+            if json:
+                results_dict = json_package.loads(results_df.to_json(orient="index"))
+                if save:
+                    with open("gget_blast_results.json", "w", encoding="utf-8") as f:
+                        json_package.dump(results_dict, f, ensure_ascii=False, indent=4)
+
+                return results_dict
+
+            else:
+                # Save
+                if save:
+                    results_df.to_csv("gget_blast_results.csv", index=False)
+
+                return results_df
 
         else:
             logging.error(

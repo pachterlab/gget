@@ -6,13 +6,13 @@ logging.basicConfig(
     level=logging.INFO,
     datefmt="%c",
 )
-import json
+import json as json_package
 from json.decoder import JSONDecodeError
 import pandas as pd
 from urllib.request import urlopen
 
 
-def blat(sequence, seqtype="default", assembly="human", save=False):
+def blat(sequence, seqtype="default", assembly="human", json=False, save=False):
     """
     BLAT a nucleotide or amino acid sequence against any BLAT UCSC assembly.
 
@@ -23,7 +23,8 @@ def blat(sequence, seqtype="default", assembly="human", save=False):
      - assembly       'human' (hg38) (default), 'mouse' (mm39), 'zebrafinch' (taeGut2),
                       or any of the species assemblies available at https://genome.ucsc.edu/cgi-bin/hgBlat
                       (use short assembly name as listed after the "/").
-    - save            If True, the data frame is saved as a csv in the current directory (default: False).
+     - json           If True, returns results in json/dictionary format instead of data frame. Default: False.
+     - save           If True, the data frame is saved as a csv in the current directory (default: False).
 
     Returns a data frame with the BLAT results.
     """
@@ -152,7 +153,7 @@ def blat(sequence, seqtype="default", assembly="human", save=False):
 
     try:
         # Read json results into a dictionary
-        results = json.load(r)
+        results = json_package.load(r)
     except JSONDecodeError:
         logging.error(
             f"""
@@ -234,8 +235,16 @@ def blat(sequence, seqtype="default", assembly="human", save=False):
         ]
     )
 
-    # Save
-    if save:
-        df.to_csv("gget_blat_results.csv", index=False)
+    if json:
+        results_dict = json_package.loads(df.to_json(orient="index"))
+        if save:
+            with open("gget_blat_results.json", "w", encoding="utf-8") as f:
+                json_package.dump(results_dict, f, ensure_ascii=False, indent=4)
 
-    return df
+        return results_dict
+
+    else:
+        if save:
+            df.to_csv("gget_blat_results.csv", index=False)
+
+        return df

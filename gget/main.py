@@ -191,6 +191,14 @@ def main():
         help="Limits the number of results, e.g. 10 (default: None).",
     )
     parser_gget.add_argument(
+        "-j",
+        "--json",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Returns results in json/dictionary format instead of data frame.",
+    )
+    parser_gget.add_argument(
         "-o",
         "--out",
         type=str,
@@ -226,6 +234,14 @@ def main():
             "For genes: add isoform information. "
             "For transcripts: add translation and exon information."
         ),
+    )
+    parser_info.add_argument(
+        "-j",
+        "--json",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Returns results in json/dictionary format instead of data frame.",
     )
     parser_info.add_argument(
         "-o",
@@ -411,6 +427,14 @@ def main():
         help="Do not print progress information.",
     )
     parser_blast.add_argument(
+        "-j",
+        "--json",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Returns results in json/dictionary format instead of data frame.",
+    )
+    parser_blast.add_argument(
         "-o",
         "--out",
         type=str,
@@ -461,6 +485,14 @@ def main():
         ),
     )
     parser_blat.add_argument(
+        "-j",
+        "--json",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Returns results in json/dictionary format instead of data frame.",
+    )
+    parser_blat.add_argument(
         "-o",
         "--out",
         type=str,
@@ -498,6 +530,14 @@ def main():
             "'pathway', 'transcription', 'ontology', 'diseases_drugs', 'celltypes', 'kinase_interactions'"
             "or any database listed at: https://maayanlab.cloud/Enrichr/#libraries"
         ),
+    )
+    parser_enrichr.add_argument(
+        "-j",
+        "--json",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Returns results in json/dictionary format instead of data frame.",
     )
     parser_enrichr.add_argument(
         "-o",
@@ -574,6 +614,14 @@ def main():
         help="'human' (default) or 'mouse'. (Only for tissue expression atlas.)",
     )
     parser_archs4.add_argument(
+        "-j",
+        "--json",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Returns results in json/dictionary format instead of data frame.",
+    )
+    parser_archs4.add_argument(
         "-o",
         "--out",
         type=str,
@@ -614,21 +662,37 @@ def main():
     if args.command == "blat":
         # Run gget blast function
         blat_results = blat(
-            sequence=args.sequence, seqtype=args.seqtype, assembly=args.assembly
+            sequence=args.sequence,
+            seqtype=args.seqtype,
+            assembly=args.assembly,
+            json=args.json,
         )
 
         # Check if the function returned something
         if not isinstance(blat_results, type(None)):
             # Save blat results if args.out specified
-            if args.out:
+            if args.out and not args.json:
+                # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
                     os.makedirs(directory, exist_ok=True)
+                # Save data frame to csv
                 blat_results.to_csv(args.out, index=False)
 
+            if args.out and args.json:
+                # Create saving directory
+                directory = "/".join(args.out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+                # Save json
+                with open(args.out, "w", encoding="utf-8") as f:
+                    json.dump(blat_results, f, ensure_ascii=False, indent=4)
+
             # Print results if no directory specified
-            else:
+            if not args.out and not args.json:
                 blat_results.to_csv(sys.stdout, index=False)
+            if not args.out and args.json:
+                print(json.dumps(blat_results, ensure_ascii=False, indent=4))
 
     ## blast return
     if args.command == "blast":
@@ -642,38 +706,71 @@ def main():
             low_comp_filt=args.low_comp_filt,
             megablast=args.megablast_off,
             verbose=args.quiet,
+            json=args.json,
         )
 
         # Check if the function returned something
         if not isinstance(blast_results, type(None)):
             # Save blast results if args.out specified
-            if args.out:
+            if args.out and not args.json:
+                # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
                     os.makedirs(directory, exist_ok=True)
+                # Save data frame to csv
                 blast_results.to_csv(args.out, index=False)
 
+            if args.out and args.json:
+                # Create saving directory
+                directory = "/".join(args.out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+                # Save json
+                with open(args.out, "w", encoding="utf-8") as f:
+                    json.dump(blast_results, f, ensure_ascii=False, indent=4)
+
             # Print results if no directory specified
-            else:
+            if not args.out and not args.json:
                 blast_results.to_csv(sys.stdout, index=False)
+            if not args.out and args.json:
+                print(json.dumps(blast_results, ensure_ascii=False, indent=4))
 
     ## archs4 return
     if args.command == "archs4":
         # Run gget archs4 function
-        archs4_results = archs4(gene=args.gene, which=args.which, gene_count=args.gene_count, species=args.species)
+        archs4_results = archs4(
+            gene=args.gene,
+            which=args.which,
+            gene_count=args.gene_count,
+            species=args.species,
+            json=args.json,
+        )
 
         # Check if the function returned something
         if not isinstance(archs4_results, type(None)):
             # Save archs4 results if args.out specified
-            if args.out:
+            if args.out and not args.json:
+                # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
                     os.makedirs(directory, exist_ok=True)
+                # Save data frame to csv
                 archs4_results.to_csv(args.out, index=False)
 
+            if args.out and args.json:
+                # Create saving directory
+                directory = "/".join(args.out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+                # Save json
+                with open(args.out, "w", encoding="utf-8") as f:
+                    json.dump(archs4_results, f, ensure_ascii=False, indent=4)
+
             # Print results if no directory specified
-            else:
+            if not args.out and not args.json:
                 archs4_results.to_csv(sys.stdout, index=False)
+            if not args.out and args.json:
+                print(json.dumps(archs4_results, ensure_ascii=False, indent=4))
 
     ## muscle return
     if args.command == "muscle":
@@ -717,16 +814,14 @@ def main():
             ref_results = ref(args.species, which_clean_final, args.release, args.ftp)
 
             # Print or save list of URLs (ftp=True)
-            if args.ftp == True:
+            if args.ftp:
                 # Save in specified directory if -o specified
                 if args.out:
                     directory = "/".join(args.out.split("/")[:-1])
                     if directory != "":
                         os.makedirs(directory, exist_ok=True)
-                    file = open(args.out, "w")
-                    for element in ref_results:
-                        file.write(element + "\n")
-                    file.close()
+                    with open(args.out, "w", encoding="utf-8") as f:
+                        json.dump(ref_results, f, ensure_ascii=False, indent=4)
 
                     if args.download == True:
                         # Download list of URLs
@@ -819,18 +914,32 @@ def main():
             seqtype=args.seqtype,
             andor=args.andor,
             limit=args.limit,
+            json=args.json,
         )
 
-        # Save in specified directory if -o specified
-        if args.out:
+        # Save search results if args.out specified
+        if args.out and not args.json:
+            # Create saving directory
             directory = "/".join(args.out.split("/")[:-1])
             if directory != "":
                 os.makedirs(directory, exist_ok=True)
+            # Save data frame to csv
             gget_results.to_csv(args.out, index=False)
 
+        if args.out and args.json:
+            # Create saving directory
+            directory = "/".join(args.out.split("/")[:-1])
+            if directory != "":
+                os.makedirs(directory, exist_ok=True)
+            # Save json
+            with open(args.out, "w", encoding="utf-8") as f:
+                json.dump(gget_results, f, ensure_ascii=False, indent=4)
+
         # Print results if no directory specified
-        else:
+        if not args.out and not args.json:
             gget_results.to_csv(sys.stdout, index=False)
+        if not args.out and args.json:
+            print(json.dumps(gget_results, ensure_ascii=False, indent=4))
 
     ## enrichr return
     if args.command == "enrichr":
@@ -847,20 +956,35 @@ def main():
             genes_clean_final.remove("")
 
         # Submit Enrichr query
-        enrichr_results = enrichr(genes=genes_clean_final, database=args.database)
+        enrichr_results = enrichr(
+            genes=genes_clean_final, database=args.database, json=args.json
+        )
 
         # Check if the function returned something
         if not isinstance(enrichr_results, type(None)):
-            # Save in specified directory if -o specified
-            if args.out:
+            # Save enrichr results if args.out specified
+            if args.out and not args.json:
+                # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
                     os.makedirs(directory, exist_ok=True)
+                # Save data frame to csv
                 enrichr_results.to_csv(args.out, index=False)
 
+            if args.out and args.json:
+                # Create saving directory
+                directory = "/".join(args.out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+                # Save json
+                with open(args.out, "w", encoding="utf-8") as f:
+                    json.dump(enrichr_results, f, ensure_ascii=False, indent=4)
+
             # Print results if no directory specified
-            else:
+            if not args.out and not args.json:
                 enrichr_results.to_csv(sys.stdout, index=False)
+            if not args.out and args.json:
+                print(json.dumps(enrichr_results, ensure_ascii=False, indent=4))
 
     ## info return
     if args.command == "info":
@@ -877,20 +1001,33 @@ def main():
             ids_clean_final.remove("")
 
         # Look up requested Ensembl IDs
-        info_results = info(ids_clean_final, expand=args.expand)
+        info_results = info(ids_clean_final, expand=args.expand, json=args.json)
 
         # Check if the function returned something
         if not isinstance(info_results, type(None)):
-            # Print or save json file
-            # Save in specified directory if -o specified
-            if args.out:
+            # Save info results if args.out specified
+            if args.out and not args.json:
+                # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
                     os.makedirs(directory, exist_ok=True)
-                info_results.to_csv(args.out, index_label="ensembl_id")
+                # Save data frame to csv
+                info_results.to_csv(args.out, index=False)
+
+            if args.out and args.json:
+                # Create saving directory
+                directory = "/".join(args.out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+                # Save json
+                with open(args.out, "w", encoding="utf-8") as f:
+                    json.dump(info_results, f, ensure_ascii=False, indent=4)
+
             # Print results if no directory specified
-            else:
-                info_results.to_csv(sys.stdout, index_label="ensembl_id")
+            if not args.out and not args.json:
+                info_results.to_csv(sys.stdout, index=False)
+            if not args.out and args.json:
+                print(json.dumps(info_results, ensure_ascii=False, indent=4))
 
     ## seq return
     if args.command == "seq":
