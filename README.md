@@ -53,7 +53,7 @@ import gget
 # Fetch all Homo sapiens reference and annotation FTPs from the latest Ensembl release
 $ gget ref -s homo_sapiens
 
-# Search human genes with "ace2" AND "angiotensin" in their name/description
+# Search human genes with "ace2" AND "angiotensin" in their name/description ([-j] returns results in json format)  
 $ gget search -sw ace2,angiotensin -s homo_sapiens -ao and -j 
 
 # Look up gene ENSG00000130234 (ACE2) with expanded info (returns all transcript isoforms for genes)
