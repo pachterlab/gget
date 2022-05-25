@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import json as json_package
 import requests
 from bs4 import BeautifulSoup
 
@@ -23,6 +24,7 @@ def info(
     ens_ids,
     expand=False,
     wrap_text=False,
+    json=False,
     save=False,
 ):
     """
@@ -34,6 +36,7 @@ def info(
                     For genes, this adds transcript isoform information.
                     For transcripts, this adds translation and exon information.
     - wrap_text     If True, displays data frame with wrapped text for easy reading. Default: False.
+    - json          If True, returns results in json/dictionary format instead of data frame. Default: False.
     - save          True/False wether to save csv with query results in current working directory. Default: False.
 
     Returns a data frame containing the requested information about the Ensembl IDs.
@@ -284,7 +287,7 @@ def info(
                 synonyms = df_uniprot["uni_synonyms"].values[0]
             else:
                 synonyms = np.nan
-            
+
             # Sort synonyms alphabetically (is sortable)
             try:
                 synonyms = sorted(synonyms)
@@ -460,11 +463,23 @@ def info(
     ## Transpose data frame so each row corresponds to one Ensembl ID
     df_final = df_final.T
 
-    if save:
-        df_final.to_csv("gget_info_results.csv", index=False)
+    # Add Ensembl ID column from index
+    df_final.insert(0, "ensembl_id", df_final.index)
 
     if wrap_text:
         df_wrapped = df_final.copy()
         wrap_cols_func(df_wrapped, ["uniprot_description", "ensembl_description"])
 
-    return df_final
+    if json:
+        results_dict = json_package.loads(df_final.to_json(orient="index"))
+        if save:
+            with open("gget_info_results.json", "w", encoding="utf-8") as f:
+                json_package.dump(results_dict, f, ensure_ascii=False, indent=4)
+
+        return results_dict
+
+    else:
+        if save:
+            df_final.to_csv("gget_info_results.csv", index=False)
+
+        return df_final

@@ -12,6 +12,29 @@ class TestBlat(unittest.TestCase):
 
         self.assertListEqual(result_to_test, expected_result)
 
+    def test_blat_nt_json(self):
+        result_to_test = blat(
+            "CACACATCCGGTTCTTCCGGGAGCTAGGGG", assembly="mouse", json=True
+        )
+        expected_result = [
+            {
+                "genome": "mm39",
+                "query_size": 30,
+                "aligned_start": 1,
+                "aligned_end": 30,
+                "matches": 30,
+                "mismatches": 0,
+                "%_aligned": 100.0,
+                "%_matched": 100.0,
+                "chromosome": "chr3",
+                "strand": "-",
+                "start": 108053433,
+                "end": 108053462,
+            }
+        ]
+
+        self.assertListEqual(result_to_test, expected_result)
+
     def test_blat_nt_DNA(self):
         df = blat("ATGCTGAATTTATGCTGAATTTATGCTGAATTTATGCTGAATTT", seqtype="DNA")
         result_to_test = df.values.tolist()

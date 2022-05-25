@@ -534,9 +534,7 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
                 )
 
         if save:
-            file = open("ref_results.txt", "w")
-            for element in results:
-                file.write(element + "\n")
-            file.close()
+            with open("ref_results.json", "w", encoding="utf-8") as f:
+                json.dump(results_dict, f, ensure_ascii=False, indent=4)
 
         return results

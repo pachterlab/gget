@@ -26,26 +26,64 @@ class TestBlast(unittest.TestCase):
         ]
         self.assertListEqual(result_to_test, expected_result)
 
-    def test_blast_aa_fasta(self):
-        df = blast(
-            "tests/fixtures/muscle_aa_test.fa",
-            limit=1,
+    def test_blast_nt_json(self):
+        result_to_test = blast(
+            "CACACATCCGGTTCTTCCGGGAGCTAGGGG",
+            json=True,
         )
-        result_to_test = df.values.tolist()
         expected_result = [
-            [
-                "FUN14 domain-containing protein 1 isoform X2 [Taeniopygia guttata]",
-                "Taeniopygia guttata",
-                "zebra finch",
-                59729,
-                180,
-                180,
-                "100%",
-                3.9999999999999997e-56,
-                "100.00%",
-                156,
-                "XP_002190216.1",
-            ]
+            {
+                "Description": "PREDICTED: Mus caroli G protein subunit alpha i3 (Gnai3), mRNA",
+                "Scientific Name": "Mus caroli",
+                "Common Name": "Ryukyu mouse",
+                "Taxid": 10089,
+                "Max Score": 56.5,
+                "Total Score": 56.5,
+                "Query Cover": "100%",
+                "E value": 2e-05,
+                "Per. Ident": "100.00%",
+                "Acc. Len": 3253,
+                "Accession": "XM_021157518.1",
+            },
+            {
+                "Description": "Mus musculus guanine nucleotide binding protein (G protein), alpha inhibiting 3 (Gnai3), mRNA",
+                "Scientific Name": "Mus musculus",
+                "Common Name": "house mouse",
+                "Taxid": 10090,
+                "Max Score": 56.5,
+                "Total Score": 56.5,
+                "Query Cover": "100%",
+                "E value": 2e-05,
+                "Per. Ident": "100.00%",
+                "Acc. Len": 3294,
+                "Accession": "NM_010306.3",
+            },
+            {
+                "Description": "Mus musculus adult male lung cDNA, RIKEN full-length enriched library, clone:1200003G10 product:guanine nucleotide binding protein, alpha inhibiting 3, full insert sequence",
+                "Scientific Name": "Mus musculus",
+                "Common Name": "house mouse",
+                "Taxid": 10090,
+                "Max Score": 56.5,
+                "Total Score": 56.5,
+                "Query Cover": "100%",
+                "E value": 2e-05,
+                "Per. Ident": "100.00%",
+                "Acc. Len": 3261,
+                "Accession": "AK004566.1",
+            },
+            {
+                "Description": "Mouse DNA sequence from clone RP23-89M15 on chromosome 3, complete sequence",
+                "Scientific Name": "Mus musculus",
+                "Common Name": "house mouse",
+                "Taxid": 10090,
+                "Max Score": 56.5,
+                "Total Score": 56.5,
+                "Query Cover": "100%",
+                "E value": 2e-05,
+                "Per. Ident": "100.00%",
+                "Acc. Len": 207265,
+                "Accession": "AL671854.14",
+            },
         ]
         self.assertListEqual(result_to_test, expected_result)
 
@@ -112,6 +150,4 @@ class TestBlast(unittest.TestCase):
 
     def test_blast_bad_db2(self):
         with self.assertRaises(ValueError):
-            blast(
-                "tests/fixtures/muscle_aa_test.txt", limit=3, database="banana"
-            )
+            blast("tests/fixtures/muscle_aa_test.txt", limit=3, database="banana")

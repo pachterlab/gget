@@ -11,6 +11,7 @@ class TestInfo(unittest.TestCase):
         result_to_test = df.dropna(axis=1).values.tolist()
         expected_result = [
             [
+                "ENSMUSG00000000001",
                 "Q9DC51",
                 "14679",
                 "mus_musculus",
@@ -41,6 +42,7 @@ class TestInfo(unittest.TestCase):
         result_to_test = df.dropna(axis=1).values.tolist()
         expected_result = [
             [
+                "ENSMMUG00000054106",
                 "macaca_mulatta",
                 "Mmul_10",
                 "Gene",
@@ -52,6 +54,7 @@ class TestInfo(unittest.TestCase):
                 65000159,
             ],
             [
+                "ENSMMUG00000053116",
                 "macaca_mulatta",
                 "Mmul_10",
                 "Gene",
@@ -63,6 +66,7 @@ class TestInfo(unittest.TestCase):
                 111475279,
             ],
             [
+                "ENSMMUG00000021246",
                 "macaca_mulatta",
                 "Mmul_10",
                 "Gene",
@@ -77,12 +81,113 @@ class TestInfo(unittest.TestCase):
 
         self.assertListEqual(result_to_test, expected_result)
 
+    def test_info_gene_list_non_model_json(self):
+        result_to_test = info(
+            ["ENSMMUG00000054106.1", "ENSMMUG00000053116.1", "ENSMMUG00000021246.4"],
+            json=True,
+        )
+        expected_result = {
+            "ENSMMUG00000054106": {
+                "ensembl_id": "ENSMMUG00000054106",
+                "uniprot_id": None,
+                "ncbi_gene_id": None,
+                "species": "macaca_mulatta",
+                "assembly_name": "Mmul_10",
+                "primary_gene_name": None,
+                "ensembl_gene_name": None,
+                "synonyms": None,
+                "parent_gene": None,
+                "protein_names": None,
+                "ensembl_description": None,
+                "uniprot_description": None,
+                "ncbi_description": None,
+                "object_type": "Gene",
+                "biotype": "lncRNA",
+                "canonical_transcript": "ENSMMUT00000080640.1",
+                "seq_region_name": "8",
+                "strand": 1,
+                "start": 64990191,
+                "end": 65000159,
+            },
+            "ENSMMUG00000053116": {
+                "ensembl_id": "ENSMMUG00000053116",
+                "uniprot_id": "A0A5F8AEA0",
+                "ncbi_gene_id": None,
+                "species": "macaca_mulatta",
+                "assembly_name": "Mmul_10",
+                "primary_gene_name": None,
+                "ensembl_gene_name": None,
+                "synonyms": None,
+                "parent_gene": None,
+                "protein_names": "Uncharacterized protein",
+                "ensembl_description": None,
+                "uniprot_description": None,
+                "ncbi_description": None,
+                "object_type": "Gene",
+                "biotype": "protein_coding",
+                "canonical_transcript": "ENSMMUT00000091015.1",
+                "seq_region_name": "3",
+                "strand": -1,
+                "start": 111461994,
+                "end": 111475279,
+            },
+            "ENSMMUG00000021246": {
+                "ensembl_id": "ENSMMUG00000021246",
+                "uniprot_id": [
+                    "A0A1D5QWP5",
+                    "A0A5F7ZUG9",
+                    "A0A5F7ZY65",
+                    "A0A5F7ZZI0",
+                    "A0A5F8AMK9",
+                    "F7D2F4",
+                    "F7HRJ1",
+                    "F7HRJ3",
+                    "G7MIX6",
+                ],
+                "ncbi_gene_id": None,
+                "species": "macaca_mulatta",
+                "assembly_name": "Mmul_10",
+                "primary_gene_name": "HHATL",
+                "ensembl_gene_name": None,
+                "synonyms": ["EGK_11753", "HHATL", "HIGD1A"],
+                "parent_gene": None,
+                "protein_names": [
+                    "HIG1 domain family member 1A isoform a",
+                    "HIG1 domain-containing protein",
+                    "Uncharacterized protein",
+                ],
+                "ensembl_description": None,
+                "uniprot_description": [
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                    None,
+                ],
+                "ncbi_description": None,
+                "object_type": "Gene",
+                "biotype": "protein_coding",
+                "canonical_transcript": "ENSMMUT00000029894.4",
+                "seq_region_name": "2",
+                "strand": -1,
+                "start": 98646979,
+                "end": 98755023,
+            },
+        }
+
+        self.assertEqual(result_to_test, expected_result)
+
     def test_info_gene_expand(self):
         df = info("ENSMUSG00000000001", expand=True)
         # Drop NaN columns, since np.nan != np.nan
         result_to_test = df.dropna(axis=1).values.tolist()
         expected_result = [
             [
+                "ENSMUSG00000000001",
                 "Q9DC51",
                 "14679",
                 "mus_musculus",
@@ -109,13 +214,13 @@ class TestInfo(unittest.TestCase):
 
         self.assertListEqual(result_to_test, expected_result)
 
-
     def test_info_transcript(self):
         df = info("ENSMUST00000000001.1")
         # Drop NaN columns, since np.nan != np.nan
         result_to_test = df.dropna(axis=1).values.tolist()
         expected_result = [
             [
+                "ENSMUST00000000001",
                 "Q9DC51",
                 "14679",
                 "mus_musculus",
@@ -144,6 +249,7 @@ class TestInfo(unittest.TestCase):
         result_to_test = df.dropna(axis=1).values.tolist()
         expected_result = [
             [
+                "ENSMUST00000000001",
                 "Q9DC51",
                 "14679",
                 "mus_musculus",
@@ -238,6 +344,7 @@ class TestInfo(unittest.TestCase):
         result_to_test = df.dropna(axis=1).values.tolist()
         expected_result = [
             [
+                "ENSTGUT00000027003",
                 "A0A674GVD2",
                 "taeniopygia_guttata",
                 "bTaeGut1_v1.p",
@@ -253,6 +360,7 @@ class TestInfo(unittest.TestCase):
                 107526965,
             ],
             [
+                "ENSMUSG00000000001",
                 "Q9DC51",
                 "mus_musculus",
                 "GRCm39",
@@ -277,6 +385,7 @@ class TestInfo(unittest.TestCase):
         result_to_test = df.dropna(axis=1).values.tolist()
         expected_result = [
             [
+                "ENSTGUEE00000179311",
                 "taeniopygia_guttata",
                 "bTaeGut1_v1.p",
                 "Exon",
@@ -295,6 +404,7 @@ class TestInfo(unittest.TestCase):
         result_to_test = df.dropna(axis=1).values.tolist()
         expected_result = [
             [
+                "ENSTGUEE00000179311",
                 "taeniopygia_guttata",
                 "bTaeGut1_v1.p",
                 "Exon",

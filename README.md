@@ -89,11 +89,13 @@ gget.muscle("path/to/file.fa")
 gget.enrichr(["ACE2", "AGT", "AGTR1", "ACE", "AGTRAP", "AGTR2", "ACE3P"], database="ontology", plot=True)
 gget.archs4("ACE2", which="tissue")
 ```
+#### [More examples](https://github.com/pachterlab/gget_examples)
 ___
 
 # Manual
 Jupyter Lab / Google Colab arguments are equivalent to long-option arguments (`--arg`).  
-The manual for any gget tool can be called from terminal using the `-h` `--help` flag.
+All data frame results can be converted to json format using the `--json` flag.  
+The manual for any gget tool can be called from terminal using the `-h` `--help` flag.  
 
 ## gget ref
 Fetch FTPs and their respective metadata (or use flag `ftp` to only return the links) for reference genomes and annotations from [Ensembl](https://www.ensembl.org/) by species.  
@@ -187,7 +189,7 @@ ___
 
 ## gget search   
 Fetch genes and transcripts from [Ensembl](https://www.ensembl.org/) using free-form search terms.   
-Return format: data frame.
+Return format: data frame (or json).
 
 **Required arguments**  
 `-sw` `--searchwords`   
@@ -214,10 +216,13 @@ Returns genes or transcripts, respectively.
 Limits the number of search results, e.g. 10. Default: None.  
 
 `-o` `--out`  
-Path to the csv the results will be saved in, e.g. path/to/directory/results.csv. Default: Standard out.   
+Path to the csv the results will be saved in, e.g. path/to/directory/results.csv (or .json). Default: Standard out.   
 Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
 
 **Flags**  
+`-j` `--json`  
+Return results in json format.  
+
 `wrap_text`  
 Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).  
   
@@ -242,7 +247,7 @@ ___
 
 ## gget info  
 Fetch extensive gene and transcript metadata from [Ensembl](https://www.ensembl.org/), [UniProt](https://www.uniprot.org/), and [NCBI](https://www.ncbi.nlm.nih.gov/) using Ensembl IDs.  
-Return format: data frame.
+Return format: data frame (or json).
 
 **Required arguments**  
 `-id` `--ens_ids`   
@@ -250,7 +255,7 @@ One or more Ensembl IDs.
 
 **Optional arguments**  
 `-o` `--out`   
-Path to the csv the results will be saved in, e.g. path/to/directory/results.csv. Default: Standard out.    
+Path to the csv the results will be saved in, e.g. path/to/directory/results.csv (or .json). Default: Standard out.    
 Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
 
 **Flags**  
@@ -258,6 +263,9 @@ Jupyter Lab / Google Colab: `save=True` will save the output in the current work
 Expands returned information (only for gene and transcript IDs).   
 For genes, adds information on all known transcripts.  
 For transcripts, adds information on all known translations and exons.
+
+`-j` `--json`  
+Return results in json format.  
 
 `wrap_text`  
 Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).  
@@ -331,7 +339,7 @@ ___
 
 ## gget blast
 BLAST a nucleotide or amino acid sequence to any [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi) database.  
-Return format: data frame.
+Return format: data frame (or json).
 
 **Required arguments**  
 `-seq` `--sequence`   
@@ -354,7 +362,7 @@ Limits number of hits to return. Default: 50.
 Defines the [expect value](https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=FAQ#expect) cutoff. Default: 10.0.  
 
 `-o` `--out`   
-Path to the csv the results will be saved in, e.g. path/to/directory/results.csv. Default: Standard out.   
+Path to the csv the results will be saved in, e.g. path/to/directory/results.csv (or .json). Default: Standard out.   
 Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
 
 **Flags**  
@@ -366,6 +374,9 @@ Turns off MegaBLAST algorithm. Default: MegaBLAST on (blastn only).
 
 `-q` `--quiet`   
 Prevents progress information from being displayed.  
+
+`-j` `--json`  
+Return results in json format.  
 
 `wrap_text`  
 Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).   
@@ -400,7 +411,7 @@ ___
 
 ## gget blat
 Find the genomic location of a nucleotide or amino acid sequence using [BLAT](https://genome.ucsc.edu/cgi-bin/hgBlat).   
-Return format: data frame.
+Return format: data frame (or json).
 
 **Required arguments**  
 `-seq` `--sequence`   
@@ -416,10 +427,14 @@ Default: 'DNA' for nucleotide sequences; 'protein' for amino acid sequences.
 or any of the species assemblies available [here](https://genome.ucsc.edu/cgi-bin/hgBlat) (use short assembly name).
 
 `-o` `--out`   
-Path to the csv the results will be saved in, e.g. path/to/directory/results.csv. Default: Standard out.   
+Path to the csv the results will be saved in, e.g. path/to/directory/results.csv (or .json). Default: Standard out.   
 Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.  
   
+**Flags**  
+`-j` `--json`  
+Return results in json format.  
   
+
 ### Example
 ```bash
 gget blat -seq MKWMFKEDHSLEHRCVESAKIRAKYPDRVPVIVEKVSGSQIVDIDKRKYLVPSDITVAQFMWIIRKRIQLPSEKAIFLFVDKTVPQSR -a taeGut2
@@ -439,7 +454,7 @@ ___
 
 ## gget muscle  
 Align multiple nucleotide or amino acid sequences to each other using [Muscle5](https://www.drive5.com/muscle/).  
-Return format: ClustalW formatted standard out or aligned FASTA.  
+Return format: ClustalW formatted standard out or aligned FASTA (.afa).  
 
 **Required arguments**  
 `-fa` `--fasta`   
@@ -454,11 +469,8 @@ Jupyter Lab / Google Colab: `save=True` will save the output in the current work
 `-s5` `--super5`  
 Aligns input using the [Super5 algorithm](https://drive5.com/muscle5/Muscle5_SuppMat.pdf) instead of the [Parallel Perturbed Probcons (PPP) algorithm](https://drive5.com/muscle5/Muscle5_SuppMat.pdf) to decrease time and memory.  
 Use for large inputs (a few hundred sequences).
-
-`wrap_text`  
-Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).   
-   
-   
+  
+  
 ### Example
 ```bash
 gget muscle -fa fasta.fa
@@ -476,8 +488,8 @@ ___
 
 ## gget enrichr
 Perform an enrichment analysis on a list of genes using [Enrichr](https://maayanlab.cloud/Enrichr/).  
-Return format: data frame.
-
+Return format: data frame (or json).
+  
 **Required arguments**  
 `-g` `--genes`  
 Short names (gene symbols) of genes to perform enrichment analysis on, e.g. 'PHF14 RBM3 MSL1 PHF21A'.  
@@ -491,13 +503,16 @@ Supports any database listed [here](https://maayanlab.cloud/Enrichr/#libraries) 
 'diseases_drugs'   (GWAS_Catalog_2019)   
 'celltypes'      (PanglaoDB_Augmented_2021)  
 'kinase_interactions'   (KEA_2015)  
-
+  
 **Optional arguments**  
 `-o` `--out`   
-Path to the csv the results will be saved in, e.g. path/to/directory/results.csv. Default: Standard out.   
+Path to the csv the results will be saved in, e.g. path/to/directory/results.csv (or .json). Default: Standard out.   
 Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
-
+  
 **Flags**  
+`-j` `--json`  
+Return results in json format.  
+  
 `plot`  
 Jupyter Lab / Google Colab only. `plot=True` provides a graphical overview of the first 15 results (default: False).  
   
@@ -519,7 +534,7 @@ ___
 
 ## gget archs4
 Find the most correlated genes to a gene of interest or find the gene's tissue expression atlas using [ARCHS4](https://maayanlab.cloud/archs4/).  
-Return format: data frame.  
+Return format: data frame (or json).  
 
 **Required arguments**  
 `-g` `--gene`  
@@ -537,8 +552,12 @@ Defines whether to use human or mouse samples from [ARCHS4](https://maayanlab.cl
 (Only for tissue expression atlas.)
 
 `-o` `--out`   
-Path to the csv the results will be saved in, e.g. path/to/directory/results.csv. Default: Standard out.   
+Path to the csv the results will be saved in, e.g. path/to/directory/results.csv (or .json). Default: Standard out.   
 Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.  
+  
+**Flags**  
+`-j` `--json`  
+Return results in json format.  
   
   
 ### Examples
