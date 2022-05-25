@@ -54,28 +54,28 @@ import gget
 $ gget ref -s homo_sapiens
 
 # Search human genes with "ace2" AND "angiotensin" in their name/description
-$ gget search -sw ace2,angiotensin -s homo_sapiens -ao and 
+$ gget search -sw ace2,angiotensin -s homo_sapiens -ao and -j 
 
 # Look up gene ENSG00000130234 (ACE2) with expanded info (returns all transcript isoforms for genes)
-$ gget info -id ENSG00000130234 -e
+$ gget info -id ENSG00000130234 -e -j
 
 # Fetch the amino acid sequence of the canonical transcript of gene ENSG00000130234
 $ gget seq -id ENSG00000130234 --seqtype transcript
 
 # Quickly find the genomic location of (the start of) that amino acid sequence
-$ gget blat -seq MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS
+$ gget blat -seq MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS -j
 
 # Blast (the start of) that amino acid sequence
-$ gget blast -seq MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS
+$ gget blast -seq MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS -j
 
 # Align nucleotide or amino acid sequences stored in a FASTA file
 $ gget muscle -fa path/to/file.fa
 
 # Use Enrichr to find the ontology of a list of genes
-$ gget enrichr -g ACE2 AGT AGTR1 ACE AGTRAP AGTR2 ACE3P -db ontology
+$ gget enrichr -g ACE2 AGT AGTR1 ACE AGTRAP AGTR2 ACE3P -db ontology -j
 
 # Get the human tissue expression atlas of gene ACE2
-$ gget archs4 -g ACE2 -w tissue
+$ gget archs4 -g ACE2 -w tissue -j
 ```
 Jupyter Lab / Google Colab:
 ```python  
