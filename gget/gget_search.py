@@ -48,7 +48,7 @@ def search(
                       "and": Returns only genes that INCLUDE ALL of the searchwords in their name/description.
     - limit           (int) Limit the number of search results returned (default: None).
     - wrap_text       If True, displays data frame with wrapped text for easy reading. Default: False.
-    - json            If True, returns results in json/dictionary format instead of data frame. Default: False.
+    - json            If True, returns results in json format instead of data frame. Default: False.
     - save            If True, the data frame is saved as a csv in the current directory (default: False).
 
     Returns a data frame with the query results.

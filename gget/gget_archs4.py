@@ -35,7 +35,7 @@ def archs4(
                     (Only for gene correlation.)
     - species       'human' (default) or 'mouse'.
                     (Only for tissue expression atlas.)
-    - json          If True, returns results in json/dictionary format instead of data frame. Default: False.
+    - json          If True, returns results in json format instead of data frame. Default: False.
     - save          True/False whether to save the results in the local directory.
 
     Returns a data frame with the requested results.

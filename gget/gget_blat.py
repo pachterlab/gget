@@ -23,7 +23,7 @@ def blat(sequence, seqtype="default", assembly="human", json=False, save=False):
      - assembly       'human' (hg38) (default), 'mouse' (mm39), 'zebrafinch' (taeGut2),
                       or any of the species assemblies available at https://genome.ucsc.edu/cgi-bin/hgBlat
                       (use short assembly name as listed after the "/").
-     - json           If True, returns results in json/dictionary format instead of data frame. Default: False.
+     - json           If True, returns results in json format instead of data frame. Default: False.
      - save           If True, the data frame is saved as a csv in the current directory (default: False).
 
     Returns a data frame with the BLAT results.

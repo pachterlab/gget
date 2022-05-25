@@ -36,7 +36,7 @@ def enrichr(genes, database, plot=False, json=False, save=False):
                   'kinase_interactions' (KEA_2015)
                   or any database listed under Gene-set Library at: https://maayanlab.cloud/Enrichr/#libraries
     - plot        True/False whether to provide a graphical overview of the first 15 results.
-    - json        If True, returns results in json/dictionary format instead of data frame. Default: False.
+    - json        If True, returns results in json format instead of data frame. Default: False.
     - save        True/False whether to save the results in the local directory.
 
     Returns a data frame with the Enrichr results.

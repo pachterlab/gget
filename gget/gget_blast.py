@@ -54,7 +54,7 @@ def blast(
      - megablast      True/False whether to use the MegaBLAST algorithm (blastn only). Default True.
      - verbose        True/False whether to print progress information. Default True.
      - wrap_text      If True, displays data frame with wrapped text for easy reading. Default: False.
-     - json           If True, returns results in json/dictionary format instead of data frame. Default: False.
+     - json           If True, returns results in json format instead of data frame. Default: False.
      - save           If True, the data frame is saved as a csv in the current directory (default: False).
 
     Returns a data frame with the BLAST results.
