@@ -1,6 +1,7 @@
 # gget
 [![pypi version](https://img.shields.io/pypi/v/gget)](https://pypi.org/project/gget)
 [![Downloads](https://pepy.tech/badge/gget)](https://pepy.tech/project/gget)
+[![install with bioconda](https://img.shields.io/badge/install%20with-bioconda-brightgreen.svg?style=flat)](http://bioconda.github.io/recipes/gget/README.html)
 [![license](https://img.shields.io/pypi/l/gget)](LICENSE)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.6534041.svg)](https://doi.org/10.5281/zenodo.6534041)
 ![status](https://github.com/pachterlab/gget/workflows/CI/badge.svg)
