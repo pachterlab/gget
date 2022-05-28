@@ -317,7 +317,7 @@ def seq(
                             )
 
                         else:
-                            if ensembl_ID.startswith("EN"):
+                            if ensembl_ID.startswith("ENS"):
                                 # Append transcript ID (without Ensembl version number) to list of transcripts to fetch
                                 trans_ids.append(transcipt_id.split(".")[0])
 
