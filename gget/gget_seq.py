@@ -55,6 +55,7 @@ def seq(
         ens_ids = [ens_ids]
     # Remove Ensembl ID version if passed
     ens_ids_clean = []
+    temp = 0
     for ensembl_ID in ens_ids:
         # But only for Ensembl ID (and not for flybase/wormbase IDs)
         if ensembl_ID.startswith("ENS"):
