@@ -26,6 +26,7 @@ def info(ens_ids, expand=False, wrap_text=False, json=False, verbose=True, save=
 
     Args:
     - ens_ids       One or more Ensembl IDs to look up (string or list of strings).
+                    Also supports WormBase and Flybase IDs.
     - expand        True/False wether to expand returned information (only for genes and transcripts). Default: False.
                     For genes, this adds transcript isoform information.
                     For transcripts, this adds translation and exon information.
@@ -49,15 +50,20 @@ def info(ens_ids, expand=False, wrap_text=False, json=False, verbose=True, save=
     ens_ids_clean = []
     temp = 0
     for ensembl_ID in ens_ids:
-        ens_ids_clean.append(ensembl_ID.split(".")[0])
+        # But only for Ensembl ID (and not for flybase/wormbase IDs)
+        if ensembl_ID.startswith("ENS"):
+            ens_ids_clean.append(ensembl_ID.split(".")[0])
 
-        if "." in ensembl_ID and temp == 0:
-            if verbose is True:
-                logging.info(
-                    "We noticed that you may have passed a version number with your Ensembl ID.\n"
-                    "Please note that gget info will always return information linked to the latest Ensembl ID version (see 'ensembl_id')."
-                )
-            temp = +1
+            if "." in ensembl_ID and temp == 0:
+                if verbose is True:
+                    logging.info(
+                        "We noticed that you may have passed a version number with your Ensembl ID.\n"
+                        "Please note that gget info will always return information linked to the latest Ensembl ID version (see 'ensembl_id')."
+                    )
+                temp = +1
+
+        else:
+            ens_ids_clean.append(ensembl_ID)
 
     # Initiate dictionary to save results for all IDs in
     master_dict = {}

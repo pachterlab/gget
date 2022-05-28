@@ -221,7 +221,7 @@ def main():
         type=str,
         nargs="+",
         required=True,
-        help="One or more Ensembl IDs.",
+        help="One or more Ensembl IDs (also supports WormBase and FlyBase IDs).",
     )
     parser_info.add_argument(
         "-e",
@@ -274,7 +274,7 @@ def main():
         type=str,
         nargs="+",
         required=True,
-        help="One or more Ensembl IDs.",
+        help="One or more Ensembl IDs (also supports WormBase and FlyBase IDs).",
     )
     parser_seq.add_argument(
         "-st",

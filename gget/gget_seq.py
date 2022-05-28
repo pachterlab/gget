@@ -28,6 +28,7 @@ def seq(
 
     Args:
     - ens_ids   One or more Ensembl IDs (passed as string or list of strings).
+                Also supports WormBase and Flybase IDs.
     - seqtype   'gene' (default) or 'transcript'.
                 Defines whether nucleotide or amino acid sequences are returned.
                 Nucleotide sequences are fetched from the Ensembl REST API server.
@@ -55,7 +56,20 @@ def seq(
     # Remove Ensembl ID version if passed
     ens_ids_clean = []
     for ensembl_ID in ens_ids:
-        ens_ids_clean.append(ensembl_ID.split(".")[0])
+        # But only for Ensembl ID (and not for flybase/wormbase IDs)
+        if ensembl_ID.startswith("ENS"):
+            ens_ids_clean.append(ensembl_ID.split(".")[0])
+
+            if "." in ensembl_ID and temp == 0:
+                if verbose is True:
+                    logging.info(
+                        "We noticed that you may have passed a version number with your Ensembl ID.\n"
+                        "Please note that gget info will always return information linked to the latest Ensembl ID version (see 'ensembl_id')."
+                    )
+                temp = +1
+
+        else:
+            ens_ids_clean.append(ensembl_ID)
 
     # Initiate empty 'fasta'
     fasta = []
@@ -229,11 +243,17 @@ def seq(
                         trans_ids.append(can_trans)
 
                     else:
-                        # Remove Ensembl ID version from transcript IDs and append to transcript IDs list
-                        trans_ids.append(can_trans.split(".")[0])
+                        if ensembl_ID.startswith("ENS"):
+                            temp_trans_id = can_trans.split(".")[0]
+                            # Remove Ensembl ID version from transcript IDs and append to transcript IDs list
+                            trans_ids.append(temp_trans_id)
+                        else:
+                            # Remove added "." at the end of other transcript IDs
+                            temp_trans_id = ".".join(can_trans.split(".")[:-1])
+                            trans_ids.append(temp_trans_id)
 
                     logging.info(
-                        f"Requesting amino acid sequence of the canonical transcript {can_trans.split('.')[0]} of gene {ensembl_ID} from UniProt."
+                        f"Requesting amino acid sequence of the canonical transcript {temp_trans_id} of gene {ensembl_ID} from UniProt."
                     )
 
                 # If the ID is a transcript, append the ID directly
@@ -297,8 +317,14 @@ def seq(
                             )
 
                         else:
-                            # Append transcript ID (without Ensembl version number) to list of transcripts to fetch
-                            trans_ids.append(transcipt_id.split(".")[0])
+                            if ensembl_ID.startswith("EN"):
+                                # Append transcript ID (without Ensembl version number) to list of transcripts to fetch
+                                trans_ids.append(transcipt_id.split(".")[0])
+
+                            else:
+                                # Remove added "." at the end of other transcript IDs
+                                temp_trans_id = ".".join(transcipt_id.split(".")[:-1])
+                                trans_ids.append(temp_trans_id)
 
                     logging.info(
                         f"Requesting amino acid sequences of all transcripts of gene {ensembl_ID} from UniProt."
