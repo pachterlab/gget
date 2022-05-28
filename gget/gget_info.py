@@ -77,11 +77,17 @@ def info(ens_ids, expand=False, wrap_text=False, json=False, verbose=True, save=
         try:
             df_temp = rest_query(server, query, content_type)
 
-            # Add Ensembl ID with latest version number to df_temp
-            ensembl_id_dict = {
-                "ensembl_id": str(df_temp["id"]) + "." + str(df_temp["version"])
-            }
-            df_temp.update(ensembl_id_dict)
+            try:
+                # Add Ensembl ID with latest version number to df_temp
+                ensembl_id_dict = {
+                    "ensembl_id": str(df_temp["id"]) + "." + str(df_temp["version"])
+                }
+                df_temp.update(ensembl_id_dict)
+
+            except KeyError:
+                # Just add Ensembl ID if no version found
+                ensembl_id_dict = {"ensembl_id": str(df_temp["id"])}
+                df_temp.update(ensembl_id_dict)
 
         # If query returns in an error:
         except RuntimeError:
@@ -137,7 +143,29 @@ def info(ens_ids, expand=False, wrap_text=False, json=False, verbose=True, save=
     ):
         if id_type == "Gene" or id_type == "Transcript":
 
-            if master_dict[ens_id]["species"] == "homo_sapiens":
+            # Check if this is a wrombase ID:
+            if ens_id.startswith("WB"):
+                if id_type == "Gene":
+                    df_uniprot = get_uniprot_info(
+                        UNIPROT_REST_API, ens_id, id_type="WB_Gene", verbose=verbose
+                    )
+
+                else:
+                    df_uniprot = get_uniprot_info(
+                        UNIPROT_REST_API,
+                        ens_id,
+                        id_type="WB_Transcript",
+                        verbose=verbose,
+                    )
+
+            # Check if this is a flybase ID:
+            elif ens_id.startswith("FB"):
+                df_uniprot = get_uniprot_info(
+                    UNIPROT_REST_API, ens_id, id_type="Flybase", verbose=verbose
+                )
+
+            # Check if this ID requires a version number
+            elif master_dict[ens_id]["species"] == "homo_sapiens":
                 df_uniprot = get_uniprot_info(
                     UNIPROT_REST_API, uniprot_ens_id, id_type=id_type, verbose=verbose
                 )

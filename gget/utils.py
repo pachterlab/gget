@@ -132,7 +132,7 @@ def aa_colors(amino_acid):
     return f"\033[38;5;{textcolor}m\033[48;5;{bkg_color}m{amino_acid}\033[0;0m"
 
 
-def get_uniprot_seqs(server, ensembl_ids):
+def get_uniprot_seqs(server, ensembl_ids, id_type="ensembl"):
     """
     Retrieve UniProt sequences based on Ensemsbl identifiers.
 
@@ -149,11 +149,23 @@ def get_uniprot_seqs(server, ensembl_ids):
     if type(ensembl_ids) == str:
         ensembl_ids = [ensembl_ids]
 
+    # Define Ensembl ID type
+    if id_type == "ensembl":
+        ens_id_type = "ENSEMBL_TRS_ID"
+    elif id_type == "flybase":
+        ens_id_type = "FLYBASE_ID"
+    elif id_type == "wormbase":
+        ens_id_type = "WORMBASE_TRS_ID"
+    else:
+        raise ValueError(
+            f"ID type defined as {id_type}. Expected one of: ensembl, flybase, wormbase"
+        )
+
     # Define query arguments
     # Columns documentation: https://www.uniprot.org/help/uniprotkb%5Fcolumn%5Fnames
     # from/to IDs documentation: https://www.uniprot.org/help/api_idmapping
     query_args = {
-        "from": "ENSEMBL_TRS_ID",
+        "from": ens_id_type,
         "to": "ACC",
         "format": "tab",
         "query": " ".join(ensembl_ids),
@@ -234,6 +246,13 @@ def get_uniprot_info(server, ensembl_id, id_type, verbose=True):
         ens_id_type = "ENSEMBL_ID"
     elif id_type == "Transcript":
         ens_id_type = "ENSEMBL_TRS_ID"
+    elif id_type == "Flybase":
+        ens_id_type = "FLYBASE_ID"
+    elif id_type == "WB_Gene":
+        ens_id_type = "WORMBASE_ID"
+    elif id_type == "WB_Transcript":
+        ens_id_type = "WORMBASE_TRS_ID"
+
     else:
         logging.warning(
             f"Ensembl_ID '{ensembl_id}' was not recognized as either gene nor transcript. Gene name synonyms and description will not be fetched from UniProt."

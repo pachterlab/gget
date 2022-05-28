@@ -254,8 +254,17 @@ def seq(
                         f"{ensembl_ID} not recognized as either a gene or transcript ID. It will not be included in the UniProt query."
                     )
 
+            # Check if this is a Wrombase ID:
+            if ensembl_ID.startswith("WB"):
+                id_type = "wormbase"
+            # Check if this is a flybase ID:
+            elif ensembl_ID.startswith("FB"):
+                id_type = "flybase"
+            else:
+                id_type = "ensembl"
+
             # Fetch the amino acid sequences of the transcript Ensembl IDs
-            df_uniprot = get_uniprot_seqs(UNIPROT_REST_API, trans_ids)
+            df_uniprot = get_uniprot_seqs(UNIPROT_REST_API, trans_ids, id_type=id_type)
 
         if isoforms == True:
             # List to collect transcript IDs
@@ -312,8 +321,17 @@ def seq(
                         f"{ensembl_ID} not recognized as either a gene or transcript ID. It will not be included in the UniProt query."
                     )
 
+            # Check if this is a Wrombase ID:
+            if ensembl_ID.startswith("WB"):
+                id_type = "wormbase"
+            # Check if this is a flybase ID:
+            elif ensembl_ID.startswith("FB"):
+                id_type = "flybase"
+            else:
+                id_type = "ensembl"
+
             # Fetch amino acid sequences of all isoforms from the UniProt REST API
-            df_uniprot = get_uniprot_seqs(UNIPROT_REST_API, trans_ids)
+            df_uniprot = get_uniprot_seqs(UNIPROT_REST_API, trans_ids, id_type=id_type)
 
         # Check if less results were found than IDs put in
         if len(df_uniprot) != len(trans_ids) and len(df_uniprot) > 0:

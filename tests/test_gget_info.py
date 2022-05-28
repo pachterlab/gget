@@ -5,6 +5,63 @@ from gget.gget_info import info
 class TestInfo(unittest.TestCase):
     maxDiff = None
 
+    def test_info_WB_gene(self):
+        df = info("WBGene00043981")
+        # Drop NaN columns, since np.nan != np.nan
+        result_to_test = df.dropna(axis=1).values.tolist()
+        expected_result = [
+            [
+                "WBGene00043981",
+                "Q5WRS0",
+                "3565421",
+                "caenorhabditis_elegans",
+                "WBcel235",
+                "aaim-1",
+                "T14E8.4",
+                ["T14E8.4", "aaim-1"],
+                "Protein aaim-1 (Antibacterial and aids invasion by microsporidia 1 protein)",
+                "Uncharacterized protein [Source:NCBI gene (formerly Entrezgene);Acc:3565421]",
+                "FUNCTION: Plays a role in promoting resistance to bacterial pathogens such as P.aeruginosa by inhibiting bacterial intestinal colonization. {ECO:0000269|PubMed:34994689}.; FUNCTION: (Microbial infection) Promotes infection by microsporidian pathogens such as N.parisii in the early larval stages of development (PubMed:34994689). Involved in ensuring the proper orientation and location of the spore proteins of N.parisii during intestinal cell invasion (PubMed:34994689). {ECO:0000269|PubMed:34994689}.",
+                "Gene",
+                "protein_coding",
+                "T14E8.4.1.",
+                "X",
+                -1,
+                6559466,
+                6562428,
+            ]
+        ]
+        self.assertListEqual(result_to_test, expected_result)
+
+    def test_info_FB_gene(self):
+        df = info("FBgn0003656")
+        # Drop NaN columns, since np.nan != np.nan
+        result_to_test = df.dropna(axis=1).values.tolist()
+        expected_result = [
+            [
+                "FBgn0003656",
+                "Q9U969",
+                "31716",
+                "drosophila_melanogaster",
+                "BDGP6.32",
+                "sws",
+                "sws",
+                ["CG2212", "Dmel\\CG2212", "PNPLA6", "SWS", "Sws", "olfE", "sws"],
+                "Neuropathy target esterase sws (Swiss cheese) (DSWS) (EC 3.1.1.5)",
+                "swiss cheese",
+                "FUNCTION: Phospholipase B that deacylates intracellular phosphatidylcholine (PtdCho), generating glycerophosphocholine (GroPtdCho). This deacylation occurs at both sn-2 and sn-1 positions of PtdCho. Its specific chemical modification by certain organophosphorus (OP) compounds leads to distal axonopathy. Plays a role in the signaling mechanism between neurons and glia that regulates glia wrapping during development of the adult brain. Essential for membrane lipid homeostasis and cell survival in both neurons and glia of the adult brain. {ECO:0000269|PubMed:15772346, ECO:0000269|PubMed:18945896, ECO:0000269|PubMed:9295388}.",
+                "Enables lysophospholipase activity and protein kinase A catalytic subunit binding activity. Involved in several processes, including negative regulation of cAMP-dependent protein kinase activity; photoreceptor cell maintenance; and sensory perception of smell. Located in endoplasmic reticulum membrane and plasma membrane. Is expressed in adult head and interface glial cell. Used to study blindness; cerebellar ataxia; hereditary spastic paraplegia; and neurodegenerative disease. Human ortholog(s) of this gene implicated in Boucher-Neuhauser syndrome; Laurence-Moon syndrome; Oliver-McFarlane syndrome; and hereditary spastic paraplegia 39. Orthologous to human PNPLA6 (patatin like phospholipase domain containing 6) and PNPLA7 (patatin like phospholipase domain containing 7). [provided by Alliance of Genome Resources, Apr 2022]",
+                "Gene",
+                "protein_coding",
+                "FBtr0071125.",
+                "X",
+                -1,
+                7956820,
+                7968236,
+            ]
+        ]
+        self.assertListEqual(result_to_test, expected_result)
+
     def test_info_gene(self):
         df = info("ENSMUSG00000000001")
         # Drop NaN columns, since np.nan != np.nan
