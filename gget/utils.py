@@ -218,7 +218,7 @@ def get_uniprot_seqs(server, ensembl_ids):
     return df
 
 
-def get_uniprot_info(server, ensembl_id, id_type):
+def get_uniprot_info(server, ensembl_id, id_type, verbose=True):
     """
     Retrieve UniProt synonyms and description based on Ensemsbl identifiers.
 
@@ -307,16 +307,18 @@ def get_uniprot_info(server, ensembl_id, id_type):
 
         # If there are reviewed results, return only reviewed results
         if "reviewed" in df["status"].values:
-            logging.info(
-                f"Returning only reviewed UniProt results for Ensembl ID {ensembl_id}."
-            )
+            if verbose is True:
+                logging.info(
+                    f"Returning only reviewed UniProt results for Ensembl ID {ensembl_id}."
+                )
             # Only keep rows where status is "reviewed"
             df = df[df.status == "reviewed"]
 
         else:
-            logging.warning(
-                f"No reviewed UniProt results were found for Ensembl ID {ensembl_id}. Returning all unreviewed results."
-            )
+            if verbose is True:
+                logging.warning(
+                    f"No reviewed UniProt results were found for Ensembl ID {ensembl_id}. Returning all unreviewed results."
+                )
         # Return set of all results if more than one UniProt ID was found for this Ensembl ID
         if len(df) > 1:
             final_df = pd.DataFrame()

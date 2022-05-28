@@ -1,4 +1,5 @@
 import logging
+
 # Add and format time stamp in logging messages
 logging.basicConfig(
     format="%(asctime)s %(levelname)s %(message)s",
@@ -106,7 +107,7 @@ def seq(
             # If isoforms true, fetch sequences of isoforms instead
             if isoforms == True:
                 # Get ID type (gene, transcript, ...) using gget info
-                info_df = info(ensembl_ID, expand=True)
+                info_df = info(ensembl_ID, expand=True, verbose=False)
 
                 # Check that Ensembl ID was found
                 if isinstance(info_df, type(None)):
@@ -206,7 +207,7 @@ def seq(
 
             for ensembl_ID in ens_ids_clean:
                 # Get ID type (gene, transcript, ...) using gget info
-                info_df = info(ensembl_ID)
+                info_df = info(ensembl_ID, verbose=False)
 
                 # Check that Ensembl ID was found
                 if isinstance(info_df, type(None)):
@@ -222,15 +223,28 @@ def seq(
                 if ens_ID_type == "Gene":
                     # Get ID of canonical transcript
                     can_trans = info_df.loc[ensembl_ID]["canonical_transcript"]
-                    # Remove Ensembl ID version from transcript IDs and append to transcript IDs list
-                    trans_ids.append(can_trans.split(".")[0])
+
+                    # UniProt version 2022_02 requires version number for human Ensembl IDs
+                    if info_df.loc[ensembl_ID]["species"] == "homo_sapiens":
+                        trans_ids.append(can_trans)
+
+                    else:
+                        # Remove Ensembl ID version from transcript IDs and append to transcript IDs list
+                        trans_ids.append(can_trans.split(".")[0])
+
                     logging.info(
                         f"Requesting amino acid sequence of the canonical transcript {can_trans.split('.')[0]} of gene {ensembl_ID} from UniProt."
                     )
 
                 # If the ID is a transcript, append the ID directly
                 elif ens_ID_type == "Transcript":
-                    trans_ids.append(ensembl_ID)
+                    # UniProt version 2022_02 requires version number for human Ensembl IDs
+                    if info_df.loc[ensembl_ID]["species"] == "homo_sapiens":
+                        trans_ids.append(info_df.loc[ensembl_ID]["ensembl_id"])
+
+                    else:
+                        trans_ids.append(ensembl_ID)
+
                     logging.info(
                         f"Requesting amino acid sequence of {ensembl_ID} from UniProt."
                     )
@@ -249,7 +263,7 @@ def seq(
 
             for ensembl_ID in ens_ids_clean:
                 # Get ID type (gene, transcript, ...) using gget info
-                info_df = info(ensembl_ID, expand=True)
+                info_df = info(ensembl_ID, expand=True, verbose=False)
 
                 # Check that Ensembl ID was found
                 if isinstance(info_df, type(None)):
@@ -265,8 +279,17 @@ def seq(
                 if ens_ID_type == "Gene":
                     # Get the IDs of all transcripts from the gget info results
                     for transcipt_id in info_df.loc[ensembl_ID]["all_transcripts"]:
-                        # Append transcript ID (without Ensembl version number) to list of transcripts to fetch
-                        trans_ids.append(transcipt_id.split(".")[0])
+                        if info_df.loc[ensembl_ID]["species"] == "homo_sapiens":
+                            # UniProt 2022_02 requires version number for human genes
+                            trans_ids.append(
+                                info(transcipt_id, verbose=False)["ensembl_id"].values[
+                                    0
+                                ]
+                            )
+
+                        else:
+                            # Append transcript ID (without Ensembl version number) to list of transcripts to fetch
+                            trans_ids.append(transcipt_id.split(".")[0])
 
                     logging.info(
                         f"Requesting amino acid sequences of all transcripts of gene {ensembl_ID} from UniProt."
@@ -274,11 +297,16 @@ def seq(
 
                 elif ens_ID_type == "Transcript":
                     # Append transcript ID to list of transcripts to fetch
-                    trans_ids.append(ensembl_ID)
+                    if info_df.loc[ensembl_ID]["species"] == "homo_sapiens":
+                        trans_ids.append(info_df.loc[ensembl_ID]["ensembl_id"])
+                    else:
+                        trans_ids.append(ensembl_ID)
+
                     logging.info(
                         f"Requesting amino acid sequence of {ensembl_ID} from UniProt."
                     )
                     logging.warning("The isoform option only applies to gene IDs.")
+
                 else:
                     logging.warning(
                         f"{ensembl_ID} not recognized as either a gene or transcript ID. It will not be included in the UniProt query."

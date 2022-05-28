@@ -11,7 +11,7 @@ class TestInfo(unittest.TestCase):
         result_to_test = df.dropna(axis=1).values.tolist()
         expected_result = [
             [
-                "ENSMUSG00000000001",
+                "ENSMUSG00000000001.5",
                 "Q9DC51",
                 "14679",
                 "mus_musculus",
@@ -42,7 +42,7 @@ class TestInfo(unittest.TestCase):
         result_to_test = df.dropna(axis=1).values.tolist()
         expected_result = [
             [
-                "ENSMMUG00000054106",
+                "ENSMMUG00000054106.1",
                 "macaca_mulatta",
                 "Mmul_10",
                 "Gene",
@@ -54,7 +54,7 @@ class TestInfo(unittest.TestCase):
                 65000159,
             ],
             [
-                "ENSMMUG00000053116",
+                "ENSMMUG00000053116.1",
                 "macaca_mulatta",
                 "Mmul_10",
                 "Gene",
@@ -66,7 +66,7 @@ class TestInfo(unittest.TestCase):
                 111475279,
             ],
             [
-                "ENSMMUG00000021246",
+                "ENSMMUG00000021246.4",
                 "macaca_mulatta",
                 "Mmul_10",
                 "Gene",
@@ -88,7 +88,7 @@ class TestInfo(unittest.TestCase):
         )
         expected_result = {
             "ENSMMUG00000054106": {
-                "ensembl_id": "ENSMMUG00000054106",
+                "ensembl_id": "ENSMMUG00000054106.1",
                 "uniprot_id": None,
                 "ncbi_gene_id": None,
                 "species": "macaca_mulatta",
@@ -110,7 +110,7 @@ class TestInfo(unittest.TestCase):
                 "end": 65000159,
             },
             "ENSMMUG00000053116": {
-                "ensembl_id": "ENSMMUG00000053116",
+                "ensembl_id": "ENSMMUG00000053116.1",
                 "uniprot_id": "A0A5F8AEA0",
                 "ncbi_gene_id": None,
                 "species": "macaca_mulatta",
@@ -132,7 +132,7 @@ class TestInfo(unittest.TestCase):
                 "end": 111475279,
             },
             "ENSMMUG00000021246": {
-                "ensembl_id": "ENSMMUG00000021246",
+                "ensembl_id": "ENSMMUG00000021246.4",
                 "uniprot_id": [
                     "A0A1D5QWP5",
                     "A0A5F7ZUG9",
@@ -149,7 +149,7 @@ class TestInfo(unittest.TestCase):
                 "assembly_name": "Mmul_10",
                 "primary_gene_name": "HHATL",
                 "ensembl_gene_name": None,
-                "synonyms": ["EGK_11753", "HHATL", "HIGD1A"],
+                "synonyms": ["HHATL", "HIGD1A"],
                 "parent_gene": None,
                 "protein_names": [
                     "HIG1 domain family member 1A isoform a",
@@ -182,33 +182,46 @@ class TestInfo(unittest.TestCase):
         self.assertEqual(result_to_test, expected_result)
 
     def test_info_gene_expand(self):
-        df = info("ENSMUSG00000000001", expand=True)
+        df = info("ENST00000673726", expand=True)
         # Drop NaN columns, since np.nan != np.nan
         result_to_test = df.dropna(axis=1).values.tolist()
         expected_result = [
             [
-                "ENSMUSG00000000001",
-                "Q9DC51",
-                "14679",
-                "mus_musculus",
-                "GRCm39",
-                "Gnai3",
-                "Gnai3",
-                ["AI158965", "AW537698", "Galphai3", "Gnai-3", "Gnai3", "Hg1a"],
-                "Guanine nucleotide-binding protein G(i) subunit alpha-3 (G(i) alpha-3)",
-                "guanine nucleotide binding protein (G protein), alpha inhibiting 3 [Source:MGI Symbol;Acc:MGI:95773]",
-                "FUNCTION: Heterotrimeric guanine nucleotide-binding proteins (G proteins) function as transducers downstream of G protein-coupled receptors (GPCRs) in numerous signaling cascades. The alpha chain contains the guanine nucleotide binding site and alternates between an active, GTP-bound state and an inactive, GDP-bound state. Signaling by an activated GPCR promotes GDP release and GTP binding. The alpha subunit has a low GTPase activity that converts bound GTP to GDP, thereby terminating the signal. Both GDP release and GTP hydrolysis are modulated by numerous regulatory proteins. Signaling is mediated via effector proteins, such as adenylate cyclase. Inhibits adenylate cyclase activity, leading to decreased intracellular cAMP levels. Stimulates the activity of receptor-regulated K(+) channels. The active GTP-bound form prevents the association of RGS14 with centrosomes and is required for the translocation of RGS14 from the cytoplasm to the plasma membrane. May play a role in cell division. {ECO:0000250|UniProtKB:P08754}.",
-                "Predicted to enable several functions, including G-protein beta/gamma-subunit complex binding activity; GDP binding activity; and GTPase activating protein binding activity. Predicted to be involved in several processes, including positive regulation of NAD(P)H oxidase activity; positive regulation of superoxide anion generation; and positive regulation of vascular associated smooth muscle cell proliferation. Predicted to act upstream of or within G protein-coupled receptor signaling pathway. Located in Golgi apparatus. Is expressed in early conceptus; inner ear; and oocyte. Orthologous to human GNAI3 (G protein subunit alpha i3). [provided by Alliance of Genome Resources, Apr 2022]",
-                "Gene",
-                "protein_coding",
-                "ENSMUST00000000001.5",
-                "3",
-                -1,
-                108014596,
-                108053462,
-                ["ENSMUST00000000001"],
-                ["protein_coding"],
-                ["Gnai3-201"],
+                "ENST00000673726.1",
+                "A0A669KAY4",
+                "homo_sapiens",
+                "GRCh38",
+                "PCSK9",
+                "PCSK9-204",
+                ["PCSK9"],
+                "ENSG00000169174",
+                "Proprotein convertase subtilisin/kexin type 9",
+                "Transcript",
+                "nonsense_mediated_decay",
+                "1",
+                1,
+                55039447,
+                55052694,
+                [
+                    "ENSE00003897031",
+                    "ENSE00001279167",
+                    "ENSE00001279161",
+                    "ENSE00003897734",
+                    "ENSE00003897397",
+                    "ENSE00003897745",
+                ],
+                [55039447, 55043843, 55046523, 55051343, 55052278, 55052650],
+                [55040044, 55044034, 55046646, 55051453, 55052411, 55052694],
+                [
+                    "ENSE00003897031",
+                    "ENSE00001279167",
+                    "ENSE00001279161",
+                    "ENSE00003897734",
+                    "ENSE00003897397",
+                    "ENSE00003897745",
+                ],
+                [55039447, 55043843, 55046523, 55051343, 55052278, 55052650],
+                [55040044, 55044034, 55046646, 55051453, 55052411, 55052694],
             ]
         ]
 
@@ -220,7 +233,7 @@ class TestInfo(unittest.TestCase):
         result_to_test = df.dropna(axis=1).values.tolist()
         expected_result = [
             [
-                "ENSMUST00000000001",
+                "ENSMUST00000000001.5",
                 "Q9DC51",
                 "14679",
                 "mus_musculus",
@@ -249,7 +262,7 @@ class TestInfo(unittest.TestCase):
         result_to_test = df.dropna(axis=1).values.tolist()
         expected_result = [
             [
-                "ENSMUST00000000001",
+                "ENSMUST00000000001.5",
                 "Q9DC51",
                 "14679",
                 "mus_musculus",
@@ -339,12 +352,12 @@ class TestInfo(unittest.TestCase):
         self.assertListEqual(result_to_test, expected_result)
 
     def test_info_mix(self):
-        df = info(["ENSTGUT00000027003.1", "ENSMUSG00000000001"])
+        df = info(["ENSTGUT00000027003.1", "ENSG00000169174"])
         # Drop NaN columns, since np.nan != np.nan
         result_to_test = df.dropna(axis=1).values.tolist()
         expected_result = [
             [
-                "ENSTGUT00000027003",
+                "ENSTGUT00000027003.1",
                 "A0A674GVD2",
                 "taeniopygia_guttata",
                 "bTaeGut1_v1.p",
@@ -360,40 +373,31 @@ class TestInfo(unittest.TestCase):
                 107526965,
             ],
             [
-                "ENSMUSG00000000001",
-                "Q9DC51",
-                "mus_musculus",
-                "GRCm39",
-                "Gnai3",
-                "Gnai3",
-                ["AI158965", "AW537698", "Galphai3", "Gnai-3", "Gnai3", "Hg1a"],
-                "Guanine nucleotide-binding protein G(i) subunit alpha-3 (G(i) alpha-3)",
+                "ENSG00000169174.11",
+                "Q8NBP7",
+                "homo_sapiens",
+                "GRCh38",
+                "PCSK9",
+                "PCSK9",
+                [
+                    "FH3",
+                    "FHCL3",
+                    "HCHOLA3",
+                    "LDLCQ1",
+                    "NARC-1",
+                    "NARC1",
+                    "PC9",
+                    "PCSK9",
+                    "PSEC0052",
+                ],
+                "Proprotein convertase subtilisin/kexin type 9 (EC 3.4.21.-) (Neural apoptosis-regulated convertase 1) (NARC-1) (Proprotein convertase 9) (PC9) (Subtilisin/kexin-like protease PC9)",
                 "Gene",
                 "protein_coding",
-                "3",
-                -1,
-                108014596,
-                108053462,
-            ],
-        ]
-
-        self.assertListEqual(result_to_test, expected_result)
-
-    def test_info_exon(self):
-        df = info(["ENSTGUEE00000179311"])
-        # Drop NaN columns, since np.nan != np.nan
-        result_to_test = df.dropna(axis=1).values.tolist()
-        expected_result = [
-            [
-                "ENSTGUEE00000179311",
-                "taeniopygia_guttata",
-                "bTaeGut1_v1.p",
-                "Exon",
                 "1",
-                -1,
-                107526792,
-                107526965,
-            ]
+                1,
+                55039447,
+                55064852,
+            ],
         ]
 
         self.assertListEqual(result_to_test, expected_result)
@@ -404,7 +408,7 @@ class TestInfo(unittest.TestCase):
         result_to_test = df.dropna(axis=1).values.tolist()
         expected_result = [
             [
-                "ENSTGUEE00000179311",
+                "ENSTGUEE00000179311.1",
                 "taeniopygia_guttata",
                 "bTaeGut1_v1.p",
                 "Exon",
