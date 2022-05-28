@@ -244,6 +244,14 @@ def main():
         help="Returns results in json/dictionary format instead of data frame.",
     )
     parser_info.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Do not print progress information.",
+    )
+    parser_info.add_argument(
         "-o",
         "--out",
         type=str,
@@ -1001,7 +1009,9 @@ def main():
             ids_clean_final.remove("")
 
         # Look up requested Ensembl IDs
-        info_results = info(ids_clean_final, expand=args.expand, json=args.json)
+        info_results = info(
+            ids_clean_final, expand=args.expand, json=args.json, verbose=args.quiet
+        )
 
         # Check if the function returned something
         if not isinstance(info_results, type(None)):

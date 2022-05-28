@@ -55,7 +55,7 @@ def info(ens_ids, expand=False, wrap_text=False, json=False, verbose=True, save=
             if verbose is True:
                 logging.info(
                     "We noticed that you may have passed a version number with your Ensembl ID.\n"
-                    "Please note that gget info will always return information linked to the latest Ensembl ID version (see column 'ensembl_id')."
+                    "Please note that gget info will always return information linked to the latest Ensembl ID version (see 'ensembl_id')."
                 )
             temp = +1
 
