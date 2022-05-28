@@ -62,11 +62,10 @@ def seq(
             ens_ids_clean.append(ensembl_ID.split(".")[0])
 
             if "." in ensembl_ID and temp == 0:
-                if verbose is True:
-                    logging.info(
-                        "We noticed that you may have passed a version number with your Ensembl ID.\n"
-                        "Please note that gget info will always return information linked to the latest Ensembl ID version (see 'ensembl_id')."
-                    )
+                logging.info(
+                    "We noticed that you may have passed a version number with your Ensembl ID.\n"
+                    "Please note that gget seq will return information linked to the latest Ensembl ID version."
+                )
                 temp = +1
 
         else:
@@ -241,7 +240,8 @@ def seq(
 
                     # UniProt version 2022_02 requires version number for human Ensembl IDs
                     if info_df.loc[ensembl_ID]["species"] == "homo_sapiens":
-                        trans_ids.append(can_trans)
+                        temp_trans_id = can_trans
+                        trans_ids.append(temp_trans_id)
 
                     else:
                         if ensembl_ID.startswith("ENS"):
