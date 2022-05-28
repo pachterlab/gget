@@ -20,13 +20,7 @@ from .utils import rest_query, get_uniprot_info, wrap_cols_func
 from .constants import ENSEMBL_REST_API, UNIPROT_REST_API, NCBI_URL
 
 ## gget info
-def info(
-    ens_ids,
-    expand=False,
-    wrap_text=False,
-    json=False,
-    save=False,
-):
+def info(ens_ids, expand=False, wrap_text=False, json=False, verbose=True, save=False):
     """
     Fetch gene and transcript metadata using Ensembl IDs.
 
@@ -37,6 +31,7 @@ def info(
                     For transcripts, this adds translation and exon information.
     - wrap_text     If True, displays data frame with wrapped text for easy reading. Default: False.
     - json          If True, returns results in json/dictionary format instead of data frame. Default: False.
+    - verbose       True/False whether to print progress information. Default True.
     - save          True/False wether to save csv with query results in current working directory. Default: False.
 
     Returns a data frame containing the requested information about the Ensembl IDs.
@@ -52,8 +47,17 @@ def info(
         ens_ids = [ens_ids]
     # Remove Ensembl ID version if passed
     ens_ids_clean = []
+    temp = 0
     for ensembl_ID in ens_ids:
         ens_ids_clean.append(ensembl_ID.split(".")[0])
+
+        if "." in ensembl_ID and temp == 0:
+            if verbose is True:
+                logging.info(
+                    "We noticed that you may have passed a version number with your Ensembl ID.\n"
+                    "Please note that gget info will always return information linked to the latest Ensembl ID version (see 'ensembl_id')."
+                )
+            temp = +1
 
     # Initiate dictionary to save results for all IDs in
     master_dict = {}
@@ -72,13 +76,26 @@ def info(
         # Submit query
         try:
             df_temp = rest_query(server, query, content_type)
+
+            # Add Ensembl ID with latest version number to df_temp
+            ensembl_id_dict = {
+                "ensembl_id": str(df_temp["id"]) + "." + str(df_temp["version"])
+            }
+            df_temp.update(ensembl_id_dict)
+
         # If query returns in an error:
         except RuntimeError:
             # Try submitting query without expand (expand does not work for exons and translation IDs)
             try:
                 query = "lookup/id/" + ensembl_ID + "?"
                 df_temp = rest_query(server, query, content_type)
-            # Raise error if this also did not work
+                # Add Ensembl ID with latest version number to df_temp
+                ensembl_id_dict = {
+                    "ensembl_id": str(df_temp["id"]) + "." + str(df_temp["version"])
+                }
+                df_temp.update(ensembl_id_dict)
+
+            # Log error if this also did not work
             except RuntimeError:
                 logging.error(
                     f"Ensembl ID '{ensembl_ID}' not found. "
@@ -86,116 +103,9 @@ def info(
                 )
                 continue
 
-        # Commented out json structuring, since new output is data frame
-        ## Delete superfluous entries
-        #         # Delete superfluous entries in general info
-        #         keys_to_delete = ["version", "source", "db_type", "logic_name", "id"]
-        #         for key in keys_to_delete:
-        #             # Pop keys, None -> do not raise an error if key to delete not found
-        #             df_temp.pop(key, None)
-
-        #         # If looking up gene, delete superfluous entries in transcript isoforms info
-        #         if "Transcript" in df_temp.keys():
-        #             transcript_keys_to_delete = ["assembly_name", "start", "is_canonical", "seq_region_name", "db_type", "source", "strand", "end", "Parent", "species", "version", "logic_name", "Exon", "Translation", "object_type"]
-
-        #             try:
-        #                 # More than one isoform present
-        #                 for isoform in np.arange(len(df_temp["Transcript"])):
-        #                     for key in transcript_keys_to_delete:
-        #                         df_temp["Transcript"][isoform].pop(key, None)
-        #             except:
-        #                 # Just one isoform present
-        #                 for key in transcript_keys_to_delete:
-        #                     df_temp["Transcript"].pop(key, None)
-
-        #         # If looking up transcript, delete superfluous entries in translation and exon info
-        #         if "Translation" in df_temp.keys():
-        #             # Delete superfluous entries in Translation info
-        #             translation_keys_to_delete = ["Parent", "species", "db_type", "object_type", "version"]
-
-        #             try:
-        #                 # More than one translation present
-        #                 for transl in np.arange(len(df_temp["Translation"])):
-        #                     for key in translation_keys_to_delete:
-        #                         df_temp["Translation"][transl].pop(key, None)
-        #             except:
-        #                 # Just one translation present
-        #                 for key in translation_keys_to_delete:
-        #                     df_temp["Translation"].pop(key, None)
-
-        #         if "Exon" in df_temp.keys():
-        #             # Delete superfluous entries in Exon info
-        #             exon_keys_to_delete = ["version", "species", "object_type", "db_type", "assembly_name", "seq_region_name", "strand"]
-
-        #             try:
-        #                 # More than one exon present
-        #                 for exon in np.arange(len(df_temp["Exon"])):
-        #                     for key in exon_keys_to_delete:
-        #                         df_temp["Exon"][exon].pop(key, None)
-        #             except:
-        #                 # Just one exon present
-        #                 for key in translation_keys_to_delete:
-        #                     df_temp["Exon"].pop(key, None)
-
-        ## Add results to main dict
-        results_dict[ensembl_ID].update(df_temp)
-
-        #         ## homology/id/ query: Retrieves homology information (orthologs) by Ensembl gene id
-        #         if homology:
-        #             # Define the REST query
-        #             query = "homology/id/" + ensembl_ID + "?"
-
-        #             try:
-        #                 # Submit query
-        #                 df_temp = rest_query(server, query, content_type)
-        #                 # Add results to main dict
-        #                 results_dict[ensembl_ID].update({"homology":df_temp["data"][0]["homologies"]})
-        #             except:
-        #                 if verbose:
-        #                     logging.warning(f"No homology information found for {ensembl_ID}.")
-
-        #         ## xrefs/id/ query: Retrieves external reference information by Ensembl gene id
-        #         if xref:
-        #             # Define the REST query
-        #             query = "xrefs/id/" + ensembl_ID + "?"
-
-        #             try:
-        #                 # Submit query
-        #                 df_temp = rest_query(server, query, content_type)
-        #                 # Add results to main dict
-        #                 results_dict[ensembl_ID].update({"xrefs":df_temp})
-        #             except:
-        #                 if verbose:
-        #                     logging.warning(f"No external reference information found for {ensembl_ID}.")
-
         # Add results to master dict
+        results_dict[ensembl_ID].update(df_temp)
         master_dict.update(results_dict)
-
-    #     ## Sort nested master_dict alphabetically at all levels
-    #     # Sort IDs keys alphabetically
-    #     master_dict = {key: value for key, value in sorted(master_dict.items())}
-    #     # Sort ID info level keys alphabetically
-    #     for dict_ens_id in master_dict.keys():
-    #         master_dict[dict_ens_id] = {
-    #             key: value for key, value in sorted(master_dict[dict_ens_id].items())
-    #         }
-    #         # Sort transcript/translation/exon level keys alphabetically
-    #         for trans_id in master_dict[dict_ens_id].keys():
-    #             # Sort if entry is a dict
-    #             if type(master_dict[dict_ens_id][trans_id]) == dict:
-    #                 master_dict[dict_ens_id][trans_id] = {
-    #                     key: value
-    #                     for key, value in sorted(master_dict[dict_ens_id][trans_id].items())
-    #                 }
-    #             # Sort if entry is a list of dicts
-    #             if type(master_dict[dict_ens_id][trans_id]) == list:
-    #                 for index, list_item in enumerate(master_dict[dict_ens_id][trans_id]):
-    #                     master_dict[dict_ens_id][trans_id][index] = {
-    #                         key: value
-    #                         for key, value in sorted(
-    #                             master_dict[dict_ens_id][trans_id][index].items()
-    #                         )
-    #                     }
 
     # Return None if none of the Ensembl IDs were found
     if len(master_dict) == 0:
@@ -213,12 +123,29 @@ def info(
         }
     )
 
+    # UniProt version 2022_02 requires the ID to be passed including the version number for homo sapiens
+    # https://www.uniprot.org/news/2022/05/25/release
+    # Collect all IDs with their latest version number
+    uniprot_ens_ids = []
+    for id_ in ens_ids_clean:
+        uniprot_ens_ids.append(master_dict[id_]["ensembl_id"])
+
     ## For genes and transcripts, get gene names and descriptions from UniProt
     df_temp = pd.DataFrame()
-    for ens_id, id_type in zip(ens_ids_clean, df.loc["object_type"].values):
+    for ens_id, uniprot_ens_id, id_type in zip(
+        ens_ids_clean, uniprot_ens_ids, df.loc["object_type"].values
+    ):
         if id_type == "Gene" or id_type == "Transcript":
 
-            df_uniprot = get_uniprot_info(UNIPROT_REST_API, ens_id, id_type=id_type)
+            if master_dict[ens_id]["species"] == "homo_sapiens":
+                df_uniprot = get_uniprot_info(
+                    UNIPROT_REST_API, uniprot_ens_id, id_type=id_type, verbose=verbose
+                )
+
+            else:
+                df_uniprot = get_uniprot_info(
+                    UNIPROT_REST_API, ens_id, id_type=id_type, verbose=verbose
+                )
 
             if not isinstance(df_uniprot, type(None)):
                 # If two different UniProt IDs for a single query ID are returned, they should be merged into one column
@@ -226,12 +153,16 @@ def info(
                 if len(df_uniprot) > 1:
                     df_uniprot = df_uniprot.iloc[[0]]
                     # This should not be necessary
-                    logging.warning(
-                        f"More than match was found for Ensembl ID {ens_id} in UniProt. Only the first match and its associated information will be returned."
-                    )
+                    if verbose is True:
+                        logging.warning(
+                            f"More than one UniProt match was found for Ensembl ID {ens_id}. Only the first match and its associated information will be returned."
+                        )
 
             else:
-                logging.warning(f"No UniProt entry was found for Ensembl ID {ens_id}.")
+                if verbose is True:
+                    logging.warning(
+                        f"No UniProt entry was found for Ensembl ID {ens_id}."
+                    )
 
             ## Get NCBI gene ID and description (for genes only)
             url = NCBI_URL + f"/gene/?term={ens_id}"
@@ -329,6 +260,7 @@ def info(
     # Reindex df (this also drops all unmentioned indeces)
     df_final = df.reindex(
         [
+            "ensembl_id",
             "uniprot_id",
             "ncbi_gene_id",
             "species",
@@ -463,8 +395,8 @@ def info(
     ## Transpose data frame so each row corresponds to one Ensembl ID
     df_final = df_final.T
 
-    # Add Ensembl ID column from index
-    df_final.insert(0, "ensembl_id", df_final.index)
+    # # Add Ensembl ID column from index
+    # df_final.insert(0, "ensembl_id", df_final.index)
 
     if wrap_text:
         df_wrapped = df_final.copy()

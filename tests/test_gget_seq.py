@@ -16,7 +16,7 @@ class TestSeq(unittest.TestCase):
         result_to_test = seq("ENSG00000241794", seqtype="transcript")
         # This should return the amino acid sequence of the canonical transcript of ENSG00000241794 which is ENST00000392653
         expected_result = [
-            ">ENST00000392653 uniprot_id: P35326 ensembl_id: ENST00000392653 gene_name(s): SPRR2A organism: Homo sapiens (Human) sequence_length: 72",
+            ">ENST00000392653.3 uniprot_id: P35326 ensembl_id: ENST00000392653.3 gene_name(s): SPRR2A organism: Homo sapiens (Human) sequence_length: 72",
             "MSYQQQQCKQPCQPPPVCPTPKCPEPCPPPKCPEPCPPPKCPQPCPPQQCQQKYPPVTPSPPCQSKYPPKSK",
         ]
 
@@ -25,7 +25,7 @@ class TestSeq(unittest.TestCase):
     def test_transcript(self):
         result_to_test = seq("ENST00000392653", seqtype="transcript")
         expected_result = [
-            ">ENST00000392653 uniprot_id: P35326 ensembl_id: ENST00000392653 gene_name(s): SPRR2A organism: Homo sapiens (Human) sequence_length: 72",
+            ">ENST00000392653.3 uniprot_id: P35326 ensembl_id: ENST00000392653.3 gene_name(s): SPRR2A organism: Homo sapiens (Human) sequence_length: 72",
             "MSYQQQQCKQPCQPPPVCPTPKCPEPCPPPKCPEPCPPPKCPQPCPPQQCQQKYPPVTPSPPCQSKYPPKSK",
         ]
 
@@ -55,7 +55,7 @@ class TestSeq(unittest.TestCase):
         result_to_test = seq("ENSG00000241794", isoforms=True, seqtype="transcript")
         # Since ENSG00000241794 only has one transcript, the expected results is the AA sequence of ENST00000392653
         expected_result = [
-            ">ENST00000392653 uniprot_id: P35326 ensembl_id: ENST00000392653 gene_name(s): SPRR2A organism: Homo sapiens (Human) sequence_length: 72",
+            ">ENST00000392653.3 uniprot_id: P35326 ensembl_id: ENST00000392653.3 gene_name(s): SPRR2A organism: Homo sapiens (Human) sequence_length: 72",
             "MSYQQQQCKQPCQPPPVCPTPKCPEPCPPPKCPEPCPPPKCPQPCPPQQCQQKYPPVTPSPPCQSKYPPKSK",
         ]
 
@@ -65,7 +65,7 @@ class TestSeq(unittest.TestCase):
         result_to_test = seq("ENST00000392653.2", isoforms=True, seqtype="transcript")
         # The isoform should not change the output for transcripts
         expected_result = [
-            ">ENST00000392653 uniprot_id: P35326 ensembl_id: ENST00000392653 gene_name(s): SPRR2A organism: Homo sapiens (Human) sequence_length: 72",
+            ">ENST00000392653.3 uniprot_id: P35326 ensembl_id: ENST00000392653.3 gene_name(s): SPRR2A organism: Homo sapiens (Human) sequence_length: 72",
             "MSYQQQQCKQPCQPPPVCPTPKCPEPCPPPKCPEPCPPPKCPQPCPPQQCQQKYPPVTPSPPCQSKYPPKSK",
         ]
 
@@ -92,7 +92,3 @@ class TestSeq(unittest.TestCase):
     #     data = "banana"
     #     with self.assertRaises(RuntimeError):
     #         result = seq(data, isoform=True, seqtype="transcript")
-
-
-# if __name__ == "__main__":
-#     unittest.main()

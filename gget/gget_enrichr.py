@@ -269,10 +269,19 @@ def enrichr(genes, database, plot=False, json=False, save=False):
         # Set axis margins
         ax.margins(y=0, x=0)
 
+        # Remove grid
+        ax.grid(visible=None)
+        ax2.grid(visible=None)
+
         plt.tight_layout()
 
         if save:
-            fig.savefig("gget_enrichr_results.png", dpi=300, bbox_inches="tight")
+            fig.savefig(
+                "gget_enrichr_results.png",
+                dpi=300,
+                bbox_inches="tight",
+                transparent=True,
+            )
 
     if json:
         results_dict = json_package.loads(df.to_json(orient="records"))
