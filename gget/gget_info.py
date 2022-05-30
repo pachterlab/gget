@@ -68,6 +68,9 @@ def info(ens_ids, expand=False, wrap_text=False, json=False, verbose=True, save=
     # Initiate dictionary to save results for all IDs in
     master_dict = {}
 
+    # Create second clean list of Ensembl IDs which will not include IDs that were not found
+    ens_ids_clean_2 = ens_ids_clean.copy()
+
     # Query REST APIs from https://rest.ensembl.org/
     for ensembl_ID in ens_ids_clean:
         # Create dict to save query results
@@ -109,10 +112,14 @@ def info(ens_ids, expand=False, wrap_text=False, json=False, verbose=True, save=
 
             # Log error if this also did not work
             except RuntimeError:
-                logging.error(
+                logging.warning(
                     f"Ensembl ID '{ensembl_ID}' not found. "
                     "Please double-check spelling/arguments and try again."
                 )
+
+                # Remove IDs that were not found from ID list
+                ens_ids_clean_2.remove(ensembl_ID)
+
                 continue
 
         # Add results to master dict
@@ -139,13 +146,13 @@ def info(ens_ids, expand=False, wrap_text=False, json=False, verbose=True, save=
     # https://www.uniprot.org/news/2022/05/25/release
     # Collect all IDs with their latest version number
     uniprot_ens_ids = []
-    for id_ in ens_ids_clean:
+    for id_ in ens_ids_clean_2:
         uniprot_ens_ids.append(master_dict[id_]["ensembl_id"])
 
     ## For genes and transcripts, get gene names and descriptions from UniProt
     df_temp = pd.DataFrame()
     for ens_id, uniprot_ens_id, id_type in zip(
-        ens_ids_clean, uniprot_ens_ids, df.loc["object_type"].values
+        ens_ids_clean_2, uniprot_ens_ids, df.loc["object_type"].values
     ):
         if id_type == "Gene" or id_type == "Transcript":
 
