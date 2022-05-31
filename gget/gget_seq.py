@@ -34,7 +34,7 @@ def seq(
                 Nucleotide sequences are fetched from the Ensembl REST API server.
                 Amino acid sequences are fetched from the UniProt REST API server.
     - isoforms  If True, returns the sequences of all known transcripts (default: False).
-                (Only for gene IDs in combination with seqtype='transcript'.)
+                (Only for gene Ensembl IDs.)
     - save      If True: Save output FASTA to current directory.
 
     Returns a list (or FASTA file if 'save=True') containing the requested sequences.
