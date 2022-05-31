@@ -294,7 +294,7 @@ def main():
         default=False,
         action="store_true",
         required=False,
-        help="Returns sequences of all known transcripts (default: False). (Only for gene IDs in combination with '--seqtype transcript'.)",
+        help="Returns sequences of all known transcripts (default: False). (Only for gene Ensembl IDs.)",
     )
     parser_seq.add_argument(
         "-o",
