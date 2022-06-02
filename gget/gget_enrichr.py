@@ -10,6 +10,9 @@ logging.basicConfig(
     level=logging.INFO,
     datefmt="%c",
 )
+# Mute numexpr threads info
+logging.getLogger("numexpr").setLevel(logging.WARNING)
+
 # Plotting packages
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator

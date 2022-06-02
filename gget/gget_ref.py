@@ -11,6 +11,9 @@ logging.basicConfig(
     level=logging.INFO,
     datefmt="%c",
 )
+# Mute numexpr threads info
+logging.getLogger("numexpr").setLevel(logging.WARNING)
+
 # Custom functions
 from .utils import ref_species_options, find_latest_ens_rel
 

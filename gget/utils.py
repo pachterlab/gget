@@ -14,6 +14,8 @@ logging.basicConfig(
     level=logging.INFO,
     datefmt="%c",
 )
+# Mute numexpr threads info
+logging.getLogger("numexpr").setLevel(logging.WARNING)
 
 from .constants import ENSEMBL_FTP_URL
 
@@ -255,7 +257,7 @@ def get_uniprot_info(server, ensembl_id, id_type, verbose=True):
 
     else:
         logging.warning(
-            f"Ensembl_ID '{ensembl_id}' was not recognized as either gene nor transcript. Gene name synonyms and description will not be fetched from UniProt."
+            f"Ensembl_ID '{ensembl_id}' was not recognized as either gene or transcript. UniProt ID, synonyms, and description will not be fetched from UniProt."
         )
         return
 

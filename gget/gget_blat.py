@@ -6,6 +6,9 @@ logging.basicConfig(
     level=logging.INFO,
     datefmt="%c",
 )
+# Mute numexpr threads info
+logging.getLogger("numexpr").setLevel(logging.WARNING)
+
 import json as json_package
 from json.decoder import JSONDecodeError
 import pandas as pd

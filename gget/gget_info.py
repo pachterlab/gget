@@ -13,6 +13,9 @@ logging.basicConfig(
     level=logging.INFO,
     datefmt="%c",
 )
+# Mute numexpr threads info
+logging.getLogger("numexpr").setLevel(logging.WARNING)
+
 # Custom functions
 from .utils import rest_query, get_uniprot_info, wrap_cols_func
 
@@ -113,7 +116,7 @@ def info(ens_ids, expand=False, wrap_text=False, json=False, verbose=True, save=
             # Log error if this also did not work
             except RuntimeError:
                 logging.warning(
-                    f"Ensembl ID '{ensembl_ID}' not found. "
+                    f"ID '{ensembl_ID}' not found. "
                     "Please double-check spelling/arguments and try again."
                 )
 
@@ -158,18 +161,16 @@ def info(ens_ids, expand=False, wrap_text=False, json=False, verbose=True, save=
 
             # Check if this is a wrombase ID:
             if ens_id.startswith("WB"):
-                if id_type == "Gene":
-                    df_uniprot = get_uniprot_info(
-                        UNIPROT_REST_API, ens_id, id_type="WB_Gene", verbose=verbose
-                    )
-
-                else:
-                    df_uniprot = get_uniprot_info(
-                        UNIPROT_REST_API,
-                        ens_id,
-                        id_type="WB_Transcript",
-                        verbose=verbose,
-                    )
+                df_uniprot = get_uniprot_info(
+                    UNIPROT_REST_API, ens_id, id_type="WB_Gene", verbose=verbose
+                )
+            elif ens_id.startswith("T"):
+                df_uniprot = get_uniprot_info(
+                    UNIPROT_REST_API,
+                    ens_id,
+                    id_type="WB_Transcript",
+                    verbose=verbose,
+                )
 
             # Check if this is a flybase ID:
             elif ens_id.startswith("FB"):
@@ -196,13 +197,13 @@ def info(ens_ids, expand=False, wrap_text=False, json=False, verbose=True, save=
                     # This should not be necessary
                     if verbose is True:
                         logging.warning(
-                            f"More than one UniProt match was found for Ensembl ID {ens_id}. Only the first match and its associated information will be returned."
+                            f"More than one UniProt match was found for ID {ens_id}. Only the first match and its associated information will be returned."
                         )
 
             else:
                 if verbose is True:
                     logging.warning(
-                        f"No UniProt entry was found for Ensembl ID {ens_id}."
+                        f"No UniProt entry was found for ID {ens_id}."
                     )
 
             ## Get NCBI gene ID and description (for genes only)

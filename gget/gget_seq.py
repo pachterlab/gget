@@ -6,6 +6,9 @@ logging.basicConfig(
     level=logging.INFO,
     datefmt="%c",
 )
+# Mute numexpr threads info
+logging.getLogger("numexpr").setLevel(logging.WARNING)
+
 import numpy as np
 
 # Custom functions
@@ -114,7 +117,7 @@ def seq(
 
                 except RuntimeError:
                     logging.error(
-                        f"Ensembl ID {ensembl_ID} not found. "
+                        f"ID {ensembl_ID} not found. "
                         "Please double-check spelling/arguments and try again."
                     )
 
@@ -126,7 +129,7 @@ def seq(
                 # Check that Ensembl ID was found
                 if isinstance(info_df, type(None)):
                     logging.error(
-                        f"Ensembl ID {ensembl_ID} not found. "
+                        f"ID {ensembl_ID} not found. "
                         "Please double-check spelling/arguments and try again."
                     )
                     continue
@@ -161,7 +164,7 @@ def seq(
 
                         except RuntimeError:
                             logging.error(
-                                f"Ensembl ID {transcipt_id} not found. "
+                                f"ID {transcipt_id} not found. "
                                 "Please double-check spelling/arguments and try again."
                             )
 
@@ -191,7 +194,7 @@ def seq(
 
                     except RuntimeError:
                         logging.error(
-                            f"Ensembl ID {ensembl_ID} not found. "
+                            f"ID {ensembl_ID} not found. "
                             "Please double-check spelling/arguments and try again."
                         )
 
@@ -226,7 +229,7 @@ def seq(
                 # Check that Ensembl ID was found
                 if isinstance(info_df, type(None)):
                     logging.error(
-                        f"Ensembl ID {ensembl_ID} not found. "
+                        f"ID {ensembl_ID} not found. "
                         "Please double-check spelling/arguments and try again."
                     )
                     continue
@@ -298,7 +301,7 @@ def seq(
                 # Check that Ensembl ID was found
                 if isinstance(info_df, type(None)):
                     logging.error(
-                        f"Ensembl ID {ensembl_ID} not found. "
+                        f"ID {ensembl_ID} not found. "
                         "Please double-check spelling/arguments and try again."
                     )
                     continue
@@ -370,7 +373,7 @@ def seq(
         # Check if no results were found
         if len(df_uniprot) < 1:
             logging.error(
-                "No UniProt amino acid sequences were found for these Ensembl ID(s)."
+                "No UniProt amino acid sequences were found for these ID(s)."
             )
 
         else:
