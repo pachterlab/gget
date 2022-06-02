@@ -92,7 +92,7 @@ class TestSeq(unittest.TestCase):
         result_to_test = seq("ENST00000392653.2", isoforms=True, seqtype="transcript")
         # The isoform should not change the output for transcripts
         expected_result = [
-            ">ENST0000039265 uniprot_id: P35326 ensembl_id: ENST00000392653 gene_name(s): SPRR2A organism: Homo sapiens (Human) sequence_length: 72",
+            ">ENST00000392653 uniprot_id: P35326 ensembl_id: ENST00000392653 gene_name(s): SPRR2A organism: Homo sapiens (Human) sequence_length: 72",
             "MSYQQQQCKQPCQPPPVCPTPKCPEPCPPPKCPEPCPPPKCPQPCPPQQCQQKYPPVTPSPPCQSKYPPKSK",
         ]
 
