@@ -12,11 +12,38 @@ class TestSeq(unittest.TestCase):
 
         self.assertEqual(result_to_test, expected_result)
 
+    def test_transcript_gene_WB(self):
+        result_to_test = seq("WBGene00043981", seqtype="transcript")
+        expected_result = [
+            ">T14E8.4 uniprot_id: Q5WRS0 ensembl_id: T14E8.4 gene_name(s): aaim-1 T14E8.4 organism: Caenorhabditis elegans sequence_length: 515",
+            "MRLLFFFSILYTASLCCQLKDFLPCVMQLSAQKVDFNMNPIEVIFNITTEAKLMHTCRTYSRILPCFDQKMVQCGKPSEKTQLERGKRLHSYLCAPFSLQRQKIFLRRSKCIQDVLAEPQSSVCNRNDTVFADKLQSCREMCTRPDCVSKIELSEVSTCTYINIGKKCTAEAAQFFAQMQQVLTNKEYPMQCQYDLRKKPESELKKGLPIESLVAQTTSSTTYVTVHPPALPSVIDGVVTRTSLPIMRRTDPNSKFKPRPTTSQSNGPVIKTVIVDERGAPMNQPTSTQKPKVVHKFLPNPYTTKNPNTLKNDIIRTTRTIIPVVDKHTYVPWNYKVDAVQVSTLTSALAPVKPTETVISSPPVAFNFKLPAEQTSTQPFRVEINWHDDEVKQEPTKAPGVFVSPWYLKTPSHIPPEIEFATPTPLISSPLEAVSPILSQLKSNSLNFTELGNQANNYFSAALSAFAETKKEMAHNDPWRTIIDAVAPTIHKFSPDVIPRIREEINRIQPHQQKN",
+        ]
+
+        self.assertEqual(result_to_test, expected_result)
+
+    def test_transcript_transcript_WB(self):
+        result_to_test = seq("T14E8.4.1", seqtype="transcript")
+        expected_result = [
+            ">T14E8.4 uniprot_id: Q5WRS0 ensembl_id: T14E8.4 gene_name(s): aaim-1 T14E8.4 organism: Caenorhabditis elegans sequence_length: 515",
+            "MRLLFFFSILYTASLCCQLKDFLPCVMQLSAQKVDFNMNPIEVIFNITTEAKLMHTCRTYSRILPCFDQKMVQCGKPSEKTQLERGKRLHSYLCAPFSLQRQKIFLRRSKCIQDVLAEPQSSVCNRNDTVFADKLQSCREMCTRPDCVSKIELSEVSTCTYINIGKKCTAEAAQFFAQMQQVLTNKEYPMQCQYDLRKKPESELKKGLPIESLVAQTTSSTTYVTVHPPALPSVIDGVVTRTSLPIMRRTDPNSKFKPRPTTSQSNGPVIKTVIVDERGAPMNQPTSTQKPKVVHKFLPNPYTTKNPNTLKNDIIRTTRTIIPVVDKHTYVPWNYKVDAVQVSTLTSALAPVKPTETVISSPPVAFNFKLPAEQTSTQPFRVEINWHDDEVKQEPTKAPGVFVSPWYLKTPSHIPPEIEFATPTPLISSPLEAVSPILSQLKSNSLNFTELGNQANNYFSAALSAFAETKKEMAHNDPWRTIIDAVAPTIHKFSPDVIPRIREEINRIQPHQQKN",
+        ]
+
+        self.assertEqual(result_to_test, expected_result)
+
+    def test_transcript_gene_WB_iso(self):
+        result_to_test = seq("WBGene00043981", seqtype="transcript", isoforms=True)
+        expected_result = [
+            ">T14E8.4 uniprot_id: Q5WRS0 ensembl_id: T14E8.4 gene_name(s): aaim-1 T14E8.4 organism: Caenorhabditis elegans sequence_length: 515",
+            "MRLLFFFSILYTASLCCQLKDFLPCVMQLSAQKVDFNMNPIEVIFNITTEAKLMHTCRTYSRILPCFDQKMVQCGKPSEKTQLERGKRLHSYLCAPFSLQRQKIFLRRSKCIQDVLAEPQSSVCNRNDTVFADKLQSCREMCTRPDCVSKIELSEVSTCTYINIGKKCTAEAAQFFAQMQQVLTNKEYPMQCQYDLRKKPESELKKGLPIESLVAQTTSSTTYVTVHPPALPSVIDGVVTRTSLPIMRRTDPNSKFKPRPTTSQSNGPVIKTVIVDERGAPMNQPTSTQKPKVVHKFLPNPYTTKNPNTLKNDIIRTTRTIIPVVDKHTYVPWNYKVDAVQVSTLTSALAPVKPTETVISSPPVAFNFKLPAEQTSTQPFRVEINWHDDEVKQEPTKAPGVFVSPWYLKTPSHIPPEIEFATPTPLISSPLEAVSPILSQLKSNSLNFTELGNQANNYFSAALSAFAETKKEMAHNDPWRTIIDAVAPTIHKFSPDVIPRIREEINRIQPHQQKN",
+        ]
+
+        self.assertEqual(result_to_test, expected_result)
+
     def test_transcript_gene(self):
         result_to_test = seq("ENSG00000241794", seqtype="transcript")
         # This should return the amino acid sequence of the canonical transcript of ENSG00000241794 which is ENST00000392653
         expected_result = [
-            ">ENST00000392653.3 uniprot_id: P35326 ensembl_id: ENST00000392653.3 gene_name(s): SPRR2A organism: Homo sapiens (Human) sequence_length: 72",
+            ">ENST00000392653 uniprot_id: P35326 ensembl_id: ENST00000392653 gene_name(s): SPRR2A organism: Homo sapiens (Human) sequence_length: 72",
             "MSYQQQQCKQPCQPPPVCPTPKCPEPCPPPKCPEPCPPPKCPQPCPPQQCQQKYPPVTPSPPCQSKYPPKSK",
         ]
 
@@ -25,7 +52,7 @@ class TestSeq(unittest.TestCase):
     def test_transcript(self):
         result_to_test = seq("ENST00000392653", seqtype="transcript")
         expected_result = [
-            ">ENST00000392653.3 uniprot_id: P35326 ensembl_id: ENST00000392653.3 gene_name(s): SPRR2A organism: Homo sapiens (Human) sequence_length: 72",
+            ">ENST00000392653 uniprot_id: P35326 ensembl_id: ENST00000392653 gene_name(s): SPRR2A organism: Homo sapiens (Human) sequence_length: 72",
             "MSYQQQQCKQPCQPPPVCPTPKCPEPCPPPKCPEPCPPPKCPQPCPPQQCQQKYPPVTPSPPCQSKYPPKSK",
         ]
 
@@ -55,7 +82,7 @@ class TestSeq(unittest.TestCase):
         result_to_test = seq("ENSG00000241794", isoforms=True, seqtype="transcript")
         # Since ENSG00000241794 only has one transcript, the expected results is the AA sequence of ENST00000392653
         expected_result = [
-            ">ENST00000392653.3 uniprot_id: P35326 ensembl_id: ENST00000392653.3 gene_name(s): SPRR2A organism: Homo sapiens (Human) sequence_length: 72",
+            ">ENST00000392653 uniprot_id: P35326 ensembl_id: ENST00000392653 gene_name(s): SPRR2A organism: Homo sapiens (Human) sequence_length: 72",
             "MSYQQQQCKQPCQPPPVCPTPKCPEPCPPPKCPEPCPPPKCPQPCPPQQCQQKYPPVTPSPPCQSKYPPKSK",
         ]
 
@@ -65,7 +92,7 @@ class TestSeq(unittest.TestCase):
         result_to_test = seq("ENST00000392653.2", isoforms=True, seqtype="transcript")
         # The isoform should not change the output for transcripts
         expected_result = [
-            ">ENST00000392653.3 uniprot_id: P35326 ensembl_id: ENST00000392653.3 gene_name(s): SPRR2A organism: Homo sapiens (Human) sequence_length: 72",
+            ">ENST0000039265 uniprot_id: P35326 ensembl_id: ENST00000392653 gene_name(s): SPRR2A organism: Homo sapiens (Human) sequence_length: 72",
             "MSYQQQQCKQPCQPPPVCPTPKCPEPCPPPKCPEPCPPPKCPQPCPPQQCQQKYPPVTPSPPCQSKYPPKSK",
         ]
 

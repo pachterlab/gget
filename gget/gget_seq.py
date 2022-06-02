@@ -27,11 +27,11 @@ def seq(
 ):
     """
     Fetch nucleotide or amino acid sequence (FASTA) of a gene
-    (and all its isoforms) or transcript by Ensembl ID.
+    (and all its isoforms) or transcript by Ensembl, WormBase or FlyBase ID.
 
     Args:
     - ens_ids   One or more Ensembl IDs (passed as string or list of strings).
-                Also supports WormBase and Flybase IDs.
+                Also supports WormBase and FlyBase IDs.
     - seqtype   'gene' (default) or 'transcript'.
                 Defines whether nucleotide or amino acid sequences are returned.
                 Nucleotide sequences are fetched from the Ensembl REST API server.
@@ -241,20 +241,22 @@ def seq(
                     # Get ID of canonical transcript
                     can_trans = info_df.loc[ensembl_ID]["canonical_transcript"]
 
-                    # UniProt version 2022_02 requires version number for human Ensembl IDs
-                    if info_df.loc[ensembl_ID]["species"] == "homo_sapiens":
-                        temp_trans_id = can_trans
+                    if ensembl_ID.startswith("ENS"):
+                        temp_trans_id = can_trans.split(".")[0]
+                        # Remove Ensembl ID version from transcript IDs and append to transcript IDs list
+                        trans_ids.append(temp_trans_id)
+
+                    elif ensembl_ID.startswith("WB"):
+                        # Remove added "." at the end of transcript IDs
+                        temp_trans_id1 = ".".join(can_trans.split(".")[:-1])
+                        # For WormBase transcript IDs, also remove the version number for submission to UniProt API
+                        temp_trans_id = ".".join(temp_trans_id1.split(".")[:-1])
                         trans_ids.append(temp_trans_id)
 
                     else:
-                        if ensembl_ID.startswith("ENS"):
-                            temp_trans_id = can_trans.split(".")[0]
-                            # Remove Ensembl ID version from transcript IDs and append to transcript IDs list
-                            trans_ids.append(temp_trans_id)
-                        else:
-                            # Remove added "." at the end of other transcript IDs
-                            temp_trans_id = ".".join(can_trans.split(".")[:-1])
-                            trans_ids.append(temp_trans_id)
+                        # Remove added "." at the end of other transcript IDs
+                        temp_trans_id = ".".join(can_trans.split(".")[:-1])
+                        trans_ids.append(temp_trans_id)
 
                     logging.info(
                         f"Requesting amino acid sequence of the canonical transcript {temp_trans_id} of gene {ensembl_ID} from UniProt."
@@ -262,10 +264,9 @@ def seq(
 
                 # If the ID is a transcript, append the ID directly
                 elif ens_ID_type == "Transcript":
-                    # UniProt version 2022_02 requires version number for human Ensembl IDs
-                    if info_df.loc[ensembl_ID]["species"] == "homo_sapiens":
-                        trans_ids.append(info_df.loc[ensembl_ID]["ensembl_id"])
-
+                    # For WormBase transcript IDs, remove the version number for submission to UniProt API
+                    if ensembl_ID.startswith("T"):
+                        trans_ids.append(".".join(ensembl_ID.split(".")[:-1]))
                     else:
                         trans_ids.append(ensembl_ID)
 
@@ -279,7 +280,7 @@ def seq(
                     )
 
             # Check if this is a Wrombase ID:
-            if ensembl_ID.startswith("WB"):
+            if ensembl_ID.startswith("WB") or ensembl_ID.startswith("T"):
                 id_type = "wormbase"
             # Check if this is a flybase ID:
             elif ensembl_ID.startswith("FB"):
@@ -312,32 +313,25 @@ def seq(
                 if ens_ID_type == "Gene":
                     # Get the IDs of all transcripts from the gget info results
                     for transcipt_id in info_df.loc[ensembl_ID]["all_transcripts"]:
-                        if info_df.loc[ensembl_ID]["species"] == "homo_sapiens":
-                            # UniProt 2022_02 requires version number for human genes
-                            trans_ids.append(
-                                info(transcipt_id, verbose=False)["ensembl_id"].values[
-                                    0
-                                ]
-                            )
+                        if ensembl_ID.startswith("ENS"):
+                            # Append transcript ID (without Ensembl version number) to list of transcripts to fetch
+                            trans_ids.append(transcipt_id.split(".")[0])
 
                         else:
-                            if ensembl_ID.startswith("ENS"):
-                                # Append transcript ID (without Ensembl version number) to list of transcripts to fetch
-                                trans_ids.append(transcipt_id.split(".")[0])
-
-                            else:
-                                # Remove added "." at the end of other transcript IDs
-                                temp_trans_id = ".".join(transcipt_id.split(".")[:-1])
-                                trans_ids.append(temp_trans_id)
+                            # Remove added "." at the end of other transcript IDs
+                            # Note: No need to remove the version number for WormBase IDs here, because "all_transcripts" are returned without version numbers
+                            temp_trans_id = ".".join(transcipt_id.split(".")[:-1])
+                            trans_ids.append(temp_trans_id)
 
                     logging.info(
                         f"Requesting amino acid sequences of all transcripts of gene {ensembl_ID} from UniProt."
                     )
 
                 elif ens_ID_type == "Transcript":
-                    # Append transcript ID to list of transcripts to fetch
-                    if info_df.loc[ensembl_ID]["species"] == "homo_sapiens":
-                        trans_ids.append(info_df.loc[ensembl_ID]["ensembl_id"])
+                    # For WormBase transcript IDs, remove the version number for submission to UniProt API
+                    if ensembl_ID.startswith("T"):
+                        trans_ids.append(".".join(ensembl_ID.split(".")[:-1]))
+
                     else:
                         trans_ids.append(ensembl_ID)
 
@@ -351,8 +345,8 @@ def seq(
                         f"{ensembl_ID} not recognized as either a gene or transcript ID. It will not be included in the UniProt query."
                     )
 
-            # Check if this is a Wrombase ID:
-            if ensembl_ID.startswith("WB"):
+            # Check if this is a Wormbase ID:
+            if ensembl_ID.startswith("WB") or ensembl_ID.startswith("T"):
                 id_type = "wormbase"
             # Check if this is a flybase ID:
             elif ensembl_ID.startswith("FB"):
@@ -372,9 +366,7 @@ def seq(
 
         # Check if no results were found
         if len(df_uniprot) < 1:
-            logging.error(
-                "No UniProt amino acid sequences were found for these ID(s)."
-            )
+            logging.error("No UniProt amino acid sequences were found for these ID(s).")
 
         else:
             # Build UniProt results FASTA file

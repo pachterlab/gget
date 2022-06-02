@@ -266,7 +266,7 @@ def main():
     )
 
     ## gget seq subparser
-    seq_desc = "Fetch nucleotide or amino acid sequence (FASTA) of a gene (and all isoforms) or transcript by Ensembl ID. "
+    seq_desc = "Fetch nucleotide or amino acid sequence (FASTA) of a gene (and all isoforms) or transcript by Ensembl, WormBase or FlyBase ID. "
     parser_seq = parent_subparsers.add_parser(
         "seq", parents=[parent], description=seq_desc, help=seq_desc, add_help=True
     )
@@ -277,7 +277,7 @@ def main():
         type=str,
         nargs="+",
         required=True,
-        help="One or more Ensembl IDs (also supports WormBase and FlyBase IDs).",
+        help="One or more Ensembl, WormBase or FlyBase IDs.",
     )
     parser_seq.add_argument(
         "-st",

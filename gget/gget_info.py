@@ -145,18 +145,9 @@ def info(ens_ids, expand=False, wrap_text=False, json=False, verbose=True, save=
         }
     )
 
-    # UniProt version 2022_02 requires the ID to be passed including the version number for homo sapiens
-    # https://www.uniprot.org/news/2022/05/25/release
-    # Collect all IDs with their latest version number
-    uniprot_ens_ids = []
-    for id_ in ens_ids_clean_2:
-        uniprot_ens_ids.append(master_dict[id_]["ensembl_id"])
-
     ## For genes and transcripts, get gene names and descriptions from UniProt
     df_temp = pd.DataFrame()
-    for ens_id, uniprot_ens_id, id_type in zip(
-        ens_ids_clean_2, uniprot_ens_ids, df.loc["object_type"].values
-    ):
+    for ens_id, id_type in zip(ens_ids_clean_2, df.loc["object_type"].values):
         if id_type == "Gene" or id_type == "Transcript":
 
             # Check if this is a wrombase ID:
@@ -167,7 +158,7 @@ def info(ens_ids, expand=False, wrap_text=False, json=False, verbose=True, save=
             elif ens_id.startswith("T"):
                 df_uniprot = get_uniprot_info(
                     UNIPROT_REST_API,
-                    ens_id,
+                    ".".join(ens_id.split(".")[:-1]),  # Remove the version number from WormBase TRS IDs for submission to UniProt
                     id_type="WB_Transcript",
                     verbose=verbose,
                 )
@@ -176,12 +167,6 @@ def info(ens_ids, expand=False, wrap_text=False, json=False, verbose=True, save=
             elif ens_id.startswith("FB"):
                 df_uniprot = get_uniprot_info(
                     UNIPROT_REST_API, ens_id, id_type="Flybase", verbose=verbose
-                )
-
-            # Check if this ID requires a version number
-            elif master_dict[ens_id]["species"] == "homo_sapiens":
-                df_uniprot = get_uniprot_info(
-                    UNIPROT_REST_API, uniprot_ens_id, id_type=id_type, verbose=verbose
                 )
 
             else:
@@ -193,8 +178,8 @@ def info(ens_ids, expand=False, wrap_text=False, json=False, verbose=True, save=
                 # If two different UniProt IDs for a single query ID are returned, they should be merged into one column
                 # So len(df_uniprot) should always be 1
                 if len(df_uniprot) > 1:
+                    # If the above somehow failed, we will only return the first result.
                     df_uniprot = df_uniprot.iloc[[0]]
-                    # This should not be necessary
                     if verbose is True:
                         logging.warning(
                             f"More than one UniProt match was found for ID {ens_id}. Only the first match and its associated information will be returned."
@@ -202,9 +187,7 @@ def info(ens_ids, expand=False, wrap_text=False, json=False, verbose=True, save=
 
             else:
                 if verbose is True:
-                    logging.warning(
-                        f"No UniProt entry was found for ID {ens_id}."
-                    )
+                    logging.warning(f"No UniProt entry was found for ID {ens_id}.")
 
             ## Get NCBI gene ID and description (for genes only)
             url = NCBI_URL + f"/gene/?term={ens_id}"
