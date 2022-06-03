@@ -8,6 +8,16 @@ from .gget_blat import blat
 from .gget_enrichr import enrichr
 from .gget_archs4 import archs4
 
+import logging
+
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(message)s",
+    level=logging.INFO,
+    datefmt="%c",
+)
+# Mute numexpr threads info
+logging.getLogger("numexpr").setLevel(logging.WARNING)
+
 __version__ = "0.1.2"
 __author__ = "Laura Luebbert"
 __email__ = "lauraluebbert@caltech.edu"

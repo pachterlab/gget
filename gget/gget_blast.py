@@ -10,6 +10,9 @@ logging.basicConfig(
     level=logging.INFO,
     datefmt="%c",
 )
+# Mute numexpr threads info
+logging.getLogger("numexpr").setLevel(logging.WARNING)
+
 # Using urllib instead of requests here because requests does not
 # support long queries (queries very long here due to input sequence)
 from urllib.request import urlopen, Request

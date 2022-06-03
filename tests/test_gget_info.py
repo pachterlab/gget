@@ -33,6 +33,31 @@ class TestInfo(unittest.TestCase):
         ]
         self.assertListEqual(result_to_test, expected_result)
 
+    def test_info_WB_transcript(self):
+        df = info("T14E8.4.1")
+        # Drop NaN columns, since np.nan != np.nan
+        result_to_test = df.dropna(axis=1).values.tolist()
+        expected_result = [
+            [
+                "T14E8.4.1",
+                "Q5WRS0",
+                "caenorhabditis_elegans",
+                "WBcel235",
+                "aaim-1",
+                ["T14E8.4", "aaim-1"],
+                "WBGene00043981",
+                "Protein aaim-1 (Antibacterial and aids invasion by microsporidia 1 protein)",
+                "FUNCTION: Plays a role in promoting resistance to bacterial pathogens such as P.aeruginosa by inhibiting bacterial intestinal colonization. {ECO:0000269|PubMed:34994689}.; FUNCTION: (Microbial infection) Promotes infection by microsporidian pathogens such as N.parisii in the early larval stages of development (PubMed:34994689). Involved in ensuring the proper orientation and location of the spore proteins of N.parisii during intestinal cell invasion (PubMed:34994689). {ECO:0000269|PubMed:34994689}.",
+                "Transcript",
+                "protein_coding",
+                "X",
+                -1,
+                6559466,
+                6562428,
+            ]
+        ]
+        self.assertListEqual(result_to_test, expected_result)
+
     def test_info_FB_gene(self):
         df = info("FBgn0003656")
         # Drop NaN columns, since np.nan != np.nan

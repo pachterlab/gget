@@ -10,6 +10,8 @@ logging.basicConfig(
     level=logging.INFO,
     datefmt="%c",
 )
+# Mute numexpr threads info
+logging.getLogger("numexpr").setLevel(logging.WARNING)
 
 # Constants
 from .constants import GENECORR_URL, EXPRESSION_URL

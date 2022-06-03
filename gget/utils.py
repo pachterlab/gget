@@ -14,6 +14,8 @@ logging.basicConfig(
     level=logging.INFO,
     datefmt="%c",
 )
+# Mute numexpr threads info
+logging.getLogger("numexpr").setLevel(logging.WARNING)
 
 from .constants import ENSEMBL_FTP_URL
 
@@ -153,7 +155,7 @@ def get_uniprot_seqs(server, ensembl_ids, id_type="ensembl"):
     if id_type == "ensembl":
         ens_id_type = "ENSEMBL_TRS_ID"
     elif id_type == "flybase":
-        ens_id_type = "FLYBASE_ID"
+        ens_id_type = "FLYBASE_TRS_ID"
     elif id_type == "wormbase":
         ens_id_type = "WORMBASE_TRS_ID"
     else:
@@ -246,8 +248,10 @@ def get_uniprot_info(server, ensembl_id, id_type, verbose=True):
         ens_id_type = "ENSEMBL_ID"
     elif id_type == "Transcript":
         ens_id_type = "ENSEMBL_TRS_ID"
-    elif id_type == "Flybase":
+    elif id_type == "FB_Gene":
         ens_id_type = "FLYBASE_ID"
+    elif id_type == "FB_Transcript":
+        ens_id_type = "FLYBASE_TRS_ID"
     elif id_type == "WB_Gene":
         ens_id_type = "WORMBASE_ID"
     elif id_type == "WB_Transcript":
@@ -255,7 +259,7 @@ def get_uniprot_info(server, ensembl_id, id_type, verbose=True):
 
     else:
         logging.warning(
-            f"Ensembl_ID '{ensembl_id}' was not recognized as either gene nor transcript. Gene name synonyms and description will not be fetched from UniProt."
+            f"Ensembl_ID '{ensembl_id}' was not recognized as either gene or transcript. UniProt ID, synonyms, and description will not be fetched from UniProt."
         )
         return
 
