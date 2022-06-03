@@ -155,7 +155,7 @@ def get_uniprot_seqs(server, ensembl_ids, id_type="ensembl"):
     if id_type == "ensembl":
         ens_id_type = "ENSEMBL_TRS_ID"
     elif id_type == "flybase":
-        ens_id_type = "FLYBASE_ID"
+        ens_id_type = "FLYBASE_TRS_ID"
     elif id_type == "wormbase":
         ens_id_type = "WORMBASE_TRS_ID"
     else:
@@ -248,8 +248,10 @@ def get_uniprot_info(server, ensembl_id, id_type, verbose=True):
         ens_id_type = "ENSEMBL_ID"
     elif id_type == "Transcript":
         ens_id_type = "ENSEMBL_TRS_ID"
-    elif id_type == "Flybase":
+    elif id_type == "FB_Gene":
         ens_id_type = "FLYBASE_ID"
+    elif id_type == "FB_Transcript":
+        ens_id_type = "FLYBASE_TRS_ID"
     elif id_type == "WB_Gene":
         ens_id_type = "WORMBASE_ID"
     elif id_type == "WB_Transcript":

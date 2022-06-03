@@ -158,16 +158,26 @@ def info(ens_ids, expand=False, wrap_text=False, json=False, verbose=True, save=
             elif ens_id.startswith("T"):
                 df_uniprot = get_uniprot_info(
                     UNIPROT_REST_API,
-                    ".".join(ens_id.split(".")[:-1]),  # Remove the version number from WormBase TRS IDs for submission to UniProt
+                    ".".join(
+                        ens_id.split(".")[:-1]
+                    ),  # Remove the version number from WormBase TRS IDs for submission to UniProt
                     id_type="WB_Transcript",
                     verbose=verbose,
                 )
 
             # Check if this is a flybase ID:
             elif ens_id.startswith("FB"):
-                df_uniprot = get_uniprot_info(
-                    UNIPROT_REST_API, ens_id, id_type="Flybase", verbose=verbose
-                )
+                if id_type == "Gene":
+                    df_uniprot = get_uniprot_info(
+                        UNIPROT_REST_API, ens_id, id_type="FB_Gene", verbose=verbose
+                    )
+                else:
+                    df_uniprot = get_uniprot_info(
+                        UNIPROT_REST_API,
+                        ens_id,
+                        id_type="FB_Transcript",
+                        verbose=verbose,
+                    )
 
             else:
                 df_uniprot = get_uniprot_info(
