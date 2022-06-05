@@ -66,7 +66,7 @@ import gget
 # Fetch all Homo sapiens reference and annotation FTPs from the latest Ensembl release
 $ gget ref homo_sapiens
 
-# Search human genes with "ace2" or "angiotensin" in their name/description
+# Search human genes with "ace2" or "angiotensin converting enzyme 2" in their name/description
 $ gget search -s homo_sapiens 'ace2' 'angiotensin converting enzyme 2'
 
 # Look up gene ENSG00000130234 (ACE2) and its transcript ENST00000252519
