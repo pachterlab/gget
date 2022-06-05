@@ -58,8 +58,7 @@ def main():
     )
     # ref parser arguments
     parser_ref.add_argument(
-        "-s",
-        "--species",
+        "species",
         default=None,
         type=str,
         help="Species for which the FTPs will be fetched, e.g. homo_sapiens.",
@@ -113,7 +112,7 @@ def main():
         default=False,
         action="store_true",
         required=False,
-        help="Return only the FTP link instead of a json.",
+        help="Return only the FTP link(s).",
     )
     parser_ref.add_argument(
         "-d",
@@ -129,7 +128,7 @@ def main():
         type=str,
         required=False,
         help=(
-            "Path to the json file the results will be saved in, e.g. path/to/directory/results.json.\n"
+            "Path to the file the results will be saved in, e.g. path/to/directory/results.json.\n"
             "Default: Standard out."
         ),
     )
@@ -147,11 +146,9 @@ def main():
     )
     # Search parser arguments
     parser_gget.add_argument(
-        "-sw",
-        "--searchwords",
+        "searchwords",
         type=str,
         nargs="+",
-        required=True,
         help="One or more free form search words for the query, e.g. gaba, nmda.",
     )
     parser_gget.add_argument(
@@ -163,7 +160,7 @@ def main():
     )
     parser_gget.add_argument(
         "-t",
-        "--seqtype",
+        "--id_type",
         choices=["gene", "transcript"],
         default="gene",
         type=str,
@@ -194,12 +191,12 @@ def main():
         help="Limits the number of results, e.g. 10 (default: None).",
     )
     parser_gget.add_argument(
-        "-j",
-        "--json",
-        default=False,
-        action="store_true",
+        "-df",
+        "--dataframe",
+        default=True,
+        action="store_false",
         required=False,
-        help="Returns results in json/dictionary format instead of data frame.",
+        help="Returns results in data frame format instead of json.",
     )
     parser_gget.add_argument(
         "-o",
@@ -207,7 +204,7 @@ def main():
         type=str,
         required=False,
         help=(
-            "Path to the json file the results will be saved in, e.g. path/to/directory/results.json.\n"
+            "Path to the file the results will be saved in, e.g. path/to/directory/results.json.\n"
             "Default: Standard out."
         ),
     )
@@ -219,32 +216,18 @@ def main():
     )
     # info parser arguments
     parser_info.add_argument(
-        "-id",
-        "--ens_ids",
+        "ens_ids",
         type=str,
         nargs="+",
-        required=True,
         help="One or more Ensembl IDs (also supports WormBase and FlyBase IDs).",
     )
     parser_info.add_argument(
-        "-e",
-        "--expand",
-        default=False,
-        action="store_true",
+        "-df",
+        "--dataframe",
+        default=True,
+        action="store_false",
         required=False,
-        help=(
-            "Expand returned information (only for genes and transcripts) (default: False). "
-            "For genes: add isoform information. "
-            "For transcripts: add translation and exon information."
-        ),
-    )
-    parser_info.add_argument(
-        "-j",
-        "--json",
-        default=False,
-        action="store_true",
-        required=False,
-        help="Returns results in json/dictionary format instead of data frame.",
+        help="Returns results in data frame format instead of json.",
     )
     parser_info.add_argument(
         "-q",
@@ -260,7 +243,7 @@ def main():
         type=str,
         required=False,
         help=(
-            "Path to the json file the results will be saved in, e.g. path/to/directory/results.json.\n"
+            "Path to file the results will be saved as, e.g. path/to/directory/results.json.\n"
             "Default: Standard out."
         ),
     )
@@ -272,23 +255,19 @@ def main():
     )
     # seq parser arguments
     parser_seq.add_argument(
-        "-id",
-        "--ens_ids",
+        "ens_ids",
         type=str,
         nargs="+",
-        required=True,
         help="One or more Ensembl, WormBase or FlyBase IDs.",
     )
     parser_seq.add_argument(
-        "-st",
-        "--seqtype",
-        choices=["gene", "transcript"],
-        default="gene",
-        type=str,
+        "-t",
+        "--transcribe",
+        default=False,
+        action="store_true",
         required=False,
         help=(
-            "'gene': Returns nucleotide sequences of the Ensembl IDs from Ensembl (default).\n"
-            "'transcript': Returns amino acid sequences of the Ensembl IDs from UniProt. \n"
+            "Returns amino acid sequences from UniProt. (Otherwise returns nucleotide sequences from Ensembl.)"
         ),
     )
     parser_seq.add_argument(
@@ -321,10 +300,8 @@ def main():
     )
     # muscle parser arguments
     parser_muscle.add_argument(
-        "-fa",
-        "--fasta",
+        "fasta",
         type=str,
-        required=True,
         help="Path to fasta file containing the sequences to be aligned.",
     )
     parser_muscle.add_argument(
@@ -358,11 +335,9 @@ def main():
     )
     # blast parser arguments
     parser_blast.add_argument(
-        "-seq",
-        "--sequence",
+        "sequence",
         type=str,
-        required=True,
-        help="Sequence (str) or path to fasta file containing one sequence.",
+        help="Sequence (str) or path to fasta file.",
     )
     parser_blast.add_argument(
         "-p",
@@ -438,12 +413,12 @@ def main():
         help="Do not print progress information.",
     )
     parser_blast.add_argument(
-        "-j",
-        "--json",
-        default=False,
-        action="store_true",
+        "-df",
+        "--dataframe",
+        default=True,
+        action="store_false",
         required=False,
-        help="Returns results in json/dictionary format instead of data frame.",
+        help="Returns results in data frame format instead of json.",
     )
     parser_blast.add_argument(
         "-o",
@@ -465,11 +440,9 @@ def main():
     )
     # blat parser arguments
     parser_blat.add_argument(
-        "-seq",
-        "--sequence",
+        "sequence",
         type=str,
-        required=True,
-        help="Sequence (str) or path to fasta file containing one sequence.",
+        help="Sequence (str) or path to fasta file.",
     )
     parser_blat.add_argument(
         "-st",
@@ -496,12 +469,12 @@ def main():
         ),
     )
     parser_blat.add_argument(
-        "-j",
-        "--json",
-        default=False,
-        action="store_true",
+        "-df",
+        "--dataframe",
+        default=True,
+        action="store_false",
         required=False,
-        help="Returns results in json/dictionary format instead of data frame.",
+        help="Returns results in data frame format instead of json.",
     )
     parser_blat.add_argument(
         "-o",
@@ -525,12 +498,10 @@ def main():
     )
     # enrichr parser arguments
     parser_enrichr.add_argument(
-        "-g",
-        "--genes",
+        "genes",
         type=str,
         nargs="+",
-        required=True,
-        help="Genes to perform enrichment analysis on.",
+        help="List of gene symbols or Ensembl gene IDs to perform enrichment analysis on.",
     )
     parser_enrichr.add_argument(
         "-db",
@@ -543,12 +514,20 @@ def main():
         ),
     )
     parser_enrichr.add_argument(
-        "-j",
-        "--json",
+        "-e",
+        "--ensembl",
         default=False,
         action="store_true",
         required=False,
-        help="Returns results in json/dictionary format instead of data frame.",
+        help="Add this flag if genes are given as Ensembl gene IDs.",
+    )
+    parser_enrichr.add_argument(
+        "-df",
+        "--dataframe",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Returns results in data frame format instead of json.",
     )
     parser_enrichr.add_argument(
         "-o",
@@ -572,11 +551,17 @@ def main():
     )
     # archs4 parser arguments
     parser_archs4.add_argument(
-        "-g",
-        "--gene",
+        "gene",
         type=str,
-        required=True,
-        help="Short name (gene symbol) of gene of interest (str), e.g. 'STAT4'.",
+        help="Gene symbol or Ensembl gene ID of gene of interest (str), e.g. 'STAT4'.",
+    )
+    parser_archs4.add_argument(
+        "-e",
+        "--ensembl",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Add this flag if gene is given as an Ensembl gene ID.",
     )
     parser_archs4.add_argument(
         "-w",
@@ -625,12 +610,12 @@ def main():
         help="'human' (default) or 'mouse'. (Only for tissue expression atlas.)",
     )
     parser_archs4.add_argument(
-        "-j",
-        "--json",
-        default=False,
-        action="store_true",
+        "-df",
+        "--dataframe",
+        default=True,
+        action="store_false",
         required=False,
-        help="Returns results in json/dictionary format instead of data frame.",
+        help="Returns results in data frame format instead of json.",
     )
     parser_archs4.add_argument(
         "-o",
@@ -676,13 +661,13 @@ def main():
             sequence=args.sequence,
             seqtype=args.seqtype,
             assembly=args.assembly,
-            json=args.json,
+            json=args.dataframe,
         )
 
         # Check if the function returned something
         if not isinstance(blat_results, type(None)):
             # Save blat results if args.out specified
-            if args.out and not args.json:
+            if args.out and not args.dataframe:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
@@ -690,7 +675,7 @@ def main():
                 # Save data frame to csv
                 blat_results.to_csv(args.out, index=False)
 
-            if args.out and args.json:
+            if args.out and args.dataframe:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
@@ -700,9 +685,9 @@ def main():
                     json.dump(blat_results, f, ensure_ascii=False, indent=4)
 
             # Print results if no directory specified
-            if not args.out and not args.json:
+            if not args.out and not args.dataframe:
                 blat_results.to_csv(sys.stdout, index=False)
-            if not args.out and args.json:
+            if not args.out and args.dataframe:
                 print(json.dumps(blat_results, ensure_ascii=False, indent=4))
 
     ## blast return
@@ -717,13 +702,13 @@ def main():
             low_comp_filt=args.low_comp_filt,
             megablast=args.megablast_off,
             verbose=args.quiet,
-            json=args.json,
+            json=args.dataframe,
         )
 
         # Check if the function returned something
         if not isinstance(blast_results, type(None)):
             # Save blast results if args.out specified
-            if args.out and not args.json:
+            if args.out and not args.dataframe:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
@@ -731,7 +716,7 @@ def main():
                 # Save data frame to csv
                 blast_results.to_csv(args.out, index=False)
 
-            if args.out and args.json:
+            if args.out and args.dataframe:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
@@ -741,9 +726,9 @@ def main():
                     json.dump(blast_results, f, ensure_ascii=False, indent=4)
 
             # Print results if no directory specified
-            if not args.out and not args.json:
+            if not args.out and not args.dataframe:
                 blast_results.to_csv(sys.stdout, index=False)
-            if not args.out and args.json:
+            if not args.out and args.dataframe:
                 print(json.dumps(blast_results, ensure_ascii=False, indent=4))
 
     ## archs4 return
@@ -751,16 +736,17 @@ def main():
         # Run gget archs4 function
         archs4_results = archs4(
             gene=args.gene,
+            ensembl=args.ensembl,
             which=args.which,
             gene_count=args.gene_count,
             species=args.species,
-            json=args.json,
+            json=args.dataframe,
         )
 
         # Check if the function returned something
         if not isinstance(archs4_results, type(None)):
             # Save archs4 results if args.out specified
-            if args.out and not args.json:
+            if args.out and not args.dataframe:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
@@ -768,7 +754,7 @@ def main():
                 # Save data frame to csv
                 archs4_results.to_csv(args.out, index=False)
 
-            if args.out and args.json:
+            if args.out and args.dataframe:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
@@ -778,9 +764,9 @@ def main():
                     json.dump(archs4_results, f, ensure_ascii=False, indent=4)
 
             # Print results if no directory specified
-            if not args.out and not args.json:
+            if not args.out and not args.dataframe:
                 archs4_results.to_csv(sys.stdout, index=False)
-            if not args.out and args.json:
+            if not args.out and args.dataframe:
                 print(json.dumps(archs4_results, ensure_ascii=False, indent=4))
 
     ## muscle return
@@ -922,14 +908,14 @@ def main():
         gget_results = search(
             sw_clean_final,
             args.species,
-            seqtype=args.seqtype,
+            id_type=args.id_type,
             andor=args.andor,
             limit=args.limit,
-            json=args.json,
+            json=args.dataframe,
         )
 
         # Save search results if args.out specified
-        if args.out and not args.json:
+        if args.out and not args.dataframe:
             # Create saving directory
             directory = "/".join(args.out.split("/")[:-1])
             if directory != "":
@@ -937,7 +923,7 @@ def main():
             # Save data frame to csv
             gget_results.to_csv(args.out, index=False)
 
-        if args.out and args.json:
+        if args.out and args.dataframe:
             # Create saving directory
             directory = "/".join(args.out.split("/")[:-1])
             if directory != "":
@@ -947,9 +933,9 @@ def main():
                 json.dump(gget_results, f, ensure_ascii=False, indent=4)
 
         # Print results if no directory specified
-        if not args.out and not args.json:
+        if not args.out and not args.dataframe:
             gget_results.to_csv(sys.stdout, index=False)
-        if not args.out and args.json:
+        if not args.out and args.dataframe:
             print(json.dumps(gget_results, ensure_ascii=False, indent=4))
 
     ## enrichr return
@@ -968,13 +954,16 @@ def main():
 
         # Submit Enrichr query
         enrichr_results = enrichr(
-            genes=genes_clean_final, database=args.database, json=args.json
+            genes=genes_clean_final,
+            database=args.database,
+            ensembl=args.ensembl,
+            json=args.dataframe,
         )
 
         # Check if the function returned something
         if not isinstance(enrichr_results, type(None)):
             # Save enrichr results if args.out specified
-            if args.out and not args.json:
+            if args.out and not args.dataframe:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
@@ -982,7 +971,7 @@ def main():
                 # Save data frame to csv
                 enrichr_results.to_csv(args.out, index=False)
 
-            if args.out and args.json:
+            if args.out and args.dataframe:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
@@ -992,9 +981,9 @@ def main():
                     json.dump(enrichr_results, f, ensure_ascii=False, indent=4)
 
             # Print results if no directory specified
-            if not args.out and not args.json:
+            if not args.out and not args.dataframe:
                 enrichr_results.to_csv(sys.stdout, index=False)
-            if not args.out and args.json:
+            if not args.out and args.dataframe:
                 print(json.dumps(enrichr_results, ensure_ascii=False, indent=4))
 
     ## info return
@@ -1012,14 +1001,12 @@ def main():
             ids_clean_final.remove("")
 
         # Look up requested Ensembl IDs
-        info_results = info(
-            ids_clean_final, expand=args.expand, json=args.json, verbose=args.quiet
-        )
+        info_results = info(ids_clean_final, json=args.dataframe, verbose=args.quiet)
 
         # Check if the function returned something
         if not isinstance(info_results, type(None)):
             # Save info results if args.out specified
-            if args.out and not args.json:
+            if args.out and not args.dataframe:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
@@ -1027,7 +1014,7 @@ def main():
                 # Save data frame to csv
                 info_results.to_csv(args.out, index=False)
 
-            if args.out and args.json:
+            if args.out and args.dataframe:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
@@ -1037,9 +1024,9 @@ def main():
                     json.dump(info_results, f, ensure_ascii=False, indent=4)
 
             # Print results if no directory specified
-            if not args.out and not args.json:
+            if not args.out and not args.dataframe:
                 info_results.to_csv(sys.stdout, index=False)
-            if not args.out and args.json:
+            if not args.out and args.dataframe:
                 print(json.dumps(info_results, ensure_ascii=False, indent=4))
 
     ## seq return
@@ -1057,7 +1044,9 @@ def main():
             ids_clean_final.remove("")
 
         # Look up requested Ensembl IDs
-        seq_results = seq(ids_clean_final, seqtype=args.seqtype, isoforms=args.isoforms)
+        seq_results = seq(
+            ids_clean_final, transcribe=args.transcribe, isoforms=args.isoforms
+        )
 
         # Save in specified directory if -o specified
         if args.out and seq_results != None:

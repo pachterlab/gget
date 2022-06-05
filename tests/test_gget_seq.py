@@ -3,7 +3,7 @@ from gget.gget_seq import seq
 
 
 class TestSeq(unittest.TestCase):
-    def test_gene(self):
+    def test_seq_gene(self):
         result_to_test = seq("ENSG00000241794")
         expected_result = [
             ">ENSG00000241794 chromosome:GRCh38:1:153056120:153057512:-1",
@@ -12,8 +12,8 @@ class TestSeq(unittest.TestCase):
 
         self.assertEqual(result_to_test, expected_result)
 
-    def test_transcript_gene_WB(self):
-        result_to_test = seq("WBGene00043981", seqtype="transcript")
+    def test_seq_transcript_gene_WB(self):
+        result_to_test = seq("WBGene00043981", transcribe=True)
         expected_result = [
             ">T14E8.4 uniprot_id: Q5WRS0 ensembl_id: T14E8.4 gene_name(s): aaim-1 T14E8.4 organism: Caenorhabditis elegans sequence_length: 515",
             "MRLLFFFSILYTASLCCQLKDFLPCVMQLSAQKVDFNMNPIEVIFNITTEAKLMHTCRTYSRILPCFDQKMVQCGKPSEKTQLERGKRLHSYLCAPFSLQRQKIFLRRSKCIQDVLAEPQSSVCNRNDTVFADKLQSCREMCTRPDCVSKIELSEVSTCTYINIGKKCTAEAAQFFAQMQQVLTNKEYPMQCQYDLRKKPESELKKGLPIESLVAQTTSSTTYVTVHPPALPSVIDGVVTRTSLPIMRRTDPNSKFKPRPTTSQSNGPVIKTVIVDERGAPMNQPTSTQKPKVVHKFLPNPYTTKNPNTLKNDIIRTTRTIIPVVDKHTYVPWNYKVDAVQVSTLTSALAPVKPTETVISSPPVAFNFKLPAEQTSTQPFRVEINWHDDEVKQEPTKAPGVFVSPWYLKTPSHIPPEIEFATPTPLISSPLEAVSPILSQLKSNSLNFTELGNQANNYFSAALSAFAETKKEMAHNDPWRTIIDAVAPTIHKFSPDVIPRIREEINRIQPHQQKN",
@@ -21,8 +21,8 @@ class TestSeq(unittest.TestCase):
 
         self.assertEqual(result_to_test, expected_result)
 
-    def test_transcript_transcript_WB(self):
-        result_to_test = seq("T14E8.4.1", seqtype="transcript")
+    def test_seq_transcript_transcript_WB(self):
+        result_to_test = seq("T14E8.4.1", transcribe=True)
         expected_result = [
             ">T14E8.4 uniprot_id: Q5WRS0 ensembl_id: T14E8.4 gene_name(s): aaim-1 T14E8.4 organism: Caenorhabditis elegans sequence_length: 515",
             "MRLLFFFSILYTASLCCQLKDFLPCVMQLSAQKVDFNMNPIEVIFNITTEAKLMHTCRTYSRILPCFDQKMVQCGKPSEKTQLERGKRLHSYLCAPFSLQRQKIFLRRSKCIQDVLAEPQSSVCNRNDTVFADKLQSCREMCTRPDCVSKIELSEVSTCTYINIGKKCTAEAAQFFAQMQQVLTNKEYPMQCQYDLRKKPESELKKGLPIESLVAQTTSSTTYVTVHPPALPSVIDGVVTRTSLPIMRRTDPNSKFKPRPTTSQSNGPVIKTVIVDERGAPMNQPTSTQKPKVVHKFLPNPYTTKNPNTLKNDIIRTTRTIIPVVDKHTYVPWNYKVDAVQVSTLTSALAPVKPTETVISSPPVAFNFKLPAEQTSTQPFRVEINWHDDEVKQEPTKAPGVFVSPWYLKTPSHIPPEIEFATPTPLISSPLEAVSPILSQLKSNSLNFTELGNQANNYFSAALSAFAETKKEMAHNDPWRTIIDAVAPTIHKFSPDVIPRIREEINRIQPHQQKN",
@@ -30,8 +30,8 @@ class TestSeq(unittest.TestCase):
 
         self.assertEqual(result_to_test, expected_result)
 
-    def test_transcript_gene_WB_iso(self):
-        result_to_test = seq("WBGene00043981", seqtype="transcript", isoforms=True)
+    def test_seq_transcript_gene_WB_iso(self):
+        result_to_test = seq("WBGene00043981", transcribe=True, isoforms=True)
         expected_result = [
             ">T14E8.4 uniprot_id: Q5WRS0 ensembl_id: T14E8.4 gene_name(s): aaim-1 T14E8.4 organism: Caenorhabditis elegans sequence_length: 515",
             "MRLLFFFSILYTASLCCQLKDFLPCVMQLSAQKVDFNMNPIEVIFNITTEAKLMHTCRTYSRILPCFDQKMVQCGKPSEKTQLERGKRLHSYLCAPFSLQRQKIFLRRSKCIQDVLAEPQSSVCNRNDTVFADKLQSCREMCTRPDCVSKIELSEVSTCTYINIGKKCTAEAAQFFAQMQQVLTNKEYPMQCQYDLRKKPESELKKGLPIESLVAQTTSSTTYVTVHPPALPSVIDGVVTRTSLPIMRRTDPNSKFKPRPTTSQSNGPVIKTVIVDERGAPMNQPTSTQKPKVVHKFLPNPYTTKNPNTLKNDIIRTTRTIIPVVDKHTYVPWNYKVDAVQVSTLTSALAPVKPTETVISSPPVAFNFKLPAEQTSTQPFRVEINWHDDEVKQEPTKAPGVFVSPWYLKTPSHIPPEIEFATPTPLISSPLEAVSPILSQLKSNSLNFTELGNQANNYFSAALSAFAETKKEMAHNDPWRTIIDAVAPTIHKFSPDVIPRIREEINRIQPHQQKN",
@@ -39,8 +39,8 @@ class TestSeq(unittest.TestCase):
 
         self.assertEqual(result_to_test, expected_result)
 
-    def test_transcript_gene(self):
-        result_to_test = seq("ENSG00000241794", seqtype="transcript")
+    def test_seq_transcript_gene(self):
+        result_to_test = seq("ENSG00000241794", transcribe=True)
         # This should return the amino acid sequence of the canonical transcript of ENSG00000241794 which is ENST00000392653
         expected_result = [
             ">ENST00000392653 uniprot_id: P35326 ensembl_id: ENST00000392653 gene_name(s): SPRR2A organism: Homo sapiens (Human) sequence_length: 72",
@@ -49,8 +49,8 @@ class TestSeq(unittest.TestCase):
 
         self.assertEqual(result_to_test, expected_result)
 
-    def test_transcript(self):
-        result_to_test = seq("ENST00000392653", seqtype="transcript")
+    def test_seq_transcript(self):
+        result_to_test = seq("ENST00000392653", transcribe=True)
         expected_result = [
             ">ENST00000392653 uniprot_id: P35326 ensembl_id: ENST00000392653 gene_name(s): SPRR2A organism: Homo sapiens (Human) sequence_length: 72",
             "MSYQQQQCKQPCQPPPVCPTPKCPEPCPPPKCPEPCPPPKCPQPCPPQQCQQKYPPVTPSPPCQSKYPPKSK",
@@ -58,7 +58,7 @@ class TestSeq(unittest.TestCase):
 
         self.assertEqual(result_to_test, expected_result)
 
-    def test_gene_iso(self):
+    def test_seq_gene_iso(self):
         result_to_test = seq("ENSG00000241794", isoforms=True)
         # Since ENSG00000241794 only has one transcript, the expected results is the same as above
         expected_result = [
@@ -68,7 +68,7 @@ class TestSeq(unittest.TestCase):
 
         self.assertEqual(result_to_test, expected_result)
 
-    def test_gene_transcript_iso(self):
+    def test_seq_gene_transcript_iso(self):
         result_to_test = seq("ENST00000392653", isoforms=True)
         # The isoform should not change the output for transcripts
         expected_result = [
@@ -78,8 +78,8 @@ class TestSeq(unittest.TestCase):
 
         self.assertEqual(result_to_test, expected_result)
 
-    def test_transcript_gene_iso(self):
-        result_to_test = seq("ENSG00000241794", isoforms=True, seqtype="transcript")
+    def test_seq_transcript_gene_iso(self):
+        result_to_test = seq("ENSG00000241794", isoforms=True, transcribe=True)
         # Since ENSG00000241794 only has one transcript, the expected results is the AA sequence of ENST00000392653
         expected_result = [
             ">ENST00000392653 uniprot_id: P35326 ensembl_id: ENST00000392653 gene_name(s): SPRR2A organism: Homo sapiens (Human) sequence_length: 72",
@@ -88,8 +88,8 @@ class TestSeq(unittest.TestCase):
 
         self.assertEqual(result_to_test, expected_result)
 
-    def test_transcript_transcript_iso(self):
-        result_to_test = seq("ENST00000392653.2", isoforms=True, seqtype="transcript")
+    def test_seq_transcript_transcript_iso(self):
+        result_to_test = seq("ENST00000392653.2", isoforms=True, transcribe=True)
         # The isoform should not change the output for transcripts
         expected_result = [
             ">ENST00000392653 uniprot_id: P35326 ensembl_id: ENST00000392653 gene_name(s): SPRR2A organism: Homo sapiens (Human) sequence_length: 72",
@@ -100,22 +100,22 @@ class TestSeq(unittest.TestCase):
 
     # These will not work because bad type output was changed to logging error instead of Python error
     # ## Test bad input errors
-    # def test_gene_bad_type(self):
+    # def test_seq_gene_bad_type(self):
     #     data = "banana"
     #     with self.assertRaises(RuntimeError):
     #         result = seq(data)
 
-    # def test_gene_iso_bad_type(self):
+    # def test_seq_gene_iso_bad_type(self):
     #     data = "banana"
     #     with self.assertRaises(RuntimeError):
     #         result = seq(data, isoform=True)
 
-    # def test_transcript_bad_type(self):
+    # def test_seq_transcript_bad_type(self):
     #     data = "banana"
     #     with self.assertRaises(RuntimeError):
-    #         result = seq(data, seqtype="transcript")
+    #         result = seq(data, transcribe=True)
 
-    # def test_transcript_iso_bad_type(self):
+    # def test_seq_transcript_iso_bad_type(self):
     #     data = "banana"
     #     with self.assertRaises(RuntimeError):
-    #         result = seq(data, isoform=True, seqtype="transcript")
+    #         result = seq(data, isoform=True, transcribe=True)

@@ -21,7 +21,7 @@ from .constants import ENSEMBL_REST_API, UNIPROT_REST_API
 
 def seq(
     ens_ids,
-    seqtype="gene",
+    transcribe=False,
     isoforms=False,
     save=False,
 ):
@@ -30,28 +30,20 @@ def seq(
     (and all its isoforms) or transcript by Ensembl, WormBase or FlyBase ID.
 
     Args:
-    - ens_ids   One or more Ensembl IDs (passed as string or list of strings).
-                Also supports WormBase and FlyBase IDs.
-    - seqtype   'gene' (default) or 'transcript'.
-                Defines whether nucleotide or amino acid sequences are returned.
-                Nucleotide sequences are fetched from the Ensembl REST API server.
-                Amino acid sequences are fetched from the UniProt REST API server.
-    - isoforms  If True, returns the sequences of all known transcripts (default: False).
-                (Only for gene Ensembl IDs.)
-    - save      If True: Save output FASTA to current directory.
+    - ens_ids       One or more Ensembl IDs (passed as string or list of strings).
+                    Also supports WormBase and FlyBase IDs.
+    - transcribe    True/False (default: False -> returns nucleotide sequences).
+                    Defines whether nucleotide or amino acid sequences are returned.
+                    Nucleotide sequences are fetched from the Ensembl REST API server.
+                    Amino acid sequences are fetched from the UniProt REST API server.
+    - isoforms      If True, returns the sequences of all known transcripts (default: False).
+                    (Only for gene IDs.)
+    - save          If True, saves output FASTA to current directory (default: False).
 
     Returns a list (or FASTA file if 'save=True') containing the requested sequences.
     """
 
     ## Clean up arguments
-    # Check if seqtype is valid
-    seqtypes = ["gene", "transcript"]
-    seqtype = seqtype.lower()
-    if seqtype not in seqtypes:
-        raise ValueError(
-            f"Argument 'seqtype' was specified as '{seqtype}'. Expected one of {', '.join(seqtypes)}"
-        )
-
     # Clean up Ensembl IDs
     # If single Ensembl ID passed as string, convert to list
     if type(ens_ids) == str:
@@ -78,7 +70,7 @@ def seq(
     fasta = []
 
     ## Fetch nucleotide sequece
-    if seqtype == "gene":
+    if transcribe is False:
         # Define Ensembl REST API server
         server = ENSEMBL_REST_API
         # Define type of returned content from REST
@@ -124,13 +116,12 @@ def seq(
             # If isoforms true, fetch sequences of isoforms instead
             if isoforms == True:
                 # Get ID type (gene, transcript, ...) using gget info
-                info_df = info(ensembl_ID, expand=True, verbose=False)
+                info_df = info(ensembl_ID, verbose=False)
 
-                # Check that Ensembl ID was found
+                # Check if Ensembl ID was found
                 if isinstance(info_df, type(None)):
-                    logging.error(
-                        f"ID {ensembl_ID} not found. "
-                        "Please double-check spelling/arguments and try again."
+                    logging.warning(
+                        f"ID '{ensembl_ID}' not found. Please double-check spelling/arguments."
                     )
                     continue
 
@@ -217,7 +208,7 @@ def seq(
                     fasta.append(master_dict[ens_ID][key]["seq"])
 
     ## Fetch amino acid sequences from UniProt
-    if seqtype == "transcript":
+    if transcribe:
         if isoforms == False:
             # List to collect transcript IDs
             trans_ids = []
@@ -228,9 +219,8 @@ def seq(
 
                 # Check that Ensembl ID was found
                 if isinstance(info_df, type(None)):
-                    logging.error(
-                        f"ID {ensembl_ID} not found. "
-                        "Please double-check spelling/arguments and try again."
+                    logging.warning(
+                        f"ID '{ensembl_ID}' not found. Please double-check spelling/arguments."
                     )
                     continue
 
@@ -297,13 +287,12 @@ def seq(
 
             for ensembl_ID in ens_ids_clean:
                 # Get ID type (gene, transcript, ...) using gget info
-                info_df = info(ensembl_ID, expand=True, verbose=False)
+                info_df = info(ensembl_ID, verbose=False)
 
                 # Check that Ensembl ID was found
                 if isinstance(info_df, type(None)):
-                    logging.error(
-                        f"ID {ensembl_ID} not found. "
-                        "Please double-check spelling/arguments and try again."
+                    logging.warning(
+                        f"ID '{ensembl_ID}' not found. Please double-check spelling/arguments."
                     )
                     continue
 

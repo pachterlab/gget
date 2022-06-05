@@ -9,7 +9,7 @@ class TestSearch(unittest.TestCase):
         df = search(
             searchwords,
             species,
-            seqtype="gene",
+            id_type="gene",
             limit=None,
         )
 
@@ -33,7 +33,7 @@ class TestSearch(unittest.TestCase):
         result_to_test = search(
             searchwords,
             species,
-            seqtype="gene",
+            id_type="gene",
             json=True,
         )
 
@@ -56,7 +56,7 @@ class TestSearch(unittest.TestCase):
         df = search(
             searchwords,
             species,
-            seqtype="gene",
+            id_type="gene",
             andor="or",
             limit=None,
         )
@@ -89,7 +89,7 @@ class TestSearch(unittest.TestCase):
         df = search(
             searchwords,
             species,
-            seqtype="gene",
+            id_type="gene",
             andor="and",
             limit=None,
         )
@@ -115,7 +115,7 @@ class TestSearch(unittest.TestCase):
         df = search(
             searchwords,
             species,
-            seqtype="gene",
+            id_type="gene",
             limit=limit,
         )
 
@@ -155,7 +155,7 @@ class TestSearch(unittest.TestCase):
         df = search(
             searchwords,
             species,
-            seqtype="transcript",
+            id_type="transcript",
             limit=None,
         )
 
@@ -195,7 +195,7 @@ class TestSearch(unittest.TestCase):
         df = search(
             searchwords,
             species,
-            seqtype="transcript",
+            id_type="transcript",
             andor="or",
             limit=5,
         )
@@ -252,7 +252,7 @@ class TestSearch(unittest.TestCase):
         df = search(
             searchwords,
             species,
-            seqtype="transcript",
+            id_type="transcript",
             andor="and",
             limit=None,
         )
@@ -286,7 +286,7 @@ class TestSearch(unittest.TestCase):
         df = search(
             searchwords,
             species,
-            seqtype="transcript",
+            id_type="transcript",
             andor="and",
             limit=limit,
         )
@@ -330,7 +330,7 @@ class TestSearch(unittest.TestCase):
             search(
                 searchwords,
                 species,
-                seqtype="gene",
+                id_type="gene",
                 andor="and",
                 limit=None,
             )
@@ -343,7 +343,7 @@ class TestSearch(unittest.TestCase):
             search(
                 searchwords,
                 species,
-                seqtype="transcript",
+                id_type="transcript",
                 andor="or",
                 limit=None,
             )
@@ -357,7 +357,7 @@ class TestSearch(unittest.TestCase):
             search(
                 searchwords,
                 species,
-                seqtype="gene",
+                id_type="gene",
                 andor=andor,
                 limit=None,
             )
@@ -371,7 +371,7 @@ class TestSearch(unittest.TestCase):
             search(
                 searchwords,
                 species,
-                seqtype="transcript",
+                id_type="transcript",
                 andor=andor,
                 limit=None,
             )

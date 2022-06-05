@@ -23,16 +23,13 @@ from .utils import rest_query, get_uniprot_info, wrap_cols_func
 from .constants import ENSEMBL_REST_API, UNIPROT_REST_API, NCBI_URL
 
 ## gget info
-def info(ens_ids, expand=False, wrap_text=False, json=False, verbose=True, save=False):
+def info(ens_ids, wrap_text=False, json=False, verbose=True, save=False):
     """
     Fetch gene and transcript metadata using Ensembl IDs.
 
     Args:
     - ens_ids       One or more Ensembl IDs to look up (string or list of strings).
                     Also supports WormBase and Flybase IDs.
-    - expand        True/False wether to expand returned information (only for genes and transcripts). Default: False.
-                    For genes, this adds transcript isoform information.
-                    For transcripts, this adds translation and exon information.
     - wrap_text     If True, displays data frame with wrapped text for easy reading. Default: False.
     - json          If True, returns results in json/dictionary format instead of data frame. Default: False.
     - verbose       True/False whether to print progress information. Default True.
@@ -79,12 +76,9 @@ def info(ens_ids, expand=False, wrap_text=False, json=False, verbose=True, save=
         # Create dict to save query results
         results_dict = {ensembl_ID: {}}
 
-        ## lookup/id/ query: Find the species and database for a single identifier
         # Define the REST query
-        if expand:
-            query = "lookup/id/" + ensembl_ID + "?" + "expand=1"
-        else:
-            query = "lookup/id/" + ensembl_ID + "?"
+        query = "lookup/id/" + ensembl_ID + "?" + "expand=1"
+
         # Submit query
         try:
             df_temp = rest_query(server, query, content_type)
@@ -115,10 +109,10 @@ def info(ens_ids, expand=False, wrap_text=False, json=False, verbose=True, save=
 
             # Log error if this also did not work
             except RuntimeError:
-                logging.warning(
-                    f"ID '{ensembl_ID}' not found. "
-                    "Please double-check spelling/arguments and try again."
-                )
+                if verbose is True:
+                    logging.warning(
+                        f"ID '{ensembl_ID}' not found. Please double-check spelling/arguments and try again."
+                    )
 
                 # Remove IDs that were not found from ID list
                 ens_ids_clean_2.remove(ensembl_ID)
@@ -318,114 +312,113 @@ def info(ens_ids, expand=False, wrap_text=False, json=False, verbose=True, save=
         ]
     )
 
-    if expand:
-        ens_ids = []
-        # Dictionary to save clean info
-        data = {
-            "all_transcripts": [],
-            "transcript_biotypes": [],
-            "transcript_names": [],
-            "all_exons": [],
-            "exon_starts": [],
-            "exon_ends": [],
-            "all_translations": [],
-            "translation_starts": [],
-            "translation_ends": [],
-        }
+    ens_ids = []
+    # Dictionary to save clean info
+    data = {
+        "all_transcripts": [],
+        "transcript_biotypes": [],
+        "transcript_names": [],
+        "all_exons": [],
+        "exon_starts": [],
+        "exon_ends": [],
+        "all_translations": [],
+        "translation_starts": [],
+        "translation_ends": [],
+    }
 
-        # Collect the transcripts info for each ID in separate lists
-        for ens_id in df.columns:
-            # Record Ensembl ID
-            ens_ids.append(ens_id)
+    # Collect the transcripts info for each ID in separate lists
+    for ens_id in df.columns:
+        # Record Ensembl ID
+        ens_ids.append(ens_id)
 
-            # Clean up transcript info, if available
-            all_transcripts = []
-            transcript_biotypes = []
-            transcript_names = []
-            try:
-                for trans_dict in df[ens_id]["Transcript"]:
-                    try:
-                        all_transcripts.append(trans_dict["id"])
-                    except:
-                        all_transcripts.append(np.NaN)
-                    try:
-                        transcript_names.append(trans_dict["display_name"])
-                    except:
-                        transcript_names.append(np.NaN)
-                    try:
-                        transcript_biotypes.append(trans_dict["biotype"])
-                    except:
-                        transcript_biotypes.append(np.NaN)
+        # Clean up transcript info, if available
+        all_transcripts = []
+        transcript_biotypes = []
+        transcript_names = []
+        try:
+            for trans_dict in df[ens_id]["Transcript"]:
+                try:
+                    all_transcripts.append(trans_dict["id"])
+                except:
+                    all_transcripts.append(np.NaN)
+                try:
+                    transcript_names.append(trans_dict["display_name"])
+                except:
+                    transcript_names.append(np.NaN)
+                try:
+                    transcript_biotypes.append(trans_dict["biotype"])
+                except:
+                    transcript_biotypes.append(np.NaN)
 
-                data["all_transcripts"].append(all_transcripts)
-                data["transcript_biotypes"].append(transcript_biotypes)
-                data["transcript_names"].append(transcript_names)
+            data["all_transcripts"].append(all_transcripts)
+            data["transcript_biotypes"].append(transcript_biotypes)
+            data["transcript_names"].append(transcript_names)
 
-            except:
-                data["all_transcripts"].append(np.NaN)
-                data["transcript_biotypes"].append(np.NaN)
-                data["transcript_names"].append(np.NaN)
+        except:
+            data["all_transcripts"].append(np.NaN)
+            data["transcript_biotypes"].append(np.NaN)
+            data["transcript_names"].append(np.NaN)
 
-            # Clean up exon info, if available
-            all_exons = []
-            exon_starts = []
-            exon_ends = []
-            try:
-                for exon_dict in df[ens_id]["Exon"]:
-                    try:
-                        all_exons.append(exon_dict["id"])
-                    except:
-                        all_exons.append(np.NaN)
-                    try:
-                        exon_starts.append(exon_dict["start"])
-                    except:
-                        exon_starts.append(np.NaN)
-                    try:
-                        exon_ends.append(exon_dict["end"])
-                    except:
-                        exon_ends.append(np.NaN)
+        # Clean up exon info, if available
+        all_exons = []
+        exon_starts = []
+        exon_ends = []
+        try:
+            for exon_dict in df[ens_id]["Exon"]:
+                try:
+                    all_exons.append(exon_dict["id"])
+                except:
+                    all_exons.append(np.NaN)
+                try:
+                    exon_starts.append(exon_dict["start"])
+                except:
+                    exon_starts.append(np.NaN)
+                try:
+                    exon_ends.append(exon_dict["end"])
+                except:
+                    exon_ends.append(np.NaN)
 
-                data["all_exons"].append(all_exons)
-                data["exon_starts"].append(exon_starts)
-                data["exon_ends"].append(exon_ends)
+            data["all_exons"].append(all_exons)
+            data["exon_starts"].append(exon_starts)
+            data["exon_ends"].append(exon_ends)
 
-            except:
-                data["all_exons"].append(np.NaN)
-                data["exon_starts"].append(np.NaN)
-                data["exon_ends"].append(np.NaN)
+        except:
+            data["all_exons"].append(np.NaN)
+            data["exon_starts"].append(np.NaN)
+            data["exon_ends"].append(np.NaN)
 
-            # Clean up translation info, if available
-            all_translations = []
-            translation_starts = []
-            translation_ends = []
-            try:
-                for transl_dict in df[ens_id]["Exon"]:
-                    try:
-                        all_translations.append(transl_dict["id"])
-                    except:
-                        all_translations.append(np.NaN)
-                    try:
-                        translation_starts.append(transl_dict["start"])
-                    except:
-                        translation_starts.append(np.NaN)
-                    try:
-                        translation_ends.append(transl_dict["end"])
-                    except:
-                        translation_ends.append(np.NaN)
+        # Clean up translation info, if available
+        all_translations = []
+        translation_starts = []
+        translation_ends = []
+        try:
+            for transl_dict in df[ens_id]["Exon"]:
+                try:
+                    all_translations.append(transl_dict["id"])
+                except:
+                    all_translations.append(np.NaN)
+                try:
+                    translation_starts.append(transl_dict["start"])
+                except:
+                    translation_starts.append(np.NaN)
+                try:
+                    translation_ends.append(transl_dict["end"])
+                except:
+                    translation_ends.append(np.NaN)
 
-                data["all_translations"].append(all_translations)
-                data["translation_starts"].append(translation_starts)
-                data["translation_ends"].append(translation_ends)
+            data["all_translations"].append(all_translations)
+            data["translation_starts"].append(translation_starts)
+            data["translation_ends"].append(translation_ends)
 
-            except:
-                data["all_translations"].append(np.NaN)
-                data["translation_starts"].append(np.NaN)
-                data["translation_ends"].append(np.NaN)
+        except:
+            data["all_translations"].append(np.NaN)
+            data["translation_starts"].append(np.NaN)
+            data["translation_ends"].append(np.NaN)
 
-        # Append cleaned up info to df_final
-        df_final = pd.concat(
-            [df_final, pd.DataFrame.from_dict(data, orient="index", columns=ens_ids)]
-        )
+    # Append cleaned up info to df_final
+    df_final = pd.concat(
+        [df_final, pd.DataFrame.from_dict(data, orient="index", columns=ens_ids)]
+    )
 
     ## Transpose data frame so each row corresponds to one Ensembl ID
     df_final = df_final.T
@@ -439,6 +432,74 @@ def info(ens_ids, expand=False, wrap_text=False, json=False, verbose=True, save=
 
     if json:
         results_dict = json_package.loads(df_final.to_json(orient="index"))
+
+        # Restructure transcripts, translations and exons lists into lists of dictionaries
+        for ens_id in df_final.index.values:
+            ## Get info for all transcripts
+            transcript_ids = results_dict[ens_id]["all_transcripts"]
+            transcript_biotypes = results_dict[ens_id]["transcript_biotypes"]
+            transcript_names = results_dict[ens_id]["transcript_names"]
+
+            # Delete old keys
+            results_dict[ens_id].pop("all_transcripts", None)
+            results_dict[ens_id].pop("transcript_biotypes", None)
+            results_dict[ens_id].pop("transcript_names", None)
+
+            # Build new dictionary entries
+            results_dict[ens_id].update({"all_transcripts": []})
+            for transcript_id, transcript_biotype, transcript_name in zip(
+                transcript_ids or [], transcript_biotypes or [], transcript_names or []
+            ):
+                results_dict[ens_id]["all_transcripts"].append(
+                    {
+                        "transcript_id": transcript_id,
+                        "transcript_biotype": transcript_biotype,
+                        "transcript_name": transcript_name,
+                    }
+                )
+
+            ## Get info for all exons
+            exon_ids = results_dict[ens_id]["all_exons"]
+            exon_starts = results_dict[ens_id]["exon_starts"]
+            exon_ends = results_dict[ens_id]["exon_ends"]
+
+            # Delete old keys
+            results_dict[ens_id].pop("all_exons", None)
+            results_dict[ens_id].pop("exon_starts", None)
+            results_dict[ens_id].pop("exon_ends", None)
+
+            # Build new dictionary entries
+            results_dict[ens_id].update({"all_exons": []})
+            for exon_id, exon_start, exon_end in zip(
+                exon_ids or [], exon_starts or [], exon_ends or []
+            ):
+                results_dict[ens_id]["all_exons"].append(
+                    {"exon_id": exon_id, "exon_start": exon_start, "exon_end": exon_end}
+                )
+
+            ## Get info for all translations
+            translation_ids = results_dict[ens_id]["all_translations"]
+            translation_starts = results_dict[ens_id]["translation_starts"]
+            translation_ends = results_dict[ens_id]["translation_ends"]
+
+            # Delete old keys
+            results_dict[ens_id].pop("all_translations", None)
+            results_dict[ens_id].pop("translation_starts", None)
+            results_dict[ens_id].pop("translation_ends", None)
+
+            # Build new dictionary entries
+            results_dict[ens_id].update({"all_translations": []})
+            for translation_id, translation_start, translation_end in zip(
+                translation_ids or [], translation_starts or [], translation_ends or []
+            ):
+                results_dict[ens_id]["all_translations"].append(
+                    {
+                        "translation_id": translation_id,
+                        "translation_start": translation_start,
+                        "translation_end": translation_end,
+                    }
+                )
+
         if save:
             with open("gget_info_results.json", "w", encoding="utf-8") as f:
                 json_package.dump(results_dict, f, ensure_ascii=False, indent=4)
