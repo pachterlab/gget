@@ -61,6 +61,7 @@ def main():
         "species",
         default=None,
         type=str,
+        nargs="?",
         help="Species for which the FTPs will be fetched, e.g. homo_sapiens.",
     )
     # ref parser arguments
@@ -82,19 +83,19 @@ def main():
         "--which",
         default="all",
         type=str,
-        nargs="+",
         required=False,
         help=(
             """
         Defines which results to return. 
         Default: 'all' -> Returns all available results.
-        Possible entries are one or a combination (as a list of strings) of the following: 
+        Possible entries are one or a combination (comma-separated list) of the following: 
         'gtf' - Returns the annotation (GTF).
         'cdna' - Returns the trancriptome (cDNA).
         'dna' - Returns the genome (DNA).
         'cds - Returns the coding sequences corresponding to Ensembl genes. (Does not contain UTR or intronic sequence.)
         'cdrna' - Returns transcript sequences corresponding to non-coding RNA genes (ncRNA).
         'pep' - Returns the protein translations of Ensembl genes.
+        Example: '-w dna,gtf'
         """
         ),
     )
@@ -191,12 +192,12 @@ def main():
         help="Limits the number of results, e.g. 10 (default: None).",
     )
     parser_gget.add_argument(
-        "-df",
-        "--dataframe",
+        "-csv",
+        "--csv",
         default=True,
         action="store_false",
         required=False,
-        help="Returns results in data frame format instead of json.",
+        help="Returns results in csv format instead of json.",
     )
     parser_gget.add_argument(
         "-o",
@@ -222,12 +223,12 @@ def main():
         help="One or more Ensembl IDs (also supports WormBase and FlyBase IDs).",
     )
     parser_info.add_argument(
-        "-df",
-        "--dataframe",
+        "-csv",
+        "--csv",
         default=True,
         action="store_false",
         required=False,
-        help="Returns results in data frame format instead of json.",
+        help="Returns results in csv format instead of json.",
     )
     parser_info.add_argument(
         "-q",
@@ -276,7 +277,7 @@ def main():
         default=False,
         action="store_true",
         required=False,
-        help="Returns sequences of all known transcripts (default: False). (Only for gene Ensembl IDs.)",
+        help="Returns sequences of all known transcripts (default: False). (Only for gene IDs.)",
     )
     parser_seq.add_argument(
         "-o",
@@ -413,12 +414,12 @@ def main():
         help="Do not print progress information.",
     )
     parser_blast.add_argument(
-        "-df",
-        "--dataframe",
+        "-csv",
+        "--csv",
         default=True,
         action="store_false",
         required=False,
-        help="Returns results in data frame format instead of json.",
+        help="Returns results in csv format instead of json.",
     )
     parser_blast.add_argument(
         "-o",
@@ -469,12 +470,12 @@ def main():
         ),
     )
     parser_blat.add_argument(
-        "-df",
-        "--dataframe",
+        "-csv",
+        "--csv",
         default=True,
         action="store_false",
         required=False,
-        help="Returns results in data frame format instead of json.",
+        help="Returns results in csv format instead of json.",
     )
     parser_blat.add_argument(
         "-o",
@@ -522,12 +523,12 @@ def main():
         help="Add this flag if genes are given as Ensembl gene IDs.",
     )
     parser_enrichr.add_argument(
-        "-df",
-        "--dataframe",
+        "-csv",
+        "--csv",
         default=True,
         action="store_false",
         required=False,
-        help="Returns results in data frame format instead of json.",
+        help="Returns results in csv format instead of json.",
     )
     parser_enrichr.add_argument(
         "-o",
@@ -610,12 +611,12 @@ def main():
         help="'human' (default) or 'mouse'. (Only for tissue expression atlas.)",
     )
     parser_archs4.add_argument(
-        "-df",
-        "--dataframe",
+        "-csv",
+        "--csv",
         default=True,
         action="store_false",
         required=False,
-        help="Returns results in data frame format instead of json.",
+        help="Returns results in csv format instead of json.",
     )
     parser_archs4.add_argument(
         "-o",
@@ -661,21 +662,21 @@ def main():
             sequence=args.sequence,
             seqtype=args.seqtype,
             assembly=args.assembly,
-            json=args.dataframe,
+            json=args.csv,
         )
 
         # Check if the function returned something
         if not isinstance(blat_results, type(None)):
             # Save blat results if args.out specified
-            if args.out and not args.dataframe:
+            if args.out and not args.csv:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
                     os.makedirs(directory, exist_ok=True)
-                # Save data frame to csv
+                # Save to csv
                 blat_results.to_csv(args.out, index=False)
 
-            if args.out and args.dataframe:
+            if args.out and args.csv:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
@@ -685,9 +686,9 @@ def main():
                     json.dump(blat_results, f, ensure_ascii=False, indent=4)
 
             # Print results if no directory specified
-            if not args.out and not args.dataframe:
+            if not args.out and not args.csv:
                 blat_results.to_csv(sys.stdout, index=False)
-            if not args.out and args.dataframe:
+            if not args.out and args.csv:
                 print(json.dumps(blat_results, ensure_ascii=False, indent=4))
 
     ## blast return
@@ -702,21 +703,21 @@ def main():
             low_comp_filt=args.low_comp_filt,
             megablast=args.megablast_off,
             verbose=args.quiet,
-            json=args.dataframe,
+            json=args.csv,
         )
 
         # Check if the function returned something
         if not isinstance(blast_results, type(None)):
             # Save blast results if args.out specified
-            if args.out and not args.dataframe:
+            if args.out and not args.csv:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
                     os.makedirs(directory, exist_ok=True)
-                # Save data frame to csv
+                # Save to csv
                 blast_results.to_csv(args.out, index=False)
 
-            if args.out and args.dataframe:
+            if args.out and args.csv:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
@@ -726,9 +727,9 @@ def main():
                     json.dump(blast_results, f, ensure_ascii=False, indent=4)
 
             # Print results if no directory specified
-            if not args.out and not args.dataframe:
+            if not args.out and not args.csv:
                 blast_results.to_csv(sys.stdout, index=False)
-            if not args.out and args.dataframe:
+            if not args.out and args.csv:
                 print(json.dumps(blast_results, ensure_ascii=False, indent=4))
 
     ## archs4 return
@@ -740,21 +741,21 @@ def main():
             which=args.which,
             gene_count=args.gene_count,
             species=args.species,
-            json=args.dataframe,
+            json=args.csv,
         )
 
         # Check if the function returned something
         if not isinstance(archs4_results, type(None)):
             # Save archs4 results if args.out specified
-            if args.out and not args.dataframe:
+            if args.out and not args.csv:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
                     os.makedirs(directory, exist_ok=True)
-                # Save data frame to csv
+                # Save to csv
                 archs4_results.to_csv(args.out, index=False)
 
-            if args.out and args.dataframe:
+            if args.out and args.csv:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
@@ -764,9 +765,9 @@ def main():
                     json.dump(archs4_results, f, ensure_ascii=False, indent=4)
 
             # Print results if no directory specified
-            if not args.out and not args.dataframe:
+            if not args.out and not args.csv:
                 archs4_results.to_csv(sys.stdout, index=False)
-            if not args.out and args.dataframe:
+            if not args.out and args.csv:
                 print(json.dumps(archs4_results, ensure_ascii=False, indent=4))
 
     ## muscle return
@@ -786,29 +787,24 @@ def main():
         # Raise error if neither species nor list flag passed
         if args.species is None and args.list_species is False:
             parser_ref.error(
-                "\n\nThe following arguments are required to fetch FTPs: -s/--species, e.g. '-s homo_sapiens'\n\n"
-                "gget ref --list -> lists out all available species. "
-                "Combine with -r (int) to define specific Ensembl release (default: latest release)."
+                "\nThe following argument is required: [species], e.g. 'gget ref homo_sapiens' \n"
+                "'gget ref --list_species' -> lists out all available species. \n"
+                "Combine with '-r [int]' to define specific Ensembl release (default: latest release). "
             )
 
         ## Clean up 'which' entry if passed
-        if type(args.which) != str:
-            which_clean = []
-            # Split by comma (spaces are automatically split by nargs:"+")
-            for which in args.which:
-                which_clean.append(which.split(","))
-            # Flatten which_clean
-            which_clean_final = [item for sublist in which_clean for item in sublist]
-            # Remove empty strings resulting from split
-            while "" in which_clean_final:
-                which_clean_final.remove("")
-        else:
-            which_clean_final = args.which
+        # Split by comma
+        which_clean = args.which.split(",")
 
         if args.species:
 
             # Query Ensembl for requested FTPs using function ref
-            ref_results = ref(args.species, which_clean_final, args.release, args.ftp)
+            ref_results = ref(
+                species=args.species,
+                which=which_clean,
+                release=args.release,
+                ftp=args.ftp,
+            )
 
             # Print or save list of URLs (ftp=True)
             if args.ftp:
@@ -911,19 +907,19 @@ def main():
             id_type=args.id_type,
             andor=args.andor,
             limit=args.limit,
-            json=args.dataframe,
+            json=args.csv,
         )
 
         # Save search results if args.out specified
-        if args.out and not args.dataframe:
+        if args.out and not args.csv:
             # Create saving directory
             directory = "/".join(args.out.split("/")[:-1])
             if directory != "":
                 os.makedirs(directory, exist_ok=True)
-            # Save data frame to csv
+            # Save to csv
             gget_results.to_csv(args.out, index=False)
 
-        if args.out and args.dataframe:
+        if args.out and args.csv:
             # Create saving directory
             directory = "/".join(args.out.split("/")[:-1])
             if directory != "":
@@ -933,9 +929,9 @@ def main():
                 json.dump(gget_results, f, ensure_ascii=False, indent=4)
 
         # Print results if no directory specified
-        if not args.out and not args.dataframe:
+        if not args.out and not args.csv:
             gget_results.to_csv(sys.stdout, index=False)
-        if not args.out and args.dataframe:
+        if not args.out and args.csv:
             print(json.dumps(gget_results, ensure_ascii=False, indent=4))
 
     ## enrichr return
@@ -957,21 +953,21 @@ def main():
             genes=genes_clean_final,
             database=args.database,
             ensembl=args.ensembl,
-            json=args.dataframe,
+            json=args.csv,
         )
 
         # Check if the function returned something
         if not isinstance(enrichr_results, type(None)):
             # Save enrichr results if args.out specified
-            if args.out and not args.dataframe:
+            if args.out and not args.csv:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
                     os.makedirs(directory, exist_ok=True)
-                # Save data frame to csv
+                # Save to csv
                 enrichr_results.to_csv(args.out, index=False)
 
-            if args.out and args.dataframe:
+            if args.out and args.csv:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
@@ -981,9 +977,9 @@ def main():
                     json.dump(enrichr_results, f, ensure_ascii=False, indent=4)
 
             # Print results if no directory specified
-            if not args.out and not args.dataframe:
+            if not args.out and not args.csv:
                 enrichr_results.to_csv(sys.stdout, index=False)
-            if not args.out and args.dataframe:
+            if not args.out and args.csv:
                 print(json.dumps(enrichr_results, ensure_ascii=False, indent=4))
 
     ## info return
@@ -1001,20 +997,20 @@ def main():
             ids_clean_final.remove("")
 
         # Look up requested Ensembl IDs
-        info_results = info(ids_clean_final, json=args.dataframe, verbose=args.quiet)
+        info_results = info(ids_clean_final, json=args.csv, verbose=args.quiet)
 
         # Check if the function returned something
         if not isinstance(info_results, type(None)):
             # Save info results if args.out specified
-            if args.out and not args.dataframe:
+            if args.out and not args.csv:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
                     os.makedirs(directory, exist_ok=True)
-                # Save data frame to csv
+                # Save to csv
                 info_results.to_csv(args.out, index=False)
 
-            if args.out and args.dataframe:
+            if args.out and args.csv:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
@@ -1024,9 +1020,9 @@ def main():
                     json.dump(info_results, f, ensure_ascii=False, indent=4)
 
             # Print results if no directory specified
-            if not args.out and not args.dataframe:
+            if not args.out and not args.csv:
                 info_results.to_csv(sys.stdout, index=False)
-            if not args.out and args.dataframe:
+            if not args.out and args.csv:
                 print(json.dumps(info_results, ensure_ascii=False, indent=4))
 
     ## seq return
