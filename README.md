@@ -15,7 +15,7 @@ e.g. `gget ref -s human` &rarr; `gget ref human`.
 - `gget info` and `gget seq` now support WormBase and FlyBase IDs.
 - `gget archs4` and `gget enrichr` now also take Ensembl IDs as input with added flag `[-e][--ensembl]` (`ensembl=True` in Jupyter Lab / Google Colab).
 - `gget seq` argument `seqtype` was replaced by flag `[-t][--transcribe]` (`transcribe=True/False` in Jupyter Lab / Google Colab) which will return either nucleotide (`False`) or amino acid sequences (`True`).
-- `gget search` argument `seqtype` was renamed to `id_type` (taking in the same arguments `gene` or `transcript`) for clarity.
+- `gget search` argument `seqtype` was renamed to `id_type` (still taking the same arguments 'gene' or 'transcript').
 
 ___
 
