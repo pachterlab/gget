@@ -629,15 +629,35 @@ def main():
         ),
     )
 
-    ## Show help when no arguments are given
+    ### Define return values
+    # Show help when no arguments are given
     if len(sys.argv) == 1:
         parent_parser.print_help(sys.stderr)
         sys.exit(1)
 
+    # Show  module specific help if only module but no further arguments are given
+    command_to_parser = {
+        "muscle": parser_muscle,
+        "ref": parser_ref,
+        "search": parser_gget,
+        "seq": parser_seq,
+        "info": parser_info,
+        "blast": parser_blast,
+        "blat": parser_blat,
+        "enrichr": parser_enrichr,
+        "archs4": parser_archs4,
+    }
+
+    if len(sys.argv) == 2:
+        if sys.argv[1] in command_to_parser:
+            command_to_parser[sys.argv[1]].print_help(sys.stderr)
+        else:
+            parent_parser.print_help(sys.stderr)
+        sys.exit(1)
+
     args = parent_parser.parse_args()
 
-    ### Define return values
-    ## Help return
+    # Help return
     if args.help:
         # Retrieve all subparsers from the parent parser
         subparsers_actions = [
