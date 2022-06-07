@@ -73,8 +73,8 @@ def info(ens_ids, wrap_text=False, expand=False, json=False, verbose=True, save=
         else:
             ens_ids_clean.append(ensembl_ID)
 
-    # Remove duplicates in the Ensembl ID list
-    ens_ids_clean = set(ens_ids_clean)
+    # Remove duplicates in the Ensembl ID list without changing their order
+    ens_ids_clean = sorted(set(ens_ids_clean), key=ens_ids_clean.index)
     # Create second clean list of Ensembl IDs which will not include IDs that were not found
     ens_ids_clean_2 = ens_ids_clean.copy()
 
