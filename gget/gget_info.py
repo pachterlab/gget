@@ -23,7 +23,7 @@ from .utils import rest_query, get_uniprot_info, wrap_cols_func
 from .constants import ENSEMBL_REST_API, UNIPROT_REST_API, NCBI_URL
 
 ## gget info
-def info(ens_ids, wrap_text=False, json=False, verbose=True, save=False):
+def info(ens_ids, wrap_text=False, expand=False, json=False, verbose=True, save=False):
     """
     Fetch gene and transcript metadata using Ensembl IDs.
 
@@ -35,8 +35,16 @@ def info(ens_ids, wrap_text=False, json=False, verbose=True, save=False):
     - verbose       True/False whether to print progress information. Default True.
     - save          True/False wether to save csv with query results in current working directory. Default: False.
 
-    Returns a data frame containing the requested information about the Ensembl IDs.
+    Returns a data frame containing the requested information.
+
+    Deprecated arguments: 'expand' (gget info now always returns all of the available information)
     """
+    # Handle deprecated arguments
+    if expand:
+        logging.info(
+            "'expand' argument deprecated! gget info now always returns all of the available information."
+        )
+
     # Define Ensembl REST API server
     server = ENSEMBL_REST_API
     # Define type of returned content from REST
@@ -65,11 +73,13 @@ def info(ens_ids, wrap_text=False, json=False, verbose=True, save=False):
         else:
             ens_ids_clean.append(ensembl_ID)
 
-    # Initiate dictionary to save results for all IDs in
-    master_dict = {}
-
+    # Remove duplicates in the Ensembl ID list
+    ens_ids_clean = set(ens_ids_clean)
     # Create second clean list of Ensembl IDs which will not include IDs that were not found
     ens_ids_clean_2 = ens_ids_clean.copy()
+
+    # Initiate dictionary to save results for all IDs in
+    master_dict = {}
 
     # Query REST APIs from https://rest.ensembl.org/
     for ensembl_ID in ens_ids_clean:

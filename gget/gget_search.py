@@ -27,6 +27,7 @@ def search(
     searchwords,
     species,
     id_type="gene",
+    seqtype=None,
     andor="or",
     limit=None,
     wrap_text=False,
@@ -54,7 +55,16 @@ def search(
     - save            If True, the data frame is saved as a csv in the current directory (default: False).
 
     Returns a data frame with the query results.
+
+    Deprecated arguments: 'seqtype' (renamed to id_type)
     """
+    # Handle deprecated arguments
+    if seqtype:
+        logging.error(
+            "'seqtype' argument deprecated! Please use argument 'id_type' instead."
+        )
+        return
+
     start_time = time.time()
 
     # Find latest Ensembl release

@@ -22,6 +22,7 @@ from .constants import ENSEMBL_REST_API, UNIPROT_REST_API
 def seq(
     ens_ids,
     transcribe=False,
+    seqtype=None,
     isoforms=False,
     save=False,
 ):
@@ -41,7 +42,15 @@ def seq(
     - save          If True, saves output FASTA to current directory (default: False).
 
     Returns a list (or FASTA file if 'save=True') containing the requested sequences.
+
+    Deprecated arguments: 'seqtype' (use True/False flag 'transcribe' instead.)
     """
+    # Handle deprecated arguments
+    if seqtype:
+        logging.error(
+            "'seqtype' argument deprecated! Please use True/False argument 'transcribe' instead."
+        )
+        return
 
     ## Clean up arguments
     # Clean up Ensembl IDs
