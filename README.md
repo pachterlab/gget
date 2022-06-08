@@ -8,7 +8,7 @@
 ![Code Coverage](https://img.shields.io/badge/Coverage-83%25-green.svg)  
 
 ## :sparkles: What's new in version ≥ 0.2.0
-- json is now the default output format for the command-line interface for modules that previously returned data frame (csv) format by default (the output can be converted to data frame/csv using flag `[-csv][--csv]`). Data frame/csv remains the default output for Jupyter Lab / Google Colab (and can be converted to json with `json=True`).
+- JSON is now the default output format for the command-line interface for modules that previously returned data frame (CSV) format by default (the output can be converted to data frame/CSV using flag `[-csv][--csv]`). Data frame/CSV remains the default output for Jupyter Lab / Google Colab (and can be converted to JSON with `json=True`).
 - For all modules, the first required argument was converted to a positional argument and should not be named anymore in the command-line, e.g. `gget ref -s human` &rarr; `gget ref human`.
 - `gget info`: `[--expand]` is deprecated. The module will now always return all of the available information.
 - Slight changes to the output returned by `gget info`, including the return of versioned Ensembl IDs.
@@ -111,7 +111,7 @@ The manual for any gget tool can be called from the command-line using the `-h` 
 
 ## gget ref 👣
 Fetch FTPs and their respective metadata (or use flag `ftp` to only return the links) for reference genomes and annotations from [Ensembl](https://www.ensembl.org/) by species.  
-Return format: dictionary/json.
+Return format: dictionary/JSON.
 
 **Positional argument**  
 `species`  
@@ -134,7 +134,7 @@ Possible entries are one or a combination (as comma-separated list) of the follo
 Defines the Ensembl release number from which the files are fetched, e.g. 104. Default: latest Ensembl release.  
 
 `-o` `--out`    
-Path to the json file the results will be saved in, e.g. path/to/directory/results.json. Default: Standard out.  
+Path to the JSON file the results will be saved in, e.g. path/to/directory/results.json. Default: Standard out.  
 Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
 
 **Flags**  
@@ -174,7 +174,7 @@ gget ref -w gtf,dna homo_sapiens
 # Jupyter Lab / Google Colab:
 gget.ref("homo_sapiens", which=["gtf", "dna"])
 ```
-&rarr; Returns a json with the latest human GTF and FASTA FTPs, and their respective metadata, in the format:
+&rarr; Returns a JSON with the latest human GTF and FASTA FTPs, and their respective metadata, in the format:
 ```
 {
     "homo_sapiens": {
@@ -201,7 +201,7 @@ ___
 
 ## gget search 🔎
 Fetch genes and transcripts from [Ensembl](https://www.ensembl.org/) using free-form search terms.   
-Return format: json (command-line) or data frame/csv (Jupyter Lab / Google Colab).
+Return format: JSON (command-line) or data frame/CSV (Jupyter Lab / Google Colab).
 
 **Positional argument**
 `searchwords`   
@@ -234,8 +234,8 @@ Jupyter Lab / Google Colab: `save=True` will save the output in the current work
 
 **Flags**  
 `-csv` `--csv`  
-Command-line only. Returns results in csv format.  
-Jupyter Lab / Google Colab: Use `json=True` to return output in json format.
+Command-line only. Returns results in CSV format.  
+Jupyter Lab / Google Colab: Use `json=True` to return output in JSON format.
 
 `wrap_text`  
 Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).  
@@ -261,7 +261,7 @@ ___
 
 ## gget info 💡
 Fetch extensive gene and transcript metadata from [Ensembl](https://www.ensembl.org/), [UniProt](https://www.uniprot.org/), and [NCBI](https://www.ncbi.nlm.nih.gov/) using Ensembl IDs.  
-Return format: json (command-line) or data frame/csv (Jupyter Lab / Google Colab).
+Return format: JSON (command-line) or data frame/CSV (Jupyter Lab / Google Colab).
 
 **Positional argument**  
 `ens_ids`   
@@ -278,8 +278,8 @@ Command-line only. Prevents progress information from being displayed.
 Jupyter Lab / Google Colab: Use `verbose=False` to prevent progress information from being displayed.  
 
 `-csv` `--csv`  
-Command-line only. Returns results in csv format.  
-Jupyter Lab / Google Colab: Use `json=True` to return output in json format.
+Command-line only. Returns results in CSV format.  
+Jupyter Lab / Google Colab: Use `json=True` to return output in JSON format.
 
 `wrap_text`  
 Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).  
@@ -293,7 +293,7 @@ gget info ENSG00000034713 ENSG00000104853 ENSG00000170296
 # Jupyter Lab / Google Colab:
 gget.info(["ENSG00000034713", "ENSG00000104853", "ENSG00000170296"])
 ```
-&rarr; Returns extensive information about each requested Ensembl ID in data frame format:  
+&rarr; Returns extensive information about each requested Ensembl ID:  
 
 |      | uniprot_id     | ncbi_gene_id     | primary_gene_name | synonyms | protein_names | ensembl_description | uniprot_description | ncbi_description | biotype | canonical_transcript | ... |
 | -------------- |-------------------------| ------------------------| -------------- | ----------|-----|----|----|----|----|----|----|
@@ -352,7 +352,7 @@ ___
 
 ## gget blast 💥
 BLAST a nucleotide or amino acid sequence to any [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi) database.  
-Return format: json (command-line) or data frame/csv (Jupyter Lab / Google Colab).
+Return format: JSON (command-line) or data frame/CSV (Jupyter Lab / Google Colab).
 
 **Positional argument**  
 `sequence`   
@@ -375,7 +375,7 @@ Limits number of hits to return. Default: 50.
 Defines the [expect value](https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=FAQ#expect) cutoff. Default: 10.0.  
 
 `-o` `--out`   
-Path to the csv the results will be saved in, e.g. path/to/directory/results.csv (or .json). Default: Standard out.   
+Path to the file the results will be saved in, e.g. path/to/directory/results.csv (or .json). Default: Standard out.   
 Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
 
 **Flags**  
@@ -390,8 +390,8 @@ Command-line only. Prevents progress information from being displayed.
 Jupyter Lab / Google Colab: Use `verbose=False` to prevent progress information from being displayed.  
 
 `-csv` `--csv`  
-Command-line only. Returns results in csv format.  
-Jupyter Lab / Google Colab: Use `json=True` to return output in json format.
+Command-line only. Returns results in CSV format.  
+Jupyter Lab / Google Colab: Use `json=True` to return output in JSON format.
 
 `wrap_text`  
 Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).   
@@ -426,7 +426,7 @@ ___
 
 ## gget blat 🎯
 Find the genomic location of a nucleotide or amino acid sequence using [BLAT](https://genome.ucsc.edu/cgi-bin/hgBlat).   
-Return format: json (command-line) or data frame/csv (Jupyter Lab / Google Colab).
+Return format: JSON (command-line) or data frame/CSV (Jupyter Lab / Google Colab).
 
 **Positional argument**  
 `sequence`   
@@ -442,13 +442,13 @@ Default: 'DNA' for nucleotide sequences; 'protein' for amino acid sequences.
 or any of the species assemblies available [here](https://genome.ucsc.edu/cgi-bin/hgBlat) (use short assembly name).
 
 `-o` `--out`   
-Path to the csv the results will be saved in, e.g. path/to/directory/results.csv (or .json). Default: Standard out.   
+Path to the file the results will be saved in, e.g. path/to/directory/results.csv (or .json). Default: Standard out.   
 Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.  
   
 **Flags**  
 `-csv` `--csv`  
-Command-line only. Returns results in csv format.  
-Jupyter Lab / Google Colab: Use `json=True` to return output in json format.
+Command-line only. Returns results in CSV format.  
+Jupyter Lab / Google Colab: Use `json=True` to return output in JSON format.
   
 
 ### Example
@@ -504,7 +504,7 @@ ___
 
 ## gget enrichr 🌌
 Perform an enrichment analysis on a list of genes using [Enrichr](https://maayanlab.cloud/Enrichr/).  
-Return format: json (command-line) or data frame/csv (Jupyter Lab / Google Colab).
+Return format: JSON (command-line) or data frame/CSV (Jupyter Lab / Google Colab).
   
 **Positional argument**  
 `genes`  
@@ -524,7 +524,7 @@ Supports any database listed [here](https://maayanlab.cloud/Enrichr/#libraries) 
   
 **Optional arguments**  
 `-o` `--out`   
-Path to the csv the results will be saved in, e.g. path/to/directory/results.csv (or .json). Default: Standard out.   
+Path to the file the results will be saved in, e.g. path/to/directory/results.csv (or .json). Default: Standard out.   
 Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
   
 **Flags**  
@@ -532,8 +532,8 @@ Jupyter Lab / Google Colab: `save=True` will save the output in the current work
 Add this flag if `genes` are given as Ensembl gene IDs.  
  
 `-csv` `--csv`  
-Command-line only. Returns results in csv format.  
-Jupyter Lab / Google Colab: Use `json=True` to return output in json format.
+Command-line only. Returns results in CSV format.  
+Jupyter Lab / Google Colab: Use `json=True` to return output in JSON format.
   
 `plot`  
 Jupyter Lab / Google Colab only. `plot=True` provides a graphical overview of the first 15 results (default: False).  
@@ -556,7 +556,7 @@ ___
 
 ## gget archs4 🐁
 Find the most correlated genes to a gene of interest or find the gene's tissue expression atlas using [ARCHS4](https://maayanlab.cloud/archs4/).  
-Return format: json (command-line) or data frame/csv (Jupyter Lab / Google Colab).
+Return format: JSON (command-line) or data frame/CSV (Jupyter Lab / Google Colab).
 
 **Positional argument**  
 `gene`  
@@ -575,7 +575,7 @@ Defines whether to use human or mouse samples from [ARCHS4](https://maayanlab.cl
 (Only for tissue expression atlas.)
 
 `-o` `--out`   
-Path to the csv the results will be saved in, e.g. path/to/directory/results.csv (or .json). Default: Standard out.   
+Path to the file the results will be saved in, e.g. path/to/directory/results.csv (or .json). Default: Standard out.   
 Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.  
   
 **Flags**   
@@ -583,8 +583,8 @@ Jupyter Lab / Google Colab: `save=True` will save the output in the current work
 Add this flag if `gene` is given as an Ensembl gene ID.  
 
 `-csv` `--csv`  
-Command-line only. Returns results in csv format.  
-Jupyter Lab / Google Colab: Use `json=True` to return output in json format.
+Command-line only. Returns results in CSV format.  
+Jupyter Lab / Google Colab: Use `json=True` to return output in JSON format.
   
   
 ### Examples
