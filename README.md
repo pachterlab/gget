@@ -11,6 +11,7 @@
 - json is now the default output format for the command-line interface for modules that previously returned data frame (csv) format by default (the output can be converted to data frame/csv using flag `[-csv][--csv]`). Data frame/csv remains the default output for Jupyter Lab / Google Colab (and can be converted to json with `json=True`).
 - For all modules, the first required argument was converted to a positional argument and should not be named anymore in the command-line, e.g. `gget ref -s human` &rarr; `gget ref human`.
 - `gget info`: `[--expand]` is deprecated. The module will now always return all of the available information.
+- Slight changes to the output returned by `gget info`, including the return of versioned Ensembl IDs.
 - `gget info` and `gget seq` now support :worm: WormBase and :fly: FlyBase IDs.
 - `gget archs4` and `gget enrichr` now also take Ensembl IDs as input with added flag `[-e][--ensembl]` (`ensembl=True` in Jupyter Lab / Google Colab).
 - `gget seq` argument `seqtype` was replaced by flag `[-t][--transcribe]` (`transcribe=True/False` in Jupyter Lab / Google Colab) which will return either nucleotide (`False`) or amino acid (`True`) sequences.
