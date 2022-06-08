@@ -29,6 +29,12 @@ class TestInfo(unittest.TestCase):
                 -1,
                 6559466,
                 6562428,
+                ["T14E8.4.1"],
+                ["protein_coding"],
+                [unittest.mock.ANY],
+                [-1],
+                [6559466],
+                [6562428],
             ]
         ]
         self.assertListEqual(result_to_test, expected_result)
@@ -54,6 +60,72 @@ class TestInfo(unittest.TestCase):
                 -1,
                 6559466,
                 6562428,
+                [
+                    "T14E8.4.1.e1",
+                    "T14E8.4.1.e2",
+                    "T14E8.4.1.e3",
+                    "T14E8.4.1.e4",
+                    "T14E8.4.1.e5",
+                    "T14E8.4.1.e6",
+                    "T14E8.4.1.e7",
+                    "T14E8.4.1.e8",
+                    "T14E8.4.1.e9",
+                ],
+                [
+                    6562330,
+                    6562225,
+                    6562110,
+                    6561817,
+                    6561252,
+                    6560727,
+                    6560492,
+                    6560197,
+                    6559466,
+                ],
+                [
+                    6562428,
+                    6562286,
+                    6562183,
+                    6562059,
+                    6561378,
+                    6561206,
+                    6560671,
+                    6560443,
+                    6559667,
+                ],
+                [
+                    "T14E8.4.1.e1",
+                    "T14E8.4.1.e2",
+                    "T14E8.4.1.e3",
+                    "T14E8.4.1.e4",
+                    "T14E8.4.1.e5",
+                    "T14E8.4.1.e6",
+                    "T14E8.4.1.e7",
+                    "T14E8.4.1.e8",
+                    "T14E8.4.1.e9",
+                ],
+                [
+                    6562330,
+                    6562225,
+                    6562110,
+                    6561817,
+                    6561252,
+                    6560727,
+                    6560492,
+                    6560197,
+                    6559466,
+                ],
+                [
+                    6562428,
+                    6562286,
+                    6562183,
+                    6562059,
+                    6561378,
+                    6561206,
+                    6560671,
+                    6560443,
+                    6559667,
+                ],
             ]
         ]
         self.assertListEqual(result_to_test, expected_result)
@@ -83,6 +155,12 @@ class TestInfo(unittest.TestCase):
                 -1,
                 7956820,
                 7968236,
+                ["FBtr0301675", "FBtr0071125", "FBtr0071126"],
+                ["protein_coding", "protein_coding", "protein_coding"],
+                ["sws-RC", "sws-RA", "sws-RB"],
+                [-1, -1, -1],
+                [7956820, 7956820, 7956820],
+                [7968236, 7968236, 7959369],
             ]
         ]
         self.assertListEqual(result_to_test, expected_result)
@@ -112,6 +190,12 @@ class TestInfo(unittest.TestCase):
                 -1,
                 108014596,
                 108053462,
+                ["ENSMUST00000000001.5"],
+                ["protein_coding"],
+                ["Gnai3-201"],
+                [-1],
+                [108014596],
+                [108053462],
             ]
         ]
         self.assertListEqual(result_to_test, expected_result)
@@ -134,6 +218,12 @@ class TestInfo(unittest.TestCase):
                 1,
                 64990191,
                 65000159,
+                ["ENSMMUT00000080640.1", "ENSMMUT00000100253.1"],
+                ["lncRNA", "lncRNA"],
+                [unittest.mock.ANY, unittest.mock.ANY],
+                [1, 1],
+                [64990191, 64993715],
+                [65000159, 64999625],
             ],
             [
                 "ENSMMUG00000053116.1",
@@ -146,6 +236,12 @@ class TestInfo(unittest.TestCase):
                 -1,
                 111461994,
                 111475279,
+                ["ENSMMUT00000091015.1"],
+                ["protein_coding"],
+                [unittest.mock.ANY],
+                [-1],
+                [111461994],
+                [111475279],
             ],
             [
                 "ENSMMUG00000021246.4",
@@ -158,6 +254,56 @@ class TestInfo(unittest.TestCase):
                 -1,
                 98646979,
                 98755023,
+                [
+                    "ENSMMUT00000029893.4",
+                    "ENSMMUT00000053619.2",
+                    "ENSMMUT00000104418.1",
+                    "ENSMMUT00000087615.1",
+                    "ENSMMUT00000103912.1",
+                    "ENSMMUT00000086824.1",
+                    "ENSMMUT00000029894.4",
+                    "ENSMMUT00000104481.1",
+                    "ENSMMUT00000090481.1",
+                    "ENSMMUT00000026408.4",
+                ],
+                [
+                    "protein_coding",
+                    "protein_coding",
+                    "protein_coding",
+                    "protein_coding",
+                    "protein_coding",
+                    "protein_coding",
+                    "protein_coding",
+                    "protein_coding",
+                    "protein_coding",
+                    "protein_coding",
+                ],
+                [unittest.mock.ANY, unittest.mock.ANY, unittest.mock.ANY, unittest.mock.ANY, unittest.mock.ANY, unittest.mock.ANY, unittest.mock.ANY, unittest.mock.ANY, unittest.mock.ANY, unittest.mock.ANY],
+                [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+                [
+                    98646979,
+                    98646982,
+                    98646984,
+                    98646984,
+                    98646985,
+                    98662368,
+                    98663259,
+                    98690412,
+                    98737900,
+                    98738870,
+                ],
+                [
+                    98655536,
+                    98656674,
+                    98688669,
+                    98656968,
+                    98656865,
+                    98713982,
+                    98746548,
+                    98713982,
+                    98755023,
+                    98754684,
+                ],
             ],
         ]
 
@@ -165,7 +311,7 @@ class TestInfo(unittest.TestCase):
 
     def test_info_gene_list_non_model_json(self):
         result_to_test = info(
-            ["ENSMMUG00000054106.1", "ENSMMUG00000053116.1", "ENSMMUG00000021246.4"],
+            ["ENSMMUG00000054106.1", "ENSMMUG00000053116.1", "ENSMMUT00000091015.1"],
             json=True,
         )
         expected_result = {
@@ -190,6 +336,26 @@ class TestInfo(unittest.TestCase):
                 "strand": 1,
                 "start": 64990191,
                 "end": 65000159,
+                "all_transcripts": [
+                    {
+                        "transcript_id": "ENSMMUT00000080640.1",
+                        "transcript_biotype": "lncRNA",
+                        "transcript_name": None,
+                        "transcript_strand": 1,
+                        "transcript_start": 64990191,
+                        "transcript_end": 65000159,
+                    },
+                    {
+                        "transcript_id": "ENSMMUT00000100253.1",
+                        "transcript_biotype": "lncRNA",
+                        "transcript_name": None,
+                        "transcript_strand": 1,
+                        "transcript_start": 64993715,
+                        "transcript_end": 64999625,
+                    },
+                ],
+                "all_exons": [],
+                "all_translations": [],
             },
             "ENSMMUG00000053116": {
                 "ensembl_id": "ENSMMUG00000053116.1",
@@ -212,102 +378,69 @@ class TestInfo(unittest.TestCase):
                 "strand": -1,
                 "start": 111461994,
                 "end": 111475279,
-            },
-            "ENSMMUG00000021246": {
-                "ensembl_id": "ENSMMUG00000021246.4",
-                "uniprot_id": [
-                    "A0A1D5QWP5",
-                    "A0A5F7ZUG9",
-                    "A0A5F7ZY65",
-                    "A0A5F7ZZI0",
-                    "A0A5F8AMK9",
-                    "F7D2F4",
-                    "F7HRJ1",
-                    "F7HRJ3",
-                    "G7MIX6",
+                "all_transcripts": [
+                    {
+                        "transcript_id": "ENSMMUT00000091015.1",
+                        "transcript_biotype": "protein_coding",
+                        "transcript_name": None,
+                        "transcript_strand": -1,
+                        "transcript_start": 111461994,
+                        "transcript_end": 111475279,
+                    }
                 ],
+                "all_exons": [],
+                "all_translations": [],
+            },
+            "ENSMMUT00000091015": {
+                "ensembl_id": "ENSMMUT00000091015.1",
+                "uniprot_id": "A0A5F8AEA0",
                 "ncbi_gene_id": None,
                 "species": "macaca_mulatta",
                 "assembly_name": "Mmul_10",
-                "primary_gene_name": "HHATL",
+                "primary_gene_name": None,
                 "ensembl_gene_name": None,
-                "synonyms": ["HHATL", "HIGD1A"],
-                "parent_gene": None,
-                "protein_names": [
-                    "HIG1 domain family member 1A isoform a",
-                    "HIG1 domain-containing protein",
-                    "Uncharacterized protein",
-                ],
+                "synonyms": None,
+                "parent_gene": "ENSMMUG00000053116",
+                "protein_names": "Uncharacterized protein",
                 "ensembl_description": None,
-                "uniprot_description": [
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                    None,
-                ],
+                "uniprot_description": None,
                 "ncbi_description": None,
-                "object_type": "Gene",
+                "object_type": "Transcript",
                 "biotype": "protein_coding",
-                "canonical_transcript": "ENSMMUT00000029894.4",
-                "seq_region_name": "2",
+                "canonical_transcript": None,
+                "seq_region_name": "3",
                 "strand": -1,
-                "start": 98646979,
-                "end": 98755023,
+                "start": 111461994,
+                "end": 111475279,
+                "all_transcripts": [],
+                "all_exons": [
+                    {
+                        "exon_id": "ENSMMUE00000479945.1",
+                        "exon_start": 111475069,
+                        "exon_end": 111475279,
+                    },
+                    {
+                        "exon_id": "ENSMMUE00000514646.1",
+                        "exon_start": 111461994,
+                        "exon_end": 111468349,
+                    },
+                ],
+                "all_translations": [
+                    {
+                        "translation_id": "ENSMMUE00000479945.1",
+                        "translation_start": 111475069,
+                        "translation_end": 111475279,
+                    },
+                    {
+                        "translation_id": "ENSMMUE00000514646.1",
+                        "translation_start": 111461994,
+                        "translation_end": 111468349,
+                    },
+                ],
             },
         }
 
         self.assertEqual(result_to_test, expected_result)
-
-    def test_info_gene_expand(self):
-        df = info("ENST00000673726", expand=True)
-        # Drop NaN columns, since np.nan != np.nan
-        result_to_test = df.dropna(axis=1).values.tolist()
-        expected_result = [
-            [
-                "ENST00000673726.1",
-                "A0A669KAY4",
-                "homo_sapiens",
-                "GRCh38",
-                "PCSK9",
-                "PCSK9-204",
-                ["PCSK9"],
-                "ENSG00000169174",
-                "Proprotein convertase subtilisin/kexin type 9",
-                "Transcript",
-                "nonsense_mediated_decay",
-                "1",
-                1,
-                55039447,
-                55052694,
-                [
-                    "ENSE00003897031",
-                    "ENSE00001279167",
-                    "ENSE00001279161",
-                    "ENSE00003897734",
-                    "ENSE00003897397",
-                    "ENSE00003897745",
-                ],
-                [55039447, 55043843, 55046523, 55051343, 55052278, 55052650],
-                [55040044, 55044034, 55046646, 55051453, 55052411, 55052694],
-                [
-                    "ENSE00003897031",
-                    "ENSE00001279167",
-                    "ENSE00001279161",
-                    "ENSE00003897734",
-                    "ENSE00003897397",
-                    "ENSE00003897745",
-                ],
-                [55039447, 55043843, 55046523, 55051343, 55052278, 55052650],
-                [55040044, 55044034, 55046646, 55051453, 55052411, 55052694],
-            ]
-        ]
-
-        self.assertListEqual(result_to_test, expected_result)
 
     def test_info_transcript(self):
         df = info("ENSMUST00000000001.1")
@@ -333,45 +466,16 @@ class TestInfo(unittest.TestCase):
                 -1,
                 108014596,
                 108053462,
-            ]
-        ]
-
-        self.assertListEqual(result_to_test, expected_result)
-
-    def test_info_transcript_expand(self):
-        df = info("ENSMUST00000000001.1", expand=True)
-        # Drop NaN columns, since np.nan != np.nan
-        result_to_test = df.dropna(axis=1).values.tolist()
-        expected_result = [
-            [
-                "ENSMUST00000000001.5",
-                "Q9DC51",
-                "14679",
-                "mus_musculus",
-                "GRCm39",
-                "Gnai3",
-                "Gnai3-201",
-                ["AI158965", "AW537698", "Galphai3", "Gnai-3", "Gnai3", "Hg1a"],
-                "ENSMUSG00000000001",
-                "Guanine nucleotide-binding protein G(i) subunit alpha-3 (G(i) alpha-3)",
-                "FUNCTION: Heterotrimeric guanine nucleotide-binding proteins (G proteins) function as transducers downstream of G protein-coupled receptors (GPCRs) in numerous signaling cascades. The alpha chain contains the guanine nucleotide binding site and alternates between an active, GTP-bound state and an inactive, GDP-bound state. Signaling by an activated GPCR promotes GDP release and GTP binding. The alpha subunit has a low GTPase activity that converts bound GTP to GDP, thereby terminating the signal. Both GDP release and GTP hydrolysis are modulated by numerous regulatory proteins. Signaling is mediated via effector proteins, such as adenylate cyclase. Inhibits adenylate cyclase activity, leading to decreased intracellular cAMP levels. Stimulates the activity of receptor-regulated K(+) channels. The active GTP-bound form prevents the association of RGS14 with centrosomes and is required for the translocation of RGS14 from the cytoplasm to the plasma membrane. May play a role in cell division. {ECO:0000250|UniProtKB:P08754}.",
-                "Predicted to enable several functions, including G-protein beta/gamma-subunit complex binding activity; GDP binding activity; and GTPase activating protein binding activity. Predicted to be involved in several processes, including positive regulation of NAD(P)H oxidase activity; positive regulation of superoxide anion generation; and positive regulation of vascular associated smooth muscle cell proliferation. Predicted to act upstream of or within G protein-coupled receptor signaling pathway. Located in Golgi apparatus. Is expressed in early conceptus; inner ear; and oocyte. Orthologous to human GNAI3 (G protein subunit alpha i3). [provided by Alliance of Genome Resources, Apr 2022]",
-                "Transcript",
-                "protein_coding",
-                "3",
-                -1,
-                108014596,
-                108053462,
                 [
-                    "ENSMUSE00000334714",
-                    "ENSMUSE00000276500",
-                    "ENSMUSE00000276490",
-                    "ENSMUSE00000276482",
-                    "ENSMUSE00000565003",
-                    "ENSMUSE00000565001",
-                    "ENSMUSE00000565000",
-                    "ENSMUSE00000404895",
-                    "ENSMUSE00000363317",
+                    "ENSMUSE00000334714.4",
+                    "ENSMUSE00000276500.2",
+                    "ENSMUSE00000276490.2",
+                    "ENSMUSE00000276482.2",
+                    "ENSMUSE00000565003.2",
+                    "ENSMUSE00000565001.2",
+                    "ENSMUSE00000565000.2",
+                    "ENSMUSE00000404895.2",
+                    "ENSMUSE00000363317.3",
                 ],
                 [
                     108053204,
@@ -396,15 +500,15 @@ class TestInfo(unittest.TestCase):
                     108016632,
                 ],
                 [
-                    "ENSMUSE00000334714",
-                    "ENSMUSE00000276500",
-                    "ENSMUSE00000276490",
-                    "ENSMUSE00000276482",
-                    "ENSMUSE00000565003",
-                    "ENSMUSE00000565001",
-                    "ENSMUSE00000565000",
-                    "ENSMUSE00000404895",
-                    "ENSMUSE00000363317",
+                    "ENSMUSE00000334714.4",
+                    "ENSMUSE00000276500.2",
+                    "ENSMUSE00000276490.2",
+                    "ENSMUSE00000276482.2",
+                    "ENSMUSE00000565003.2",
+                    "ENSMUSE00000565001.2",
+                    "ENSMUSE00000565000.2",
+                    "ENSMUSE00000404895.2",
+                    "ENSMUSE00000363317.3",
                 ],
                 [
                     108053204,
@@ -485,7 +589,7 @@ class TestInfo(unittest.TestCase):
         self.assertListEqual(result_to_test, expected_result)
 
     def test_info_exon_expand(self):
-        df = info(["ENSTGUEE00000179311"], expand=True)
+        df = info("ENSTGUEE00000179311")
         # Drop NaN columns, since np.nan != np.nan
         result_to_test = df.dropna(axis=1).values.tolist()
         expected_result = [
@@ -505,8 +609,4 @@ class TestInfo(unittest.TestCase):
 
     def test_info_bad_id(self):
         result = info(["banana"])
-        self.assertIsNone(result, "Invalid ID output is not None.")
-
-    def test_info_bad_id_expand(self):
-        result = info(["banana"], expand=True)
         self.assertIsNone(result, "Invalid ID output is not None.")

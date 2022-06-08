@@ -26,7 +26,8 @@ from .utils import gget_species_options, find_latest_ens_rel, wrap_cols_func
 def search(
     searchwords,
     species,
-    seqtype="gene",
+    id_type="gene",
+    seqtype=None,
     andor="or",
     limit=None,
     wrap_text=False,
@@ -43,7 +44,7 @@ def search(
     - species         Species can be passed in the format "genus_species", e.g. "homo_sapiens".
                       To pass a specific database, enter the name of the core database, e.g. 'mus_musculus_dba2j_core_105_1'.
                       All availabale species databases can be found here: http://ftp.ensembl.org/pub/release-106/mysql/
-    - seqtype         "gene" (default) or "transcript"
+    - id_type         "gene" (default) or "transcript"
                       Defines whether genes or transcripts matching the searchwords are returned.
     - andor           "or" (default) or "and"
                       "or": Returns all genes that INCLUDE AT LEAST ONE of the searchwords in their name/description.
@@ -54,19 +55,28 @@ def search(
     - save            If True, the data frame is saved as a csv in the current directory (default: False).
 
     Returns a data frame with the query results.
+
+    Deprecated arguments: 'seqtype' (renamed to id_type)
     """
+    # Handle deprecated arguments
+    if seqtype:
+        logging.error(
+            "'seqtype' argument deprecated! Please use argument 'id_type' instead."
+        )
+        return
+
     start_time = time.time()
 
     # Find latest Ensembl release
     ens_rel = find_latest_ens_rel()
 
     ## Check validity or arguments
-    # Check if seqtype is valid
-    seqtypes = ["gene", "transcript"]
-    seqtype = seqtype.lower()
-    if seqtype not in seqtypes:
+    # Check if id_type is valid
+    id_types = ["gene", "transcript"]
+    id_type = id_type.lower()
+    if id_type not in id_types:
         raise ValueError(
-            f"Sequence type specified is {seqtype}. Expected one of {', '.join(seqtypes)}"
+            f"ID type (id_type) specified is '{id_type}'. Expected one of: {', '.join(id_types)}"
         )
 
     # Check if 'andor' arg is valid
@@ -137,7 +147,7 @@ def search(
 
     ## Find genes
     for i, searchword in enumerate(searchwords):
-        if seqtype == "gene":
+        if id_type == "gene":
             query = f"""
             SELECT gene.stable_id, xref.display_label, gene.description, xref.description, gene.biotype
             FROM gene
@@ -169,7 +179,7 @@ def search(
                     val = np.intersect1d(df["stable_id"], df_temp["stable_id"])
                     df = df[df.stable_id.isin(val)]
 
-        if seqtype == "transcript":
+        if id_type == "transcript":
             query = f"""
             SELECT transcript.stable_id, xref.display_label, transcript.description, xref.description, transcript.biotype
             FROM transcript

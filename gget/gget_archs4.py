@@ -13,12 +13,21 @@ logging.basicConfig(
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
 
+# Custom functions
+from .gget_info import info
+
 # Constants
 from .constants import GENECORR_URL, EXPRESSION_URL
 
 
 def archs4(
-    gene, which="correlation", gene_count=100, species="human", json=False, save=False
+    gene,
+    ensembl=False,
+    which="correlation",
+    gene_count=100,
+    species="human",
+    json=False,
+    save=False,
 ):
     """
     Find the most correlated genes or the tissue expression atlas
@@ -26,7 +35,9 @@ def archs4(
     database ARCHS4 (https://maayanlab.cloud/archs4/).
 
     Args:
-    - gene          Short name (gene symbol) of gene of interest (str), e.g. 'STAT4'.
+    - gene          Short name (Entrez gene symbol) of gene of interest (str), e.g. 'STAT4'.
+                    Set 'ensembl=True' to input an Ensembl gene ID, e.g. ENSG00000138378.
+    - ensembl       Define as 'True' if 'gene' is an Ensembl gene ID. (Default: False)
     - which         'correlation' (default) or 'tissue'.
                     - 'correlation' returns a gene correlation table that contains the
                     100 most correlated genes to the gene of interest. The Pearson
@@ -55,6 +66,25 @@ def archs4(
         raise ValueError(
             f"'species' argument specified as {species}. Expected one of: {', '.join(sps)}"
         )
+
+    ## Transform Ensembl IDs to gene symbols
+    if ensembl:
+        info_df = info(gene, verbose=False)
+
+        # Check if Ensembl ID was found
+        if isinstance(info_df, type(None)):
+            logging.error(
+                f"ID '{gene}' not found. Please double-check spelling/arguments and try again."
+            )
+            return
+
+        gene_symbol = info_df.loc[gene]["ensembl_gene_name"]
+
+        # If more than one gene symbol was returned, use first entry
+        if isinstance(gene_symbol, list):
+            gene = gene_symbol[0]
+        else:
+            gene = gene_symbol
 
     # Make all gene letters uppercase
     gene = gene.upper()
@@ -85,7 +115,8 @@ def archs4(
         if "error" in corr_data.keys():
             if corr_data["error"] == f"{gene} not in colids":
                 logging.error(
-                    f"Search term '{gene}' did not return any gene correlation results."
+                    f"Gene '{gene}' did not return any gene correlation results. \n"
+                    "If the gene is an Ensembl ID, please set argument 'ensembl=True' (for terminal, add flag: [--ensembl])."
                 )
                 return
             else:
@@ -145,7 +176,8 @@ def archs4(
         # Check if any results were returned
         if len(tissue_exp_df) < 2:
             logging.error(
-                f"Search term '{gene}' did not return any tissue expression results."
+                f"Gene '{gene}' did not return any tissue expression results. \n"
+                "If the gene is an Ensembl ID, please set argument 'ensembl=True' (for terminal, add flag: [--ensembl])."
             )
             return
 

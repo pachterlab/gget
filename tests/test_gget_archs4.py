@@ -6,6 +6,7 @@ from .fixtures import (
     ARCHS4_FUNDC1_TISSUE,
     ARCHS4_FUNDC1_TISSUE_MOUSE,
     ARCHS4_FUNDC1_TISSUE_JSON,
+    ARCHS4_PHF14_TISSUE_ENSEMBL_MOUSE,
 )
 
 
@@ -36,6 +37,20 @@ class TestArchs4(unittest.TestCase):
 
         self.assertListEqual(result_to_test, expected_result)
 
+    def test_archs4_mouse_json_ensembl(self):
+        result_to_test = archs4(
+            "ENSG00000106443", ensembl=True, gene_count=5, species="mouse", json=True
+        )
+        expected_result = [
+            {"gene_symbol": "MATR3", "pearson_correlation": 0.6124228239},
+            {"gene_symbol": "CEP290", "pearson_correlation": 0.5814768672},
+            {"gene_symbol": "BDP1", "pearson_correlation": 0.579123199},
+            {"gene_symbol": "U2SURP", "pearson_correlation": 0.5699368715},
+            {"gene_symbol": "THOC2", "pearson_correlation": 0.5634998083},
+        ]
+
+        self.assertListEqual(result_to_test, expected_result)
+
     def test_archs4_tissue(self):
         df = archs4("fuNdC1", which="tissue")
         result_to_test = df.values.tolist()
@@ -55,6 +70,17 @@ class TestArchs4(unittest.TestCase):
         expected_result = ARCHS4_FUNDC1_TISSUE_MOUSE
 
         self.assertListEqual(result_to_test, expected_result)
+
+    def test_archs4_tissue_ensembl(self):
+        df = archs4("ENSG00000106443", ensembl=True, which="tissue", species="mouse")
+        result_to_test = df.values.tolist()
+        expected_result = ARCHS4_PHF14_TISSUE_ENSEMBL_MOUSE
+
+        self.assertListEqual(result_to_test, expected_result)
+
+    def test_archs4_bad_ensembl(self):
+        result = archs4("ENSG00000106443")
+        self.assertIsNone(result, "Invalid gene result is not None.")
 
     def test_archs4_bad_gene(self):
         result = archs4("BANANA")

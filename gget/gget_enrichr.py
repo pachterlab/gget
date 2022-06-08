@@ -18,17 +18,20 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 import textwrap
 
+# Custom functions
+from .gget_info import info
+
 # Constants
 from .constants import POST_ENRICHR_URL, GET_ENRICHR_URL
 
 
-def enrichr(genes, database, plot=False, json=False, save=False):
+def enrichr(genes, database, ensembl=False, plot=False, json=False, save=False):
     """
     Perform an enrichment analysis on a list of genes using Enrichr (https://maayanlab.cloud/Enrichr/).
 
     Args:
-    - genes       Genes to perform enrichment analysis on, passed as a list of strings,
-                  e.g. ['PHF14', 'RBM3', 'MSL1', 'PHF21A'].
+    - genes       List of Entrez gene symbols to perform enrichment analysis on, passed as a list of strings, e.g. ['PHF14', 'RBM3', 'MSL1', 'PHF21A'].
+                  Set 'ensembl = True' to input a list of Ensembl gene IDs, e.g. ['ENSG00000106443', 'ENSG00000102317', 'ENSG00000188895'].
     - database    Database to use as reference for the enrichment analysis.
                   Supported shortcuts (and their default database):
                   'pathway' (KEGG_2021_Human)
@@ -38,6 +41,7 @@ def enrichr(genes, database, plot=False, json=False, save=False):
                   'celltypes' (PanglaoDB_Augmented_2021)
                   'kinase_interactions' (KEA_2015)
                   or any database listed under Gene-set Library at: https://maayanlab.cloud/Enrichr/#libraries
+    - ensembl     Define as 'True' if 'genes' is a list of Ensembl gene IDs. (Default: False)
     - plot        True/False whether to provide a graphical overview of the first 15 results.
     - json        If True, returns results in json format instead of data frame. Default: False.
     - save        True/False whether to save the results in the local directory.
@@ -84,24 +88,52 @@ def enrichr(genes, database, plot=False, json=False, save=False):
         )
     else:
         database = database
-
-    logging.info(f"Performing Enichr analysis using database {database}.")
+        logging.info(f"Performing Enichr analysis using database {database}.")
 
     # If single gene passed as string, convert to list
     if type(genes) == str:
         genes = [genes]
 
-    # Remove any NaNs/Nones from the gene list
+    ## Transform Ensembl IDs to gene symbols
+    if ensembl:
+        genes_v2 = []
+        for gene_id in genes:
+            info_df = info(gene_id, verbose=False)
+
+            # Check if Ensembl ID was found
+            if isinstance(info_df, type(None)):
+                logging.warning(
+                    f"ID '{gene_id}' not found. Please double-check spelling/arguments."
+                )
+                continue
+
+            gene_symbol = info_df.loc[gene_id]["ensembl_gene_name"]
+
+            # If more than one gene symbol was returned, use first entry
+            if isinstance(gene_symbol, list):
+                genes_v2.append(gene_symbol[0])
+            else:
+                genes_v2.append(gene_symbol)
+
+    else:
+        genes_v2 = genes
+
+    ## Remove any NaNs/Nones from the gene list
     genes_clean = []
-    for gene in genes:
-        if not gene == np.NaN and not gene is None:
+    for gene in genes_v2:
+        if not gene == np.NaN and not gene is None and not isinstance(gene, float):
             genes_clean.append(gene)
+
+    if len(genes_clean) == 0 and ensembl:
+        logging.error("No gene symbols found for given Ensembl IDs.")
+        return
+
     # Join genes from list
-    genes_clean = "\n".join(genes_clean)
+    genes_clean_final = "\n".join(genes_clean)
 
     ## Submit gene list to Enrichr API
     args_dict = {
-        "list": (None, genes_clean),
+        "list": (None, genes_clean_final),
         "description": (None, "gget client gene list"),
     }
 
@@ -133,8 +165,8 @@ def enrichr(genes, database, plot=False, json=False, save=False):
     # Return error if no results were found
     if len(enrichr_results) > 1:
         logging.error(
-            f"No Enrichr results were found for your genes in database {database}. "
-            "Please double-check the arguments and try again."
+            f"No Enrichr results were found for genes {genes_clean} and database {database}. \n"
+            "If the genes are Ensembl IDs, please set argument 'ensembl=True' (for terminal, add flag: [--ensembl])."
         )
         return
 
@@ -170,7 +202,8 @@ def enrichr(genes, database, plot=False, json=False, save=False):
 
     if len(df) == 0:
         logging.warning(
-            f"No Enrichr results were found for genes {genes_clean} and database {database}."
+            f"No Enrichr results were found for genes {genes_clean} and database {database}. \n"
+            "If the genes are Ensembl IDs, please set argument 'ensembl=True' (for terminal, add flag: [--ensembl])."
         )
 
     ## Plot if plot=True

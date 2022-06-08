@@ -21,7 +21,8 @@ from .constants import ENSEMBL_REST_API, UNIPROT_REST_API
 
 def seq(
     ens_ids,
-    seqtype="gene",
+    transcribe=False,
+    seqtype=None,
     isoforms=False,
     save=False,
 ):
@@ -30,28 +31,28 @@ def seq(
     (and all its isoforms) or transcript by Ensembl, WormBase or FlyBase ID.
 
     Args:
-    - ens_ids   One or more Ensembl IDs (passed as string or list of strings).
-                Also supports WormBase and FlyBase IDs.
-    - seqtype   'gene' (default) or 'transcript'.
-                Defines whether nucleotide or amino acid sequences are returned.
-                Nucleotide sequences are fetched from the Ensembl REST API server.
-                Amino acid sequences are fetched from the UniProt REST API server.
-    - isoforms  If True, returns the sequences of all known transcripts (default: False).
-                (Only for gene Ensembl IDs.)
-    - save      If True: Save output FASTA to current directory.
+    - ens_ids       One or more Ensembl IDs (passed as string or list of strings).
+                    Also supports WormBase and FlyBase IDs.
+    - transcribe    True/False (default: False -> returns nucleotide sequences).
+                    Defines whether nucleotide or amino acid sequences are returned.
+                    Nucleotide sequences are fetched from the Ensembl REST API server.
+                    Amino acid sequences are fetched from the UniProt REST API server.
+    - isoforms      If True, returns the sequences of all known transcripts (default: False).
+                    (Only for gene IDs.)
+    - save          If True, saves output FASTA to current directory (default: False).
 
     Returns a list (or FASTA file if 'save=True') containing the requested sequences.
+
+    Deprecated arguments: 'seqtype' (use True/False flag 'transcribe' instead.)
     """
+    # Handle deprecated arguments
+    if seqtype:
+        logging.error(
+            "'seqtype' argument deprecated! Please use True/False argument 'transcribe' instead."
+        )
+        return
 
     ## Clean up arguments
-    # Check if seqtype is valid
-    seqtypes = ["gene", "transcript"]
-    seqtype = seqtype.lower()
-    if seqtype not in seqtypes:
-        raise ValueError(
-            f"Argument 'seqtype' was specified as '{seqtype}'. Expected one of {', '.join(seqtypes)}"
-        )
-
     # Clean up Ensembl IDs
     # If single Ensembl ID passed as string, convert to list
     if type(ens_ids) == str:
@@ -78,7 +79,7 @@ def seq(
     fasta = []
 
     ## Fetch nucleotide sequece
-    if seqtype == "gene":
+    if transcribe is False:
         # Define Ensembl REST API server
         server = ENSEMBL_REST_API
         # Define type of returned content from REST
@@ -124,13 +125,12 @@ def seq(
             # If isoforms true, fetch sequences of isoforms instead
             if isoforms == True:
                 # Get ID type (gene, transcript, ...) using gget info
-                info_df = info(ensembl_ID, expand=True, verbose=False)
+                info_df = info(ensembl_ID, verbose=False)
 
-                # Check that Ensembl ID was found
+                # Check if Ensembl ID was found
                 if isinstance(info_df, type(None)):
-                    logging.error(
-                        f"ID {ensembl_ID} not found. "
-                        "Please double-check spelling/arguments and try again."
+                    logging.warning(
+                        f"ID '{ensembl_ID}' not found. Please double-check spelling/arguments."
                     )
                     continue
 
@@ -143,6 +143,9 @@ def seq(
                     )
 
                     for transcipt_id in info_df.loc[ensembl_ID]["all_transcripts"]:
+                        # Remove version number for Ensembl IDs (not for flybase/wormbase IDs)
+                        if transcipt_id.startswith("ENS"):
+                            transcipt_id = transcipt_id.split(".")[0]
 
                         # Try if query is valid
                         try:
@@ -217,8 +220,8 @@ def seq(
                     fasta.append(master_dict[ens_ID][key]["seq"])
 
     ## Fetch amino acid sequences from UniProt
-    if seqtype == "transcript":
-        if isoforms == False:
+    if transcribe:
+        if isoforms is False:
             # List to collect transcript IDs
             trans_ids = []
 
@@ -228,9 +231,8 @@ def seq(
 
                 # Check that Ensembl ID was found
                 if isinstance(info_df, type(None)):
-                    logging.error(
-                        f"ID {ensembl_ID} not found. "
-                        "Please double-check spelling/arguments and try again."
+                    logging.warning(
+                        f"ID '{ensembl_ID}' not found. Please double-check spelling/arguments."
                     )
                     continue
 
@@ -242,8 +244,8 @@ def seq(
                     can_trans = info_df.loc[ensembl_ID]["canonical_transcript"]
 
                     if ensembl_ID.startswith("ENS"):
-                        temp_trans_id = can_trans.split(".")[0]
                         # Remove Ensembl ID version from transcript IDs and append to transcript IDs list
+                        temp_trans_id = can_trans.split(".")[0]
                         trans_ids.append(temp_trans_id)
 
                     elif ensembl_ID.startswith("WB"):
@@ -297,13 +299,12 @@ def seq(
 
             for ensembl_ID in ens_ids_clean:
                 # Get ID type (gene, transcript, ...) using gget info
-                info_df = info(ensembl_ID, expand=True, verbose=False)
+                info_df = info(ensembl_ID, verbose=False)
 
                 # Check that Ensembl ID was found
                 if isinstance(info_df, type(None)):
-                    logging.error(
-                        f"ID {ensembl_ID} not found. "
-                        "Please double-check spelling/arguments and try again."
+                    logging.warning(
+                        f"ID '{ensembl_ID}' not found. Please double-check spelling/arguments."
                     )
                     continue
 
@@ -317,11 +318,14 @@ def seq(
                             # Append transcript ID (without Ensembl version number) to list of transcripts to fetch
                             trans_ids.append(transcipt_id.split(".")[0])
 
-                        else:
-                            # Remove added "." at the end of other transcript IDs
-                            # Note: No need to remove the version number for WormBase IDs here, because "all_transcripts" are returned without version numbers
+                        elif ensembl_ID.startswith("WB"):
+                            # For WormBase transcript IDs, remove the version number for submission to UniProt API
                             temp_trans_id = ".".join(transcipt_id.split(".")[:-1])
                             trans_ids.append(temp_trans_id)
+
+                        else:
+                            # Note: No need to remove the added "." at the end of unversioned transcripts here, because "all_transcripts" are returned without it
+                            trans_ids.append(transcipt_id)
 
                     logging.info(
                         f"Requesting amino acid sequences of all transcripts of gene {ensembl_ID} from UniProt."

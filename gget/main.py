@@ -58,13 +58,12 @@ def main():
     )
     # ref parser arguments
     parser_ref.add_argument(
-        "-s",
-        "--species",
-        default=None,
+        "species",
         type=str,
+        nargs="?",
+        default=None,
         help="Species for which the FTPs will be fetched, e.g. homo_sapiens.",
     )
-    # ref parser arguments
     parser_ref.add_argument(
         "-l",
         "--list_species",
@@ -83,19 +82,19 @@ def main():
         "--which",
         default="all",
         type=str,
-        nargs="+",
         required=False,
         help=(
             """
-        Defines which results to return. 
-        Default: 'all' -> Returns all available results.
-        Possible entries are one or a combination (as a list of strings) of the following: 
-        'gtf' - Returns the annotation (GTF).
-        'cdna' - Returns the trancriptome (cDNA).
-        'dna' - Returns the genome (DNA).
-        'cds - Returns the coding sequences corresponding to Ensembl genes. (Does not contain UTR or intronic sequence.)
-        'cdrna' - Returns transcript sequences corresponding to non-coding RNA genes (ncRNA).
-        'pep' - Returns the protein translations of Ensembl genes.
+        Defines which results to return. \n
+        Default: 'all' -> Returns all available results. \n
+        Possible entries are one or a combination (as a comma-separated list) of the following: \n
+        'gtf' - Returns the annotation (GTF). \n
+        'cdna' - Returns the trancriptome (cDNA). \n
+        'dna' - Returns the genome (DNA). \n
+        'cds - Returns the coding sequences corresponding to Ensembl genes. (Does not contain UTR or intronic sequence.) \n
+        'cdrna' - Returns transcript sequences corresponding to non-coding RNA genes (ncRNA). \n
+        'pep' - Returns the protein translations of Ensembl genes. \n
+        Example: '-w dna,gtf'
         """
         ),
     )
@@ -105,7 +104,7 @@ def main():
         default=None,
         type=int,
         required=False,
-        help="Ensemble release the FTPs will be fetched from, e.g. 104 (default: latest Ensembl release).",
+        help="Ensembl release the FTPs will be fetched from, e.g. 104 (default: latest Ensembl release).",
     )
     parser_ref.add_argument(
         "-ftp",
@@ -113,7 +112,7 @@ def main():
         default=False,
         action="store_true",
         required=False,
-        help="Return only the FTP link instead of a json.",
+        help="Return only the FTP link(s).",
     )
     parser_ref.add_argument(
         "-d",
@@ -129,9 +128,17 @@ def main():
         type=str,
         required=False,
         help=(
-            "Path to the json file the results will be saved in, e.g. path/to/directory/results.json.\n"
+            "Path to the file the results will be saved in, e.g. path/to/directory/results.json.\n"
             "Default: Standard out."
         ),
+    )
+    parser_ref.add_argument(
+        "-s",
+        "--species",
+        type=str,
+        required=False,
+        dest="species_deprecated",
+        help="DEPRECATED - use positional argument instead. Species for which the FTPs will be fetched, e.g. homo_sapiens.",
     )
 
     ## gget search subparser
@@ -147,12 +154,11 @@ def main():
     )
     # Search parser arguments
     parser_gget.add_argument(
-        "-sw",
-        "--searchwords",
+        "searchwords",
         type=str,
-        nargs="+",
-        required=True,
-        help="One or more free form search words for the query, e.g. gaba, nmda.",
+        nargs="*",
+        default=None,
+        help="One or more free form search words, e.g. gaba, nmda.",
     )
     parser_gget.add_argument(
         "-s",
@@ -163,7 +169,7 @@ def main():
     )
     parser_gget.add_argument(
         "-t",
-        "--seqtype",
+        "--id_type",
         choices=["gene", "transcript"],
         default="gene",
         type=str,
@@ -194,12 +200,12 @@ def main():
         help="Limits the number of results, e.g. 10 (default: None).",
     )
     parser_gget.add_argument(
-        "-j",
-        "--json",
-        default=False,
-        action="store_true",
+        "-csv",
+        "--csv",
+        default=True,
+        action="store_false",
         required=False,
-        help="Returns results in json/dictionary format instead of data frame.",
+        help="Returns results in csv format instead of json.",
     )
     parser_gget.add_argument(
         "-o",
@@ -207,9 +213,33 @@ def main():
         type=str,
         required=False,
         help=(
-            "Path to the json file the results will be saved in, e.g. path/to/directory/results.json.\n"
+            "Path to the file the results will be saved in, e.g. path/to/directory/results.json.\n"
             "Default: Standard out."
         ),
+    )
+    parser_gget.add_argument(
+        "-sw",
+        "--searchwords",
+        type=str,
+        nargs="+",
+        required=False,
+        dest="sw_deprecated",
+        help="DEPRECATED - use positional argument instead. One or more free form search words, e.g. gaba, nmda.",
+    )
+    parser_gget.add_argument(
+        "--seqtype",
+        default=None,
+        type=str,
+        required=False,
+        help="DEPRECATED - use argument 'id_type' instead.",
+    )
+    parser_gget.add_argument(
+        "-j",
+        "--json",
+        default=False,
+        action="store_true",
+        required=False,
+        help="DEPRECATED - json is now the default output format (convert to csv using flag [--csv]).",
     )
 
     ## gget info subparser
@@ -219,12 +249,11 @@ def main():
     )
     # info parser arguments
     parser_info.add_argument(
-        "-id",
-        "--ens_ids",
+        "ens_ids",
         type=str,
-        nargs="+",
-        required=True,
-        help="One or more Ensembl IDs (also supports WormBase and FlyBase IDs).",
+        nargs="*",
+        default=None,
+        help="One or more Ensembl, WormBase or FlyBase IDs).",
     )
     parser_info.add_argument(
         "-e",
@@ -232,19 +261,15 @@ def main():
         default=False,
         action="store_true",
         required=False,
-        help=(
-            "Expand returned information (only for genes and transcripts) (default: False). "
-            "For genes: add isoform information. "
-            "For transcripts: add translation and exon information."
-        ),
+        help=("DEPRECATED - gget info now always returns all available information."),
     )
     parser_info.add_argument(
-        "-j",
-        "--json",
-        default=False,
-        action="store_true",
+        "-csv",
+        "--csv",
+        default=True,
+        action="store_false",
         required=False,
-        help="Returns results in json/dictionary format instead of data frame.",
+        help="Returns results in csv format instead of json.",
     )
     parser_info.add_argument(
         "-q",
@@ -260,9 +285,26 @@ def main():
         type=str,
         required=False,
         help=(
-            "Path to the json file the results will be saved in, e.g. path/to/directory/results.json.\n"
+            "Path to file the results will be saved as, e.g. path/to/directory/results.json.\n"
             "Default: Standard out."
         ),
+    )
+    parser_info.add_argument(
+        "-id",
+        "--ens_ids",
+        type=str,
+        nargs="+",
+        required=False,
+        dest="id_deprecated",
+        help="DEPRECATED - use positional argument instead. One or more Ensembl, WormBase or FlyBase IDs).",
+    )
+    parser_info.add_argument(
+        "-j",
+        "--json",
+        default=False,
+        action="store_true",
+        required=False,
+        help="DEPRECATED - json is now the default output format (convert to csv using flag [--csv]).",
     )
 
     ## gget seq subparser
@@ -272,23 +314,20 @@ def main():
     )
     # seq parser arguments
     parser_seq.add_argument(
-        "-id",
-        "--ens_ids",
+        "ens_ids",
         type=str,
-        nargs="+",
-        required=True,
+        nargs="*",
+        default=None,
         help="One or more Ensembl, WormBase or FlyBase IDs.",
     )
     parser_seq.add_argument(
-        "-st",
-        "--seqtype",
-        choices=["gene", "transcript"],
-        default="gene",
-        type=str,
+        "-t",
+        "--transcribe",
+        default=False,
+        action="store_true",
         required=False,
         help=(
-            "'gene': Returns nucleotide sequences of the Ensembl IDs from Ensembl (default).\n"
-            "'transcript': Returns amino acid sequences of the Ensembl IDs from UniProt. \n"
+            "Returns amino acid sequences from UniProt. (Otherwise returns nucleotide sequences from Ensembl.)"
         ),
     )
     parser_seq.add_argument(
@@ -297,7 +336,7 @@ def main():
         default=False,
         action="store_true",
         required=False,
-        help="Returns sequences of all known transcripts (default: False). (Only for gene Ensembl IDs.)",
+        help="Returns sequences of all known transcripts (default: False). (Only for gene IDs.)",
     )
     parser_seq.add_argument(
         "-o",
@@ -308,6 +347,22 @@ def main():
             "Path to the FASTA file the results will be saved in, e.g. path/to/directory/results.fa.\n"
             "Default: Standard out."
         ),
+    )
+    parser_seq.add_argument(
+        "-id",
+        "--ens_ids",
+        type=str,
+        nargs="+",
+        required=False,
+        dest="id_deprecated",
+        help="DEPRECATED - use positional argument instead. One or more Ensembl, WormBase or FlyBase IDs.",
+    )
+    parser_seq.add_argument(
+        "--seqtype",
+        default=None,
+        type=str,
+        required=False,
+        help="DEPRECATED - use True/False flag 'transcribe' instead.",
     )
 
     ## gget muscle subparser
@@ -321,10 +376,10 @@ def main():
     )
     # muscle parser arguments
     parser_muscle.add_argument(
-        "-fa",
-        "--fasta",
+        "fasta",
         type=str,
-        required=True,
+        nargs="?",
+        default=None,
         help="Path to fasta file containing the sequences to be aligned.",
     )
     parser_muscle.add_argument(
@@ -346,9 +401,17 @@ def main():
             "Default: 'None' -> Standard out in Clustal format."
         ),
     )
+    parser_muscle.add_argument(
+        "-fa",
+        "--fasta",
+        type=str,
+        required=False,
+        dest="fasta_deprecated",
+        help="DEPRECATED - use positional argument instead. Path to fasta file containing the sequences to be aligned.",
+    )
 
     ## gget blast subparser
-    blast_desc = "BLAST a nucleotide or amino acid sequence against any BLAST DB."
+    blast_desc = "BLAST a nucleotide or amino acid sequence against any BLAST database."
     parser_blast = parent_subparsers.add_parser(
         "blast",
         parents=[parent],
@@ -358,11 +421,11 @@ def main():
     )
     # blast parser arguments
     parser_blast.add_argument(
-        "-seq",
-        "--sequence",
+        "sequence",
         type=str,
-        required=True,
-        help="Sequence (str) or path to fasta file containing one sequence.",
+        nargs="?",
+        default=None,
+        help="Sequence (str) or path to fasta file.",
     )
     parser_blast.add_argument(
         "-p",
@@ -438,12 +501,12 @@ def main():
         help="Do not print progress information.",
     )
     parser_blast.add_argument(
-        "-j",
-        "--json",
-        default=False,
-        action="store_true",
+        "-csv",
+        "--csv",
+        default=True,
+        action="store_false",
         required=False,
-        help="Returns results in json/dictionary format instead of data frame.",
+        help="Returns results in csv format instead of json.",
     )
     parser_blast.add_argument(
         "-o",
@@ -455,6 +518,22 @@ def main():
             "Default: Standard out."
         ),
     )
+    parser_blast.add_argument(
+        "-seq",
+        "--sequence",
+        type=str,
+        required=False,
+        dest="seq_deprecated",
+        help="DEPRECATED - use positional argument instead. Sequence (str) or path to fasta file.",
+    )
+    parser_blast.add_argument(
+        "-j",
+        "--json",
+        default=False,
+        action="store_true",
+        required=False,
+        help="DEPRECATED - json is now the default output format (convert to csv using flag [--csv]).",
+    )
 
     ## gget blat subparser
     blat_desc = (
@@ -465,11 +544,11 @@ def main():
     )
     # blat parser arguments
     parser_blat.add_argument(
-        "-seq",
-        "--sequence",
+        "sequence",
         type=str,
-        required=True,
-        help="Sequence (str) or path to fasta file containing one sequence.",
+        nargs="?",
+        default=None,
+        help="Sequence (str) or path to fasta file.",
     )
     parser_blat.add_argument(
         "-st",
@@ -496,12 +575,12 @@ def main():
         ),
     )
     parser_blat.add_argument(
-        "-j",
-        "--json",
-        default=False,
-        action="store_true",
+        "-csv",
+        "--csv",
+        default=True,
+        action="store_false",
         required=False,
-        help="Returns results in json/dictionary format instead of data frame.",
+        help="Returns results in csv format instead of json.",
     )
     parser_blat.add_argument(
         "-o",
@@ -512,6 +591,22 @@ def main():
             "Path to the csv file the results will be saved in, e.g. path/to/directory/results.csv."
             "Default: Standard out."
         ),
+    )
+    parser_blat.add_argument(
+        "-seq",
+        "--sequence",
+        type=str,
+        required=False,
+        dest="seq_deprecated",
+        help="DEPRECATED - use positional argument instead. Sequence (str) or path to fasta file.",
+    )
+    parser_blat.add_argument(
+        "-j",
+        "--json",
+        default=False,
+        action="store_true",
+        required=False,
+        help="DEPRECATED - json is now the default output format (convert to csv using flag [--csv]).",
     )
 
     ## gget enrichr subparser
@@ -525,12 +620,11 @@ def main():
     )
     # enrichr parser arguments
     parser_enrichr.add_argument(
-        "-g",
-        "--genes",
+        "genes",
         type=str,
-        nargs="+",
-        required=True,
-        help="Genes to perform enrichment analysis on.",
+        nargs="*",
+        default=None,
+        help="List of gene symbols or Ensembl gene IDs to perform enrichment analysis on.",
     )
     parser_enrichr.add_argument(
         "-db",
@@ -543,12 +637,20 @@ def main():
         ),
     )
     parser_enrichr.add_argument(
-        "-j",
-        "--json",
+        "-e",
+        "--ensembl",
         default=False,
         action="store_true",
         required=False,
-        help="Returns results in json/dictionary format instead of data frame.",
+        help="Add this flag if genes are given as Ensembl gene IDs.",
+    )
+    parser_enrichr.add_argument(
+        "-csv",
+        "--csv",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Returns results in csv format instead of json.",
     )
     parser_enrichr.add_argument(
         "-o",
@@ -559,6 +661,23 @@ def main():
             "Path to the csv file the results will be saved in, e.g. path/to/directory/results.csv."
             "Default: Standard out."
         ),
+    )
+    parser_enrichr.add_argument(
+        "-g",
+        "--genes",
+        type=str,
+        nargs="+",
+        required=False,
+        dest="genes_deprecated",
+        help="DEPRECATED - use positional argument instead. List of gene symbols or Ensembl gene IDs to perform enrichment analysis on.",
+    )
+    parser_enrichr.add_argument(
+        "-j",
+        "--json",
+        default=False,
+        action="store_true",
+        required=False,
+        help="DEPRECATED - json is now the default output format (convert to csv using flag [--csv]).",
     )
 
     ## gget archs4 subparser
@@ -572,11 +691,19 @@ def main():
     )
     # archs4 parser arguments
     parser_archs4.add_argument(
-        "-g",
-        "--gene",
+        "gene",
         type=str,
-        required=True,
-        help="Short name (gene symbol) of gene of interest (str), e.g. 'STAT4'.",
+        nargs="?",
+        default=None,
+        help="Gene symbol or Ensembl gene ID of gene of interest (str), e.g. 'STAT4'.",
+    )
+    parser_archs4.add_argument(
+        "-e",
+        "--ensembl",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Add this flag if gene is given as an Ensembl gene ID.",
     )
     parser_archs4.add_argument(
         "-w",
@@ -625,12 +752,12 @@ def main():
         help="'human' (default) or 'mouse'. (Only for tissue expression atlas.)",
     )
     parser_archs4.add_argument(
-        "-j",
-        "--json",
-        default=False,
-        action="store_true",
+        "-csv",
+        "--csv",
+        default=True,
+        action="store_false",
         required=False,
-        help="Returns results in json/dictionary format instead of data frame.",
+        help="Returns results in csv format instead of json.",
     )
     parser_archs4.add_argument(
         "-o",
@@ -642,16 +769,52 @@ def main():
             "Default: Standard out."
         ),
     )
+    parser_archs4.add_argument(
+        "-g",
+        "--gene",
+        type=str,
+        required=False,
+        dest="gene_deprecated",
+        help="DEPRECATED - use positional argument instead. Gene symbol or Ensembl gene ID of gene of interest (str), e.g. 'STAT4'.",
+    )
+    parser_archs4.add_argument(
+        "-j",
+        "--json",
+        default=False,
+        action="store_true",
+        required=False,
+        help="DEPRECATED - json is now the default output format (convert to csv using flag [--csv]).",
+    )
 
-    ## Show help when no arguments are given
+    ### Define return values
+    # Show help when no arguments are given
     if len(sys.argv) == 1:
         parent_parser.print_help(sys.stderr)
         sys.exit(1)
 
+    # Show  module specific help if only module but no further arguments are given
+    command_to_parser = {
+        "muscle": parser_muscle,
+        "ref": parser_ref,
+        "search": parser_gget,
+        "seq": parser_seq,
+        "info": parser_info,
+        "blast": parser_blast,
+        "blat": parser_blat,
+        "enrichr": parser_enrichr,
+        "archs4": parser_archs4,
+    }
+
+    if len(sys.argv) == 2:
+        if sys.argv[1] in command_to_parser:
+            command_to_parser[sys.argv[1]].print_help(sys.stderr)
+        else:
+            parent_parser.print_help(sys.stderr)
+        sys.exit(1)
+
     args = parent_parser.parse_args()
 
-    ### Define return values
-    ## Help return
+    # Help return
     if args.help:
         # Retrieve all subparsers from the parent parser
         subparsers_actions = [
@@ -671,26 +834,39 @@ def main():
 
     ## blat return
     if args.command == "blat":
+        # Handle deprecated flags for backwards compatibility
+        if args.seq_deprecated and args.sequence:
+            logging.warning(
+                "The [-seq][--sequence] argument is deprecated, using positional argument [sequence] instead."
+            )
+        if args.seq_deprecated and not args.sequence:
+            args.sequence = args.seq_deprecated
+            logging.warning(
+                "The [-seq][--sequence] argument is deprecated, please use positional argument [sequence] instead."
+            )
+        if not args.seq_deprecated and not args.sequence:
+            parser_blat.error("the following arguments are required: sequence")
+
         # Run gget blast function
         blat_results = blat(
             sequence=args.sequence,
             seqtype=args.seqtype,
             assembly=args.assembly,
-            json=args.json,
+            json=args.csv,
         )
 
         # Check if the function returned something
         if not isinstance(blat_results, type(None)):
             # Save blat results if args.out specified
-            if args.out and not args.json:
+            if args.out and not args.csv:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
                     os.makedirs(directory, exist_ok=True)
-                # Save data frame to csv
+                # Save to csv
                 blat_results.to_csv(args.out, index=False)
 
-            if args.out and args.json:
+            if args.out and args.csv:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
@@ -700,13 +876,26 @@ def main():
                     json.dump(blat_results, f, ensure_ascii=False, indent=4)
 
             # Print results if no directory specified
-            if not args.out and not args.json:
+            if not args.out and not args.csv:
                 blat_results.to_csv(sys.stdout, index=False)
-            if not args.out and args.json:
+            if not args.out and args.csv:
                 print(json.dumps(blat_results, ensure_ascii=False, indent=4))
 
     ## blast return
     if args.command == "blast":
+        # Handle deprecated flags for backwards compatibility
+        if args.seq_deprecated and args.sequence:
+            logging.warning(
+                "The [-seq][--sequence] argument is deprecated, using positional argument [sequence] instead."
+            )
+        if args.seq_deprecated and not args.sequence:
+            args.sequence = args.seq_deprecated
+            logging.warning(
+                "The [-seq][--sequence] argument is deprecated, please use positional argument [sequence] instead."
+            )
+        if not args.seq_deprecated and not args.sequence:
+            parser_blast.error("the following arguments are required: sequence")
+
         # Run gget blast function
         blast_results = blast(
             sequence=args.sequence,
@@ -717,21 +906,21 @@ def main():
             low_comp_filt=args.low_comp_filt,
             megablast=args.megablast_off,
             verbose=args.quiet,
-            json=args.json,
+            json=args.csv,
         )
 
         # Check if the function returned something
         if not isinstance(blast_results, type(None)):
             # Save blast results if args.out specified
-            if args.out and not args.json:
+            if args.out and not args.csv:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
                     os.makedirs(directory, exist_ok=True)
-                # Save data frame to csv
+                # Save to csv
                 blast_results.to_csv(args.out, index=False)
 
-            if args.out and args.json:
+            if args.out and args.csv:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
@@ -741,34 +930,48 @@ def main():
                     json.dump(blast_results, f, ensure_ascii=False, indent=4)
 
             # Print results if no directory specified
-            if not args.out and not args.json:
+            if not args.out and not args.csv:
                 blast_results.to_csv(sys.stdout, index=False)
-            if not args.out and args.json:
+            if not args.out and args.csv:
                 print(json.dumps(blast_results, ensure_ascii=False, indent=4))
 
     ## archs4 return
     if args.command == "archs4":
+        # Handle deprecated flags for backwards compatibility
+        if args.gene_deprecated and args.gene:
+            logging.warning(
+                "The [-g][--gene] argument is deprecated, using positional argument [gene] instead."
+            )
+        if args.gene_deprecated and not args.gene:
+            args.gene = args.gene_deprecated
+            logging.warning(
+                "The [-g][--gene] argument is deprecated, please use positional argument [gene] instead."
+            )
+        if not args.gene_deprecated and not args.gene:
+            parser_archs4.error("the following arguments are required: gene")
+
         # Run gget archs4 function
         archs4_results = archs4(
             gene=args.gene,
+            ensembl=args.ensembl,
             which=args.which,
             gene_count=args.gene_count,
             species=args.species,
-            json=args.json,
+            json=args.csv,
         )
 
         # Check if the function returned something
         if not isinstance(archs4_results, type(None)):
             # Save archs4 results if args.out specified
-            if args.out and not args.json:
+            if args.out and not args.csv:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
                     os.makedirs(directory, exist_ok=True)
-                # Save data frame to csv
+                # Save to csv
                 archs4_results.to_csv(args.out, index=False)
 
-            if args.out and args.json:
+            if args.out and args.csv:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
@@ -778,13 +981,26 @@ def main():
                     json.dump(archs4_results, f, ensure_ascii=False, indent=4)
 
             # Print results if no directory specified
-            if not args.out and not args.json:
+            if not args.out and not args.csv:
                 archs4_results.to_csv(sys.stdout, index=False)
-            if not args.out and args.json:
+            if not args.out and args.csv:
                 print(json.dumps(archs4_results, ensure_ascii=False, indent=4))
 
     ## muscle return
     if args.command == "muscle":
+        # Handle deprecated flags for backwards compatibility
+        if args.fasta_deprecated and args.fasta:
+            logging.warning(
+                "The [-fa][--fasta] argument is deprecated, using positional argument [fasta] instead."
+            )
+        if args.fasta_deprecated and not args.fasta:
+            args.fasta = args.fasta_deprecated
+            logging.warning(
+                "The [-fa][--fasta] argument is deprecated, please use positional argument [fasta] instead."
+            )
+        if not args.fasta_deprecated and not args.fasta:
+            parser_muscle.error("the following arguments are required: fasta")
+
         muscle(fasta=args.fasta, super5=args.super5, out=args.out)
 
     ## ref return
@@ -797,32 +1013,37 @@ def main():
             for species in species_list:
                 print(species)
 
+        # Handle deprecated flags for backwards compatibility
+        if args.species_deprecated and args.species:
+            logging.warning(
+                "The [-s][--species] argument is deprecated, using positional argument [species] instead."
+            )
+        if args.species_deprecated and not args.species:
+            args.species = args.species_deprecated
+            logging.warning(
+                "The [-s][--species] argument is deprecated, please use positional argument [species] instead."
+            )
+
         # Raise error if neither species nor list flag passed
         if args.species is None and args.list_species is False:
-            parser_ref.error(
-                "\n\nThe following arguments are required to fetch FTPs: -s/--species, e.g. '-s homo_sapiens'\n\n"
-                "gget ref --list -> lists out all available species. "
-                "Combine with -r (int) to define specific Ensembl release (default: latest release)."
+            parser_ref.error("the following arguments are required: species \n"
+                "'gget ref --list_species' -> lists out all available species. \n"
+                "Combine with '-r [int]' to define a specific Ensembl release (default: latest release). "
             )
 
         ## Clean up 'which' entry if passed
-        if type(args.which) != str:
-            which_clean = []
-            # Split by comma (spaces are automatically split by nargs:"+")
-            for which in args.which:
-                which_clean.append(which.split(","))
-            # Flatten which_clean
-            which_clean_final = [item for sublist in which_clean for item in sublist]
-            # Remove empty strings resulting from split
-            while "" in which_clean_final:
-                which_clean_final.remove("")
-        else:
-            which_clean_final = args.which
+        # Split by comma
+        which_clean = args.which.split(",")
 
         if args.species:
 
             # Query Ensembl for requested FTPs using function ref
-            ref_results = ref(args.species, which_clean_final, args.release, args.ftp)
+            ref_results = ref(
+                species=args.species,
+                which=which_clean,
+                release=args.release,
+                ftp=args.ftp,
+            )
 
             # Print or save list of URLs (ftp=True)
             if args.ftp:
@@ -906,6 +1127,18 @@ def main():
 
     ## search return
     if args.command == "search":
+        # Handle deprecated flags for backwards compatibility
+        if args.sw_deprecated and args.searchwords:
+            logging.warning(
+                "The [-sw][--searchwords] argument is deprecated, using positional argument [searchwords] instead."
+            )
+        if args.sw_deprecated and not args.searchwords:
+            args.searchwords = args.sw_deprecated
+            logging.warning(
+                "The [-sw][--searchwords] argument is deprecated, please use positional argument [searchwords] instead."
+            )
+        if not args.sw_deprecated and not args.searchwords:
+            parser_gget.error("the following arguments are required: searchwords")
 
         ## Clean up args.searchwords
         sw_clean = []
@@ -922,22 +1155,23 @@ def main():
         gget_results = search(
             sw_clean_final,
             args.species,
+            id_type=args.id_type,
             seqtype=args.seqtype,
             andor=args.andor,
             limit=args.limit,
-            json=args.json,
+            json=args.csv,
         )
 
         # Save search results if args.out specified
-        if args.out and not args.json:
+        if args.out and not args.csv:
             # Create saving directory
             directory = "/".join(args.out.split("/")[:-1])
             if directory != "":
                 os.makedirs(directory, exist_ok=True)
-            # Save data frame to csv
+            # Save to csv
             gget_results.to_csv(args.out, index=False)
 
-        if args.out and args.json:
+        if args.out and args.csv:
             # Create saving directory
             directory = "/".join(args.out.split("/")[:-1])
             if directory != "":
@@ -947,13 +1181,25 @@ def main():
                 json.dump(gget_results, f, ensure_ascii=False, indent=4)
 
         # Print results if no directory specified
-        if not args.out and not args.json:
+        if not args.out and not args.csv:
             gget_results.to_csv(sys.stdout, index=False)
-        if not args.out and args.json:
+        if not args.out and args.csv:
             print(json.dumps(gget_results, ensure_ascii=False, indent=4))
 
     ## enrichr return
     if args.command == "enrichr":
+        # Handle deprecated flags for backwards compatibility
+        if args.genes_deprecated and args.genes:
+            logging.warning(
+                "The [-g][--genes] argument is deprecated, using positional argument [genes] instead."
+            )
+        if args.genes_deprecated and not args.genes:
+            args.genes = args.genes_deprecated
+            logging.warning(
+                "The [-g][--genes] argument is deprecated, please use positional argument [genes] instead."
+            )
+        if not args.genes_deprecated and not args.genes:
+            parser_enrichr.error("the following arguments are required: genes")
 
         ## Clean up args.genes
         genes_clean = []
@@ -968,21 +1214,24 @@ def main():
 
         # Submit Enrichr query
         enrichr_results = enrichr(
-            genes=genes_clean_final, database=args.database, json=args.json
+            genes=genes_clean_final,
+            database=args.database,
+            ensembl=args.ensembl,
+            json=args.csv,
         )
 
         # Check if the function returned something
         if not isinstance(enrichr_results, type(None)):
             # Save enrichr results if args.out specified
-            if args.out and not args.json:
+            if args.out and not args.csv:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
                     os.makedirs(directory, exist_ok=True)
-                # Save data frame to csv
+                # Save to csv
                 enrichr_results.to_csv(args.out, index=False)
 
-            if args.out and args.json:
+            if args.out and args.csv:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
@@ -992,13 +1241,25 @@ def main():
                     json.dump(enrichr_results, f, ensure_ascii=False, indent=4)
 
             # Print results if no directory specified
-            if not args.out and not args.json:
+            if not args.out and not args.csv:
                 enrichr_results.to_csv(sys.stdout, index=False)
-            if not args.out and args.json:
+            if not args.out and args.csv:
                 print(json.dumps(enrichr_results, ensure_ascii=False, indent=4))
 
     ## info return
     if args.command == "info":
+        # Handle deprecated flags for backwards compatibility
+        if args.id_deprecated and args.ens_ids:
+            logging.warning(
+                "The [-id][--ens_ids] argument is deprecated, using positional argument [ens_ids] instead."
+            )
+        if args.id_deprecated and not args.ens_ids:
+            args.ens_ids = args.id_deprecated
+            logging.warning(
+                "The [-id][--genes] argument is deprecated, please use positional argument [ens_ids] instead."
+            )
+        if not args.id_deprecated and not args.ens_ids:
+            parser_info.error("the following arguments are required: ens_ids")
 
         ## Clean up args.ens_ids
         ids_clean = []
@@ -1013,21 +1274,21 @@ def main():
 
         # Look up requested Ensembl IDs
         info_results = info(
-            ids_clean_final, expand=args.expand, json=args.json, verbose=args.quiet
+            ids_clean_final, expand=args.expand, json=args.csv, verbose=args.quiet
         )
 
         # Check if the function returned something
         if not isinstance(info_results, type(None)):
             # Save info results if args.out specified
-            if args.out and not args.json:
+            if args.out and not args.csv:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
                     os.makedirs(directory, exist_ok=True)
-                # Save data frame to csv
+                # Save to csv
                 info_results.to_csv(args.out, index=False)
 
-            if args.out and args.json:
+            if args.out and args.csv:
                 # Create saving directory
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
@@ -1037,13 +1298,25 @@ def main():
                     json.dump(info_results, f, ensure_ascii=False, indent=4)
 
             # Print results if no directory specified
-            if not args.out and not args.json:
+            if not args.out and not args.csv:
                 info_results.to_csv(sys.stdout, index=False)
-            if not args.out and args.json:
+            if not args.out and args.csv:
                 print(json.dumps(info_results, ensure_ascii=False, indent=4))
 
     ## seq return
     if args.command == "seq":
+        # Handle deprecated flags for backwards compatibility
+        if args.id_deprecated and args.ens_ids:
+            logging.warning(
+                "The [-id][--ens_ids] argument is deprecated, using positional argument [ens_ids] instead."
+            )
+        if args.id_deprecated and not args.ens_ids:
+            args.ens_ids = args.id_deprecated
+            logging.warning(
+                "The [-id][--ens_ids] argument is deprecated, please use positional argument [ens_ids] instead."
+            )
+        if not args.id_deprecated and not args.ens_ids:
+            parser_seq.error("the following arguments are required: ens_ids")
 
         ## Clean up args.ens_ids
         ids_clean = []
@@ -1057,7 +1330,12 @@ def main():
             ids_clean_final.remove("")
 
         # Look up requested Ensembl IDs
-        seq_results = seq(ids_clean_final, seqtype=args.seqtype, isoforms=args.isoforms)
+        seq_results = seq(
+            ids_clean_final,
+            transcribe=args.transcribe,
+            seqtype=args.seqtype,
+            isoforms=args.isoforms,
+        )
 
         # Save in specified directory if -o specified
         if args.out and seq_results != None:
