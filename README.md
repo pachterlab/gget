@@ -105,7 +105,7 @@ gget.archs4("ACE2", which="tissue")
 ___
 
 # Manual
-Jupyter Lab / Google Colab arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are `True/False` arguments in Jupyter Lab / Google Colab.  
+Jupyter Lab / Google Colab arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Jupyter Lab / Google Colab.  
 The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
 
 ## gget ref 👣
