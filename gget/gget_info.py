@@ -328,6 +328,9 @@ def info(ens_ids, wrap_text=False, expand=False, json=False, verbose=True, save=
         "all_transcripts": [],
         "transcript_biotypes": [],
         "transcript_names": [],
+        "transcript_strands": [],
+        "transcript_starts": [],
+        "transcript_ends": [],
         "all_exons": [],
         "exon_starts": [],
         "exon_ends": [],
@@ -345,10 +348,22 @@ def info(ens_ids, wrap_text=False, expand=False, json=False, verbose=True, save=
         all_transcripts = []
         transcript_biotypes = []
         transcript_names = []
+        transcript_strands = []
+        transcript_starts = []
+        transcript_ends = []
+
         try:
             for trans_dict in df[ens_id]["Transcript"]:
                 try:
-                    all_transcripts.append(trans_dict["id"])
+                    try:
+                        # Add Transcript ID with latest version if available
+                        versioned_trans_id = (
+                            str(trans_dict["id"]) + "." + str(trans_dict["version"])
+                        )
+                        all_transcripts.append(versioned_trans_id)
+                    except KeyError:
+                        # Just add ID if no version found
+                        all_transcripts.append(trans_dict["id"])
                 except:
                     all_transcripts.append(np.NaN)
                 try:
@@ -359,15 +374,33 @@ def info(ens_ids, wrap_text=False, expand=False, json=False, verbose=True, save=
                     transcript_biotypes.append(trans_dict["biotype"])
                 except:
                     transcript_biotypes.append(np.NaN)
+                try:
+                    transcript_starts.append(trans_dict["start"])
+                except:
+                    transcript_starts.append(np.NaN)
+                try:
+                    transcript_ends.append(trans_dict["end"])
+                except:
+                    transcript_ends.append(np.NaN)
+                try:
+                    transcript_strands.append(trans_dict["strand"])
+                except:
+                    transcript_strands.append(np.NaN)
 
             data["all_transcripts"].append(all_transcripts)
             data["transcript_biotypes"].append(transcript_biotypes)
             data["transcript_names"].append(transcript_names)
+            data["transcript_strands"].append(transcript_strands)
+            data["transcript_starts"].append(transcript_starts)
+            data["transcript_ends"].append(transcript_ends)
 
         except:
             data["all_transcripts"].append(np.NaN)
             data["transcript_biotypes"].append(np.NaN)
             data["transcript_names"].append(np.NaN)
+            data["transcript_strands"].append(np.NaN)
+            data["transcript_starts"].append(np.NaN)
+            data["transcript_ends"].append(np.NaN)
 
         # Clean up exon info, if available
         all_exons = []
@@ -376,7 +409,15 @@ def info(ens_ids, wrap_text=False, expand=False, json=False, verbose=True, save=
         try:
             for exon_dict in df[ens_id]["Exon"]:
                 try:
-                    all_exons.append(exon_dict["id"])
+                    try:
+                        # Add ID with latest version if available
+                        versioned_id = (
+                            str(exon_dict["id"]) + "." + str(exon_dict["version"])
+                        )
+                        all_exons.append(versioned_id)
+                    except KeyError:
+                        # Just add ID if no version found
+                        all_exons.append(exon_dict["id"])
                 except:
                     all_exons.append(np.NaN)
                 try:
@@ -404,7 +445,15 @@ def info(ens_ids, wrap_text=False, expand=False, json=False, verbose=True, save=
         try:
             for transl_dict in df[ens_id]["Exon"]:
                 try:
-                    all_translations.append(transl_dict["id"])
+                    try:
+                        # Add ID with latest version if available
+                        versioned_id = (
+                            str(transl_dict["id"]) + "." + str(transl_dict["version"])
+                        )
+                        all_translations.append(versioned_id)
+                    except KeyError:
+                        # Just add ID if no version found
+                        all_translations.append(transl_dict["id"])
                 except:
                     all_translations.append(np.NaN)
                 try:
@@ -449,22 +498,43 @@ def info(ens_ids, wrap_text=False, expand=False, json=False, verbose=True, save=
             transcript_ids = results_dict[ens_id]["all_transcripts"]
             transcript_biotypes = results_dict[ens_id]["transcript_biotypes"]
             transcript_names = results_dict[ens_id]["transcript_names"]
+            transcript_strands = results_dict[ens_id]["transcript_strands"]
+            transcript_starts = results_dict[ens_id]["transcript_starts"]
+            transcript_ends = results_dict[ens_id]["transcript_ends"]
 
             # Delete old keys
             results_dict[ens_id].pop("all_transcripts", None)
             results_dict[ens_id].pop("transcript_biotypes", None)
             results_dict[ens_id].pop("transcript_names", None)
+            results_dict[ens_id].pop("transcript_strands", None)
+            results_dict[ens_id].pop("transcript_starts", None)
+            results_dict[ens_id].pop("transcript_ends", None)
 
             # Build new dictionary entries
             results_dict[ens_id].update({"all_transcripts": []})
-            for transcript_id, transcript_biotype, transcript_name in zip(
-                transcript_ids or [], transcript_biotypes or [], transcript_names or []
+            for (
+                transcript_id,
+                transcript_biotype,
+                transcript_name,
+                transcript_strand,
+                transcript_start,
+                transcript_end,
+            ) in zip(
+                transcript_ids or [],
+                transcript_biotypes or [],
+                transcript_names or [],
+                transcript_strands or [],
+                transcript_starts or [],
+                transcript_ends or [],
             ):
                 results_dict[ens_id]["all_transcripts"].append(
                     {
                         "transcript_id": transcript_id,
                         "transcript_biotype": transcript_biotype,
                         "transcript_name": transcript_name,
+                        "transcript_strand": transcript_strand,
+                        "transcript_start": transcript_start,
+                        "transcript_end": transcript_end,
                     }
                 )
 
