@@ -109,7 +109,7 @@ ___
 Jupyter Lab / Google Colab arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Jupyter Lab / Google Colab.  
 The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
 
-## gget ref 👣
+## gget ref 📖
 Fetch FTPs and their respective metadata (or use flag `ftp` to only return the links) for reference genomes and annotations from [Ensembl](https://www.ensembl.org/) by species.  
 Return format: dictionary/JSON.
 
@@ -502,7 +502,7 @@ gget.muscle("fasta.fa")
 #### [More examples](https://github.com/pachterlab/gget_examples)
 ___
 
-## gget enrichr 🌌
+## gget enrichr 💰
 Perform an enrichment analysis on a list of genes using [Enrichr](https://maayanlab.cloud/Enrichr/).  
 Return format: JSON (command-line) or data frame/CSV (Jupyter Lab / Google Colab).
   
