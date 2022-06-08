@@ -8,14 +8,13 @@
 ![Code Coverage](https://img.shields.io/badge/Coverage-83%25-green.svg)  
 
 ## :sparkles: What's new in version ≥ 0.2.0
-- For all modules, the first required argument was converted to a positional argument and should not be named anymore in the command-line,  
-e.g. `gget ref -s human` &rarr; `gget ref human`.
 - json is now the default output format for the command-line interface for modules that previously returned data frame (csv) format by default (the output can be converted to data frame/csv using flag `[-csv][--csv]`). Data frame/csv remains the default output for Jupyter Lab / Google Colab (and can be converted to json with `json=True`).
+- For all modules, the first required argument was converted to a positional argument and should not be named anymore in the command-line, e.g. `gget ref -s human` &rarr; `gget ref human`.
 - `gget info`: `[--expand]` is deprecated. The module will now always return all of the available information.
-- `gget info` and `gget seq` now support WormBase and FlyBase IDs.
+- `gget info` and `gget seq` now support :worm: WormBase and :fly: FlyBase IDs.
 - `gget archs4` and `gget enrichr` now also take Ensembl IDs as input with added flag `[-e][--ensembl]` (`ensembl=True` in Jupyter Lab / Google Colab).
-- `gget seq` argument `seqtype` was replaced by flag `[-t][--transcribe]` (`transcribe=True/False` in Jupyter Lab / Google Colab) which will return either nucleotide (`False`) or amino acid sequences (`True`).
-- `gget search` argument `seqtype` was renamed to `id_type` (still taking the same arguments 'gene' or 'transcript').
+- `gget seq` argument `seqtype` was replaced by flag `[-t][--transcribe]` (`transcribe=True/False` in Jupyter Lab / Google Colab) which will return either nucleotide (`False`) or amino acid (`True`) sequences.
+- `gget search` argument `seqtype` was renamed to `id_type` for clarity (still taking the same arguments 'gene' or 'transcript').
 
 ___
 
@@ -27,23 +26,23 @@ Luebbert, L. & Pachter, L. (2022). Efficient querying of genomic databases for s
 ![alt text](https://github.com/pachterlab/gget/blob/main/figures/gget_overview.png?raw=true)
   
 `gget` currently consists of the following nine modules:
-- [`gget ref`](#gget-ref)  
+- [`gget ref`](#gget-ref-)  
 Fetch File Transfer Protocols (FTPs) and metadata for reference genomes and annotations from [Ensembl](https://www.ensembl.org/) by species.
-- [`gget search`](#gget-search)   
+- [`gget search`](#gget-search-)   
 Fetch genes and transcripts from [Ensembl](https://www.ensembl.org/) using free-form search terms.
-- [`gget info`](#gget-info)  
+- [`gget info`](#gget-info-)  
 Fetch extensive gene and transcript metadata from [Ensembl](https://www.ensembl.org/), [UniProt](https://www.uniprot.org/), and [NCBI](https://www.ncbi.nlm.nih.gov/) using Ensembl IDs.  
-- [`gget seq`](#gget-seq)  
+- [`gget seq`](#gget-seq-)  
 Fetch nucleotide or amino acid sequences of genes or transcripts from [Ensembl](https://www.ensembl.org/) or [UniProt](https://www.uniprot.org/), respectively.  
-- [`gget blast`](#gget-blast)  
+- [`gget blast`](#gget-blast-)  
 BLAST a nucleotide or amino acid sequence to any [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi) database.
-- [`gget blat`](#gget-blat)  
+- [`gget blat`](#gget-blat-)  
 Find the genomic location of a nucleotide or amino acid sequence using [BLAT](https://genome.ucsc.edu/cgi-bin/hgBlat).
-- [`gget muscle`](#gget-muscle)  
+- [`gget muscle`](#gget-muscle-)  
 Align multiple nucleotide or amino acid sequences to each other using [Muscle5](https://www.drive5.com/muscle/).
-- [`gget enrichr`](#gget-enrichr)  
+- [`gget enrichr`](#gget-enrichr-)  
 Perform an enrichment analysis on a list of genes using [Enrichr](https://maayanlab.cloud/Enrichr/).
-- [`gget archs4`](#gget-archs4)  
+- [`gget archs4`](#gget-archs4-)  
 Find the most correlated genes to a gene of interest or find the gene's tissue expression atlas using [ARCHS4](https://maayanlab.cloud/archs4/).
 
 
@@ -61,7 +60,7 @@ For use in Jupyter Lab / Google Colab:
 import gget
 ```
 
-## Quick start guide
+## :magic_wand:  Quick start guide
 ```bash
 # Fetch all Homo sapiens reference and annotation FTPs from the latest Ensembl release
 $ gget ref homo_sapiens
@@ -109,7 +108,7 @@ ___
 Jupyter Lab / Google Colab arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are `True/False` arguments in Jupyter Lab / Google Colab.  
 The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
 
-## gget ref
+## gget ref 👣
 Fetch FTPs and their respective metadata (or use flag `ftp` to only return the links) for reference genomes and annotations from [Ensembl](https://www.ensembl.org/) by species.  
 Return format: dictionary/json.
 
@@ -199,7 +198,7 @@ gget.ref("homo_sapiens", which=["gtf", "dna"])
 #### [More examples](https://github.com/pachterlab/gget_examples)
 ___
 
-## gget search   
+## gget search 🔎
 Fetch genes and transcripts from [Ensembl](https://www.ensembl.org/) using free-form search terms.   
 Return format: json (command-line) or data frame/csv (Jupyter Lab / Google Colab).
 
@@ -259,7 +258,7 @@ gget.search(["gaba", "gamma-aminobutyric"], "homo_sapiens")
 #### [More examples](https://github.com/pachterlab/gget_examples)
 ___
 
-## gget info  
+## gget info 💡
 Fetch extensive gene and transcript metadata from [Ensembl](https://www.ensembl.org/), [UniProt](https://www.uniprot.org/), and [NCBI](https://www.ncbi.nlm.nih.gov/) using Ensembl IDs.  
 Return format: json (command-line) or data frame/csv (Jupyter Lab / Google Colab).
 
@@ -303,7 +302,7 @@ gget.info(["ENSG00000034713", "ENSG00000104853", "ENSG00000170296"])
 #### [More examples](https://github.com/pachterlab/gget_examples)
 ___
 
-## gget seq  
+## gget seq 🧬
 Fetch nucleotide or amino acid sequence of a gene (and all its isoforms) or a transcript by Ensembl ID.   
 Return format: FASTA.
 
@@ -350,7 +349,7 @@ gget.seq("ENSG00000034713", transcribe=True, isoforms=True)
 #### [More examples](https://github.com/pachterlab/gget_examples)
 ___
 
-## gget blast
+## gget blast 💥
 BLAST a nucleotide or amino acid sequence to any [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi) database.  
 Return format: json (command-line) or data frame/csv (Jupyter Lab / Google Colab).
 
@@ -424,7 +423,7 @@ gget.blast("fasta.fa")
 #### [More examples](https://github.com/pachterlab/gget_examples)
 ___
 
-## gget blat
+## gget blat 🎯
 Find the genomic location of a nucleotide or amino acid sequence using [BLAT](https://genome.ucsc.edu/cgi-bin/hgBlat).   
 Return format: json (command-line) or data frame/csv (Jupyter Lab / Google Colab).
 
@@ -468,7 +467,7 @@ gget.blat("MKWMFKEDHSLEHRCVESAKIRAKYPDRVPVIVEKVSGSQIVDIDKRKYLVPSDITVAQFMWIIRKRIQ
 #### [More examples](https://github.com/pachterlab/gget_examples)
 ___
 
-## gget muscle  
+## gget muscle 🦾
 Align multiple nucleotide or amino acid sequences to each other using [Muscle5](https://www.drive5.com/muscle/).  
 Return format: ClustalW formatted standard out or aligned FASTA (.afa).  
 
@@ -502,7 +501,7 @@ gget.muscle("fasta.fa")
 #### [More examples](https://github.com/pachterlab/gget_examples)
 ___
 
-## gget enrichr
+## gget enrichr 🌌
 Perform an enrichment analysis on a list of genes using [Enrichr](https://maayanlab.cloud/Enrichr/).  
 Return format: json (command-line) or data frame/csv (Jupyter Lab / Google Colab).
   
@@ -554,7 +553,7 @@ gget.enrichr(["ACE2", "AGT", "AGTR1"], database="ontology", plot=True)
 #### [More examples](https://github.com/pachterlab/gget_examples)
 ___
 
-## gget archs4
+## gget archs4 🐁
 Find the most correlated genes to a gene of interest or find the gene's tissue expression atlas using [ARCHS4](https://maayanlab.cloud/archs4/).  
 Return format: json (command-line) or data frame/csv (Jupyter Lab / Google Colab).
 
