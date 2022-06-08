@@ -143,6 +143,9 @@ def seq(
                     )
 
                     for transcipt_id in info_df.loc[ensembl_ID]["all_transcripts"]:
+                        # Remove version number for Ensembl IDs (not for flybase/wormbase IDs)
+                        if transcipt_id.startswith("ENS"):
+                            transcipt_id = transcipt_id.split(".")[0]
 
                         # Try if query is valid
                         try:
@@ -218,7 +221,7 @@ def seq(
 
     ## Fetch amino acid sequences from UniProt
     if transcribe:
-        if isoforms == False:
+        if isoforms is False:
             # List to collect transcript IDs
             trans_ids = []
 
@@ -241,8 +244,8 @@ def seq(
                     can_trans = info_df.loc[ensembl_ID]["canonical_transcript"]
 
                     if ensembl_ID.startswith("ENS"):
-                        temp_trans_id = can_trans.split(".")[0]
                         # Remove Ensembl ID version from transcript IDs and append to transcript IDs list
+                        temp_trans_id = can_trans.split(".")[0]
                         trans_ids.append(temp_trans_id)
 
                     elif ensembl_ID.startswith("WB"):
@@ -315,11 +318,14 @@ def seq(
                             # Append transcript ID (without Ensembl version number) to list of transcripts to fetch
                             trans_ids.append(transcipt_id.split(".")[0])
 
-                        else:
-                            # Remove added "." at the end of other transcript IDs
-                            # Note: No need to remove the version number for WormBase IDs here, because "all_transcripts" are returned without version numbers
+                        elif ensembl_ID.startswith("WB"):
+                            # For WormBase transcript IDs, remove the version number for submission to UniProt API
                             temp_trans_id = ".".join(transcipt_id.split(".")[:-1])
                             trans_ids.append(temp_trans_id)
+
+                        else:
+                            # Note: No need to remove the added "." at the end of unversioned transcripts here, because "all_transcripts" are returned without it
+                            trans_ids.append(transcipt_id)
 
                     logging.info(
                         f"Requesting amino acid sequences of all transcripts of gene {ensembl_ID} from UniProt."
