@@ -787,6 +787,28 @@ def main():
     )
 
     ### Define return values
+    args = parent_parser.parse_args()
+
+    # Help return
+    if args.help:
+        # Retrieve all subparsers from the parent parser
+        subparsers_actions = [
+            action
+            for action in parent_parser._actions
+            if isinstance(action, argparse._SubParsersAction)
+        ]
+        for subparsers_action in subparsers_actions:
+            # Get all subparsers and print help
+            for choice, subparser in subparsers_action.choices.items():
+                print("Subparser '{}'".format(choice))
+                print(subparser.format_help())
+        sys.exit(1)
+
+    # Version return
+    if args.version:
+        print(f"gget version: {__version__}")
+        sys.exit(1)
+
     # Show help when no arguments are given
     if len(sys.argv) == 1:
         parent_parser.print_help(sys.stderr)
@@ -811,26 +833,6 @@ def main():
         else:
             parent_parser.print_help(sys.stderr)
         sys.exit(1)
-
-    args = parent_parser.parse_args()
-
-    # Help return
-    if args.help:
-        # Retrieve all subparsers from the parent parser
-        subparsers_actions = [
-            action
-            for action in parent_parser._actions
-            if isinstance(action, argparse._SubParsersAction)
-        ]
-        for subparsers_action in subparsers_actions:
-            # Get all subparsers and print help
-            for choice, subparser in subparsers_action.choices.items():
-                print("Subparser '{}'".format(choice))
-                print(subparser.format_help())
-
-    ## Version return
-    if args.version:
-        print(f"gget version: {__version__}")
 
     ## blat return
     if args.command == "blat":
@@ -1026,7 +1028,8 @@ def main():
 
         # Raise error if neither species nor list flag passed
         if args.species is None and args.list_species is False:
-            parser_ref.error("the following arguments are required: species \n"
+            parser_ref.error(
+                "the following arguments are required: species \n"
                 "'gget ref --list_species' -> lists out all available species. \n"
                 "Combine with '-r [int]' to define a specific Ensembl release (default: latest release). "
             )

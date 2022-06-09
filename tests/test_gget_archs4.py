@@ -39,7 +39,7 @@ class TestArchs4(unittest.TestCase):
 
     def test_archs4_mouse_json_ensembl(self):
         result_to_test = archs4(
-            "ENSG00000106443", ensembl=True, gene_count=5, species="mouse", json=True
+            "ENSG00000106443.4", ensembl=True, gene_count=5, species="mouse", json=True
         )
         expected_result = [
             {"gene_symbol": "MATR3", "pearson_correlation": 0.6124228239},

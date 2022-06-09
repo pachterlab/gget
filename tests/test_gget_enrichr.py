@@ -203,9 +203,9 @@ class TestEnrichr(unittest.TestCase):
     def test_enrichr_ensembl_ids(self):
         df = enrichr(
             [
-                "ENSG00000106443",
+                "ENSG00000106443.2",
                 "ENSG00000102317",
-                "ENSG00000188895",
+                "ENSG00000188895.4",
                 "ENSG00000135365",
             ],
             database="ontology",
