@@ -93,7 +93,7 @@ $ gget archs4 -w tissue ACE2
 Jupyter Lab / Google Colab:
 ```python  
 gget.ref("homo_sapiens")
-gget.search(["ace2", "angiotensin"], "homo_sapiens", and=True)
+gget.search(["ace2", "angiotensin converting enzyme 2"], "homo_sapiens")
 gget.info(["ENSG00000130234", "ENST00000252519"])
 gget.seq("ENSG00000130234", transcribe=True)
 gget.blat("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")
