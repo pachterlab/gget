@@ -69,6 +69,9 @@ def archs4(
 
     ## Transform Ensembl IDs to gene symbols
     if ensembl:
+        # Remove version number if passed
+        gene = gene.split(".")[0]
+        
         info_df = info(gene, verbose=False)
 
         # Check if Ensembl ID was found

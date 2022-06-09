@@ -98,6 +98,9 @@ def enrichr(genes, database, ensembl=False, plot=False, json=False, save=False):
     if ensembl:
         genes_v2 = []
         for gene_id in genes:
+            # Remove version number if passed
+            gene_id = gene_id.split(".")[0]
+
             info_df = info(gene_id, verbose=False)
 
             # Check if Ensembl ID was found
@@ -166,7 +169,7 @@ def enrichr(genes, database, ensembl=False, plot=False, json=False, save=False):
     if len(enrichr_results) > 1:
         logging.error(
             f"No Enrichr results were found for genes {genes_clean} and database {database}. \n"
-            "If the genes are Ensembl IDs, please set argument 'ensembl=True' (for terminal, add flag: [--ensembl])."
+            "If the genes are Ensembl IDs, please set argument 'ensembl=True'. (For command-line, add flag [-e][--ensembl].)"
         )
         return
 
