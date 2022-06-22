@@ -127,12 +127,12 @@ def enrichr(
 
             # If more than one gene symbol was returned, use first entry
             if isinstance(gene_symbol, list):
-                genes_v2.append(gene_symbol[0])
+                genes_v2.append(str(gene_symbol[0]))
             else:
-                genes_v2.append(gene_symbol)
+                genes_v2.append(str(gene_symbol))
 
         logging.info(
-            f"Performing Enichr analysis on the following gene symbols: {genes_v2}"
+            f"Performing Enichr analysis on the following gene symbols: {', '.join(genes_v2)}"
         )
 
     else:
