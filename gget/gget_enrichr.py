@@ -25,7 +25,16 @@ from .gget_info import info
 from .constants import POST_ENRICHR_URL, GET_ENRICHR_URL
 
 
-def enrichr(genes, database, ensembl=False, plot=False, json=False, save=False):
+def enrichr(
+    genes,
+    database,
+    ensembl=False,
+    plot=False,
+    figsize=(10,10),
+    ax=None,
+    json=False,
+    save=False,
+):
     """
     Perform an enrichment analysis on a list of genes using Enrichr (https://maayanlab.cloud/Enrichr/).
 
@@ -42,9 +51,11 @@ def enrichr(genes, database, ensembl=False, plot=False, json=False, save=False):
                   'kinase_interactions' (KEA_2015)
                   or any database listed under Gene-set Library at: https://maayanlab.cloud/Enrichr/#libraries
     - ensembl     Define as 'True' if 'genes' is a list of Ensembl gene IDs. (Default: False)
-    - plot        True/False whether to provide a graphical overview of the first 15 results.
-    - json        If True, returns results in json format instead of data frame. Default: False.
-    - save        True/False whether to save the results in the local directory.
+    - plot        True/False whether to provide a graphical overview of the first 15 results. (Default: False)
+    - figsize     (width, height) of plot in inches. (Default: (10,10))
+    - ax          A matplotlib axes object. (Default: None)
+    - json        If True, returns results in json format instead of data frame. (Default: False)
+    - save        True/False whether to save the results in the local directory. (Default: False)
 
     Returns a data frame with the Enrichr results.
     """
@@ -96,6 +107,8 @@ def enrichr(genes, database, ensembl=False, plot=False, json=False, save=False):
 
     ## Transform Ensembl IDs to gene symbols
     if ensembl:
+        logging.info("Getting gene symbols from Ensembl IDs.")
+
         genes_v2 = []
         for gene_id in genes:
             # Remove version number if passed
@@ -117,6 +130,10 @@ def enrichr(genes, database, ensembl=False, plot=False, json=False, save=False):
                 genes_v2.append(gene_symbol[0])
             else:
                 genes_v2.append(gene_symbol)
+
+        logging.info(
+            f"Performing Enichr analysis on the following gene symbols: {', '.join(genes_v2)}"
+        )
 
     else:
         genes_v2 = genes
@@ -211,7 +228,10 @@ def enrichr(genes, database, ensembl=False, plot=False, json=False, save=False):
 
     ## Plot if plot=True
     if plot and len(df) != 0:
-        fig, ax = plt.subplots(figsize=(10, 10))
+        if ax is None:
+            fig, ax1 = plt.subplots(figsize=figsize)
+        else:
+            ax1 = ax
 
         fontsize = 12
         barcolor = "indigo"
@@ -231,7 +251,7 @@ def enrichr(genes, database, ensembl=False, plot=False, json=False, save=False):
         # cmap = plt.get_cmap("viridis")
         # c_values = -np.log10(adj_p_values)
         # # Plot scatter to use for colorbar legend
-        # plot = ax.scatter(c_values, c_values, c = c_values, cmap = cmap)
+        # plot = ax1.scatter(c_values, c_values, c = c_values, cmap = cmap)
         # # Clear axis to remove unnecessary scatter
         # plt.cla()
 
@@ -254,19 +274,19 @@ def enrichr(genes, database, ensembl=False, plot=False, json=False, save=False):
             )
 
         # Plot barplot
-        # bar = ax.barh(labels, gene_counts, color=cmap(c_values), align="center")
-        bar = ax.barh(labels, gene_counts, color=barcolor, align="center")
-        ax.invert_yaxis()
+        # ax1.barh(labels, gene_counts, color=cmap(c_values), align="center")
+        ax1.barh(labels, gene_counts, color=barcolor, align="center")
+        ax1.invert_yaxis()
         # Set x-limit to be gene count + 1
-        ax.set_xlim(0, ax.get_xlim()[1] + 1)
+        ax1.set_xlim(0, ax1.get_xlim()[1] + 1)
 
         # # Add colorbar legend
         # cb = plt.colorbar(plot)
         # cb.set_label("$-log_{10}$(adjusted P value)", fontsize=fontsize)
-        # cb.ax.tick_params(labelsize=fontsize)
+        # cb.ax1.tick_params(labelsize=fontsize)
 
         # Add adj. P value secondary x-axis
-        ax2 = ax.twiny()
+        ax2 = ax1.twiny()
         ax2.scatter(-np.log10(adj_p_values), labels, color=p_val_color, s=20)
         # Change label and color of p-value axis
         ax2.set_xlabel(
@@ -290,27 +310,29 @@ def enrichr(genes, database, ensembl=False, plot=False, json=False, save=False):
         )
 
         # Set label and color of count axis
-        ax.set_xlabel(
+        ax1.set_xlabel(
             f"Number of overlapping genes (query size: {len(genes)})",
             color=barcolor,
             fontsize=fontsize,
         )
         ax2.spines["bottom"].set_color(barcolor)
-        ax.tick_params(axis="x", labelsize=fontsize, colors=barcolor)
+        ax1.tick_params(axis="x", labelsize=fontsize, colors=barcolor)
         # Set bottom x axis to keep only integers since counts cannot be floats
-        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+        ax1.xaxis.set_major_locator(MaxNLocator(integer=True))
         # Change fontsize of y-tick labels
-        ax.tick_params(axis="y", labelsize=fontsize)
+        ax1.tick_params(axis="y", labelsize=fontsize)
 
         # Set title
-        ax.set_title(f"Enrichr results from database {database}", fontsize=fontsize + 2)
+        ax1.set_title(
+            f"Enrichr results from database {database}", fontsize=fontsize + 2
+        )
 
         # Set axis margins
-        ax.margins(y=0, x=0)
+        ax1.margins(y=0, x=0)
 
-        # Remove grid
-        ax.grid(visible=None)
-        ax2.grid(visible=None)
+        # Remove grids
+        ax1.grid(False)
+        ax2.grid(False)
 
         plt.tight_layout()
 
