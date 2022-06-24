@@ -1061,8 +1061,8 @@ def main():
                     if args.download == True:
                         # Download list of URLs
                         for link in ref_results:
-                            #                             command = "wget " + link
-                            command = "curl -O" + link
+                            # command = "wget " + link
+                            command = "curl -O " + link
                             os.system(command)
                 #                     else:
                 #                         logging.info(
@@ -1078,8 +1078,8 @@ def main():
                     if args.download == True:
                         # Download list of URLs
                         for link in ref_results:
-                            #                             command = "wget " + link
-                            command = "curl -O" + link
+                            # command = "wget " + link
+                            command = "curl -O " + link
                             os.system(command)
             #                     else:
             #                         logging.info(
@@ -1103,7 +1103,7 @@ def main():
                                 for ftp_type in ref_results[sp]:
                                     link = ref_results[sp][ftp_type]["ftp"]
                                     #                                     command = "wget " + link
-                                    command = "curl -O" + link
+                                    command = "curl -O " + link
                                     os.system(command)
                 #                     else:
                 #                         logging.info(
@@ -1121,7 +1121,7 @@ def main():
                                 for ftp_type in ref_results[sp]:
                                     link = ref_results[sp][ftp_type]["ftp"]
                                     #                                     command = "wget " + link
-                                    command = "curl -O" + link
+                                    command = "curl -O " + link
                                     os.system(command)
     #                     else:
     #                         logging.info(
