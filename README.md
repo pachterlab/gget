@@ -526,6 +526,12 @@ Supports any database listed [here](https://maayanlab.cloud/Enrichr/#libraries) 
 `-o` `--out`   
 Path to the file the results will be saved in, e.g. path/to/directory/results.csv (or .json). Default: Standard out.   
 Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
+
+`figsize`  
+Jupyter Lab / Google Colab only. (width, height) of plot in inches. (Default: (10,10))
+
+`ax`  
+Jupyter Lab / Google Colab only. Pass a matplotlib axes object for plot customization. (Default: None)
   
 **Flags**  
 `-e` `--ensembl`  
