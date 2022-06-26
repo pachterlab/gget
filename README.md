@@ -13,7 +13,7 @@
 - Slight changes to the output returned by `gget info`, including the return of versioned Ensembl IDs.
 - `gget info` and `gget seq` now support :worm: WormBase and :fly: FlyBase IDs.
 - `gget archs4` and `gget enrichr` now also take Ensembl IDs as input with added flag `[-e][--ensembl]` (`ensembl=True` in Jupyter Lab / Google Colab).
-- `gget seq` argument `seqtype` was replaced by flag `[-t][--transcribe]` (`transcribe=True/False` in Jupyter Lab / Google Colab) which will return either nucleotide (`False`) or amino acid (`True`) sequences.
+- `gget seq` argument `seqtype` was replaced by flag `[-t][--translate]` (`translate=True/False` in Jupyter Lab / Google Colab) which will return either nucleotide (`False`) or amino acid (`True`) sequences.
 - `gget search` argument `seqtype` was renamed to `id_type` for clarity (still taking the same arguments 'gene' or 'transcript').
 
 ___
@@ -72,7 +72,7 @@ $ gget search -s homo_sapiens 'ace2' 'angiotensin converting enzyme 2'
 $ gget info ENSG00000130234 ENST00000252519
 
 # Fetch the amino acid sequence of the canonical transcript of gene ENSG00000130234
-$ gget seq --transcribe ENSG00000130234
+$ gget seq --translate ENSG00000130234
 
 # Quickly find the genomic location of (the start of) that amino acid sequence
 $ gget blat MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS
@@ -94,7 +94,7 @@ Jupyter Lab / Google Colab:
 gget.ref("homo_sapiens")
 gget.search(["ace2", "angiotensin converting enzyme 2"], "homo_sapiens")
 gget.info(["ENSG00000130234", "ENST00000252519"])
-gget.seq("ENSG00000130234", transcribe=True)
+gget.seq("ENSG00000130234", translate=True)
 gget.blat("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")
 gget.blast("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")
 gget.muscle("path/to/file.fa")
@@ -316,7 +316,7 @@ Path to the file the results will be saved in, e.g. path/to/directory/results.fa
 Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
 
 **Flags**  
-`-t` `--transcribe`  
+`-t` `--translate`  
 Returns amino acid (instead of nucleotide) sequences.  
 Nucleotide sequences are fetched from [Ensembl](https://www.ensembl.org/).  
 Amino acid sequences are fetched from [UniProt](https://www.uniprot.org/).
@@ -342,7 +342,7 @@ gget seq -t -iso ENSG00000034713
 ```
 ```python
 # Jupyter Lab / Google Colab:
-gget.seq("ENSG00000034713", transcribe=True, isoforms=True)
+gget.seq("ENSG00000034713", translate=True, isoforms=True)
 ```
 &rarr; Returns the amino acid sequences of all known transcripts of ENSG00000034713 in FASTA format.
 

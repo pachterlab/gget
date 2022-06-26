@@ -21,10 +21,11 @@ from .constants import ENSEMBL_REST_API, UNIPROT_REST_API
 
 def seq(
     ens_ids,
-    transcribe=False,
-    seqtype=None,
+    translate=False,
     isoforms=False,
     save=False,
+    transcribe=None,
+    seqtype=None,
 ):
     """
     Fetch nucleotide or amino acid sequence (FASTA) of a gene
@@ -33,7 +34,7 @@ def seq(
     Args:
     - ens_ids       One or more Ensembl IDs (passed as string or list of strings).
                     Also supports WormBase and FlyBase IDs.
-    - transcribe    True/False (default: False -> returns nucleotide sequences).
+    - translate     True/False (default: False -> returns nucleotide sequences).
                     Defines whether nucleotide or amino acid sequences are returned.
                     Nucleotide sequences are fetched from the Ensembl REST API server.
                     Amino acid sequences are fetched from the UniProt REST API server.
@@ -43,14 +44,16 @@ def seq(
 
     Returns a list (or FASTA file if 'save=True') containing the requested sequences.
 
-    Deprecated arguments: 'seqtype' (use True/False flag 'transcribe' instead.)
+    Deprecated arguments: 'seqtype', 'transcribe' (use True/False flag 'translate' instead.)
     """
     # Handle deprecated arguments
     if seqtype:
         logging.error(
-            "'seqtype' argument deprecated! Please use True/False argument 'transcribe' instead."
+            "'seqtype' argument deprecated! Please use True/False argument 'translate' instead."
         )
         return
+    if transcribe:
+        translate = transcribe
 
     ## Clean up arguments
     # Clean up Ensembl IDs
@@ -79,7 +82,7 @@ def seq(
     fasta = []
 
     ## Fetch nucleotide sequece
-    if transcribe is False:
+    if translate is False:
         # Define Ensembl REST API server
         server = ENSEMBL_REST_API
         # Define type of returned content from REST
@@ -220,7 +223,7 @@ def seq(
                     fasta.append(master_dict[ens_ID][key]["seq"])
 
     ## Fetch amino acid sequences from UniProt
-    if transcribe:
+    if translate is True:
         if isoforms is False:
             # List to collect transcript IDs
             trans_ids = []

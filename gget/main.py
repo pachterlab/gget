@@ -322,7 +322,7 @@ def main():
     )
     parser_seq.add_argument(
         "-t",
-        "--transcribe",
+        "--translate",
         default=False,
         action="store_true",
         required=False,
@@ -362,7 +362,14 @@ def main():
         default=None,
         type=str,
         required=False,
-        help="DEPRECATED - use True/False flag 'transcribe' instead.",
+        help="DEPRECATED - use True/False flag 'translate' instead.",
+    )
+    parser_seq.add_argument(
+        "--transcribe",
+        default=None,
+        action="store_true",
+        required=False,
+        help="DEPRECATED - use True/False flag 'translate' instead.",
     )
 
     ## gget muscle subparser
@@ -1335,9 +1342,10 @@ def main():
         # Look up requested Ensembl IDs
         seq_results = seq(
             ids_clean_final,
-            transcribe=args.transcribe,
+            translate=args.translate,
             seqtype=args.seqtype,
             isoforms=args.isoforms,
+            transcribe=args.transcribe,
         )
 
         # Save in specified directory if -o specified
