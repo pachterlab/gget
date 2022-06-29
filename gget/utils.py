@@ -181,52 +181,63 @@ def get_uniprot_seqs(server, ensembl_ids, id_type="ensembl"):
     request = urllib.request.Request(server, query_args)
 
     # Read and clean up results
-    with urllib.request.urlopen(request) as response:
-        res = response.read()
+    try:
+        with urllib.request.urlopen(request) as response:
+            res = response.read()
 
-    # Check if URL retruned error code
-    if response.getcode() != 200:
-        raise RuntimeError(
-            f"The UniProt server returned error status code {response.getcode()}. Please try again."
+        # Check if URL retruned error code
+        if response.getcode() != 200:
+            logging.error(
+                f"The UniProt server returned error status code {response.getcode()}. Please try again later."
+            )
+            res = None
+
+    except Exception as e:
+        logging.error(
+            f"The UniProt server returned status code: '{e}'. Please try again later."
         )
+        res = None
 
     # Initiate data frame so empty df will be returned if no matches are found
     df = pd.DataFrame()
 
-    try:
-        # This will throw an EmptyDataError if no results were found
-        df = pd.read_csv(StringIO(res.decode("utf-8")), sep="\t")
+    if not isinstance(res, type(None)):
+        try:
+            # This will throw an EmptyDataError if no results were found
+            df = pd.read_csv(StringIO(res.decode("utf-8")), sep="\t")
 
-        if len(df.columns) == 6:
-            # Rename columns
-            df.columns = [
-                "uniprot_id",
-                "gene_name",
-                "organism",
-                "sequence",
-                "sequence_length",
-                "query",
-            ]
+            if len(df.columns) == 6:
+                # Rename columns
+                df.columns = [
+                    "uniprot_id",
+                    "gene_name",
+                    "organism",
+                    "sequence",
+                    "sequence_length",
+                    "query",
+                ]
 
-        # Sometimes a seventh "isomap" column is returned.
-        if len(df.columns) == 7:
-            # Drop isoform column (last column)
-            df = df.iloc[:, :-1]
-            # Rename columns
-            df.columns = [
-                "uniprot_id",
-                "gene_name",
-                "organism",
-                "sequence",
-                "sequence_length",
-                "query",
-            ]
+            # Sometimes a seventh "isomap" column is returned.
+            if len(df.columns) == 7:
+                # Drop isoform column (last column)
+                df = df.iloc[:, :-1]
+                # Rename columns
+                df.columns = [
+                    "uniprot_id",
+                    "gene_name",
+                    "organism",
+                    "sequence",
+                    "sequence_length",
+                    "query",
+                ]
 
-        # Split rows if two different UniProt IDs for a single query ID are returned
-        df = df.assign(Query=df["query"].str.split(",")).explode("query")
+            # Split rows if two different UniProt IDs for a single query ID are returned
+            df = df.assign(Query=df["query"].str.split(",")).explode("query")
 
-    # If no results were found, do nothing (returns the empty data frame)
-    except pd.errors.EmptyDataError:
+        # If no results were found, do nothing (returns the empty data frame)
+        except pd.errors.EmptyDataError:
+            None
+    else:
         None
 
     return df
@@ -281,101 +292,114 @@ def get_uniprot_info(server, ensembl_id, id_type, verbose=True):
     request = urllib.request.Request(server, query_args)
 
     # Read and clean up results
-    with urllib.request.urlopen(request) as response:
-        res = response.read()
+    try:
+        with urllib.request.urlopen(request) as response:
+            res = response.read()
 
-    # Check if URL retruned error code
-    if response.getcode() != 200:
-        raise RuntimeError(
-            f"The UniProt server returned error status code {response.getcode()}. Please try again."
+        # Check if URL retruned error code
+        if response.getcode() != 200:
+            logging.error(
+                f"The UniProt server returned error status code {response.getcode()}. Please try again later."
+            )
+            res = None
+
+    except Exception as e:
+        logging.error(
+            f"The UniProt server returned status code: '{e}'. Please try again later."
         )
+        res = None
 
     # Initiate data frame so empty df will be returned if no matches are found
     df = pd.DataFrame()
 
-    try:
-        # This will throw an EmptyDataError if no results were found
-        df = pd.read_csv(StringIO(res.decode("utf-8")), sep="\t")
-
-        if len(df.columns) == 7:
-            # Rename columns
-            df.columns = [
-                "uniprot_id",
-                "primary_gene_name",
-                "uni_synonyms",
-                "protein_names",
-                "uniprot_description",
-                "status",
-                "query",
-            ]
-        # Sometimes an extra "isomap" column is returned.
-        if len(df.columns) == 8:
-            # Drop isomap column (last column)
-            df = df.iloc[:, :-1]
-            # Rename columns
-            df.columns = [
-                "uniprot_id",
-                "primary_gene_name",
-                "uni_synonyms",
-                "protein_names",
-                "uniprot_description",
-                "status",
-                "query",
-            ]
+    if not isinstance(res, type(None)):
         try:
-            # Split gene names into list of strings
-            df["uni_synonyms"] = df["uni_synonyms"].str.split(" ")
-        except:
-            None
+            # This will throw an EmptyDataError if no results were found
+            df = pd.read_csv(StringIO(res.decode("utf-8")), sep="\t")
 
-        # If there are reviewed results, return only reviewed results
-        if "reviewed" in df["status"].values:
-            if verbose is True:
-                logging.info(
-                    f"Returning only reviewed UniProt results for Ensembl ID {ensembl_id}."
-                )
-            # Only keep rows where status is "reviewed"
-            df = df[df.status == "reviewed"]
+            if len(df.columns) == 7:
+                # Rename columns
+                df.columns = [
+                    "uniprot_id",
+                    "primary_gene_name",
+                    "uni_synonyms",
+                    "protein_names",
+                    "uniprot_description",
+                    "status",
+                    "query",
+                ]
+            # Sometimes an extra "isomap" column is returned.
+            if len(df.columns) == 8:
+                # Drop isomap column (last column)
+                df = df.iloc[:, :-1]
+                # Rename columns
+                df.columns = [
+                    "uniprot_id",
+                    "primary_gene_name",
+                    "uni_synonyms",
+                    "protein_names",
+                    "uniprot_description",
+                    "status",
+                    "query",
+                ]
+            try:
+                # Split gene names into list of strings
+                df["uni_synonyms"] = df["uni_synonyms"].str.split(" ")
+            except:
+                None
 
-        else:
-            if verbose is True:
-                logging.warning(
-                    f"No reviewed UniProt results were found for Ensembl ID {ensembl_id}. Returning all unreviewed results."
-                )
-        # Return set of all results if more than one UniProt ID was found for this Ensembl ID
-        if len(df) > 1:
-            final_df = pd.DataFrame()
-            for column in df.columns:
-                if column == "uni_synonyms":
-                    # Flatten synonym lists
-                    syn_lists = df[column].values
-                    try:
-                        flat_list = [item for sublist in syn_lists for item in sublist]
-                        final_df[column] = [sorted(list(set(flat_list)))]
-                    except:
-                        final_df[column] = [syn_lists]
+            # If there are reviewed results, return only reviewed results
+            if "reviewed" in df["status"].values:
+                if verbose is True:
+                    logging.info(
+                        f"Returning only reviewed UniProt results for Ensembl ID {ensembl_id}."
+                    )
+                # Only keep rows where status is "reviewed"
+                df = df[df.status == "reviewed"]
 
-                else:
-                    val_list = df[column].values
-                    try:
-                        final_df[column] = [sorted(list(set(val_list)))]
-                    except:
-                        final_df[column] = [val_list]
+            else:
+                if verbose is True:
+                    logging.warning(
+                        f"No reviewed UniProt results were found for Ensembl ID {ensembl_id}. Returning all unreviewed results."
+                    )
+            # Return set of all results if more than one UniProt ID was found for this Ensembl ID
+            if len(df) > 1:
+                final_df = pd.DataFrame()
+                for column in df.columns:
+                    if column == "uni_synonyms":
+                        # Flatten synonym lists
+                        syn_lists = df[column].values
+                        try:
+                            flat_list = [item for sublist in syn_lists for item in sublist]
+                            final_df[column] = [sorted(list(set(flat_list)))]
+                        except:
+                            final_df[column] = [syn_lists]
 
-                # Try to clean up the entries (so they are not a bunch of lists of one item)
-                # I will not do this with the UniProt synonyms so I can later find the set between NCBI and UniProt synonyms
-                if len(final_df[column]) == 1 and column != "uni_synonyms":
-                    try:
-                        final_df[column] = final_df[column][0]
-                    except:
-                        None
-            return final_df
+                    else:
+                        val_list = df[column].values
+                        try:
+                            final_df[column] = [sorted(list(set(val_list)))]
+                        except:
+                            final_df[column] = [val_list]
 
-        else:
-            return df
+                    # Try to clean up the entries (so they are not a bunch of lists of one item)
+                    # I will not do this with the UniProt synonyms so I can later find the set between NCBI and UniProt synonyms
+                    if len(final_df[column]) == 1 and column != "uni_synonyms":
+                        try:
+                            final_df[column] = final_df[column][0]
+                        except:
+                            None
+                return final_df
 
-    # If no results were found, return None
-    except pd.errors.EmptyDataError:
+            else:
+                return df
+
+        # If no results were found, return None
+        except pd.errors.EmptyDataError:
+            return None
+
+    # Return None if the UniProt returned an error
+    else:
         return None
 
 
