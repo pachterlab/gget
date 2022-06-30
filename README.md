@@ -49,7 +49,7 @@ Find the most correlated genes to a gene of interest or find the gene's tissue e
 
 ## Installation
 ```bash
-pip install gget
+pip install --upgrade gget
 ```
 or
 ```bash
