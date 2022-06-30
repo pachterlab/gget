@@ -253,9 +253,9 @@ def seq(
 
                     elif ensembl_ID.startswith("WB"):
                         # Remove added "." at the end of transcript IDs
-                        temp_trans_id1 = ".".join(can_trans.split(".")[:-1])
-                        # For WormBase transcript IDs, also remove the version number for submission to UniProt API
-                        temp_trans_id = ".".join(temp_trans_id1.split(".")[:-1])
+                        temp_trans_id = ".".join(can_trans.split(".")[:-1])
+                        # # For WormBase transcript IDs, also remove the version number for submission to UniProt API
+                        # temp_trans_id = ".".join(temp_trans_id1.split(".")[:-1])
                         trans_ids.append(temp_trans_id)
 
                     else:
@@ -269,11 +269,11 @@ def seq(
 
                 # If the ID is a transcript, append the ID directly
                 elif ens_ID_type == "Transcript":
-                    # For WormBase transcript IDs, remove the version number for submission to UniProt API
-                    if ensembl_ID.startswith("T"):
-                        trans_ids.append(".".join(ensembl_ID.split(".")[:-1]))
-                    else:
-                        trans_ids.append(ensembl_ID)
+                    # # For WormBase transcript IDs, remove the version number for submission to UniProt API
+                    # if ensembl_ID.startswith("T"):
+                    #     trans_ids.append(".".join(ensembl_ID.split(".")[:-1]))
+                    # else:
+                    trans_ids.append(ensembl_ID)
 
                     logging.info(
                         f"Requesting amino acid sequence of {ensembl_ID} from UniProt."
@@ -284,19 +284,10 @@ def seq(
                         f"{ensembl_ID} not recognized as either a gene or transcript ID. It will not be included in the UniProt query."
                     )
 
-            # Check if this is a Wrombase ID:
-            if ensembl_ID.startswith("WB") or ensembl_ID.startswith("T"):
-                id_type = "wormbase"
-            # Check if this is a flybase ID:
-            elif ensembl_ID.startswith("FB"):
-                id_type = "flybase"
-            else:
-                id_type = "ensembl"
-
             # Fetch the amino acid sequences of the transcript Ensembl IDs
-            df_uniprot = get_uniprot_seqs(UNIPROT_REST_API, trans_ids, id_type=id_type)
+            df_uniprot = get_uniprot_seqs(UNIPROT_REST_API, trans_ids)
 
-        if isoforms == True:
+        if isoforms is True:
             # List to collect transcript IDs
             trans_ids = []
 
@@ -321,10 +312,10 @@ def seq(
                             # Append transcript ID (without Ensembl version number) to list of transcripts to fetch
                             trans_ids.append(transcipt_id.split(".")[0])
 
-                        elif ensembl_ID.startswith("WB"):
-                            # For WormBase transcript IDs, remove the version number for submission to UniProt API
-                            temp_trans_id = ".".join(transcipt_id.split(".")[:-1])
-                            trans_ids.append(temp_trans_id)
+                        # elif ensembl_ID.startswith("WB"):
+                        #     # For WormBase transcript IDs, remove the version number for submission to UniProt API
+                        #     temp_trans_id = ".".join(transcipt_id.split(".")[:-1])
+                        #     trans_ids.append(temp_trans_id)
 
                         else:
                             # Note: No need to remove the added "." at the end of unversioned transcripts here, because "all_transcripts" are returned without it
@@ -335,12 +326,12 @@ def seq(
                     )
 
                 elif ens_ID_type == "Transcript":
-                    # For WormBase transcript IDs, remove the version number for submission to UniProt API
-                    if ensembl_ID.startswith("T"):
-                        trans_ids.append(".".join(ensembl_ID.split(".")[:-1]))
+                    # # For WormBase transcript IDs, remove the version number for submission to UniProt API
+                    # if ensembl_ID.startswith("T"):
+                    #     trans_ids.append(".".join(ensembl_ID.split(".")[:-1]))
 
-                    else:
-                        trans_ids.append(ensembl_ID)
+                    # else:
+                    trans_ids.append(ensembl_ID)
 
                     logging.info(
                         f"Requesting amino acid sequence of {ensembl_ID} from UniProt."
@@ -352,31 +343,15 @@ def seq(
                         f"{ensembl_ID} not recognized as either a gene or transcript ID. It will not be included in the UniProt query."
                     )
 
-            # Check if this is a Wormbase ID:
-            if ensembl_ID.startswith("WB") or ensembl_ID.startswith("T"):
-                id_type = "wormbase"
-            # Check if this is a flybase ID:
-            elif ensembl_ID.startswith("FB"):
-                id_type = "flybase"
-            else:
-                id_type = "ensembl"
-
             # Fetch amino acid sequences of all isoforms from the UniProt REST API
-            df_uniprot = get_uniprot_seqs(UNIPROT_REST_API, trans_ids, id_type=id_type)
+            df_uniprot = get_uniprot_seqs(UNIPROT_REST_API, trans_ids)
 
-        # Check if less results were found than IDs put in
-        if len(df_uniprot) != len(trans_ids) and len(df_uniprot) > 0:
-            logging.warning(
-                "The number of results does not match the number of IDs requested. "
-                "It is possible that UniProt amino acid sequences were not found for some of the IDs."
-            )
-
-        # Check if no results were found
+        # Check if any results were found
         if len(df_uniprot) < 1:
             logging.error("No UniProt amino acid sequences were found for these ID(s).")
 
         else:
-            # Build UniProt results FASTA file
+            # Build FASTA file from UniProt results
             for (
                 uniprot_id,
                 query_ensembl_id,
@@ -399,7 +374,7 @@ def seq(
                     + uniprot_id
                     + " ensembl_id: "
                     + query_ensembl_id
-                    + " gene_name(s): "
+                    + " gene_name: "
                     + gene_name
                     + " organism: "
                     + organism

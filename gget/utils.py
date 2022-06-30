@@ -134,15 +134,13 @@ def aa_colors(amino_acid):
     return f"\033[38;5;{textcolor}m\033[48;5;{bkg_color}m{amino_acid}\033[0;0m"
 
 
-def get_uniprot_seqs(server, ensembl_ids, id_type="ensembl"):
+def get_uniprot_seqs(server, ensembl_ids):
     """
-    Retrieve UniProt sequences based on Ensemsbl identifiers.
+    Retrieve UniProt sequences based on Ensemsbl, WormBase or FlyBase identifiers.
 
     Args:
-    - server
-    Link to UniProt REST API server.
-    - ensembl_ids:
-    One or more transcript Ensembl IDs (string or list of strings).
+    - server        Link to UniProt REST API server.
+    - ensembl_ids   One or more Ensembl, WormBase or FlyBase IDs (string or list of strings).
 
     Returns data frame with UniProt ID, gene name, organism, sequence, sequence length, and query ID.
     """
@@ -151,254 +149,225 @@ def get_uniprot_seqs(server, ensembl_ids, id_type="ensembl"):
     if type(ensembl_ids) == str:
         ensembl_ids = [ensembl_ids]
 
-    # Define Ensembl ID type
-    if id_type == "ensembl":
-        ens_id_type = "ENSEMBL_TRS_ID"
-    elif id_type == "flybase":
-        ens_id_type = "ENSEMBLGENOME_TRS_ID"
-    elif id_type == "wormbase":
-        ens_id_type = "WORMBASE_TRS_ID"
-    else:
-        raise ValueError(
-            f"ID type defined as {id_type}. Expected one of: ensembl, flybase, wormbase"
-        )
-
-    # Define query arguments
-    # Columns documentation: https://www.uniprot.org/help/uniprotkb%5Fcolumn%5Fnames
-    # from/to IDs documentation: https://www.uniprot.org/help/api_idmapping
-    query_args = {
-        "from": ens_id_type,
-        "to": "ACC",
-        "format": "tab",
-        "query": " ".join(ensembl_ids),
-        "columns": "id,genes,organism,sequence,length",
-    }
-    # Reformat query arguments
-    query_args = urllib.parse.urlencode(query_args)
-    query_args = query_args.encode("ascii")
-
-    # Submit query to UniProt server
-    request = urllib.request.Request(server, query_args)
-
-    # Read and clean up results
-    try:
-        with urllib.request.urlopen(request) as response:
-            res = response.read()
-
-        # Check if URL retruned error code
-        if response.getcode() != 200:
-            logging.error(
-                f"The UniProt server returned error status code {response.getcode()}. Please try again later."
-            )
-            res = None
-
-    except Exception as e:
-        logging.error(
-            f"The UniProt server returned status code: '{e}'. Please try again later."
-        )
-        res = None
-
     # Initiate data frame so empty df will be returned if no matches are found
-    df = pd.DataFrame()
+    master_df = pd.DataFrame()
 
-    if not isinstance(res, type(None)):
-        try:
-            # This will throw an EmptyDataError if no results were found
-            df = pd.read_csv(StringIO(res.decode("utf-8")), sep="\t")
+    for id_ in ensembl_ids:
+        # API documentation: https://www.uniprot.org/help/api_queries
+        # Submit server request
+        r = requests.get(server + id_ + "+AND+reviewed:true")
+        if not r.ok:
+            logging.error(
+                f"UniProt server request returned with error status code: {r.status_code}. Please double-check arguments or try again later."
+            )
+        # Convert to json
+        json = r.json()
 
-            if len(df.columns) == 6:
-                # Rename columns
-                df.columns = [
-                    "uniprot_id",
-                    "gene_name",
-                    "organism",
-                    "sequence",
-                    "sequence_length",
-                    "query",
+        # If no reviewed results were found, try again for unreviewed results
+        if not len(json["results"]) > 0:
+            # Submit server request
+            r = requests.get(server + id_)
+            if not r.ok:
+                logging.error(
+                    f"UniProt server request returned with error status code: {r.status_code}. Please double-check arguments or try again later."
+                )
+            # Convert to json
+            json = r.json()
+
+            # Warn user if unreviewed results were found
+            if len(json["results"]) > 0:
+                logging.warning(
+                    f"No reviewed UniProt results were found for ID {id_}. Returning all unreviewed results."
+                )
+
+        if len(json["results"]) > 0:
+            # Convert results to data frame
+            df = pd.json_normalize(json["results"])
+
+            # Remove non-relevant columns
+            df = df[
+                [
+                    "primaryAccession",
+                    "organism.scientificName",
+                    "sequence.value",
+                    "sequence.length",
                 ]
+            ]
 
-            # Sometimes a seventh "isomap" column is returned.
-            if len(df.columns) == 7:
-                # Drop isoform column (last column)
-                df = df.iloc[:, :-1]
-                # Rename columns
-                df.columns = [
-                    "uniprot_id",
-                    "gene_name",
-                    "organism",
-                    "sequence",
-                    "sequence_length",
-                    "query",
-                ]
+            # Rename columns
+            df.columns = [
+                "uniprot_id",
+                "organism",
+                "sequence",
+                "sequence_length",
+            ]
 
-            # Split rows if two different UniProt IDs for a single query ID are returned
-            df = df.assign(Query=df["query"].str.split(",")).explode("query")
+            # Add gene name and query columns
+            gene_names = []
+            for i in np.arange(len(json["results"])):
+                try:
+                    gene_names.append(
+                        json["results"][i]["genes"][0]["geneName"]["value"]
+                    )
+                except:
+                    gene_names.append(np.NaN)
+            df["gene_name"] = gene_names
+            df["query"] = id_
 
-        # If no results were found, do nothing (returns the empty data frame)
-        except pd.errors.EmptyDataError:
-            None
-    else:
-        None
+            # Append results for this ID to master data frame
+            master_df = master_df.append(df)
 
-    return df
+        else:
+            # If no results were found, warn user and do nothing -> returns empty df
+            logging.warning(f"No UniProt sequences were found for ID {id_}.")
+
+    return master_df
 
 
-def get_uniprot_info(server, ensembl_id, id_type, verbose=True):
+def get_uniprot_info(server, ensembl_id, verbose=True):
     """
     Retrieve UniProt synonyms and description based on Ensemsbl identifiers.
 
     Args:
     - server          Link to UniProt REST API server.
-    - ensembl_id      Ensembl ID (str).
-    - id_type         "Gene" or "Transcript"
+    - ensembl_id      Ensembl, WormBase or FlyBase ID (str).
+    - verbose         True/False to print logging messages.
 
     Returns data frame with UniProt ID, gene name, organism, sequence, sequence length, and query ID.
     """
-
-    if id_type == "Gene":
-        ens_id_type = "ENSEMBL_ID"
-    elif id_type == "Transcript":
-        ens_id_type = "ENSEMBL_TRS_ID"
-    elif id_type == "FB_Gene":
-        ens_id_type = "FLYBASE_ID"
-    elif id_type == "FB_Transcript":
-        ens_id_type = "ENSEMBLGENOME_TRS_ID"
-    elif id_type == "WB_Gene":
-        ens_id_type = "WORMBASE_ID"
-    elif id_type == "WB_Transcript":
-        ens_id_type = "WORMBASE_TRS_ID"
-
-    else:
-        logging.warning(
-            f"Ensembl_ID '{ensembl_id}' was not recognized as either gene or transcript. UniProt ID, synonyms, and description will not be fetched from UniProt."
-        )
-        return
-
-    # Define query arguments
-    # Columns documentation: https://www.uniprot.org/help/uniprotkb%5Fcolumn%5Fnames
-    # from/to IDs documentation: https://www.uniprot.org/help/api_idmapping
-    query_args = {
-        "from": ens_id_type,
-        "to": "ACC",
-        "format": "tab",
-        "query": ensembl_id,
-        "columns": "id,genes(PREFERRED),genes,protein names,comment(FUNCTION),reviewed",
-    }
-    # Reformat query arguments
-    query_args = urllib.parse.urlencode(query_args)
-    query_args = query_args.encode("ascii")
-
-    # Submit query to UniProt server
-    request = urllib.request.Request(server, query_args)
-
-    # Read and clean up results
-    try:
-        with urllib.request.urlopen(request) as response:
-            res = response.read()
-
-        # Check if URL retruned error code
-        if response.getcode() != 200:
-            logging.error(
-                f"The UniProt server returned error status code {response.getcode()}. Please try again later."
-            )
-            res = None
-
-    except Exception as e:
+    # API documentation: https://www.uniprot.org/help/api_queries
+    # Submit server request for reviewed entries
+    r = requests.get(server + ensembl_id + "+AND+reviewed:true")
+    if not r.ok:
         logging.error(
-            f"The UniProt server returned status code: '{e}'. Please try again later."
+            f"UniProt server request returned with error status code: {r.status_code}. Please double-check arguments or try again later."
         )
-        res = None
+    # Convert to json
+    json = r.json()
 
-    # Initiate data frame so empty df will be returned if no matches are found
-    df = pd.DataFrame()
+    # If no reviewed entries were found, try again for unreviewed entries
+    if not len(json["results"]) > 0:
+        # Submit server request
+        r = requests.get(server + ensembl_id)
+        if not r.ok:
+            logging.error(
+                f"UniProt server request returned with error status code: {r.status_code}. Please double-check arguments or try again later."
+            )
+        # Convert to json
+        json = r.json()
 
-    if not isinstance(res, type(None)):
-        try:
-            # This will throw an EmptyDataError if no results were found
-            df = pd.read_csv(StringIO(res.decode("utf-8")), sep="\t")
+        # Warn user if unreviewed results were found
+        if len(json["results"]) > 0:
+            if verbose is True:
+                logging.warning(
+                    f"No reviewed UniProt results were found for ID {ensembl_id}. Returning all unreviewed results."
+                )
 
-            if len(df.columns) == 7:
-                # Rename columns
-                df.columns = [
-                    "uniprot_id",
-                    "primary_gene_name",
-                    "uni_synonyms",
-                    "protein_names",
-                    "uniprot_description",
-                    "status",
-                    "query",
-                ]
-            # Sometimes an extra "isomap" column is returned.
-            if len(df.columns) == 8:
-                # Drop isomap column (last column)
-                df = df.iloc[:, :-1]
-                # Rename columns
-                df.columns = [
-                    "uniprot_id",
-                    "primary_gene_name",
-                    "uni_synonyms",
-                    "protein_names",
-                    "uniprot_description",
-                    "status",
-                    "query",
-                ]
+    if len(json["results"]) > 0:
+        # Convert results to data frame
+        df = pd.json_normalize(json["results"])
+
+        # Remove non-relevant columns
+        df = df[
+            [
+                "primaryAccession",
+            ]
+        ]
+        # Rename column
+        df.columns = [
+            "uniprot_id",
+        ]
+
+        # Get primary gene name for each result
+        gene_names = []
+        for i in np.arange(len(json["results"])):
             try:
-                # Split gene names into list of strings
-                df["uni_synonyms"] = df["uni_synonyms"].str.split(" ")
+                gene_names.append(json["results"][i]["genes"][0]["geneName"]["value"])
             except:
-                None
+                gene_names.append(np.NaN)
+        df["primary_gene_name"] = gene_names
 
-            # If there are reviewed results, return only reviewed results
-            if "reviewed" in df["status"].values:
-                if verbose is True:
-                    logging.info(
-                        f"Returning only reviewed UniProt results for Ensembl ID {ensembl_id}."
-                    )
-                # Only keep rows where status is "reviewed"
-                df = df[df.status == "reviewed"]
+        # Get synonyms for each result
+        uni_synonyms = []
+        for i in np.arange(len(json["results"])):
+            uni_syn_temp = []
+            try:
+                for syn in json["results"][i]["genes"][0]["synonyms"]:
+                    uni_syn_temp.append(syn["value"])
+            except:
+                uni_syn_temp.append(np.NaN)
+            uni_synonyms.append(uni_syn_temp)
+        df["uni_synonyms"] = uni_synonyms
 
-            else:
-                if verbose is True:
-                    logging.warning(
-                        f"No reviewed UniProt results were found for Ensembl ID {ensembl_id}. Returning all unreviewed results."
-                    )
-            # Return set of all results if more than one UniProt ID was found for this Ensembl ID
-            if len(df) > 1:
-                final_df = pd.DataFrame()
-                for column in df.columns:
-                    if column == "uni_synonyms":
-                        # Flatten synonym lists
-                        syn_lists = df[column].values
-                        try:
-                            flat_list = [item for sublist in syn_lists for item in sublist]
-                            final_df[column] = [sorted(list(set(flat_list)))]
-                        except:
-                            final_df[column] = [syn_lists]
+        # Get protein names for each result
+        protein_names = []
+        for i in np.arange(len(json["results"])):
+            try:
+                protein_names.append(
+                    json["results"][i]["proteinDescription"]["recommendedName"][
+                        "fullName"
+                    ]["value"]
+                )
+            except:
+                protein_names.append(np.NaN)
+        df["protein_names"] = protein_names
 
-                    else:
-                        val_list = df[column].values
-                        try:
-                            final_df[column] = [sorted(list(set(val_list)))]
-                        except:
-                            final_df[column] = [val_list]
+        # Get descriptions for each result
+        descriptions = []
+        for i in np.arange(len(json["results"])):
+            des_temp = []
+            try:
+                for text in json["results"][i]["comments"]:
+                    if text["commentType"] == "FUNCTION":
+                        des_temp.append(text["texts"][0]["value"])
+                # Keep only unique descriptions
+                des_temp = np.unique(np.array(des_temp))
+                # Append all descriptions to a single string object
+                des_temp = " ".join(des_temp)
+            except:
+                des_temp.append(np.NaN)
 
-                    # Try to clean up the entries (so they are not a bunch of lists of one item)
-                    # I will not do this with the UniProt synonyms so I can later find the set between NCBI and UniProt synonyms
-                    if len(final_df[column]) == 1 and column != "uni_synonyms":
-                        try:
-                            final_df[column] = final_df[column][0]
-                        except:
-                            None
-                return final_df
+            descriptions.append(des_temp)
+        df["uniprot_description"] = descriptions
 
-            else:
-                return df
+        # Add query colunm
+        df["query"] = ensembl_id
 
-        # If no results were found, return None
-        except pd.errors.EmptyDataError:
-            return None
+        # Return set of all results if more than one UniProt entry was found for this Ensembl ID
+        if len(df) > 1:
+            final_df = pd.DataFrame()
+            for column in df.columns:
+                if column == "uni_synonyms":
+                    # Flatten synonym lists
+                    syn_lists = df[column].values
+                    try:
+                        flat_list = [item for sublist in syn_lists for item in sublist]
+                        final_df[column] = [list({value: "" for value in flat_list})]
 
-    # Return None if the UniProt returned an error
+                    except:
+                        final_df[column] = [syn_lists]
+
+                else:
+                    val_list = df[column].values
+                    try:
+                        final_df[column] = [list({value: "" for value in val_list})]
+                    except:
+                        final_df[column] = [val_list]
+
+                # Try to clean up the entries (so they are not a bunch of lists of one item)
+                # I will not do this with the UniProt synonyms so I can later find the set between NCBI and UniProt synonyms
+                if len(final_df[column]) == 1 and column != "uni_synonyms":
+                    try:
+                        final_df[column] = final_df[column][0]
+                    except:
+                        None
+
+            return final_df
+
+        # If a single result was found, return df
+        else:
+            return df
+
     else:
         return None
 

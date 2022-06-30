@@ -8,7 +8,7 @@ ENSEMBL_FTP_URL = "http://ftp.ensembl.org/pub/"
 NCBI_URL = "https://www.ncbi.nlm.nih.gov"
 
 # UniProt REST API server for gget seq
-UNIPROT_REST_API = "https://www.uniprot.org/uploadlists/"
+UNIPROT_REST_API = "https://rest.uniprot.org/uniprotkb/search?query="
 
 # BLAST API endpoints
 BLAST_URL = "https://blast.ncbi.nlm.nih.gov/Blast.cgi"
