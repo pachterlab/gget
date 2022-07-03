@@ -1,6 +1,8 @@
 name: CI
 
 on:
+  schedule:
+    - cron: "0 16 * * *"
   push:
     paths:
     - 'gget/**'
