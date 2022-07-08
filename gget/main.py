@@ -72,7 +72,7 @@ def main():
         required=False,
         help=(
             """
-            List all available species. 
+            List all available species from the Ensembl database for large genomes (not including plants/bacteria). 
             (Combine with `--release` to get the available species from a specific Ensembl release.)
             """
         ),

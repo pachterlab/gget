@@ -144,6 +144,133 @@ class TestRef(unittest.TestCase):
 
         self.assertEqual(result_to_test, expected_result)
 
+    def test_ref_plant(self):
+        result_to_test = ref("actinidia_chinensis", which="all", release=53, ftp=False)
+        expected_result = {
+            "actinidia_chinensis": {
+                "transcriptome_cdna": {
+                    "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-53/fasta/actinidia_chinensis/cdna/Actinidia_chinensis.Red5_PS1_1.69.0.cdna.all.fa.gz",
+                    "ensembl_release": 53,
+                    "release_date": "15-Feb-2022",
+                    "release_time": "12:53",
+                    "bytes": "24825822",
+                },
+                "genome_dna": {
+                    "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-53/fasta/actinidia_chinensis/dna/Actinidia_chinensis.Red5_PS1_1.69.0.dna.toplevel.fa.gz",
+                    "ensembl_release": 53,
+                    "release_date": "21-Feb-2022",
+                    "release_time": "10:52",
+                    "bytes": "162674673",
+                },
+                "annotation_gtf": {
+                    "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-53/gtf/actinidia_chinensis/Actinidia_chinensis.Red5_PS1_1.69.0.53.gtf.gz",
+                    "ensembl_release": 53,
+                    "release_date": "17-Feb-2022",
+                    "release_time": "09:13",
+                    "bytes": " 6995087",
+                },
+                "coding_seq_cds": {
+                    "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-53/fasta/actinidia_chinensis/cds/Actinidia_chinensis.Red5_PS1_1.69.0.cds.all.fa.gz",
+                    "ensembl_release": 53,
+                    "release_date": "15-Feb-2022",
+                    "release_time": "12:53",
+                    "bytes": "15057218",
+                },
+                "non-coding_seq_ncRNA": {
+                    "ftp": "",
+                    "ensembl_release": 53,
+                    "release_date": "",
+                    "release_time": "",
+                    "bytes": "",
+                },
+                "protein_translation_pep": {
+                    "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-53/fasta/actinidia_chinensis/pep/Actinidia_chinensis.Red5_PS1_1.69.0.pep.all.fa.gz",
+                    "ensembl_release": 53,
+                    "release_date": "15-Feb-2022",
+                    "release_time": "12:53",
+                    "bytes": "10198608",
+                },
+            }
+        }
+
+        self.assertEqual(result_to_test, expected_result)
+
+    def test_ref_which_plant(self):
+        result_to_test = ref(
+            "aegilops_tauschii", which=["gtf", "dna", "pep"], release=53, ftp=False
+        )
+        expected_result = {
+            "aegilops_tauschii": {
+                "annotation_gtf": {
+                    "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-53/gtf/aegilops_tauschii/Aegilops_tauschii.Aet_v4.0.53.gtf.gz",
+                    "ensembl_release": 53,
+                    "release_date": "27-Feb-2022",
+                    "release_time": "00:58",
+                    "bytes": "41947892",
+                },
+                "genome_dna": {
+                    "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-53/fasta/aegilops_tauschii/dna/Aegilops_tauschii.Aet_v4.0.dna.toplevel.fa.gz",
+                    "ensembl_release": 53,
+                    "release_date": "21-Feb-2022",
+                    "release_time": "12:17",
+                    "bytes": "1232556912",
+                },
+                "protein_translation_pep": {
+                    "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-53/fasta/aegilops_tauschii/pep/Aegilops_tauschii.Aet_v4.0.pep.all.fa.gz",
+                    "ensembl_release": 53,
+                    "release_date": "17-Feb-2022",
+                    "release_time": "06:03",
+                    "bytes": "21467359",
+                },
+            }
+        }
+
+        self.assertEqual(result_to_test, expected_result)
+
+    def test_ref_rel_plant(self):
+        result_to_test = ref(
+            "zea_mays", which=["cdna", "dna", "cds"], release=48, ftp=False
+        )
+        expected_result = {
+            "zea_mays": {
+                "transcriptome_cdna": {
+                    "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-48/fasta/zea_mays/cdna/Zea_mays.B73_RefGen_v4.cdna.all.fa.gz",
+                    "ensembl_release": 48,
+                    "release_date": "10-Jul-2020",
+                    "release_time": "21:24",
+                    "bytes": "55164473",
+                },
+                "genome_dna": {
+                    "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-48/fasta/zea_mays/dna/Zea_mays.B73_RefGen_v4.dna.toplevel.fa.gz",
+                    "ensembl_release": 48,
+                    "release_date": "10-Jul-2020",
+                    "release_time": "16:48",
+                    "bytes": "631370070",
+                },
+                "coding_seq_cds": {
+                    "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-48/fasta/zea_mays/cds/Zea_mays.B73_RefGen_v4.cds.all.fa.gz",
+                    "ensembl_release": 48,
+                    "release_date": "10-Jul-2020",
+                    "release_time": "21:24",
+                    "bytes": "26313145",
+                },
+            }
+        }
+
+        self.assertEqual(result_to_test, expected_result)
+
+    def test_ref_rel_ftp_plant(self):
+        result_to_test = ref(
+            "brassica_rapa", which=["gtf", "dna", "pep"], release=51, ftp=True
+        )
+        expected_result = [
+            "http://ftp.ensemblgenomes.org/pub/plants/release-51/gtf/brassica_rapa/Brassica_rapa.Brapa_1.0.51.gtf.gz",
+            "http://ftp.ensemblgenomes.org/pub/plants/release-51/fasta/brassica_rapa/dna/Brassica_rapa.Brapa_1.0.dna.toplevel.fa.gz",
+            "http://ftp.ensemblgenomes.org/pub/plants/release-51/fasta/brassica_rapa/pep/Brassica_rapa.Brapa_1.0.pep.all.fa.gz",
+        ]
+
+        self.assertEqual(result_to_test, expected_result)
+
     ## Test bad input errors
     def test_ref_bad_species(self):
         with self.assertRaises(ValueError):
