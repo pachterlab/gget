@@ -409,12 +409,14 @@ def rest_query(server, query, content_type):
         return r.text
 
 
-def find_latest_ens_rel():
+def find_latest_ens_rel(database=ENSEMBL_FTP_URL):
     """
     Returns the latest Ensembl release number.
+
+    Args:
+    - database    Link to Ensembl database.
     """
-    url = ENSEMBL_FTP_URL
-    html = requests.get(url)
+    html = requests.get(database)
 
     # Raise error if status code not "OK" Response
     if html.status_code != 200:
@@ -480,18 +482,19 @@ def gget_species_options(release=None):
     return databases
 
 
-def ref_species_options(which, release=None):
+def ref_species_options(which, database=ENSEMBL_FTP_URL, release=None):
     """
     Function to find all available species for gget ref.
 
     Args:
     - which     Which type of FTP. Possible entries: 'dna', 'cdna', 'gtf'.
+    - database  Link to Ensembl database.
     - release   Ensembl release for which available species should be fetched.
 
     Returns list of available species.
     """
     # Find latest Ensembl release
-    ENS_rel = find_latest_ens_rel()
+    ENS_rel = find_latest_ens_rel(database)
 
     # If release != None, use user-defined Ensembl release
     if release != None:
@@ -505,9 +508,9 @@ def ref_species_options(which, release=None):
 
     # Find all available species for this release and FTP type
     if which == "gtf":
-        url = ENSEMBL_FTP_URL + f"release-{ENS_rel}/gtf/"
+        url = database + f"release-{ENS_rel}/gtf/"
     if which == "dna" or which == "cdna":
-        url = ENSEMBL_FTP_URL + f"release-{ENS_rel}/fasta/"
+        url = database + f"release-{ENS_rel}/fasta/"
     html = requests.get(url)
 
     # Raise error if status code not "OK" Response

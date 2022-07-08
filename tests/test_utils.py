@@ -141,7 +141,7 @@ class TestUtils(unittest.TestCase):
             result = gget_species_options(release=2000)
 
     def test_ref_species_options(self):
-        result_to_test = ref_species_options("gtf", 105)
+        result_to_test = ref_species_options("gtf", release=105)
         expected_result = REF_SPECIES_OPTIONS
 
         self.assertEqual(result_to_test, expected_result)
