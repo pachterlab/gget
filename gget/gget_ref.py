@@ -85,7 +85,7 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
     ## For plants and bacteria, switch to other databases
     # Check if species in plant or bacteria Ensembl database
     if species in ref_species_options(
-        "dna", database=ENSEMBL_FTP_URL_PLANT, release=release
+        "dna", database=ENSEMBL_FTP_URL_PLANT, release=None
     ):
         database = ENSEMBL_FTP_URL_PLANT
     else:
