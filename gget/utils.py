@@ -215,7 +215,7 @@ def get_uniprot_seqs(server, ensembl_ids):
             df["query"] = id_
 
             # Append results for this ID to master data frame
-            master_df = master_df.append(df)
+            master_df = pd.concat([master_df, df], axis=0)
 
         else:
             # If no results were found, warn user and do nothing -> returns empty df
