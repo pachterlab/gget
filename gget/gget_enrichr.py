@@ -53,7 +53,7 @@ def enrichr(
     - ensembl     Define as 'True' if 'genes' is a list of Ensembl gene IDs. (Default: False)
     - plot        True/False whether to provide a graphical overview of the first 15 results. (Default: False)
     - figsize     (width, height) of plot in inches. (Default: (10,10))
-    - ax          A matplotlib axes object. (Default: None)
+    - ax          Pass a matplotlib axes object for further customization of the plot. (Default: None)
     - json        If True, returns results in json format instead of data frame. (Default: False)
     - save        True/False whether to save the results in the local directory. (Default: False)
 
