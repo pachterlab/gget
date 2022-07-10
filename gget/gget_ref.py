@@ -37,8 +37,7 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
                     'cdrna' - Returns transcript sequences corresponding to non-coding RNA genes (ncRNA).
                     'pep' - Returns the protein translations of Ensembl genes.
     - release       Defines the Ensembl release number from which the files are fetched, e.g. release = 104.
-                    (Ensembl releases earlier than release 48 are not supported.)
-                    By default, the latest Ensembl release is used.
+                    Default: None -> latest Ensembl release is used
     - ftp           Return only the requested FTP links in a list (default: False).
     - save          Save the results in the local directory (default: False).
 
