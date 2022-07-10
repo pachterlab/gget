@@ -1,0 +1,32 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Luebbert"
+  given-names: "Laura"
+  orcid: "https://orcid.org/0000-0003-1379-2927"
+- family-names: "Pachter"
+  given-names: "Lior"
+  orcid: "https://orcid.org/0000-0002-9164-6231"
+title: "gget"
+version: 0.2.6
+doi: "10.1101/2022.05.17.492392"
+date-released: 2022
+url: "https://github.com/pachterlab/gget"
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "Luebbert"
+    given-names: "Laura"
+    orcid: "https://orcid.org/0000-0003-1379-2927"
+  - family-names: "Pachter"
+    given-names: "Lior"
+    orcid: "https://orcid.org/0000-0002-9164-6231"
+  doi: "10.1101/2022.05.17.492392"
+  journal: "bioRxiv"
+#   month: 9
+#   start: 1 # First page number
+#   end: 10 # Last page number
+  title: "Efficient querying of genomic reference databases with gget."
+#   issue: 1
+#   volume: 1
+  year: 2022
