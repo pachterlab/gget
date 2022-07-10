@@ -20,7 +20,7 @@
 Note: [UniProt](https://www.uniprot.org/) changed the structure of their API on June 28, 2022. Please upgrade to `gget` version ≥ 0.2.5 if you use any of the modules querying data from UniProt (`gget info` and `gget seq`).  
 ___
 
-`gget` is a free and open-source command-line tool and Python package that enables efficient querying of genomic databases. `gget`  consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.  
+`gget` is a free, open-source command-line tool and Python package that enables efficient querying of genomic databases. `gget`  consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.  
 
 If you use `gget` in a publication, please [cite*](#cite):    
 Luebbert, L. & Pachter, L. (2022). Efficient querying of genomic reference databases with _gget_. bioRxiv 2022.05.17.492392; doi: https://doi.org/10.1101/2022.05.17.492392  
