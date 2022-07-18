@@ -16,7 +16,6 @@ from ipywidgets import GridspecLayout
 from ipywidgets import Output
 
 import logging
-
 # Add and format time stamp in logging messages
 logging.basicConfig(
     format="%(asctime)s %(levelname)s %(message)s",
@@ -25,10 +24,8 @@ logging.basicConfig(
 )
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
-# Mute jackhmmer info
-logging.getLogger("jackhmmer").setLevel(logging.WARNING)
-# Mute alphafold info
 logging.getLogger("alphafold").setLevel(logging.WARNING)
+logging.getLogger("jackhmmer").setLevel(logging.WARNING)
 
 TQDM_BAR_FORMAT = (
     "{l_bar}{bar}| {n_fmt}/{total_fmt} [elapsed: {elapsed} remaining: {remaining}]"
@@ -47,9 +44,7 @@ PARAMS_PATH = os.path.join(PARAMS_DIR, "params_temp.tar")
 
 STEREO_CHEM_DIR = os.path.join(PARAMS_DIR, "stereo_chemical_props.txt")
 
-JACKHMMER_BINARY_PATH = (
-    f"/Users/lauraluebbert/Downloads/gget/gget/bins/{platform.system()}/jackhmmer"
-)
+JACKHMMER_BINARY_PATH = os.path.join(PACKAGE_PATH, f"bins/{platform.system()}/jackhmmer")
 
 # Global variable, temporary disk name for TMPFS (empty string)
 TMP_DISK = ""
@@ -116,30 +111,10 @@ def install_packages():
     """
     # Define TMP_DISK as global variable
     global TMP_DISK
-
-    ## Install openmm if not already installed
-    try:
-        import openmm
-
-        # Check if correct version was installed
-        if openmm.__version__ != "7.5.1" and openmm.__version__ != "7.6":
-            raise ImportError()
-
-        logging.info(f"openmm v{openmm.__version__} already installed.")
-
-    except ImportError:
-        logging.error(
-            """
-      Please install third-party dependency openmm v7.5.1 by running the following command from the command line:
-      'conda install -c conda-forge openmm=7.5.1'
-      """
-        )
-        return "error"
-
+    
     ## Install Alphafold if not already installed
     try:
         import alphafold as AlphaFold
-
         logging.info(f"AlphaFold already installed.")
 
     except ImportError:
@@ -147,7 +122,7 @@ def install_packages():
         # Install AlphaFold and apply OpenMM patch.
         # command = f"""
         #     git clone {ALPHAFOLD_GIT_REPO} alphafold \
-        #     && pip install --no-dependencies ./alphafold \
+        #     && pip install ./alphafold \
         #     && pushd {os.__file__.split('os.py')[0] + 'site-packages/'} \
         #     && patch -p0 < /content/alphafold/docker/openmm.patch \
         #     && popd \
@@ -156,7 +131,7 @@ def install_packages():
         # Install AlphaFold
         command = f"""
             git clone -q {ALPHAFOLD_GIT_REPO} alphafold \
-            && pip install -q --no-dependencies ./alphafold \
+            && pip install -q ./alphafold \
             && rm -rf alphafold
             """
 
@@ -172,19 +147,53 @@ def install_packages():
 
         try:
             import alphafold as AlphaFold
-
             logging.info(f"AlphaFold installed succesfully.")
         except ImportError:
             logging.error("AlphaFold installation failed.")
             return "error"
+    
+    ## Append to path 
+    site_packages_path = os.__file__.split('os.py')[0] + 'site-packages'
+    if site_packages_path not in sys.path:
+        sys.path.append(site_packages_path)
+        
+    site_packages_path_python37 = "/".join(str(os.__file__.split('os.py')[0]).split("/")[:-2]) + 'python3.7/site-packages'
+    if site_packages_path_python37 not in sys.path:
+        sys.path.append(site_packages_path_python37)
+    
+    alphafold_path = os.path.abspath(os.path.dirname(AlphaFold.__file__))
+    if alphafold_path not in sys.path:
+        sys.path.append(alphafold_path)
 
-    ## Install pdbfixer if not already installed
+    ## Install openmm if not already installed
     try:
-        import pdbfixer
+        import simtk.openmm as openmm
 
-        logging.info(f"pdbfixer already installed.")
+        # Check if correct version was installed
+        if openmm.__version__ != "7.5.1":
+            raise ImportError()
+
+        logging.info(f"openmm v{openmm.__version__} already installed.")
 
     except ImportError:
+        logging.error(
+            """
+      Please install third-party dependency openmm v7.5.1 by running the following command from the command line:
+      'conda install -c conda-forge openmm=7.5.1'
+      """
+        )
+        return "error"
+
+    ## Install pdbfixer if not already installed
+    # Check if pdbfixer is already installed
+    command = "pip list | grep pdbfixer"
+    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+    out, err = process.communicate()
+
+    if out.decode() != "":
+        logging.info(f"pdbfixer already installed.")
+
+    else:
         logging.info("Installing pdbfixer from source (requires pip).")
         command = f"""
             git clone -q {PDBFIXER_GIT_REPO} pdbfixer && \
@@ -201,15 +210,7 @@ def install_packages():
                 sys.stderr.write(stderr)
             logging.error("pdbfixer installation failed.")
             return "error"
-
-        try:
-            import pdbfixer
-
-            logging.info(f"pdbfixer installed succesfully.")
-        except ImportError:
-            logging.error("pdbfixer installation failed.")
-            return "error"
-
+    
     ## Manage permission to jackhmmer binary
     command = f"chmod 755 {JACKHMMER_BINARY_PATH}"
 
@@ -366,7 +367,6 @@ def alphafold(
                           Default: "[date]_gget_alphafold_prediction"
       - run_relax         True/False whether to AMBER relax the best model (default: False).
       - plot              True/False whether to provide a graphical overview of the prediction (default: True).
-                          (Requires py3Dmol. Install with 'pip install py3Dmol'.)
       - show_sidechains   True/False whether to show side chains in the plot (default: True).
 
     Saves the predicted aligned error (json) and the prediction (PDB) in the defined 'out' folder.
@@ -422,7 +422,10 @@ def alphafold(
 
     ## Download model parameters
     # Download parameters if the params directory is empty
-    if len(os.listdir(PARAMS_DIR + "params/")) < 2:
+    if not os.path.isfile(os.path.join(PARAMS_DIR, "params/")) or len(os.listdir(os.path.join(PARAMS_DIR, "params/"))) < 2:
+        # Create folder to save parameter files
+        os.makedirs(os.path.join(PARAMS_DIR, "params/"), exist_ok=True)
+                 
         logging.info(
             "Downloading AlphaFold model parameters (requires 4.1 GB of storage). (This might take a few minutes, but only needs to be done during the first 'gget alphafold' call)."
         )
@@ -797,7 +800,9 @@ def alphafold(
             relaxed_pdb = protein.to_pdb(unrelaxed_proteins[best_model_name])
 
         pbar.update(n=1)
-
+    
+    pae, max_pae = list(pae_outputs.values())[0]
+    
     if out is not None:
         ## Save the prediction
         pred_output_path = os.path.join(abs_out_path, "selected_prediction.pdb")
@@ -876,7 +881,6 @@ def alphafold(
 
         if num_plots == 2:
             plt.subplot(1, 2, 2)
-            pae, max_pae = list(pae_outputs.values())[0]
             plt.imshow(pae, vmin=0.0, vmax=max_pae, cmap="Greens_r")
             plt.colorbar(fraction=0.046, pad=0.04)
 
