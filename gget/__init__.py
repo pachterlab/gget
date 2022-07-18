@@ -7,6 +7,7 @@ from .gget_blast import blast
 from .gget_blat import blat
 from .gget_enrichr import enrichr
 from .gget_archs4 import archs4
+from .gget_alphafold import alphafold
 
 import logging
 
