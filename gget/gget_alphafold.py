@@ -36,8 +36,6 @@ TQDM_BAR_FORMAT = (
 
 from .compile import PACKAGE_PATH
 
-# PACKAGE_PATH = "/Users/lauraluebbert/Downloads/gget"
-
 ALPHAFOLD_GIT_REPO = "https://github.com/deepmind/alphafold"
 PDBFIXER_GIT_REPO = "https://github.com/openmm/pdbfixer.git"
 

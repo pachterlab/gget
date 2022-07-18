@@ -25,7 +25,7 @@ setup(
     include_package_data=True,
     python_requires=">=3.6",
     install_requires=open("requirements.txt").read().strip().split("\n"),
-    extras_require={"alphafold": ["py3Dmol"]},
+    extras_require={"alphafold": ["py3Dmol", "tqdm"]},
     setup_requires=open("requirements.txt").read().strip().split("\n"),
     url="https://github.com/pachterlab/gget",
     keywords="gget",
