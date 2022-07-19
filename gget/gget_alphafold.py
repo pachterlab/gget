@@ -1,7 +1,12 @@
-from datetime import date
+from datetime import datetime
+
+# Get current date and time for default filename
+dt_string = datetime.now().strftime("%Y_%m_%d-%H_%M")
+
 import tqdm.notebook
 import os
 import sys
+import glob
 import subprocess
 import platform
 import collections
@@ -16,16 +21,14 @@ from ipywidgets import GridspecLayout
 from ipywidgets import Output
 
 import logging
+
 # Add and format time stamp in logging messages
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    datefmt="%c",
-)
-# Mute numexpr threads info
-logging.getLogger("numexpr").setLevel(logging.WARNING)
-logging.getLogger("alphafold").setLevel(logging.WARNING)
-logging.getLogger("jackhmmer").setLevel(logging.WARNING)
+logger = logging.getLogger("gget.alphafold")
+formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
+hdlr = logging.FileHandler("gget.log")
+hdlr.setFormatter(formatter)
+hdlr.setLevel(logging.INFO)
+logger.addHandler(hdlr)
 
 TQDM_BAR_FORMAT = (
     "{l_bar}{bar}| {n_fmt}/{total_fmt} [elapsed: {elapsed} remaining: {remaining}]"
@@ -44,7 +47,9 @@ PARAMS_PATH = os.path.join(PARAMS_DIR, "params_temp.tar")
 
 STEREO_CHEM_DIR = os.path.join(PARAMS_DIR, "stereo_chemical_props.txt")
 
-JACKHMMER_BINARY_PATH = os.path.join(PACKAGE_PATH, f"bins/{platform.system()}/jackhmmer")
+JACKHMMER_BINARY_PATH = os.path.join(
+    PACKAGE_PATH, f"bins/{platform.system()}/jackhmmer"
+)
 
 # Global variable, temporary disk name for TMPFS (empty string)
 TMP_DISK = ""
@@ -111,10 +116,11 @@ def install_packages():
     """
     # Define TMP_DISK as global variable
     global TMP_DISK
-    
+
     ## Install Alphafold if not already installed
     try:
         import alphafold as AlphaFold
+
         logging.info(f"AlphaFold already installed.")
 
     except ImportError:
@@ -147,20 +153,24 @@ def install_packages():
 
         try:
             import alphafold as AlphaFold
+
             logging.info(f"AlphaFold installed succesfully.")
         except ImportError:
             logging.error("AlphaFold installation failed.")
             return "error"
-    
-    ## Append to path 
-    site_packages_path = os.__file__.split('os.py')[0] + 'site-packages'
+
+    ## Append to path
+    site_packages_path = os.__file__.split("os.py")[0] + "site-packages"
     if site_packages_path not in sys.path:
         sys.path.append(site_packages_path)
-        
-    site_packages_path_python37 = "/".join(str(os.__file__.split('os.py')[0]).split("/")[:-2]) + 'python3.7/site-packages'
+
+    site_packages_path_python37 = (
+        "/".join(str(os.__file__.split("os.py")[0]).split("/")[:-2])
+        + "python3.7/site-packages"
+    )
     if site_packages_path_python37 not in sys.path:
         sys.path.append(site_packages_path_python37)
-    
+
     alphafold_path = os.path.abspath(os.path.dirname(AlphaFold.__file__))
     if alphafold_path not in sys.path:
         sys.path.append(alphafold_path)
@@ -188,9 +198,9 @@ def install_packages():
     # Check if pdbfixer is already installed
     command = "pip list | grep pdbfixer"
     process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
-    out, err = process.communicate()
+    pdb_out, err = process.communicate()
 
-    if out.decode() != "":
+    if pdb_out.decode() != "":
         logging.info(f"pdbfixer already installed.")
 
     else:
@@ -210,7 +220,7 @@ def install_packages():
                 sys.stderr.write(stderr)
             logging.error("pdbfixer installation failed.")
             return "error"
-    
+
     ## Manage permission to jackhmmer binary
     command = f"chmod 755 {JACKHMMER_BINARY_PATH}"
 
@@ -245,10 +255,10 @@ def install_packages():
     #   # Attach disk with 9GB
     #   command1 = "hdiutil attach -nomount ram://18432000"
     #   process = subprocess.Popen(command1, shell=True, stdout=subprocess.PIPE)
-    #   out, err = process.communicate()
+    #   hdi_out, err = process.communicate()
 
     #   # Record number of new disk
-    #   TMP_DISK = out.decode("utf-8").strip()
+    #   TMP_DISK = hdi_out.decode("utf-8").strip()
     #   DISK_NUMBER = f"$({TMP_DISK} | tr -dc '0-9')"
 
     #   # Set up TMPFS
@@ -352,7 +362,7 @@ def clean_up():
 
 def alphafold(
     sequence,
-    out=f"{str(date.today())}_gget_alphafold_prediction",
+    out=f"{dt_string}_gget_alphafold_prediction",
     run_relax=False,
     plot=True,
     show_sidechains=True,
@@ -422,10 +432,13 @@ def alphafold(
 
     ## Download model parameters
     # Download parameters if the params directory is empty
-    if not os.path.isfile(os.path.join(PARAMS_DIR, "params/")) or len(os.listdir(os.path.join(PARAMS_DIR, "params/"))) < 2:
+    if (
+        not os.path.isfile(os.path.join(PARAMS_DIR, "params/"))
+        or len(os.listdir(os.path.join(PARAMS_DIR, "params/"))) < 2
+    ):
         # Create folder to save parameter files
         os.makedirs(os.path.join(PARAMS_DIR, "params/"), exist_ok=True)
-                 
+
         logging.info(
             "Downloading AlphaFold model parameters (requires 4.1 GB of storage). (This might take a few minutes, but only needs to be done during the first 'gget alphafold' call)."
         )
@@ -549,6 +562,10 @@ def alphafold(
         source = f.result()
         ex.shutdown()
         break
+    if source != "":
+        logging.info(f"Closest source for reference databases: {source}.")
+    else:
+        logging.info(f"Closest source for reference databases: None.")
 
     DB_ROOT_PATH = f"https://storage.googleapis.com/alphafold-colab{source}/latest/"
     MSA_DATABASES = [
@@ -800,9 +817,9 @@ def alphafold(
             relaxed_pdb = protein.to_pdb(unrelaxed_proteins[best_model_name])
 
         pbar.update(n=1)
-    
+
     pae, max_pae = list(pae_outputs.values())[0]
-    
+
     if out is not None:
         ## Save the prediction
         pred_output_path = os.path.join(abs_out_path, "selected_prediction.pdb")
@@ -857,12 +874,12 @@ def alphafold(
         output_plt = Output()
         with output_plt:
             view.show()
-        grid[0, 0] = out
+        grid[0, 0] = output_plt
 
         output_plt = Output()
         with output_plt:
             plot_plddt_legend().show()
-        grid[0, 1] = out
+        grid[0, 1] = output_plt
 
         display.display(grid)
 
