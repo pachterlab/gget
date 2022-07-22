@@ -10,13 +10,11 @@ from .gget_archs4 import archs4
 from .gget_alphafold import alphafold
 
 import logging
-# Add and format time stamp in logging messages
-logger = logging.getLogger("gget")
-formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
-hdlr = logging.FileHandler("gget.log")
-hdlr.setFormatter(formatter)
-hdlr.setLevel(logging.INFO)
-logger.addHandler(hdlr)
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(message)s",
+    level=logging.INFO,
+    datefmt="%c",
+)
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
 

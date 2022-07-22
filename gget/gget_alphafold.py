@@ -5,6 +5,8 @@ dt_string = datetime.now().strftime("%Y_%m_%d-%H_%M")
 
 import tqdm.notebook
 import os
+import shutil
+import uuid
 import sys
 import glob
 import subprocess
@@ -21,14 +23,13 @@ from ipywidgets import GridspecLayout
 from ipywidgets import Output
 
 import logging
-
-# Add and format time stamp in logging messages
-logger = logging.getLogger("gget.alphafold")
-formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
-hdlr = logging.FileHandler("gget.log")
-hdlr.setFormatter(formatter)
-hdlr.setLevel(logging.INFO)
-logger.addHandler(hdlr)
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(message)s",
+    level=logging.INFO,
+    datefmt="%c",
+)
+# Mute numexpr threads info
+logging.getLogger("numexpr").setLevel(logging.WARNING)
 
 TQDM_BAR_FORMAT = (
     "{l_bar}{bar}| {n_fmt}/{total_fmt} [elapsed: {elapsed} remaining: {remaining}]"
@@ -109,13 +110,15 @@ def plot_plddt_legend():
 
     return plt
 
-
+UUID = None
 def install_packages():
     """
     Function to install missing packages required to run gget alphafold.
     """
     # Define TMP_DISK as global variable
     global TMP_DISK
+    # Global variable to save UUID defining temporary jackhmmer folder
+    global UUID
 
     ## Install Alphafold if not already installed
     try:
@@ -134,7 +137,7 @@ def install_packages():
         #     && popd \
         #     && rm -rf alphafold
         #     """
-        # Install AlphaFold
+        # Install AlphaFold !!! Change line in alphafold jackhmmer to define directory where temp database chunks are saved
         command = f"""
             git clone -q {ALPHAFOLD_GIT_REPO} alphafold \
             && pip install -q ./alphafold \
@@ -178,6 +181,8 @@ def install_packages():
     ## Install openmm if not already installed
     try:
         import simtk.openmm as openmm
+        # Silence openmm logger
+        logging.getLogger("openmm").setLevel(logging.WARNING)
 
         # Check if correct version was installed
         if openmm.__version__ != "7.5.1":
@@ -278,15 +283,9 @@ def install_packages():
     #       logging.warning("Creating TMPFS failed. Jackhmmer will run slower.")
 
     # else:
-    command = "mkdir -p /tmp/ramdisk"
-
-    with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
-        stderr = process.stderr.read().decode("utf-8")
-    # Exit system if the subprocess returned with an error
-    if process.wait() != 0:
-        if stderr:
-            # Log the standard error if it is not empty
-            sys.stderr.write(stderr)
+    # Create folder to save temporary jackhmmer database chunks
+    UUID = str(uuid.uuid4())
+    os.makedirs(f"~/tmp/jackhmmer/{UUID}", exist_ok=True)
 
 
 def fetch(source):
@@ -305,6 +304,8 @@ def get_msa(fasta_path, msa_databases, total_jackhmmer_chunks):
     raw_msa_results = collections.defaultdict(list)
 
     from alphafold.data.tools import jackhmmer
+    # Silence jackhmmer logger
+    logging.getLogger("jackhmmer").setLevel(logging.WARNING)
 
     with tqdm.notebook.tqdm(
         total=total_jackhmmer_chunks, bar_format=TQDM_BAR_FORMAT
@@ -358,6 +359,9 @@ def clean_up():
     #         if stderr:
     #           # Log the standard error if it is not empty
     #           sys.stderr.write(stderr)
+
+    # Delete folder containing temporary Jackhmmer database chunks
+    os.removedirs(f"~/tmp/jackhmmer/{UUID}")
 
 
 def alphafold(
@@ -429,6 +433,9 @@ def alphafold(
                 "Dependency openmm v7.5.1 not installed succesfully. Try running 'conda install -c conda-forge openmm=7.5.1' from the command line."
             )
             return
+    
+    # Silence AlphaFold logger
+    logging.getLogger("alphafold").setLevel(logging.WARNING)
 
     ## Download model parameters
     # Download parameters if the params directory is empty
@@ -471,26 +478,9 @@ def alphafold(
 
     ## Move stereo_chemical_props.txt from gget bins to Alphafold package so it can be found
     # logging.info("Locate files containing stereochemical properties.")
-    if platform.system() == "Windows":
-        # The double-quotation marks allow white spaces in the path, but this does not work for Windows
-        command = f"""
-            mkdir -p {os.path.join(ALPHAFOLD_PATH, 'common/')} \
-            && cp -f {STEREO_CHEM_DIR} {os.path.join(ALPHAFOLD_PATH, 'common/')}
-            """
-    else:
-        command = f"""
-            mkdir -p '{os.path.join(ALPHAFOLD_PATH, 'common/')}' \
-            && cp -f '{STEREO_CHEM_DIR}' '{os.path.join(ALPHAFOLD_PATH, 'common/')}'
-            """
+    os.makedirs(os.path.join(ALPHAFOLD_PATH, 'common/'), exist_ok=True)
+    shutil.copyfile(STEREO_CHEM_DIR, os.path.join(ALPHAFOLD_PATH, 'common/'))
 
-    with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process2:
-        stderr2 = process2.stderr.read().decode("utf-8")
-        # Log the standard error if it is not empty
-        if stderr2:
-            sys.stderr.write(stderr2)
-    # Exit system if the subprocess returned with an error
-    if process2.wait() != 0:
-        return
 
     ## Validate input sequence(s)
     logging.info(f"Validating input sequence(s).")
