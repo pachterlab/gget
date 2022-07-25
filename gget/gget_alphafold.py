@@ -1,3 +1,7 @@
+# Code adapted and heavily modified from the AlphaFold Colab notebook
+# https://colab.research.google.com/github/deepmind/alphafold/blob/main/notebooks/AlphaFold.ipynb
+# Copyright 2021 DeepMind; SPDX-License-Identifier: Apache-2.0
+
 from datetime import datetime
 
 # Get current date and time for default filename
@@ -6,7 +10,6 @@ dt_string = datetime.now().strftime("%Y_%m_%d-%H_%M")
 import tqdm.notebook
 import os
 import shutil
-import uuid
 import sys
 import glob
 import subprocess
@@ -23,6 +26,7 @@ from ipywidgets import GridspecLayout
 from ipywidgets import Output
 
 import logging
+
 logging.basicConfig(
     format="%(asctime)s %(levelname)s %(message)s",
     level=logging.INFO,
@@ -36,24 +40,13 @@ TQDM_BAR_FORMAT = (
 )
 
 from .compile import PACKAGE_PATH
-
-ALPHAFOLD_GIT_REPO = "https://github.com/deepmind/alphafold"
-PDBFIXER_GIT_REPO = "https://github.com/openmm/pdbfixer.git"
-
-PARAMS_URL = (
-    "https://storage.googleapis.com/alphafold/alphafold_params_colab_2022-03-02.tar"
-)
-PARAMS_DIR = os.path.join(PACKAGE_PATH, f"bins/alphafold/")
-PARAMS_PATH = os.path.join(PARAMS_DIR, "params_temp.tar")
+from .gget_setup import UUID, TMP_DISK, PARAMS_DIR
 
 STEREO_CHEM_DIR = os.path.join(PARAMS_DIR, "stereo_chemical_props.txt")
-
+# Path to jackhmmer binary
 JACKHMMER_BINARY_PATH = os.path.join(
     PACKAGE_PATH, f"bins/{platform.system()}/jackhmmer"
 )
-
-# Global variable, temporary disk name for TMPFS (empty string)
-TMP_DISK = ""
 
 # Test pattern to find closest source
 test_url_pattern = (
@@ -110,183 +103,6 @@ def plot_plddt_legend():
 
     return plt
 
-UUID = None
-def install_packages():
-    """
-    Function to install missing packages required to run gget alphafold.
-    """
-    # Define TMP_DISK as global variable
-    global TMP_DISK
-    # Global variable to save UUID defining temporary jackhmmer folder
-    global UUID
-
-    ## Install Alphafold if not already installed
-    try:
-        import alphafold as AlphaFold
-
-        logging.info(f"AlphaFold already installed.")
-
-    except ImportError:
-        logging.info("Installing AlphaFold from source (requires pip).")
-        # Install AlphaFold and apply OpenMM patch.
-        # command = f"""
-        #     git clone {ALPHAFOLD_GIT_REPO} alphafold \
-        #     && pip install ./alphafold \
-        #     && pushd {os.__file__.split('os.py')[0] + 'site-packages/'} \
-        #     && patch -p0 < /content/alphafold/docker/openmm.patch \
-        #     && popd \
-        #     && rm -rf alphafold
-        #     """
-        # Install AlphaFold !!! Change line in alphafold jackhmmer to define directory where temp database chunks are saved
-        command = f"""
-            git clone -q {ALPHAFOLD_GIT_REPO} alphafold \
-            && pip install -q ./alphafold \
-            && rm -rf alphafold
-            """
-
-        with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
-            stderr = process.stderr.read().decode("utf-8")
-        # Exit system if the subprocess returned with an error
-        if process.wait() != 0:
-            if stderr:
-                # Log the standard error if it is not empty
-                sys.stderr.write(stderr)
-            logging.error("AlphaFold installation failed.")
-            return "error"
-
-        try:
-            import alphafold as AlphaFold
-
-            logging.info(f"AlphaFold installed succesfully.")
-        except ImportError:
-            logging.error("AlphaFold installation failed.")
-            return "error"
-
-    ## Append to path
-    site_packages_path = os.__file__.split("os.py")[0] + "site-packages"
-    if site_packages_path not in sys.path:
-        sys.path.append(site_packages_path)
-
-    site_packages_path_python37 = (
-        "/".join(str(os.__file__.split("os.py")[0]).split("/")[:-2])
-        + "python3.7/site-packages"
-    )
-    if site_packages_path_python37 not in sys.path:
-        sys.path.append(site_packages_path_python37)
-
-    alphafold_path = os.path.abspath(os.path.dirname(AlphaFold.__file__))
-    if alphafold_path not in sys.path:
-        sys.path.append(alphafold_path)
-
-    ## Install openmm if not already installed
-    try:
-        import simtk.openmm as openmm
-        # Silence openmm logger
-        logging.getLogger("openmm").setLevel(logging.WARNING)
-
-        # Check if correct version was installed
-        if openmm.__version__ != "7.5.1":
-            raise ImportError()
-
-        logging.info(f"openmm v{openmm.__version__} already installed.")
-
-    except ImportError:
-        logging.error(
-            """
-      Please install third-party dependency openmm v7.5.1 by running the following command from the command line:
-      'conda install -c conda-forge openmm=7.5.1'
-      """
-        )
-        return "error"
-
-    ## Install pdbfixer if not already installed
-    # Check if pdbfixer is already installed
-    command = "pip list | grep pdbfixer"
-    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
-    pdb_out, err = process.communicate()
-
-    if pdb_out.decode() != "":
-        logging.info(f"pdbfixer already installed.")
-
-    else:
-        logging.info("Installing pdbfixer from source (requires pip).")
-        command = f"""
-            git clone -q {PDBFIXER_GIT_REPO} pdbfixer && \
-            pip install -q ./pdbfixer && \
-            rm -rf pdbfixer
-            """
-
-        with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
-            stderr = process.stderr.read().decode("utf-8")
-        # Exit system if the subprocess returned with an error
-        if process.wait() != 0:
-            if stderr:
-                # Log the standard error if it is not empty
-                sys.stderr.write(stderr)
-            logging.error("pdbfixer installation failed.")
-            return "error"
-
-    ## Manage permission to jackhmmer binary
-    command = f"chmod 755 {JACKHMMER_BINARY_PATH}"
-
-    with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
-        stderr = process.stderr.read().decode("utf-8")
-
-    # Exit system if the subprocess returned with an error
-    if process.wait() != 0:
-        if stderr:
-            # Log the standard error if it is not empty
-            sys.stderr.write(stderr)
-        logging.error("Giving chmod 755 permissions to jackhmmer binary failed.")
-        return "error"
-
-    # ## Create a temporary file system (TMPFS) to store a database chunk to make Jackhmmer run fast.
-    # # TMPFS uses local memory for file system reads and writes, which is typically much faster than reads and writes in a UFS file system.
-    # logging.info("Creating temporary file system (TMPFS) to store a database chunk and make Jackhmmer run faster.")
-    # if platform.system() == "Linux":
-    #   command = f"mkdir -m 777 -p /tmp/ramdisk && mount -t tmpfs -o size=9G ramdisk /tmp/ramdisk"
-
-    #   with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
-    #       stderr = process.stderr.read().decode("utf-8")
-
-    #   # Exit system if the subprocess returned with an error
-    #   if process.wait() != 0:
-    #       # if stderr:
-    #       # # Log the standard error if it is not empty
-    #       # sys.stderr.write(stderr)
-    #       logging.warning("Creating TMPFS failed. Jackhmmer will run slower.")
-
-    # elif platform.system() == "Darwin":
-    #   # Attach disk with 9GB
-    #   command1 = "hdiutil attach -nomount ram://18432000"
-    #   process = subprocess.Popen(command1, shell=True, stdout=subprocess.PIPE)
-    #   hdi_out, err = process.communicate()
-
-    #   # Record number of new disk
-    #   TMP_DISK = hdi_out.decode("utf-8").strip()
-    #   DISK_NUMBER = f"$({TMP_DISK} | tr -dc '0-9')"
-
-    #   # Set up TMPFS
-    #   command2 = f"newfs_hfs -v tmp /dev/rdisk{DISK_NUMBER}"
-    #   command3 = f"diskutil eraseVolume HFS+ /tmp/ramdisk {TMP_DISK}"
-
-    #   command = command2 + " && " + command3
-
-    #   with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
-    #     stderr = process.stderr.read().decode("utf-8")
-
-    #   # Exit system if the subprocess returned with an error
-    #   if process.wait() != 0:
-    #       # if stderr:
-    #       # # Log the standard error if it is not empty
-    #       # sys.stderr.write(stderr)
-    #       logging.warning("Creating TMPFS failed. Jackhmmer will run slower.")
-
-    # else:
-    # Create folder to save temporary jackhmmer database chunks
-    UUID = str(uuid.uuid4())
-    os.makedirs(f"~/tmp/jackhmmer/{UUID}", exist_ok=True)
-
 
 def fetch(source):
     """
@@ -300,18 +116,37 @@ def get_msa(fasta_path, msa_databases, total_jackhmmer_chunks):
     """
     Function to search for MSA for the given sequence using chunked Jackhmmer search.
     """
-    # Run the search against chunks of genetic databases to save disk space.
+    ## Create folder to save temporary jackhmmer database chunks in
+    os.makedirs(f"~/tmp/jackhmmer/{UUID}", exist_ok=True)
+
+    ## Manage permission to jackhmmer binary
+    command = f"chmod 755 {JACKHMMER_BINARY_PATH}"
+
+    with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
+        stderr = process.stderr.read().decode("utf-8")
+
+    # Exit system if the subprocess returned with an error
+    if process.wait() != 0:
+        if stderr:
+            # Log the standard error if it is not empty
+            sys.stderr.write(stderr)
+        logging.error("Giving chmod 755 permissions to jackhmmer binary failed.")
+        return
+
+    ## Run the search against chunks of genetic databases to save disk space
     raw_msa_results = collections.defaultdict(list)
 
     from alphafold.data.tools import jackhmmer
+
     # Silence jackhmmer logger
     logging.getLogger("jackhmmer").setLevel(logging.WARNING)
+    logging.getLogger("alphafold").setLevel(logging.WARNING)
 
     with tqdm.notebook.tqdm(
         total=total_jackhmmer_chunks, bar_format=TQDM_BAR_FORMAT
     ) as pbar:
         # Set progress bar description
-        pbar.set_description(f"Jackhmmer search")
+        pbar.set_description("Jackhmmer search")
 
         def jackhmmer_chunk_callback(i):
             pbar.update(n=1)
@@ -372,47 +207,90 @@ def alphafold(
     show_sidechains=True,
 ):
     """
-    Predicts the structure of a protein using a slightly simplified version of [AlphaFold v2.1.0](https://doi.org/10.1038/s41586-021-03819-2)
-    published in the [AlphaFold Colab notebook](https://colab.research.google.com/github/deepmind/alphafold/blob/main/notebooks/AlphaFold.ipynb).
+    Predicts the structure of a protein using a slightly simplified version of AlphaFold v2.1.0 (https://doi.org/10.1038/s41586-021-03819-2)
+    published in the AlphaFold Colab notebook (https://colab.research.google.com/github/deepmind/alphafold/blob/main/notebooks/AlphaFold.ipynb).
 
     Args:
       - sequence          Amino acid sequence (str), a list of sequences, or path to a FASTA file.
       - out               Path to folder to save prediction results in (str) or None.
-                          Default: "[date]_gget_alphafold_prediction"
+                          Default: "[date_time]_gget_alphafold_prediction"
       - run_relax         True/False whether to AMBER relax the best model (default: False).
       - plot              True/False whether to provide a graphical overview of the prediction (default: True).
       - show_sidechains   True/False whether to show side chains in the plot (default: True).
 
     Saves the predicted aligned error (json) and the prediction (PDB) in the defined 'out' folder.
 
-    From the [AlphaFold Colab notebook](https://colab.research.google.com/github/deepmind/alphafold/blob/main/notebooks/AlphaFold.ipynb):
+    From the AlphaFold Colab notebook (https://colab.research.google.com/github/deepmind/alphafold/blob/main/notebooks/AlphaFold.ipynb):
     "In comparison to AlphaFold v2.1.0, this Colab notebook uses no templates (homologous structures)
-    and only a selected portion of the [BFD database](https://bfd.mmseqs.com/). We have validated these
+    and only a selected portion of the BFD database (https://bfd.mmseqs.com/). We have validated these
     changes on several thousand recent PDB structures. While accuracy will be near-identical to the full
     AlphaFold system on many targets, a small fraction have a large drop in accuracy due to the smaller MSA
-    and lack of templates. For best reliability, we recommend instead using the [full open source AlphaFold](https://github.com/deepmind/alphafold/),
-    or the [AlphaFold Protein Structure Database](https://alphafold.ebi.ac.uk/).
+    and lack of templates. For best reliability, we recommend instead using the full open source AlphaFold (https://github.com/deepmind/alphafold/),
+    or the AlphaFold Protein Structure Database (https://alphafold.ebi.ac.uk/).
 
     This Colab has a small drop in average accuracy for multimers compared to local AlphaFold installation,
-    for full multimer accuracy it is highly recommended to run [AlphaFold locally](https://github.com/deepmind/alphafold#running-alphafold).
+    for full multimer accuracy it is highly recommended to run AlphaFold locally (https://github.com/deepmind/alphafold#running-alphafold).
     Moreover, the AlphaFold-Multimer requires searching for MSA for every unique sequence in the complex, hence it is substantially slower.
 
     Please note that this Colab notebook is provided as an early-access prototype and is not a finished product.
     It is provided for theoretical modelling only and caution should be exercised in its use."
 
-    If you use this function, please cite the [AphaFold paper](https://doi.org/10.1038/s41586-021-03819-2).
+    If you use this function, please cite the AphaFold paper (https://doi.org/10.1038/s41586-021-03819-2) and, if applicable,
+    the AlphaFold-Multimer paper (https://www.biorxiv.org/content/10.1101/2021.10.04.463034v1).
     """
 
-    ## Install software
-    error = install_packages()
-    if error:
+    ## Check if third-party dependencies are installed
+    # Check if openmm is installed
+    try:
+        import simtk.openmm as openmm
+    except ImportError:
+        logging.error(
+            """
+        Please install third-party dependency openmm v7.5.1 by running the following command from the command line:
+        'conda install -c conda-forge openmm=7.5.1'
+        """
+        )
         return
 
-    import alphafold as AlphaFold
+    # Check if AlphaFold is installed
+    try:
+        import alphafold as AlphaFold
+    except ImportError:
+        logging.error(
+            """
+        Some third-party dependencies are missing. Please run the following command: 
+        >>> gget.setup('alphafold') or $ gget setup alphafold
+        """
+        )
+        return
 
+    # Check if pdbfixer is installed
+    command = "pip list | grep pdbfixer"
+    process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+    pdb_out, err = process.communicate()
+
+    if pdb_out.decode() == "":
+        logging.error(
+            """
+        Some third-party dependencies are missing. Please run the following command: 
+        >>> gget.setup('alphafold') or $ gget setup alphafold
+        """
+        )
+        return
+
+    # Check if model parameters were downloaded
+    if len(os.listdir(os.path.join(PARAMS_DIR, "params/"))) < 12:
+        logging.error(
+            """
+        The AlphaFold model parameters are missing. Please run the following command: 
+        >>> gget.setup('alphafold') or $ gget setup alphafold
+        """
+        )
+        return
+
+    ## Import AlphaFold functions
     ALPHAFOLD_PATH = os.path.abspath(os.path.dirname(AlphaFold.__file__))
 
-    # Import all alphafold programs following installation
     from alphafold.notebooks import notebook_utils
     from alphafold.model import model
     from alphafold.model import config
@@ -433,54 +311,14 @@ def alphafold(
                 "Dependency openmm v7.5.1 not installed succesfully. Try running 'conda install -c conda-forge openmm=7.5.1' from the command line."
             )
             return
-    
+
     # Silence AlphaFold logger
     logging.getLogger("alphafold").setLevel(logging.WARNING)
 
-    ## Download model parameters
-    # Download parameters if the params directory is empty
-    if (
-        not os.path.isfile(os.path.join(PARAMS_DIR, "params/"))
-        or len(os.listdir(os.path.join(PARAMS_DIR, "params/"))) < 2
-    ):
-        # Create folder to save parameter files
-        os.makedirs(os.path.join(PARAMS_DIR, "params/"), exist_ok=True)
-
-        logging.info(
-            "Downloading AlphaFold model parameters (requires 4.1 GB of storage). (This might take a few minutes, but only needs to be done during the first 'gget alphafold' call)."
-        )
-        if platform.system() == "Windows":
-            # The double-quotation marks allow white spaces in the path, but this does not work for Windows
-            command = f"""
-                curl -# -o {PARAMS_PATH} {PARAMS_URL} \
-                && tar --extract --file={PARAMS_PATH} --directory={PARAMS_DIR+'params/'} --preserve-permissions \
-                && rm {PARAMS_PATH}
-                """
-        else:
-            command = f"""
-                curl -# -o '{PARAMS_PATH}' '{PARAMS_URL}' \
-                && tar --extract --file='{PARAMS_PATH}' --directory='{PARAMS_DIR+'params/'}' --preserve-permissions \
-                && rm '{PARAMS_PATH}'
-                """
-
-        with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
-            stderr = process.stderr.read().decode("utf-8")
-            # Log the standard error if it is not empty
-            if stderr:
-                sys.stderr.write(stderr)
-        # Exit system if the subprocess returned with an error
-        if process.wait() != 0:
-            return
-        else:
-            logging.info(f"Parameter download complete.")
-    else:
-        logging.info("AlphaFold model parameters already downloaded.")
-
     ## Move stereo_chemical_props.txt from gget bins to Alphafold package so it can be found
     # logging.info("Locate files containing stereochemical properties.")
-    os.makedirs(os.path.join(ALPHAFOLD_PATH, 'common/'), exist_ok=True)
-    shutil.copyfile(STEREO_CHEM_DIR, os.path.join(ALPHAFOLD_PATH, 'common/'))
-
+    os.makedirs(os.path.join(ALPHAFOLD_PATH, "common/"), exist_ok=True)
+    shutil.copyfile(STEREO_CHEM_DIR, os.path.join(ALPHAFOLD_PATH, "common/stereo_chemical_props.txt"))
 
     ## Validate input sequence(s)
     logging.info(f"Validating input sequence(s).")
@@ -543,7 +381,7 @@ def alphafold(
     )
 
     ## Find the closest source
-    logging.info(f"Finding closest source for reference databases.")
+    logging.info(f"Finding closest source for reference database.")
 
     ex = futures.ThreadPoolExecutor(3)
     fs = [ex.submit(fetch, source) for source in ["", "-europe", "-asia"]]
@@ -552,10 +390,6 @@ def alphafold(
         source = f.result()
         ex.shutdown()
         break
-    if source != "":
-        logging.info(f"Closest source for reference databases: {source}.")
-    else:
-        logging.info(f"Closest source for reference databases: None.")
 
     DB_ROOT_PATH = f"https://storage.googleapis.com/alphafold-colab{source}/latest/"
     MSA_DATABASES = [
