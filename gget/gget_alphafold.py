@@ -117,7 +117,7 @@ def get_msa(fasta_path, msa_databases, total_jackhmmer_chunks):
     Function to search for MSA for the given sequence using chunked Jackhmmer search.
     """
     ## Create folder to save temporary jackhmmer database chunks in
-    os.makedirs(f"~/tmp/jackhmmer/{UUID}", exist_ok=True)
+    os.makedirs(os.path.expanduser(f"~/tmp/jackhmmer/{UUID}"), exist_ok=True)
 
     ## Manage permission to jackhmmer binary
     command = f"chmod 755 {JACKHMMER_BINARY_PATH}"
@@ -141,6 +141,7 @@ def get_msa(fasta_path, msa_databases, total_jackhmmer_chunks):
     # Silence jackhmmer logger
     logging.getLogger("jackhmmer").setLevel(logging.WARNING)
     logging.getLogger("alphafold").setLevel(logging.WARNING)
+    logging.getLogger("alphafold.data.tools").setLevel(logging.WARNING)
 
     with tqdm.notebook.tqdm(
         total=total_jackhmmer_chunks, bar_format=TQDM_BAR_FORMAT
@@ -196,13 +197,13 @@ def clean_up():
     #           sys.stderr.write(stderr)
 
     # Delete folder containing temporary Jackhmmer database chunks
-    os.removedirs(f"~/tmp/jackhmmer/{UUID}")
+    os.removedirs(os.path.expanduser(f"~/tmp/jackhmmer/{UUID}"))
 
 
 def alphafold(
     sequence,
     out=f"{dt_string}_gget_alphafold_prediction",
-    run_relax=False,
+    relax=False,
     plot=True,
     show_sidechains=True,
 ):
@@ -214,7 +215,7 @@ def alphafold(
       - sequence          Amino acid sequence (str), a list of sequences, or path to a FASTA file.
       - out               Path to folder to save prediction results in (str) or None.
                           Default: "[date_time]_gget_alphafold_prediction"
-      - run_relax         True/False whether to AMBER relax the best model (default: False).
+      - relax             True/False whether to AMBER relax the best model (default: False).
       - plot              True/False whether to provide a graphical overview of the prediction (default: True).
       - show_sidechains   True/False whether to show side chains in the plot (default: True).
 
@@ -289,8 +290,6 @@ def alphafold(
         return
 
     ## Import AlphaFold functions
-    ALPHAFOLD_PATH = os.path.abspath(os.path.dirname(AlphaFold.__file__))
-
     from alphafold.notebooks import notebook_utils
     from alphafold.model import model
     from alphafold.model import config
@@ -311,12 +310,29 @@ def alphafold(
                 "Dependency openmm v7.5.1 not installed succesfully. Try running 'conda install -c conda-forge openmm=7.5.1' from the command line."
             )
             return
+    
+    if relax:
+        # Import AlphaFold relax package
+        try:
+            from alphafold.relax import run_relax
+        except ModuleNotFoundError as e:
+            if "openmm" in str(e):
+                logging.error(
+                    "Dependency openmm v7.5.1 not installed succesfully. Try running 'conda install -c conda-forge openmm=7.5.1' from the command line."
+                )
+                return
 
-    # Silence AlphaFold logger
+    # Silence AlphaFold loggers
     logging.getLogger("alphafold").setLevel(logging.WARNING)
+    logging.getLogger("alphafold.notebooks").setLevel(logging.WARNING)
+    logging.getLogger("alphafold.model").setLevel(logging.WARNING)
+    logging.getLogger("alphafold.data").setLevel(logging.WARNING)
+    logging.getLogger("alphafold.common").setLevel(logging.WARNING)
+    logging.getLogger("alphafold.relax").setLevel(logging.WARNING)
 
     ## Move stereo_chemical_props.txt from gget bins to Alphafold package so it can be found
     # logging.info("Locate files containing stereochemical properties.")
+    ALPHAFOLD_PATH = os.path.abspath(os.path.dirname(AlphaFold.__file__))
     os.makedirs(os.path.join(ALPHAFOLD_PATH, "common/"), exist_ok=True)
     shutil.copyfile(STEREO_CHEM_DIR, os.path.join(ALPHAFOLD_PATH, "common/stereo_chemical_props.txt"))
 
@@ -610,20 +626,10 @@ def alphafold(
             ranking_confidences.keys(), key=lambda x: ranking_confidences[x]
         )
 
-        if run_relax:
+        if relax:
             pbar.set_description(f"AMBER relaxation")
 
-            # Import AlphaFold packages
-            try:
-                from alphafold.relax import relax
-            except ModuleNotFoundError as e:
-                if "openmm" in str(e):
-                    logging.error(
-                        "Dependency openmm v7.5.1 not installed succesfully. Try running 'conda install -c conda-forge openmm=7.5.1' from the command line."
-                    )
-                    return
-
-            amber_relaxer = relax.AmberRelaxation(
+            amber_relaxer = run_relax.AmberRelaxation(
                 max_iterations=0,
                 tolerance=2.39,
                 stiffness=10.0,

@@ -78,12 +78,12 @@ def setup(module):
 
         # Install AlphaFold
         # !!! jackhmmer directory where database chunks are saved will be changed to a temporary folder in ~
-        command = f"""
-            git clone -q {ALPHAFOLD_GIT_REPO} alphafold \
-            && sed -i '' 's/\/tmp\/ramdisk/~\/tmp\/jackhmmer\/{UUID}/g' ./alphafold/alphafold/data/tools/jackhmmer.py \
+        command = """
+            git clone -q {} alphafold \
+            && sed -i '' 's/\/tmp\/ramdisk/{}/g' ./alphafold/alphafold/data/tools/jackhmmer.py \
             && pip install -q ./alphafold \
             && rm -rf alphafold
-            """
+            """.format(ALPHAFOLD_GIT_REPO, os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace("/", "\/"))
 
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
             stderr = process.stderr.read().decode("utf-8")
