@@ -136,9 +136,22 @@ def search(
     logging.info(f"Fetching results from database: {db}")
 
     ## Connect to data base
-    db_connection = sql.connect(
-        host="ensembldb.ensembl.org", database=db, user="anonymous", password=""
-    )
+    try:
+        db_connection = sql.connect(
+            host="ensembldb.ensembl.org", database=db, user="anonymous", password=""
+        )
+    except:
+        try:
+            # Try different port
+            db_connection = sql.connect(
+                host="ensembldb.ensembl.org",
+                database=db,
+                user="anonymous",
+                password="",
+                port=5306,
+            )
+        except Exception as e:
+            logging.error(f"The Ensembl server returned the following error: {e}")
 
     ## Clean up list of searchwords
     # If single searchword passed as string, convert to list
