@@ -1,7 +1,9 @@
 import os
+import shutil
 import sys
 import subprocess
 import platform
+import uuid
 
 import logging
 
@@ -37,6 +39,12 @@ def setup(module):
     Args:
     module      - (str) gget module for which dependencies should be installed, e.g. "alphafold"
     """
+    supported_modules = ["alphafold"]
+    if module not in supported_modules:
+        raise ValueError(
+            f"'module' argument specified as {module}. Expected one of: {', '.join(supported_modules)}"
+        )
+
     if module == "alphafold":
         # Global location of temporary disk
         global TMP_DISK
@@ -76,14 +84,20 @@ def setup(module):
         #     && rm -rf alphafold
         #     """
 
-        # Install AlphaFold
-        # !!! jackhmmer directory where database chunks are saved will be changed to a temporary folder in ~
+        ## Install AlphaFold and change jackhmmer directory where database chunks are saved in
+        # Define AlphaFold folder name and location
+        alphafold_folder = os.path.join(PACKAGE_PATH, "tmp_alphafold_" + str(uuid.uuid4()))
         command = """
-            git clone -q {} alphafold \
-            && sed -i '' 's/\/tmp\/ramdisk/{}/g' ./alphafold/alphafold/data/tools/jackhmmer.py \
-            && pip install -q ./alphafold \
-            && rm -rf alphafold
-            """.format(ALPHAFOLD_GIT_REPO, os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace("/", "\/"))
+            git clone -q {} {} \
+            && sed -i '' 's/\/tmp\/ramdisk/{}/g' ./{}/alphafold/data/tools/jackhmmer.py \
+            && pip install -q ./{} \
+            """.format(
+                ALPHAFOLD_GIT_REPO, 
+                alphafold_folder, 
+                os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace("/", "\/"),
+                alphafold_folder,
+                alphafold_folder
+                )
 
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
             stderr = process.stderr.read().decode("utf-8")
@@ -94,6 +108,9 @@ def setup(module):
                 sys.stderr.write(stderr)
             logging.error("AlphaFold installation failed.")
             return
+
+        # Remove cloned directory
+        shutil.rmtree(alphafold_folder)
 
         try:
             import alphafold as AlphaFold
@@ -121,10 +138,11 @@ def setup(module):
 
         ## Install pdbfixer
         logging.info("Installing pdbfixer from source (requires pip).")
+
+        pdbfixer_folder = os.path.join(PACKAGE_PATH, "tmp_pdbfixer_" + str(uuid.uuid4()))
         command = f"""
-            git clone -q {PDBFIXER_GIT_REPO} pdbfixer && \
-            pip install -q ./pdbfixer && \
-            rm -rf pdbfixer
+            git clone -q {PDBFIXER_GIT_REPO} {pdbfixer_folder} \
+            && pip install -q ./{pdbfixer_folder} \
             """
 
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
@@ -136,6 +154,9 @@ def setup(module):
                 sys.stderr.write(stderr)
             logging.error("pdbfixer installation failed.")
             return
+
+        # Remove cloned directory
+        shutil.rmtree(pdbfixer_folder)
 
         # Check if pdbfixer was installed successfully
         command = "pip list | grep pdbfixer"
@@ -197,10 +218,11 @@ def setup(module):
 
         ## Download model parameters
         # Download parameters if the params directory is empty
-        if len(os.listdir(os.path.join(PARAMS_DIR, "params/"))) < 12:
+        if not os.path.exists(os.path.join(PARAMS_DIR, "params/")):
             # Create folder to save parameter files
             os.makedirs(os.path.join(PARAMS_DIR, "params/"), exist_ok=True)
 
+        if len(os.listdir(os.path.join(PARAMS_DIR, "params/"))) < 12:
             logging.info(
                 "Downloading AlphaFold model parameters (requires 4.1 GB of storage). This might take a few minutes."
             )
