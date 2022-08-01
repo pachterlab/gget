@@ -7,7 +7,7 @@ from datetime import datetime
 # Get current date and time for default foldername
 dt_string = datetime.now().strftime("%Y_%m_%d-%H_%M")
 
-import tqdm.notebook
+from tqdm import tqdm
 import os
 import shutil
 import sys
@@ -27,9 +27,10 @@ from ipywidgets import GridspecLayout
 from ipywidgets import Output
 
 import logging
+
 logging.basicConfig(
     format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.WARNING,
+    level=logging.INFO,
     datefmt="%c",
 )
 # Mute numexpr threads info
@@ -39,6 +40,8 @@ logging.getLogger("jax").setLevel(logging.WARNING)
 logging.getLogger("hmmer").setLevel(logging.WARNING)
 logging.getLogger("jackhmmer").setLevel(logging.WARNING)
 logging.getLogger("gget.jackhmmer").setLevel(logging.WARNING)
+logging.getLogger("jackhmmer.Jackhmmer").setLevel(logging.WARNING)
+logging.getLogger("alphafold.data.tools.jackhmmer.Jackhmmer").setLevel(logging.WARNING)
 logging.getLogger("alphafold").setLevel(logging.WARNING)
 logging.getLogger("gget.alphafold").setLevel(logging.WARNING)
 logging.getLogger("alphafold.data.tools").setLevel(logging.WARNING)
@@ -151,9 +154,24 @@ def get_msa(fasta_path, msa_databases, total_jackhmmer_chunks):
 
     from alphafold.data.tools import jackhmmer
 
-    with tqdm.notebook.tqdm(
-        total=total_jackhmmer_chunks, bar_format=TQDM_BAR_FORMAT
-    ) as pbar:
+    # Silence jackhmmer and alphafold loggers
+    logging.getLogger("jax").setLevel(logging.WARNING)
+    logging.getLogger("hmmer").setLevel(logging.WARNING)
+    logging.getLogger("jackhmmer").setLevel(logging.WARNING)
+    logging.getLogger("gget.jackhmmer").setLevel(logging.WARNING)
+    logging.getLogger("jackhmmer.Jackhmmer").setLevel(logging.WARNING)
+    logging.getLogger("alphafold.data.tools.jackhmmer").setLevel(logging.WARNING)
+    logging.getLogger("alphafold.data.tools.jackhmmer.Jackhmmer").setLevel(logging.WARNING)
+    logging.getLogger("alphafold").setLevel(logging.WARNING)
+    logging.getLogger("gget.alphafold").setLevel(logging.WARNING)
+    logging.getLogger("alphafold.data.tools").setLevel(logging.WARNING)
+    logging.getLogger("alphafold.notebooks").setLevel(logging.WARNING)
+    logging.getLogger("alphafold.model").setLevel(logging.WARNING)
+    logging.getLogger("alphafold.data").setLevel(logging.WARNING)
+    logging.getLogger("alphafold.common").setLevel(logging.WARNING)
+    logging.getLogger("alphafold.relax").setLevel(logging.WARNING)
+
+    with tqdm(total=total_jackhmmer_chunks, bar_format=TQDM_BAR_FORMAT) as pbar:
         # Set progress bar description
         pbar.set_description("Jackhmmer search")
 
@@ -162,6 +180,7 @@ def get_msa(fasta_path, msa_databases, total_jackhmmer_chunks):
 
         for db_config in msa_databases:
             db_name = db_config["db_name"]
+            logging.getLogger("jackhmmer.Jackhmmer").setLevel(logging.WARNING)
             jackhmmer_runner = jackhmmer.Jackhmmer(
                 binary_path=JACKHMMER_BINARY_PATH,
                 database_path=db_config["db_path"],
@@ -290,7 +309,7 @@ def alphafold(
     ## Check if model parameters were downloaded
     if not os.path.exists(os.path.join(PARAMS_DIR, "params/")):
         logging.error(
-        """
+            """
         The AlphaFold model parameters are missing. Please run the following command: 
         >>> gget.setup('alphafold') or $ gget setup alphafold
         """
@@ -299,7 +318,7 @@ def alphafold(
 
     if len(os.listdir(os.path.join(PARAMS_DIR, "params/"))) < 12:
         logging.error(
-        """
+            """
         The AlphaFold model parameters are missing. Please run the following command: 
         >>> gget.setup('alphafold') or $ gget setup alphafold
         """
@@ -327,7 +346,7 @@ def alphafold(
                 "Dependency openmm v7.5.1 not installed succesfully. Try running 'conda install -c conda-forge openmm=7.5.1' from the command line."
             )
             return
-    
+
     if relax:
         # Import AlphaFold relax package
         try:
@@ -343,7 +362,10 @@ def alphafold(
     # logging.info("Locate files containing stereochemical properties.")
     ALPHAFOLD_PATH = os.path.abspath(os.path.dirname(AlphaFold.__file__))
     os.makedirs(os.path.join(ALPHAFOLD_PATH, "common/"), exist_ok=True)
-    shutil.copyfile(STEREO_CHEM_DIR, os.path.join(ALPHAFOLD_PATH, "common/stereo_chemical_props.txt"))
+    shutil.copyfile(
+        STEREO_CHEM_DIR,
+        os.path.join(ALPHAFOLD_PATH, "common/stereo_chemical_props.txt"),
+    )
 
     ## Validate input sequence(s)
     logging.info(f"Validating input sequence(s).")
@@ -467,7 +489,7 @@ def alphafold(
         if out is not None:
             os.makedirs(out, exist_ok=True)
             abs_out_path = os.path.abspath(out)
-        
+
         # Save the target sequence in a fasta file
         fasta_path = os.path.join(abs_out_path, f"target_{sequence_index}.fasta")
         with open(fasta_path, "wt") as f:
@@ -567,9 +589,7 @@ def alphafold(
     pae_outputs = {}
     unrelaxed_proteins = {}
 
-    with tqdm.notebook.tqdm(
-        total=len(model_names) + 1, bar_format=TQDM_BAR_FORMAT
-    ) as pbar:
+    with tqdm(total=len(model_names) + 1, bar_format=TQDM_BAR_FORMAT) as pbar:
         for model_name in model_names:
             # Set progress bar description
             pbar.set_description(f"Running {model_name}")

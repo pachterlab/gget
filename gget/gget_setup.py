@@ -89,8 +89,8 @@ def setup(module):
         alphafold_folder = os.path.join(PACKAGE_PATH, "tmp_alphafold_" + str(uuid.uuid4()))
         command = """
             git clone -q {} {} \
-            && sed -i '' 's/\/tmp\/ramdisk/{}/g' ./{}/alphafold/data/tools/jackhmmer.py \
-            && pip install -q ./{} \
+            && sed -i '' 's/\/tmp\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \
+            && pip install -q {} \
             """.format(
                 ALPHAFOLD_GIT_REPO, 
                 alphafold_folder, 
@@ -142,7 +142,7 @@ def setup(module):
         pdbfixer_folder = os.path.join(PACKAGE_PATH, "tmp_pdbfixer_" + str(uuid.uuid4()))
         command = f"""
             git clone -q {PDBFIXER_GIT_REPO} {pdbfixer_folder} \
-            && pip install -q ./{pdbfixer_folder} \
+            && pip install -q {pdbfixer_folder} \
             """
 
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
