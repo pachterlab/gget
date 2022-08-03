@@ -86,18 +86,25 @@ def setup(module):
 
         ## Install AlphaFold and change jackhmmer directory where database chunks are saved in
         # Define AlphaFold folder name and location
-        alphafold_folder = os.path.join(PACKAGE_PATH, "tmp_alphafold_" + str(uuid.uuid4()))
+        alphafold_folder = os.path.join(
+            PACKAGE_PATH, "tmp_alphafold_" + str(uuid.uuid4())
+        )
         command = """
             git clone -q {} {} \
             && sed -i '' 's/\/tmp\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \
+            && sed -i '' '/{}/d' {}/alphafold/data/tools/jackhmmer.py \
             && pip install -q {} \
             """.format(
-                ALPHAFOLD_GIT_REPO, 
-                alphafold_folder, 
-                os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace("/", "\/"),
-                alphafold_folder,
-                alphafold_folder
-                )
+            ALPHAFOLD_GIT_REPO,
+            alphafold_folder,
+            os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace(
+                "/", "\/"
+            ),  # Replace directory where jackhmmer database chunks will be saved
+            alphafold_folder,
+            "logging.info",  # Delete all info loggers
+            alphafold_folder,
+            alphafold_folder,
+        )
 
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
             stderr = process.stderr.read().decode("utf-8")
@@ -139,7 +146,9 @@ def setup(module):
         ## Install pdbfixer
         logging.info("Installing pdbfixer from source (requires pip).")
 
-        pdbfixer_folder = os.path.join(PACKAGE_PATH, "tmp_pdbfixer_" + str(uuid.uuid4()))
+        pdbfixer_folder = os.path.join(
+            PACKAGE_PATH, "tmp_pdbfixer_" + str(uuid.uuid4())
+        )
         command = f"""
             git clone -q {PDBFIXER_GIT_REPO} {pdbfixer_folder} \
             && pip install -q {pdbfixer_folder} \

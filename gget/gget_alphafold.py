@@ -35,21 +35,6 @@ logging.basicConfig(
 )
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
-# Silence jackhmmer and alphafold loggers
-logging.getLogger("jax").setLevel(logging.WARNING)
-logging.getLogger("hmmer").setLevel(logging.WARNING)
-logging.getLogger("jackhmmer").setLevel(logging.WARNING)
-logging.getLogger("gget.jackhmmer").setLevel(logging.WARNING)
-logging.getLogger("jackhmmer.Jackhmmer").setLevel(logging.WARNING)
-logging.getLogger("alphafold.data.tools.jackhmmer.Jackhmmer").setLevel(logging.WARNING)
-logging.getLogger("alphafold").setLevel(logging.WARNING)
-logging.getLogger("gget.alphafold").setLevel(logging.WARNING)
-logging.getLogger("alphafold.data.tools").setLevel(logging.WARNING)
-logging.getLogger("alphafold.notebooks").setLevel(logging.WARNING)
-logging.getLogger("alphafold.model").setLevel(logging.WARNING)
-logging.getLogger("alphafold.data").setLevel(logging.WARNING)
-logging.getLogger("alphafold.common").setLevel(logging.WARNING)
-logging.getLogger("alphafold.relax").setLevel(logging.WARNING)
 
 TQDM_BAR_FORMAT = (
     "{l_bar}{bar}| {n_fmt}/{total_fmt} [elapsed: {elapsed} remaining: {remaining}]"
@@ -132,44 +117,10 @@ def get_msa(fasta_path, msa_databases, total_jackhmmer_chunks):
     """
     Function to search for MSA for the given sequence using chunked Jackhmmer search.
     """
-    ## Create folder to save temporary jackhmmer database chunks in
-    os.makedirs(os.path.expanduser(f"~/tmp/jackhmmer/{UUID}"), exist_ok=True)
-
-    ## Manage permission to jackhmmer binary
-    command = f"chmod 755 {JACKHMMER_BINARY_PATH}"
-
-    with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
-        stderr = process.stderr.read().decode("utf-8")
-
-    # Exit system if the subprocess returned with an error
-    if process.wait() != 0:
-        if stderr:
-            # Log the standard error if it is not empty
-            sys.stderr.write(stderr)
-        logging.error("Giving chmod 755 permissions to jackhmmer binary failed.")
-        return
+    from alphafold.data.tools import jackhmmer
 
     ## Run the search against chunks of genetic databases to save disk space
     raw_msa_results = collections.defaultdict(list)
-
-    from alphafold.data.tools import jackhmmer
-
-    # Silence jackhmmer and alphafold loggers
-    logging.getLogger("jax").setLevel(logging.WARNING)
-    logging.getLogger("hmmer").setLevel(logging.WARNING)
-    logging.getLogger("jackhmmer").setLevel(logging.WARNING)
-    logging.getLogger("gget.jackhmmer").setLevel(logging.WARNING)
-    logging.getLogger("jackhmmer.Jackhmmer").setLevel(logging.WARNING)
-    logging.getLogger("alphafold.data.tools.jackhmmer").setLevel(logging.WARNING)
-    logging.getLogger("alphafold.data.tools.jackhmmer.Jackhmmer").setLevel(logging.WARNING)
-    logging.getLogger("alphafold").setLevel(logging.WARNING)
-    logging.getLogger("gget.alphafold").setLevel(logging.WARNING)
-    logging.getLogger("alphafold.data.tools").setLevel(logging.WARNING)
-    logging.getLogger("alphafold.notebooks").setLevel(logging.WARNING)
-    logging.getLogger("alphafold.model").setLevel(logging.WARNING)
-    logging.getLogger("alphafold.data").setLevel(logging.WARNING)
-    logging.getLogger("alphafold.common").setLevel(logging.WARNING)
-    logging.getLogger("alphafold.relax").setLevel(logging.WARNING)
 
     with tqdm(total=total_jackhmmer_chunks, bar_format=TQDM_BAR_FORMAT) as pbar:
         # Set progress bar description
@@ -180,7 +131,13 @@ def get_msa(fasta_path, msa_databases, total_jackhmmer_chunks):
 
         for db_config in msa_databases:
             db_name = db_config["db_name"]
-            logging.getLogger("jackhmmer.Jackhmmer").setLevel(logging.WARNING)
+
+            # Mute jackhmmer logging
+            logging.getLogger("alphafold").setLevel(logging.WARNING)
+            logging.getLogger("Jackhmmer").setLevel(logging.WARNING)
+            logging.getLogger("jackhmmer").setLevel(logging.WARNING)
+            logging.getLogger(JACKHMMER_BINARY_PATH).setLevel(logging.WARNING)
+
             jackhmmer_runner = jackhmmer.Jackhmmer(
                 binary_path=JACKHMMER_BINARY_PATH,
                 database_path=db_config["db_path"],
@@ -479,24 +436,44 @@ def alphafold(
 
     TOTAL_JACKHMMER_CHUNKS = sum([cfg["num_streamed_chunks"] for cfg in MSA_DATABASES])
 
-    ## Search against existing databases
+    ### Search against existing databases
+    # Get absolute path to output file and create output directory
+    if out is not None:
+        os.makedirs(out, exist_ok=True)
+        abs_out_path = os.path.abspath(out)
+
     features_for_chain = {}
     raw_msa_results_for_sequence = {}
     for sequence_index, sequence in enumerate(sequences, start=1):
-        logging.info(f"Getting MSA for sequence {sequence_index}.")
 
-        # Get absolute path to output file and create output directory
-        if out is not None:
-            os.makedirs(out, exist_ok=True)
-            abs_out_path = os.path.abspath(out)
+        # logging.info(f"Getting MSA for sequence {sequence_index}.")
 
-        # Save the target sequence in a fasta file
-        fasta_path = os.path.join(abs_out_path, f"target_{sequence_index}.fasta")
-        with open(fasta_path, "wt") as f:
-            f.write(f">query\n{sequence}")
+        # Create folder to save temporary jackhmmer database chunks in
+        os.makedirs(os.path.expanduser(f"~/tmp/jackhmmer/{UUID}"), exist_ok=True)
 
-        # Don't do redundant work for multiple copies of the same chain in the multimer.
+        ## Manage permissions to jackhmmer binary
+        command = f"chmod 755 {JACKHMMER_BINARY_PATH}"
+        with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
+            stderr = process.stderr.read().decode("utf-8")
+        # Exit system if the subprocess returned with an error
+        if process.wait() != 0:
+            if stderr:
+                # Log the standard error if it is not empty
+                sys.stderr.write(stderr)
+            logging.error("Giving chmod 755 permissions to jackhmmer binary failed.")
+            return
+
         if sequence not in raw_msa_results_for_sequence:
+            # Save the target sequence in a fasta file
+            fasta_path = os.path.join(abs_out_path, f"target_{sequence_index}.fasta")
+            with open(fasta_path, "wt") as f:
+                f.write(f">query\n{sequence}")
+
+            # Mute jackhmmer logging
+            logging.getLogger("alphafold").setLevel(logging.WARNING)
+            logging.getLogger("Jackhmmer").setLevel(logging.WARNING)
+            logging.getLogger("jackhmmer").setLevel(logging.WARNING)
+
             raw_msa_results = get_msa(
                 fasta_path=fasta_path,
                 msa_databases=MSA_DATABASES,
@@ -506,7 +483,7 @@ def alphafold(
         else:
             raw_msa_results = copy.deepcopy(raw_msa_results_for_sequence[sequence])
 
-        # Extract the MSAs from the Stockholm files.
+        ## Extract the MSAs from the Stockholm files.
         # NB: deduplication happens later in pipeline.make_msa_features.
         single_chain_msas = []
         uniprot_msa = None
@@ -535,14 +512,14 @@ def alphafold(
             )
         )
         feature_dict.update(pipeline.make_msa_features(msas=single_chain_msas))
-        # We don't use templates in AlphaFold Colab notebook, add only empty placeholder features.
+        # Add empty placeholder features
         feature_dict.update(
             notebook_utils.empty_placeholder_template_features(
                 num_templates=0, num_res=len(sequence)
             )
         )
 
-        # Construct the all_seq features only for heteromers, not homomers.
+        # Construct the all_seq features only for heteromers, not homomers
         if (
             model_type_to_use == notebook_utils.ModelType.MULTIMER
             and len(set(sequences)) > 1
@@ -557,7 +534,7 @@ def alphafold(
 
         features_for_chain[protein.PDB_CHAIN_IDS[sequence_index - 1]] = feature_dict
 
-    # Do further feature post-processing depending on the model type.
+    # Further feature post-processing depending on the model type
     if model_type_to_use == notebook_utils.ModelType.MONOMER:
         np_example = features_for_chain[protein.PDB_CHAIN_IDS[0]]
 
@@ -574,7 +551,7 @@ def alphafold(
             all_chain_features=all_chain_features
         )
 
-        # Pad MSA to avoid zero-sized extra_msa.
+        # Pad MSA to avoid zero-sized extra_msa
         np_example = pipeline_multimer.pad_msa(np_example, min_num_seq=512)
 
     ## Run AlphaFold
@@ -607,8 +584,6 @@ def alphafold(
             prediction = model_runner.predict(
                 processed_feature_dict, random_seed=random.randrange(sys.maxsize)
             )
-
-            mean_plddt = prediction["plddt"].mean()
 
             if model_type_to_use == notebook_utils.ModelType.MONOMER:
                 if "predicted_aligned_error" in prediction:
@@ -643,7 +618,7 @@ def alphafold(
             )
             unrelaxed_proteins[model_name] = unrelaxed_protein
 
-            # Delete unused outputs to save memory.
+            # Delete unused outputs to save memory
             del model_runner
             del params
             del prediction

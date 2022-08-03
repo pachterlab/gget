@@ -18,21 +18,6 @@ logging.basicConfig(
 )
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
-# Silence jackhmmer and alphafold loggers
-logging.getLogger("jax").setLevel(logging.WARNING)
-logging.getLogger("hmmer").setLevel(logging.WARNING)
-logging.getLogger("jackhmmer").setLevel(logging.WARNING)
-logging.getLogger("gget.jackhmmer").setLevel(logging.WARNING)
-logging.getLogger("jackhmmer.Jackhmmer").setLevel(logging.WARNING)
-logging.getLogger("alphafold.data.tools.jackhmmer.Jackhmmer").setLevel(logging.WARNING)
-logging.getLogger("alphafold").setLevel(logging.WARNING)
-logging.getLogger("gget.alphafold").setLevel(logging.WARNING)
-logging.getLogger("alphafold.data.tools").setLevel(logging.WARNING)
-logging.getLogger("alphafold.notebooks").setLevel(logging.WARNING)
-logging.getLogger("alphafold.model").setLevel(logging.WARNING)
-logging.getLogger("alphafold.data").setLevel(logging.WARNING)
-logging.getLogger("alphafold.common").setLevel(logging.WARNING)
-logging.getLogger("alphafold.relax").setLevel(logging.WARNING)
 
 __version__ = "0.3.0"
 __author__ = "Laura Luebbert"
