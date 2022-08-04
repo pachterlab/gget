@@ -25,7 +25,6 @@ import random
 from urllib import request
 import matplotlib.pyplot as plt
 import numpy as np
-import jax
 from IPython import display
 from ipywidgets import GridspecLayout
 from ipywidgets import Output
