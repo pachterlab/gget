@@ -46,21 +46,16 @@ class TestInfo(unittest.TestCase):
         expected_result = [
             [
                 "T14E8.4.1",
-                ["Q6RYS9", "H2KZU7", "Q5WRS0"],
+                ["Q5WRS0", "Q6RYS9"],
                 "caenorhabditis_elegans",
                 "WBcel235",
-                ["dop-3", "svh-2", "aaim-1"],
+                ["aaim-1", "dop-3"],
                 [],
                 "WBGene00043981",
+                ["Protein aaim-1", "Dopamine receptor 3"],
                 [
-                    "Dopamine receptor 3",
-                    "Tyrosine-protein kinase receptor svh-2",
-                    "Protein aaim-1",
-                ],
-                [
-                    "G-protein coupled receptor which binds to the neurotransmitter dopamine with high affinity leading to the activation of an associated G-protein and downstream signaling pathways (PubMed:15378064, PubMed:16001968). Couples to G-proteins to inhibit adenylate cyclase (AC) activity and cAMP production (PubMed:15378064, PubMed:16001968). Antagonizes the D1-like dopamine receptor dop-1 to negatively regulate the rate of locomotion (PubMed:15378064). In GABAergic, RIC, and SIA neurons, antagonizes the function of dop-1 to play a role in behavioral plasticity and regulate the decision-making process when conflicting alternatives are present (PubMed:25536037). Antagonizes octopamine signaling in response to food by promoting the dopamine-mediated suppression of crh-1/CREB1 transcription factor activation in cholinergic SIA neurons (PubMed:19609300). This is most likely in association with the G(o)-alpha G-protein subunit goa-1 (PubMed:19609300). Promotes male mating behavior by antagonizing acetylcholine signaling to control the protrusion of copulatory spicules from the tail of males during hermaphrodite vulval location (PubMed:23166505)",
-                    "Receptor tyrosine kinase which may phosphorylate mlk-1, a component of the mlk-1, mek-1 and kgb-1 pathway (PubMed:22388962). Involved in axon regeneration after injury by promoting the generation of productive and stable growth cones (PubMed:22388962, PubMed:27984580, PubMed:31109965)",
                     "(Microbial infection) Promotes infection by microsporidian pathogens such as N.parisii in the early larval stages of development (PubMed:34994689). Involved in ensuring the proper orientation and location of the spore proteins of N.parisii during intestinal cell invasion (PubMed:34994689) Plays a role in promoting resistance to bacterial pathogens such as P.aeruginosa by inhibiting bacterial intestinal colonization",
+                    "G-protein coupled receptor which binds to the neurotransmitter dopamine with high affinity leading to the activation of an associated G-protein and downstream signaling pathways (PubMed:15378064, PubMed:16001968). Couples to G-proteins to inhibit adenylate cyclase (AC) activity and cAMP production (PubMed:15378064, PubMed:16001968). Antagonizes the D1-like dopamine receptor dop-1 to negatively regulate the rate of locomotion (PubMed:15378064). In GABAergic, RIC, and SIA neurons, antagonizes the function of dop-1 to play a role in behavioral plasticity and regulate the decision-making process when conflicting alternatives are present (PubMed:25536037). Antagonizes octopamine signaling in response to food by promoting the dopamine-mediated suppression of crh-1/CREB1 transcription factor activation in cholinergic SIA neurons (PubMed:19609300). This is most likely in association with the G(o)-alpha G-protein subunit goa-1 (PubMed:19609300). Promotes male mating behavior by antagonizing acetylcholine signaling to control the protrusion of copulatory spicules from the tail of males during hermaphrodite vulval location (PubMed:23166505)",
                 ],
                 "Transcript",
                 "protein_coding",
