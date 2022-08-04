@@ -3,15 +3,14 @@ Copyright 2021 DeepMind Technologies Limited
 
 This product includes software developed at DeepMind (https://github.com/deepmind/alphafold).
 
-During the gget alphafold setup, a function contained in alphafold/alphafold/data/tools/jackhmmer.py 
-is changed as follows.
-- The path to save the temporary database chunks was replaced (old: /tmp/ramdisk ; 
+During the gget alphafold setup, the function contained in alphafold/alphafold/data/tools/jackhmmer.py 
+is altered as follows:
+- The path to save the temporary Jackhmmer database chunks is replaced (old: /tmp/ramdisk ; 
 new: ~/tmp/jackhmmer/{UUID} , where UUID is a unique identifier) using the following command:
 f"sed -i '' 's/\/tmp\/ramdisk/~\/tmp\/jackhmmer\/{UUID}/g' ./alphafold/alphafold/data/tools/jackhmmer.py"
-- The following logging message was deleted: "logging.info('Launching subprocess "%s"', ' '.join(cmd))"
+- The logging level is altered by adding: "logging.set_verbosity(logging.WARNING)"
 
-The Initial Developer of alphafold/alphafold/data/tools/jackhmmer.py, 
-is DeepMind (https://www.deepmind.com/).
+The Initial Developer of alphafold/alphafold/data/tools/jackhmmer.py is DeepMind (https://www.deepmind.com/).
 Copyright 2021 DeepMind. All Rights Reserved.
 
 Any publication that discloses findings arising from using this source code or the model parameters 
