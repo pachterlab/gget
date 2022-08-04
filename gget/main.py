@@ -11,6 +11,11 @@ logging.basicConfig(
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
 
+from datetime import datetime
+
+# Get current date and time for alphafold default foldername
+dt_string = datetime.now().strftime("%Y_%m_%d-%H_%M")
+
 import os
 import json
 
@@ -25,8 +30,8 @@ from .gget_blast import blast
 from .gget_blat import blat
 from .gget_enrichr import enrichr
 from .gget_archs4 import archs4
-
-from .utils import ref_species_options, find_latest_ens_rel
+from .gget_alphafold import alphafold
+from .gget_setup import setup
 
 
 def main():
@@ -793,6 +798,59 @@ def main():
         help="DEPRECATED - json is now the default output format (convert to csv using flag [--csv]).",
     )
 
+    ## gget setup subparser
+    setup_desc = "Install third-party dependencies for a specified gget module."
+    parser_setup = parent_subparsers.add_parser(
+        "setup",
+        parents=[parent],
+        description=setup_desc,
+        help=setup_desc,
+        add_help=True,
+    )
+    # setup parser arguments
+    parser_setup.add_argument(
+        "module",
+        type=str,
+        choices=["alphafold"],
+        help="gget module for which dependencies should be installed, e.g. 'alphafold'",
+    )
+
+    ## gget alphafold subparser
+    alphafold_desc = "Predicts the structure of a protein using a slightly simplified version of AlphaFold v2.1.0 (https://doi.org/10.1038/s41586-021-03819-2)."
+    parser_alphafold = parent_subparsers.add_parser(
+        "alphafold",
+        parents=[parent],
+        description=alphafold_desc,
+        help=alphafold_desc,
+        add_help=True,
+    )
+    # alphafold parser arguments
+    parser_alphafold.add_argument(
+        "sequence",
+        type=str,
+        nargs="?",
+        default=None,
+        help="Sequence (str) or path to fasta file.",
+    )
+    parser_alphafold.add_argument(
+        "-r",
+        "--relax",
+        default=False,
+        action="store_true",
+        required=False,
+        help="AMBER relax the best model.",
+    )
+    parser_alphafold.add_argument(
+        "-o",
+        "--out",
+        type=str,
+        required=False,
+        help=(
+            "Path to folder the predicted aligned error (json) and the prediction (PDB) will be saved in.\n"
+            "Default: ./[date_time]_gget_alphafold_prediction"
+        ),
+    )
+
     ### Define return values
     args = parent_parser.parse_args()
 
@@ -1363,3 +1421,25 @@ def main():
             if seq_results != None:
                 for seq_res in seq_results:
                     print(seq_res)
+
+    ## setup return
+    if args.command == "setup":
+        setup(args.module)
+
+    ## alphafold return
+    if args.command == "alphafold":
+        if args.out:
+            directory = "/".join(args.out.split("/")[:-1])
+            if directory != "":
+                os.makedirs(directory, exist_ok=True)
+            saving_dir = args.out
+        else:
+            saving_dir = f"{dt_string}_gget_alphafold_prediction"
+
+        alphafold(
+            args.sequence,
+            out=saving_dir,
+            relax=args.relax,
+            plot=False,
+            show_sidechains=False,
+        )

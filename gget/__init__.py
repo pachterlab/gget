@@ -7,9 +7,10 @@ from .gget_blast import blast
 from .gget_blat import blat
 from .gget_enrichr import enrichr
 from .gget_archs4 import archs4
+from .gget_alphafold import alphafold
+from .gget_setup import setup
 
 import logging
-
 logging.basicConfig(
     format="%(asctime)s %(levelname)s %(message)s",
     level=logging.INFO,
@@ -18,6 +19,6 @@ logging.basicConfig(
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
 
-__version__ = "0.2.7"
+__version__ = "0.3.0"
 __author__ = "Laura Luebbert"
 __email__ = "lauraluebbert@caltech.edu"

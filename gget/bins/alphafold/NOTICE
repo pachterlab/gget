@@ -1,0 +1,18 @@
+AlphaFold / AlphaFold Colab
+Copyright 2021 DeepMind Technologies Limited
+
+This product includes software developed at DeepMind (https://github.com/deepmind/alphafold).
+
+During the gget alphafold setup, the function contained in alphafold/alphafold/data/tools/jackhmmer.py 
+is altered as follows:
+- The path to save the temporary Jackhmmer database chunks is replaced (old: /tmp/ramdisk ; 
+new: ~/tmp/jackhmmer/{UUID} , where UUID is a unique identifier) using the following command:
+f"sed -i '' 's/\/tmp\/ramdisk/~\/tmp\/jackhmmer\/{UUID}/g' ./alphafold/alphafold/data/tools/jackhmmer.py"
+- The logging level is altered by adding: "logging.set_verbosity(logging.WARNING)"
+
+The Initial Developer of alphafold/alphafold/data/tools/jackhmmer.py is DeepMind (https://www.deepmind.com/).
+Copyright 2021 DeepMind. All Rights Reserved.
+
+Any publication that discloses findings arising from using this source code or the model parameters 
+should cite the AlphaFold paper (https://www.nature.com/articles/s41586-021-03819-2) and, if applicable, 
+the AlphaFold-Multimer paper (https://www.biorxiv.org/content/10.1101/2021.10.04.463034v1).

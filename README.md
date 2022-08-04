@@ -6,6 +6,8 @@
 ![status](https://github.com/pachterlab/gget/workflows/CI/badge.svg)
 ![Code Coverage](https://img.shields.io/badge/Coverage-83%25-green.svg)  
 
+## ✨ Version ≥ 0.3.0: [`gget alphafold`](#gget-alphafold) 
+
 ## ✨ What's new in version ≥ 0.2.0
 - JSON is now the default output format for the command-line interface for modules that previously returned data frame (CSV) format by default (the output can be converted to data frame/CSV using flag `[-csv][--csv]`). Data frame/CSV remains the default output for Jupyter Lab / Google Colab (and can be converted to JSON with `json=True`).
 - For all modules, the first required argument was converted to a positional argument and should not be named anymore in the command-line, e.g. `gget ref -s human` &rarr; `gget ref human`.
@@ -49,6 +51,8 @@ Align multiple nucleotide or amino acid sequences to each other using [Muscle5](
 Perform an enrichment analysis on a list of genes using [Enrichr](https://maayanlab.cloud/Enrichr/).
 - [`gget archs4`](#gget-archs4-)  
 Find the most correlated genes to a gene of interest or find the gene's tissue expression atlas using [ARCHS4](https://maayanlab.cloud/archs4/).
+- [`gget alphafold`](#gget-alphafold)  
+Predict the 3D structure of a protein from its amino acid sequence using a simplified version of [DeepMind](https://www.deepmind.com/)’s [AlphaFold2](https://github.com/deepmind/alphafold) algorithm.  
 
 
 ## Installation
@@ -93,9 +97,15 @@ $ gget enrichr -db ontology ACE2 AGT AGTR1 ACE AGTRAP AGTR2 ACE3P
 
 # Get the human tissue expression of gene ACE2
 $ gget archs4 -w tissue ACE2
+
+# Predict the protein structure of GFP from its amino acid sequence
+$ gget setup alphafold # setup only needs to be run once
+$ gget alphafold MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK
+
 ```
 Jupyter Lab / Google Colab:
 ```python  
+import gget
 gget.ref("homo_sapiens")
 gget.search(["ace2", "angiotensin converting enzyme 2"], "homo_sapiens")
 gget.info(["ENSG00000130234", "ENST00000252519"])
@@ -105,6 +115,9 @@ gget.blast("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")
 gget.muscle("path/to/file.fa")
 gget.enrichr(["ACE2", "AGT", "AGTR1", "ACE", "AGTRAP", "AGTR2", "ACE3P"], database="ontology", plot=True)
 gget.archs4("ACE2", which="tissue")
+
+gget.setup("alphafold") # setup only needs to be run once
+gget.alphafold("MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK")
 ```
 #### [More examples](https://github.com/pachterlab/gget_examples)
 ___
@@ -629,6 +642,65 @@ gget.archs4("ACE2", which="tissue")
 | . . . | . . . | . . . | . . . | . . . | . . . |
 
 #### [More examples](https://github.com/pachterlab/gget_examples)
+
+___
+
+## gget setup 
+Function to install/download third-party dependencies for a specified gget module.
+
+**Positional argument**  
+`module`  
+gget module for which dependencies should be installed.  
+
+### Example
+```bash
+gget setup alphafold
+```
+```python
+# Jupyter Lab / Google Colab:
+gget.setup("alphafold")
+```
+&rarr; Installs all (modified) third-party dependencies and downloads model parameters (~4GB) required to run `gget alphafold`.  
+
+___
+
+## gget alphafold
+Predict the 3D structure of a protein from its amino acid sequence using a simplified version of [DeepMind](https://www.deepmind.com/)’s [AlphaFold2](https://github.com/deepmind/alphafold) originally released and benchmarked for [AlphaFold Colab](https://colab.research.google.com/github/deepmind/alphafold/blob/main/notebooks/AlphaFold.ipynb).  
+Returns: Predicted structure (PDB) and alignment error (json).  
+
+Before using `gget alphafold` for the first time, run `gget setup alphafold` / `gget.setup("alphafold")` once (also see [`gget setup`](#gget-setup)).  
+
+**Positional argument**  
+`sequence`  
+Amino acid sequence (str), list of sequences (for multimers), or path to FASTA file.
+
+**Optional arguments**  
+`-o` `--out`   
+Path to folder to save prediction results in (str). Default: "./[date_time]_gget_alphafold_prediction".  
+  
+**Flags**   
+`-r` `--relax`   
+AMBER relax the best model. 
+
+`plot`  
+Jupyter Lab / Google Colab only. `plot=True` provides an interactive, 3D graphical overview of the predicted structure and alignment quality using [py3Dmol](https://pypi.org/project/py3Dmol/) and [matplotlib](https://matplotlib.org/) (default: True).  
+
+`show_sidechains`  
+Jupyter Lab / Google Colab only. `show_sidechains=True` includes side chains in the plot (default: True).  
+  
+### Example
+```bash
+gget alphafold MAAHKGAEHHHKAAEHHEQAAKHHHAAAEHHEKGEHEQAAHHADTAYAHHKHAEEHAAQAAKHDAEHHAPKPH
+```
+```python
+# Jupyter Lab / Google Colab:
+gget.alphafold("MAAHKGAEHHHKAAEHHEQAAKHHHAAAEHHEKGEHEQAAHHADTAYAHHKHAEEHAAQAAKHDAEHHAPKPH")
+```
+&rarr; Returns the predicted structure (PDB) and predicted alignment error (.json) in a new folder ("./[date_time]_gget_alphafold_prediction"). The Python interface also returns the following plots:
+
+https://user-images.githubusercontent.com/56094636/182939299-36ac2a8f-0560-4a64-b1f8-6cff39ef2a75.mp4
+
+
 ___
 
 # Cite 
@@ -659,6 +731,12 @@ Gene set knowledge discovery with Enrichr. Current Protocols, 1, e90. 2021. doi:
 
 - If using `gget muscle`, please also cite:  
   Edgar RC (2021), MUSCLE v5 enables improved estimates of phylogenetic tree confidence by ensemble bootstrapping, bioRxiv 2021.06.20.449169. https://doi.org/10.1101/2021.06.20.449169.
+  
+- If using `gget alphafold`, please also cite:  
+  Jumper, J., Evans, R., Pritzel, A. et al. Highly accurate protein structure prediction with AlphaFold. Nature 596, 583–589 (2021). https://doi.org/10.1038/s41586-021-03819-2
+  
+  And, if applicable:  
+  Evans, R. et al. Protein complex prediction with AlphaFold-Multimer. bioRxiv 2021.10.04.463034; https://doi.org/10.1101/2021.10.04.463034
   
 ___
 # Disclaimer  
