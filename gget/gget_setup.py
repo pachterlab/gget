@@ -89,10 +89,31 @@ def setup(module):
         alphafold_folder = os.path.join(
             PACKAGE_PATH, "tmp_alphafold_" + str(uuid.uuid4())
         )
+        # command = """
+        #     git clone -q {} {} \
+        #     && sed -i '' 's/\/tmp\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \
+        #     && sed -i '' '/{}/d' {}/alphafold/data/tools/jackhmmer.py \
+        #     && pip install -q {} \
+        #     """.format(
+        #     ALPHAFOLD_GIT_REPO,
+        #     alphafold_folder,
+        #     os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace(
+        #         "/", "\/"
+        #     ),  # Replace directory where jackhmmer database chunks will be saved
+        #     alphafold_folder,
+        #     "logging.info",  # Delete all info loggers
+        #     alphafold_folder,
+        #     alphafold_folder,
+        # )
+
+        # Clone AlphaFold github repo
+        # Replace directory where jackhmmer database chunks will be saved
+        # Insert "logging.set_verbosity(logging.WARNING)" to mute all info loggers
+        # Pip install AlphaFold from local directory
         command = """
             git clone -q {} {} \
             && sed -i '' 's/\/tmp\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \
-            && sed -i '' '/{}/d' {}/alphafold/data/tools/jackhmmer.py \
+            && sed -i '' 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' {}/alphafold/data/tools/jackhmmer.py \
             && pip install -q {} \
             """.format(
             ALPHAFOLD_GIT_REPO,
@@ -101,7 +122,6 @@ def setup(module):
                 "/", "\/"
             ),  # Replace directory where jackhmmer database chunks will be saved
             alphafold_folder,
-            "logging.info",  # Delete all info loggers
             alphafold_folder,
             alphafold_folder,
         )

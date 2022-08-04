@@ -5,7 +5,7 @@
 from datetime import datetime
 
 # Get current date and time for default foldername
-dt_string = datetime.now().strftime("%Y_%m_%d-%H_%M")
+dt_string = datetime.now().strftime("%Y_%m_%d-%H%M")
 
 from tqdm import tqdm
 import os
@@ -327,12 +327,6 @@ def alphafold(
     ## Validate input sequence(s)
     logging.info(f"Validating input sequence(s).")
 
-    if type(sequence) == str:
-        # Convert string to list
-        seqs = [sequence]
-    else:
-        seqs = sequence
-
     # If the path to a fasta file was provided instead of a nucleotide sequence,
     # read the file and extract the first sequence
     if "." in sequence:
@@ -376,7 +370,13 @@ def alphafold(
             raise ValueError(
                 "File format not recognized. gget alphafold only supports '.txt' or '.fa' files. "
             )
+    if type(sequence) == str:
+        # Convert string to list
+        seqs = [sequence]
+    else:
+        seqs = sequence
 
+    # Use AlphaFold function to validate input sequence(s)
     sequences, model_type_to_use = notebook_utils.validate_input(
         input_sequences=seqs,
         min_length=MIN_SINGLE_SEQUENCE_LENGTH,
@@ -669,21 +669,21 @@ def alphafold(
                 f.write(pae_data)
 
     ## Plotting
-    # Construct multiclass b-factors to indicate confidence bands
-    # 0=very low, 1=low, 2=confident, 3=very high
-    banded_b_factors = []
-    for plddt in plddts[best_model_name]:
-        for idx, (min_val, max_val, _) in enumerate(PLDDT_BANDS):
-            if plddt >= min_val and plddt <= max_val:
-                banded_b_factors.append(idx)
-                break
-
-    banded_b_factors = np.array(banded_b_factors)[:, None] * final_atom_mask
-    to_visualize_pdb = utils.overwrite_b_factors(relaxed_pdb, banded_b_factors)
-
     if plot:
         logging.info("Plotting prediction results.")
         import py3Dmol
+
+        # Construct multiclass b-factors to indicate confidence bands
+        # 0=very low, 1=low, 2=confident, 3=very high
+        banded_b_factors = []
+        for plddt in plddts[best_model_name]:
+            for idx, (min_val, max_val, _) in enumerate(PLDDT_BANDS):
+                if plddt >= min_val and plddt <= max_val:
+                    banded_b_factors.append(idx)
+                    break
+
+        banded_b_factors = np.array(banded_b_factors)[:, None] * final_atom_mask
+        to_visualize_pdb = utils.overwrite_b_factors(relaxed_pdb, banded_b_factors)
 
         # Show the structure coloured by chain if the multimer model has been used.
         if model_type_to_use == notebook_utils.ModelType.MULTIMER:
