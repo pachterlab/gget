@@ -8,4 +8,3 @@ beautifulsoup4>=4.10.0
 ipywidgets
 tqdm
 py3Dmol>=1.8.0
-jax
