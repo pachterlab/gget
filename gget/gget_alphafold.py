@@ -649,7 +649,7 @@ def alphafold(
             )
         else:
             logging.warning(
-                "Running model without relaxation stage. Use flag [--relax] ('relax=True') to include AMBER relaxation."
+                "\nRunning model without relaxation stage. Use flag [--relax] ('relax=True') to include AMBER relaxation."
             )
             relaxed_pdb = protein.to_pdb(unrelaxed_proteins[best_model_name])
 
