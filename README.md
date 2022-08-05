@@ -52,7 +52,7 @@ Perform an enrichment analysis on a list of genes using [Enrichr](https://maayan
 - [`gget archs4`](#gget-archs4-)  
 Find the most correlated genes to a gene of interest or find the gene's tissue expression atlas using [ARCHS4](https://maayanlab.cloud/archs4/).
 - [`gget alphafold`](#gget-alphafold-)  
-Predict the 3D structure of a protein from its amino acid sequence using a simplified version of [DeepMind](https://www.deepmind.com/)’s [AlphaFold2](https://github.com/deepmind/alphafold) algorithm.  
+Predict the 3D structure of a protein from its amino acid sequence using a simplified version of [DeepMind](https://www.deepmind.com/)’s [AlphaFold2](https://github.com/deepmind/alphafold).  
 
 
 ## Installation
