@@ -4,6 +4,7 @@ import sys
 import subprocess
 import platform
 import uuid
+from platform import python_version
 
 import logging
 
@@ -46,6 +47,31 @@ def setup(module):
         )
 
     if module == "alphafold":
+        ## Make sure package paths are appended
+        site_packages_path = os.__file__.split("os.py")[0] + "site-packages"
+        if site_packages_path not in sys.path:
+            sys.path.append(site_packages_path)
+
+        site_packages_path_python = (
+            "/".join(str(os.__file__.split("os.py")[0]).split("/")[:-2])
+            + f"/python{'.'.join(python_version().split('.')[:2])}/site-packages"
+        )
+        if site_packages_path_python not in sys.path:
+            sys.path.append(site_packages_path_python)
+
+        site_packages_path_python37 = (
+            "/".join(str(os.__file__.split("os.py")[0]).split("/")[:-2])
+            + f"/python3.7/site-packages"
+        )
+        if site_packages_path_python37 not in sys.path:
+            sys.path.append(site_packages_path_python37)
+
+        conda_python_path = os.path.expanduser(
+            f"~/opt/conda/lib/python{'.'.join(python_version().split('.')[:2])}/site-packages"
+        )
+        if conda_python_path not in sys.path:
+            sys.path.append(conda_python_path)
+
         # Global location of temporary disk
         global TMP_DISK
 
@@ -110,21 +136,38 @@ def setup(module):
         # Replace directory where jackhmmer database chunks will be saved
         # Insert "logging.set_verbosity(logging.WARNING)" to mute all info loggers
         # Pip install AlphaFold from local directory
-        command = """
-            git clone -q {} {} \
-            && sed -i '' 's/\/tmp\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \
-            && sed -i '' 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' {}/alphafold/data/tools/jackhmmer.py \
-            && pip install -q {} \
-            """.format(
-            ALPHAFOLD_GIT_REPO,
-            alphafold_folder,
-            os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace(
-                "/", "\/"
-            ),  # Replace directory where jackhmmer database chunks will be saved
-            alphafold_folder,
-            alphafold_folder,
-            alphafold_folder,
-        )
+        if platform.system() == "Darwin":
+            command = """
+                git clone -q {} {} \
+                && sed -i '' 's/\/tmp\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \
+                && sed -i '' 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' {}/alphafold/data/tools/jackhmmer.py \
+                && pip install -q {} \
+                """.format(
+                ALPHAFOLD_GIT_REPO,
+                alphafold_folder,
+                os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace(
+                    "/", "\/"
+                ),  # Replace directory where jackhmmer database chunks will be saved
+                alphafold_folder,
+                alphafold_folder,
+                alphafold_folder,
+            )
+        else:
+            command = """
+                git clone -q {} {} \
+                && sed -i 's/\/tmp\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \
+                && sed -i 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' {}/alphafold/data/tools/jackhmmer.py \
+                && pip install -q {} \
+                """.format(
+                ALPHAFOLD_GIT_REPO,
+                alphafold_folder,
+                os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace(
+                    "/", "\/"
+                ),  # Replace directory where jackhmmer database chunks will be saved
+                alphafold_folder,
+                alphafold_folder,
+                alphafold_folder,
+            )
 
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
             stderr = process.stderr.read().decode("utf-8")
@@ -147,18 +190,7 @@ def setup(module):
             logging.error("AlphaFold installation failed.")
             return
 
-        ## Append to path
-        site_packages_path = os.__file__.split("os.py")[0] + "site-packages"
-        if site_packages_path not in sys.path:
-            sys.path.append(site_packages_path)
-
-        site_packages_path_python37 = (
-            "/".join(str(os.__file__.split("os.py")[0]).split("/")[:-2])
-            + "python3.7/site-packages"
-        )
-        if site_packages_path_python37 not in sys.path:
-            sys.path.append(site_packages_path_python37)
-
+        ## Append AlphaFold to path
         alphafold_path = os.path.abspath(os.path.dirname(AlphaFold.__file__))
         if alphafold_path not in sys.path:
             sys.path.append(alphafold_path)
