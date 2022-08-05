@@ -201,14 +201,14 @@ def setup(module):
         if alphafold_path not in sys.path:
             sys.path.append(alphafold_path)
 
-        ## Install pdbfixer
+        ## Install pdbfixer v1.7 (compadible with openmm v7.5.1)
         logging.info("Installing pdbfixer from source (requires pip).")
 
         pdbfixer_folder = os.path.join(
             PACKAGE_PATH, "tmp_pdbfixer_" + str(uuid.uuid4())
         )
         command = f"""
-            git clone -q {PDBFIXER_GIT_REPO} {pdbfixer_folder} \
+            git clone -q --branch v1.7 {PDBFIXER_GIT_REPO} {pdbfixer_folder} \
             && pip install -q {pdbfixer_folder} \
             """
 

@@ -310,7 +310,7 @@ def alphafold(
     if relax:
         # Import AlphaFold relax package
         try:
-            from alphafold.relax import run_relax
+            from alphafold.relax import relax as run_relax
         except ModuleNotFoundError as e:
             if "openmm" in str(e):
                 logging.error(
