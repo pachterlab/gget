@@ -2,8 +2,8 @@
 # https://colab.research.google.com/github/deepmind/alphafold/blob/main/notebooks/AlphaFold.ipynb
 # Copyright 2021 DeepMind; SPDX-License-Identifier: Apache-2.0
 
-# Any publication that discloses findings arising from using this source code or the model parameters 
-# should cite the AlphaFold paper (https://www.nature.com/articles/s41586-021-03819-2) and, if applicable, 
+# Any publication that discloses findings arising from using this source code or the model parameters
+# should cite the AlphaFold paper (https://www.nature.com/articles/s41586-021-03819-2) and, if applicable,
 # the AlphaFold-Multimer paper (https://www.biorxiv.org/content/10.1101/2021.10.04.463034v1).
 
 from datetime import datetime
@@ -134,12 +134,6 @@ def get_msa(fasta_path, msa_databases, total_jackhmmer_chunks):
 
         for db_config in msa_databases:
             db_name = db_config["db_name"]
-
-            # Mute jackhmmer logging
-            logging.getLogger("alphafold").setLevel(logging.WARNING)
-            logging.getLogger("Jackhmmer").setLevel(logging.WARNING)
-            logging.getLogger("jackhmmer").setLevel(logging.WARNING)
-            logging.getLogger(JACKHMMER_BINARY_PATH).setLevel(logging.WARNING)
 
             jackhmmer_runner = jackhmmer.Jackhmmer(
                 binary_path=JACKHMMER_BINARY_PATH,
@@ -471,11 +465,6 @@ def alphafold(
             fasta_path = os.path.join(abs_out_path, f"target_{sequence_index}.fasta")
             with open(fasta_path, "wt") as f:
                 f.write(f">query\n{sequence}")
-
-            # Mute jackhmmer logging
-            logging.getLogger("alphafold").setLevel(logging.WARNING)
-            logging.getLogger("Jackhmmer").setLevel(logging.WARNING)
-            logging.getLogger("jackhmmer").setLevel(logging.WARNING)
 
             raw_msa_results = get_msa(
                 fasta_path=fasta_path,
