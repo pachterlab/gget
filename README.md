@@ -645,7 +645,7 @@ gget.archs4("ACE2", which="tissue")
 
 ___
 
-## gget setup 
+## gget setup ⚙️
 Function to install/download third-party dependencies for a specified gget module.
 
 **Positional argument**  
