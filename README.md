@@ -6,7 +6,7 @@
 ![status](https://github.com/pachterlab/gget/workflows/CI/badge.svg)
 ![Code Coverage](https://img.shields.io/badge/Coverage-83%25-green.svg)  
 
-## ✨ Version ≥ 0.3.0: [`gget alphafold`](#gget-alphafold) 
+## ✨ Version ≥ 0.3.0: [`gget alphafold`](#gget-alphafold-) 
 
 ## ✨ What's new in version ≥ 0.2.0
 - JSON is now the default output format for the command-line interface for modules that previously returned data frame (CSV) format by default (the output can be converted to data frame/CSV using flag `[-csv][--csv]`). Data frame/CSV remains the default output for Jupyter Lab / Google Colab (and can be converted to JSON with `json=True`).
@@ -51,7 +51,7 @@ Align multiple nucleotide or amino acid sequences to each other using [Muscle5](
 Perform an enrichment analysis on a list of genes using [Enrichr](https://maayanlab.cloud/Enrichr/).
 - [`gget archs4`](#gget-archs4-)  
 Find the most correlated genes to a gene of interest or find the gene's tissue expression atlas using [ARCHS4](https://maayanlab.cloud/archs4/).
-- [`gget alphafold`](#gget-alphafold)  
+- [`gget alphafold`](#gget-alphafold-)  
 Predict the 3D structure of a protein from its amino acid sequence using a simplified version of [DeepMind](https://www.deepmind.com/)’s [AlphaFold2](https://github.com/deepmind/alphafold) algorithm.  
 
 
@@ -664,7 +664,7 @@ gget.setup("alphafold")
 
 ___
 
-## gget alphafold
+## gget alphafold 🪢
 Predict the 3D structure of a protein from its amino acid sequence using a simplified version of [DeepMind](https://www.deepmind.com/)’s [AlphaFold2](https://github.com/deepmind/alphafold) originally released and benchmarked for [AlphaFold Colab](https://colab.research.google.com/github/deepmind/alphafold/blob/main/notebooks/AlphaFold.ipynb).  
 Returns: Predicted structure (PDB) and alignment error (json).  
 
