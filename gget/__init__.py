@@ -19,6 +19,6 @@ logging.basicConfig(
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
 
-__version__ = "0.3.2"
+__version__ = "0.3.3"
 __author__ = "Laura Luebbert"
 __email__ = "lauraluebbert@caltech.edu"
