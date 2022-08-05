@@ -47,7 +47,7 @@ def setup(module):
         )
 
     if module == "alphafold":
-        ## Make sure package paths are appended
+        ## Make sure package paths are appended so openmm can be imported
         site_packages_path = os.__file__.split("os.py")[0] + "site-packages"
         if site_packages_path not in sys.path:
             sys.path.append(site_packages_path)
@@ -71,6 +71,12 @@ def setup(module):
         )
         if conda_python_path not in sys.path:
             sys.path.append(conda_python_path)
+
+        conda_python37_path = os.path.expanduser(
+            f"~/opt/conda/lib/python3.7/site-packages"
+        )
+        if conda_python37_path not in sys.path:
+            sys.path.append(conda_python37_path)
 
         # Global location of temporary disk
         global TMP_DISK
