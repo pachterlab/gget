@@ -367,7 +367,7 @@ def alphafold(
             raise ValueError(
                 "File format not recognized. gget alphafold only supports '.txt' or '.fa' files. "
             )
-    if type(sequence) == str:
+    elif type(sequence) == str and not "." in sequence:
         # Convert string to list
         seqs = [sequence]
     else:
