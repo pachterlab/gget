@@ -32,7 +32,7 @@ Read the manuscript here: https://doi.org/10.1101/2022.05.17.492392
   
 ![alt text](https://github.com/pachterlab/gget/blob/main/figures/gget_overview.png?raw=true)
   
-`gget` currently consists of the following nine modules:
+`gget` currently consists of the following modules:
 - [`gget ref`](#gget-ref-)  
 Fetch File Transfer Protocols (FTPs) and metadata for reference genomes and annotations from [Ensembl](https://www.ensembl.org/) by species.
 - [`gget search`](#gget-search-)   
