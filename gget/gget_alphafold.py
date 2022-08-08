@@ -203,18 +203,16 @@ def alphafold(
     Saves the predicted aligned error (json) and the prediction (PDB) in the defined 'out' folder.
 
     From the AlphaFold Colab notebook (https://colab.research.google.com/github/deepmind/alphafold/blob/main/notebooks/AlphaFold.ipynb):
-    "In comparison to AlphaFold v2.1.0, this Colab notebook uses no templates (homologous structures)
+    "In comparison to AlphaFold v2.1.0, this [algorithm] uses no templates (homologous structures)
     and only a selected portion of the BFD database (https://bfd.mmseqs.com/). We have validated these
     changes on several thousand recent PDB structures. While accuracy will be near-identical to the full
     AlphaFold system on many targets, a small fraction have a large drop in accuracy due to the smaller MSA
     and lack of templates. For best reliability, we recommend instead using the full open source AlphaFold (https://github.com/deepmind/alphafold/),
     or the AlphaFold Protein Structure Database (https://alphafold.ebi.ac.uk/).
-
-    This Colab has a small drop in average accuracy for multimers compared to local AlphaFold installation,
+    This [algorithm] has a small drop in average accuracy for multimers compared to local AlphaFold installation,
     for full multimer accuracy it is highly recommended to run AlphaFold locally (https://github.com/deepmind/alphafold#running-alphafold).
     Moreover, the AlphaFold-Multimer requires searching for MSA for every unique sequence in the complex, hence it is substantially slower.
-
-    Please note that this Colab notebook is provided as an early-access prototype and is not a finished product.
+    Please note that this [algorithm] is provided as an early-access prototype and is not a finished product.
     It is provided for theoretical modelling only and caution should be exercised in its use."
 
     If you use this function, please cite the AphaFold paper (https://doi.org/10.1038/s41586-021-03819-2) and, if applicable,
