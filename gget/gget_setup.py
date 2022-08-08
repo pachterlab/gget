@@ -104,7 +104,7 @@ def setup(module):
             return
 
         ## Install Alphafold if not already installed
-        logging.info("Installing AlphaFold from source (requires pip).")
+        logging.info("Installing AlphaFold from source (requires pip and git).")
         # Install AlphaFold and apply OpenMM patch.
         # command = f"""
         #     git clone {ALPHAFOLD_GIT_REPO} alphafold \
@@ -202,7 +202,7 @@ def setup(module):
             sys.path.append(alphafold_path)
 
         ## Install pdbfixer v1.7 (compadible with openmm v7.5.1)
-        logging.info("Installing pdbfixer from source (requires pip).")
+        logging.info("Installing pdbfixer from source (requires pip and git).")
 
         pdbfixer_folder = os.path.join(
             PACKAGE_PATH, "tmp_pdbfixer_" + str(uuid.uuid4())
