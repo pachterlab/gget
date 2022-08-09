@@ -20,6 +20,8 @@
 - Version ≥ 0.2.6: `gget ref` supports plant genomes! 🌱  
   
 Note: [UniProt](https://www.uniprot.org/) changed the structure of their API on June 28, 2022. Please upgrade to `gget` version ≥ 0.2.5 if you use any of the modules querying data from UniProt (`gget info` and `gget seq`).  
+
+Note: The [Ensembl FTP site](http://ftp.ensembl.org/pub/) changed its structure on August 8, 2022. Please upgrade to `gget` version ≥ 0.3.6 if you use `gget ref`.  
 ___
 
 `gget` is a free, open-source command-line tool and Python package that enables efficient querying of genomic databases. `gget`  consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.  
