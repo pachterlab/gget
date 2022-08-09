@@ -526,7 +526,7 @@ def ref_species_options(which, database=ENSEMBL_FTP_URL, release=None):
     for subsoup in soup.body.findAll("a"):
         sps.append(subsoup["href"].split("/")[0])
 
-    species_list = sps[1:]
+    species_list = sps[5:]
 
     # Return list of all available species
     return species_list
