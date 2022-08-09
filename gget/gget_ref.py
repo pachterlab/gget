@@ -1,7 +1,5 @@
 from bs4 import BeautifulSoup
 import requests
-import re
-import numpy as np
 import json
 import logging
 
@@ -18,6 +16,43 @@ logging.getLogger("numexpr").setLevel(logging.WARNING)
 from .utils import ref_species_options, find_latest_ens_rel
 
 from .constants import ENSEMBL_FTP_URL, ENSEMBL_FTP_URL_PLANT
+
+
+def find_FTP_link(url, link_substring):
+    """
+    Helper function for gget ref to find an FTP link, its release date and size.
+
+    Args:
+    url             - URL link to FTP subfolder (e.g. GTF) including species and release
+    link_to_find    - Unique substring to identify link to find
+
+    Returns the link, date, and size as strings.
+    """
+    html = requests.get(url)
+
+    # Raise error if status code not "OK" Response
+    if html.status_code != 200:
+        raise RuntimeError(
+            f"HTTP response status code {html.status_code}. Please try again.\n"
+        )
+
+    soup = BeautifulSoup(html.text, "html.parser")
+
+    link_str = None
+    date_str = None
+    size_str = None
+
+    # Get all entries from the website
+    links = [stuff.text.strip() for stuff in soup.findAll("td")]
+    for i, link in enumerate(links):
+        # Find the correct link
+        if link_substring in link:
+            link_str = link
+            # Get date and size
+            date_str = links[i + 1]
+            size_str = links[i + 2]
+
+    return link_str, date_str, size_str
 
 
 def ref(species, which="all", release=None, ftp=False, save=False, list_species=False):
@@ -72,6 +107,17 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
 
         return sorted(species_list)
 
+    ## Check 'which' parameter
+    # If single which passed as string, convert to list
+    if type(which) == str:
+        which = [which]
+
+    # Raise error if several values are passed and 'all' is included
+    if len(which) > 1 and "all" in which:
+        raise ValueError(
+            "Parameter 'which' must be 'all', or any one or a combination of the following: 'gtf', 'cdna', 'dna', 'cds', 'ncrna', 'pep'.\n"
+        )
+
     # Species shortcuts
     if species == "human":
         species = "homo_sapiens"
@@ -122,190 +168,94 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
         )
 
     ## Get GTF link for this species and release
-    url = database + f"release-{ENS_rel}/gtf/{species}/"
-    html = requests.get(url)
-
-    # Raise error if status code not "OK" Response
-    if html.status_code != 200:
-        raise RuntimeError(
-            f"HTTP response status code {html.status_code}. Please try again.\n"
-        )
-
-    soup = BeautifulSoup(html.text, "html.parser")
-
-    # The url can be found under an <a> object tag in the html,
-    # but the date and size do not have an object tag (element=None)
-    nones = []
-    a_elements = []
-    pre = soup.find("pre")
-    for element in pre.descendants:
-        if element.name == "a":
-            a_elements.append(element)
-        elif element.name != "a":
-            nones.append(element)
-
-    # Find the <a> element containing the url
-    for i, string in enumerate(a_elements):
-        if f"{ENS_rel}.gtf.gz" in string["href"]:
-            gtf_str = string
-            # Get release date and time from <None> elements (since there are twice as many, 2x and +1 to move from string to date)
-            gtf_date_size = nones[i * 2 + 1]
-
-    gtf_url = database + f"release-{ENS_rel}/gtf/{species}/{gtf_str['href']}"
-
-    gtf_date = gtf_date_size.strip().split("  ")[0]
-    gtf_size = gtf_date_size.strip().split("  ")[-1]
+    # Define location of GTF links
+    gtf_search_url = database + f"release-{ENS_rel}/gtf/{species}/"
+    # Get link, release date and dataset size
+    gtf_str, gtf_date, gtf_size = find_FTP_link(
+        url=gtf_search_url, link_substring=f"{ENS_rel}.gtf.gz"
+    )
+    # Build the final download link
+    if not isinstance(gtf_str, type(None)):
+        gtf_url = gtf_search_url + gtf_str
+    else:
+        gtf_url = ""
+        gtf_date = " "
+        gtf_size = ""
 
     ## Get cDNA FASTA link for this species and release
-    url = database + f"release-{ENS_rel}/fasta/{species}/cdna"
-    html = requests.get(url)
-
-    # Raise error if status code not "OK" Response
-    if html.status_code != 200:
-        raise RuntimeError(
-            f"HTTP response status code {html.status_code}. Please try again.\n"
-        )
-
-    soup = BeautifulSoup(html.text, "html.parser")
-
-    # The url can be found under an <a> object tag in the html,
-    # but the date and size do not have an object tag (element=None)
-    nones = []
-    a_elements = []
-    pre = soup.find("pre")
-    for element in pre.descendants:
-        if element.name == "a":
-            a_elements.append(element)
-        elif element.name != "a":
-            nones.append(element)
-
-    # Find the <a> element containing the url
-    for i, string in enumerate(a_elements):
-        if "cdna.all.fa" in string["href"]:
-            cdna_str = string
-            # Get release date and time from <None> elements (since there are twice as many, 2x and +1 to move from string to date)
-            cdna_date_size = nones[i * 2 + 1]
-
-    cdna_url = database + f"release-{ENS_rel}/fasta/{species}/cdna/{cdna_str['href']}"
-
-    cdna_date = cdna_date_size.strip().split("  ")[0]
-    cdna_size = cdna_date_size.strip().split("  ")[-1]
+    # Define location of cdna links
+    cdna_search_url = database + f"release-{ENS_rel}/fasta/{species}/cdna/"
+    # Get link, release date and dataset size
+    cdna_str, cdna_date, cdna_size = find_FTP_link(
+        url=cdna_search_url, link_substring="cdna.all.fa"
+    )
+    # Build the final download link
+    if not isinstance(cdna_str, type(None)):
+        cdna_url = cdna_search_url + cdna_str
+    else:
+        cdna_url = ""
+        cdna_date = " "
+        cdna_size = ""
 
     ## Get DNA FASTA link for this species and release
-    url = database + f"release-{ENS_rel}/fasta/{species}/dna"
-    html = requests.get(url)
+    # Define location of dna links
+    dna_search_url = database + f"release-{ENS_rel}/fasta/{species}/dna/"
+    # Get link, release date and dataset size
+    dna_str, dna_date, dna_size = find_FTP_link(
+        url=dna_search_url, link_substring=".dna.primary_assembly.fa"
+    )
 
-    # Raise error if status code not "OK" Response
-    if html.status_code != 200:
-        raise RuntimeError(
-            f"HTTP response status code {html.status_code}. Please try again.\n"
+    # Get toplevel if primary assembly not available
+    if dna_str is None:
+        # Get link, release date and dataset size
+        dna_str, dna_date, dna_size = find_FTP_link(
+            url=dna_search_url, link_substring=".dna.toplevel.fa"
         )
 
-    soup = BeautifulSoup(html.text, "html.parser")
-
-    # The url can be found under an <a> object tag in the html,
-    # but the date and size do not have an object tag (element=None)
-    nones = []
-    a_elements = []
-    pre = soup.find("pre")
-
-    for element in pre.descendants:
-        if element.name == "a":
-            a_elements.append(element)
-        elif element.name != "a":
-            nones.append(element)
-
-    # Get primary assembly if available, otherwise toplevel assembly
-    dna_str = None
-    for i, string in enumerate(a_elements):
-        if ".dna.primary_assembly.fa" in string["href"]:
-            dna_str = string
-            # Get date from non-assigned values (since there are twice as many, 2x and +1 to move from string to date)
-            dna_date_size = nones[i * 2 + 1]
-
-    # Find the <a> element containing the url
-    if dna_str is None:
-        for i, string in enumerate(a_elements):
-            if ".dna.toplevel.fa" in string["href"]:
-                dna_str = string
-                # Get date from non-assigned values (since there are twice as many, 2x and +1 to move from string to date)
-                dna_date_size = nones[i * 2 + 1]
-
-    dna_url = database + f"release-{ENS_rel}/fasta/{species}/dna/{dna_str['href']}"
-
-    dna_date = dna_date_size.strip().split("  ")[0]
-    dna_size = dna_date_size.strip().split("  ")[-1]
-    # Strip again to remove any extra spaces
-    dna_date = dna_date.strip()
-    dna_size = dna_size.strip()
+    # Build the final download link
+    if not isinstance(dna_str, type(None)):
+        dna_url = dna_search_url + dna_str
+    else:
+        dna_url = ""
+        dna_date = " "
+        dna_size = ""
 
     ## Get CDS FASTA link for this species and release
-    url = database + f"release-{ENS_rel}/fasta/{species}/cds"
-    html = requests.get(url)
-
-    # Raise error if status code not "OK" Response
-    if html.status_code != 200:
-        raise RuntimeError(
-            f"HTTP response status code {html.status_code}. Please try again.\n"
-        )
-
-    soup = BeautifulSoup(html.text, "html.parser")
-
-    # The url can be found under an <a> object tag in the html,
-    # but the date and size do not have an object tag (element=None)
-    nones = []
-    a_elements = []
-    pre = soup.find("pre")
-    for element in pre.descendants:
-        if element.name == "a":
-            a_elements.append(element)
-        elif element.name != "a":
-            nones.append(element)
-
-    # Find the <a> element containing the url
-    for i, string in enumerate(a_elements):
-        if "cds.all.fa" in string["href"]:
-            cds_str = string
-            # Get release date and time from <None> elements (since there are twice as many, 2x and +1 to move from string to date)
-            cds_date_size = nones[i * 2 + 1]
-
-    cds_url = database + f"release-{ENS_rel}/fasta/{species}/cds/{cds_str['href']}"
-
-    cds_date = cds_date_size.strip().split("  ")[0]
-    cds_size = cds_date_size.strip().split("  ")[-1]
+    # Define location of cds links
+    cds_search_url = database + f"release-{ENS_rel}/fasta/{species}/cds/"
+    # Get link, release date and dataset size
+    cds_str, cds_date, cds_size = find_FTP_link(
+        url=cds_search_url, link_substring="cds.all.fa"
+    )
+    # Build the final download link
+    if not isinstance(cds_str, type(None)):
+        cds_url = cds_search_url + cds_str
+    else:
+        cds_url = ""
+        cds_date = " "
+        cds_size = ""
 
     ## Get ncRNA FASTA link for this species and release (if available)
-    url = database + f"release-{ENS_rel}/fasta/{species}/ncrna"
-    html = requests.get(url)
+    # Define location of ncRNA links
+    ncrna_search_url = database + f"release-{ENS_rel}/fasta/{species}/ncrna/"
+
+    html = requests.get(ncrna_search_url)
 
     # If ncRNA data is not available, HTML requests returns an error code (!= 200)
     if html.status_code == 200:
         soup = BeautifulSoup(html.text, "html.parser")
 
-        # The url can be found under an <a> object tag in the html,
-        # but the date and size do not have an object tag (element=None)
-        nones = []
-        a_elements = []
-        pre = soup.find("pre")
-        for element in pre.descendants:
-            if element.name == "a":
-                a_elements.append(element)
-            elif element.name != "a":
-                nones.append(element)
+        # Get all entries from the website
+        links = [stuff.text.strip() for stuff in soup.findAll("td")]
+        for i, link in enumerate(links):
+            # Find the correct link
+            if ".ncrna.fa" in link:
+                ncrna_str = link
+                # Get date and size
+                ncrna_date = links[i + 1]
+                ncrna_size = links[i + 2]
 
-        # Find the <a> element containing the url
-        for i, string in enumerate(a_elements):
-            if ".ncrna.fa" in string["href"]:
-                ncrna_str = string
-                # Get release date and time from <None> elements (since there are twice as many, 2x and +1 to move from string to date)
-                ncrna_date_size = nones[i * 2 + 1]
-
-        ncrna_url = (
-            database + f"release-{ENS_rel}/fasta/{species}/ncrna/{ncrna_str['href']}"
-        )
-
-        ncrna_date = ncrna_date_size.strip().split("  ")[0]
-        ncrna_size = ncrna_date_size.strip().split("  ")[-1]
+        ncrna_url = ncrna_search_url + ncrna_str
 
     # If the HTML request returned an error code here, I will assume that ncRNA data is not available
     else:
@@ -314,51 +264,21 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
         ncrna_size = ""
 
     ## Get pep FASTA link for this species and release
-    url = database + f"release-{ENS_rel}/fasta/{species}/pep"
-    html = requests.get(url)
-
-    # Raise error if status code not "OK" Response
-    if html.status_code != 200:
-        raise RuntimeError(
-            f"HTTP response status code {html.status_code}. Please try again.\n"
-        )
-
-    soup = BeautifulSoup(html.text, "html.parser")
-
-    # The url can be found under an <a> object tag in the html,
-    # but the date and size do not have an object tag (element=None)
-    nones = []
-    a_elements = []
-    pre = soup.find("pre")
-    for element in pre.descendants:
-        if element.name == "a":
-            a_elements.append(element)
-        elif element.name != "a":
-            nones.append(element)
-
-    # Find the <a> element containing the url
-    for i, string in enumerate(a_elements):
-        if ".pep.all.fa" in string["href"]:
-            pep_str = string
-            # Get release date and time from <None> elements (since there are twice as many, 2x and +1 to move from string to date)
-            pep_date_size = nones[i * 2 + 1]
-
-    pep_url = database + f"release-{ENS_rel}/fasta/{species}/pep/{pep_str['href']}"
-
-    pep_date = pep_date_size.strip().split("  ")[0]
-    pep_size = pep_date_size.strip().split("  ")[-1]
+    # Define location of pep links
+    pep_search_url = database + f"release-{ENS_rel}/fasta/{species}/pep/"
+    # Get link, release date and dataset size
+    pep_str, pep_date, pep_size = find_FTP_link(
+        url=pep_search_url, link_substring=".pep.all.fa"
+    )
+    # Build the final download link
+    if not isinstance(pep_str, type(None)):
+        pep_url = pep_search_url + pep_str
+    else:
+        pep_url = ""
+        pep_date = " "
+        pep_size = ""
 
     ## Return results
-    # If single which passed as string, convert to list
-    if type(which) == str:
-        which = [which]
-
-    # Raise error if several values are passed and 'all' is included
-    if len(which) > 1 and "all" in which:
-        raise ValueError(
-            "Parameter 'which' must be 'all', or any one or a combination of the following: 'gtf', 'cdna', 'dna', 'cds', 'ncrna', 'pep'.\n"
-        )
-
     # If FTP=False, return dictionary/json of specified results
     if ftp is False:
         ref_dict = {species: {}}

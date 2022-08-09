@@ -59,10 +59,6 @@ Predict the 3D structure of a protein from its amino acid sequence using a simpl
 ```bash
 pip install --upgrade gget
 ```
-or
-```bash
-conda install -c bioconda gget
-```
 
 For use in Jupyter Lab / Google Colab:
 ```python
