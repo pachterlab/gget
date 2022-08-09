@@ -316,6 +316,7 @@ def setup(module):
                     sys.stderr.write(stderr)
             # Exit system if the subprocess returned with an error
             if process.wait() != 0:
+                logging.error("Model parameter download failed.")
                 return
             else:
                 logging.info("Model parameter download complete.")
