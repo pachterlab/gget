@@ -47,6 +47,11 @@ def setup(module):
         )
 
     if module == "alphafold":
+        if platform.system() == "Windows":
+            logging.warning(
+                "gget setup alphafold and gget alphafold are not supported on Windows OS."
+            )
+
         ## Make sure package paths are appended so openmm can be imported
         site_packages_path = os.__file__.split("os.py")[0] + "site-packages"
         if site_packages_path not in sys.path:
