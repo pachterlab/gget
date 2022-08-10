@@ -3,7 +3,7 @@ pandas>=1.0.0
 requests>=2.22.0
 ipython
 matplotlib
-mysql-connector-python==8.0.29
+mysql-connector-python>=8.0.5,<=8.0.29
 beautifulsoup4>=4.10.0
 ipywidgets
 tqdm
