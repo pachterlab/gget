@@ -47,6 +47,11 @@ def setup(module):
         )
 
     if module == "alphafold":
+        if platform.system() == "Windows":
+            logging.warning(
+                "gget setup alphafold and gget alphafold are not supported on Windows OS."
+            )
+
         ## Make sure package paths are appended so openmm can be imported
         site_packages_path = os.__file__.split("os.py")[0] + "site-packages"
         if site_packages_path not in sys.path:
@@ -316,6 +321,7 @@ def setup(module):
                     sys.stderr.write(stderr)
             # Exit system if the subprocess returned with an error
             if process.wait() != 0:
+                logging.error("Model parameter download failed.")
                 return
             else:
                 logging.info("Model parameter download complete.")

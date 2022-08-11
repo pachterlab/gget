@@ -219,6 +219,11 @@ def alphafold(
     the AlphaFold-Multimer paper (https://www.biorxiv.org/content/10.1101/2021.10.04.463034v1).
     """
 
+    if platform.system() == "Windows":
+        logging.warning(
+            "gget setup alphafold and gget alphafold are not supported on Windows OS."
+        )
+
     ## Check if third-party dependencies are installed
     # Check if openmm is installed
     try:
