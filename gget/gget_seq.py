@@ -121,8 +121,7 @@ def seq(
 
                 except RuntimeError:
                     logging.error(
-                        f"ID {ensembl_ID} not found. "
-                        "Please double-check spelling/arguments and try again."
+                        f"ID {ensembl_ID} not found. Please double-check spelling/arguments and try again."
                     )
 
             # If isoforms true, fetch sequences of isoforms instead
@@ -133,7 +132,7 @@ def seq(
                 # Check if Ensembl ID was found
                 if isinstance(info_df, type(None)):
                     logging.warning(
-                        f"ID '{ensembl_ID}' not found. Please double-check spelling/arguments."
+                        f"ID '{ensembl_ID}' not found. Please double-check spelling/arguments and try again."
                     )
                     continue
 
