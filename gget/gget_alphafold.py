@@ -231,8 +231,9 @@ def alphafold(
     except ImportError:
         logging.error(
             """
-        Please install third-party dependency openmm v7.5.1 by running the following command from the command line:
-        'conda install -c conda-forge openmm=7.5.1'
+        Please install AlphaFold third-party dependency openmm v7.5.1 by running the following command from the command line: 
+        'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' 
+        (Recommendation: Follow with 'conda update -qy conda' to update conda to the latest version afterwards.)
         """
         )
         return
@@ -300,7 +301,11 @@ def alphafold(
     except ModuleNotFoundError as e:
         if "openmm" in str(e):
             logging.error(
-                "Dependency openmm v7.5.1 not installed succesfully. Try running 'conda install -c conda-forge openmm=7.5.1' from the command line."
+                """
+                Dependency openmm v7.5.1 not installed succesfully. 
+                Try running 'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' from the command line.
+                (Recommendation: Follow with 'conda update -qy conda' to update conda to the latest version afterwards.)
+                """
             )
             return
 
@@ -311,7 +316,11 @@ def alphafold(
         except ModuleNotFoundError as e:
             if "openmm" in str(e):
                 logging.error(
-                    "Dependency openmm v7.5.1 not installed succesfully. Try running 'conda install -c conda-forge openmm=7.5.1' from the command line."
+                    """
+                    Dependency openmm v7.5.1 not installed succesfully. 
+                    Try running 'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' from the command line.
+                    (Recommendation: Follow with 'conda update -qy conda' to update conda to the latest version afterwards.)
+                    """
                 )
                 return
 
