@@ -6,9 +6,11 @@
 ![status](https://github.com/pachterlab/gget/workflows/CI/badge.svg)
 ![Code Coverage](https://img.shields.io/badge/Coverage-83%25-green.svg)  
 
-## ✨ Version ≥ 0.3.0: [`gget alphafold`](#gget-alphafold-)
+## ✨ What's new
 
-## ✨ What's new in version ≥ 0.2.0
+#### Version ≥ 0.3.0: [`gget alphafold`](#gget-alphafold-)
+
+#### Version ≥ 0.2.0:
 - JSON is now the default output format for the command-line interface for modules that previously returned data frame (CSV) format by default (the output can be converted to data frame/CSV using flag `[-csv][--csv]`). Data frame/CSV remains the default output for Jupyter Lab / Google Colab (and can be converted to JSON with `json=True`).
 - For all modules, the first required argument was converted to a positional argument and should not be named anymore in the command-line, e.g. `gget ref -s human` &rarr; `gget ref human`.
 - `gget info`: `[--expand]` is deprecated. The module will now always return all of the available information.
@@ -19,9 +21,7 @@
 - `gget search` argument `seqtype` was renamed to `id_type` for clarity (still taking the same arguments 'gene' or 'transcript').
 - Version ≥ 0.2.6: `gget ref` supports plant genomes! 🌱  
   
-Note: [UniProt](https://www.uniprot.org/) changed the structure of their API on June 28, 2022. Please upgrade to `gget` version ≥ 0.2.5 if you use any of the modules querying data from UniProt (`gget info` and `gget seq`).  
-
-Note: The [Ensembl FTP site](http://ftp.ensembl.org/pub/) changed its structure on August 8, 2022. Please upgrade to `gget` version ≥ 0.3.7 if you use `gget ref`.  
+Note: [UniProt](https://www.uniprot.org/) changed the structure of their API on June 28, 2022. Please upgrade to `gget` version ≥ 0.2.5 if you use any of the modules querying data from UniProt (`gget info` and `gget seq`). The [Ensembl FTP site](http://ftp.ensembl.org/pub/) changed its structure on August 8, 2022. Please upgrade to `gget` version ≥ 0.3.7 if you use `gget ref`.  
 ___
 
 `gget` is a free, open-source command-line tool and Python package that enables efficient querying of genomic databases. `gget`  consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.  
@@ -675,11 +675,11 @@ gget alphafold MAAHKGAEHHHKAAEHHEQAAKHHHAAAEHHEKGEHEQAAHHADTAYAHHKHAEEHAAQAAKHDA
 # Jupyter Lab / Google Colab:
 gget.alphafold("MAAHKGAEHHHKAAEHHEQAAKHHHAAAEHHEKGEHEQAAHHADTAYAHHKHAEEHAAQAAKHDAEHHAPKPH")
 ```
-&rarr; Returns the predicted structure (PDB) and predicted alignment error (.json) in a new folder ("./[date_time]_gget_alphafold_prediction"). The Python interface also returns the following plots:
+&rarr; Returns the predicted structure (PDB) and predicted alignment error (.json) in a new folder ("./[date_time]_gget_alphafold_prediction"). PDB files can be viewed online in 3D [here](https://rcsb.org/3d-view) or using the program [PyMOL](https://pymol.org/). The Python interface also returns the following plots:
 
 https://user-images.githubusercontent.com/56094636/182939299-36ac2a8f-0560-4a64-b1f8-6cff39ef2a75.mp4
 
-#### [More examples](https://github.com/pachterlab/gget_examples)
+#### [Example in Google Colab](https://github.com/pachterlab/gget_examples/blob/main/gget_alphafold.ipynb)
 
 ___
 
