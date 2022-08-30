@@ -6,7 +6,7 @@
 ![status](https://github.com/pachterlab/gget/workflows/CI/badge.svg)
 ![Code Coverage](https://img.shields.io/badge/Coverage-83%25-green.svg)  
 
-## ✨ Version ≥ 0.3.0: [`gget alphafold`](#gget-alphafold-) 
+## ✨ Version ≥ 0.3.0: [`gget alphafold`](#gget-alphafold-)
 
 ## ✨ What's new in version ≥ 0.2.0
 - JSON is now the default output format for the command-line interface for modules that previously returned data frame (CSV) format by default (the output can be converted to data frame/CSV using flag `[-csv][--csv]`). Data frame/CSV remains the default output for Jupyter Lab / Google Colab (and can be converted to JSON with `json=True`).
@@ -643,30 +643,11 @@ gget.archs4("ACE2", which="tissue")
 
 ___
 
-## gget setup ⚙️
-Function to install/download third-party dependencies for a specified gget module.
-
-**Positional argument**  
-`module`  
-gget module for which dependencies should be installed.  
-
-### Example
-```bash
-gget setup alphafold
-```
-```python
-# Jupyter Lab / Google Colab:
-gget.setup("alphafold")
-```
-&rarr; Installs all (modified) third-party dependencies and downloads model parameters (~4GB) required to run `gget alphafold`.  
-
-___
-
 ## gget alphafold 🪢
 Predict the 3D structure of a protein from its amino acid sequence using a simplified version of [DeepMind](https://www.deepmind.com/)’s [AlphaFold2](https://github.com/deepmind/alphafold) originally released and benchmarked for [AlphaFold Colab](https://colab.research.google.com/github/deepmind/alphafold/blob/main/notebooks/AlphaFold.ipynb).  
 Returns: Predicted structure (PDB) and alignment error (json).  
 
-Before using `gget alphafold` for the first time, run `gget setup alphafold` / `gget.setup("alphafold")` once (also see `gget setup` above).  
+Before using `gget alphafold` for the first time, run `gget setup alphafold` / `gget.setup("alphafold")` once (also see [`gget setup`](#gget-setup-) ).  
 
 **Positional argument**  
 `sequence`  
@@ -699,6 +680,27 @@ gget.alphafold("MAAHKGAEHHHKAAEHHEQAAKHHHAAAEHHEKGEHEQAAHHADTAYAHHKHAEEHAAQAAKHD
 https://user-images.githubusercontent.com/56094636/182939299-36ac2a8f-0560-4a64-b1f8-6cff39ef2a75.mp4
 
 #### [More examples](https://github.com/pachterlab/gget_examples)
+
+___
+
+## gget setup 🔧
+
+Function to install/download third-party dependencies for a specified gget module.
+
+**Positional argument**  
+`module`  
+gget module for which dependencies should be installed (currently only "alphafold").  
+
+### Example
+```bash
+gget setup alphafold
+```
+```python
+# Jupyter Lab / Google Colab:
+gget.setup("alphafold")
+```
+&rarr; Installs all (modified) third-party dependencies and downloads model parameters (~4GB) required to run `gget alphafold`. 
+
 ___
 
 # Cite 
