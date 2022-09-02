@@ -675,7 +675,7 @@ def alphafold(
             # Round the predicted aligned errors to 1 decimal place
             rounded_errors = np.round(pae.astype(np.float64), decimals=1)
 
-            # Create dictionary
+            # Create dictionary with PAE and pLDDT
             formatted_output = {
                 "predicted_aligned_error": rounded_errors.tolist(),
                 "max_predicted_aligned_error": max_pae.item(),
