@@ -667,6 +667,7 @@ Jupyter Lab / Google Colab only. `plot=True` provides an interactive, 3D graphic
 `show_sidechains`  
 Jupyter Lab / Google Colab only. `show_sidechains=True` includes side chains in the plot (default: True).  
   
+  
 ### Example
 ```bash
 gget alphafold MAAHKGAEHHHKAAEHHEQAAKHHHAAAEHHEKGEHEQAAHHADTAYAHHKHAEEHAAQAAKHDAEHHAPKPH
@@ -680,7 +681,7 @@ gget.alphafold("MAAHKGAEHHHKAAEHHEQAAKHHHAAAEHHEKGEHEQAAHHADTAYAHHKHAEEHAAQAAKHD
 https://user-images.githubusercontent.com/56094636/182939299-36ac2a8f-0560-4a64-b1f8-6cff39ef2a75.mp4
 
 #### [Example in Google Colab](https://github.com/pachterlab/gget_examples/blob/main/gget_alphafold.ipynb)
-
+#### Also see: [gget alphafold FAQ](https://github.com/pachterlab/gget/discussions/39)
 ___
 
 ## gget setup 🔧
