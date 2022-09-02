@@ -16,6 +16,7 @@ import os
 import shutil
 import sys
 import glob
+import json
 import subprocess
 import platform
 import collections
@@ -667,10 +668,23 @@ def alphafold(
         ## Save the predicted aligned error
         pae_output_path = os.path.join(abs_out_path, "predicted_aligned_error.json")
         if pae_outputs:
-            # Save predicted aligned error in the same format as the AF EMBL DB.
-            pae_data = notebook_utils.get_pae_json(pae=pae, max_pae=max_pae.item())
-            with open(pae_output_path, "w") as f:
-                f.write(pae_data)
+            # Check the PAE array is the correct shape
+            if pae.ndim != 2 or pae.shape[0] != pae.shape[1]:
+                raise ValueError(f"PAE must be a square matrix, got {pae.shape}")
+
+            # Round the predicted aligned errors to 1 decimal place
+            rounded_errors = np.round(pae.astype(np.float64), decimals=1)
+
+            # Create dictionary with PAE and pLDDT
+            formatted_output = {
+                "predicted_aligned_error": rounded_errors.tolist(),
+                "max_predicted_aligned_error": max_pae.item(),
+                "plddt": plddts[best_model_name].tolist(),
+                "final_atom_mask": final_atom_mask.tolist(),
+            }
+
+            with open(pae_output_path, "w", encoding="utf-8") as f:
+                json.dump(formatted_output, f, ensure_ascii=False, indent=4)
 
     ## Plotting
     if plot:
