@@ -77,6 +77,8 @@ def pdb(id, resource="pdb", identifier=None, save=False):
     if resource in need_chain_id and identifier is None:
         raise ValueError("Please define chain ID (e.g. 'A') as 'identifier'.")
 
+    # !!! TO-DO:
+    # Add ID conversion to allow Ensembl IDs as input
     pdb_id = id
 
     # Define URLs for HTTP request
@@ -115,7 +117,7 @@ def pdb(id, resource="pdb", identifier=None, save=False):
 
     if r.status != 200:
         raise RuntimeError(
-            f"The RCSB server responded with status code: {r.status}. "
+            f"The RCSB PDB server responded with status code: {r.status}. "
             "Please double-check arguments and try again.\n"
         )
 
