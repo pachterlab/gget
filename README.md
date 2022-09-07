@@ -647,7 +647,7 @@ gget.archs4("ACE2", which="tissue")
 
 ___
 ## gget pdb 🔮
-Query RCSB PDB for the protein structutre/metadata of a given PDB ID.  
+Query [RCSB Protein Data Bank (PDB)](https://www.rcsb.org/) for the protein structutre/metadata of a given PDB ID.  
 Return format: Resource 'pdb' is returned in PDB format. All other resources are returned in JSON format.  
 
 **Positional argument**  
