@@ -1531,28 +1531,29 @@ def main():
             identifier=args.identifier,
         )
 
-        if args.resource == "pdb":
-            if args.out:
-                # Create saving directory
-                directory = "/".join(args.out.split("/")[:-1])
-                if directory != "":
-                    os.makedirs(directory, exist_ok=True)
+        if pdb_results:
+            if args.resource == "pdb":
+                if args.out:
+                    # Create saving directory
+                    directory = "/".join(args.out.split("/")[:-1])
+                    if directory != "":
+                        os.makedirs(directory, exist_ok=True)
 
-                # Save PDB file
-                with open(args.out, "w") as f:
-                    f.write(pdb_results)
+                    # Save PDB file
+                    with open(args.out, "w") as f:
+                        f.write(pdb_results)
+                else:
+                    print(pdb_results)
+
             else:
-                print(pdb_results)
+                if args.out:
+                    # Create saving directory
+                    directory = "/".join(args.out.split("/")[:-1])
+                    if directory != "":
+                        os.makedirs(directory, exist_ok=True)
 
-        else:
-            if args.out:
-                # Create saving directory
-                directory = "/".join(args.out.split("/")[:-1])
-                if directory != "":
-                    os.makedirs(directory, exist_ok=True)
-
-                # Save json
-                with open(args.out, "w", encoding="utf-8") as f:
-                    json.dump(pdb_results, f, ensure_ascii=False, indent=4)
-            else:
-                print(json.dumps(pdb_results, ensure_ascii=False, indent=4))
+                    # Save json
+                    with open(args.out, "w", encoding="utf-8") as f:
+                        json.dump(pdb_results, f, ensure_ascii=False, indent=4)
+                else:
+                    print(json.dumps(pdb_results, ensure_ascii=False, indent=4))
