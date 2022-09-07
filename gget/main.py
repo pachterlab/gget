@@ -32,6 +32,7 @@ from .gget_enrichr import enrichr
 from .gget_archs4 import archs4
 from .gget_alphafold import alphafold
 from .gget_setup import setup
+from .gget_pdb import pdb
 
 
 def main():
@@ -707,7 +708,7 @@ def main():
         type=str,
         nargs="?",
         default=None,
-        help="Gene symbol or Ensembl gene ID of gene of interest (str), e.g. 'STAT4'.",
+        help="Gene symbol or Ensembl gene ID of gene of interest, e.g. 'STAT4'.",
     )
     parser_archs4.add_argument(
         "-e",
@@ -848,6 +849,84 @@ def main():
         help=(
             "Path to folder the predicted aligned error (json) and the prediction (PDB) will be saved in.\n"
             "Default: ./[date_time]_gget_alphafold_prediction"
+        ),
+    )
+
+    ## gget pdb subparser
+    pdb_desc = "Query RCSB PDB for the protein structutre/metadata of a given PDB ID."
+    parser_pdb = parent_subparsers.add_parser(
+        "pdb",
+        parents=[parent],
+        description=pdb_desc,
+        help=pdb_desc,
+        add_help=True,
+    )
+    # alphafold parser arguments
+    parser_pdb.add_argument(
+        "pdb_id",
+        type=str,
+        nargs="?",
+        default=None,
+        help="PDB ID to be queried, e.g. '7S7U'.",
+    )
+    parser_pdb.add_argument(
+        "-r",
+        "--resource",
+        default="pdb",
+        type=str,
+        choices=[
+            "pdb",
+            "entry",
+            "pubmed",
+            "assembly",
+            "branched_entity",
+            "nonpolymer_entity",
+            "polymer_entity",
+            "uniprot",
+            "branched_entity_instance",
+            "polymer_entity_instance",
+            "nonpolymer_entity_instance",
+        ],
+        required=False,
+        help=(
+            """
+            Defines type of information to be returned.
+            "pdb": Returns the protein structure in PDB format.
+            "entry": Information about PDB structures at the top level of PDB structure hierarchical data organization.
+            "pubmed": Get PubMed annotations (data integrated from PubMed) for a given entry's primary citation.
+            "assembly": Information about PDB structures at the quaternary structure level.
+            "branched_entity": Get branched entity description (define entity ID as "identifier").
+            "nonpolymer_entity": Get non-polymer entity data (define entity ID as "identifier").
+            "polymer_entity": Get polymer entity data (define entity ID as "identifier").
+            "uniprot": Get UniProt annotations for a given macromolecular entity (define entity ID as "identifier").
+            "branched_entity_instance": Get branched entity instance description (define chain ID as "identifier").
+            "polymer_entity_instance": Get polymer entity instance (a.k.a chain) data (define chain ID as "identifier").
+            "nonpolymer_entity_instance": Get non-polymer entity instance description (define chain ID as "identifier").
+            """
+        ),
+    )
+    parser_pdb.add_argument(
+        "-i",
+        "--identifier",
+        default=None,
+        type=str,
+        required=False,
+        help=(
+            """
+            Can be used to define assembly, entity or chain ID if applicable (default: None).
+            Assembly/entity IDs are numbers (e.g. 1), and chain IDs are letters (e.g. A).
+            """
+        ),
+    )
+    parser_pdb.add_argument(
+        "-o",
+        "--out",
+        type=str,
+        required=False,
+        help=(
+            "Path to the file the results will be saved in, e.g. path/to/directory/7S7U.pdb or path/to/directory/7S7U_entry.json.\n"
+            "Resource 'pdb' is returned in PDB format. All other resources are returned in JSON format.\n"
+            "Default: Standard out."
         ),
     )
 
@@ -1443,3 +1522,37 @@ def main():
             plot=False,
             show_sidechains=False,
         )
+
+    ## pdb return
+    if args.command == "pdb":
+        pdb_results = pdb(
+            pdb_id=args.pdb_id,
+            resource=args.resource,
+            identifier=args.identifier,
+        )
+
+        if args.resource == "pdb":
+            if args.out:
+                # Create saving directory
+                directory = "/".join(args.out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+
+                # Save PDB file
+                with open(args.out, "w") as f:
+                    f.write(pdb_results)
+            else:
+                print(pdb_results)
+
+        else:
+            if args.out:
+                # Create saving directory
+                directory = "/".join(args.out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+
+                # Save json
+                with open(args.out, "w", encoding="utf-8") as f:
+                    json.dump(pdb_results, f, ensure_ascii=False, indent=4)
+            else:
+                print(json.dumps(pdb_results, ensure_ascii=False, indent=4))

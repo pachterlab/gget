@@ -256,11 +256,11 @@ class TestPDB(unittest.TestCase):
         result_to_test = pdb("4G22", resource="polymer_entity", identifier=1)
         expected_result = {
             "rcsb_cluster_membership": [
-                {"cluster_id": 51774, "identity": 100},
-                {"cluster_id": 48679, "identity": 95},
-                {"cluster_id": 52680, "identity": 90},
-                {"cluster_id": 9695, "identity": 70},
-                {"cluster_id": 5087, "identity": 50},
+                {"cluster_id": 71882, "identity": 100},
+                {"cluster_id": 48795, "identity": 95},
+                {"cluster_id": 60951, "identity": 90},
+                {"cluster_id": 9511, "identity": 70},
+                {"cluster_id": 5222, "identity": 50},
                 {"cluster_id": 465, "identity": 30},
             ],
             "entity_poly": {
@@ -2259,29 +2259,29 @@ class TestPDB(unittest.TestCase):
             "rcsb_id": "4G22_1",
             "rcsb_polymer_entity_group_membership": [
                 {
-                    "group_id": "52680_90",
-                    "aggregation_method": "sequence_identity",
-                    "similarity_cutoff": 90.0,
-                },
-                {
-                    "group_id": "48679_95",
+                    "group_id": "48795_95",
                     "aggregation_method": "sequence_identity",
                     "similarity_cutoff": 95.0,
                 },
                 {
-                    "group_id": "5087_50",
+                    "group_id": "71882_100",
+                    "aggregation_method": "sequence_identity",
+                    "similarity_cutoff": 100.0,
+                },
+                {
+                    "group_id": "5222_50",
                     "aggregation_method": "sequence_identity",
                     "similarity_cutoff": 50.0,
                 },
                 {
-                    "group_id": "9695_70",
+                    "group_id": "9511_70",
                     "aggregation_method": "sequence_identity",
                     "similarity_cutoff": 70.0,
                 },
                 {
-                    "group_id": "51774_100",
+                    "group_id": "60951_90",
                     "aggregation_method": "sequence_identity",
-                    "similarity_cutoff": 100.0,
+                    "similarity_cutoff": 90.0,
                 },
                 {
                     "group_id": "465_30",

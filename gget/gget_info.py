@@ -17,7 +17,7 @@ logging.basicConfig(
 logging.getLogger("numexpr").setLevel(logging.WARNING)
 
 # Custom functions
-from .utils import rest_query, get_uniprot_info, wrap_cols_func
+from .utils import rest_query, get_uniprot_info, wrap_cols_func, get_pdb_ids
 
 # Constants
 from .constants import ENSEMBL_REST_API, UNIPROT_REST_API, NCBI_URL
@@ -65,7 +65,7 @@ def info(ens_ids, wrap_text=False, expand=False, json=False, verbose=True, save=
             if "." in ensembl_ID and temp == 0:
                 if verbose is True:
                     logging.info(
-                        "We noticed that you may have passed a version number with your Ensembl ID.\n"
+                        "We noticed that you passed a version number with your Ensembl ID.\n"
                         "Please note that gget info will always return information linked to the latest Ensembl ID version (see 'ensembl_id')."
                     )
                 temp = +1
@@ -169,6 +169,36 @@ def info(ens_ids, wrap_text=False, expand=False, json=False, verbose=True, save=
             if verbose is True:
                 logging.warning(f"No UniProt entry was found for ID {ens_id}.")
 
+        ## Get PDB IDs from UniProt IDs
+        try:
+            uniprot_ids = list(df_uniprot["uniprot_id"].values)[0]
+        except:
+            uniprot_ids = []
+
+        # Convert to list if only one ID
+        if isinstance(uniprot_ids, str):
+            uniprot_ids = [uniprot_ids]
+
+        # Passing one UniProt ID at a time because for some reason
+        # the mapping API only returns the results for the first ID
+        pdb_ids = []
+        if uniprot_ids:
+            for uniprot_id in uniprot_ids:
+                if uniprot_id != "" and not pd.isnull(uniprot_id):
+                    pdb_ids.append(get_pdb_ids(str(uniprot_id)))
+
+        # Flatten PDB ID list
+        pdb_ids = [item for sublist in pdb_ids for item in sublist]
+
+        # Add pdb_ids to uniprot data frame
+        try:
+            if pdb_ids:
+                df_uniprot["pdb_id"] = [pdb_ids]
+            else:
+                df_uniprot["pdb_id"] = np.NaN
+        except:
+            pass
+
         ## Get NCBI gene ID and description (for genes only)
         url = NCBI_URL + f"/gene/?term={ens_id}"
         html = requests.get(url)
@@ -260,7 +290,7 @@ def info(ens_ids, wrap_text=False, expand=False, json=False, verbose=True, save=
             df_temp = pd.concat([df_temp, df_uni_ncbi], axis=1)
 
         else:
-            # Add only NCBI info to df_temp
+            # Add NCBI info to df_temp
             df_temp = pd.concat([df_temp, df_ncbi], axis=1)
 
     # Append UniProt and NCBI info to df
@@ -271,6 +301,7 @@ def info(ens_ids, wrap_text=False, expand=False, json=False, verbose=True, save=
         [
             "ensembl_id",
             "uniprot_id",
+            "pdb_id",
             "ncbi_gene_id",
             "species",
             "assembly_name",

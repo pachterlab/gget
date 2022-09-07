@@ -9,6 +9,7 @@ from .gget_enrichr import enrichr
 from .gget_archs4 import archs4
 from .gget_alphafold import alphafold
 from .gget_setup import setup
+from .gget_pdb import pdb
 
 import logging
 logging.basicConfig(

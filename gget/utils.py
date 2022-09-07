@@ -1,10 +1,10 @@
 from bs4 import BeautifulSoup
 import requests
+from requests.adapters import HTTPAdapter, Retry
+import time
 import re
 import pandas as pd
 import numpy as np
-import urllib
-from io import StringIO
 from IPython.display import display, HTML
 import logging
 
@@ -17,7 +17,7 @@ logging.basicConfig(
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
 
-from .constants import ENSEMBL_FTP_URL
+from .constants import ENSEMBL_FTP_URL, UNIPROT_IDMAPPING_API
 
 
 def n_colors(nucleotide):
@@ -370,6 +370,97 @@ def get_uniprot_info(server, ensembl_id, verbose=True):
 
     else:
         return None
+
+
+def get_pdb_ids(uniprot_ids):
+    """
+    Function to fetch all PDB IDs linked to a list of UniProt IDs
+    using UniProt's ID mapping (https://www.uniprot.org/help/id_mapping#example_uniparc).
+    """
+
+    retries = Retry(total=5, backoff_factor=0.25, status_forcelist=[500, 502, 503, 504])
+    session = requests.Session()
+    session.mount("https://", HTTPAdapter(max_retries=retries))
+
+    # Sleep interval between
+    POLLING_INTERVAL = 3
+
+    def check_response(response):
+        """
+        Check response of HTTP request.
+        """
+        try:
+            response.raise_for_status()
+        except requests.HTTPError:
+            logging.error(
+                f"UniProt ID mapping to fetch PDB IDs returned HTTP Error:\n{response.json()}"
+            )
+            return
+
+    def post_mapping_request(uniprot_ids, from_id_type, to_id_type):
+        """
+        Post ID mapping request to UniProt ID mapping API.
+        """
+        # Post ID mapping request
+        request = requests.post(
+            f"{UNIPROT_IDMAPPING_API}/run",
+            data={"from": from_id_type, "to": to_id_type, "ids": ",".join(uniprot_ids)},
+        )
+
+        check_response(request)
+
+        # Return job ID
+        return request.json()["jobId"]
+
+    def check_id_mapping_results_ready(job_id):
+        """
+        Poll for status of mapping request.
+        """
+        while True:
+            request = session.get(f"{UNIPROT_IDMAPPING_API}/status/{job_id}")
+            check_response(request)
+            j = request.json()
+            if "jobStatus" in j:
+                # Sleep for POLLING_INTERVAL seconds if job status if "RUNNING"
+                if j["jobStatus"] == "RUNNING":
+                    logging.info("Checking if PDB IDs are available...")
+                    time.sleep(POLLING_INTERVAL)
+                else:
+                    # Raise error if job status is other than "RUNNING"
+                    raise Exception(request["jobStatus"])
+            else:
+                # Return True if job is done running
+                return True
+
+    def get_id_mapping_results_search(job_id):
+        """
+        Get mapping results from job ID.
+        """
+        # Get ID mapping results
+        request = requests.get(
+            f"{UNIPROT_IDMAPPING_API}/results/{job_id}",
+        )
+
+        check_response(request)
+
+        # Return job ID
+        return request.json()
+
+    # Post mapping request
+    job_id = post_mapping_request(
+        uniprot_ids=uniprot_ids, from_id_type="UniProtKB_AC-ID", to_id_type="PDB"
+    )
+
+    # Get results once they are ready
+    if check_id_mapping_results_ready(job_id):
+        results = get_id_mapping_results_search(job_id)
+
+    # Get list of PDB IDs
+    pdb_ids = []
+    if results["results"]:
+        pdb_ids = results["results"][0].values()
+
+    return list(pdb_ids)
 
 
 def wrap_cols_func(df, cols):

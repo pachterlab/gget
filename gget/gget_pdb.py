@@ -12,12 +12,17 @@ logging.basicConfig(
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
 
+from .constants import RCSB_PDB_API
 
-def pdb(id, resource="pdb", identifier=None, save=False):
+
+def pdb(pdb_id, resource="pdb", identifier=None, save=False):
     """
+    Query RCSB PDB for the protein structutre/metadata of a given PDB ID.
+
     Args:
-    - id            One PDB ID (str).
-    - resource      "pdb": Returns the protein structure in PDB format (default).
+    - pdb_id        PDB ID to be queried (str), e.g. "7S7U".
+    - resource      Defines type of information to be returned.
+                    "pdb": Returns the protein structure in PDB format (default).
                     "entry": Information about PDB structures at the top level of PDB structure hierarchical data organization.
                     "pubmed": Get PubMed annotations (data integrated from PubMed) for a given entry's primary citation.
                     "assembly": Information about PDB structures at the quaternary structure level.
@@ -28,10 +33,8 @@ def pdb(id, resource="pdb", identifier=None, save=False):
                     "branched_entity_instance": Get branched entity instance description (define chain ID as "identifier").
                     "polymer_entity_instance": Get polymer entity instance (a.k.a chain) data (define chain ID as "identifier").
                     "nonpolymer_entity_instance": Get non-polymer entity instance description (define chain ID as "identifier").
-    -  identifier   None (default),
-                    or assembly ID (e.g. "1") (combine with resource="assembly"),
-                    or entity ID (e.g. "1") (combine with resource="branched_entity"/"nonpolymer_entity"/"polymer_entity"/"uniprot"),
-                    or chain (instance/asym) ID (e.g. "A") (combine with resource="branched_entity_instance"/"nonpolymer_entity_instance"/"polymer_entity_instance").
+    -  identifier   Can be used to define assembly, entity or chain ID if applicable (default: None).
+                    Assembly/entity IDs are numbers (e.g. 1), and chain IDs are letters (e.g. "A").
     - save          True/False wether to save JSON/PDB with query results in the current working directory (default: False).
 
     Returns requested information in JSON format (except for resource="pdb" which returns protein structure in PDB format).
@@ -77,17 +80,13 @@ def pdb(id, resource="pdb", identifier=None, save=False):
     if resource in need_chain_id and identifier is None:
         raise ValueError("Please define chain ID (e.g. 'A') as 'identifier'.")
 
-    # !!! TO-DO:
-    # Add ID conversion to allow Ensembl IDs as input
-    pdb_id = id
-
     # Define URLs for HTTP request
     if resource != "pdb":
         # URLs to request resources other than PDB file
         if identifier is not None:
-            url = f"https://data.rcsb.org/rest/v1/core/{resource}/{pdb_id}/{identifier}"
+            url = f"{RCSB_PDB_API}{resource}/{pdb_id}/{identifier}"
         else:
-            url = f"https://data.rcsb.org/rest/v1/core/{resource}/{pdb_id}"
+            url = f"{RCSB_PDB_API}{resource}/{pdb_id}"
 
     else:
         # URL to request PDB file
