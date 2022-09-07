@@ -8,8 +8,12 @@ ENSEMBL_FTP_URL_PLANT = "http://ftp.ensemblgenomes.org/pub/plants/"
 # NCBI URL for gget info
 NCBI_URL = "https://www.ncbi.nlm.nih.gov"
 
-# UniProt REST API server for gget seq
+# UniProt REST API server for gget seq and info
 UNIPROT_REST_API = "https://rest.uniprot.org/uniprotkb/search?query="
+UNIPROT_IDMAPPING_API = "https://rest.uniprot.org/idmapping"
+
+# RCSB PDB API for gget pdb
+RCSB_PDB_API = "https://data.rcsb.org/rest/v1/core/"
 
 # BLAST API endpoints
 BLAST_URL = "https://blast.ncbi.nlm.nih.gov/Blast.cgi"

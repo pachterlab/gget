@@ -7,9 +7,8 @@
 ![Code Coverage](https://img.shields.io/badge/Coverage-83%25-green.svg)  
 
 ## ✨ What's new
-
+#### Version ≥ 0.3.11: [`gget pdb`](#gget-pdb-)
 #### Version ≥ 0.3.0: [`gget alphafold`](#gget-alphafold-)
-
 #### Version ≥ 0.2.0:
 - JSON is now the default output format for the command-line interface for modules that previously returned data frame (CSV) format by default (the output can be converted to data frame/CSV using flag `[-csv][--csv]`). Data frame/CSV remains the default output for Jupyter Lab / Google Colab (and can be converted to JSON with `json=True`).
 - For all modules, the first required argument was converted to a positional argument and should not be named anymore in the command-line, e.g. `gget ref -s human` &rarr; `gget ref human`.
@@ -53,8 +52,10 @@ Align multiple nucleotide or amino acid sequences to each other using [Muscle5](
 Perform an enrichment analysis on a list of genes using [Enrichr](https://maayanlab.cloud/Enrichr/).
 - [`gget archs4`](#gget-archs4-)  
 Find the most correlated genes to a gene of interest or find the gene's tissue expression atlas using [ARCHS4](https://maayanlab.cloud/archs4/).
+- [`gget pdb`](#gget-pdb-)  
+Get the structure and metadata of a protein from the [RCSB Protein Data Bank](https://www.rcsb.org/). 
 - [`gget alphafold`](#gget-alphafold-)  
-Predict the 3D structure of a protein from its amino acid sequence using a simplified version of [DeepMind](https://www.deepmind.com/)’s [AlphaFold2](https://github.com/deepmind/alphafold).  
+Predict the 3D structure of a protein from its amino acid sequence using a simplified version of [DeepMind](https://www.deepmind.com/)’s [AlphaFold2](https://github.com/deepmind/alphafold).   
 
 
 ## Installation
@@ -72,7 +73,7 @@ import gget
 # Fetch all Homo sapiens reference and annotation FTPs from the latest Ensembl release
 $ gget ref homo_sapiens
 
-# Search human genes with "ace2" or "angiotensin converting enzyme 2" in their name/description
+# Get Ensembl IDs of human genes with "ace2" or "angiotensin converting enzyme 2" in their name/description
 $ gget search -s homo_sapiens 'ace2' 'angiotensin converting enzyme 2'
 
 # Look up gene ENSG00000130234 (ACE2) and its transcript ENST00000252519
@@ -84,7 +85,7 @@ $ gget seq --translate ENSG00000130234
 # Quickly find the genomic location of (the start of) that amino acid sequence
 $ gget blat MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS
 
-# Blast (the start of) that amino acid sequence
+# BLAST (the start of) that amino acid sequence
 $ gget blast MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS
 
 # Align nucleotide or amino acid sequences stored in a FASTA file
@@ -96,10 +97,12 @@ $ gget enrichr -db ontology ACE2 AGT AGTR1 ACE AGTRAP AGTR2 ACE3P
 # Get the human tissue expression of gene ACE2
 $ gget archs4 -w tissue ACE2
 
+# Get the protein structure (in PDB format) of ACE2 as stored in the Protein Data Bank (PDB ID returned by gget info)
+$ gget pdb 1R42
+
 # Predict the protein structure of GFP from its amino acid sequence
 $ gget setup alphafold # setup only needs to be run once
 $ gget alphafold MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK
-
 ```
 Jupyter Lab / Google Colab:
 ```python  
@@ -113,6 +116,7 @@ gget.blast("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")
 gget.muscle("path/to/file.fa")
 gget.enrichr(["ACE2", "AGT", "AGTR1", "ACE", "AGTRAP", "AGTR2", "ACE3P"], database="ontology", plot=True)
 gget.archs4("ACE2", which="tissue")
+gget.pdb("1R42")
 
 gget.setup("alphafold") # setup only needs to be run once
 gget.alphafold("MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK")
@@ -642,7 +646,50 @@ gget.archs4("ACE2", which="tissue")
 #### [More examples](https://github.com/pachterlab/gget_examples)
 
 ___
+## gget pdb 🔮
+Query [RCSB Protein Data Bank (PDB)](https://www.rcsb.org/) for the protein structutre/metadata of a given PDB ID.  
+Return format: Resource 'pdb' is returned in PDB format. All other resources are returned in JSON format.  
 
+**Positional argument**  
+`pdb_id`  
+PDB ID to be queried, e.g. '7S7U'.  
+
+**Optional arguments**  
+ `-r` `--resource`  
+ Defines type of information to be returned. One of the following:  
+ 'pdb': Returns the protein structure in PDB format.  
+ 'entry': Information about PDB structures at the top level of PDB structure hierarchical data organization.  
+ 'pubmed': Get PubMed annotations (data integrated from PubMed) for a given entry's primary citation.  
+ 'assembly': Information about PDB structures at the quaternary structure level.  
+ 'branched_entity': Get branched entity description (define entity ID as 'identifier').  
+ 'nonpolymer_entity': Get non-polymer entity data (define entity ID as 'identifier').  
+ 'polymer_entity': Get polymer entity data (define entity ID as 'identifier').  
+ 'uniprot': Get UniProt annotations for a given macromolecular entity (define entity ID as 'identifier').  
+ 'branched_entity_instance': Get branched entity instance description (define chain ID as 'identifier').  
+ 'polymer_entity_instance': Get polymer entity instance (a.k.a chain) data (define chain ID as 'identifier').  
+ 'nonpolymer_entity_instance': Get non-polymer entity instance description (define chain ID as 'identifier').  
+  
+`-i` `--identifier`  
+Can be used to define assembly, entity or chain ID (default: None). Assembly/entity IDs are numbers (e.g. 1), and chain IDs are letters (e.g. 'A').  
+  
+`-o` `--out`   
+Path to the file the results will be saved in, e.g. path/to/directory/7S7U.pdb or path/to/directory/7S7U_entry.json. Default: Standard out.    
+Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.  
+  
+  
+### Examples
+```bash
+gget pdb 7S7U
+```
+```python
+# Jupyter Lab / Google Colab:
+gget.pdb("7S7U")
+```
+&rarr; Returns the structure of 7S7U in PDB format.
+
+#### [More examples](https://github.com/pachterlab/gget_examples)
+
+___
 ## gget alphafold 🪢
 Predict the 3D structure of a protein from its amino acid sequence using a simplified version of [DeepMind](https://www.deepmind.com/)’s [AlphaFold2](https://github.com/deepmind/alphafold) originally released and benchmarked for [AlphaFold Colab](https://colab.research.google.com/github/deepmind/alphafold/blob/main/notebooks/AlphaFold.ipynb).  
 Returns: Predicted structure (PDB) and alignment error (json).  

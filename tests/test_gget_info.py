@@ -334,6 +334,7 @@ class TestInfo(unittest.TestCase):
             "ENSMMUG00000054106": {
                 "ensembl_id": "ENSMMUG00000054106.1",
                 "uniprot_id": None,
+                "pdb_id": None,
                 "ncbi_gene_id": None,
                 "species": "macaca_mulatta",
                 "assembly_name": "Mmul_10",
@@ -376,6 +377,7 @@ class TestInfo(unittest.TestCase):
             "ENSMMUG00000053116": {
                 "ensembl_id": "ENSMMUG00000053116.1",
                 "uniprot_id": "A0A5F8AEA0",
+                "pdb_id": None,
                 "ncbi_gene_id": None,
                 "species": "macaca_mulatta",
                 "assembly_name": "Mmul_10",
@@ -410,6 +412,7 @@ class TestInfo(unittest.TestCase):
             "ENSMMUT00000091015": {
                 "ensembl_id": "ENSMMUT00000091015.1",
                 "uniprot_id": "A0A5F8AEA0",
+                "pdb_id": None,
                 "ncbi_gene_id": None,
                 "species": "macaca_mulatta",
                 "assembly_name": "Mmul_10",
