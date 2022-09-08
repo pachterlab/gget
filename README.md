@@ -6,21 +6,21 @@
 ![status](https://github.com/pachterlab/gget/workflows/CI/badge.svg)
 ![Code Coverage](https://img.shields.io/badge/Coverage-83%25-green.svg)  
 
-## ✨ What's new
-#### Version ≥ 0.3.11: [`gget pdb`](#gget-pdb-)
-#### Version ≥ 0.3.0: [`gget alphafold`](#gget-alphafold-)
-#### Version ≥ 0.2.0:
-- JSON is now the default output format for the command-line interface for modules that previously returned data frame (CSV) format by default (the output can be converted to data frame/CSV using flag `[-csv][--csv]`). Data frame/CSV remains the default output for Jupyter Lab / Google Colab (and can be converted to JSON with `json=True`).
-- For all modules, the first required argument was converted to a positional argument and should not be named anymore in the command-line, e.g. `gget ref -s human` &rarr; `gget ref human`.
-- `gget info`: `[--expand]` is deprecated. The module will now always return all of the available information.
-- Slight changes to the output returned by `gget info`, including the return of versioned Ensembl IDs.
-- `gget info` and `gget seq` now support 🪱 WormBase and 🪰 FlyBase IDs.
-- `gget archs4` and `gget enrichr` now also take Ensembl IDs as input with added flag `[-e][--ensembl]` (`ensembl=True` in Jupyter Lab / Google Colab).
-- `gget seq` argument `seqtype` was replaced by flag `[-t][--translate]` (`translate=True/False` in Jupyter Lab / Google Colab) which will return either nucleotide (`False`) or amino acid (`True`) sequences.
-- `gget search` argument `seqtype` was renamed to `id_type` for clarity (still taking the same arguments 'gene' or 'transcript').
-- Version ≥ 0.2.6: `gget ref` supports plant genomes! 🌱  
-  
-Note: [UniProt](https://www.uniprot.org/) changed the structure of their API on June 28, 2022. Please upgrade to `gget` version ≥ 0.2.5 if you use any of the modules querying data from UniProt (`gget info` and `gget seq`). The [Ensembl FTP site](http://ftp.ensembl.org/pub/) changed its structure on August 8, 2022. Please upgrade to `gget` version ≥ 0.3.7 if you use `gget ref`.  
+> ## ✨ What's new
+> **Version ≥ 0.3.11: [`gget pdb`](#gget-pdb-)**  
+> **Version ≥ 0.3.0: [`gget alphafold`](#gget-alphafold-)**  
+> **Version ≥ 0.2.0:**  
+> - JSON is now the default output format for the command-line interface for modules that previously returned data frame (CSV) format by default (the output can be converted to data frame/CSV using flag `[-csv][--csv]`). Data frame/CSV remains the default output for Jupyter Lab / Google Colab (and can be converted to JSON with `json=True`).
+> - For all modules, the first required argument was converted to a positional argument and should not be named anymore in the command-line, e.g. `gget ref -s human` &rarr; `gget ref human`.
+> - `gget info`: `[--expand]` is deprecated. The module will now always return all of the available information.
+> - Slight changes to the output returned by `gget info`, including the return of versioned Ensembl IDs.
+> - `gget info` and `gget seq` now support 🪱 WormBase and 🪰 FlyBase IDs.
+> - `gget archs4` and `gget enrichr` now also take Ensembl IDs as input with added flag `[-e][--ensembl]` (`ensembl=True` in Jupyter Lab / Google Colab).
+> - `gget seq` argument `seqtype` was replaced by flag `[-t][--translate]` (`translate=True/False` in Jupyter Lab / Google Colab) which will return either nucleotide (`False`) or amino acid (`True`) sequences.
+> - `gget search` argument `seqtype` was renamed to `id_type` for clarity (still taking the same arguments 'gene' or 'transcript').
+> - Version ≥ 0.2.6: `gget ref` supports plant genomes! 🌱  
+>  
+> **NOTE:** [UniProt](https://www.uniprot.org/) changed the structure of their API on June 28, 2022. Please upgrade to `gget` version ≥ 0.2.5 if you use any of the modules querying data from UniProt (`gget info` and `gget seq`). The [Ensembl FTP site](http://ftp.ensembl.org/pub/) changed its structure on August 8, 2022. Please upgrade to `gget` version ≥ 0.3.7 if you use `gget ref`.  
 ___
 
 `gget` is a free, open-source command-line tool and Python package that enables efficient querying of genomic databases. `gget`  consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.  
@@ -98,7 +98,7 @@ $ gget enrichr -db ontology ACE2 AGT AGTR1 ACE AGTRAP AGTR2 ACE3P
 $ gget archs4 -w tissue ACE2
 
 # Get the protein structure (in PDB format) of ACE2 as stored in the Protein Data Bank (PDB ID returned by gget info)
-$ gget pdb 1R42
+$ gget pdb 1R42 -o 1R42.pdb
 
 # Predict the protein structure of GFP from its amino acid sequence
 $ gget setup alphafold # setup only needs to be run once
@@ -116,7 +116,7 @@ gget.blast("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")
 gget.muscle("path/to/file.fa")
 gget.enrichr(["ACE2", "AGT", "AGTR1", "ACE", "AGTRAP", "AGTR2", "ACE3P"], database="ontology", plot=True)
 gget.archs4("ACE2", which="tissue")
-gget.pdb("1R42")
+gget.pdb("1R42", save=True)
 
 gget.setup("alphafold") # setup only needs to be run once
 gget.alphafold("MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK")
@@ -679,13 +679,13 @@ Jupyter Lab / Google Colab: `save=True` will save the output in the current work
   
 ### Examples
 ```bash
-gget pdb 7S7U
+gget pdb 7S7U -o 7S7U.pdb
 ```
 ```python
 # Jupyter Lab / Google Colab:
-gget.pdb("7S7U")
+gget.pdb("7S7U", save=True)
 ```
-&rarr; Returns the structure of 7S7U in PDB format.
+&rarr; Saves the structure of 7S7U in PDB format as '7S7U.pdb' in the current working directory.
 
 #### [More examples](https://github.com/pachterlab/gget_examples)
 
