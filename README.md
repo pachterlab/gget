@@ -657,7 +657,7 @@ PDB ID to be queried, e.g. '7S7U'.
 **Optional arguments**  
  `-r` `--resource`  
  Defines type of information to be returned. One of the following:  
- 'pdb': Returns the protein structure in PDB format.  
+ 'pdb': Returns the protein structure in PDB format (default).    
  'entry': Information about PDB structures at the top level of PDB structure hierarchical data organization.  
  'pubmed': Get PubMed annotations (data integrated from PubMed) for a given entry's primary citation.  
  'assembly': Information about PDB structures at the quaternary structure level.  
