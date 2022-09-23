@@ -3,8 +3,6 @@ import filecmp
 import os
 from gget.gget_pdb import pdb
 
-from .fixtures import PDB_POLYMER_ENTITY
-
 
 class TestPDB(unittest.TestCase):
     def test_pdb_assembly(self):
