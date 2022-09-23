@@ -2728,12 +2728,12 @@ ARCHS4_PHF14_TISSUE_ENSEMBL_MOUSE = [
 
 PDB_POLYMER_ENTITY = {
     "rcsb_cluster_membership": [
-        {"cluster_id": 82667, "identity": 100},
-        {"cluster_id": 40605, "identity": 95},
-        {"cluster_id": 42698, "identity": 90},
-        {"cluster_id": 9401, "identity": 70},
-        {"cluster_id": 5950, "identity": 50},
-        {"cluster_id": 715, "identity": 30},
+        {"cluster_id": 72912, "identity": 100},
+        {"cluster_id": 56422, "identity": 95},
+        {"cluster_id": 43721, "identity": 90},
+        {"cluster_id": 9331, "identity": 70},
+        {"cluster_id": 5842, "identity": 50},
+        {"cluster_id": 720, "identity": 30},
     ],
     "entity_poly": {
         "nstd_linkage": "no",
@@ -4623,34 +4623,34 @@ PDB_POLYMER_ENTITY = {
     "rcsb_id": "4G22_1",
     "rcsb_polymer_entity_group_membership": [
         {
-            "group_id": "82667_100",
+            "group_id": "56422_95",
             "aggregation_method": "sequence_identity",
-            "similarity_cutoff": 100.0,
+            "similarity_cutoff": 95.0,
         },
         {
-            "group_id": "42698_90",
-            "aggregation_method": "sequence_identity",
-            "similarity_cutoff": 90.0,
-        },
-        {
-            "group_id": "9401_70",
-            "aggregation_method": "sequence_identity",
-            "similarity_cutoff": 70.0,
-        },
-        {
-            "group_id": "5950_50",
+            "group_id": "5842_50",
             "aggregation_method": "sequence_identity",
             "similarity_cutoff": 50.0,
         },
         {
-            "group_id": "715_30",
+            "group_id": "720_30",
             "aggregation_method": "sequence_identity",
             "similarity_cutoff": 30.0,
         },
         {
-            "group_id": "40605_95",
+            "group_id": "43721_90",
             "aggregation_method": "sequence_identity",
-            "similarity_cutoff": 95.0,
+            "similarity_cutoff": 90.0,
+        },
+        {
+            "group_id": "9331_70",
+            "aggregation_method": "sequence_identity",
+            "similarity_cutoff": 70.0,
+        },
+        {
+            "group_id": "72912_100",
+            "aggregation_method": "sequence_identity",
+            "similarity_cutoff": 100.0,
         },
         {"group_id": "A4ZKE4", "aggregation_method": "matching_uniprot_accession"},
     ],
