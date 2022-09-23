@@ -254,11 +254,6 @@ class TestPDB(unittest.TestCase):
         }
         self.assertEqual(result_to_test, expected_result)
 
-    def test_pdb_polymer_entity(self):
-        result_to_test = pdb("4G22", resource="polymer_entity", identifier=1)
-        expected_result = PDB_POLYMER_ENTITY
-        self.assertEqual(result_to_test, expected_result)
-
     def test_pdb_uniprot(self):
         result_to_test = pdb("4G22", resource="uniprot", identifier=1)
         expected_result = [
