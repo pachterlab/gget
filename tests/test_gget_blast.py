@@ -11,7 +11,7 @@ class TestBlast(unittest.TestCase):
         result_to_test = df.values.tolist()
         expected_result = [
             [
-                "PREDICTED: Homo sapiens uncharacterized LOC105373836 (LOC105373836), transcript variant X2, ncRNA",
+                "Homo sapiens CASP8 and FADD like apoptosis regulator (CFLAR), RefSeqGene on chromosome 2",
                 "Homo sapiens",
                 "human",
                 9606,
@@ -20,8 +20,8 @@ class TestBlast(unittest.TestCase):
                 "100%",
                 7e-54,
                 "100.00%",
-                2137,
-                "XR_923785.3",
+                67524,
+                "NG_029005.2",
             ]
         ]
         self.assertListEqual(result_to_test, expected_result)
