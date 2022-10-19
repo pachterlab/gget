@@ -65,6 +65,7 @@ class TestUtils(unittest.TestCase):
                 ["HFH2"],
                 "Forkhead box protein D3",
                 "Binds to the consensus sequence 5'-A[AT]T[AG]TTTGTTT-3' and acts as a transcriptional repressor. Also acts as a transcriptional activator. Promotes development of neural crest cells from neural tube progenitors. Restricts neural progenitor cells to the neural crest lineage while suppressing interneuron differentiation. Required for maintenance of pluripotent cells in the pre-implantation and peri-implantation stages of embryogenesis",
+                ["Nucleus"],
                 "ENSG00000187140",
             ]
         ]
@@ -84,6 +85,7 @@ class TestUtils(unittest.TestCase):
                 [unittest.mock.ANY],
                 "Transcription factor SOX-2",
                 "Transcription factor that forms a trimeric complex with OCT4 on DNA and controls the expression of a number of genes involved in embryonic development such as YES1, FGF4, UTF1 and ZFP206 (By similarity). Binds to the proximal enhancer region of NANOG (By similarity). Critical for early embryogenesis and for embryonic stem cell pluripotency (PubMed:18035408). Downstream SRRT target that mediates the promotion of neural stem cell self-renewal (By similarity). Keeps neural cells undifferentiated by counteracting the activity of proneural proteins and suppresses neuronal differentiation (By similarity). May function as a switch in neuronal development (By similarity)",
+                ["Nucleus speckle", "Cytoplasm", "Nucleus"],
                 "ENST00000325404.3",
             ]
         ]

@@ -243,7 +243,7 @@ def info(ens_ids, wrap_text=False, expand=False, json=False, verbose=True, save=
             ncbi_synonyms = None
 
         # If both NCBI and UniProt synonyms available,
-        # final synonyms list will be combined a set of both lists
+        # final synonyms list will be combined set of both lists
         if ncbi_synonyms is not None and not isinstance(df_uniprot, type(None)):
             # Collect and flatten UniProt synonyms
             uni_synonyms = df_uniprot["uni_synonyms"].values[0]
@@ -313,6 +313,7 @@ def info(ens_ids, wrap_text=False, expand=False, json=False, verbose=True, save=
             "ensembl_description",
             "uniprot_description",
             "ncbi_description",
+            "subcellular_localisation",
             "object_type",
             "biotype",
             "canonical_transcript",

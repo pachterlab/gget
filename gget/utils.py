@@ -330,6 +330,28 @@ def get_uniprot_info(server, ensembl_id, verbose=True):
             descriptions.append(des_temp)
         df["uniprot_description"] = descriptions
 
+        # Get subcellular localisations for each result
+        subcel_locs_final = []
+        for i in np.arange(len(json["results"])):
+            subcel_locs = []
+            try:
+                for comment_idx in np.arange(len(json["results"][i]["comments"])):
+                    comment_json = json["results"][i]["comments"][comment_idx]
+                    if comment_json["commentType"] == "SUBCELLULAR LOCATION":
+                        for location_dict in comment_json["subcellularLocations"]:
+                            subcel_locs.append(location_dict["location"]["value"])
+            except:
+                pass
+            subcel_locs_final.append(subcel_locs)
+
+        if any(subcel_locs_final):
+            df["subcellular_localisation"] = subcel_locs_final
+        else:
+            # No subcellular localisation data will return as nan
+            nan_list = np.empty(len(subcel_locs_final))
+            nan_list[:] = np.NaN
+            df["subcellular_localisation"] = nan_list
+
         # Add query colunm
         df["query"] = ensembl_id
 
@@ -337,8 +359,8 @@ def get_uniprot_info(server, ensembl_id, verbose=True):
         if len(df) > 1:
             final_df = pd.DataFrame()
             for column in df.columns:
-                if column == "uni_synonyms":
-                    # Flatten synonym lists
+                if column == "uni_synonyms" or column == "subcellular_localisation":
+                    # Flatten synonym and subcellular_localisation lists
                     syn_lists = df[column].values
                     try:
                         flat_list = [item for sublist in syn_lists for item in sublist]
