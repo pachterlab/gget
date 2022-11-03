@@ -1,7 +1,7 @@
 # Summary
 
 [Introduction](./introduction.md)  
-[What's new](./updates.md)  
+[What's new?](./updates.md)  
 [Installation](./install.md)  
 [Modules](./modules.md)  
 [🪄 Quick start guide](./quick_start_guide.md)  
@@ -18,3 +18,5 @@
 [`gget archs4`](./archs4.md)  
 [`gget pdb`](./pdb.md)  
 [`gget alphafold`](./alphafold.md)  
+
+[Terms of Use](./cite.md)  
