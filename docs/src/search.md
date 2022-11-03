@@ -1,9 +1,9 @@
-Jupyter Lab / Google Colab arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Jupyter Lab / Google Colab.  
+Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python.  
 The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
 
 ## gget search 🔎
 Fetch genes and transcripts from [Ensembl](https://www.ensembl.org/) using free-form search terms.   
-Return format: JSON (command-line) or data frame/CSV (Jupyter Lab / Google Colab).
+Return format: JSON (command-line) or data frame/CSV (Python).
 
 **Positional argument**
 `searchwords`   
@@ -32,15 +32,15 @@ Limits the number of search results, e.g. 10. Default: None.
 
 `-o` `--out`  
 Path to the csv the results will be saved in, e.g. path/to/directory/results.csv (or .json). Default: Standard out.   
-Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
+Python: `save=True` will save the output in the current working directory.
 
 **Flags**  
 `-csv` `--csv`  
 Command-line only. Returns results in CSV format.  
-Jupyter Lab / Google Colab: Use `json=True` to return output in JSON format.
+Python: Use `json=True` to return output in JSON format.
 
 `wrap_text`  
-Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).  
+Python only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).  
   
     
 ### Example
@@ -48,7 +48,7 @@ Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapp
 gget search -s human gaba gamma-aminobutyric
 ```
 ```python
-# Jupyter Lab / Google Colab:
+# Python
 gget.search(["gaba", "gamma-aminobutyric"], "homo_sapiens")
 ```
 &rarr; Returns all genes that contain at least one of the search words in their name or Ensembl/external reference description:
