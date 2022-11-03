@@ -12,7 +12,7 @@ One or more Ensembl IDs.
 **Optional arguments**  
 `-o` `--out`   
 Path to the file the results will be saved in, e.g. path/to/directory/results.fa. Default: Standard out.   
-Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
+Python: `save=True` will save the output in the current working directory.
 
 **Flags**  
 `-t` `--translate`  
@@ -30,7 +30,7 @@ Returns the sequences of all known transcripts.
 gget seq ENSG00000034713 ENSG00000104853 ENSG00000170296
 ```
 ```python
-# Jupyter Lab / Google Colab:
+# Python
 gget.seq(["ENSG00000034713", "ENSG00000104853", "ENSG00000170296"])
 ```
 &rarr; Returns the nucleotide sequences of ENSG00000034713, ENSG00000104853, and ENSG00000170296 in FASTA format.  
@@ -40,7 +40,7 @@ gget.seq(["ENSG00000034713", "ENSG00000104853", "ENSG00000170296"])
 gget seq -t -iso ENSG00000034713
 ```
 ```python
-# Jupyter Lab / Google Colab:
+# Python
 gget.seq("ENSG00000034713", translate=True, isoforms=True)
 ```
 &rarr; Returns the amino acid sequences of all known transcripts of ENSG00000034713 in FASTA format.
