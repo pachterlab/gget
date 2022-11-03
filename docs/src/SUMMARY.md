@@ -1,10 +1,10 @@
 # Summary
 
 [Introduction](./introduction.md)  
-[What's new?](./updates.md)  
+[What's New?](./updates.md)  
 [Installation](./install.md)  
 [Modules](./modules.md)  
-[🪄 Quick start guide](./quick_start_guide.md)  
+[Quick Start Guide](./quick_start_guide.md)  
 [Terms of Use](./cite.md)  
 
 # Manual
