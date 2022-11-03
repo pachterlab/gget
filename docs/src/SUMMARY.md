@@ -5,6 +5,7 @@
 [Installation](./install.md)  
 [Modules](./modules.md)  
 [🪄 Quick start guide](./quick_start_guide.md)  
+[Terms of Use](./cite.md)  
 
 # Manual
 [`gget ref`](./ref.md)  
@@ -19,5 +20,3 @@
 [`gget pdb`](./pdb.md)  
 [`gget alphafold`](./alphafold.md)  
 [`gget setup`](./setup.md)  
-
-[Terms of Use](./cite.md)  
