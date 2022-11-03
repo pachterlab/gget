@@ -1,0 +1,6 @@
+[book]
+authors = ["laura luebbert"]
+language = "en"
+multilingual = false
+src = "src"
+title = "gget"
