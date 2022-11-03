@@ -18,5 +18,6 @@
 [`gget archs4`](./archs4.md)  
 [`gget pdb`](./pdb.md)  
 [`gget alphafold`](./alphafold.md)  
+[`gget setup`](./setup.md)  
 
 [Terms of Use](./cite.md)  
