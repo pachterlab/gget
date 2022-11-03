@@ -1,10 +1,10 @@
 # Summary
 
-- [Introduction](./introduction.md)  
-- [What's New?](./updates.md)  
-- [Installation](./install.md)  
-- [Modules](./modules.md)  
-- [Quick Start Guide](./quick_start_guide.md)  
+[Introduction](./introduction.md)  
+[What's New?](./updates.md)  
+[Installation](./install.md)  
+[Modules](./modules.md)  
+[Quick Start Guide](./quick_start_guide.md)  
 
 # User Guide
 - [gget ref](./ref.md)  
@@ -20,4 +20,6 @@
 - [gget alphafold](./alphafold.md)  
 - [gget setup](./setup.md)  
 
-- [Terms of Use](./cite.md)  
+---
+
+[Terms of Use](./cite.md)  
