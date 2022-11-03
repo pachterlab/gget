@@ -20,5 +20,4 @@
 - [gget alphafold](./alphafold.md)  
 - [gget setup](./setup.md)  
 
-___
 - [Terms of Use](./cite.md)  
