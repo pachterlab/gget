@@ -1,4 +1,4 @@
-Jupyter Lab / Google Colab arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Jupyter Lab / Google Colab.  
+Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python.  
 The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
 
 ## gget ref 📖
@@ -27,11 +27,11 @@ Defines the Ensembl release number from which the files are fetched, e.g. 104. D
 
 `-o` `--out`    
 Path to the JSON file the results will be saved in, e.g. path/to/directory/results.json. Default: Standard out.  
-Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
+Python: `save=True` will save the output in the current working directory.
 
 **Flags**  
 `-l` `--list_species`   
-Lists all available species. (Jupyter Lab / Google Colab: combine with `species=None`.)  
+Lists all available species. (Python: combine with `species=None`.)  
 
 `-ftp` `--ftp`   
 Returns only the requested FTP links.  
@@ -52,7 +52,7 @@ List all available genomes from Ensembl release 103:
 gget ref --list_species -r 103
 ```
 ```python
-# Jupyter Lab / Google Colab:
+# Python
 gget.ref(species=None, list_species=True, release=103)
 ```
 &rarr; Returns a list with all available genomes (checks if GTF and FASTAs are available) from Ensembl release 103.   
@@ -63,7 +63,7 @@ Get the genome reference for a specific species:
 gget ref -w gtf,dna homo_sapiens
 ```
 ```python
-# Jupyter Lab / Google Colab:
+# Python
 gget.ref("homo_sapiens", which=["gtf", "dna"])
 ```
 &rarr; Returns a JSON with the latest human GTF and FASTA FTPs, and their respective metadata, in the format:
