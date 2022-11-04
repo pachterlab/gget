@@ -8,7 +8,7 @@ Alternative:
 ```bash
 conda install -c bioconda gget
 ```
-
+  
 For use in Jupyter Lab / Google Colab:
 ```python
 import gget
