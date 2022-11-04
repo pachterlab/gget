@@ -21,8 +21,8 @@ Amino acid sequences are fetched from [UniProt](https://www.uniprot.org/).
 `-iso` `--isoforms`   
 Returns the sequences of all known transcripts.  
 (Only for gene IDs.)
-   
-  
+
+
 ### Examples  
 ```bash
 gget seq ENSG00000034713 ENSG00000104853 ENSG00000170296
@@ -32,8 +32,8 @@ gget seq ENSG00000034713 ENSG00000104853 ENSG00000170296
 gget.seq(["ENSG00000034713", "ENSG00000104853", "ENSG00000170296"])
 ```
 &rarr; Returns the nucleotide sequences of ENSG00000034713, ENSG00000104853, and ENSG00000170296 in FASTA format.  
-  
-   
+
+
 ```bash
 gget seq -t -iso ENSG00000034713
 ```
