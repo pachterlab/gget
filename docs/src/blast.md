@@ -61,7 +61,7 @@ gget.blast("MKWMFKEDHSLEHRCVESAKIRAKYPDRVPVIVEKVSGSQIVDIDKRKYLVPSDITVAQFMWIIRKRI
 | . . . | . . . | . . . | . . . | . . . | . . . | . . . | ... | 
 
 
-BLAST from .fa or .txt file:  
+**BLAST from .fa or .txt file:**  
 ```bash
 gget blast fasta.fa
 ```
