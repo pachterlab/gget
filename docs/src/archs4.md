@@ -1,6 +1,4 @@
-Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python.  
-The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
-  
+> Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
 ## gget archs4 🐁
 Find the most correlated genes to a gene of interest or find the gene's tissue expression atlas using [ARCHS4](https://maayanlab.cloud/archs4/).  
 Return format: JSON (command-line) or data frame/CSV (Python).
@@ -49,6 +47,7 @@ gget.archs4("ACE2")
 | SLC5A1 | 0.579634 | 	
 | CYP2C18 | 0.576577 | 	
 | . . . | . . . | 	
+  
 
 ```bash
 gget archs4 -w tissue ACE2
