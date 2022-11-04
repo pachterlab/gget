@@ -44,8 +44,8 @@ Command-line only. Downloads the requested FTPs to the current directory (requir
 kb ref -i INDEX -g T2G -f1 FASTA $(gget ref --ftp -w dna,gtf homo_sapiens)
 ```
 &rarr; kb ref builds a reference index using the latest DNA and GTF files of species **Homo sapiens** passed to it by `gget ref`.  
-  
-   
+
+
 List all available genomes from Ensembl release 103:  
 ```bash
 gget ref --list_species -r 103
@@ -56,8 +56,8 @@ gget.ref(species=None, list_species=True, release=103)
 ```
 &rarr; Returns a list with all available genomes (checks if GTF and FASTAs are available) from Ensembl release 103.   
 (If no release is specified, `gget ref` will always return information from the latest Ensembl release.)  
-   
-   
+
+
 Get the genome reference for a specific species:   
 ```bash
 gget ref -w gtf,dna homo_sapiens
