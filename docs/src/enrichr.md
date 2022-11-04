@@ -1,6 +1,4 @@
-Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python.  
-The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
-  
+> Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
 ## gget enrichr 💰
 Perform an enrichment analysis on a list of genes using [Enrichr](https://maayanlab.cloud/Enrichr/).  
 Return format: JSON (command-line) or data frame/CSV (Python).
