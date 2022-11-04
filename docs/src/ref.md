@@ -1,6 +1,4 @@
-Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python.  
-The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
-
+> Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
 ## gget ref 📖
 Fetch FTPs and their respective metadata (or use flag `ftp` to only return the links) for reference genomes and annotations from [Ensembl](https://www.ensembl.org/) by species.  
 Return format: dictionary/JSON.
@@ -8,7 +6,7 @@ Return format: dictionary/JSON.
 **Positional argument**  
 `species`  
 Species for which the FTPs will be fetched in the format genus_species, e.g. homo_sapiens.  
-Note: Not required when calling flag [--list_species].   
+Note: Not required when calling flag `--list_species`.   
 Supported shortcuts: 'human', 'mouse'
 
 **Optional arguments**  
@@ -47,6 +45,7 @@ kb ref -i INDEX -g T2G -f1 FASTA $(gget ref --ftp -w dna,gtf homo_sapiens)
 ```
 &rarr; kb ref builds a reference index using the latest DNA and GTF files of species **Homo sapiens** passed to it by `gget ref`.  
   
+   
 List all available genomes from Ensembl release 103:  
 ```bash
 gget ref --list_species -r 103
@@ -57,7 +56,8 @@ gget.ref(species=None, list_species=True, release=103)
 ```
 &rarr; Returns a list with all available genomes (checks if GTF and FASTAs are available) from Ensembl release 103.   
 (If no release is specified, `gget ref` will always return information from the latest Ensembl release.)  
-  
+   
+   
 Get the genome reference for a specific species:   
 ```bash
 gget ref -w gtf,dna homo_sapiens
