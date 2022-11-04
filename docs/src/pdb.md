@@ -39,7 +39,8 @@ gget pdb 7S7U -o 7S7U.pdb
 gget.pdb("7S7U", save=True)
 ```
 &rarr; Saves the structure of 7S7U in PDB format as '7S7U.pdb' in the current working directory.
-  
+
+
 ```bash
 # Find PDB IDs associated with an Ensembl ID 
 gget info ENSG00000130234
