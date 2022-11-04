@@ -48,9 +48,7 @@ gget.blast("MAAHKGAEHHHKAAEHHEQAAKHHHAAAEHHEKGEHEQAAHHADTAYAHHKHAEEHAAQAAKHDAEHH
 gget.pdb("3UQ3", save=True)
 gget.pdb("2K42", save=True)
 ```
-&rarr; `gget alphafold` returns the predicted structure (PDB) and predicted alignment error (.json) in a new folder ("./[date_time]_gget_alphafold_prediction"). The use case above exemplifies how to use [`gget blast`](blast.md) and [`gget pdb`](pdb.md) for a comparative analysis of the new prediction. PDB files can be viewed interactively in 3D [online](https://rcsb.org/3d-view), or using programs like [PyMOL](https://pymol.org/) or [Blender](https://www.blender.org/). To compare two PDB files, you can use [this website](https://rcsb.org/alignment). The Python interface also returns the following plots, which can be generated from the PDB and JSON as described in the [gget alphafold FAQ](https://github.com/pachterlab/gget/discussions/39) Q4:
-
-https://user-images.githubusercontent.com/56094636/182939299-36ac2a8f-0560-4a64-b1f8-6cff39ef2a75.mp4
+&rarr; `gget alphafold` returns the predicted structure (PDB) and predicted alignment error (.json) in a new folder ("./[date_time]_gget_alphafold_prediction"). The use case above exemplifies how to use [`gget blast`](blast.md) and [`gget pdb`](pdb.md) for a comparative analysis of the new prediction. PDB files can be viewed interactively in 3D [online](https://rcsb.org/3d-view), or using programs like [PyMOL](https://pymol.org/) or [Blender](https://www.blender.org/). To compare two PDB files, you can use [this website](https://rcsb.org/alignment). The Python interface also returns [interactive plots](https://twitter.com/NeuroLuebbert/status/1555968042948915200), which can be generated from the PDB and JSON as described in the [gget alphafold FAQ](https://github.com/pachterlab/gget/discussions/39) Q4.
 
 #### [Example in Google Colab](https://github.com/pachterlab/gget_examples/blob/main/gget_alphafold.ipynb)
 #### Also see: [gget alphafold FAQ](https://github.com/pachterlab/gget/discussions/39)
