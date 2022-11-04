@@ -47,7 +47,8 @@ gget.archs4("ACE2")
 | SLC5A1 | 0.579634 | 	
 | CYP2C18 | 0.576577 | 	
 | . . . | . . . | 	
-  
+
+
 
 ```bash
 gget archs4 -w tissue ACE2
