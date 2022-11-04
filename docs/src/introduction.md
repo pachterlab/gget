@@ -15,4 +15,6 @@ If you use `gget` in a publication, please [cite*](cite.md):
 ```
 Luebbert, L. & Pachter, L. (2022). Efficient querying of genomic reference databases with gget. bioRxiv 2022.05.17.492392
 ```
-Read the manuscript here: [https://doi.org/10.1101/2022.05.17.492392](https://doi.org/10.1101/2022.05.17.492392)
+Read the manuscript here: [https://doi.org/10.1101/2022.05.17.492392](https://doi.org/10.1101/2022.05.17.492392)  
+
+[Github Repo](https://github.com/pachterlab/gget)
