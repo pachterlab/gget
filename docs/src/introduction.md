@@ -17,4 +17,4 @@ Luebbert, L. & Pachter, L. (2022). Efficient querying of genomic reference datab
 ```
 Read the manuscript here: [https://doi.org/10.1101/2022.05.17.492392](https://doi.org/10.1101/2022.05.17.492392)  
 
-[Github Repo](https://github.com/pachterlab/gget)
+[:octocat: Github Repo](https://github.com/pachterlab/gget)
