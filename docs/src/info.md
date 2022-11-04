@@ -1,9 +1,7 @@
-Jupyter Lab / Google Colab arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Jupyter Lab / Google Colab.  
-The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
-
+> Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
 ## gget info 💡
 Fetch extensive gene and transcript metadata from [Ensembl](https://www.ensembl.org/), [UniProt](https://www.uniprot.org/), and [NCBI](https://www.ncbi.nlm.nih.gov/) using Ensembl IDs.  
-Return format: JSON (command-line) or data frame/CSV (Jupyter Lab / Google Colab).
+Return format: JSON (command-line) or data frame/CSV (Python).
 
 **Positional argument**  
 `ens_ids`   
@@ -12,19 +10,19 @@ One or more Ensembl IDs.
 **Optional arguments**  
 `-o` `--out`   
 Path to the file the results will be saved in, e.g. path/to/directory/results.csv (or .json). Default: Standard out.    
-Jupyter Lab / Google Colab: `save=True` will save the output in the current working directory.
+Python: `save=True` will save the output in the current working directory.
 
 **Flags**  
 `-q` `--quiet`   
 Command-line only. Prevents progress information from being displayed.  
-Jupyter Lab / Google Colab: Use `verbose=False` to prevent progress information from being displayed.  
+Python: Use `verbose=False` to prevent progress information from being displayed.  
 
 `-csv` `--csv`  
 Command-line only. Returns results in CSV format.  
-Jupyter Lab / Google Colab: Use `json=True` to return output in JSON format.
+Python: Use `json=True` to return output in JSON format.
 
 `wrap_text`  
-Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).  
+Python only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).  
 
   
 ### Example
@@ -32,7 +30,7 @@ Jupyter Lab / Google Colab only. `wrap_text=True` displays data frame with wrapp
 gget info ENSG00000034713 ENSG00000104853 ENSG00000170296
 ```
 ```python
-# Jupyter Lab / Google Colab:
+# Python
 gget.info(["ENSG00000034713", "ENSG00000104853", "ENSG00000170296"])
 ```
 &rarr; Returns extensive information about each requested Ensembl ID:  
