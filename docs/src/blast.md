@@ -1,6 +1,4 @@
-Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python.  
-The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
-  
+> Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python.  The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
 ## gget blast 💥
 BLAST a nucleotide or amino acid sequence to any [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi) database.  
 Return format: JSON (command-line) or data frame/CSV (Python).
@@ -61,7 +59,7 @@ gget.blast("MKWMFKEDHSLEHRCVESAKIRAKYPDRVPVIVEKVSGSQIVDIDKRKYLVPSDITVAQFMWIIRKRI
 | -------------- |-------------------------| ------------------------| -------------- | ----------|-----|---|---|
 | PREDICTED: gamma-aminobutyric acid receptor-as...| Colobus angolensis palliatus	 | 	NaN | 336983 | 180	 | 180 | 100% | ... |
 | . . . | . . . | . . . | . . . | . . . | . . . | . . . | ... | 
-
+  
 BLAST from .fa or .txt file:  
 ```bash
 gget blast fasta.fa
