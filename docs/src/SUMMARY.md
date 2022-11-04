@@ -4,7 +4,7 @@
 [What's New?](updates.md)  
 
 # User Guide
-- [Installation](install.md)  
+- [Installation](installation.md)  
 - [Modules](modules.md)  
 - [Quick Start Guide](quick_start_guide.md)  
 
