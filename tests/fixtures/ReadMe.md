@@ -1,4 +1,4 @@
-Format of dictionaries containing arguments and expected results:
+Format of dictionaries containing arguments and expected results:  
 ```
 {
     "test1": {
@@ -28,9 +28,9 @@ Format of dictionaries containing arguments and expected results:
 }
 ```
 
-Note: Results returned in a DataFrame format need to be converted to a list (df.values.tolist()).
+Note: Results returned in a DataFrame format need to be converted to a list (df.values.tolist()).  
 
-Test types:
-assert_equal -> assertListEqual
-none -> Expected result is None
-error -> Expected result is a specified error
+Test types:  
+assert_equal -> assertListEqual  
+none -> Expected result is None  
+error -> Expected result is a specified error  
