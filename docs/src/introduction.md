@@ -4,7 +4,7 @@
 [![license](https://img.shields.io/pypi/l/gget)](LICENSE)
 ![status](https://github.com/pachterlab/gget/workflows/CI/badge.svg)
 ![Code Coverage](https://img.shields.io/badge/Coverage-83%25-green.svg)
-[![Star on GitHub](https://img.shields.io/github/stars/pachterlab/gget.svg?style=social)](https://github.com/pachterlab/gget/stargazers)  
+[![Star on GitHub](https://img.shields.io/github/stars/pachterlab/gget.svg?style=social)](https://github.com/pachterlab/gget/)  
 
 `gget` is a free, open-source command-line tool and Python package that enables efficient querying of genomic databases. `gget`  consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.  
 
@@ -18,4 +18,3 @@ Luebbert, L. & Pachter, L. (2022). Efficient querying of genomic reference datab
 ```
 Read the manuscript here: [https://doi.org/10.1101/2022.05.17.492392](https://doi.org/10.1101/2022.05.17.492392)  
 
-[Github Repo](https://github.com/pachterlab/gget)
