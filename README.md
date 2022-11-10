@@ -33,6 +33,7 @@ import gget
 # [🔗 Manual](https://pachterlab.github.io/gget) 
 
 # 🪄 Quick start guide
+Command line:
 ```bash
 # Fetch all Homo sapiens reference and annotation FTPs from the latest Ensembl release
 $ gget ref homo_sapiens
@@ -68,7 +69,7 @@ $ gget pdb 1R42 -o 1R42.pdb
 $ gget setup alphafold # setup only needs to be run once
 $ gget alphafold MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK
 ```
-Jupyter Lab / Google Colab:
+Python (Jupyter Lab / Google Colab):
 ```python  
 import gget
 gget.ref("homo_sapiens")
@@ -84,5 +85,23 @@ gget.pdb("1R42", save=True)
 
 gget.setup("alphafold") # setup only needs to be run once
 gget.alphafold("MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK")
+```
+Use `gget` in R using [reticulate](https://rstudio.github.io/reticulate/):
+```
+system("pip install gget")
+install.packages("reticulate")
+library(reticulate)
+gget <- import("gget")
+
+gget$ref("homo_sapiens")
+gget$search(list("ace2", "angiotensin converting enzyme 2"), "homo_sapiens")
+gget$info(list("ENSG00000130234", "ENST00000252519"))
+gget$seq("ENSG00000130234", translate=TRUE)
+gget$blat("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")
+gget$blast("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")
+gget$muscle("path/to/file.fa", out="path/to/out.afa")
+gget$enrichr(list("ACE2", "AGT", "AGTR1", "ACE", "AGTRAP", "AGTR2", "ACE3P"), database="ontology")
+gget$archs4("ACE2", which="tissue")
+gget$pdb("1R42", save=TRUE)
 ```
 #### [More examples](https://github.com/pachterlab/gget_examples)
