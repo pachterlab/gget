@@ -262,12 +262,12 @@ def main():
         help="One or more Ensembl, WormBase or FlyBase IDs).",
     )
     parser_info.add_argument(
-        "-e",
-        "--expand",
+        "-eo",
+        "--ensembl_only",
         default=False,
         action="store_true",
         required=False,
-        help=("DEPRECATED - gget info now always returns all available information."),
+        help="Only return results from Ensembl.",
     )
     parser_info.add_argument(
         "-csv",
@@ -311,6 +311,14 @@ def main():
         action="store_true",
         required=False,
         help="DEPRECATED - json is now the default output format (convert to csv using flag [--csv]).",
+    )
+    parser_info.add_argument(
+        "-e",
+        "--expand",
+        default=False,
+        action="store_true",
+        required=False,
+        help=("DEPRECATED - gget info now always returns all available information."),
     )
 
     ## gget seq subparser
@@ -1421,7 +1429,11 @@ def main():
 
         # Look up requested Ensembl IDs
         info_results = info(
-            ids_clean_final, expand=args.expand, json=args.csv, verbose=args.quiet
+            ids_clean_final,
+            ensembl_only=args.ensembl_only,
+            expand=args.expand,
+            json=args.csv,
+            verbose=args.quiet,
         )
 
         # Check if the function returned something
