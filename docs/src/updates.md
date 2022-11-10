@@ -1,6 +1,13 @@
 ## ✨ What's new
+**Version ≥ 0.3.12:**
+- [`gget info`](./info.md) now also returns subcellular localisation data from UniProt
+- New [`gget info`](./info.md) flag `ensembl_only` returns only Ensembl results
+- Reduced runtime for [`gget info`](./info.md) and [`gget seq`](./seq.md)
+
 **Version ≥ 0.3.11: [`gget pdb`](./pdb.md)**  
+
 **Version ≥ 0.3.0: [`gget alphafold`](./alphafold.md)**  
+
 **Version ≥ 0.2.0:**  
 - JSON is now the default output format for the command-line interface for modules that previously returned data frame (CSV) format by default (the output can be converted to data frame/CSV using flag `[-csv][--csv]`). Data frame/CSV remains the default output for Jupyter Lab / Google Colab (and can be converted to JSON with `json=True`).
 - For all modules, the first required argument was converted to a positional argument and should not be named anymore in the command-line, e.g. `gget ref -s human` &rarr; `gget ref human`.
