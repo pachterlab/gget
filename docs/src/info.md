@@ -13,6 +13,9 @@ Path to the file the results will be saved in, e.g. path/to/directory/results.cs
 Python: `save=True` will save the output in the current working directory.
 
 **Flags**  
+`-eo` `--ensembl_only`  
+Only return results from Ensembl (excludes results from UniProt, NCBI and PDB, but runs significantly faster).  
+
 `-q` `--quiet`   
 Command-line only. Prevents progress information from being displayed.  
 Python: Use `verbose=False` to prevent progress information from being displayed.  
