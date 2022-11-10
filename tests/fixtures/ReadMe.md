@@ -28,9 +28,9 @@ Format of dictionaries containing arguments and expected results:
 }
 ```
 
-Note: Results returned in a DataFrame format need to be converted to a list (df.values.tolist()).  
+Note: Results returned in a DataFrame format need to be converted to a list and NA values should be dropped (df.dropna(axis=1).values.tolist()).  
 
 **Test types:**  
-assert_equal -> assertListEqual  
-none -> Expected result is None  
-error -> Expected result is a specified error  
+assert_equal -> Use assertListEqual or assertEqual. 
+none -> Expected result is None.  
+error -> Expected result is specified error.  

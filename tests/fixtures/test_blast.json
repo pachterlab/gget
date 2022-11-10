@@ -1,11 +1,11 @@
 {
     "test1": {
         "type": "assert_equal",
-        "args":{
+        "args": {
             "sequence": "ATACTCAGTCACACAAGCCATAGCAGGAAACAGCGAGCTTGCAGCCTCACCGACGAGTCTCAACTAAAAGGGACTCCCGGAGCTAGGGGTGGGGACTCGGCCTCACACAGTGAGTGCCGG",
             "limit": 1
         },
-        "expected_result":[
+        "expected_result": [
             [
                 "Homo sapiens CASP8 and FADD like apoptosis regulator (CFLAR), RefSeqGene on chromosome 2",
                 "Homo sapiens",
@@ -23,10 +23,10 @@
     },
     "test2": {
         "type": "assert_equal",
-        "args":{
+        "args": {
             "sequence": "ATACTCAGTCACACAAGCCATAGCAGGAAACAGCGAGCTTGCAGCCTCACCGACGAGTCTCAACTAAAAGGGACTCCCGGAGCTAGGGGTGGGGACTCGGCCTCACACAGTGAGTGCCGG",
             "limit": 1,
-            "json": "True"
+            "json": true
         },
         "expected_result": [
             {
@@ -46,30 +46,30 @@
     },
     "error_test1": {
         "type": "error",
-        "args":{
+        "args": {
             "sequence": "BANANA123"
         },
         "expected_result": "ValueError"
     },
     "error_test2": {
         "type": "error",
-        "args":{
+        "args": {
             "sequence": "banana.fa"
         },
         "expected_result": "FileNotFoundError"
     },
     "error_test3": {
         "type": "error",
-        "args":{
-            "sequence": "tests/fixtures/muscle_aa_test.txt", 
-            "limit": 3, 
+        "args": {
+            "sequence": "tests/fixtures/muscle_aa_test.txt",
+            "limit": 3,
             "program": "banana"
         },
         "expected_result": "ValueError"
     },
     "error_test4": {
         "type": "error",
-        "args":{
+        "args": {
             "sequence": "tests/fixtures/muscle_aa_test.txt",
             "limit": 3,
             "program": "blastn"
@@ -78,7 +78,7 @@
     },
     "error_test5": {
         "type": "error",
-        "args":{
+        "args": {
             "sequence": "tests/fixtures/muscle_aa_test.txt",
             "limit": 3,
             "program": "blastp",
@@ -88,9 +88,9 @@
     },
     "error_test6": {
         "type": "error",
-        "args":{
-            "sequence": "tests/fixtures/muscle_aa_test.txt", 
-            "limit": 3, 
+        "args": {
+            "sequence": "tests/fixtures/muscle_aa_test.txt",
+            "limit": 3,
             "database": "banana"
         },
         "expected_result": "ValueError"

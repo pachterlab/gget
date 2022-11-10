@@ -1,0 +1,333 @@
+{
+    "test1": {
+        "type": "assert_equal",
+        "args": {
+            "searchwords": "swiss",
+            "species": "drosophila",
+            "id_type": "gene",
+            "limit": null
+        },
+        "expected_result": [
+            [
+                "FBgn0003656",
+                "sws",
+                "swiss cheese",
+                null,
+                "protein_coding",
+                "https://uswest.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
+            ]
+        ]
+    },
+    "test2": {
+        "type": "assert_equal",
+        "args": {
+            "searchwords": "swiss",
+            "species": "drosophila",
+            "id_type": "gene",
+            "json": true
+        },
+        "expected_result": [
+            {
+                "ensembl_id": "FBgn0003656",
+                "gene_name": "sws",
+                "ensembl_description": "swiss cheese",
+                "ext_ref_description": null,
+                "biotype": "protein_coding",
+                "url": "https://uswest.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
+            }
+        ]
+    },
+    "test3": {
+        "type": "assert_equal",
+        "args": {
+            "searchwords": [
+                "swiss",
+                "cheese"
+            ],
+            "species": "drosophi",
+            "id_type": "gene",
+            "andor": "or",
+            "limit": null
+        },
+        "expected_result": [
+            [
+                "FBgn0003656",
+                "sws",
+                "swiss cheese",
+                null,
+                "protein_coding",
+                "https://uswest.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
+            ],
+            [
+                "FBgn0043362",
+                "bchs",
+                "blue cheese",
+                null,
+                "protein_coding",
+                "https://uswest.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0043362"
+            ]
+        ]
+    },
+    "test4": {
+        "type": "assert_equal",
+        "args": {
+            "searchwords": "fun",
+            "species": "human",
+            "id_type": "gene",
+            "limit": 3
+        },
+        "expected_result": [
+            [
+                "ENSG00000069509",
+                "FUNDC1",
+                "FUN14 domain containing 1 [Source:HGNC Symbol;Acc:HGNC:28746]",
+                "FUN14 domain containing 1",
+                "protein_coding",
+                "https://uswest.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000069509"
+            ],
+            [
+                "ENSG00000084754",
+                "HADHA",
+                "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha [Source:HGNC Symbol;Acc:HGNC:4801]",
+                "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha",
+                "protein_coding",
+                "https://uswest.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000084754"
+            ],
+            [
+                "ENSG00000103429",
+                "BFAR",
+                "bifunctional apoptosis regulator [Source:HGNC Symbol;Acc:HGNC:17613]",
+                "bifunctional apoptosis regulator",
+                "protein_coding",
+                "https://uswest.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000103429"
+            ]
+        ]
+    },
+    "test5": {
+        "type": "assert_equal",
+        "args": {
+            "searchwords": "nep3",
+            "species": "drosophila_melanogaster",
+            "id_type": "transcript",
+            "limit": null
+        },
+        "expected_result": [
+            [
+                "FBtr0070000",
+                "Nep3-RA",
+                null,
+                null,
+                "protein_coding",
+                "https://uswest.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBtr0070000"
+            ],
+            [
+                "FBtr0307554",
+                "Nep3-RB",
+                null,
+                null,
+                "protein_coding",
+                "https://uswest.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBtr0307554"
+            ],
+            [
+                "FBtr0307555",
+                "Nep3-RC",
+                null,
+                null,
+                "protein_coding",
+                "https://uswest.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBtr0307555"
+            ]
+        ]
+    },
+    "test6": {
+        "type": "assert_equal",
+        "args": {
+            "searchwords": [
+                "SNORA71",
+                "201"
+            ],
+            "species": "accipiter",
+            "id_type": "transcript",
+            "andor": "or",
+            "limit": 5
+        },
+        "expected_result": [
+            [
+                "ENSANIT00000001698",
+                "SNORA71-201",
+                null,
+                "Small nucleolar RNA SNORA71",
+                "snoRNA",
+                "https://uswest.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001698"
+            ],
+            [
+                "ENSANIT00000001705",
+                "SNORA71-201",
+                null,
+                "Small nucleolar RNA SNORA71",
+                "snoRNA",
+                "https://uswest.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001705"
+            ],
+            [
+                "ENSANIT00000000884",
+                "RNaseP_nuc-201",
+                null,
+                "Nuclear RNase P",
+                "ribozyme",
+                "https://uswest.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000000884"
+            ],
+            [
+                "ENSANIT00000001802",
+                "5_8S_rRNA-201",
+                null,
+                "5.8S ribosomal RNA",
+                "rRNA",
+                "https://uswest.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001802"
+            ],
+            [
+                "ENSANIT00000001839",
+                "U2-201",
+                null,
+                "U2 spliceosomal RNA",
+                "snRNA",
+                "https://uswest.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001839"
+            ]
+        ]
+    },
+    "test7": {
+        "type": "assert_equal",
+        "args": {
+            "searchwords": [
+                "SNORA71",
+                "201"
+            ],
+            "species": "accipiter",
+            "id_type": "transcript",
+            "andor": "and",
+            "limit": null
+        },
+        "expected_result": [
+            [
+                "ENSANIT00000001698",
+                "SNORA71-201",
+                null,
+                "Small nucleolar RNA SNORA71",
+                "snoRNA",
+                "https://uswest.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001698"
+            ],
+            [
+                "ENSANIT00000001705",
+                "SNORA71-201",
+                null,
+                "Small nucleolar RNA SNORA71",
+                "snoRNA",
+                "https://uswest.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001705"
+            ]
+        ]
+    },
+    "test8": {
+        "type": "assert_equal",
+        "args": {
+            "searchwords": [
+                "SNORA71",
+                "201"
+            ],
+            "species": "homo",
+            "id_type": "transcript",
+            "andor": "and",
+            "limit": 3
+        },
+        "expected_result": [
+            [
+                "ENST00000362582",
+                "SNORA71.3-201",
+                null,
+                null,
+                "snoRNA",
+                "https://uswest.ensembl.org/homo_sapiens/Gene/Summary?g=ENST00000362582"
+            ],
+            [
+                "ENST00000363484",
+                "SNORA71D-201",
+                null,
+                "small nucleolar RNA, H/ACA box 71D",
+                "snoRNA",
+                "https://uswest.ensembl.org/homo_sapiens/Gene/Summary?g=ENST00000363484"
+            ],
+            [
+                "ENST00000364523",
+                "SNORA71.1-201",
+                null,
+                null,
+                "snoRNA",
+                "https://uswest.ensembl.org/homo_sapiens/Gene/Summary?g=ENST00000364523"
+            ]
+        ]
+    },
+    "test9": {
+        "type": "assert_equal",
+        "args": {
+            "searchwords": [
+                "swiss",
+                "cheese"
+            ],
+            "species": "droso",
+            "id_type": "gene",
+            "andor": "and",
+            "limit": null
+        },
+        "expected_result": [
+            [
+                "FBgn0003656",
+                "sws",
+                "swiss cheese",
+                null,
+                "protein_coding",
+                "https://uswest.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
+            ]
+        ]
+    },
+    "error_test1": {
+        "type": "error",
+        "args": {
+            "searchwords": "fun",
+            "species": "banana",
+            "id_type": "gene",
+            "andor": "and",
+            "limit": null
+        },
+        "expected_result": "ValueError"
+    },
+    "error_test2": {
+        "type": "error",
+        "args": {
+            "searchwords": "fun",
+            "species": "banana",
+            "id_type": "transcript",
+            "andor": "or",
+            "limit": null
+        },
+        "expected_result": "ValueError"
+    },
+    "error_test3": {
+        "type": "error",
+        "args": {
+            "searchwords": "fun",
+            "species": "mouse",
+            "id_type": "gene",
+            "andor": "sneeze",
+            "limit": null
+        },
+        "expected_result": "ValueError"
+    },
+    "error_test4": {
+        "type": "error",
+        "args": {
+            "searchwords": "fun",
+            "species": "mouse",
+            "id_type": "transcript",
+            "andor": "sneeze",
+            "limit": null
+        },
+        "expected_result": "ValueError"
+    }
+}

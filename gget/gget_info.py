@@ -169,36 +169,6 @@ def info(ens_ids, wrap_text=False, expand=False, json=False, verbose=True, save=
             if verbose is True:
                 logging.warning(f"No UniProt entry was found for ID {ens_id}.")
 
-        ## Get PDB IDs from UniProt IDs
-        try:
-            uniprot_ids = list(df_uniprot["uniprot_id"].values)[0]
-        except:
-            uniprot_ids = []
-
-        # Convert to list if only one ID
-        if isinstance(uniprot_ids, str):
-            uniprot_ids = [uniprot_ids]
-
-        # Passing one UniProt ID at a time because for some reason
-        # the mapping API only returns the results for the first ID
-        pdb_ids = []
-        if uniprot_ids:
-            for uniprot_id in uniprot_ids:
-                if uniprot_id != "" and not pd.isnull(uniprot_id):
-                    pdb_ids.append(get_pdb_ids(str(uniprot_id)))
-
-        # Flatten PDB ID list
-        pdb_ids = [item for sublist in pdb_ids for item in sublist]
-
-        # Add pdb_ids to uniprot data frame
-        try:
-            if pdb_ids:
-                df_uniprot["pdb_id"] = [pdb_ids]
-            else:
-                df_uniprot["pdb_id"] = np.NaN
-        except:
-            pass
-
         ## Get NCBI gene ID and description (for genes only)
         url = NCBI_URL + f"/gene/?term={ens_id}"
         html = requests.get(url)
@@ -272,6 +242,14 @@ def info(ens_ids, wrap_text=False, expand=False, json=False, verbose=True, save=
                 "synonyms": [synonyms],
             },
         )
+
+        ## Get PDB IDs from Ensembl ID
+        # Add pdb_ids to NCBI data frame
+        pdb_ids = get_pdb_ids(ens_id)
+        if pdb_ids:
+            df_ncbi["pdb_id"] = [pdb_ids]
+        else:
+            df_ncbi["pdb_id"] = np.NaN
 
         # Transpose NCBI df and add Ensembl ID as column name
         df_ncbi = df_ncbi.T

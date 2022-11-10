@@ -443,7 +443,7 @@
             "gene": "FUNDC1",
             "gene_count": 5,
             "species": "mouse",
-            "json": "True"
+            "json": true
         },
         "expected_result": [
             {
@@ -472,10 +472,10 @@
         "type": "assert_equal",
         "args": {
             "gene": "ENSG00000106443.4",
-            "ensembl": "True",
+            "ensembl": true,
             "gene_count": 5,
             "species": "mouse",
-            "json": "True"
+            "json": true
         },
         "expected_result": [
             {
@@ -1090,7 +1090,7 @@
         "args": {
             "gene": "fuNdC1",
             "which": "tissue",
-            "json": "True"
+            "json": true
         },
         "expected_result": [
             {
@@ -2157,7 +2157,7 @@
         "type": "assert_equal",
         "args": {
             "gene": "ENSG00000106443",
-            "ensembl": "True",
+            "ensembl": true,
             "which": "tissue",
             "species": "mouse"
         },
@@ -2641,14 +2641,14 @@
         "args": {
             "gene": "ENSG00000106443"
         },
-        "expected_result": "None"
+        "expected_result": null
     },
     "none_test2": {
         "type": "none",
         "args": {
             "gene": "BANANA"
         },
-        "expected_result": "None"
+        "expected_result": null
     },
     "none_test3": {
         "type": "none",
@@ -2657,7 +2657,7 @@
             "which": "tissue",
             "species": "mouse"
         },
-        "expected_result": "None"
+        "expected_result": null
     },
     "error_test1": {
         "type": "error",

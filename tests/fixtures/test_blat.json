@@ -1,19 +1,32 @@
 {
     "test1": {
         "type": "assert_equal",
-        "args":{
+        "args": {
             "sequence": "ATGCTGAATTTATGCTGAATTTATGCTGAATTTATGCTGAATTT"
         },
-        "expected_result":[
-            ["hg38", 44, 17, 44, 28, 0, 63.64, 100.0, "chr18", "+", 1952614, 1952647]
+        "expected_result": [
+            [
+                "hg38",
+                44,
+                17,
+                44,
+                28,
+                0,
+                63.64,
+                100.0,
+                "chr18",
+                "+",
+                1952614,
+                1952647
+            ]
         ]
     },
     "test2": {
         "type": "assert_equal",
-        "args":{
-            "sequence": "CACACATCCGGTTCTTCCGGGAGCTAGGGG", 
-            "assembly": "mouse", 
-            "json": "True"
+        "args": {
+            "sequence": "CACACATCCGGTTCTTCCGGGAGCTAGGGG",
+            "assembly": "mouse",
+            "json": true
         },
         "expected_result": [
             {
@@ -34,43 +47,95 @@
     },
     "test3": {
         "type": "assert_equal",
-        "args":{
-            "sequence": "ATGCTGAATTTATGCTGAATTTATGCTGAATTTATGCTGAATTT", 
+        "args": {
+            "sequence": "ATGCTGAATTTATGCTGAATTTATGCTGAATTTATGCTGAATTT",
             "seqtype": "DNA"
         },
         "expected_result": [
-            ["hg38", 44, 17, 44, 28, 0, 63.64, 100.0, "chr18", "+", 1952614, 1952647]
+            [
+                "hg38",
+                44,
+                17,
+                44,
+                28,
+                0,
+                63.64,
+                100.0,
+                "chr18",
+                "+",
+                1952614,
+                1952647
+            ]
         ]
     },
     "test4": {
         "type": "assert_equal",
-        "args":{
-            "sequence": "MLMPGPLRRALGQKFSIFPSVDHDSDDDSYEVLDLTEYARRHHWWNRLFGRNSGPVVEKYSVAT", 
+        "args": {
+            "sequence": "MLMPGPLRRALGQKFSIFPSVDHDSDDDSYEVLDLTEYARRHHWWNRLFGRNSGPVVEKYSVAT",
             "assembly": "mouse"
         },
         "expected_result": [
-            ["mm39", 64, 25, 64, 35, 5, 62.5, 87.5, "chrX", "+-", 17437571, 17437690]
+            [
+                "mm39",
+                64,
+                25,
+                64,
+                35,
+                5,
+                62.5,
+                87.5,
+                "chrX",
+                "+-",
+                17437571,
+                17437690
+            ]
         ]
     },
     "test5": {
         "type": "assert_equal",
-        "args":{
-            "sequence": "MLMPGPLRRALGQKFSIFPSVDHDSDDDSYEVLDLTEYARRHHWWNRLFGRNSGPVVEKYSVAT", 
+        "args": {
+            "sequence": "MLMPGPLRRALGQKFSIFPSVDHDSDDDSYEVLDLTEYARRHHWWNRLFGRNSGPVVEKYSVAT",
             "seqtype": "protein",
             "assembly": "mouse"
         },
         "expected_result": [
-            ["mm39", 64, 25, 64, 35, 5, 62.5, 87.5, "chrX", "+-", 17437571, 17437690]
+            [
+                "mm39",
+                64,
+                25,
+                64,
+                35,
+                5,
+                62.5,
+                87.5,
+                "chrX",
+                "+-",
+                17437571,
+                17437690
+            ]
         ]
     },
     "test6": {
         "type": "assert_equal",
-        "args":{
-            "sequence": "tests/fixtures/muscle_nt_test.fa", 
+        "args": {
+            "sequence": "tests/fixtures/muscle_nt_test.fa",
             "assembly": "zebrafinch"
         },
         "expected_result": [
-            ["taeGut2", 63, 1, 63, 63, 0, 100.0, 100.0, "chr1", "+", 5648870, 5648932],
+            [
+                "taeGut2",
+                63,
+                1,
+                63,
+                63,
+                0,
+                100.0,
+                100.0,
+                "chr1",
+                "+",
+                5648870,
+                5648932
+            ],
             [
                 "taeGut2",
                 63,
@@ -89,12 +154,25 @@
     },
     "test7": {
         "type": "assert_equal",
-        "args":{
-            "sequence": "tests/fixtures/muscle_nt_test.txt", 
+        "args": {
+            "sequence": "tests/fixtures/muscle_nt_test.txt",
             "assembly": "zebrafinch"
         },
         "expected_result": [
-            ["taeGut2", 63, 1, 63, 63, 0, 100.0, 100.0, "chr1", "+", 5648870, 5648932],
+            [
+                "taeGut2",
+                63,
+                1,
+                63,
+                63,
+                0,
+                100.0,
+                100.0,
+                "chr1",
+                "+",
+                5648870,
+                5648932
+            ],
             [
                 "taeGut2",
                 63,
@@ -113,80 +191,80 @@
     },
     "none_test1": {
         "type": "none",
-        "args":{
+        "args": {
             "sequence": "ATGCTGAATTTATGCTGAATTTATGCTGAATTTATGCTGAATTT",
             "seqtype": "protein",
             "assembly": "zebrafinch"
         },
-        "expected_result": "None"
+        "expected_result": null
     },
     "none_test2": {
         "type": "none",
-        "args":{
+        "args": {
             "sequence": "ATGCTGAATTTATGCTGAATTTATGCTGAATTTATGCTGAATTT",
             "seqtype": "translated%20RNA"
         },
-        "expected_result": "None"
+        "expected_result": null
     },
     "none_test3": {
         "type": "none",
-        "args":{
+        "args": {
             "sequence": "ATGCTGAATTTATGCTGAATTTATGCTGAATTTATGCTGAATTT",
             "seqtype": "translated%20DNA"
         },
-        "expected_result": "None"
+        "expected_result": null
     },
     "none_test4": {
         "type": "none",
-        "args":{
-            "sequence": "MLMPGPLRRALGQKFSIFPSVDHDSDDDSYEVLDLTEYARRHHWWNRLFGRNSGPVVEKYSVAT", 
+        "args": {
+            "sequence": "MLMPGPLRRALGQKFSIFPSVDHDSDDDSYEVLDLTEYARRHHWWNRLFGRNSGPVVEKYSVAT",
             "seqtype": "translated%20RNA"
         },
-        "expected_result": "None"
+        "expected_result": null
     },
     "none_test5": {
         "type": "none",
-        "args":{
+        "args": {
             "sequence": "MLMPGPLRRALGQKFSIFPSVDHDSDDDSYEVLDLTEYARRHHWWNRLFGRNSGPVVEKYSVAT",
             "seqtype": "DNA",
             "assembly": "banana"
         },
-        "expected_result": "None"
+        "expected_result": null
     },
     "none_test6": {
         "type": "none",
-        "args":{
+        "args": {
             "sequence": "MLMPGPLRRALGQ"
         },
-        "expected_result": "None"
+        "expected_result": null
     },
     "error_test1": {
         "type": "error",
-        "args":{
-            "sequence": "MLMPGPLRRALGQKFSIFPSVDHDSDDDSYEVLDLTEYARRHHWWNRLFGRNSGPVVEKYSVAT", 
+        "args": {
+            "sequence": "MLMPGPLRRALGQKFSIFPSVDHDSDDDSYEVLDLTEYARRHHWWNRLFGRNSGPVVEKYSVAT",
             "seqtype": "banana"
         },
         "expected_result": "ValueError"
     },
     "error_test2": {
         "type": "error",
-        "args":{
-            "sequence": "tests/fixtures/muscle_nt_test.banana", 
-            "assembly": "zebrafinch", 
+        "args": {
+            "sequence": "tests/fixtures/muscle_nt_test.banana",
+            "assembly": "zebrafinch",
             "seqtype": "banana"
         },
         "expected_result": "ValueError"
     },
     "error_test3": {
         "type": "error",
-        "args":{
+        "args": {
             "sequence": "banana.fa"
         },
         "expected_result": "FileNotFoundError"
     },
     "error_test4": {
         "type": "error",
-        "args":{
+        "args": {
             "sequence": "banana.txt"
         },
         "expected_result": "FileNotFoundError"
