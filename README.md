@@ -86,7 +86,7 @@ gget.pdb("1R42", save=True)
 gget.setup("alphafold") # setup only needs to be run once
 gget.alphafold("MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK")
 ```
-Use `gget` in R using [reticulate](https://rstudio.github.io/reticulate/):
+Call `gget` from R using [reticulate](https://rstudio.github.io/reticulate/):
 ```
 system("pip install gget")
 install.packages("reticulate")
