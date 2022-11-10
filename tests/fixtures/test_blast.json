@@ -1,0 +1,98 @@
+{
+    "test1": {
+        "type": "assert_equal",
+        "args": {
+            "sequence": "ATACTCAGTCACACAAGCCATAGCAGGAAACAGCGAGCTTGCAGCCTCACCGACGAGTCTCAACTAAAAGGGACTCCCGGAGCTAGGGGTGGGGACTCGGCCTCACACAGTGAGTGCCGG",
+            "limit": 1
+        },
+        "expected_result": [
+            [
+                "Homo sapiens CASP8 and FADD like apoptosis regulator (CFLAR), RefSeqGene on chromosome 2",
+                "Homo sapiens",
+                "human",
+                9606,
+                222,
+                222,
+                "100%",
+                7e-54,
+                "100.00%",
+                67524,
+                "NG_029005.2"
+            ]
+        ]
+    },
+    "test2": {
+        "type": "assert_equal",
+        "args": {
+            "sequence": "ATACTCAGTCACACAAGCCATAGCAGGAAACAGCGAGCTTGCAGCCTCACCGACGAGTCTCAACTAAAAGGGACTCCCGGAGCTAGGGGTGGGGACTCGGCCTCACACAGTGAGTGCCGG",
+            "limit": 1,
+            "json": true
+        },
+        "expected_result": [
+            {
+                "Description": "Homo sapiens CASP8 and FADD like apoptosis regulator (CFLAR), RefSeqGene on chromosome 2",
+                "Scientific Name": "Homo sapiens",
+                "Common Name": "human",
+                "Taxid": 9606,
+                "Max Score": 222,
+                "Total Score": 222,
+                "Query Cover": "100%",
+                "E value": 7e-54,
+                "Per. Ident": "100.00%",
+                "Acc. Len": 67524,
+                "Accession": "NG_029005.2"
+            }
+        ]
+    },
+    "error_test1": {
+        "type": "error",
+        "args": {
+            "sequence": "BANANA123"
+        },
+        "expected_result": "ValueError"
+    },
+    "error_test2": {
+        "type": "error",
+        "args": {
+            "sequence": "banana.fa"
+        },
+        "expected_result": "FileNotFoundError"
+    },
+    "error_test3": {
+        "type": "error",
+        "args": {
+            "sequence": "tests/fixtures/muscle_aa_test.txt",
+            "limit": 3,
+            "program": "banana"
+        },
+        "expected_result": "ValueError"
+    },
+    "error_test4": {
+        "type": "error",
+        "args": {
+            "sequence": "tests/fixtures/muscle_aa_test.txt",
+            "limit": 3,
+            "program": "blastn"
+        },
+        "expected_result": "ValueError"
+    },
+    "error_test5": {
+        "type": "error",
+        "args": {
+            "sequence": "tests/fixtures/muscle_aa_test.txt",
+            "limit": 3,
+            "program": "blastp",
+            "database": "banana"
+        },
+        "expected_result": "ValueError"
+    },
+    "error_test6": {
+        "type": "error",
+        "args": {
+            "sequence": "tests/fixtures/muscle_aa_test.txt",
+            "limit": 3,
+            "database": "banana"
+        },
+        "expected_result": "ValueError"
+    }
+}

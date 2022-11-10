@@ -23,7 +23,7 @@ from .utils import rest_query, get_uniprot_info, wrap_cols_func, get_pdb_ids
 from .constants import ENSEMBL_REST_API, UNIPROT_REST_API, NCBI_URL
 
 ## gget info
-def info(ens_ids, wrap_text=False, expand=False, json=False, verbose=True, save=False):
+def info(ens_ids, wrap_text=False, ensembl_only=False, json=False, verbose=True, save=False, expand=False):
     """
     Fetch gene and transcript metadata using Ensembl IDs.
 
@@ -31,6 +31,7 @@ def info(ens_ids, wrap_text=False, expand=False, json=False, verbose=True, save=
     - ens_ids       One or more Ensembl IDs to look up (string or list of strings).
                     Also supports WormBase and Flybase IDs.
     - wrap_text     If True, displays data frame with wrapped text for easy reading. Default: False.
+    - ensembl_only  Only return results from Ensembl. Default: False. 
     - json          If True, returns results in json/dictionary format instead of data frame. Default: False.
     - verbose       True/False whether to print progress information. Default True.
     - save          True/False wether to save csv with query results in current working directory. Default: False.
@@ -149,152 +150,131 @@ def info(ens_ids, wrap_text=False, expand=False, json=False, verbose=True, save=
         }
     )
 
-    ## Get gene names and descriptions from UniProt
-    df_temp = pd.DataFrame()
-    for ens_id in ens_ids_clean_2:
-        df_uniprot = get_uniprot_info(UNIPROT_REST_API, ens_id, verbose=verbose)
+    if ensembl_only is False:
+        ## Get gene names and descriptions from UniProt
+        df_temp = pd.DataFrame()
+        for ens_id in ens_ids_clean_2:
+            df_uniprot = get_uniprot_info(UNIPROT_REST_API, ens_id, verbose=verbose)
 
-        if not isinstance(df_uniprot, type(None)):
-            # If two different UniProt IDs for a single query ID are returned, they should be merged into one column
-            # So len(df_uniprot) should always be 1
-            if len(df_uniprot) > 1:
-                # If the above somehow failed, we will only return the first result.
-                df_uniprot = df_uniprot.iloc[[0]]
-                if verbose is True:
-                    logging.warning(
-                        f"More than one UniProt match was found for ID {ens_id}. Only the first match and its associated information will be returned."
-                    )
+            if not isinstance(df_uniprot, type(None)):
+                # If two different UniProt IDs for a single query ID are returned, they should be merged into one column
+                # So len(df_uniprot) should always be 1
+                if len(df_uniprot) > 1:
+                    # If the above somehow failed, we will only return the first result.
+                    df_uniprot = df_uniprot.iloc[[0]]
+                    if verbose is True:
+                        logging.warning(
+                            f"More than one UniProt match was found for ID {ens_id}. Only the first match and its associated information will be returned."
+                        )
 
-        else:
-            if verbose is True:
-                logging.warning(f"No UniProt entry was found for ID {ens_id}.")
-
-        ## Get PDB IDs from UniProt IDs
-        try:
-            uniprot_ids = list(df_uniprot["uniprot_id"].values)[0]
-        except:
-            uniprot_ids = []
-
-        # Convert to list if only one ID
-        if isinstance(uniprot_ids, str):
-            uniprot_ids = [uniprot_ids]
-
-        # Passing one UniProt ID at a time because for some reason
-        # the mapping API only returns the results for the first ID
-        pdb_ids = []
-        if uniprot_ids:
-            for uniprot_id in uniprot_ids:
-                if uniprot_id != "" and not pd.isnull(uniprot_id):
-                    pdb_ids.append(get_pdb_ids(str(uniprot_id)))
-
-        # Flatten PDB ID list
-        pdb_ids = [item for sublist in pdb_ids for item in sublist]
-
-        # Add pdb_ids to uniprot data frame
-        try:
-            if pdb_ids:
-                df_uniprot["pdb_id"] = [pdb_ids]
             else:
-                df_uniprot["pdb_id"] = np.NaN
-        except:
-            pass
+                if verbose is True:
+                    logging.warning(f"No UniProt entry was found for ID {ens_id}.")
 
-        ## Get NCBI gene ID and description (for genes only)
-        url = NCBI_URL + f"/gene/?term={ens_id}"
-        html = requests.get(url)
+            ## Get NCBI gene ID and description (for genes only)
+            url = NCBI_URL + f"/gene/?term={ens_id}"
+            html = requests.get(url)
 
-        # Raise error if status code not "OK" Response
-        if html.status_code != 200:
-            raise RuntimeError(
-                f"NCBI returned error status code {html.status_code}. Please double-check arguments or try again later."
+            # Raise error if status code not "OK" Response
+            if html.status_code != 200:
+                raise RuntimeError(
+                    f"NCBI returned error status code {html.status_code}. Please double-check arguments or try again later."
+                )
+
+            ## Web scrape NCBI website for gene ID, synonyms and description
+            soup = BeautifulSoup(html.text, "html.parser")
+
+            # Check if NCBI gene ID is available
+            try:
+                ncbi_gene_id = soup.find("input", {"id": "gene-id-value"}).get("value")
+            except:
+                ncbi_gene_id = np.nan
+
+            # Check if NCBI description is available
+            try:
+                ncbi_description = (
+                    soup.find("div", class_="section", id="summaryDiv")
+                    .find("dt", text="Summary")
+                    .find_next_sibling("dd")
+                    .text
+                )
+            except:
+                ncbi_description = np.nan
+
+            # Check if NCBI synonyms are available
+            try:
+                ncbi_synonyms = (
+                    soup.find("div", class_="section", id="summaryDiv")
+                    .find("dt", text="Also known as")
+                    .find_next_sibling("dd")
+                    .text
+                )
+                # Split NCBI synonyms
+                ncbi_synonyms = ncbi_synonyms.split("; ")
+            except:
+                ncbi_synonyms = None
+
+            # If both NCBI and UniProt synonyms available,
+            # final synonyms list will be combined set of both lists
+            if ncbi_synonyms is not None and not isinstance(df_uniprot, type(None)):
+                # Collect and flatten UniProt synonyms
+                uni_synonyms = df_uniprot["uni_synonyms"].values[0]
+                synonyms = list(set().union(uni_synonyms, ncbi_synonyms))
+                # Remove nan values
+                synonyms = [item for item in synonyms if not (pd.isnull(item)) == True]
+            # Add only UniProt synonyms if NCBI syns not available
+            elif ncbi_synonyms is None and not isinstance(df_uniprot, type(None)):
+                synonyms = df_uniprot["uni_synonyms"].values[0]
+                # Remove nan values
+                synonyms = [item for item in synonyms if not (pd.isnull(item)) == True]
+            else:
+                synonyms = []
+
+            # Sort synonyms alphabetically (if sortable)
+            try:
+                synonyms = sorted(synonyms)
+            except:
+                None
+
+            # Save NCBI info to data frame
+            df_ncbi = pd.DataFrame(
+                {
+                    "ncbi_gene_id": [ncbi_gene_id],
+                    "ncbi_description": [ncbi_description],
+                    "synonyms": [synonyms],
+                },
             )
 
-        ## Web scrape NCBI website for gene ID, synonyms and description
-        soup = BeautifulSoup(html.text, "html.parser")
+            ## Get PDB IDs from Ensembl ID
+            # Add pdb_ids to NCBI data frame
+            pdb_ids = get_pdb_ids(ens_id)
+            if pdb_ids:
+                df_ncbi["pdb_id"] = [pdb_ids]
+            else:
+                df_ncbi["pdb_id"] = np.NaN
 
-        # Check if NCBI gene ID is available
-        try:
-            ncbi_gene_id = soup.find("input", {"id": "gene-id-value"}).get("value")
-        except:
-            ncbi_gene_id = np.nan
+            # Transpose NCBI df and add Ensembl ID as column name
+            df_ncbi = df_ncbi.T
+            df_ncbi.columns = [ens_id]
 
-        # Check if NCBI description is available
-        try:
-            ncbi_description = (
-                soup.find("div", class_="section", id="summaryDiv")
-                .find("dt", text="Summary")
-                .find_next_sibling("dd")
-                .text
-            )
-        except:
-            ncbi_description = np.nan
+            ## Add NCBI and UniProt info to data frame
+            if not isinstance(df_uniprot, type(None)):
+                # Transpose UniProt data frame and add Ensembl ID as column name
+                df_uniprot = df_uniprot.T
+                df_uniprot.columns = [ens_id]
 
-        # Check if NCBI synonyms are available
-        try:
-            ncbi_synonyms = (
-                soup.find("div", class_="section", id="summaryDiv")
-                .find("dt", text="Also known as")
-                .find_next_sibling("dd")
-                .text
-            )
-            # Split NCBI synonyms
-            ncbi_synonyms = ncbi_synonyms.split("; ")
-        except:
-            ncbi_synonyms = None
+                # Combine Ensembl and NCBI info
+                df_uni_ncbi = pd.concat([df_uniprot, df_ncbi])
 
-        # If both NCBI and UniProt synonyms available,
-        # final synonyms list will be combined set of both lists
-        if ncbi_synonyms is not None and not isinstance(df_uniprot, type(None)):
-            # Collect and flatten UniProt synonyms
-            uni_synonyms = df_uniprot["uni_synonyms"].values[0]
-            synonyms = list(set().union(uni_synonyms, ncbi_synonyms))
-            # Remove nan values
-            synonyms = [item for item in synonyms if not (pd.isnull(item)) == True]
-        # Add only UniProt synonyms if NCBI syns not available
-        elif ncbi_synonyms is None and not isinstance(df_uniprot, type(None)):
-            synonyms = df_uniprot["uni_synonyms"].values[0]
-            # Remove nan values
-            synonyms = [item for item in synonyms if not (pd.isnull(item)) == True]
-        else:
-            synonyms = []
+                # Append NCBI and UniProt info to df_temp
+                df_temp = pd.concat([df_temp, df_uni_ncbi], axis=1)
 
-        # Sort synonyms alphabetically (if sortable)
-        try:
-            synonyms = sorted(synonyms)
-        except:
-            None
+            else:
+                # Add NCBI info to df_temp
+                df_temp = pd.concat([df_temp, df_ncbi], axis=1)
 
-        # Save NCBI info to data frame
-        df_ncbi = pd.DataFrame(
-            {
-                "ncbi_gene_id": [ncbi_gene_id],
-                "ncbi_description": [ncbi_description],
-                "synonyms": [synonyms],
-            },
-        )
-
-        # Transpose NCBI df and add Ensembl ID as column name
-        df_ncbi = df_ncbi.T
-        df_ncbi.columns = [ens_id]
-
-        ## Add NCBI and UniProt info to data frame
-        if not isinstance(df_uniprot, type(None)):
-            # Transpose UniProt data frame and add Ensembl ID as column name
-            df_uniprot = df_uniprot.T
-            df_uniprot.columns = [ens_id]
-
-            # Combine Ensembl and NCBI info
-            df_uni_ncbi = pd.concat([df_uniprot, df_ncbi])
-
-            # Append NCBI and UniProt info to df_temp
-            df_temp = pd.concat([df_temp, df_uni_ncbi], axis=1)
-
-        else:
-            # Add NCBI info to df_temp
-            df_temp = pd.concat([df_temp, df_ncbi], axis=1)
-
-    # Append UniProt and NCBI info to df
-    df = pd.concat([df, df_temp])
+        # Append UniProt and NCBI info to df
+        df = pd.concat([df, df_temp])
 
     # Reindex df (this also drops all unmentioned indeces)
     df_final = df.reindex(

@@ -1,291 +1,328 @@
-import unittest
-from gget.gget_ref import ref
-
-
-class TestRef(unittest.TestCase):
-    def test_ref(self):
-        result_to_test = ref(
-            "taeniopygia_guttata", which="all", release=None, ftp=False
-        )
-        expected_result = {
+{
+    "test1": {
+        "type": "assert_equal",
+        "args": {
+            "species": "taeniopygia_guttata",
+            "which": "all",
+            "release": null,
+            "ftp": false
+        },
+        "expected_result": {
             "taeniopygia_guttata": {
                 "transcriptome_cdna": {
                     "ftp": "http://ftp.ensembl.org/pub/release-108/fasta/taeniopygia_guttata/cdna/Taeniopygia_guttata.bTaeGut1_v1.p.cdna.all.fa.gz",
                     "ensembl_release": 108,
                     "release_date": "2022-07-25",
                     "release_time": "19:00",
-                    "bytes": "26M",
+                    "bytes": "26M"
                 },
                 "genome_dna": {
                     "ftp": "http://ftp.ensembl.org/pub/release-108/fasta/taeniopygia_guttata/dna/Taeniopygia_guttata.bTaeGut1_v1.p.dna.toplevel.fa.gz",
                     "ensembl_release": 108,
                     "release_date": "2022-09-02",
                     "release_time": "14:59",
-                    "bytes": "304M",
+                    "bytes": "304M"
                 },
                 "annotation_gtf": {
                     "ftp": "http://ftp.ensembl.org/pub/release-108/gtf/taeniopygia_guttata/Taeniopygia_guttata.bTaeGut1_v1.p.108.gtf.gz",
                     "ensembl_release": 108,
                     "release_date": "2022-07-29",
                     "release_time": "15:23",
-                    "bytes": "13M",
+                    "bytes": "13M"
                 },
                 "coding_seq_cds": {
                     "ftp": "http://ftp.ensembl.org/pub/release-108/fasta/taeniopygia_guttata/cds/Taeniopygia_guttata.bTaeGut1_v1.p.cds.all.fa.gz",
                     "ensembl_release": 108,
                     "release_date": "2022-07-25",
                     "release_time": "19:00",
-                    "bytes": "13M",
+                    "bytes": "13M"
                 },
                 "non-coding_seq_ncRNA": {
                     "ftp": "http://ftp.ensembl.org/pub/release-108/fasta/taeniopygia_guttata/ncrna/Taeniopygia_guttata.bTaeGut1_v1.p.ncrna.fa.gz",
                     "ensembl_release": 108,
                     "release_date": "2022-07-25",
                     "release_time": "19:26",
-                    "bytes": "5.0M",
+                    "bytes": "5.0M"
                 },
                 "protein_translation_pep": {
                     "ftp": "http://ftp.ensembl.org/pub/release-108/fasta/taeniopygia_guttata/pep/Taeniopygia_guttata.bTaeGut1_v1.p.pep.all.fa.gz",
                     "ensembl_release": 108,
                     "release_date": "2022-07-25",
                     "release_time": "19:00",
-                    "bytes": "8.3M",
-                },
+                    "bytes": "8.3M"
+                }
             }
         }
-
-        self.assertEqual(result_to_test, expected_result)
-
-    def test_ref_which(self):
-        result_to_test = ref(
-            "taeniopygia_guttata", which=["gtf", "dna", "pep"], release=None, ftp=False
-        )
-        expected_result = {
+    },
+    "test2": {
+        "type": "assert_equal",
+        "args": {
+            "species": "taeniopygia_guttata",
+            "which": [
+                "gtf",
+                "dna",
+                "pep"
+            ],
+            "release": null,
+            "ftp": false
+        },
+        "expected_result": {
             "taeniopygia_guttata": {
                 "annotation_gtf": {
                     "ftp": "http://ftp.ensembl.org/pub/release-108/gtf/taeniopygia_guttata/Taeniopygia_guttata.bTaeGut1_v1.p.108.gtf.gz",
                     "ensembl_release": 108,
                     "release_date": "2022-07-29",
                     "release_time": "15:23",
-                    "bytes": "13M",
+                    "bytes": "13M"
                 },
                 "genome_dna": {
                     "ftp": "http://ftp.ensembl.org/pub/release-108/fasta/taeniopygia_guttata/dna/Taeniopygia_guttata.bTaeGut1_v1.p.dna.toplevel.fa.gz",
                     "ensembl_release": 108,
                     "release_date": "2022-09-02",
                     "release_time": "14:59",
-                    "bytes": "304M",
+                    "bytes": "304M"
                 },
                 "protein_translation_pep": {
                     "ftp": "http://ftp.ensembl.org/pub/release-108/fasta/taeniopygia_guttata/pep/Taeniopygia_guttata.bTaeGut1_v1.p.pep.all.fa.gz",
                     "ensembl_release": 108,
                     "release_date": "2022-07-25",
                     "release_time": "19:00",
-                    "bytes": "8.3M",
-                },
+                    "bytes": "8.3M"
+                }
             }
         }
-
-        self.assertEqual(result_to_test, expected_result)
-
-    def test_ref_rel(self):
-        result_to_test = ref(
-            "taeniopygia_guttata", which=["cdna", "dna", "cds"], release=76, ftp=False
-        )
-        expected_result = {
+    },
+    "test3": {
+        "type": "assert_equal",
+        "args": {
+            "species": "taeniopygia_guttata",
+            "which": [
+                "cdna",
+                "dna",
+                "cds"
+            ],
+            "release": 76,
+            "ftp": false
+        },
+        "expected_result": {
             "taeniopygia_guttata": {
                 "transcriptome_cdna": {
                     "ftp": "http://ftp.ensembl.org/pub/release-76/fasta/taeniopygia_guttata/cdna/Taeniopygia_guttata.taeGut3.2.4.cdna.all.fa.gz",
                     "ensembl_release": 76,
                     "release_date": "2014-07-19",
                     "release_time": "11:53",
-                    "bytes": "8.1M",
+                    "bytes": "8.1M"
                 },
                 "genome_dna": {
                     "ftp": "http://ftp.ensembl.org/pub/release-76/fasta/taeniopygia_guttata/dna/Taeniopygia_guttata.taeGut3.2.4.dna.toplevel.fa.gz",
                     "ensembl_release": 76,
                     "release_date": "2014-07-19",
                     "release_time": "02:16",
-                    "bytes": "352M",
+                    "bytes": "352M"
                 },
                 "coding_seq_cds": {
                     "ftp": "http://ftp.ensembl.org/pub/release-76/fasta/taeniopygia_guttata/cds/Taeniopygia_guttata.taeGut3.2.4.cds.all.fa.gz",
                     "ensembl_release": 76,
                     "release_date": "2014-07-19",
                     "release_time": "11:53",
-                    "bytes": "7.6M",
-                },
+                    "bytes": "7.6M"
+                }
             }
         }
-
-        self.assertEqual(result_to_test, expected_result)
-
-    def test_ref_rel_ftp(self):
-        result_to_test = ref(
-            "taeniopygia_guttata", which=["gtf", "dna", "pep"], release=76, ftp=True
-        )
-        expected_result = [
+    },
+    "test4": {
+        "type": "assert_equal",
+        "args": {
+            "species": "taeniopygia_guttata",
+            "which": [
+                "gtf",
+                "dna",
+                "pep"
+            ],
+            "release": 76,
+            "ftp": true
+        },
+        "expected_result": [
             "http://ftp.ensembl.org/pub/release-76/gtf/taeniopygia_guttata/Taeniopygia_guttata.taeGut3.2.4.76.gtf.gz",
             "http://ftp.ensembl.org/pub/release-76/fasta/taeniopygia_guttata/dna/Taeniopygia_guttata.taeGut3.2.4.dna.toplevel.fa.gz",
-            "http://ftp.ensembl.org/pub/release-76/fasta/taeniopygia_guttata/pep/Taeniopygia_guttata.taeGut3.2.4.pep.all.fa.gz",
+            "http://ftp.ensembl.org/pub/release-76/fasta/taeniopygia_guttata/pep/Taeniopygia_guttata.taeGut3.2.4.pep.all.fa.gz"
         ]
-
-        self.assertEqual(result_to_test, expected_result)
-
-    def test_ref_ftp(self):
-        result_to_test = ref(
-            "taeniopygia_guttata", which=["dna", "ncrna", "gtf"], release=None, ftp=True
-        )
-        expected_result = [
+    },
+    "test5": {
+        "type": "assert_equal",
+        "args": {
+            "species": "taeniopygia_guttata",
+            "which": [
+                "dna",
+                "ncrna",
+                "gtf"
+            ],
+            "release": null,
+            "ftp": true
+        },
+        "expected_result": [
             "http://ftp.ensembl.org/pub/release-108/fasta/taeniopygia_guttata/dna/Taeniopygia_guttata.bTaeGut1_v1.p.dna.toplevel.fa.gz",
             "http://ftp.ensembl.org/pub/release-108/fasta/taeniopygia_guttata/ncrna/Taeniopygia_guttata.bTaeGut1_v1.p.ncrna.fa.gz",
-            "http://ftp.ensembl.org/pub/release-108/gtf/taeniopygia_guttata/Taeniopygia_guttata.bTaeGut1_v1.p.108.gtf.gz",
+            "http://ftp.ensembl.org/pub/release-108/gtf/taeniopygia_guttata/Taeniopygia_guttata.bTaeGut1_v1.p.108.gtf.gz"
         ]
-
-        self.assertEqual(result_to_test, expected_result)
-
-    def test_ref_plant(self):
-        result_to_test = ref("actinidia_chinensis", which="all", release=53, ftp=False)
-        expected_result = {
+    },
+    "test6": {
+        "type": "assert_equal",
+        "args": {
+            "species": "actinidia_chinensis",
+            "which": "all",
+            "release": 53,
+            "ftp": false
+        },
+        "expected_result": {
             "actinidia_chinensis": {
                 "transcriptome_cdna": {
                     "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-53/fasta/actinidia_chinensis/cdna/Actinidia_chinensis.Red5_PS1_1.69.0.cdna.all.fa.gz",
                     "ensembl_release": 53,
                     "release_date": "2022-02-15",
                     "release_time": "12:53",
-                    "bytes": "24M",
+                    "bytes": "24M"
                 },
                 "genome_dna": {
                     "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-53/fasta/actinidia_chinensis/dna/Actinidia_chinensis.Red5_PS1_1.69.0.dna.toplevel.fa.gz",
                     "ensembl_release": 53,
                     "release_date": "2022-02-21",
                     "release_time": "10:52",
-                    "bytes": "155M",
+                    "bytes": "155M"
                 },
                 "annotation_gtf": {
                     "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-53/gtf/actinidia_chinensis/Actinidia_chinensis.Red5_PS1_1.69.0.53.gtf.gz",
                     "ensembl_release": 53,
                     "release_date": "2022-02-17",
                     "release_time": "09:13",
-                    "bytes": "6.7M",
+                    "bytes": "6.7M"
                 },
                 "coding_seq_cds": {
                     "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-53/fasta/actinidia_chinensis/cds/Actinidia_chinensis.Red5_PS1_1.69.0.cds.all.fa.gz",
                     "ensembl_release": 53,
                     "release_date": "2022-02-15",
                     "release_time": "12:53",
-                    "bytes": "14M",
+                    "bytes": "14M"
                 },
                 "non-coding_seq_ncRNA": {
                     "ftp": "",
                     "ensembl_release": 53,
                     "release_date": "",
                     "release_time": "",
-                    "bytes": "",
+                    "bytes": ""
                 },
                 "protein_translation_pep": {
                     "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-53/fasta/actinidia_chinensis/pep/Actinidia_chinensis.Red5_PS1_1.69.0.pep.all.fa.gz",
                     "ensembl_release": 53,
                     "release_date": "2022-02-15",
                     "release_time": "12:53",
-                    "bytes": "9.7M",
-                },
+                    "bytes": "9.7M"
+                }
             }
         }
-        self.assertEqual(result_to_test, expected_result)
-
-    def test_ref_which_plant(self):
-        result_to_test = ref(
-            "aegilops_tauschii", which=["gtf", "dna", "pep"], release=53, ftp=False
-        )
-        expected_result = {
+    },
+    "test7": {
+        "type": "assert_equal",
+        "args": {
+            "species": "aegilops_tauschii",
+            "which": [
+                "gtf",
+                "dna",
+                "pep"
+            ],
+            "release": 53,
+            "ftp": false
+        },
+        "expected_result": {
             "aegilops_tauschii": {
                 "annotation_gtf": {
                     "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-53/gtf/aegilops_tauschii/Aegilops_tauschii.Aet_v4.0.53.gtf.gz",
                     "ensembl_release": 53,
                     "release_date": "2022-02-27",
                     "release_time": "00:58",
-                    "bytes": "40M",
+                    "bytes": "40M"
                 },
                 "genome_dna": {
                     "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-53/fasta/aegilops_tauschii/dna/Aegilops_tauschii.Aet_v4.0.dna.toplevel.fa.gz",
                     "ensembl_release": 53,
                     "release_date": "2022-02-21",
                     "release_time": "12:17",
-                    "bytes": "1.1G",
+                    "bytes": "1.1G"
                 },
                 "protein_translation_pep": {
                     "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-53/fasta/aegilops_tauschii/pep/Aegilops_tauschii.Aet_v4.0.pep.all.fa.gz",
                     "ensembl_release": 53,
                     "release_date": "2022-02-17",
                     "release_time": "06:03",
-                    "bytes": "20M",
-                },
+                    "bytes": "20M"
+                }
             }
         }
-
-        self.assertEqual(result_to_test, expected_result)
-
-    def test_ref_rel_plant(self):
-        result_to_test = ref(
-            "zea_mays", which=["cdna", "dna", "cds"], release=48, ftp=False
-        )
-        expected_result = {
+    },
+    "test8": {
+        "type": "assert_equal",
+        "args": {
+            "species": "zea_mays",
+            "which": [
+                "cdna",
+                "dna",
+                "cds"
+            ],
+            "release": 48,
+            "ftp": false
+        },
+        "expected_result": {
             "zea_mays": {
                 "transcriptome_cdna": {
                     "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-48/fasta/zea_mays/cdna/Zea_mays.B73_RefGen_v4.cdna.all.fa.gz",
                     "ensembl_release": 48,
                     "release_date": "2020-07-10",
                     "release_time": "22:24",
-                    "bytes": "53M",
+                    "bytes": "53M"
                 },
                 "genome_dna": {
                     "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-48/fasta/zea_mays/dna/Zea_mays.B73_RefGen_v4.dna.toplevel.fa.gz",
                     "ensembl_release": 48,
                     "release_date": "2020-07-10",
                     "release_time": "17:48",
-                    "bytes": "602M",
+                    "bytes": "602M"
                 },
                 "coding_seq_cds": {
                     "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-48/fasta/zea_mays/cds/Zea_mays.B73_RefGen_v4.cds.all.fa.gz",
                     "ensembl_release": 48,
                     "release_date": "2020-07-10",
                     "release_time": "22:24",
-                    "bytes": "25M",
-                },
+                    "bytes": "25M"
+                }
             }
         }
-
-        self.assertEqual(result_to_test, expected_result)
-
-    def test_ref_rel_ftp_plant(self):
-        result_to_test = ref(
-            "brassica_rapa", which=["gtf", "dna", "pep"], release=51, ftp=True
-        )
-        expected_result = [
+    },
+    "test9": {
+        "type": "assert_equal",
+        "args": {
+            "species": "brassica_rapa",
+            "which": [
+                "gtf",
+                "dna",
+                "pep"
+            ],
+            "release": 51,
+            "ftp": true
+        },
+        "expected_result": [
             "http://ftp.ensemblgenomes.org/pub/plants/release-51/gtf/brassica_rapa/Brassica_rapa.Brapa_1.0.51.gtf.gz",
             "http://ftp.ensemblgenomes.org/pub/plants/release-51/fasta/brassica_rapa/dna/Brassica_rapa.Brapa_1.0.dna.toplevel.fa.gz",
-            "http://ftp.ensemblgenomes.org/pub/plants/release-51/fasta/brassica_rapa/pep/Brassica_rapa.Brapa_1.0.pep.all.fa.gz",
+            "http://ftp.ensemblgenomes.org/pub/plants/release-51/fasta/brassica_rapa/pep/Brassica_rapa.Brapa_1.0.pep.all.fa.gz"
         ]
-
-        self.assertEqual(result_to_test, expected_result)
-
-    ## Test bad input errors
-    def test_ref_bad_species(self):
-        with self.assertRaises(ValueError):
-            ref("banana", which=["cdna", "dna", "cds"], release=76, ftp=False)
-
-    def test_ref_bad_which(self):
-        with self.assertRaises(ValueError):
-            ref("taeniopygia_guttata", which=["sneeze"], release=105, ftp=False)
-
-    def test_ref_bad_rel(self):
-        with self.assertRaises(ValueError):
-            ref("taeniopygia_guttata", which=["gtf"], release=2000, ftp=False)
-
-    def test_ref_list(self):
-        result_to_test = ref(species=None, release=100, list_species=True)
-        expected_result = [
+    },
+    "test10": {
+        "type": "assert_equal",
+        "args": {
+            "species": null,
+            "release": 100,
+            "list_species": true
+        },
+        "expected_result": [
             "acanthochromis_polyacanthus",
             "accipiter_nisus",
             "ailuropoda_melanoleuca",
@@ -571,6 +608,45 @@ class TestRef(unittest.TestCase):
             "xiphophorus_couchianus",
             "xiphophorus_maculatus",
             "zonotrichia_albicollis",
-            "zosterops_lateralis_melanops",
+            "zosterops_lateralis_melanops"
         ]
-        self.assertListEqual(result_to_test, expected_result)
+    },
+    "error_test1": {
+        "type": "error",
+        "args": {
+            "species": "banana",
+            "which": [
+                "cdna",
+                "dna",
+                "cds"
+            ],
+            "release": 76,
+            "ftp": false
+        },
+        "expected_result": "ValueError"
+    },
+    "error_test2": {
+        "type": "error",
+        "args": {
+            "species": "taeniopygia_guttata",
+            "which": [
+                "sneeze"
+            ],
+            "release": 105,
+            "ftp": false
+        },
+        "expected_result": "ValueError"
+    },
+    "error_test3": {
+        "type": "error",
+        "args": {
+            "species": "taeniopygia_guttata",
+            "which": [
+                "gtf"
+            ],
+            "release": 2000,
+            "ftp": false
+        },
+        "expected_result": "ValueError"
+    }
+}
