@@ -30,7 +30,7 @@ def enrichr(
     database,
     ensembl=False,
     plot=False,
-    figsize=(10,10),
+    figsize=(10, 10),
     ax=None,
     json=False,
     save=False,
@@ -110,11 +110,12 @@ def enrichr(
         logging.info("Getting gene symbols from Ensembl IDs.")
 
         genes_v2 = []
+
         for gene_id in genes:
             # Remove version number if passed
             gene_id = gene_id.split(".")[0]
 
-            info_df = info(gene_id, verbose=False)
+            info_df = info(gene_id, ensembl_only=True, verbose=False)
 
             # Check if Ensembl ID was found
             if isinstance(info_df, type(None)):
