@@ -1,10 +1,7 @@
 on:
   schedule: 
-    # Runs once a week on Sunday
-    - cron: "55 23 * * 0"
-  push:
-    branches:
-      - main
+    # Runs every two weeks
+    - cron: "0 0 */14 * *"
     
 jobs:
   # This workflow stores repository traffic and clones past the default 2 week period
