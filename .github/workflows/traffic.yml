@@ -2,6 +2,9 @@ on:
   schedule: 
     # Runs every two weeks
     - cron: "0 0 */14 * *"
+  push:
+    branches:
+      - main
     
 jobs:
   # This workflow stores repository traffic and clones past the default 2 week period
