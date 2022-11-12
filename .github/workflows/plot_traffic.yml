@@ -44,4 +44,5 @@ jobs:
           git commit -m "Latest data: ${timestamp}" || exit 0
           git push
       - name: Clean up
-        run: rm gget_traffic.html && yes | rm -r gget
+        run: |
+          rm gget_traffic.html 
