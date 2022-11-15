@@ -1,8 +1,6 @@
-name: plot_traffic
+name: Plot_traffic
 on:
   push:
-    paths:
-    - 'traffic/*'
     branches:
     - traffic
 
