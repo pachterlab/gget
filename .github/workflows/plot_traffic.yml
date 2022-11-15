@@ -3,7 +3,9 @@ name: Save and plot traffic data
 on:
   push:
     paths:
-    - 'traffic/**'
+    - 'traffic/*'
+    branches:
+    - 'traffic'
 
 jobs:
   build:
