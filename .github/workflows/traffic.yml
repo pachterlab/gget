@@ -1,3 +1,4 @@
+name: Traffic
 on:
   schedule: 
     # Runs every two weeks
