@@ -1,5 +1,4 @@
-name: Save and plot traffic data
-
+name: plot_traffic
 on:
   push:
     paths:
