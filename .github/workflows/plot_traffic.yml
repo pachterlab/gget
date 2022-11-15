@@ -5,7 +5,7 @@ on:
     paths:
     - 'traffic/*'
     branches:
-    - 'traffic'
+    - traffic
 
 jobs:
   build:
