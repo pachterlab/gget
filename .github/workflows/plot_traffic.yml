@@ -32,7 +32,7 @@ jobs:
           python -m pip install -r requirements.txt
           
       - name: Execute notebook
-        run: jupyter nbconvert --execute gget_traffic.ipynb
+        run: jupyter nbconvert --to 'html' --execute gget_traffic.ipynb
       
       - name: Commit and push new data
         run: |-
