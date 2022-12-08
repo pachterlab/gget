@@ -52,36 +52,36 @@ def setup(module):
                 "gget setup alphafold and gget alphafold are not supported on Windows OS."
             )
 
-        ## Make sure package paths are appended so openmm can be imported
-        site_packages_path = os.__file__.split("os.py")[0] + "site-packages"
-        if site_packages_path not in sys.path:
-            sys.path.append(site_packages_path)
+        # ## Make sure package paths are appended so openmm can be imported
+        # site_packages_path = os.__file__.split("os.py")[0] + "site-packages"
+        # if site_packages_path not in sys.path:
+        #     sys.path.append(site_packages_path)
 
-        site_packages_path_python = (
-            "/".join(str(os.__file__.split("os.py")[0]).split("/")[:-2])
-            + f"/python{'.'.join(python_version().split('.')[:2])}/site-packages"
-        )
-        if site_packages_path_python not in sys.path:
-            sys.path.append(site_packages_path_python)
+        # site_packages_path_python = (
+        #     "/".join(str(os.__file__.split("os.py")[0]).split("/")[:-2])
+        #     + f"/python{'.'.join(python_version().split('.')[:2])}/site-packages"
+        # )
+        # if site_packages_path_python not in sys.path:
+        #     sys.path.append(site_packages_path_python)
 
-        site_packages_path_python37 = (
-            "/".join(str(os.__file__.split("os.py")[0]).split("/")[:-2])
-            + f"/python3.7/site-packages"
-        )
-        if site_packages_path_python37 not in sys.path:
-            sys.path.append(site_packages_path_python37)
+        # site_packages_path_python37 = (
+        #     "/".join(str(os.__file__.split("os.py")[0]).split("/")[:-2])
+        #     + f"/python3.7/site-packages"
+        # )
+        # if site_packages_path_python37 not in sys.path:
+        #     sys.path.append(site_packages_path_python37)
 
-        conda_python_path = os.path.expanduser(
-            f"~/opt/conda/lib/python{'.'.join(python_version().split('.')[:2])}/site-packages"
-        )
-        if conda_python_path not in sys.path:
-            sys.path.append(conda_python_path)
+        # conda_python_path = os.path.expanduser(
+        #     f"~/opt/conda/lib/python{'.'.join(python_version().split('.')[:2])}/site-packages"
+        # )
+        # if conda_python_path not in sys.path:
+        #     sys.path.append(conda_python_path)
 
-        conda_python37_path = os.path.expanduser(
-            f"~/opt/conda/lib/python3.7/site-packages"
-        )
-        if conda_python37_path not in sys.path:
-            sys.path.append(conda_python37_path)
+        # conda_python37_path = os.path.expanduser(
+        #     f"~/opt/conda/lib/python3.7/site-packages"
+        # )
+        # if conda_python37_path not in sys.path:
+        #     sys.path.append(conda_python37_path)
 
         # Global location of temporary disk
         global TMP_DISK
@@ -207,14 +207,14 @@ def setup(module):
         if alphafold_path not in sys.path:
             sys.path.append(alphafold_path)
 
-        ## Install pdbfixer v1.7 (compadible with openmm v7.5.1)
+        ## Install pdbfixer v1.8.1 (compadible with openmm v7.5.1)
         logging.info("Installing pdbfixer from source (requires pip and git).")
 
         pdbfixer_folder = os.path.join(
             PACKAGE_PATH, "tmp_pdbfixer_" + str(uuid.uuid4())
         )
         command = f"""
-            git clone -q --branch v1.7 {PDBFIXER_GIT_REPO} {pdbfixer_folder} \
+            git clone -q --branch v1.8.1 {PDBFIXER_GIT_REPO} {pdbfixer_folder} \
             && pip install -q {pdbfixer_folder} \
             """
 

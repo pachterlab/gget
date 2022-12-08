@@ -190,7 +190,7 @@ def alphafold(
     show_sidechains=True,
 ):
     """
-    Predicts the structure of a protein using a slightly simplified version of AlphaFold v2.1.0 (https://doi.org/10.1038/s41586-021-03819-2)
+    Predicts the structure of a protein using a slightly simplified version of AlphaFold v2.2.4 (https://doi.org/10.1038/s41586-021-03819-2)
     published in the AlphaFold Colab notebook (https://colab.research.google.com/github/deepmind/alphafold/blob/main/notebooks/AlphaFold.ipynb).
 
     Args:
@@ -204,7 +204,7 @@ def alphafold(
     Saves the predicted aligned error (json) and the prediction (PDB) in the defined 'out' folder.
 
     From the AlphaFold Colab notebook (https://colab.research.google.com/github/deepmind/alphafold/blob/main/notebooks/AlphaFold.ipynb):
-    "In comparison to AlphaFold v2.1.0, this [algorithm] uses no templates (homologous structures)
+    "In comparison to AlphaFold v2.2.4, this [algorithm] uses no templates (homologous structures)
     and only a selected portion of the BFD database (https://bfd.mmseqs.com/). We have validated these
     changes on several thousand recent PDB structures. While accuracy will be near-identical to the full
     AlphaFold system on many targets, a small fraction have a large drop in accuracy due to the smaller MSA
@@ -473,12 +473,13 @@ def alphafold(
             logging.error("Giving chmod 755 permissions to jackhmmer binary failed.")
             return
 
-        if sequence not in raw_msa_results_for_sequence:
-            # Save the target sequence in a fasta file
-            fasta_path = os.path.join(abs_out_path, f"target_{sequence_index}.fasta")
-            with open(fasta_path, "wt") as f:
-                f.write(f">query\n{sequence}")
+        # Save the target sequence in a fasta file
+        fasta_path = os.path.join(abs_out_path, f"target_{sequence_index}.fasta")
+        with open(fasta_path, "wt") as f:
+            f.write(f">query\n{sequence}")
 
+        # Don't do redundant work for multiple copies of the same chain in the multimer
+        if sequence not in raw_msa_results_for_sequence:
             raw_msa_results = get_msa(
                 fasta_path=fasta_path,
                 msa_databases=MSA_DATABASES,
@@ -644,7 +645,7 @@ def alphafold(
                 stiffness=10.0,
                 exclude_residues=[],
                 max_outer_iterations=3,
-                use_gpu=True,
+                use_gpu=False,
             )
             relaxed_pdb, _, _ = amber_relaxer.process(
                 prot=unrelaxed_proteins[best_model_name]
