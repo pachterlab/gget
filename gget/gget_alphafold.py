@@ -230,14 +230,13 @@ def alphafold(
     try:
         import simtk.openmm as openmm
     except ImportError:
-        logging.error(
+        raise ImportError(
             """
-        Please install AlphaFold third-party dependency openmm v7.5.1 by running the following command from the command line: 
-        'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' 
-        (Recommendation: Follow with 'conda update -qy conda' to update conda to the latest version afterwards.)
-        """
+            Please install AlphaFold third-party dependency openmm v7.5.1 by running the following command from the command line: 
+            'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' 
+            (Recommendation: Follow with 'conda update -qy conda' to update conda to the latest version afterwards.)
+            """
         )
-        return
 
     # Check if AlphaFold is installed
     try:
@@ -245,9 +244,9 @@ def alphafold(
     except ImportError:
         logging.error(
             """
-        Some third-party dependencies are missing. Please run the following command: 
-        >>> gget.setup('alphafold') or $ gget setup alphafold
-        """
+            Some third-party dependencies are missing. Please run the following command: 
+            >>> gget.setup('alphafold') or $ gget setup alphafold
+            """
         )
         return
 
@@ -259,9 +258,9 @@ def alphafold(
     if pdb_out.decode() == "":
         logging.error(
             """
-        Some third-party dependencies are missing. Please run the following command: 
-        >>> gget.setup('alphafold') or $ gget setup alphafold
-        """
+            Some third-party dependencies are missing. Please run the following command: 
+            >>> gget.setup('alphafold') or $ gget setup alphafold
+            """
         )
         return
 
@@ -269,18 +268,18 @@ def alphafold(
     if not os.path.exists(os.path.join(PARAMS_DIR, "params/")):
         logging.error(
             """
-        The AlphaFold model parameters are missing. Please run the following command: 
-        >>> gget.setup('alphafold') or $ gget setup alphafold
-        """
+            The AlphaFold model parameters are missing. Please run the following command: 
+            >>> gget.setup('alphafold') or $ gget setup alphafold
+            """
         )
         return
 
     if len(os.listdir(os.path.join(PARAMS_DIR, "params/"))) < 12:
         logging.error(
             """
-        The AlphaFold model parameters are missing. Please run the following command: 
-        >>> gget.setup('alphafold') or $ gget setup alphafold
-        """
+            The AlphaFold model parameters are missing. Please run the following command: 
+            >>> gget.setup('alphafold') or $ gget setup alphafold
+            """
         )
         return
 
@@ -301,14 +300,13 @@ def alphafold(
         from alphafold.relax import utils
     except ModuleNotFoundError as e:
         if "openmm" in str(e):
-            logging.error(
+            raise ImportError(
                 """
-                Dependency openmm v7.5.1 not installed succesfully. 
-                Try running 'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' from the command line.
+                Please install AlphaFold third-party dependency openmm v7.5.1 by running the following command from the command line: 
+                'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' 
                 (Recommendation: Follow with 'conda update -qy conda' to update conda to the latest version afterwards.)
                 """
             )
-            return
 
     if relax:
         # Import AlphaFold relax package
@@ -316,14 +314,13 @@ def alphafold(
             from alphafold.relax import relax as run_relax
         except ModuleNotFoundError as e:
             if "openmm" in str(e):
-                logging.error(
+                raise ImportError(
                     """
-                    Dependency openmm v7.5.1 not installed succesfully. 
-                    Try running 'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' from the command line.
+                    Please install AlphaFold third-party dependency openmm v7.5.1 by running the following command from the command line: 
+                    'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' 
                     (Recommendation: Follow with 'conda update -qy conda' to update conda to the latest version afterwards.)
                     """
                 )
-                return
 
     ## Move stereo_chemical_props.txt from gget bins to Alphafold package so it can be found
     # logging.info("Locate files containing stereochemical properties.")
