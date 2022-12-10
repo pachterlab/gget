@@ -45,7 +45,8 @@ TQDM_BAR_FORMAT = (
 )
 
 from .compile import PACKAGE_PATH
-from .gget_setup import UUID, TMP_DISK, PARAMS_DIR
+# from .gget_setup import TMP_DISK
+from .gget_setup import UUID, PARAMS_DIR
 
 STEREO_CHEM_DIR = os.path.join(PARAMS_DIR, "stereo_chemical_props.txt")
 # Path to jackhmmer binary
@@ -190,7 +191,7 @@ def alphafold(
     show_sidechains=True,
 ):
     """
-    Predicts the structure of a protein using a slightly simplified version of AlphaFold v2.1.0 (https://doi.org/10.1038/s41586-021-03819-2)
+    Predicts the structure of a protein using a slightly simplified version of AlphaFold v2.2.4 (https://doi.org/10.1038/s41586-021-03819-2)
     published in the AlphaFold Colab notebook (https://colab.research.google.com/github/deepmind/alphafold/blob/main/notebooks/AlphaFold.ipynb).
 
     Args:
@@ -204,7 +205,7 @@ def alphafold(
     Saves the predicted aligned error (json) and the prediction (PDB) in the defined 'out' folder.
 
     From the AlphaFold Colab notebook (https://colab.research.google.com/github/deepmind/alphafold/blob/main/notebooks/AlphaFold.ipynb):
-    "In comparison to AlphaFold v2.1.0, this [algorithm] uses no templates (homologous structures)
+    "In comparison to AlphaFold v2.2.4, this [algorithm] uses no templates (homologous structures)
     and only a selected portion of the BFD database (https://bfd.mmseqs.com/). We have validated these
     changes on several thousand recent PDB structures. While accuracy will be near-identical to the full
     AlphaFold system on many targets, a small fraction have a large drop in accuracy due to the smaller MSA
@@ -216,8 +217,8 @@ def alphafold(
     Please note that this [algorithm] is provided as an early-access prototype and is not a finished product.
     It is provided for theoretical modelling only and caution should be exercised in its use."
 
-    If you use this function, please cite the AphaFold paper (https://doi.org/10.1038/s41586-021-03819-2) and, if applicable,
-    the AlphaFold-Multimer paper (https://www.biorxiv.org/content/10.1101/2021.10.04.463034v1).
+    If you use this function, please cite the gget (https://doi.org/10.1101/2022.05.17.492392) and AphaFold (https://doi.org/10.1038/s41586-021-03819-2) papers 
+    and, if applicable, the AlphaFold-Multimer paper (https://www.biorxiv.org/content/10.1101/2021.10.04.463034v1).
     """
 
     if platform.system() == "Windows":
@@ -230,14 +231,13 @@ def alphafold(
     try:
         import simtk.openmm as openmm
     except ImportError:
-        logging.error(
+        raise ImportError(
             """
-        Please install AlphaFold third-party dependency openmm v7.5.1 by running the following command from the command line: 
-        'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' 
-        (Recommendation: Follow with 'conda update -qy conda' to update conda to the latest version afterwards.)
-        """
+            Please install AlphaFold third-party dependency openmm v7.5.1 by running the following command from the command line: 
+            'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' 
+            (Recommendation: Follow with 'conda update -qy conda' to update conda to the latest version afterwards.)
+            """
         )
-        return
 
     # Check if AlphaFold is installed
     try:
@@ -245,9 +245,9 @@ def alphafold(
     except ImportError:
         logging.error(
             """
-        Some third-party dependencies are missing. Please run the following command: 
-        >>> gget.setup('alphafold') or $ gget setup alphafold
-        """
+            Some third-party dependencies are missing. Please run the following command: 
+            >>> gget.setup('alphafold') or $ gget setup alphafold
+            """
         )
         return
 
@@ -259,9 +259,9 @@ def alphafold(
     if pdb_out.decode() == "":
         logging.error(
             """
-        Some third-party dependencies are missing. Please run the following command: 
-        >>> gget.setup('alphafold') or $ gget setup alphafold
-        """
+            Some third-party dependencies are missing. Please run the following command: 
+            >>> gget.setup('alphafold') or $ gget setup alphafold
+            """
         )
         return
 
@@ -269,18 +269,18 @@ def alphafold(
     if not os.path.exists(os.path.join(PARAMS_DIR, "params/")):
         logging.error(
             """
-        The AlphaFold model parameters are missing. Please run the following command: 
-        >>> gget.setup('alphafold') or $ gget setup alphafold
-        """
+            The AlphaFold model parameters are missing. Please run the following command: 
+            >>> gget.setup('alphafold') or $ gget setup alphafold
+            """
         )
         return
 
     if len(os.listdir(os.path.join(PARAMS_DIR, "params/"))) < 12:
         logging.error(
             """
-        The AlphaFold model parameters are missing. Please run the following command: 
-        >>> gget.setup('alphafold') or $ gget setup alphafold
-        """
+            The AlphaFold model parameters are missing. Please run the following command: 
+            >>> gget.setup('alphafold') or $ gget setup alphafold
+            """
         )
         return
 
@@ -301,14 +301,13 @@ def alphafold(
         from alphafold.relax import utils
     except ModuleNotFoundError as e:
         if "openmm" in str(e):
-            logging.error(
+            raise ImportError(
                 """
-                Dependency openmm v7.5.1 not installed succesfully. 
-                Try running 'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' from the command line.
+                Please install AlphaFold third-party dependency openmm v7.5.1 by running the following command from the command line: 
+                'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' 
                 (Recommendation: Follow with 'conda update -qy conda' to update conda to the latest version afterwards.)
                 """
             )
-            return
 
     if relax:
         # Import AlphaFold relax package
@@ -316,14 +315,13 @@ def alphafold(
             from alphafold.relax import relax as run_relax
         except ModuleNotFoundError as e:
             if "openmm" in str(e):
-                logging.error(
+                raise ImportError(
                     """
-                    Dependency openmm v7.5.1 not installed succesfully. 
-                    Try running 'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' from the command line.
+                    Please install AlphaFold third-party dependency openmm v7.5.1 by running the following command from the command line: 
+                    'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' 
                     (Recommendation: Follow with 'conda update -qy conda' to update conda to the latest version afterwards.)
                     """
                 )
-                return
 
     ## Move stereo_chemical_props.txt from gget bins to Alphafold package so it can be found
     # logging.info("Locate files containing stereochemical properties.")
@@ -473,12 +471,13 @@ def alphafold(
             logging.error("Giving chmod 755 permissions to jackhmmer binary failed.")
             return
 
-        if sequence not in raw_msa_results_for_sequence:
-            # Save the target sequence in a fasta file
-            fasta_path = os.path.join(abs_out_path, f"target_{sequence_index}.fasta")
-            with open(fasta_path, "wt") as f:
-                f.write(f">query\n{sequence}")
+        # Save the target sequence in a fasta file
+        fasta_path = os.path.join(abs_out_path, f"target_{sequence_index}.fasta")
+        with open(fasta_path, "wt") as f:
+            f.write(f">query\n{sequence}")
 
+        # Don't do redundant work for multiple copies of the same chain in the multimer
+        if sequence not in raw_msa_results_for_sequence:
             raw_msa_results = get_msa(
                 fasta_path=fasta_path,
                 msa_databases=MSA_DATABASES,
@@ -644,7 +643,7 @@ def alphafold(
                 stiffness=10.0,
                 exclude_residues=[],
                 max_outer_iterations=3,
-                use_gpu=True,
+                use_gpu=False,
             )
             relaxed_pdb, _, _ = amber_relaxer.process(
                 prot=unrelaxed_proteins[best_model_name]

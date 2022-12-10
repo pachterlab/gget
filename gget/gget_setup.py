@@ -23,8 +23,8 @@ ALPHAFOLD_GIT_REPO = "https://github.com/deepmind/alphafold"
 PDBFIXER_GIT_REPO = "https://github.com/openmm/pdbfixer.git"
 # Unique ID to name temporary jackhmmer folder
 UUID = "fcb45c67-8b27-4156-bbd8-9d11512babf2"
-# Path to temporary mounted disk (global)
-TMP_DISK = ""
+# # Path to temporary mounted disk (global)
+# TMP_DISK = ""
 # Model parameters
 PARAMS_URL = (
     "https://storage.googleapis.com/alphafold/alphafold_params_colab_2022-03-02.tar"
@@ -52,39 +52,39 @@ def setup(module):
                 "gget setup alphafold and gget alphafold are not supported on Windows OS."
             )
 
-        ## Make sure package paths are appended so openmm can be imported
-        site_packages_path = os.__file__.split("os.py")[0] + "site-packages"
-        if site_packages_path not in sys.path:
-            sys.path.append(site_packages_path)
+        # ## Make sure package paths are appended so openmm can be imported
+        # site_packages_path = os.__file__.split("os.py")[0] + "site-packages"
+        # if site_packages_path not in sys.path:
+        #     sys.path.append(site_packages_path)
 
-        site_packages_path_python = (
-            "/".join(str(os.__file__.split("os.py")[0]).split("/")[:-2])
-            + f"/python{'.'.join(python_version().split('.')[:2])}/site-packages"
-        )
-        if site_packages_path_python not in sys.path:
-            sys.path.append(site_packages_path_python)
+        # site_packages_path_python = (
+        #     "/".join(str(os.__file__.split("os.py")[0]).split("/")[:-2])
+        #     + f"/python{'.'.join(python_version().split('.')[:2])}/site-packages"
+        # )
+        # if site_packages_path_python not in sys.path:
+        #     sys.path.append(site_packages_path_python)
 
-        site_packages_path_python37 = (
-            "/".join(str(os.__file__.split("os.py")[0]).split("/")[:-2])
-            + f"/python3.7/site-packages"
-        )
-        if site_packages_path_python37 not in sys.path:
-            sys.path.append(site_packages_path_python37)
+        # site_packages_path_python37 = (
+        #     "/".join(str(os.__file__.split("os.py")[0]).split("/")[:-2])
+        #     + f"/python3.7/site-packages"
+        # )
+        # if site_packages_path_python37 not in sys.path:
+        #     sys.path.append(site_packages_path_python37)
 
-        conda_python_path = os.path.expanduser(
-            f"~/opt/conda/lib/python{'.'.join(python_version().split('.')[:2])}/site-packages"
-        )
-        if conda_python_path not in sys.path:
-            sys.path.append(conda_python_path)
+        # conda_python_path = os.path.expanduser(
+        #     f"~/opt/conda/lib/python{'.'.join(python_version().split('.')[:2])}/site-packages"
+        # )
+        # if conda_python_path not in sys.path:
+        #     sys.path.append(conda_python_path)
 
-        conda_python37_path = os.path.expanduser(
-            f"~/opt/conda/lib/python3.7/site-packages"
-        )
-        if conda_python37_path not in sys.path:
-            sys.path.append(conda_python37_path)
+        # conda_python37_path = os.path.expanduser(
+        #     f"~/opt/conda/lib/python3.7/site-packages"
+        # )
+        # if conda_python37_path not in sys.path:
+        #     sys.path.append(conda_python37_path)
 
-        # Global location of temporary disk
-        global TMP_DISK
+        # # Global location of temporary disk
+        # global TMP_DISK
 
         ## Ask user to install openmm if not already installed
         try:
@@ -100,14 +100,13 @@ def setup(module):
             logging.info(f"openmm v{openmm.__version__} already installed.")
 
         except ImportError:
-            logging.error(
+            raise ImportError(
                 """
-        Please install AlphaFold third-party dependency openmm v7.5.1 by running the following command from the command line: 
-        'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' 
-        (Recommendation: Follow with 'conda update -qy conda' to update conda to the latest version afterwards.)
-        """
+                Please install AlphaFold third-party dependency openmm v7.5.1 by running the following command from the command line: 
+                'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' 
+                (Recommendation: Follow with 'conda update -qy conda' to update conda to the latest version afterwards.)
+                """
             )
-            return
 
         ## Install Alphafold if not already installed
         logging.info("Installing AlphaFold from source (requires pip and git).")
@@ -150,32 +149,36 @@ def setup(module):
         # Pip install AlphaFold from local directory
         if platform.system() == "Darwin":
             command = """
-                git clone -q {} {} \
+                git clone --branch main -q {} {} \
                 && sed -i '' 's/\/tmp\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \
                 && sed -i '' 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' {}/alphafold/data/tools/jackhmmer.py \
-                && pip install -q {} \
+                && pip install -q -r {}/requirements.txt \
+                && pip install -q --no-dependencies {}
                 """.format(
                 ALPHAFOLD_GIT_REPO,
                 alphafold_folder,
                 os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace(
                     "/", "\/"
                 ),  # Replace directory where jackhmmer database chunks will be saved
+                alphafold_folder,
                 alphafold_folder,
                 alphafold_folder,
                 alphafold_folder,
             )
         else:
             command = """
-                git clone -q {} {} \
+                git clone --branch main -q {} {} \
                 && sed -i 's/\/tmp\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \
                 && sed -i 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' {}/alphafold/data/tools/jackhmmer.py \
-                && pip install -q {} \
+                && pip install -q -r {}/requirements.txt \
+                && pip install -q --no-dependencies {}
                 """.format(
                 ALPHAFOLD_GIT_REPO,
                 alphafold_folder,
                 os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace(
                     "/", "\/"
                 ),  # Replace directory where jackhmmer database chunks will be saved
+                alphafold_folder,
                 alphafold_folder,
                 alphafold_folder,
                 alphafold_folder,
