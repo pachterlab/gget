@@ -149,32 +149,36 @@ def setup(module):
         # Pip install AlphaFold from local directory
         if platform.system() == "Darwin":
             command = """
-                git clone -q {} {} \
+                git clone --branch main -q {} {} \
                 && sed -i '' 's/\/tmp\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \
                 && sed -i '' 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' {}/alphafold/data/tools/jackhmmer.py \
-                && pip install -q {} \
+                && pip install -r {}/requirements.txt \
+                && pip install --no-dependencies {}
                 """.format(
                 ALPHAFOLD_GIT_REPO,
                 alphafold_folder,
                 os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace(
                     "/", "\/"
                 ),  # Replace directory where jackhmmer database chunks will be saved
+                alphafold_folder,
                 alphafold_folder,
                 alphafold_folder,
                 alphafold_folder,
             )
         else:
             command = """
-                git clone -q {} {} \
+                git clone --branch main -q {} {} \
                 && sed -i 's/\/tmp\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \
                 && sed -i 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' {}/alphafold/data/tools/jackhmmer.py \
-                && pip install -q {} \
+                && pip install -r {}/requirements.txt \
+                && pip install --no-dependencies {}
                 """.format(
                 ALPHAFOLD_GIT_REPO,
                 alphafold_folder,
                 os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace(
                     "/", "\/"
                 ),  # Replace directory where jackhmmer database chunks will be saved
+                alphafold_folder,
                 alphafold_folder,
                 alphafold_folder,
                 alphafold_folder,
