@@ -45,7 +45,8 @@ TQDM_BAR_FORMAT = (
 )
 
 from .compile import PACKAGE_PATH
-from .gget_setup import UUID, TMP_DISK, PARAMS_DIR
+# from .gget_setup import TMP_DISK
+from .gget_setup import UUID, PARAMS_DIR
 
 STEREO_CHEM_DIR = os.path.join(PARAMS_DIR, "stereo_chemical_props.txt")
 # Path to jackhmmer binary
