@@ -152,8 +152,8 @@ def setup(module):
                 git clone --branch main -q {} {} \
                 && sed -i '' 's/\/tmp\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \
                 && sed -i '' 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' {}/alphafold/data/tools/jackhmmer.py \
-                && pip install -r {}/requirements.txt \
-                && pip install --no-dependencies {}
+                && pip install -q -r {}/requirements.txt \
+                && pip install -q --no-dependencies {}
                 """.format(
                 ALPHAFOLD_GIT_REPO,
                 alphafold_folder,
@@ -170,8 +170,8 @@ def setup(module):
                 git clone --branch main -q {} {} \
                 && sed -i 's/\/tmp\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \
                 && sed -i 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' {}/alphafold/data/tools/jackhmmer.py \
-                && pip install -r {}/requirements.txt \
-                && pip install --no-dependencies {}
+                && pip install -q -r {}/requirements.txt \
+                && pip install -q --no-dependencies {}
                 """.format(
                 ALPHAFOLD_GIT_REPO,
                 alphafold_folder,
@@ -210,14 +210,14 @@ def setup(module):
         if alphafold_path not in sys.path:
             sys.path.append(alphafold_path)
 
-        ## Install pdbfixer v1.8.1 (compadible with openmm v7.5.1)
+        ## Install pdbfixer v1.7 (compadible with openmm v7.5.1)
         logging.info("Installing pdbfixer from source (requires pip and git).")
 
         pdbfixer_folder = os.path.join(
             PACKAGE_PATH, "tmp_pdbfixer_" + str(uuid.uuid4())
         )
         command = f"""
-            git clone -q --branch v1.8.1 {PDBFIXER_GIT_REPO} {pdbfixer_folder} \
+            git clone -q --branch v1.7 {PDBFIXER_GIT_REPO} {pdbfixer_folder} \
             && pip install -q {pdbfixer_folder} \
             """
 
