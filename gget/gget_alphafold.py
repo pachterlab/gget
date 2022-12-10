@@ -217,8 +217,8 @@ def alphafold(
     Please note that this [algorithm] is provided as an early-access prototype and is not a finished product.
     It is provided for theoretical modelling only and caution should be exercised in its use."
 
-    If you use this function, please cite the AphaFold paper (https://doi.org/10.1038/s41586-021-03819-2) and, if applicable,
-    the AlphaFold-Multimer paper (https://www.biorxiv.org/content/10.1101/2021.10.04.463034v1).
+    If you use this function, please cite the gget (https://doi.org/10.1101/2022.05.17.492392) and AphaFold (https://doi.org/10.1038/s41586-021-03819-2) papers 
+    and, if applicable, the AlphaFold-Multimer paper (https://www.biorxiv.org/content/10.1101/2021.10.04.463034v1).
     """
 
     if platform.system() == "Windows":
