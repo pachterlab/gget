@@ -1,8 +1,12 @@
 ## ✨ What's new
-**Version ≥ 0.3.13:**
+**Version ≥ 0.27.0:**  
+- Updated [`gget alphafold`](./alphafold.md) to match recent changes by DeepMind  
+- Updated version number to our creator's age following a long-standing Pachter lab tradition  
+
+**Version ≥ 0.3.13:**  
 - Reduced runtime for [`gget enrichr`](./enrichr.md) and [`gget archs4`](./archs4.md) when used with Ensembl IDs  
 
-**Version ≥ 0.3.12:**
+**Version ≥ 0.3.12:**  
 - [`gget info`](./info.md) now also returns subcellular localisation data from UniProt
 - New [`gget info`](./info.md) flag `ensembl_only` returns only Ensembl results
 - Reduced runtime for [`gget info`](./info.md) and [`gget seq`](./seq.md)
