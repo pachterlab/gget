@@ -1,7 +1,7 @@
 ## ✨ What's new
 **Version ≥ 0.27.0:**  
 - Updated [`gget alphafold`](./alphafold.md) to match recent changes by DeepMind  
-- Updated version number to our creator's age following a long-standing Pachter lab tradition  
+- Updated version number to match gget's creator's age following a long-standing Pachter lab tradition  
 
 **Version ≥ 0.3.13:**  
 - Reduced runtime for [`gget enrichr`](./enrichr.md) and [`gget archs4`](./archs4.md) when used with Ensembl IDs  
