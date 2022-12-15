@@ -3,8 +3,6 @@ on:
   push:
     branches:
     - traffic
-    paths:
-    - 'traffic/*'
 
 jobs:
   build:
