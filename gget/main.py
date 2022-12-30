@@ -825,7 +825,7 @@ def main():
     )
 
     ## gget alphafold subparser
-    alphafold_desc = "Predicts the structure of a protein using a slightly simplified version of AlphaFold v2.1.0 (https://doi.org/10.1038/s41586-021-03819-2)."
+    alphafold_desc = "Predicts the structure of a protein using a simplified version of AlphaFold v2.3.0 (https://doi.org/10.1038/s41586-021-03819-2)."
     parser_alphafold = parent_subparsers.add_parser(
         "alphafold",
         parents=[parent],
@@ -839,7 +839,28 @@ def main():
         type=str,
         nargs="?",
         default=None,
-        help="Sequence (str) or path to fasta file.",
+        help="Sequence (str), list of sequences, or path to fasta file.",
+    )
+    parser_alphafold.add_argument(
+        "-mfm",
+        "--multimer_for_monomer",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Use multimer model for a monomer.",
+    )
+    parser_alphafold.add_argument(
+        "-mr",
+        "--multimer_recycles",
+        default=3,
+        type=int,
+        required=False,
+        help=(
+            """
+            The multimer model will continue recycling until the predictions stop changing, up to the limit set here.
+            For higher accuracy, at the potential cost of longer inference times, set this to 20.
+            """
+        ),
     )
     parser_alphafold.add_argument(
         "-r",
@@ -1530,6 +1551,8 @@ def main():
         alphafold(
             args.sequence,
             out=saving_dir,
+            multimer_for_monomer=args.multimer_for_monomer,
+            multimer_recycles=args.multimer_recycles,
             relax=args.relax,
             plot=False,
             show_sidechains=False,

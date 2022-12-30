@@ -15,6 +15,7 @@ from tqdm import tqdm
 import os
 import shutil
 import sys
+import enum
 import glob
 import json
 import subprocess
@@ -45,6 +46,7 @@ TQDM_BAR_FORMAT = (
 )
 
 from .compile import PACKAGE_PATH
+
 # from .gget_setup import TMP_DISK
 from .gget_setup import UUID, PARAMS_DIR
 
@@ -56,13 +58,15 @@ JACKHMMER_BINARY_PATH = os.path.join(
 
 # Test pattern to find closest source
 test_url_pattern = (
-    "https://storage.googleapis.com/alphafold-colab{:s}/latest/uniref90_2021_03.fasta.1"
+    "https://storage.googleapis.com/alphafold-colab{:s}/latest/uniref90_2022_01.fasta.1"
 )
 
 # Sequence validation parameters
-MIN_SINGLE_SEQUENCE_LENGTH = 16
-MAX_SINGLE_SEQUENCE_LENGTH = 2500
-MAX_MULTIMER_LENGTH = 2500
+MIN_PER_SEQUENCE_LENGTH = 16
+MAX_PER_SEQUENCE_LENGTH = 3400
+MAX_MONOMER_MODEL_LENGTH = 2500
+MAX_LENGTH = 3400
+MAX_VALIDATED_LENGTH = 3000
 
 # Maximum hits per database
 MAX_HITS = {
@@ -186,26 +190,31 @@ def clean_up():
 def alphafold(
     sequence,
     out=f"{dt_string}_gget_alphafold_prediction",
+    multimer_for_monomer=False,
     relax=False,
+    multimer_recycles=3,
     plot=True,
     show_sidechains=True,
 ):
     """
-    Predicts the structure of a protein using a slightly simplified version of AlphaFold v2.2.4 (https://doi.org/10.1038/s41586-021-03819-2)
+    Predicts the structure of a protein using a slightly simplified version of AlphaFold v2.3.0 (https://doi.org/10.1038/s41586-021-03819-2)
     published in the AlphaFold Colab notebook (https://colab.research.google.com/github/deepmind/alphafold/blob/main/notebooks/AlphaFold.ipynb).
 
     Args:
-      - sequence          Amino acid sequence (str), a list of sequences, or path to a FASTA file.
-      - out               Path to folder to save prediction results in (str).
-                          Default: "./[date_time]_gget_alphafold_prediction"
-      - relax             True/False whether to AMBER relax the best model (default: False).
-      - plot              True/False whether to provide a graphical overview of the prediction (default: True).
-      - show_sidechains   True/False whether to show side chains in the plot (default: True).
+      - sequence                Amino acid sequence (str), a list of sequences, or path to a FASTA file.
+      - out                     Path to folder to save prediction results in (str).
+                                Default: "./[date_time]_gget_alphafold_prediction"
+      - multimer_for_monomer    Use multimer model for a monomer (default: False).
+      - multimer_recycles       The multimer model will continue recycling until the predictions stop changing, up to the limit set here (default: 3).
+                                For higher accuracy, at the potential cost of longer inference times, set this to 20.
+      - relax                   True/False whether to AMBER relax the best model (default: False).
+      - plot                    True/False whether to provide a graphical overview of the prediction (default: True).
+      - show_sidechains         True/False whether to show side chains in the plot (default: True).
 
     Saves the predicted aligned error (json) and the prediction (PDB) in the defined 'out' folder.
 
     From the AlphaFold Colab notebook (https://colab.research.google.com/github/deepmind/alphafold/blob/main/notebooks/AlphaFold.ipynb):
-    "In comparison to AlphaFold v2.2.4, this [algorithm] uses no templates (homologous structures)
+    "In comparison to AlphaFold v2.3.0, this [algorithm] uses no templates (homologous structures)
     and only a selected portion of the BFD database (https://bfd.mmseqs.com/). We have validated these
     changes on several thousand recent PDB structures. While accuracy will be near-identical to the full
     AlphaFold system on many targets, a small fraction have a large drop in accuracy due to the smaller MSA
@@ -213,11 +222,10 @@ def alphafold(
     or the AlphaFold Protein Structure Database (https://alphafold.ebi.ac.uk/).
     This [algorithm] has a small drop in average accuracy for multimers compared to local AlphaFold installation,
     for full multimer accuracy it is highly recommended to run AlphaFold locally (https://github.com/deepmind/alphafold#running-alphafold).
-    Moreover, the AlphaFold-Multimer requires searching for MSA for every unique sequence in the complex, hence it is substantially slower.
-    Please note that this [algorithm] is provided as an early-access prototype and is not a finished product.
-    It is provided for theoretical modelling only and caution should be exercised in its use."
+    Moreover, the AlphaFold-Multimer requires searching for MSA for every unique sequence in the complex, hence it is substantially slower.[...]
+    Please note that this [algorithm] is provided for theoretical modelling only and caution should be exercised in its use."
 
-    If you use this function, please cite the gget (https://doi.org/10.1101/2022.05.17.492392) and AphaFold (https://doi.org/10.1038/s41586-021-03819-2) papers 
+    If you use this function, please cite the gget (https://doi.org/10.1101/2022.05.17.492392) and AphaFold (https://doi.org/10.1038/s41586-021-03819-2) papers
     and, if applicable, the AlphaFold-Multimer paper (https://www.biorxiv.org/content/10.1101/2021.10.04.463034v1).
     """
 
@@ -385,12 +393,47 @@ def alphafold(
         seqs = sequence
 
     # Use AlphaFold function to validate input sequence(s)
-    sequences, model_type_to_use = notebook_utils.validate_input(
+    class ModelType(enum.Enum):
+        MONOMER = 0
+        MULTIMER = 1
+
+    sequences = notebook_utils.clean_and_validate_input_sequences(
         input_sequences=seqs,
-        min_length=MIN_SINGLE_SEQUENCE_LENGTH,
-        max_length=MAX_SINGLE_SEQUENCE_LENGTH,
-        max_multimer_length=MAX_MULTIMER_LENGTH,
+        min_sequence_length=MIN_PER_SEQUENCE_LENGTH,
+        max_sequence_length=MAX_PER_SEQUENCE_LENGTH,
     )
+    if len(seqs) == 1:
+        if multimer_for_monomer:
+            print("Using the multimer model for single-chain, as requested.")
+            model_type_to_use = ModelType.MULTIMER
+        else:
+            print("Using the single-chain model.")
+            model_type_to_use = ModelType.MONOMER
+    else:
+        print(f"Using the multimer model with {len(seqs)} sequences.")
+        model_type_to_use = ModelType.MULTIMER
+
+    # Check whether total length exceeds limit
+    total_sequence_length = sum([len(seq) for seq in seqs])
+    if total_sequence_length > MAX_LENGTH:
+        raise ValueError(
+            f"The total sequence length is too long: {total_sequence_length}, while the maximum is {MAX_LENGTH}."
+        )
+
+    # Check whether seq exceeds the monomer limit
+    if model_type_to_use == ModelType.MONOMER:
+        if len(seqs[0]) > MAX_MONOMER_MODEL_LENGTH:
+            raise ValueError(
+                f"""
+                Input sequence is too long: {len(sequences[0])} amino acids, while the maximum for the monomer model is {MAX_MONOMER_MODEL_LENGTH}. 
+                You can try to run this sequence with the multimer model by using the flag [-mfm] ('multimer_for_monomer=True').
+                """
+            )
+
+    if total_sequence_length > MAX_VALIDATED_LENGTH:
+        logging.warning(
+            f"The accuracy of this algorithm has not been fully validated above 3000 residues, and you may experience long running times or run out of memory. Total sequence length is {total_sequence_length} residues."
+        )
 
     ## Find the closest source
     logging.info(f"Finding closest source for reference database.")
@@ -407,9 +450,9 @@ def alphafold(
     MSA_DATABASES = [
         {
             "db_name": "uniref90",
-            "db_path": f"{DB_ROOT_PATH}uniref90_2021_03.fasta",
-            "num_streamed_chunks": 59,
-            "z_value": 135_301_051,  # The z_value is the number of sequences in a database.
+            "db_path": f"{DB_ROOT_PATH}uniref90_2022_01.fasta",
+            "num_streamed_chunks": 62,
+            "z_value": 144_113_457,
         },
         {
             "db_name": "smallbfd",
@@ -419,25 +462,22 @@ def alphafold(
         },
         {
             "db_name": "mgnify",
-            "db_path": f"{DB_ROOT_PATH}mgy_clusters_2019_05.fasta",
-            "num_streamed_chunks": 71,
-            "z_value": 304_820_129,
+            "db_path": f"{DB_ROOT_PATH}mgy_clusters_2022_05.fasta",
+            "num_streamed_chunks": 120,
+            "z_value": 623_796_864,
         },
     ]
 
     # Search UniProt and construct the all_seq features (only for heteromers, not homomers).
-    if (
-        model_type_to_use == notebook_utils.ModelType.MULTIMER
-        and len(set(sequences)) > 1
-    ):
+    if model_type_to_use == ModelType.MULTIMER and len(set(sequences)) > 1:
         MSA_DATABASES.extend(
             [
-                # Swiss-Prot and TrEMBL are concatenated together as UniProt.
+                # Swiss-Prot and TrEMBL are concatenated together as UniProt
                 {
                     "db_name": "uniprot",
-                    "db_path": f"{DB_ROOT_PATH}uniprot_2021_03.fasta",
-                    "num_streamed_chunks": 98,
-                    "z_value": 219_174_961 + 565_254,
+                    "db_path": f"{DB_ROOT_PATH}uniprot_2021_04.fasta",
+                    "num_streamed_chunks": 101,
+                    "z_value": 225_013_025 + 565_928,
                 },
             ]
         )
@@ -524,10 +564,7 @@ def alphafold(
         )
 
         # Construct the all_seq features only for heteromers, not homomers
-        if (
-            model_type_to_use == notebook_utils.ModelType.MULTIMER
-            and len(set(sequences)) > 1
-        ):
+        if model_type_to_use == ModelType.MULTIMER and len(set(sequences)) > 1:
             valid_feats = msa_pairing.MSA_FEATURES + ("msa_species_identifiers",)
             all_seq_features = {
                 f"{k}_all_seq": v
@@ -539,10 +576,10 @@ def alphafold(
         features_for_chain[protein.PDB_CHAIN_IDS[sequence_index - 1]] = feature_dict
 
     # Further feature post-processing depending on the model type
-    if model_type_to_use == notebook_utils.ModelType.MONOMER:
+    if model_type_to_use == ModelType.MONOMER:
         np_example = features_for_chain[protein.PDB_CHAIN_IDS[0]]
 
-    elif model_type_to_use == notebook_utils.ModelType.MULTIMER:
+    elif model_type_to_use == ModelType.MULTIMER:
         all_chain_features = {}
         for chain_id, chain_features in features_for_chain.items():
             all_chain_features[chain_id] = pipeline_multimer.convert_monomer_features(
@@ -560,9 +597,9 @@ def alphafold(
 
     ## Run AlphaFold
     # Run model
-    if model_type_to_use == notebook_utils.ModelType.MONOMER:
+    if model_type_to_use == ModelType.MONOMER:
         model_names = config.MODEL_PRESETS["monomer"] + ("model_2_ptm",)
-    elif model_type_to_use == notebook_utils.ModelType.MULTIMER:
+    elif model_type_to_use == ModelType.MULTIMER:
         model_names = config.MODEL_PRESETS["multimer"]
 
     plddts = {}
@@ -576,10 +613,15 @@ def alphafold(
             pbar.set_description(f"Running {model_name}")
 
             cfg = config.model_config(model_name)
-            if model_type_to_use == notebook_utils.ModelType.MONOMER:
+            if model_type_to_use == ModelType.MONOMER:
                 cfg.data.eval.num_ensemble = 1
-            elif model_type_to_use == notebook_utils.ModelType.MULTIMER:
+            elif model_type_to_use == ModelType.MULTIMER:
                 cfg.model.num_ensemble_eval = 1
+
+            if model_type_to_use == ModelType.MULTIMER:
+                cfg.model.num_recycle = multimer_recycles
+                cfg.model.recycle_early_stop_tolerance = 0.5
+
             params = data.get_model_haiku_params(model_name, PARAMS_DIR)
             model_runner = model.RunModel(cfg, params)
             processed_feature_dict = model_runner.process_features(
@@ -589,7 +631,7 @@ def alphafold(
                 processed_feature_dict, random_seed=random.randrange(sys.maxsize)
             )
 
-            if model_type_to_use == notebook_utils.ModelType.MONOMER:
+            if model_type_to_use == ModelType.MONOMER:
                 if "predicted_aligned_error" in prediction:
                     pae_outputs[model_name] = (
                         prediction["predicted_aligned_error"],
@@ -600,7 +642,7 @@ def alphafold(
                     # should never get selected.
                     ranking_confidences[model_name] = prediction["ranking_confidence"]
                     plddts[model_name] = prediction["plddt"]
-            elif model_type_to_use == notebook_utils.ModelType.MULTIMER:
+            elif model_type_to_use == ModelType.MULTIMER:
                 # Multimer models are sorted by pTM+ipTM.
                 ranking_confidences[model_name] = prediction["ranking_confidence"]
                 plddts[model_name] = prediction["plddt"]
@@ -617,7 +659,7 @@ def alphafold(
                 prediction,
                 b_factors=b_factors,
                 remove_leading_feature_dimension=(
-                    model_type_to_use == notebook_utils.ModelType.MONOMER
+                    model_type_to_use == ModelType.MONOMER
                 ),
             )
             unrelaxed_proteins[model_name] = unrelaxed_protein
@@ -703,7 +745,7 @@ def alphafold(
         to_visualize_pdb = utils.overwrite_b_factors(relaxed_pdb, banded_b_factors)
 
         # Show the structure coloured by chain if the multimer model has been used.
-        if model_type_to_use == notebook_utils.ModelType.MULTIMER:
+        if model_type_to_use == ModelType.MULTIMER:
             multichain_view = py3Dmol.view(width=800, height=600)
             multichain_view.addModelsAsFrames(to_visualize_pdb)
             multichain_style = {"cartoon": {"colorscheme": "chain"}}

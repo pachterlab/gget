@@ -20,6 +20,7 @@ from .compile import PACKAGE_PATH
 
 ## Variables for alphafold module
 ALPHAFOLD_GIT_REPO = "https://github.com/deepmind/alphafold"
+ALPHAFOLD_GIT_REPO_VERSION = "v2.3.0"
 PDBFIXER_GIT_REPO = "https://github.com/openmm/pdbfixer.git"
 # Unique ID to name temporary jackhmmer folder
 UUID = "fcb45c67-8b27-4156-bbd8-9d11512babf2"
@@ -27,7 +28,7 @@ UUID = "fcb45c67-8b27-4156-bbd8-9d11512babf2"
 # TMP_DISK = ""
 # Model parameters
 PARAMS_URL = (
-    "https://storage.googleapis.com/alphafold/alphafold_params_colab_2022-03-02.tar"
+    "https://storage.googleapis.com/alphafold/alphafold_params_colab_2022-12-06.tar"
 )
 PARAMS_DIR = os.path.join(PACKAGE_PATH, "bins/alphafold/")
 PARAMS_PATH = os.path.join(PARAMS_DIR, "params_temp.tar")
@@ -149,13 +150,14 @@ def setup(module):
         # Pip install AlphaFold from local directory
         if platform.system() == "Darwin":
             command = """
-                git clone --branch main -q {} {} \
+                git clone --branch main -q {}@{} {} \
                 && sed -i '' 's/\/tmp\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \
                 && sed -i '' 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' {}/alphafold/data/tools/jackhmmer.py \
                 && pip install -q -r {}/requirements.txt \
                 && pip install -q --no-dependencies {}
                 """.format(
                 ALPHAFOLD_GIT_REPO,
+                ALPHAFOLD_GIT_REPO_VERSION,
                 alphafold_folder,
                 os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace(
                     "/", "\/"
@@ -167,13 +169,14 @@ def setup(module):
             )
         else:
             command = """
-                git clone --branch main -q {} {} \
+                git clone --branch main -q {}@{} {} \
                 && sed -i 's/\/tmp\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \
                 && sed -i 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' {}/alphafold/data/tools/jackhmmer.py \
                 && pip install -q -r {}/requirements.txt \
                 && pip install -q --no-dependencies {}
                 """.format(
                 ALPHAFOLD_GIT_REPO,
+                ALPHAFOLD_GIT_REPO_VERSION,
                 alphafold_folder,
                 os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace(
                     "/", "\/"
