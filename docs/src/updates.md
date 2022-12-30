@@ -1,4 +1,7 @@
-## ✨ What's new
+## ✨ What's new  
+**Version ≥ 0.27.1:**  
+- Updated [`gget alphafold`](./alphafold.md) to DeepMind AlphaFold v2.3.0 (including new arguments `multimer_for_monomer` and `multimer_recycles`)
+
 **Version ≥ 0.27.0:**  
 - Updated [`gget alphafold`](./alphafold.md) to match recent changes by DeepMind  
 - Updated version number to match gget's creator's age following a long-standing Pachter lab tradition  
