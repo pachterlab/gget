@@ -489,15 +489,18 @@ def alphafold(
     if out is not None:
         os.makedirs(out, exist_ok=True)
         abs_out_path = os.path.abspath(out)
+    else:
+        # Use temporary jackhmmer folder which will later be deleted
+        abs_out_path = os.path.expanduser(f"~/tmp/jackhmmer/{UUID}")
+
+    # Create folder to save temporary jackhmmer database chunks in
+    os.makedirs(os.path.expanduser(f"~/tmp/jackhmmer/{UUID}"), exist_ok=True)
 
     features_for_chain = {}
     raw_msa_results_for_sequence = {}
     for sequence_index, sequence in enumerate(sequences, start=1):
 
         # logging.info(f"Getting MSA for sequence {sequence_index}.")
-
-        # Create folder to save temporary jackhmmer database chunks in
-        os.makedirs(os.path.expanduser(f"~/tmp/jackhmmer/{UUID}"), exist_ok=True)
 
         ## Manage permissions to jackhmmer binary
         command = f"chmod 755 {JACKHMMER_BINARY_PATH}"
