@@ -150,14 +150,14 @@ def setup(module):
         # Pip install AlphaFold from local directory
         if platform.system() == "Darwin":
             command = """
-                git clone --branch main -q {}@{} {} \
+                git clone --branch main -q --branch {} {} {} \
                 && sed -i '' 's/\/tmp\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \
                 && sed -i '' 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' {}/alphafold/data/tools/jackhmmer.py \
                 && pip install -q -r {}/requirements.txt \
                 && pip install -q --no-dependencies {}
                 """.format(
-                ALPHAFOLD_GIT_REPO,
                 ALPHAFOLD_GIT_REPO_VERSION,
+                ALPHAFOLD_GIT_REPO,
                 alphafold_folder,
                 os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace(
                     "/", "\/"
@@ -169,14 +169,14 @@ def setup(module):
             )
         else:
             command = """
-                git clone --branch main -q {}@{} {} \
+                git clone --branch main -q --branch {} {} {} \
                 && sed -i 's/\/tmp\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \
                 && sed -i 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' {}/alphafold/data/tools/jackhmmer.py \
                 && pip install -q -r {}/requirements.txt \
                 && pip install -q --no-dependencies {}
                 """.format(
-                ALPHAFOLD_GIT_REPO,
                 ALPHAFOLD_GIT_REPO_VERSION,
+                ALPHAFOLD_GIT_REPO,
                 alphafold_folder,
                 os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace(
                     "/", "\/"
