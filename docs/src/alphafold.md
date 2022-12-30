@@ -10,10 +10,17 @@ Before using `gget alphafold` for the first time, run `gget setup alphafold` / `
 Amino acid sequence (str), list of sequences (for multimers), or path to FASTA file.
 
 **Optional arguments**  
+`-mr` `--multimer_recycles`  
+The multimer model will continue recycling until the predictions stop changing, up to the limit set here. Default: 3.  
+For higher accuracy, at the potential cost of longer inference times, set this to 20.  
+
 `-o` `--out`   
 Path to folder to save prediction results in (str). Default: "./[date_time]_gget_alphafold_prediction".  
   
 **Flags**   
+`-mfm` `--multimer_for_monomer`  
+Use multimer model for a monomer.  
+
 `-r` `--relax`   
 AMBER relax the best model. 
 
