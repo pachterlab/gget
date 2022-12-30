@@ -404,13 +404,13 @@ def alphafold(
     )
     if len(seqs) == 1:
         if multimer_for_monomer:
-            print("Using the multimer model for single-chain, as requested.")
+            logging.info("Using the multimer model for a single chain, as requested.")
             model_type_to_use = ModelType.MULTIMER
         else:
-            print("Using the single-chain model.")
+            logging.info("Using the single-chain (monomer) model.")
             model_type_to_use = ModelType.MONOMER
     else:
-        print(f"Using the multimer model with {len(seqs)} sequences.")
+        logging.info(f"Using the multimer model with {len(seqs)} sequences.")
         model_type_to_use = ModelType.MULTIMER
 
     # Check whether total length exceeds limit
