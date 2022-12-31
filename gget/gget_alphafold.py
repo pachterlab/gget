@@ -183,7 +183,12 @@ def clean_up():
     #           # Log the standard error if it is not empty
     #           sys.stderr.write(stderr)
 
-    # Delete folder containing temporary Jackhmmer database chunks
+    # Delete any fasta files left in temporary jackhmmer folder
+    for file in glob.glob(f"~/tmp/jackhmmer/{UUID}/*.fasta"):
+        if os.path.exists(file):
+            os.remove(file)
+
+    # Delete empty parent folders
     os.removedirs(os.path.expanduser(f"~/tmp/jackhmmer/{UUID}"))
 
 
