@@ -184,7 +184,7 @@ def clean_up():
     #           sys.stderr.write(stderr)
 
     # Delete any fasta files left in temporary jackhmmer folder
-    for file in glob.glob(f"~/tmp/jackhmmer/{UUID}/*.fasta"):
+    for file in glob.glob(os.path.expanduser(f"~/tmp/jackhmmer/{UUID}/*.fasta")):
         if os.path.exists(file):
             os.remove(file)
 
