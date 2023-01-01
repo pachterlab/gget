@@ -3,6 +3,7 @@
 [![Downloads](https://static.pepy.tech/personalized-badge/gget?period=total&units=international_system&left_color=grey&right_color=brightgreen&left_text=Downloads)](https://pepy.tech/project/gget)
 [![license](https://img.shields.io/pypi/l/gget)](LICENSE)
 ![status](https://github.com/pachterlab/gget/workflows/CI/badge.svg)
+![status](https://github.com/pachterlab/gget/workflows/CI_alphafold/badge.svg?branch=test_gget_alphafold)
 ![Code Coverage](https://img.shields.io/badge/Coverage-83%25-green.svg)
 [![Star on GitHub](https://img.shields.io/github/stars/pachterlab/gget.svg?style=social)](https://github.com/pachterlab/gget/)  
 
