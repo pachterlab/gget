@@ -1,3 +1,5 @@
+[![license](https://img.shields.io/pypi/l/gget)](LICENSE)  
+
 # Citation
 
 If you use `gget` in a publication, please cite:   
