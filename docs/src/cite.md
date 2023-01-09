@@ -3,7 +3,7 @@
 # Citation
 
 If you use `gget` in a publication, please cite:   
-Luebbert L. & Pachter L. (2022). Efficient querying of genomic reference databases with _gget_. bioRxiv 2022.05.17.492392; doi: https://doi.org/10.1101/2022.05.17.492392
+Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. https://doi.org/10.1093/bioinformatics/btac836
 
 - If using `gget archs4`, please also cite:   
   - Lachmann A, Torre D, Keenan AB, Jagodnik KM, Lee HJ, Wang L, Silverstein MC, Ma’ayan A. Massive mining of publicly available RNA-seq data from human and mouse. Nature Communications 9. Article number: 1366 (2018), doi:10.1038/s41467-018-03751-6
