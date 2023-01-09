@@ -9,7 +9,7 @@ authors:
   orcid: "https://orcid.org/0000-0002-9164-6231"
 title: "gget"
 # version: 0.2.6
-doi: "https://doi.org/10.1093/bioinformatics/btac836"
+doi: "10.1093/bioinformatics/btac836"
 # date-released: 2022
 url: "https://github.com/pachterlab/gget"
 preferred-citation:
@@ -21,7 +21,7 @@ preferred-citation:
   - family-names: "Pachter"
     given-names: "Lior"
     orcid: "https://orcid.org/0000-0002-9164-6231"
-  doi: "https://doi.org/10.1093/bioinformatics/btac836"
+  doi: "10.1093/bioinformatics/btac836"
   journal: "Bioinformatics"
 #   month: 9
 #   start: 1 # First page number
