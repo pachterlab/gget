@@ -55,6 +55,7 @@ gget.enrichr(["ACE2", "AGT", "AGTR1"], database="ontology", plot=True)
 ![alt text](https://github.com/pachterlab/gget/blob/main/figures/gget_enrichr_results.png?raw=true)
 
 ```r
+# R with ggplot
 # query list ----
 df <-
 	gget$enrichr(list("ACE2", "AGT", "AGTR1", "ACE", "AGTRAP", "AGTR2", "ACE3P"),
