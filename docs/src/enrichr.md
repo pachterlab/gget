@@ -54,4 +54,43 @@ gget.enrichr(["ACE2", "AGT", "AGTR1"], database="ontology", plot=True)
 
 ![alt text](https://github.com/pachterlab/gget/blob/main/figures/gget_enrichr_results.png?raw=true)
 
+```r
+# R with ggplot
+# query list ----
+df <-
+	gget$enrichr(list("ACE2", "AGT", "AGTR1", "ACE", "AGTRAP", "AGTR2", "ACE3P"),
+					 database = "ontology")
+
+# filter on no. pathway genes ----
+df$overlapping_genes_count <-
+	lapply(df$overlapping_genes, length) |> as.numeric()
+
+df <- df[df$overlapping_genes_count > 2, ]
+
+# plot ----
+library(ggplot2)
+
+df |>
+	ggplot() +
+	geom_bar(aes(
+		x = -log10(adj_p_val),
+		y = reorder(path_name, -adj_p_val)
+	),
+	stat = 'identity',
+	colour = "black") +
+	geom_text(
+		aes(
+			y = path_name,
+			x = (-log10(adj_p_val)),
+			label = overlapping_genes_count
+		),
+		nudge_x = 1,
+		show.legend = NA,
+		color = "red"
+	) +
+	geom_vline(linetype = "dotted", xintercept = -log10(0.05)) +
+	ylab("Pathway name") +
+	xlab("-log10(adj_P_val) and\n# overlapping genes")
+```
+
 #### [More examples](https://github.com/pachterlab/gget_examples)
