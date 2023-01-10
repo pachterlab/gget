@@ -42,7 +42,7 @@ Python: Use `json=True` to return output in JSON format.
 Python only. `plot=True` provides a graphical overview of the first 15 results (default: False).  
   
   
-### Example
+### Examples
 ```bash
 gget enrichr -db ontology ACE2 AGT AGTR1
 ```
@@ -54,20 +54,24 @@ gget.enrichr(["ACE2", "AGT", "AGTR1"], database="ontology", plot=True)
 
 ![alt text](https://github.com/pachterlab/gget/blob/main/figures/gget_enrichr_results.png?raw=true)
 
+The following example was submitted by [Dylan Lawless](https://github.com/DylanLawless) via [PR](https://github.com/pachterlab/gget/pull/54) (with slight adjustments by [Laura Luebbert](https://github.com/lauraluebbert)):  
+**Use `gget enrichr` in R and create a similar plot using [ggplot](https://ggplot2.tidyverse.org/reference/ggplot.html).** NOTE the switch of axes compared to the Python plot.  
 ```r
-# R with ggplot
-# query list ----
-df <-
-	gget$enrichr(list("ACE2", "AGT", "AGTR1", "ACE", "AGTRAP", "AGTR2", "ACE3P"),
-					 database = "ontology")
+system("pip install gget")
+install.packages("reticulate")
+library(reticulate)
+gget <- import("gget")
 
-# filter on no. pathway genes ----
-df$overlapping_genes_count <-
-	lapply(df$overlapping_genes, length) |> as.numeric()
+# Perform enrichment analysis on a list of genes
+df <- gget$enrichr(list("ACE2", "AGT", "AGTR1"), database = "ontology")
 
-df <- df[df$overlapping_genes_count > 2, ]
+# Count number of overlapping genes
+df$overlapping_genes_count <- lapply(df$overlapping_genes, length) |> as.numeric()
 
-# plot ----
+# Only keep the top 15 results
+df <- df[1:15, ]
+
+# Plot
 library(ggplot2)
 
 df |>
@@ -76,21 +80,34 @@ df |>
 		x = -log10(adj_p_val),
 		y = reorder(path_name, -adj_p_val)
 	),
-	stat = 'identity',
-	colour = "black") +
+	stat = "identity",
+  	fill = "lightgrey",
+  	width = 0.5,
+	color = "black") +
 	geom_text(
 		aes(
 			y = path_name,
 			x = (-log10(adj_p_val)),
 			label = overlapping_genes_count
 		),
-		nudge_x = 1,
+		nudge_x = 0.75,
 		show.legend = NA,
 		color = "red"
 	) +
-	geom_vline(linetype = "dotted", xintercept = -log10(0.05)) +
+  	geom_text(
+		aes(
+			y = Inf,
+			x = Inf,
+      			hjust = 1,
+      			vjust = 1,
+			label = "# of overlapping genes"
+		),
+		show.legend = NA,
+		color = "red"
+	) +
+	geom_vline(linetype = "dotted", linewidth = 1, xintercept = -log10(0.05)) +
 	ylab("Pathway name") +
-	xlab("-log10(adj_P_val) and\n# overlapping genes")
+	xlab("-log10(adjusted P value)")
 ```
 
 #### [More examples](https://github.com/pachterlab/gget_examples)
