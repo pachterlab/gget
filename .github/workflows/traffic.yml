@@ -1,8 +1,8 @@
 name: Traffic
 on:
   schedule: 
-    # Runs every two weeks
-    - cron: "0 0 */14 * *"
+    # Runs every week
+    - cron: "0 0 */7 * *"
     
 jobs:
   # This workflow stores repository traffic and clones past the default 2 week period
