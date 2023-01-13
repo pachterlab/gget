@@ -3,7 +3,7 @@
 [![Downloads](https://static.pepy.tech/personalized-badge/gget?period=total&units=international_system&left_color=grey&right_color=brightgreen&left_text=Downloads)](https://pepy.tech/project/gget)
 [![license](https://img.shields.io/pypi/l/gget)](LICENSE)
 ![status](https://github.com/pachterlab/gget/workflows/CI/badge.svg)
-![status](https://github.com/pachterlab/gget/workflows/CI_alphafold/badge.svg?branch=test_gget_alphafold)
+![status](https://github.com/lauraluebbert/test_gget_alphafold/workflows/CI_alphafold/badge.svg)
 [![Star on GitHub](https://img.shields.io/github/stars/pachterlab/gget.svg?style=social)](https://github.com/pachterlab/gget/)  
 
 `gget` is a free, open-source command-line tool and Python package that enables efficient querying of genomic databases. `gget`  consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.  
