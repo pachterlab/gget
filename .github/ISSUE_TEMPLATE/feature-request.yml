@@ -1,10 +1,11 @@
 name: Feature request
 description: Request a new feature
+labels: "enhancement"
 body:
   - type: markdown
     attributes:
       value: |
-        Please let us know what gget is currently missing!
+        Thank you for taking the time to let us know what gget is missing!
   - type: dropdown
     id: request-type
     attributes:
@@ -27,7 +28,7 @@ body:
     id: command
     attributes:
       label: Example command
-      description: Please provide an example command as you envision it. (This will be automatically formatted into code, so no need for backticks.)
+      description: Please provide an example command as you envision it.
       render: shell
   - type: textarea
     id: command-output
