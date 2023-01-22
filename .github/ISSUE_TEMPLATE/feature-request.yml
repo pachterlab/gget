@@ -4,7 +4,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Please let us know what ! :)
+        Please let us know what gget is currently missing!
   - type: dropdown
     id: request-type
     attributes:
@@ -19,7 +19,8 @@ body:
     id: description
     attributes:
       label: Request description
-      description: Please describe your request (include links to references/databases if applicable).
+      description: Please describe your request.
+      placeholder: Include links to references/databases if applicable.
     validations:
       required: true
   - type: textarea
