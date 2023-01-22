@@ -1,4 +1,4 @@
-name: Bug Report
+name: Issue / Bug Report
 description: Create a report to help us improve
 body:
   - type: markdown
@@ -35,6 +35,10 @@ body:
         - Not applicable
     validations:
       required: true
+  - type: textarea
+    id: interface-comments
+    attributes:
+      label: Any additional comments on the user interface?
   - type: textarea
     id: command
     attributes:
