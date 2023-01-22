@@ -31,7 +31,7 @@ body:
         - Python
         - Google Colab (please include a shareable link if possible)
         - R (please specify Python wrapper)
-        - NA
+        - Not applicable
     validations:
       required: true
   - type: textarea
@@ -42,11 +42,11 @@ body:
     id: m1
     attributes:
       label: Are you using a computer with an Apple M1 chip?
-      description: We are asking this because the M1 chip has been causing some [problems](https://github.com/pachterlab/gget/issues/30) for `gget alphafold` dependencies.
+      description: We are asking this because the M1 chip has been causing [problems](https://github.com/pachterlab/gget/issues/30) for some `gget alphafold` dependencies.
       options:
-        - 'Yes'
-        - 'No' (Default)
-        - NA
+        - "Yes"
+        - "No" (Default)
+        - Not applicable
     validations:
       required: true
   - type: textarea
