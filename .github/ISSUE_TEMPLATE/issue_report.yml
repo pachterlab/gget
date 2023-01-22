@@ -44,8 +44,8 @@ body:
       label: Are you using a computer with an Apple M1 chip?
       description: We are asking this because the M1 chip has been causing some [problems](https://github.com/pachterlab/gget/issues/30) for `gget alphafold` dependencies.
       options:
-        - true
-        - false (Default)
+        - 'Yes'
+        - 'No' (Default)
         - NA
     validations:
       required: true
