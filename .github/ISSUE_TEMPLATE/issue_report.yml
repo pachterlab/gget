@@ -38,6 +38,7 @@ body:
     id: interface-comments
     attributes:
       label: Any additional comments on the user interface?
+      placeholder: e.g. Link to Google Colab notebook
   - type: dropdown
     id: m1
     attributes:
