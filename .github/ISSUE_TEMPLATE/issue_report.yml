@@ -21,6 +21,20 @@ body:
     validations:
       required: true
   - type: dropdown
+    id: os
+    attributes:
+      label: Operating System (OS)
+      description: Which Operating System (OS) did you use?
+      multiple: true
+      options:
+        - Linux
+        - macOS
+        - Windows
+        - Other (please specify above)
+        - Not applicable
+    validations:
+      required: true
+  - type: dropdown
     id: interface
     attributes:
       label: User interface
@@ -29,16 +43,11 @@ body:
       options:
         - Command-line
         - Python
-        - Google Colab (please include a shareable link if possible)
-        - R (please specify Python wrapper)
+        - Google Colab (please include a shareable link above)
+        - R (please specify Python wrapper above)
         - Not applicable
     validations:
       required: true
-  - type: textarea
-    id: interface-comments
-    attributes:
-      label: Any additional comments on the user interface?
-      placeholder: e.g. Link to Google Colab notebook
   - type: dropdown
     id: m1
     attributes:
