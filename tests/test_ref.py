@@ -1,5 +1,4 @@
 import unittest
-import pandas as pd
 import json
 from gget.gget_ref import ref
 

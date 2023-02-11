@@ -10,45 +10,45 @@
         "expected_result": {
             "taeniopygia_guttata": {
                 "transcriptome_cdna": {
-                    "ftp": "http://ftp.ensembl.org/pub/release-108/fasta/taeniopygia_guttata/cdna/Taeniopygia_guttata.bTaeGut1_v1.p.cdna.all.fa.gz",
-                    "ensembl_release": 108,
-                    "release_date": "2022-07-25",
-                    "release_time": "19:00",
+                    "ftp": "http://ftp.ensembl.org/pub/release-109/fasta/taeniopygia_guttata/cdna/Taeniopygia_guttata.bTaeGut1_v1.p.cdna.all.fa.gz",
+                    "ensembl_release": 109,
+                    "release_date": "2022-12-13",
+                    "release_time": "18:32",
                     "bytes": "26M"
                 },
                 "genome_dna": {
-                    "ftp": "http://ftp.ensembl.org/pub/release-108/fasta/taeniopygia_guttata/dna/Taeniopygia_guttata.bTaeGut1_v1.p.dna.toplevel.fa.gz",
-                    "ensembl_release": 108,
-                    "release_date": "2022-09-02",
-                    "release_time": "14:59",
+                    "ftp": "http://ftp.ensembl.org/pub/release-109/fasta/taeniopygia_guttata/dna/Taeniopygia_guttata.bTaeGut1_v1.p.dna.toplevel.fa.gz",
+                    "ensembl_release": 109,
+                    "release_date": "2022-12-13",
+                    "release_time": "00:08",
                     "bytes": "304M"
                 },
                 "annotation_gtf": {
-                    "ftp": "http://ftp.ensembl.org/pub/release-108/gtf/taeniopygia_guttata/Taeniopygia_guttata.bTaeGut1_v1.p.108.gtf.gz",
-                    "ensembl_release": 108,
-                    "release_date": "2022-07-29",
-                    "release_time": "15:23",
+                    "ftp": "http://ftp.ensembl.org/pub/release-109/gtf/taeniopygia_guttata/Taeniopygia_guttata.bTaeGut1_v1.p.109.gtf.gz",
+                    "ensembl_release": 109,
+                    "release_date": "2022-12-16",
+                    "release_time": "10:20",
                     "bytes": "13M"
                 },
                 "coding_seq_cds": {
-                    "ftp": "http://ftp.ensembl.org/pub/release-108/fasta/taeniopygia_guttata/cds/Taeniopygia_guttata.bTaeGut1_v1.p.cds.all.fa.gz",
-                    "ensembl_release": 108,
-                    "release_date": "2022-07-25",
-                    "release_time": "19:00",
+                    "ftp": "http://ftp.ensembl.org/pub/release-109/fasta/taeniopygia_guttata/cds/Taeniopygia_guttata.bTaeGut1_v1.p.cds.all.fa.gz",
+                    "ensembl_release": 109,
+                    "release_date": "2022-12-13",
+                    "release_time": "18:33",
                     "bytes": "13M"
                 },
                 "non-coding_seq_ncRNA": {
-                    "ftp": "http://ftp.ensembl.org/pub/release-108/fasta/taeniopygia_guttata/ncrna/Taeniopygia_guttata.bTaeGut1_v1.p.ncrna.fa.gz",
-                    "ensembl_release": 108,
-                    "release_date": "2022-07-25",
-                    "release_time": "19:26",
+                    "ftp": "http://ftp.ensembl.org/pub/release-109/fasta/taeniopygia_guttata/ncrna/Taeniopygia_guttata.bTaeGut1_v1.p.ncrna.fa.gz",
+                    "ensembl_release": 109,
+                    "release_date": "2022-12-13",
+                    "release_time": "18:52",
                     "bytes": "5.0M"
                 },
                 "protein_translation_pep": {
-                    "ftp": "http://ftp.ensembl.org/pub/release-108/fasta/taeniopygia_guttata/pep/Taeniopygia_guttata.bTaeGut1_v1.p.pep.all.fa.gz",
-                    "ensembl_release": 108,
-                    "release_date": "2022-07-25",
-                    "release_time": "19:00",
+                    "ftp": "http://ftp.ensembl.org/pub/release-109/fasta/taeniopygia_guttata/pep/Taeniopygia_guttata.bTaeGut1_v1.p.pep.all.fa.gz",
+                    "ensembl_release": 109,
+                    "release_date": "2022-12-13",
+                    "release_time": "18:32",
                     "bytes": "8.3M"
                 }
             }
@@ -63,7 +63,7 @@
                 "dna",
                 "pep"
             ],
-            "release": null,
+            "release": 108,
             "ftp": false
         },
         "expected_result": {
@@ -161,9 +161,9 @@
             "ftp": true
         },
         "expected_result": [
-            "http://ftp.ensembl.org/pub/release-108/fasta/taeniopygia_guttata/dna/Taeniopygia_guttata.bTaeGut1_v1.p.dna.toplevel.fa.gz",
-            "http://ftp.ensembl.org/pub/release-108/fasta/taeniopygia_guttata/ncrna/Taeniopygia_guttata.bTaeGut1_v1.p.ncrna.fa.gz",
-            "http://ftp.ensembl.org/pub/release-108/gtf/taeniopygia_guttata/Taeniopygia_guttata.bTaeGut1_v1.p.108.gtf.gz"
+            "http://ftp.ensembl.org/pub/release-109/fasta/taeniopygia_guttata/dna/Taeniopygia_guttata.bTaeGut1_v1.p.dna.toplevel.fa.gz",
+            "http://ftp.ensembl.org/pub/release-109/fasta/taeniopygia_guttata/ncrna/Taeniopygia_guttata.bTaeGut1_v1.p.ncrna.fa.gz",
+            "http://ftp.ensembl.org/pub/release-109/gtf/taeniopygia_guttata/Taeniopygia_guttata.bTaeGut1_v1.p.109.gtf.gz"
         ]
     },
     "test6": {

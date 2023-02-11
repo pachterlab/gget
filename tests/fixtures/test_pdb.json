@@ -5877,6 +5877,90 @@
                     "data_content_type": "Structure model",
                     "ordinal": 14,
                     "revision_ordinal": 5
+                },
+                {
+                    "category": "atom_site",
+                    "data_content_type": "Structure model",
+                    "ordinal": 15,
+                    "revision_ordinal": 6
+                },
+                {
+                    "category": "atom_sites",
+                    "data_content_type": "Structure model",
+                    "ordinal": 16,
+                    "revision_ordinal": 6
+                },
+                {
+                    "category": "database_2",
+                    "data_content_type": "Structure model",
+                    "ordinal": 17,
+                    "revision_ordinal": 6
+                },
+                {
+                    "category": "database_PDB_matrix",
+                    "data_content_type": "Structure model",
+                    "ordinal": 18,
+                    "revision_ordinal": 6
+                },
+                {
+                    "category": "pdbx_struct_conn_angle",
+                    "data_content_type": "Structure model",
+                    "ordinal": 19,
+                    "revision_ordinal": 6
+                },
+                {
+                    "category": "pdbx_validate_close_contact",
+                    "data_content_type": "Structure model",
+                    "ordinal": 20,
+                    "revision_ordinal": 6
+                },
+                {
+                    "category": "pdbx_validate_main_chain_plane",
+                    "data_content_type": "Structure model",
+                    "ordinal": 21,
+                    "revision_ordinal": 6
+                },
+                {
+                    "category": "pdbx_validate_peptide_omega",
+                    "data_content_type": "Structure model",
+                    "ordinal": 22,
+                    "revision_ordinal": 6
+                },
+                {
+                    "category": "pdbx_validate_planes",
+                    "data_content_type": "Structure model",
+                    "ordinal": 23,
+                    "revision_ordinal": 6
+                },
+                {
+                    "category": "pdbx_validate_polymer_linkage",
+                    "data_content_type": "Structure model",
+                    "ordinal": 24,
+                    "revision_ordinal": 6
+                },
+                {
+                    "category": "pdbx_validate_rmsd_angle",
+                    "data_content_type": "Structure model",
+                    "ordinal": 25,
+                    "revision_ordinal": 6
+                },
+                {
+                    "category": "pdbx_validate_rmsd_bond",
+                    "data_content_type": "Structure model",
+                    "ordinal": 26,
+                    "revision_ordinal": 6
+                },
+                {
+                    "category": "pdbx_validate_torsion",
+                    "data_content_type": "Structure model",
+                    "ordinal": 27,
+                    "revision_ordinal": 6
+                },
+                {
+                    "category": "struct_ncs_oper",
+                    "data_content_type": "Structure model",
+                    "ordinal": 28,
+                    "revision_ordinal": 6
                 }
             ],
             "pdbx_audit_revision_details": [
@@ -5886,6 +5970,14 @@
                     "provider": "repository",
                     "revision_ordinal": 1,
                     "type": "Initial release"
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "details": "Coordinates and associated ncs operations (if present) transformed into standard crystal frame",
+                    "ordinal": 2,
+                    "provider": "repository",
+                    "revision_ordinal": 6,
+                    "type": "Remediation"
                 }
             ],
             "pdbx_audit_revision_group": [
@@ -5966,6 +6058,48 @@
                     "group": "Derived calculations",
                     "ordinal": 13,
                     "revision_ordinal": 5
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "group": "Advisory",
+                    "ordinal": 14,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "group": "Atomic model",
+                    "ordinal": 15,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "group": "Data collection",
+                    "ordinal": 16,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "group": "Database references",
+                    "ordinal": 17,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "group": "Derived calculations",
+                    "ordinal": 18,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "group": "Other",
+                    "ordinal": 19,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "group": "Refinement description",
+                    "ordinal": 20,
+                    "revision_ordinal": 6
                 }
             ],
             "pdbx_audit_revision_history": [
@@ -6003,6 +6137,13 @@
                     "minor_revision": 0,
                     "ordinal": 5,
                     "revision_date": "2021-03-31T00:00:00+0000"
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "major_revision": 4,
+                    "minor_revision": 0,
+                    "ordinal": 6,
+                    "revision_date": "2023-02-08T00:00:00+0000"
                 }
             ],
             "pdbx_audit_revision_item": [
@@ -6167,6 +6308,294 @@
                     "item": "_struct_site.pdbx_auth_seq_id",
                     "ordinal": 27,
                     "revision_ordinal": 5
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_atom_site.Cartn_x",
+                    "ordinal": 28,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_atom_site.Cartn_y",
+                    "ordinal": 29,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_atom_site.Cartn_z",
+                    "ordinal": 30,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_atom_sites.fract_transf_matrix[1][1]",
+                    "ordinal": 31,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_atom_sites.fract_transf_matrix[1][2]",
+                    "ordinal": 32,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_atom_sites.fract_transf_matrix[1][3]",
+                    "ordinal": 33,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_atom_sites.fract_transf_matrix[2][1]",
+                    "ordinal": 34,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_atom_sites.fract_transf_matrix[2][2]",
+                    "ordinal": 35,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_atom_sites.fract_transf_matrix[2][3]",
+                    "ordinal": 36,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_atom_sites.fract_transf_matrix[3][1]",
+                    "ordinal": 37,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_atom_sites.fract_transf_matrix[3][2]",
+                    "ordinal": 38,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_atom_sites.fract_transf_matrix[3][3]",
+                    "ordinal": 39,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_atom_sites.fract_transf_vector[1]",
+                    "ordinal": 40,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_atom_sites.fract_transf_vector[2]",
+                    "ordinal": 41,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_atom_sites.fract_transf_vector[3]",
+                    "ordinal": 42,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_database_2.pdbx_DOI",
+                    "ordinal": 43,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_database_2.pdbx_database_accession",
+                    "ordinal": 44,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_database_PDB_matrix.origx[1][1]",
+                    "ordinal": 45,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_database_PDB_matrix.origx[1][2]",
+                    "ordinal": 46,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_database_PDB_matrix.origx[1][3]",
+                    "ordinal": 47,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_database_PDB_matrix.origx[2][1]",
+                    "ordinal": 48,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_database_PDB_matrix.origx[2][2]",
+                    "ordinal": 49,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_database_PDB_matrix.origx[2][3]",
+                    "ordinal": 50,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_database_PDB_matrix.origx[3][1]",
+                    "ordinal": 51,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_database_PDB_matrix.origx[3][2]",
+                    "ordinal": 52,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_database_PDB_matrix.origx[3][3]",
+                    "ordinal": 53,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_database_PDB_matrix.origx_vector[1]",
+                    "ordinal": 54,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_database_PDB_matrix.origx_vector[2]",
+                    "ordinal": 55,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_database_PDB_matrix.origx_vector[3]",
+                    "ordinal": 56,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_pdbx_struct_conn_angle.value",
+                    "ordinal": 57,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_pdbx_validate_close_contact.dist",
+                    "ordinal": 58,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_pdbx_validate_peptide_omega.omega",
+                    "ordinal": 59,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_pdbx_validate_planes.rmsd",
+                    "ordinal": 60,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_pdbx_validate_polymer_linkage.dist",
+                    "ordinal": 61,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_pdbx_validate_torsion.phi",
+                    "ordinal": 62,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_pdbx_validate_torsion.psi",
+                    "ordinal": 63,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_struct_ncs_oper.matrix[1][1]",
+                    "ordinal": 64,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_struct_ncs_oper.matrix[1][2]",
+                    "ordinal": 65,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_struct_ncs_oper.matrix[1][3]",
+                    "ordinal": 66,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_struct_ncs_oper.matrix[2][1]",
+                    "ordinal": 67,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_struct_ncs_oper.matrix[2][2]",
+                    "ordinal": 68,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_struct_ncs_oper.matrix[2][3]",
+                    "ordinal": 69,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_struct_ncs_oper.matrix[3][1]",
+                    "ordinal": 70,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_struct_ncs_oper.matrix[3][2]",
+                    "ordinal": 71,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_struct_ncs_oper.matrix[3][3]",
+                    "ordinal": 72,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_struct_ncs_oper.vector[1]",
+                    "ordinal": 73,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_struct_ncs_oper.vector[2]",
+                    "ordinal": 74,
+                    "revision_ordinal": 6
+                },
+                {
+                    "data_content_type": "Structure model",
+                    "item": "_struct_ncs_oper.vector[3]",
+                    "ordinal": 75,
+                    "revision_ordinal": 6
                 }
             ],
             "pdbx_database_pdbobs_spr": [
@@ -6206,11 +6635,11 @@
                 "pdb_r": 0.14,
                 "absolute_percentile_clashscore": 0.0,
                 "absolute_percentile_percent_ramachandran_outliers": 12.8,
-                "absolute_percentile_percent_rotamer_outliers": 9.9,
+                "absolute_percentile_percent_rotamer_outliers": 10.6,
                 "angles_rmsz": 7.11,
                 "attempted_validation_steps": "molprobity,validation-pack,mogul,buster-report,percentiles,writexml",
                 "bonds_rmsz": 9.69,
-                "clashscore": 141.0,
+                "clashscore": 141.11,
                 "high_resol_relative_percentile_clashscore": 1.72,
                 "high_resol_relative_percentile_percent_ramachandran_outliers": 1.72,
                 "high_resol_relative_percentile_percent_rotamer_outliers": 1.72,
@@ -6228,7 +6657,7 @@
                 "num_angles_rmsz": 6114,
                 "num_bonds_rmsz": 4500,
                 "percent_ramachandran_outliers": 1.24,
-                "percent_rotamer_outliers": 8.66,
+                "percent_rotamer_outliers": 8.44,
                 "percentilebins": [
                     "all",
                     "1.74",
@@ -6237,24 +6666,24 @@
                 "protein_dnarnaentities": "1,2",
                 "relative_percentile_clashscore": 0.0,
                 "relative_percentile_percent_ramachandran_outliers": 2.6,
-                "relative_percentile_percent_rotamer_outliers": 1.1,
-                "report_creation_date": "Mar 23, 2021 -- 08:01 PM EDT",
+                "relative_percentile_percent_rotamer_outliers": 1.3,
+                "report_creation_date": "Jan 30, 2023 -- 05:17 PM EST",
                 "restypes_notchecked_for_bond_angle_geometry": [
-                    "HEM",
-                    "PO4"
+                    "PO4",
+                    "HEM"
                 ],
                 "pdbdeposition_date": "1984-03-07T00:00:00+0000",
                 "pdbresolution": 1.74,
-                "pdbrevision_date": "2021-03-31T00:00:00+0000",
-                "pdbrevision_number": 5.0
+                "pdbrevision_date": "2023-02-08T00:00:00+0000",
+                "pdbrevision_number": 6.0
             },
             "rcsb_accession_info": {
                 "deposit_date": "1984-03-07T00:00:00+0000",
                 "has_released_experimental_data": "N",
                 "initial_release_date": "1984-07-17T00:00:00+0000",
-                "major_revision": 3,
+                "major_revision": 4,
                 "minor_revision": 0,
-                "revision_date": "2021-03-31T00:00:00+0000",
+                "revision_date": "2023-02-08T00:00:00+0000",
                 "status_code": "REL"
             },
             "rcsb_entry_container_identifiers": {
@@ -6386,7 +6815,6 @@
                 }
             ],
             "struct": {
-                "pdbx_descriptor": "HEMOGLOBIN (DEOXY)",
                 "title": "THE CRYSTAL STRUCTURE OF HUMAN DEOXYHAEMOGLOBIN AT 1.74 ANGSTROMS RESOLUTION"
             },
             "struct_keywords": {
