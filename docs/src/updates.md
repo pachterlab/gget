@@ -1,4 +1,7 @@
 ## ✨ What's new  
+**Version ≥ 0.27.3:**  
+- [`gget info`](./info.md) now excludes PDB IDs by default to increase speed (PDB results can be included using flag `--pdb`).
+
 **Version ≥ 0.27.2:**  
 - Updated [`gget alphafold`](./alphafold.md) to [DeepMind's AlphaFold v2.3.0](https://github.com/deepmind/alphafold/releases/tag/v2.3.0) (including new arguments `multimer_for_monomer` and `multimer_recycles`)
 
