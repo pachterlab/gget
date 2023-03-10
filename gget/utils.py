@@ -508,7 +508,7 @@ def get_pdb_ids(ens_id):
     for entry in pdb_dict:
         pdb_ids.append(entry["pdb_id"])
 
-    return list(set(pdb_ids)).sort()
+    return sorted(list(set(pdb_ids)))
 
 
 def wrap_cols_func(df, cols):
