@@ -23,7 +23,7 @@ from .utils import rest_query, get_uniprot_info, wrap_cols_func, get_pdb_ids
 from .constants import ENSEMBL_REST_API, UNIPROT_REST_API, NCBI_URL
 
 ## gget info
-def info(ens_ids, wrap_text=False, ensembl_only=False, json=False, verbose=True, save=False, expand=False):
+def info(ens_ids, wrap_text=False, pdb=False, ensembl_only=False, json=False, verbose=True, save=False, expand=False):
     """
     Fetch gene and transcript metadata using Ensembl IDs.
 
@@ -31,7 +31,8 @@ def info(ens_ids, wrap_text=False, ensembl_only=False, json=False, verbose=True,
     - ens_ids       One or more Ensembl IDs to look up (string or list of strings).
                     Also supports WormBase and Flybase IDs.
     - wrap_text     If True, displays data frame with wrapped text for easy reading. Default: False.
-    - ensembl_only  Only return results from Ensembl. Default: False. 
+    - pdb           If True, also returns PDB IDs (might increase run time). Default: False.
+    - ensembl_only  If True, only returns results from Ensembl (excludes PDB, UniProt, and NCBI results). Default: False.
     - json          If True, returns results in json/dictionary format instead of data frame. Default: False.
     - verbose       True/False whether to print progress information. Default True.
     - save          True/False wether to save csv with query results in current working directory. Default: False.
@@ -45,6 +46,9 @@ def info(ens_ids, wrap_text=False, ensembl_only=False, json=False, verbose=True,
         logging.info(
             "'expand' argument deprecated! gget info now always returns all of the available information."
         )
+
+    # Rename pdb argument
+    fetch_pdb = pdb
 
     # Define Ensembl REST API server
     server = ENSEMBL_REST_API
@@ -234,7 +238,7 @@ def info(ens_ids, wrap_text=False, ensembl_only=False, json=False, verbose=True,
             try:
                 synonyms = sorted(synonyms)
             except:
-                None
+                pass
 
             # Save NCBI info to data frame
             df_ncbi = pd.DataFrame(
@@ -245,13 +249,14 @@ def info(ens_ids, wrap_text=False, ensembl_only=False, json=False, verbose=True,
                 },
             )
 
-            ## Get PDB IDs from Ensembl ID
-            # Add pdb_ids to NCBI data frame
-            pdb_ids = get_pdb_ids(ens_id)
-            if pdb_ids:
-                df_ncbi["pdb_id"] = [pdb_ids]
-            else:
-                df_ncbi["pdb_id"] = np.NaN
+            if fetch_pdb:
+                ## Get PDB IDs from Ensembl ID
+                # Add pdb_ids to NCBI data frame
+                pdb_ids = get_pdb_ids(ens_id)
+                if pdb_ids:
+                    df_ncbi["pdb_id"] = [pdb_ids]
+                else:
+                    df_ncbi["pdb_id"] = np.NaN
 
             # Transpose NCBI df and add Ensembl ID as column name
             df_ncbi = df_ncbi.T
