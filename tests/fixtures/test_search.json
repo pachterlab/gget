@@ -14,7 +14,7 @@
                 "swiss cheese",
                 null,
                 "protein_coding",
-                "https://uswest.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
+                "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
             ]
         ]
     },
@@ -33,7 +33,7 @@
                 "ensembl_description": "swiss cheese",
                 "ext_ref_description": null,
                 "biotype": "protein_coding",
-                "url": "https://uswest.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
+                "url": "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
             }
         ]
     },
@@ -56,7 +56,7 @@
                 "swiss cheese",
                 null,
                 "protein_coding",
-                "https://uswest.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
+                "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
             ],
             [
                 "FBgn0043362",
@@ -64,7 +64,7 @@
                 "blue cheese",
                 null,
                 "protein_coding",
-                "https://uswest.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0043362"
+                "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0043362"
             ]
         ]
     },
@@ -83,7 +83,7 @@
                 "FUN14 domain containing 1 [Source:HGNC Symbol;Acc:HGNC:28746]",
                 "FUN14 domain containing 1",
                 "protein_coding",
-                "https://uswest.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000069509"
+                "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000069509"
             ],
             [
                 "ENSG00000084754",
@@ -91,7 +91,7 @@
                 "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha [Source:HGNC Symbol;Acc:HGNC:4801]",
                 "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha",
                 "protein_coding",
-                "https://uswest.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000084754"
+                "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000084754"
             ],
             [
                 "ENSG00000103429",
@@ -99,7 +99,7 @@
                 "bifunctional apoptosis regulator [Source:HGNC Symbol;Acc:HGNC:17613]",
                 "bifunctional apoptosis regulator",
                 "protein_coding",
-                "https://uswest.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000103429"
+                "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000103429"
             ]
         ]
     },
@@ -118,7 +118,7 @@
                 null,
                 null,
                 "protein_coding",
-                "https://uswest.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBtr0070000"
+                "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBtr0070000"
             ],
             [
                 "FBtr0307554",
@@ -126,7 +126,7 @@
                 null,
                 null,
                 "protein_coding",
-                "https://uswest.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBtr0307554"
+                "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBtr0307554"
             ],
             [
                 "FBtr0307555",
@@ -134,7 +134,7 @@
                 null,
                 null,
                 "protein_coding",
-                "https://uswest.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBtr0307555"
+                "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBtr0307555"
             ]
         ]
     },
@@ -157,7 +157,7 @@
                 null,
                 "Small nucleolar RNA SNORA71",
                 "snoRNA",
-                "https://uswest.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001698"
+                "https://useast.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001698"
             ],
             [
                 "ENSANIT00000001705",
@@ -165,7 +165,7 @@
                 null,
                 "Small nucleolar RNA SNORA71",
                 "snoRNA",
-                "https://uswest.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001705"
+                "https://useast.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001705"
             ],
             [
                 "ENSANIT00000000884",
@@ -173,7 +173,7 @@
                 null,
                 "Nuclear RNase P",
                 "ribozyme",
-                "https://uswest.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000000884"
+                "https://useast.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000000884"
             ],
             [
                 "ENSANIT00000001802",
@@ -181,7 +181,7 @@
                 null,
                 "5.8S ribosomal RNA",
                 "rRNA",
-                "https://uswest.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001802"
+                "https://useast.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001802"
             ],
             [
                 "ENSANIT00000001839",
@@ -189,7 +189,7 @@
                 null,
                 "U2 spliceosomal RNA",
                 "snRNA",
-                "https://uswest.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001839"
+                "https://useast.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001839"
             ]
         ]
     },
@@ -212,7 +212,7 @@
                 null,
                 "Small nucleolar RNA SNORA71",
                 "snoRNA",
-                "https://uswest.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001698"
+                "https://useast.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001698"
             ],
             [
                 "ENSANIT00000001705",
@@ -220,7 +220,7 @@
                 null,
                 "Small nucleolar RNA SNORA71",
                 "snoRNA",
-                "https://uswest.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001705"
+                "https://useast.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001705"
             ]
         ]
     },
@@ -243,7 +243,7 @@
                 null,
                 null,
                 "snoRNA",
-                "https://uswest.ensembl.org/homo_sapiens/Gene/Summary?g=ENST00000362582"
+                "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENST00000362582"
             ],
             [
                 "ENST00000363484",
@@ -251,7 +251,7 @@
                 null,
                 "small nucleolar RNA, H/ACA box 71D",
                 "snoRNA",
-                "https://uswest.ensembl.org/homo_sapiens/Gene/Summary?g=ENST00000363484"
+                "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENST00000363484"
             ],
             [
                 "ENST00000364523",
@@ -259,7 +259,7 @@
                 null,
                 null,
                 "snoRNA",
-                "https://uswest.ensembl.org/homo_sapiens/Gene/Summary?g=ENST00000364523"
+                "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENST00000364523"
             ]
         ]
     },
@@ -282,7 +282,7 @@
                 "swiss cheese",
                 null,
                 "protein_coding",
-                "https://uswest.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
+                "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
             ]
         ]
     },
