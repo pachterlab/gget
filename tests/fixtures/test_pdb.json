@@ -3240,12 +3240,12 @@
                         },
                         {
                             "depth": 4,
-                            "id": "401364",
+                            "id": "401365",
                             "name": "T: Succinate dehydrogenase/fumarate reductase flavoprotein C-terminal domain"
                         },
                         {
                             "depth": 5,
-                            "id": "505864",
+                            "id": "505831",
                             "name": "F: Succ_DH_flav_C"
                         }
                     ]
@@ -3275,12 +3275,12 @@
                         },
                         {
                             "depth": 4,
-                            "id": "402909",
+                            "id": "402910",
                             "name": "T: Succinate dehydrogenase/fumarate reductase flavoprotein, catalytic domain"
                         },
                         {
                             "depth": 5,
-                            "id": "510560",
+                            "id": "510501",
                             "name": "F: FAD_binding_2"
                         }
                     ]
@@ -3310,12 +3310,12 @@
                         },
                         {
                             "depth": 4,
-                            "id": "403172",
+                            "id": "403173",
                             "name": "T: FAD/NAD(P)-binding domain"
                         },
                         {
                             "depth": 5,
-                            "id": "511418",
+                            "id": "511361",
                             "name": "F: FAD_binding_3_1st"
                         }
                     ]
