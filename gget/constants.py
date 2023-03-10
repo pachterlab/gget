@@ -16,7 +16,7 @@ UNIPROT_IDMAPPING_API = "https://rest.uniprot.org/idmapping"
 RCSB_PDB_API = "https://data.rcsb.org/rest/v1/core/"
 
 # API to get PDB entries from Ensembl IDs
-ENS_TO_PDB_API = "https://wwwdev.ebi.ac.uk/pdbe/aggregated-api/mappings/ensembl_to_pdb/"
+ENS_TO_PDB_API = "https://www.ebi.ac.uk/pdbe/aggregated-api/mappings/ensembl_to_pdb/"
 
 # BLAST API endpoints
 BLAST_URL = "https://blast.ncbi.nlm.nih.gov/Blast.cgi"
