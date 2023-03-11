@@ -259,7 +259,15 @@ def main():
         type=str,
         nargs="*",
         default=None,
-        help="One or more Ensembl, WormBase or FlyBase IDs).",
+        help="One or more Ensembl, WormBase or FlyBase IDs.",
+    )
+    parser_info.add_argument(
+        "-pdb",
+        "--pdb",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Also returns PDB IDs (might increase run time).",
     )
     parser_info.add_argument(
         "-eo",
@@ -267,7 +275,7 @@ def main():
         default=False,
         action="store_true",
         required=False,
-        help="Only return results from Ensembl.",
+        help="Only returns results from Ensembl (excludes PDB, UniProt, and NCBI results).",
     )
     parser_info.add_argument(
         "-csv",
@@ -283,7 +291,7 @@ def main():
         default=True,
         action="store_false",
         required=False,
-        help="Do not print progress information.",
+        help="Does not print progress information.",
     )
     parser_info.add_argument(
         "-o",
@@ -1451,6 +1459,7 @@ def main():
         # Look up requested Ensembl IDs
         info_results = info(
             ids_clean_final,
+            pdb=args.pdb,
             ensembl_only=args.ensembl_only,
             expand=args.expand,
             json=args.csv,

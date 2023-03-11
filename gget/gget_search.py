@@ -255,7 +255,7 @@ def search(
 
     # Add URL to gene summary on Ensembl
     df["url"] = (
-        "https://uswest.ensembl.org/"
+        "https://useast.ensembl.org/"
         + "_".join(db.split("_")[:2])
         + "/Gene/Summary?g="
         + df["ensembl_id"]
