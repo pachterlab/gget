@@ -14,7 +14,7 @@ Python: `save=True` will save the output in the current working directory.
 
 **Flags**  
 `-pdb` `--pdb`  
-Include PDB IDs in output.  
+Include PDB IDs in output (might increase runtime).  
 
 `-eo` `--ensembl_only`  
 Only return results from Ensembl (excludes results from UniProt, NCBI and PDB, but runs significantly faster).  

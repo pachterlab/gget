@@ -490,6 +490,9 @@ def get_pdb_ids(ens_id):
     """
     Function to fetch all PDB IDs linked to an Ensembl ID.
     using the PDBe API https://wwwdev.ebi.ac.uk/pdbe/aggregated-api/mappings/ensembl_to_pdb/[ens_id]
+    
+    API documentation:
+    https://www.ebi.ac.uk/pdbe/aggregated-api/#/SIFTS/get_ensembl_to_pdb_mappings_api_mappings_ensembl_to_pdb__gene_id__get
     """
 
     res = requests.get(ENS_TO_PDB_API + ens_id)
