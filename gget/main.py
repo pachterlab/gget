@@ -35,6 +35,7 @@ from .gget_setup import setup
 from .gget_pdb import pdb
 from .gget_gpt import gpt
 
+
 def main():
     """
     Function containing argparse parsers and arguments to allow the use of gget from the terminal.
@@ -981,18 +982,17 @@ def main():
         type=str,
         help="The input prompt for the GPT-3 model to generate text from",
     )
-    parser_gpt.add_argument("api_key", type=str, help="Your OpenAI API key")
+    parser_gpt.add_argument(
+        "api_key",
+        type=str,
+        help="Your OpenAI API key (see: https://platform.openai.com/account/api-keys)",
+    )
     parser_gpt.add_argument(
         "-e",
         "--engine",
         type=str,
         default="davinci",
-        choices=[
-            "davinci",
-            "curie",
-            "babbage",
-            "ada"
-        ],
+        choices=["davinci", "curie", "babbage", "ada"],
         required=False,
         help="The name of the GPT-3 engine to use (defaults to 'davinci')",
     )
@@ -1000,9 +1000,9 @@ def main():
         "-m",
         "--max_tokens",
         type=int,
-        default=1024,
+        default=100,
         required=False,
-        help="The maximum number of tokens (words or subwords) in the generated text (defaults to 1024)",
+        help="The maximum number of tokens (words or subwords) in the generated text (defaults to 100)",
     )
     parser_gpt.add_argument(
         "-s",

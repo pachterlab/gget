@@ -7,7 +7,10 @@ class TestGpt(unittest.TestCase):
     @patch("openai.Completion.create")
     def test_gpt(self, mock_create):
         # Mock the response from the API
-        mock_response = {"choices": [{"text": "This is a generated response."}]}
+        mock_response = {
+            "choices": [{"text": "This is a generated response."}],
+            "usage": {"total_tokens": 10},
+        }
         mock_create.return_value = mock_response
 
         # Call the function with a prompt and test API key
@@ -19,10 +22,10 @@ class TestGpt(unittest.TestCase):
         mock_create.assert_called_once_with(
             engine="davinci",
             prompt=prompt,
-            max_tokens=1024,
+            max_tokens=100,
+            n=1,
             stop=None,
             temperature=0.5,
-            api_key=api_key,
         )
 
         # Check that the output matches the mock response

@@ -1,11 +1,11 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
 ## gget gpt 💬
-Generates text based on a given prompt using the [OpenAI](https://openai.com/) API. This module, including its source code, documentation and unittests, were written (almost) entirely by OpenAI's Chat-GTP3.  
+Generates text based on a given prompt using the [OpenAI](https://openai.com/) API. This module, including its source code, documentation and unit tests, were written (almost) entirely by OpenAI's Chat-GTP3.  
 
-WARNING OpenAI API calls are only 'free' for the first three months after generating your OpenAI Account (they give you a $5 credit that expires).  
-You can define a hard billing limit (e.g. $1) [here](https://platform.openai.com/account/billing/limits).  
+NOTE OpenAI API calls are only 'free' for the first three months after generating your OpenAI Account (OpenAI provides a $5 credit that expires).  
+You can define a hard monthly billing limit (e.g. $1) [here](https://platform.openai.com/account/billing/limits).  
 See their pricing and FAQ [here](https://openai.com/pricing).  
-You can get your API key [here](https://platform.openai.com/account/api-keys).  
+Get your OpenAI API key [here](https://platform.openai.com/account/api-keys).  
 
 Returns: Predicted API response (text).  
 
@@ -26,13 +26,14 @@ You can choose from the following engines:
     "ada": Fastest and least expensive, suitable for simple tasks.  
 
 `-m` `--max_tokens`   
-The maximum number of tokens (words or subwords) in the generated text (defaults to 1024).  
+The maximum number of tokens (words or subwords) in the generated text (defaults to 100).  
 
 `-s` `--stop`   
 A sequence of tokens that should indicate the end of the generated text (defaults to None).  
 
 `-temp` `--temperature`   
 Controls the 'creativity' of the generated text (defaults to 0.5).  
+A higher value increases creativity, while a lower value decreases creativity.  
 
 `-o` `--output`   
 The file name to save the generated text to as a text file (defaults to printing the output to the console).  
