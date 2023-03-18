@@ -31,3 +31,6 @@ Get the structure and metadata of a protein from the [RCSB Protein Data Bank](ht
   
 - [`gget alphafold`](alphafold.md)  
 Predict the 3D structure of a protein from its amino acid sequence using a simplified version of [DeepMind](https://www.deepmind.com/)’s [AlphaFold2](https://github.com/deepmind/alphafold).   
+
+- [`gget gpt`](gpt.md)  
+Generates text based on a given prompt using the [OpenAI API](https://openai.com/).   
