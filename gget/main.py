@@ -33,7 +33,7 @@ from .gget_archs4 import archs4
 from .gget_alphafold import alphafold
 from .gget_setup import setup
 from .gget_pdb import pdb
-
+from .gget_gpt import gpt
 
 def main():
     """
@@ -967,6 +967,68 @@ def main():
         ),
     )
 
+    # gpt parser arguments
+    gpt_desc = "Generate text using the OpenAI API."
+    parser_gpt = parent_subparsers.add_parser(
+        "gpt",
+        parents=[parent],
+        description=gpt_desc,
+        help=gpt_desc,
+        add_help=True,
+    )
+    parser_gpt.add_argument(
+        "prompt",
+        type=str,
+        help="The input prompt for the GPT-3 model to generate text from",
+    )
+    parser_gpt.add_argument("api_key", type=str, help="Your OpenAI API key")
+    parser_gpt.add_argument(
+        "-e",
+        "--engine",
+        type=str,
+        default="davinci",
+        choices=[
+            "davinci",
+            "curie",
+            "babbage",
+            "ada"
+        ],
+        required=False,
+        help="The name of the GPT-3 engine to use (defaults to 'davinci')",
+    )
+    parser_gpt.add_argument(
+        "-m",
+        "--max_tokens",
+        type=int,
+        default=1024,
+        required=False,
+        help="The maximum number of tokens (words or subwords) in the generated text (defaults to 1024)",
+    )
+    parser_gpt.add_argument(
+        "-s",
+        "--stop",
+        type=str,
+        default=None,
+        required=False,
+        help="A sequence of tokens that should indicate the end of the generated text (defaults to None)",
+    )
+    parser_gpt.add_argument(
+        "-temp",
+        "--temperature",
+        type=float,
+        default=0.5,
+        required=False,
+        help="Controls the 'creativity' of the generated text (defaults to 0.5)",
+    )
+    parser_gpt.add_argument(
+        "-o",
+        "--output",
+        type=str,
+        default=None,
+        required=False,
+        help="The file name to save the generated text to as a text file (defaults to printing the output to the console)",
+    )
+
     ### Define return values
     args = parent_parser.parse_args()
 
@@ -1014,6 +1076,21 @@ def main():
         else:
             parent_parser.print_help(sys.stderr)
         sys.exit(1)
+
+    ## gpt return
+    if args.command == "gpt":
+        gpt_results = gpt(
+            prompt=args.prompt,
+            api_key=args.api_key,
+            engine=args.engine,
+            max_tokens=args.max_tokens,
+            stop=args.stop,
+            temperature=args.temperature,
+            output=args.output,
+        )
+
+        if args.output is None:
+            sys.stdout.write(gpt_results)
 
     ## blat return
     if args.command == "blat":
