@@ -81,7 +81,7 @@ def gpt(
         f"Total tokens used for API call to engine '{engine}': {response['usage']['total_tokens']}"
     )
 
-    texts = response["choices"][0]["text"].strip()
+    texts = response["choices"][0]["text"]
 
     if output:
         with open(output, "w") as f:

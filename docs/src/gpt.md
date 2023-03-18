@@ -33,7 +33,7 @@ The maximum number of tokens (words or subwords) in the generated text (defaults
 `-s` `--stop`   
 A sequence of tokens that should indicate the end of the generated text (defaults to None).  
 
-`-temp` `--temperature`   
+`-t` `--temperature`   
 Controls the 'creativity' of the generated text (defaults to 0.5).  
 A higher value increases creativity, while a lower value decreases creativity.  
 
@@ -43,11 +43,11 @@ The file name to save the generated text to as a text file (defaults to printing
   
 ### Example
 ```bash
-gget gpt "hi there gpt" your_api_token
+gget gpt "How are you?" your_api_token
 ```
 ```python
 # Python
-gget.gpt("hi there gpt", "your_api_token")
+print(gget.gpt("How are you?", "your_api_token"))
 ```
 
 <br>

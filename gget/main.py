@@ -1013,7 +1013,7 @@ def main():
         help="A sequence of tokens that should indicate the end of the generated text (defaults to None)",
     )
     parser_gpt.add_argument(
-        "-temp",
+        "-t",
         "--temperature",
         type=float,
         default=0.5,
