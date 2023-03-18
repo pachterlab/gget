@@ -49,3 +49,7 @@ gget gpt "hi there gpt" your_api_token
 # Python
 gget.gpt("hi there gpt", "your_api_token")
 ```
+
+<br>
+
+<img width="725" alt="Screen Shot 2023-03-18 at 3 42 32 PM" src="https://user-images.githubusercontent.com/56094636/226143902-6fa2d0c7-7eea-4382-b1d2-df6c3f0d5fd5.png">
