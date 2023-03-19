@@ -969,7 +969,7 @@ def main():
     )
 
     # gpt parser arguments
-    gpt_desc = "Generate text using the OpenAI API."
+    gpt_desc = "Generates natural language text based on a given prompt using the OpenAI API's 'openai.ChatCompletion.create' endpoint."
     parser_gpt = parent_subparsers.add_parser(
         "gpt",
         parents=[parent],
@@ -980,7 +980,7 @@ def main():
     parser_gpt.add_argument(
         "prompt",
         type=str,
-        help="The input prompt for the GPT-3 model to generate text from",
+        help="The input prompt to generate text from.",
     )
     parser_gpt.add_argument(
         "api_key",
@@ -988,21 +988,28 @@ def main():
         help="Your OpenAI API key (see: https://platform.openai.com/account/api-keys)",
     )
     parser_gpt.add_argument(
-        "-e",
-        "--engine",
+        "-m",
+        "--model",
         type=str,
-        default="davinci",
-        choices=["davinci", "curie", "babbage", "ada"],
+        default="gpt-3.5-turbo",
         required=False,
-        help="The name of the GPT-3 engine to use (defaults to 'davinci')",
+        help="The name of the GPT model to use (defaults to 'gpt-3.5-turbo') (see: https://platform.openai.com/docs/models/gpt-4)",
     )
     parser_gpt.add_argument(
-        "-m",
-        "--max_tokens",
-        type=int,
-        default=100,
+        "-temp",
+        "--temperature",
+        type=float,
+        default=1,
         required=False,
-        help="The maximum number of tokens (words or subwords) in the generated text (defaults to 100)",
+        help="Value between 0 and 2.0 that controls the level of randomness and creativity in the generated text.",
+    )
+    parser_gpt.add_argument(
+        "-tp",
+        "--top_p",
+        type=float,
+        default=1,
+        required=False,
+        help="Controls the diversity of the generated text as an alternative to sampling with temperature.",
     )
     parser_gpt.add_argument(
         "-s",
@@ -1010,19 +1017,43 @@ def main():
         type=str,
         default=None,
         required=False,
-        help="A sequence of tokens that should indicate the end of the generated text (defaults to None)",
+        help="A sequence of tokens to mark the end of the generated text.",
     )
     parser_gpt.add_argument(
-        "-t",
-        "--temperature",
-        type=float,
-        default=0.5,
+        "-mt",
+        "--max_tokens",
+        type=int,
+        default=200,
         required=False,
-        help="Controls the 'creativity' of the generated text (defaults to 0.5)",
+        help="Controls the maximum length of the generated text, in tokens.",
+    )
+    parser_gpt.add_argument(
+        "-pp",
+        "--presence_penalty",
+        type=float,
+        default=0,
+        required=False,
+        help="Number between -2.0 and 2.0. Higher values result increase the model's likelihood to talk about new topics.",
+    )
+    parser_gpt.add_argument(
+        "-fp",
+        "--frequency_penalty",
+        type=float,
+        default=0,
+        required=False,
+        help="Number between -2.0 and 2.0. Higher values decrease the model's likelihood to repeat the same line verbatim.",
+    )
+    parser_gpt.add_argument(
+        "-lb",
+        "--logit_bias",
+        type=dict,
+        default=None,
+        required=False,
+        help="A dictionary that specifies a bias towards certain tokens in the generated text.",
     )
     parser_gpt.add_argument(
         "-o",
-        "--output",
+        "--out",
         type=str,
         default=None,
         required=False,
@@ -1059,15 +1090,19 @@ def main():
 
     # Show  module specific help if only module but no further arguments are given
     command_to_parser = {
-        "muscle": parser_muscle,
         "ref": parser_ref,
         "search": parser_gget,
-        "seq": parser_seq,
         "info": parser_info,
+        "seq": parser_seq,
+        "muscle": parser_muscle,
         "blast": parser_blast,
         "blat": parser_blat,
         "enrichr": parser_enrichr,
         "archs4": parser_archs4,
+        "setup": parser_setup,
+        "alphafold": parser_alphafold,
+        "pdb": parser_pdb,
+        "gpt": parser_gpt,
     }
 
     if len(sys.argv) == 2:
@@ -1082,14 +1117,18 @@ def main():
         gpt_results = gpt(
             prompt=args.prompt,
             api_key=args.api_key,
-            engine=args.engine,
-            max_tokens=args.max_tokens,
-            stop=args.stop,
+            model=args.model,
             temperature=args.temperature,
-            output=args.output,
+            top_p=args.top_p,
+            stop=args.stop,
+            max_tokens=args.max_tokens,
+            presence_penalty=args.presence_penalty,
+            frequency_penalty=args.frequency_penalty,
+            logit_bias=args.logit_bias,
+            out=args.out,
         )
 
-        if args.output is None:
+        if args.out is None:
             sys.stdout.write(gpt_results)
 
     ## blat return

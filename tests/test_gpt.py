@@ -4,11 +4,11 @@ from gget.gget_gpt import gpt
 
 
 class TestGpt(unittest.TestCase):
-    @patch("openai.Completion.create")
+    @patch("openai.ChatCompletion.create")
     def test_gpt(self, mock_create):
         # Mock the response from the API
         mock_response = {
-            "choices": [{"text": "This is a generated response."}],
+            "choices": [{"message": {"content": "This is a generated response."}}],
             "usage": {"total_tokens": 10},
         }
         mock_create.return_value = mock_response
@@ -19,13 +19,21 @@ class TestGpt(unittest.TestCase):
         output = gpt(prompt, api_key)
 
         # Check that the mock API was called with the correct arguments
+        messages = [
+            {"role": "user", "content": prompt},
+        ]
+
         mock_create.assert_called_once_with(
-            engine="davinci",
-            prompt=prompt,
-            max_tokens=100,
+            model="gpt-3.5-turbo",
+            messages=messages,
+            temperature=1,
+            top_p=1,
             n=1,
+            stream=False,
             stop=None,
-            temperature=0.5,
+            max_tokens=200,
+            presence_penalty=0,
+            frequency_penalty=0,
         )
 
         # Check that the output matches the mock response

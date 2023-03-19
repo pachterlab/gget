@@ -1,7 +1,7 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
 ## gget gpt 💬
-Generates text based on a given prompt using the [OpenAI](https://openai.com/) API.  
-This module, including its source code, documentation and unit tests, were written (almost) entirely by OpenAI's Chat-GTP3.  
+Generates natural language text based on a given prompt using the [OpenAI](https://openai.com/) API's 'openai.ChatCompletion.create' endpoint. 
+This module, including its source code, documentation and unit tests, were partly written by OpenAI's Chat-GTP3.  
 
 NOTE:  
 OpenAI API calls are only 'free' for the first three months after generating your OpenAI Account (OpenAI provides a $5 credit that expires).  
@@ -9,45 +9,55 @@ You can define a hard monthly billing limit (e.g. $1) [here](https://platform.op
 See their pricing and FAQ [here](https://openai.com/pricing).  
 Get your OpenAI API key [here](https://platform.openai.com/account/api-keys).  
 
-Returns: Predicted API response (text).  
+Returns: A string containing the generated text.  
 
 **Positional argument**  
 `prompt`  
-The input prompt for the GPT-3 model to generate text from (str).  
+The input prompt to generate text from (str).  
 
 `api_key`  
 Your OpenAI API key (str) ([get your API key](https://platform.openai.com/account/api-keys)).  
 
 **Optional arguments**  
-`-e` `--engine`  
-The name of the GPT-3 engine to use (defaults to 'davinci').  
-You can choose from the following engines:  
-    "davinci": Most capable, creative, and accurate but slower.  
-    "curie": A good balance between performance and response time.  
-    "babbage": Faster and lower-cost with decent performance.  
-    "ada": Fastest and least expensive, suitable for simple tasks.  
+`-m` `--model`  
+The name of the GPT model to use for generating the text (str). Default is "gpt-3.5-turbo".  
+See https://platform.openai.com/docs/models/gpt-4 for more information on the available models.  
 
-`-m` `--max_tokens`   
-The maximum number of tokens (words or subwords) in the generated text (defaults to 100).  
+`-temp` `--temperature`   
+Value between 0 and 2 that controls the level of randomness and creativity in the generated text (float).  
+Higher values result in more creative and varied text. Default is 1.  
+
+`-tp` `--top_p`   
+Controls the diversity of the generated text as an alternative to sampling with temperature (float).  
+Higher values result in more diverse and unexpected text. Default is 1.  
+Note: OpenAI recommends altering this or temperature but not both.  
 
 `-s` `--stop`   
-A sequence of tokens that should indicate the end of the generated text (defaults to None).  
+A sequence of tokens to mark the end of the generated text (str). Default is None.  
 
-`-t` `--temperature`   
-Controls the 'creativity' of the generated text (defaults to 0.5).  
-A higher value increases creativity, while a lower value decreases creativity.  
+`-mt` `--max_tokens`   
+Controls the maximum length of the generated text, in tokens (int). Default is 200.  
 
-`-o` `--output`   
-The file name to save the generated text to as a text file (defaults to printing the output to the console).  
+`-pp` `--presence_penalty`   
+Number between -2.0 and 2.0. Higher values result increase the model's likelihood to talk about new topics (float). Default is 0.  
+
+`-fp` `--frequency_penalty`   
+Number between -2.0 and 2.0. Higher values decrease the model's likelihood to repeat the same line verbatim (float). Default is 0.  
+
+`-lb` `--logit_bias`   
+A dictionary that specifies a bias towards certain tokens in the generated text (dict). Default is None.  
+
+`-o` `--out`   
+If provided, saves the generated text to a file with the specified path (str). Default: Standard out.  
   
   
 ### Example
 ```bash
-gget gpt "How are you?" your_api_token
+gget gpt "How are you today GPT?" your_api_token
 ```
 ```python
 # Python
-print(gget.gpt("How are you?", "your_api_token"))
+print(gget.gpt("How are you today GPT?", "your_api_token"))
 ```
 
 <br>
