@@ -1,3 +1,4 @@
+import logging
 # Add and format time stamp in logging messages
 logging.basicConfig(
     format="%(asctime)s %(levelname)s %(message)s",
