@@ -1,7 +1,4 @@
 ## ✨ What's new  
-**Version ≥ 0.3.11** (March 18, 2023):  
-- New module: [`gget gpt`](./gpt.md)  
-- 
 **Version ≥ 0.27.3** (March 11, 2023):  
 - [`gget info`](./info.md) excludes PDB IDs by default to increase speed (PDB results can be included using flag `--pdb` / `pdb=True`).  
 
