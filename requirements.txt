@@ -9,4 +9,3 @@ ipywidgets
 tqdm
 py3Dmol>=1.8.0
 lxml
-openai
