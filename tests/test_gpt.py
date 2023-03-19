@@ -37,5 +37,5 @@ class TestGpt(unittest.TestCase):
         )
 
         # Check that the output matches the mock response
-        expected_output = "This is a generated response."
+        expected_output = "This is a generated response.\n"
         self.assertEqual(output, expected_output)
