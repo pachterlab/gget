@@ -14,6 +14,7 @@
 - [gget blast](blast.md)  
 - [gget blat](blat.md)  
 - [gget enrichr](enrichr.md)  
+- [gget gpt](gpt.md)  
 - [gget info](info.md)  
 - [gget muscle](muscle.md)  
 - [gget pdb](pdb.md)  
