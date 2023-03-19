@@ -1,3 +1,8 @@
+import unittest
+from unittest.mock import patch
+from gget.gget_gpt import gpt
+
+
 class TestGpt(unittest.TestCase):
     @patch("openai.ChatCompletion.create")
     def test_gpt(self, mock_create):
