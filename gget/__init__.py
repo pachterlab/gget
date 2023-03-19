@@ -10,7 +10,6 @@ from .gget_archs4 import archs4
 from .gget_alphafold import alphafold
 from .gget_setup import setup
 from .gget_pdb import pdb
-from .gget_gpt import gpt
 
 import logging
 logging.basicConfig(
@@ -21,6 +20,6 @@ logging.basicConfig(
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
 
-__version__ = "0.27.4"
+__version__ = "0.27.3"
 __author__ = "Laura Luebbert"
 __email__ = "lauraluebbert@caltech.edu"
