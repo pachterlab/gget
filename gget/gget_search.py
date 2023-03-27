@@ -33,6 +33,7 @@ def search(
     wrap_text=False,
     json=False,
     save=False,
+    verbose=True,
 ):
     """
     Function to query Ensembl for genes based on species and free form search terms.
@@ -53,6 +54,7 @@ def search(
     - wrap_text       If True, displays data frame with wrapped text for easy reading. Default: False.
     - json            If True, returns results in json format instead of data frame. Default: False.
     - save            If True, the data frame is saved as a csv in the current directory (default: False).
+    - verbose        True/False whether to print progress information. Default True.
 
     Returns a data frame with the query results.
 
@@ -133,7 +135,8 @@ def search(
     else:
         db = db[0]
 
-    logging.info(f"Fetching results from database: {db}")
+    if verbose:
+        logging.info(f"Fetching results from database: {db}")
 
     ## Connect to data base
     try:
@@ -242,16 +245,19 @@ def search(
     # If limit is not None, keep only the first {limit} rows
     if limit != None:
         # Print number of genes/transcripts found versus fetched
-        logging.info(f"Returning {limit} matches of {len(df)} total matches found.")
+        if verbose:
+            logging.info(f"Returning {limit} matches of {len(df)} total matches found.")
         # Remove all but limit rows
         df = df.head(limit)
 
     else:
         # Print number of genes/transcripts fetched
-        logging.info(f"Total matches found: {len(df)}.")
+        if verbose:
+            logging.info(f"Total matches found: {len(df)}.")
 
     # Print query time
-    logging.info(f"Query time: {round(time.time() - start_time, 2)} seconds.")
+    if verbose:
+        logging.info(f"Query time: {round(time.time() - start_time, 2)} seconds.")
 
     # Add URL to gene summary on Ensembl
     df["url"] = (

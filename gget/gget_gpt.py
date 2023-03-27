@@ -23,6 +23,7 @@ def gpt(
     frequency_penalty=0,
     logit_bias=None,
     out=None,
+    verbose=True,
 ):
     """
     Generates natural language text based on a given prompt using the OpenAI API's 'openai.ChatCompletion.create' endpoint.
@@ -45,6 +46,7 @@ def gpt(
                                 Default is 0.
     - logit_bias (dict)         A dictionary that specifies a bias towards certain tokens in the generated text. Default is None.
     - out (str)                 If provided, saves the generated text to a file with the specified path. Default: Standard out.
+    - verbose        True/False whether to print progress information. Default True.
 
     Returns:
     - A string containing the generated text.
@@ -92,9 +94,10 @@ def gpt(
             logit_bias=logit_bias,
         )
 
-    logging.info(
-        f"Total tokens used for API call to model '{model}': {response['usage']['total_tokens']}"
-    )
+    if verbose:
+        logging.info(
+            f"Total tokens used for API call to model '{model}': {response['usage']['total_tokens']}"
+        )
 
     texts = response["choices"][0]["message"]["content"]
 

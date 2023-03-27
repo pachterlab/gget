@@ -26,6 +26,7 @@ def seq(
     save=False,
     transcribe=None,
     seqtype=None,
+    verbose=True,
 ):
     """
     Fetch nucleotide or amino acid sequence (FASTA) of a gene
@@ -41,6 +42,7 @@ def seq(
     - isoforms      If True, returns the sequences of all known transcripts (default: False).
                     (Only for gene IDs.)
     - save          If True, saves output FASTA to current directory (default: False).
+    - verbose        True/False whether to print progress information. Default True.
 
     Returns a list (or FASTA file if 'save=True') containing the requested sequences.
 
@@ -69,10 +71,11 @@ def seq(
             ens_ids_clean.append(ensembl_ID.split(".")[0])
 
             if "." in ensembl_ID and temp == 0:
-                logging.info(
-                    "We noticed that you may have passed a version number with your Ensembl ID.\n"
-                    "Please note that gget seq will return information linked to the latest Ensembl ID version."
-                )
+                if verbose:
+                    logging.info(
+                        "We noticed that you may have passed a version number with your Ensembl ID.\n"
+                        "Please note that gget seq will return information linked to the latest Ensembl ID version."
+                    )
                 temp = +1
 
         else:
@@ -115,9 +118,10 @@ def seq(
                     # Add results to main dict
                     results_dict[ensembl_ID].update({"seq": df_temp})
 
-                    logging.info(
-                        f"Requesting nucleotide sequence of {ensembl_ID} from Ensembl."
-                    )
+                    if verbose:
+                        logging.info(
+                            f"Requesting nucleotide sequence of {ensembl_ID} from Ensembl."
+                        )
 
                 except RuntimeError:
                     logging.error(
@@ -140,9 +144,10 @@ def seq(
 
                 # If the ID is a gene, get the IDs of all its transcripts
                 if ens_ID_type == "Gene":
-                    logging.info(
-                        f"Requesting nucleotide sequences of all transcripts of {ensembl_ID} from Ensembl."
-                    )
+                    if verbose:
+                        logging.info(
+                            f"Requesting nucleotide sequences of all transcripts of {ensembl_ID} from Ensembl."
+                        )
 
                     for transcipt_id in info_df.loc[ensembl_ID]["all_transcripts"]:
                         # Remove version number for Ensembl IDs (not for flybase/wormbase IDs)
@@ -262,9 +267,10 @@ def seq(
                         temp_trans_id = ".".join(can_trans.split(".")[:-1])
                         trans_ids.append(temp_trans_id)
 
-                    logging.info(
-                        f"Requesting amino acid sequence of the canonical transcript {temp_trans_id} of gene {ensembl_ID} from UniProt."
-                    )
+                    if verbose:
+                        logging.info(
+                            f"Requesting amino acid sequence of the canonical transcript {temp_trans_id} of gene {ensembl_ID} from UniProt."
+                        )
 
                 # If the ID is a transcript, append the ID directly
                 elif ens_ID_type == "Transcript":
@@ -274,9 +280,10 @@ def seq(
                     # else:
                     trans_ids.append(ensembl_ID)
 
-                    logging.info(
-                        f"Requesting amino acid sequence of {ensembl_ID} from UniProt."
-                    )
+                    if verbose:
+                        logging.info(
+                            f"Requesting amino acid sequence of {ensembl_ID} from UniProt."
+                        )
 
                 else:
                     logging.warning(
@@ -320,9 +327,10 @@ def seq(
                             # Note: No need to remove the added "." at the end of unversioned transcripts here, because "all_transcripts" are returned without it
                             trans_ids.append(transcipt_id)
 
-                    logging.info(
-                        f"Requesting amino acid sequences of all transcripts of gene {ensembl_ID} from UniProt."
-                    )
+                    if verbose:
+                        logging.info(
+                            f"Requesting amino acid sequences of all transcripts of gene {ensembl_ID} from UniProt."
+                        )
 
                 elif ens_ID_type == "Transcript":
                     # # For WormBase transcript IDs, remove the version number for submission to UniProt API
@@ -332,9 +340,10 @@ def seq(
                     # else:
                     trans_ids.append(ensembl_ID)
 
-                    logging.info(
-                        f"Requesting amino acid sequence of {ensembl_ID} from UniProt."
-                    )
+                    if verbose:
+                        logging.info(
+                            f"Requesting amino acid sequence of {ensembl_ID} from UniProt."
+                        )
                     logging.warning("The isoform option only applies to gene IDs.")
 
                 else:
