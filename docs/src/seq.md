@@ -22,6 +22,9 @@ Amino acid sequences are fetched from [UniProt](https://www.uniprot.org/).
 Returns the sequences of all known transcripts.  
 (Only for gene IDs.)
 
+`-q` `--quiet`   
+Command-line only. Prevents progress information from being displayed.  
+Python: Use `verbose=False` to prevent progress information from being displayed.
 
 ### Examples  
 ```bash

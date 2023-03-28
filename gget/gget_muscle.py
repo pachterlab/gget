@@ -30,7 +30,7 @@ else:
     )
 
 
-def muscle(fasta, super5=False, out=None):
+def muscle(fasta, super5=False, out=None, verbose=True):
     """
     Align multiple nucleotide or amino acid sequences against each other (using the Muscle v5 algorithm).
 
@@ -41,6 +41,7 @@ def muscle(fasta, super5=False, out=None):
                 Use for large inputs (a few hundred sequences).
     - out       Path to save an 'aligned FASTA' (.afa) file with the results, e.g. 'path/to/directory/results.afa'.
                 Default: 'None' -> Results will be printed in Clustal format.
+    - verbose   True/False whether to print progress information. Default True.
 
     Returns alignment results in an "aligned FASTA" (.afa) file.
     """
@@ -66,7 +67,8 @@ def muscle(fasta, super5=False, out=None):
         muscle_path = MUSCLE_PATH
 
     else:
-        logging.info("MUSCLE compiled. ")
+        if verbose:
+            logging.info("MUSCLE compiled. ")
         muscle_path = PRECOMPILED_MUSCLE_PATH
 
     # Replace slashes in path for Windows compatibility
@@ -105,7 +107,8 @@ def muscle(fasta, super5=False, out=None):
 
     # Record MUSCLE align start
     start_time = time.time()
-    logging.info("MUSCLE aligning... ")
+    if verbose:
+        logging.info("MUSCLE aligning... ")
 
     # Run muscle command and write command output
     with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process_2:
@@ -117,9 +120,10 @@ def muscle(fasta, super5=False, out=None):
     if process_2.wait() != 0:
         return
     else:
-        logging.info(
-            f"MUSCLE alignment complete. Alignment time: {round(time.time() - start_time, 2)} seconds"
-        )
+        if verbose:
+            logging.info(
+                f"MUSCLE alignment complete. Alignment time: {round(time.time() - start_time, 2)} seconds"
+            )
 
     if out is None:
         ## Print cleaned up muscle output

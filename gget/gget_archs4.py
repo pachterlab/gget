@@ -28,6 +28,7 @@ def archs4(
     species="human",
     json=False,
     save=False,
+    verbose=True,
 ):
     """
     Find the most correlated genes or the tissue expression atlas
@@ -50,6 +51,7 @@ def archs4(
                     (Only for tissue expression atlas.)
     - json          If True, returns results in json format instead of data frame. Default: False.
     - save          True/False whether to save the results in the local directory.
+    - verbose        True/False whether to print progress information. Default True.
 
     Returns a data frame with the requested results.
     """
@@ -93,9 +95,10 @@ def archs4(
     gene = gene.upper()
 
     if which == "correlation":
-        logging.info(
-            f"Fetching the {gene_count} most correlated genes to {gene} from ARCHS4."
-        )
+        if verbose:
+            logging.info(
+                f"Fetching the {gene_count} most correlated genes to {gene} from ARCHS4."
+            )
 
         ## Find most similar genes based on co-expression
         # Define number of correlated genes to return (+1 to account for Python indexing)
@@ -153,9 +156,10 @@ def archs4(
             return corr_df
 
     if which == "tissue":
-        logging.info(
-            f"Fetching the tissue expression atlas of {gene} from {species} ARCHS4 data."
-        )
+        if verbose:
+            logging.info(
+                f"Fetching the tissue expression atlas of {gene} from {species} ARCHS4 data."
+            )
 
         ## Find tissue expression data
         ## Define API query

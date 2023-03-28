@@ -34,6 +34,7 @@ def enrichr(
     ax=None,
     json=False,
     save=False,
+    verbose=True,
 ):
     """
     Perform an enrichment analysis on a list of genes using Enrichr (https://maayanlab.cloud/Enrichr/).
@@ -56,6 +57,7 @@ def enrichr(
     - ax          Pass a matplotlib axes object for further customization of the plot. (Default: None)
     - json        If True, returns results in json format instead of data frame. (Default: False)
     - save        True/False whether to save the results in the local directory. (Default: False)
+    - verbose     True/False whether to print progress information. Default True.
 
     Returns a data frame with the Enrichr results.
     """
@@ -69,37 +71,44 @@ def enrichr(
 
     if database == "pathway":
         database = "KEGG_2021_Human"
-        logging.info(
-            f"Performing Enichr analysis using database {database}. " + db_message
-        )
+        if verbose:
+            logging.info(
+                f"Performing Enichr analysis using database {database}. " + db_message
+            )
     elif database == "transcription":
         database = "ChEA_2016"
-        logging.info(
-            f"Performing Enichr analysis using database {database}. " + db_message
-        )
+        if verbose:
+            logging.info(
+                f"Performing Enichr analysis using database {database}. " + db_message
+            )
     elif database == "ontology":
         database = "GO_Biological_Process_2021"
-        logging.info(
-            f"Performing Enichr analysis using database {database}. " + db_message
-        )
+        if verbose:
+            logging.info(
+                f"Performing Enichr analysis using database {database}. " + db_message
+            )
     elif database == "diseases_drugs":
         database = "GWAS_Catalog_2019"
-        logging.info(
-            f"Performing Enichr analysis using database {database}. " + db_message
-        )
+        if verbose:
+            logging.info(
+                f"Performing Enichr analysis using database {database}. " + db_message
+            )
     elif database == "celltypes":
         database = "PanglaoDB_Augmented_2021"
-        logging.info(
-            f"Performing Enichr analysis using database {database}. " + db_message
-        )
+        if verbose:
+            logging.info(
+                f"Performing Enichr analysis using database {database}. " + db_message
+            )
     elif database == "kinase_interactions":
         database = "KEA_2015"
-        logging.info(
-            f"Performing Enichr analysis using database {database}. " + db_message
-        )
+        if verbose:
+            logging.info(
+                f"Performing Enichr analysis using database {database}. " + db_message
+            )
     else:
         database = database
-        logging.info(f"Performing Enichr analysis using database {database}.")
+        if verbose:
+            logging.info(f"Performing Enichr analysis using database {database}.")
 
     # If single gene passed as string, convert to list
     if type(genes) == str:
@@ -107,7 +116,8 @@ def enrichr(
 
     ## Transform Ensembl IDs to gene symbols
     if ensembl:
-        logging.info("Getting gene symbols from Ensembl IDs.")
+        if verbose:
+            logging.info("Getting gene symbols from Ensembl IDs.")
 
         genes_v2 = []
 
@@ -132,9 +142,10 @@ def enrichr(
             else:
                 genes_v2.append(str(gene_symbol))
 
-        logging.info(
-            f"Performing Enichr analysis on the following gene symbols: {', '.join(genes_v2)}"
-        )
+        if verbose:
+            logging.info(
+                f"Performing Enichr analysis on the following gene symbols: {', '.join(genes_v2)}"
+            )
 
     else:
         genes_v2 = genes

@@ -15,7 +15,7 @@ import pandas as pd
 from urllib.request import urlopen
 
 
-def blat(sequence, seqtype="default", assembly="human", json=False, save=False):
+def blat(sequence, seqtype="default", assembly="human", json=False, save=False, verbose=True,):
     """
     BLAT a nucleotide or amino acid sequence against any BLAT UCSC assembly.
 
@@ -28,6 +28,7 @@ def blat(sequence, seqtype="default", assembly="human", json=False, save=False):
                       (use short assembly name as listed after the "/").
      - json           If True, returns results in json format instead of data frame. Default: False.
      - save           If True, the data frame is saved as a csv in the current directory (default: False).
+     - verbose        True/False whether to print progress information. Default True.
 
     Returns a data frame with the BLAT results.
     """
@@ -80,15 +81,17 @@ def blat(sequence, seqtype="default", assembly="human", json=False, save=False):
         # Set the first sequence from the fasta file as 'sequence'
         sequence = seqs[0]
         if len(seqs) > 1:
-            logging.info(
-                "File contains more than one sequence. Only the first sequence will be submitted to BLAT."
-            )
+            if verbose:
+                logging.info(
+                    "File contains more than one sequence. Only the first sequence will be submitted to BLAT."
+                )
 
     # Shorten sequence to length limit if necessary
     if len(sequence) > 8000:
-        logging.info(
-            "Length of sequence is > 8000. Only the fist 8000 characters will be submitted to BLAT."
-        )
+        if verbose:
+            logging.info(
+                "Length of sequence is > 8000. Only the fist 8000 characters will be submitted to BLAT."
+            )
         sequence = sequence[:8000]
 
     ## Set seqtype
@@ -105,16 +108,18 @@ def blat(sequence, seqtype="default", assembly="human", json=False, save=False):
         # If sequence is a nucleotide sequence, set seqtype to DNA
         if set(sequence) <= nucleotides:
             seqtype = "DNA"
-            logging.info(
-                f"Sequence recognized as nucleotide sequence. 'seqtype' will be set as {seqtype}."
-            )
+            if verbose:
+                logging.info(
+                    f"Sequence recognized as nucleotide sequence. 'seqtype' will be set as {seqtype}."
+                )
 
         # If sequence is an amino acid sequence, set seqtype to protein
         elif set(sequence) <= amino_acids:
             seqtype = "protein"
-            logging.info(
-                f"Sequence recognized as amino acid sequence. 'seqtype' will be set as {seqtype}."
-            )
+            if verbose:
+                logging.info(
+                    f"Sequence recognized as amino acid sequence. 'seqtype' will be set as {seqtype}."
+                )
 
         else:
             raise ValueError(
@@ -169,9 +174,10 @@ def blat(sequence, seqtype="default", assembly="human", json=False, save=False):
         return
 
     if len(results["blat"]) == 0:
-        logging.info(
-            f"No {seqtype} BLAT matches were found for this sequence in genome {results['genome']}."
-        )
+        if verbose:
+            logging.info(
+                f"No {seqtype} BLAT matches were found for this sequence in genome {results['genome']}."
+            )
         return
 
     # Let user know if assembly was not found

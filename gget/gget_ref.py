@@ -55,7 +55,7 @@ def find_FTP_link(url, link_substring):
     return link_str, date_str, size_str
 
 
-def ref(species, which="all", release=None, ftp=False, save=False, list_species=False):
+def ref(species, which="all", release=None, ftp=False, save=False, list_species=False, verbose=True):
     """
     Fetch FTPs for reference genomes and annotations by species from Ensembl.
 
@@ -79,6 +79,7 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
     - list_species  If True and `species=None`, returns a list of all available species from the Ensembl database for large genomes
                     (not including plants/bacteria) (default: False).
                     (Can be combined with `release` to get the available species from a specific Ensembl release.)
+    - verbose       True/False whether to print progress information. Default True.
 
     Returns a dictionary containing the requested URLs with their respective Ensembl version and release date and time.
     (If FTP=True, returns a list containing only the URLs.)
@@ -96,14 +97,16 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
         species_list = list(set(species_list_gtf) & set(species_list_dna))
 
         if release is None:
-            logging.info(
-                f"Fetching available genomes (GTF and FASTAs present) from Ensembl release {find_latest_ens_rel()} (latest)."
-            )
+            if verbose:
+                logging.info(
+                    f"Fetching available genomes (GTF and FASTAs present) from Ensembl release {find_latest_ens_rel()} (latest)."
+                )
 
         else:
-            logging.info(
-                f"Fetching available genomes (GTF and FASTAs present) from Ensembl release {release}."
-            )
+            if verbose:
+                logging.info(
+                    f"Fetching available genomes (GTF and FASTAs present) from Ensembl release {release}."
+                )
 
         return sorted(species_list)
 
@@ -404,17 +407,18 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
         if save:
             with open("ref_results.json", "w", encoding="utf-8") as file:
                 json.dump(ref_dict, file, ensure_ascii=False, indent=4)
-
-        logging.info(
-            f"Fetching reference information for {species} from Ensembl release: {ENS_rel}."
-        )
+        if verbose:
+            logging.info(
+                f"Fetching reference information for {species} from Ensembl release: {ENS_rel}."
+            )
         return ref_dict
 
     # If FTP==True, return only the specified URLs as a list
     if ftp:
-        logging.info(
-            f"Fetching reference information for {species} from Ensembl release: {ENS_rel}."
-        )
+        if verbose:
+            logging.info(
+                f"Fetching reference information for {species} from Ensembl release: {ENS_rel}."
+            )
         results = []
         for return_val in which:
             if return_val == "all":

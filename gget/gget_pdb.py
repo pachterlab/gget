@@ -36,6 +36,7 @@ def pdb(pdb_id, resource="pdb", identifier=None, save=False):
     -  identifier   Can be used to define assembly, entity or chain ID if applicable (default: None).
                     Assembly/entity IDs are numbers (e.g. 1), and chain IDs are letters (e.g. "A").
     - save          True/False wether to save JSON/PDB with query results in the current working directory (default: False).
+    - verbose       True/False whether to print progress information. Default True.
 
     Returns requested information in JSON format (except for resource="pdb" which returns protein structure in PDB format).
     """

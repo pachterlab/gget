@@ -200,6 +200,7 @@ def alphafold(
     multimer_recycles=3,
     plot=True,
     show_sidechains=True,
+    verbose=True,
 ):
     """
     Predicts the structure of a protein using a slightly simplified version of AlphaFold v2.3.0 (https://doi.org/10.1038/s41586-021-03819-2)
@@ -215,6 +216,7 @@ def alphafold(
       - relax                   True/False whether to AMBER relax the best model (default: False).
       - plot                    True/False whether to provide a graphical overview of the prediction (default: True).
       - show_sidechains         True/False whether to show side chains in the plot (default: True).
+      - verbose                 True/False whether to print progress information. Default True.
 
     Saves the predicted aligned error (json) and the prediction (PDB) in the defined 'out' folder.
 
@@ -346,7 +348,8 @@ def alphafold(
     )
 
     ## Validate input sequence(s)
-    logging.info(f"Validating input sequence(s).")
+    if verbose:
+        logging.info(f"Validating input sequence(s).")
 
     # If the path to a fasta file was provided instead of a nucleotide sequence,
     # read the file and extract the first sequence
@@ -409,13 +412,16 @@ def alphafold(
     )
     if len(seqs) == 1:
         if multimer_for_monomer:
-            logging.info("Using the multimer model for a single chain, as requested.")
+            if verbose:
+                logging.info("Using the multimer model for a single chain, as requested.")
             model_type_to_use = ModelType.MULTIMER
         else:
-            logging.info("Using the single-chain (monomer) model.")
+            if verbose:
+                logging.info("Using the single-chain (monomer) model.")
             model_type_to_use = ModelType.MONOMER
     else:
-        logging.info(f"Using the multimer model with {len(seqs)} sequences.")
+        if verbose:
+            logging.info(f"Using the multimer model with {len(seqs)} sequences.")
         model_type_to_use = ModelType.MULTIMER
 
     # Check whether total length exceeds limit
@@ -441,7 +447,8 @@ def alphafold(
         )
 
     ## Find the closest source
-    logging.info(f"Finding closest source for reference database.")
+    if verbose:
+        logging.info(f"Finding closest source for reference database.")
 
     ex = futures.ThreadPoolExecutor(3)
     fs = [ex.submit(fetch, source) for source in ["", "-europe", "-asia"]]
@@ -546,9 +553,10 @@ def alphafold(
             if merged_msa.sequences and db_name != "uniprot":
                 single_chain_msas.append(merged_msa)
                 msa_size = len(set(merged_msa.sequences))
-                logging.info(
-                    f"{msa_size} unique sequences found in {db_name} for sequence {sequence_index}."
-                )
+                if verbose:
+                    logging.info(
+                        f"{msa_size} unique sequences found in {db_name} for sequence {sequence_index}."
+                    )
             elif merged_msa.sequences and db_name == "uniprot":
                 uniprot_msa = merged_msa
 
@@ -737,7 +745,8 @@ def alphafold(
 
     ## Plotting
     if plot:
-        logging.info("Plotting prediction results.")
+        if verbose:
+            logging.info("Plotting prediction results.")
         import py3Dmol
 
         # Construct multiclass b-factors to indicate confidence bands
