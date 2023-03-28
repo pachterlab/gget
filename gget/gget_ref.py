@@ -79,7 +79,7 @@ def ref(species, which="all", release=None, ftp=False, save=False, list_species=
     - list_species  If True and `species=None`, returns a list of all available species from the Ensembl database for large genomes
                     (not including plants/bacteria) (default: False).
                     (Can be combined with `release` to get the available species from a specific Ensembl release.)
-    - verbose        True/False whether to print progress information. Default True.
+    - verbose       True/False whether to print progress information. Default True.
 
     Returns a dictionary containing the requested URLs with their respective Ensembl version and release date and time.
     (If FTP=True, returns a list containing only the URLs.)

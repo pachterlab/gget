@@ -216,7 +216,7 @@ def alphafold(
       - relax                   True/False whether to AMBER relax the best model (default: False).
       - plot                    True/False whether to provide a graphical overview of the prediction (default: True).
       - show_sidechains         True/False whether to show side chains in the plot (default: True).
-      - verbose        True/False whether to print progress information. Default True.
+      - verbose                 True/False whether to print progress information. Default True.
 
     Saves the predicted aligned error (json) and the prediction (PDB) in the defined 'out' folder.
 

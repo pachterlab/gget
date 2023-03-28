@@ -42,7 +42,7 @@ def seq(
     - isoforms      If True, returns the sequences of all known transcripts (default: False).
                     (Only for gene IDs.)
     - save          If True, saves output FASTA to current directory (default: False).
-    - verbose        True/False whether to print progress information. Default True.
+    - verbose       True/False whether to print progress information. Default True.
 
     Returns a list (or FASTA file if 'save=True') containing the requested sequences.
 

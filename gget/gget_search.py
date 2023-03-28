@@ -54,7 +54,7 @@ def search(
     - wrap_text       If True, displays data frame with wrapped text for easy reading. Default: False.
     - json            If True, returns results in json format instead of data frame. Default: False.
     - save            If True, the data frame is saved as a csv in the current directory (default: False).
-    - verbose        True/False whether to print progress information. Default True.
+    - verbose         True/False whether to print progress information. Default True.
 
     Returns a data frame with the query results.
 

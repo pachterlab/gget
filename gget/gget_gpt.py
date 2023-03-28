@@ -46,7 +46,7 @@ def gpt(
                                 Default is 0.
     - logit_bias (dict)         A dictionary that specifies a bias towards certain tokens in the generated text. Default is None.
     - out (str)                 If provided, saves the generated text to a file with the specified path. Default: Standard out.
-    - verbose        True/False whether to print progress information. Default True.
+    - verbose                   True/False whether to print progress information. Default True.
 
     Returns:
     - A string containing the generated text.

@@ -41,7 +41,7 @@ def muscle(fasta, super5=False, out=None, verbose=True):
                 Use for large inputs (a few hundred sequences).
     - out       Path to save an 'aligned FASTA' (.afa) file with the results, e.g. 'path/to/directory/results.afa'.
                 Default: 'None' -> Results will be printed in Clustal format.
-    - verbose        True/False whether to print progress information. Default True.
+    - verbose   True/False whether to print progress information. Default True.
 
     Returns alignment results in an "aligned FASTA" (.afa) file.
     """

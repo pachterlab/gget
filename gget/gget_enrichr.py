@@ -57,7 +57,7 @@ def enrichr(
     - ax          Pass a matplotlib axes object for further customization of the plot. (Default: None)
     - json        If True, returns results in json format instead of data frame. (Default: False)
     - save        True/False whether to save the results in the local directory. (Default: False)
-    - verbose        True/False whether to print progress information. Default True.
+    - verbose     True/False whether to print progress information. Default True.
 
     Returns a data frame with the Enrichr results.
     """
