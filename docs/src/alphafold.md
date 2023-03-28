@@ -29,7 +29,10 @@ Python only. `plot=True` provides an interactive, 3D graphical overview of the p
 
 `show_sidechains`  
 Python only. `show_sidechains=True` includes side chains in the plot (default: True).  
-  
+
+`-q` `--quiet`   
+Command-line only. Prevents progress information from being displayed.  
+Python: Use `verbose=False` to prevent progress information from being displayed. 
   
 ### Example
 ```bash

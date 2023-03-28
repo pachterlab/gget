@@ -147,6 +147,14 @@ def main():
         dest="species_deprecated",
         help="DEPRECATED - use positional argument instead. Species for which the FTPs will be fetched, e.g. homo_sapiens.",
     )
+    parser_ref.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Does not print progress information.",
+    )
 
     ## gget search subparser
     search_desc = (
@@ -248,6 +256,15 @@ def main():
         required=False,
         help="DEPRECATED - json is now the default output format (convert to csv using flag [--csv]).",
     )
+    parser_gget.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Does not print progress information.",
+    )
+
 
     ## gget info subparser
     info_desc = "Fetch gene and transcript metadata using Ensembl IDs."
@@ -394,6 +411,14 @@ def main():
         required=False,
         help="DEPRECATED - use True/False flag 'translate' instead.",
     )
+    parser_seq.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Does not print progress information.",
+    )
 
     ## gget muscle subparser
     muscle_desc = "Align multiple nucleotide or amino acid sequences against each other (using the Muscle v5 algorithm)."
@@ -438,6 +463,14 @@ def main():
         required=False,
         dest="fasta_deprecated",
         help="DEPRECATED - use positional argument instead. Path to fasta file containing the sequences to be aligned.",
+    )
+    parser_muscle.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Does not print progress information.",
     )
 
     ## gget blast subparser
@@ -638,6 +671,14 @@ def main():
         required=False,
         help="DEPRECATED - json is now the default output format (convert to csv using flag [--csv]).",
     )
+    parser_blat.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Does not print progress information.",
+    )
 
     ## gget enrichr subparser
     enrichr_desc = "Perform an enrichment analysis on a list of genes using Enrichr."
@@ -708,6 +749,14 @@ def main():
         action="store_true",
         required=False,
         help="DEPRECATED - json is now the default output format (convert to csv using flag [--csv]).",
+    )
+    parser_enrichr.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Does not print progress information.",
     )
 
     ## gget archs4 subparser
@@ -815,6 +864,14 @@ def main():
         required=False,
         help="DEPRECATED - json is now the default output format (convert to csv using flag [--csv]).",
     )
+    parser_archs4.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Does not print progress information.",
+    )
 
     ## gget setup subparser
     setup_desc = "Install third-party dependencies for a specified gget module."
@@ -888,6 +945,14 @@ def main():
             "Path to folder the predicted aligned error (json) and the prediction (PDB) will be saved in.\n"
             "Default: ./[date_time]_gget_alphafold_prediction"
         ),
+    )
+    parser_alphafold.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Does not print progress information.",
     )
 
     ## gget pdb subparser
@@ -966,6 +1031,14 @@ def main():
             "Resource 'pdb' is returned in PDB format. All other resources are returned in JSON format.\n"
             "Default: Standard out."
         ),
+    )
+    parser_pdb.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Does not print progress information.",
     )
 
     # gpt parser arguments
@@ -1152,6 +1225,7 @@ def main():
             seqtype=args.seqtype,
             assembly=args.assembly,
             json=args.csv,
+            verbose=args.quiet,
         )
 
         # Check if the function returned something
@@ -1257,6 +1331,7 @@ def main():
             gene_count=args.gene_count,
             species=args.species,
             json=args.csv,
+            verbose=args.quiet,
         )
 
         # Check if the function returned something
@@ -1343,6 +1418,7 @@ def main():
                 which=which_clean,
                 release=args.release,
                 ftp=args.ftp,
+                verbose=args.quiet,
             )
 
             # Print or save list of URLs (ftp=True)
@@ -1460,6 +1536,7 @@ def main():
             andor=args.andor,
             limit=args.limit,
             json=args.csv,
+            verbose=args.quiet,
         )
 
         # Save search results if args.out specified
@@ -1518,6 +1595,7 @@ def main():
             database=args.database,
             ensembl=args.ensembl,
             json=args.csv,
+            verbose=args.quiet,
         )
 
         # Check if the function returned something
@@ -1641,6 +1719,7 @@ def main():
             seqtype=args.seqtype,
             isoforms=args.isoforms,
             transcribe=args.transcribe,
+            verbose=args.quiet,
         )
 
         # Save in specified directory if -o specified
@@ -1689,6 +1768,7 @@ def main():
             pdb_id=args.pdb_id,
             resource=args.resource,
             identifier=args.identifier,
+            
         )
 
         if pdb_results:
