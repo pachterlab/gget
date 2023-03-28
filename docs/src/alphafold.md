@@ -34,6 +34,7 @@ Python only. `show_sidechains=True` includes side chains in the plot (default: T
 Command-line only. Prevents progress information from being displayed.  
 Python: Use `verbose=False` to prevent progress information from being displayed. 
   
+  
 ### Example
 ```bash
 # Generate new prediction from amino acid sequence

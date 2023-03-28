@@ -26,6 +26,7 @@ Returns the sequences of all known transcripts.
 Command-line only. Prevents progress information from being displayed.  
 Python: Use `verbose=False` to prevent progress information from being displayed.
 
+
 ### Examples  
 ```bash
 gget seq ENSG00000034713 ENSG00000104853 ENSG00000170296

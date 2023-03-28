@@ -30,7 +30,7 @@ Python: Use `json=True` to return output in JSON format.
 `wrap_text`  
 Python only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).  
 
-  
+
 ### Example
 ```bash
 gget info ENSG00000034713 ENSG00000104853 ENSG00000170296

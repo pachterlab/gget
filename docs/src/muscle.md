@@ -16,6 +16,10 @@ Python: `save=True` will save the output in the current working directory.
 `-s5` `--super5`  
 Aligns input using the [Super5 algorithm](https://drive5.com/muscle5/Muscle5_SuppMat.pdf) instead of the [Parallel Perturbed Probcons (PPP) algorithm](https://drive5.com/muscle5/Muscle5_SuppMat.pdf) to decrease time and memory.  
 Use for large inputs (a few hundred sequences).
+
+`-q` `--quiet`   
+Command-line only. Prevents progress information from being displayed.  
+Python: Use `verbose=False` to prevent progress information from being displayed. 
   
   
 ### Example
