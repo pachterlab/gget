@@ -305,11 +305,11 @@ def info(
         else:
             synonyms = []
 
-            # Sort synonyms alphabetically (if sortable)
-            try:
-                synonyms = sorted(synonyms)
-            except:
-                pass
+        # Sort synonyms alphabetically (if sortable)
+        try:
+            synonyms = sorted(synonyms)
+        except:
+            pass
 
 
     # Reindex df (this also drops all unmentioned indices)
