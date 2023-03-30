@@ -178,12 +178,22 @@ def info(
         df_temp = pd.DataFrame()
 
         for ens_id in ens_ids_clean_2:
-            #Create a df for UniProt ids and info
+            # Create a df for UniProt ids and info
             df_uniprot = pd.DataFrame()
 
             if fetch_uniprot is True:
-                #Get gene names and descriptions from UniProt
-                df_uniprot = get_uniprot_info(UNIPROT_REST_API, ens_id, verbose=verbose)
+                try:
+                    # Get gene names and descriptions from UniProt
+                    df_uniprot = get_uniprot_info(
+                        UNIPROT_REST_API, ens_id, verbose=verbose
+                    )
+
+                except RuntimeError:
+                    if verbose is True:
+                        logging.warning(
+                            f"No NCBI match was found for ID '{ens_id}'. Please contact the UniProt team for server connection help."
+                        )
+                    continue
 
                 if not isinstance(df_uniprot, type(None)):
                     # If two different UniProt IDs for a single query ID are returned, they should be merged into one column
@@ -210,54 +220,65 @@ def info(
                     if verbose is True:
                         logging.warning(f"No UniProt entry was found for ID {ens_id}.")
 
-            #Create a df for NCBI ids and info
+            # Create a df for NCBI ids and info
             df_ncbi = pd.DataFrame()
 
             if fetch_ncbi is True:
                 ## Get NCBI gene ID and description (for genes only)
                 url = NCBI_URL + f"/gene/?term={ens_id}"
-                html = requests.get(url)
 
-                # Raise error if status code not "OK" Response
-                if html.status_code != 200:
-                    raise RuntimeError(
-                        f"NCBI returned error status code {html.status_code}. Please double-check arguments or try again later."
-                    )
-
-                ## Web scrape NCBI website for gene ID, synonyms and description
-                soup = BeautifulSoup(html.text, "html.parser")
-
-                # Check if NCBI gene ID is available
                 try:
-                    ncbi_gene_id = soup.find("input", {"id": "gene-id-value"}).get(
-                        "value"
-                    )
-                except:
-                    ncbi_gene_id = np.nan
+                    html = requests.get(url)
+                    # Raise error if status code not "OK" Response
+                    if html.status_code != 200:
+                        raise RuntimeError(
+                            f"NCBI returned error status code {html.status_code}. Please double-check arguments or try again later."
+                        )
 
-                # Check if NCBI description is available
-                try:
-                    ncbi_description = (
-                        soup.find("div", class_="section", id="summaryDiv")
-                        .find("dt", text="Summary")
-                        .find_next_sibling("dd")
-                        .text
-                    )
-                except:
-                    ncbi_description = np.nan
+                    ## Web scrape NCBI website for gene ID, synonyms and description
+                    soup = BeautifulSoup(html.text, "html.parser")
 
-                # Check if NCBI synonyms are available
-                try:
-                    ncbi_synonyms = (
-                        soup.find("div", class_="section", id="summaryDiv")
-                        .find("dt", text="Also known as")
-                        .find_next_sibling("dd")
-                        .text
-                    )
-                    # Split NCBI synonyms
-                    ncbi_synonyms = ncbi_synonyms.split("; ")
-                except:
+                    # Check if NCBI gene ID is available
+                    try:
+                        ncbi_gene_id = soup.find("input", {"id": "gene-id-value"}).get(
+                            "value"
+                        )
+                    except:
+                        ncbi_gene_id = np.nan
+
+                    # Check if NCBI description is available
+                    try:
+                        ncbi_description = (
+                            soup.find("div", class_="section", id="summaryDiv")
+                            .find("dt", text="Summary")
+                            .find_next_sibling("dd")
+                            .text
+                        )
+                    except:
+                        ncbi_description = np.nan
+
+                    # Check if NCBI synonyms are available
+                    try:
+                        ncbi_synonyms = (
+                            soup.find("div", class_="section", id="summaryDiv")
+                            .find("dt", text="Also known as")
+                            .find_next_sibling("dd")
+                            .text
+                        )
+                        # Split NCBI synonyms
+                        ncbi_synonyms = ncbi_synonyms.split("; ")
+                    except:
+                        ncbi_synonyms = None
+
+                except RuntimeError:
+                    if verbose is True:
+                        logging.warning(
+                            f"No NCBI match was found for ID '{ens_id}'. Please contact the NCBI team for server connection help."
+                        )
+                    ncbi_gene_id = None
+                    ncbi_description = None
                     ncbi_synonyms = None
+                    continue
 
                 # If both NCBI and UniProt synonyms available,
                 # final synonyms list will be combined set of both lists
@@ -296,12 +317,19 @@ def info(
                 df_ncbi = df_ncbi.T
                 df_ncbi.columns = [ens_id]
 
-            #Create a df for PDB ids and info
+            # Create a df for PDB ids and info
             df_pdb = pd.DataFrame()
-            
+
             if fetch_pdb:
                 ## Get PDB IDs from Ensembl ID
-                pdb_ids = get_pdb_ids(ens_id)
+                try:
+                    pdb_ids = get_pdb_ids(ens_id)
+                except RuntimeError:
+                    if verbose is True:
+                        logging.warning(
+                            f"No PDB match was found for ID '{ens_id}'. Please contact the PDB team for server connection help."
+                        )
+                    continue
 
                 # Add pdb_ids to NCBI data frame
                 if pdb_ids:
