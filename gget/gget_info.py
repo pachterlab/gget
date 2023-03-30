@@ -261,35 +261,37 @@ def info(
                 if ncbi_synonyms is not None and not isinstance(df_uniprot, type(None)):
                     synonyms = list(set().union(uni_synonyms, ncbi_synonyms))
                     # Remove nan values
-                    synonyms = [item for item in synonyms if not (pd.isnull(item)) == True]
+                    synonyms = [
+                        item for item in synonyms if not (pd.isnull(item)) == True
+                    ]
 
                 # Add only UniProt synonyms if NCBI syns not available
                 elif ncbi_synonyms is None and not isinstance(df_uniprot, type(None)):
                     # Remove nan values
-                    synonyms = [item for item in uni_synonyms if not (pd.isnull(item)) == True]
+                    synonyms = [
+                        item for item in uni_synonyms if not (pd.isnull(item)) == True
+                    ]
                 else:
                     synonyms = []
 
                 # Sort synonyms alphabetically (if sortable)
                 try:
-                    synonyms = sorted(synonyms, key=str.casefold)
+                    synonyms = sorted(synonyms)
                 except:
                     pass
-                
+
                 # Save NCBI info to data frame
                 df_ncbi = pd.DataFrame(
-                {
-                    "ncbi_gene_id": [ncbi_gene_id],
-                    "ncbi_description": [ncbi_description],
-                    "synonyms": [synonyms],
-                },
+                    {
+                        "ncbi_gene_id": [ncbi_gene_id],
+                        "ncbi_description": [ncbi_description],
+                        "synonyms": [synonyms],
+                    },
                 )
 
                 # Transpose NCBI df and add Ensembl ID as column name
                 df_ncbi = df_ncbi.T
                 df_ncbi.columns = [ens_id]
-
-                
 
             df_pdb = pd.DataFrame()
             if fetch_pdb:
@@ -313,8 +315,6 @@ def info(
 
         # Append to master df of Ensembl ids
         df = pd.concat([df, df_temp])
-
-        
 
     # Reindex df (this also drops all unmentioned indices)
     df_final = df.reindex(
