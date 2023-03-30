@@ -281,20 +281,28 @@ def main():
         help="One or more Ensembl, WormBase or FlyBase IDs.",
     )
     parser_info.add_argument(
+        "-ncbi",
+        "--ncbi",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Return results from NCBI database.",
+    )
+    parser_info.add_argument(
+        "-uniprot",
+        "--uniprot",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Return results from UniProt database.",
+    )
+    parser_info.add_argument(
         "-pdb",
         "--pdb",
         default=False,
         action="store_true",
         required=False,
         help="Also returns PDB IDs (might increase run time).",
-    )
-    parser_info.add_argument(
-        "-eo",
-        "--ensembl_only",
-        default=False,
-        action="store_true",
-        required=False,
-        help="Only returns results from Ensembl (excludes PDB, UniProt, and NCBI results).",
     )
     parser_info.add_argument(
         "-csv",
@@ -321,6 +329,14 @@ def main():
             "Path to file the results will be saved as, e.g. path/to/directory/results.json.\n"
             "Default: Standard out."
         ),
+    )
+    parser_info.add_argument(
+        "-eo",
+        "--ensembl_only",
+        default=False,
+        action="store_true",
+        required=False,
+        help="DEPRECATED - only returns results from Ensembl (excludes PDB, UniProt, and NCBI results).",
     )
     parser_info.add_argument(
         "-id",
@@ -1639,7 +1655,11 @@ def main():
         if args.id_deprecated and not args.ens_ids:
             args.ens_ids = args.id_deprecated
             logging.warning(
-                "The [-id][--genes] argument is deprecated, please use positional argument [ens_ids] instead."
+                "The [-id][--genes] argument is deprecated, please use arguments [ens_ids] instead."
+            )
+        if args.ensembl_only:
+            logging.warning(
+                "The [-eo][--ensembl_only] argument is deprecated, please use arguments [ncbi] and [uniprot] instead."
             )
         if not args.id_deprecated and not args.ens_ids:
             parser_info.error("the following arguments are required: ens_ids")
@@ -1658,6 +1678,8 @@ def main():
         # Look up requested Ensembl IDs
         info_results = info(
             ids_clean_final,
+            ncbi=args.ncbi,
+            uniprot=args.uniprot,
             pdb=args.pdb,
             ensembl_only=args.ensembl_only,
             expand=args.expand,
