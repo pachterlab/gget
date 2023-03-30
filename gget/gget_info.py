@@ -64,7 +64,7 @@ def info(
     # Set synonyms found by each database initially to none
     ncbi_synonyms = None
     df_uniprot = None
-    
+
     # Rename pdb, uniprot, ncbi arguments
     fetch_ncbi = ncbi
     fetch_uniprot = uniprot
@@ -175,11 +175,9 @@ def info(
     )
 
     if ensembl_only is False:
-        
         df_temp = pd.DataFrame()
-        
-        for ens_id in ens_ids_clean_2:
 
+        for ens_id in ens_ids_clean_2:
             df_uniprot = pd.DataFrame()
             if fetch_uniprot is True:
                 # Get gene names and descriptions from UniProt
@@ -195,17 +193,22 @@ def info(
                             logging.warning(
                                 f"More than one UniProt match was found for ID {ens_id}. Only the first match and its associated information will be returned."
                             )
+
+                    # Get uniprot synonyms and remove NaN values
                     uni_synonyms = df_uniprot["uni_synonyms"].values[0]
+                    uni_synonyms = [
+                        item for item in uni_synonyms if not (pd.isnull(item)) == True
+                    ]
+
                     # Transpose UniProt data frame and add Ensembl ID as column name
                     df_uniprot = df_uniprot.T
                     df_uniprot.columns = [ens_id]
-                    
 
                 else:
                     if verbose is True:
                         logging.warning(f"No UniProt entry was found for ID {ens_id}.")
-        
-        #return (df_uniprot)
+
+            # return (df_uniprot)
             df_ncbi = pd.DataFrame()
             if fetch_ncbi is True:
                 ## Get NCBI gene ID and description (for genes only)
@@ -223,7 +226,9 @@ def info(
 
                 # Check if NCBI gene ID is available
                 try:
-                    ncbi_gene_id = soup.find("input", {"id": "gene-id-value"}).get("value")
+                    ncbi_gene_id = soup.find("input", {"id": "gene-id-value"}).get(
+                        "value"
+                    )
                 except:
                     ncbi_gene_id = np.nan
 
@@ -251,7 +256,6 @@ def info(
                 except:
                     ncbi_synonyms = None
 
-                
                 # Save NCBI info to data frame
                 df_ncbi["ncbi_gene_id"] = [ncbi_gene_id]
                 df_ncbi["ncbi_description"] = [ncbi_description]
@@ -260,7 +264,7 @@ def info(
                 # Transpose NCBI df and add Ensembl ID as column name
                 df_ncbi = df_ncbi.T
                 df_ncbi.columns = [ens_id]
-                #return (df_ncbi)
+                # return (df_ncbi)
 
             df_pdb = pd.DataFrame()
             if fetch_pdb:
@@ -276,15 +280,11 @@ def info(
                 # Transpose pdb df and add Ensembl ID as column name
                 df_pdb = df_pdb.T
                 df_pdb.columns = [ens_id]
-            
-            
 
             # Append all three df to df_temp
             frames = [df_uniprot, df_ncbi, df_pdb]
             df_uni_ncbi = pd.concat(frames)
             df_temp = pd.concat([df_temp, df_uni_ncbi], axis=1)
-
-           
 
         # Append to master df of Ensembl ids
         df = pd.concat([df, df_temp])
@@ -293,13 +293,13 @@ def info(
         # final synonyms list will be combined set of both lists
         if ncbi_synonyms is not None and not isinstance(df_uniprot, type(None)):
             # Collect and flatten UniProt synonyms
-            #uni_synonyms = df_uniprot["uni_synonyms"].values[0]
+            # uni_synonyms = df_uniprot["uni_synonyms"].values[0]
             synonyms = list(set().union(uni_synonyms, ncbi_synonyms))
             # Remove nan values
             synonyms = [item for item in synonyms if not (pd.isnull(item)) == True]
         # Add only UniProt synonyms if NCBI syns not available
         elif ncbi_synonyms is None and not isinstance(df_uniprot, type(None)):
-            #synonyms = df_uniprot["uni_synonyms"].values[0]
+            # synonyms = df_uniprot["uni_synonyms"].values[0]
             # Remove nan values
             synonyms = [item for item in uni_synonyms if not (pd.isnull(item)) == True]
         else:
@@ -307,10 +307,9 @@ def info(
 
         # Sort synonyms alphabetically (if sortable)
         try:
-            synonyms = sorted(synonyms)
+            synonyms = sorted(synonyms, key=str.casefold)
         except:
             pass
-
 
     # Reindex df (this also drops all unmentioned indices)
     df_final = df.reindex(
