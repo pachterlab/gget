@@ -27,14 +27,14 @@ from .constants import ENSEMBL_REST_API, UNIPROT_REST_API, NCBI_URL
 def info(
     ens_ids,
     wrap_text=False,
-    pdb=False,
     ncbi=True,
     uniprot=True,
-    ensembl_only=False,
+    pdb=False,
     json=False,
     verbose=True,
     save=False,
     expand=False,
+    ensembl_only=False,
 ):
     """
     Fetch gene and transcript metadata using Ensembl IDs.
@@ -43,27 +43,36 @@ def info(
     - ens_ids       One or more Ensembl IDs to look up (string or list of strings).
                     Also supports WormBase and Flybase IDs.
     - wrap_text     If True, displays data frame with wrapped text for easy reading. Default: False.
-    - pdb           If True, also returns PDB IDs (might increase run time). Default: False.
     - ncbi          If False, does not return data from NCBI. Default: True.
     - uniprot       If False, does not return data from UniProt. Default: True.
+    - pdb           If True, also returns PDB IDs (might increase run time). Default: False.
     - json          If True, returns results in json/dictionary format instead of data frame. Default: False.
     - verbose       True/False whether to print progress information. Default True.
     - save          True/False wether to save csv with query results in current working directory. Default: False.
 
     Returns a data frame containing the requested information.
 
-    Deprecated arguments: 'expand' (gget info now always returns all of the available information)
-     - ensembl_only  If True, only returns results from Ensembl (excludes PDB, UniProt, and NCBI results). Default: False.
+    Deprecated arguments:
+    -'expand' (gget info now always returns all of the available information)
+    - ensembl_only  If True, only returns results from Ensembl (excludes PDB, UniProt, and NCBI results). Default: False.
     """
     # Handle deprecated arguments
     if expand:
-        logging.info(
-            "'expand' argument deprecated! gget info now always returns all of the available information."
-        )
+        if verbose:
+            logging.warning(
+                "'expand' argument deprecated! gget info now always returns all of the available information."
+            )
+    if ensembl_only:
+        if verbose:
+            logging.warning(
+                "'ensembl_only' argument deprecated! Please use arguments 'ncbi=False' and 'uniprot=False'."
+            )
 
     # Set synonyms found by each database initially to none
     ncbi_synonyms = None
     df_uniprot = None
+    df_pdb = pd.DataFrame()
+    df_ncbi = pd.DataFrame()
 
     # Rename pdb, uniprot, ncbi arguments
     fetch_ncbi = ncbi
@@ -144,7 +153,7 @@ def info(
 
             # Log error if this also did not work
             except RuntimeError:
-                if verbose is True:
+                if verbose:
                     logging.warning(
                         f"ID '{ensembl_ID}' not found. Please double-check spelling/arguments and try again."
                     )
@@ -175,12 +184,10 @@ def info(
     )
 
     if ensembl_only is False:
+        # df_temp will hold information from NCBI, UniProt and PDB for each of the Ensembl IDs
         df_temp = pd.DataFrame()
 
         for ens_id in ens_ids_clean_2:
-            # Create a df for UniProt ids and info
-            df_uniprot = pd.DataFrame()
-
             if fetch_uniprot is True:
                 try:
                     # Get gene names and descriptions from UniProt
@@ -188,10 +195,10 @@ def info(
                         UNIPROT_REST_API, ens_id, verbose=verbose
                     )
 
-                except RuntimeError:
-                    if verbose is True:
+                except Exception as e:
+                    if verbose:
                         logging.warning(
-                            f"No NCBI match was found for ID '{ens_id}'. Please contact the UniProt team for server connection help."
+                            f"UniProt server request for ID '{ens_id}' return following error:\n{e}"
                         )
                     continue
 
@@ -201,7 +208,8 @@ def info(
                     if len(df_uniprot) > 1:
                         # If the above somehow failed, we will only return the first result.
                         df_uniprot = df_uniprot.iloc[[0]]
-                        if verbose is True:
+
+                        if verbose:
                             logging.warning(
                                 f"More than one UniProt match was found for ID {ens_id}. Only the first match and its associated information will be returned."
                             )
@@ -217,11 +225,8 @@ def info(
                     df_uniprot.columns = [ens_id]
 
                 else:
-                    if verbose is True:
+                    if verbose:
                         logging.warning(f"No UniProt entry was found for ID {ens_id}.")
-
-            # Create a df for NCBI ids and info
-            df_ncbi = pd.DataFrame()
 
             if fetch_ncbi is True:
                 ## Get NCBI gene ID and description (for genes only)
@@ -231,9 +236,10 @@ def info(
                     html = requests.get(url)
                     # Raise error if status code not "OK" Response
                     if html.status_code != 200:
-                        raise RuntimeError(
-                            f"NCBI returned error status code {html.status_code}. Please double-check arguments or try again later."
-                        )
+                        if verbose:
+                            logging.warning(
+                                f"NCBI server request for {ens_id} returned error status code:\n{html.status_code}.\nPlease double-check arguments or try again later."
+                            )
 
                     ## Web scrape NCBI website for gene ID, synonyms and description
                     soup = BeautifulSoup(html.text, "html.parser")
@@ -270,46 +276,23 @@ def info(
                     except:
                         ncbi_synonyms = None
 
-                except RuntimeError:
-                    if verbose is True:
+                except Exception as e:
+                    if verbose:
                         logging.warning(
-                            f"No NCBI match was found for ID '{ens_id}'. Please contact the NCBI team for server connection help."
+                            f"The NCBI server request for Ensembl ID '{ens_id}' returned the following error:\n{e}"
                         )
-                    ncbi_gene_id = None
-                    ncbi_description = None
+
+                    ncbi_gene_id = np.nan
+                    ncbi_description = np.nan
                     ncbi_synonyms = None
+
                     continue
-
-                # If both NCBI and UniProt synonyms available,
-                # final synonyms list will be combined set of both lists
-                if ncbi_synonyms is not None and not isinstance(df_uniprot, type(None)):
-                    synonyms = list(set().union(uni_synonyms, ncbi_synonyms))
-                    # Remove nan values
-                    synonyms = [
-                        item for item in synonyms if not (pd.isnull(item)) == True
-                    ]
-
-                # Add only UniProt synonyms if NCBI syns not available
-                elif ncbi_synonyms is None and not isinstance(df_uniprot, type(None)):
-                    # Remove nan values
-                    synonyms = [
-                        item for item in uni_synonyms if not (pd.isnull(item)) == True
-                    ]
-                else:
-                    synonyms = []
-
-                # Sort synonyms alphabetically (if sortable)
-                try:
-                    synonyms = sorted(synonyms)
-                except:
-                    pass
 
                 # Save NCBI info to data frame
                 df_ncbi = pd.DataFrame(
                     {
                         "ncbi_gene_id": [ncbi_gene_id],
                         "ncbi_description": [ncbi_description],
-                        "synonyms": [synonyms],
                     },
                 )
 
@@ -317,21 +300,19 @@ def info(
                 df_ncbi = df_ncbi.T
                 df_ncbi.columns = [ens_id]
 
-            # Create a df for PDB ids and info
-            df_pdb = pd.DataFrame()
-
             if fetch_pdb:
                 ## Get PDB IDs from Ensembl ID
                 try:
                     pdb_ids = get_pdb_ids(ens_id)
-                except RuntimeError:
-                    if verbose is True:
+
+                except Exception as e:
+                    if verbose:
                         logging.warning(
-                            f"No PDB match was found for ID '{ens_id}'. Please contact the PDB team for server connection help."
+                            f"The PDBe server request for Ensembl ID '{ens_id}' returned the following error:\n{e}"
                         )
                     continue
 
-                # Add pdb_ids to NCBI data frame
+                # Add pdb_ids to data frame
                 if pdb_ids:
                     df_pdb["pdb_id"] = [pdb_ids]
                 else:
@@ -341,12 +322,43 @@ def info(
                 df_pdb = df_pdb.T
                 df_pdb.columns = [ens_id]
 
-            # Append all three df to df_temp
+            ## Handle synonyms
+            # If both NCBI and UniProt synonyms available,
+            # final synonyms list will be combined set of both lists
+            if ncbi_synonyms is not None and not isinstance(df_uniprot, type(None)):
+                synonyms = list(set().union(uni_synonyms, ncbi_synonyms))
+                # Remove nan values
+                synonyms = [item for item in synonyms if not (pd.isnull(item)) == True]
+
+            # Add only UniProt synonyms if NCBI syns not available
+            elif ncbi_synonyms is None and not isinstance(df_uniprot, type(None)):
+                # Remove nan values
+                synonyms = uni_synonyms
+
+            # Add only NCBI synonyms if UniProt syns not available
+            elif ncbi_synonyms is not None and isinstance(df_uniprot, type(None)):
+                # Remove nan values
+                synonyms = ncbi_synonyms
+
+            else:
+                synonyms = []
+
+            # Sort synonyms alphabetically (if sortable)
+            try:
+                synonyms = sorted(synonyms)
+            except:
+                pass
+
+            # Append dataframes with data from NCBI, UniProt and PDB from ens_id to df_temp
             frames = [df_uniprot, df_ncbi, df_pdb]
             df_uni_ncbi = pd.concat(frames)
+
+            if not df_uni_ncbi.empty:
+                df_uni_ncbi.loc["synonyms"] = [synonyms]
+
             df_temp = pd.concat([df_temp, df_uni_ncbi], axis=1)
 
-        # Append to master df of Ensembl ids
+        # Append info from NCBI, UniProt and PDB to master df which contains info from Ensembl
         df = pd.concat([df, df_temp])
 
     # Reindex df (this also drops all unmentioned indices)

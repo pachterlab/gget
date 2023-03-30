@@ -281,28 +281,20 @@ def main():
         help="One or more Ensembl, WormBase or FlyBase IDs.",
     )
     parser_info.add_argument(
-        "-ncbi",
+        "-n",
         "--ncbi",
         default=True,
         action="store_false",
         required=False,
-        help="Return results from NCBI database.",
+        help="TURN OFF results from NCBI database.",
     )
     parser_info.add_argument(
-        "-uniprot",
+        "-u",
         "--uniprot",
         default=True,
         action="store_false",
         required=False,
-        help="Return results from UniProt database.",
-    )
-    parser_info.add_argument(
-        "-pdb",
-        "--pdb",
-        default=False,
-        action="store_true",
-        required=False,
-        help="Also returns PDB IDs (might increase run time).",
+        help="TURN OFF results from UniProt database.",
     )
     parser_info.add_argument(
         "-csv",
@@ -311,6 +303,14 @@ def main():
         action="store_false",
         required=False,
         help="Returns results in csv format instead of json.",
+    )
+    parser_info.add_argument(
+        "-pdb",
+        "--pdb",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Also returns PDB IDs (might increase run time).",
     )
     parser_info.add_argument(
         "-q",
