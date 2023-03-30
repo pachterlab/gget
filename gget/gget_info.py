@@ -256,15 +256,40 @@ def info(
                 except:
                     ncbi_synonyms = None
 
+                # If both NCBI and UniProt synonyms available,
+                # final synonyms list will be combined set of both lists
+                if ncbi_synonyms is not None and not isinstance(df_uniprot, type(None)):
+                    synonyms = list(set().union(uni_synonyms, ncbi_synonyms))
+                    # Remove nan values
+                    synonyms = [item for item in synonyms if not (pd.isnull(item)) == True]
+
+                # Add only UniProt synonyms if NCBI syns not available
+                elif ncbi_synonyms is None and not isinstance(df_uniprot, type(None)):
+                    # Remove nan values
+                    synonyms = [item for item in uni_synonyms if not (pd.isnull(item)) == True]
+                else:
+                    synonyms = []
+
+                # Sort synonyms alphabetically (if sortable)
+                try:
+                    synonyms = sorted(synonyms, key=str.casefold)
+                except:
+                    pass
+                
                 # Save NCBI info to data frame
-                df_ncbi["ncbi_gene_id"] = [ncbi_gene_id]
-                df_ncbi["ncbi_description"] = [ncbi_description]
-                df_ncbi["synonyms"] = [ncbi_synonyms]
+                df_ncbi = pd.DataFrame(
+                {
+                    "ncbi_gene_id": [ncbi_gene_id],
+                    "ncbi_description": [ncbi_description],
+                    "synonyms": [synonyms],
+                },
+                )
 
                 # Transpose NCBI df and add Ensembl ID as column name
                 df_ncbi = df_ncbi.T
                 df_ncbi.columns = [ens_id]
-                # return (df_ncbi)
+
+                
 
             df_pdb = pd.DataFrame()
             if fetch_pdb:
@@ -289,27 +314,7 @@ def info(
         # Append to master df of Ensembl ids
         df = pd.concat([df, df_temp])
 
-        # If both NCBI and UniProt synonyms available,
-        # final synonyms list will be combined set of both lists
-        if ncbi_synonyms is not None and not isinstance(df_uniprot, type(None)):
-            # Collect and flatten UniProt synonyms
-            # uni_synonyms = df_uniprot["uni_synonyms"].values[0]
-            synonyms = list(set().union(uni_synonyms, ncbi_synonyms))
-            # Remove nan values
-            synonyms = [item for item in synonyms if not (pd.isnull(item)) == True]
-        # Add only UniProt synonyms if NCBI syns not available
-        elif ncbi_synonyms is None and not isinstance(df_uniprot, type(None)):
-            # synonyms = df_uniprot["uni_synonyms"].values[0]
-            # Remove nan values
-            synonyms = [item for item in uni_synonyms if not (pd.isnull(item)) == True]
-        else:
-            synonyms = []
-
-        # Sort synonyms alphabetically (if sortable)
-        try:
-            synonyms = sorted(synonyms, key=str.casefold)
-        except:
-            pass
+        
 
     # Reindex df (this also drops all unmentioned indices)
     df_final = df.reindex(
