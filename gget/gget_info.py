@@ -178,9 +178,11 @@ def info(
         df_temp = pd.DataFrame()
 
         for ens_id in ens_ids_clean_2:
+            #Create a df for UniProt ids and info
             df_uniprot = pd.DataFrame()
+
             if fetch_uniprot is True:
-                # Get gene names and descriptions from UniProt
+                #Get gene names and descriptions from UniProt
                 df_uniprot = get_uniprot_info(UNIPROT_REST_API, ens_id, verbose=verbose)
 
                 if not isinstance(df_uniprot, type(None)):
@@ -208,8 +210,9 @@ def info(
                     if verbose is True:
                         logging.warning(f"No UniProt entry was found for ID {ens_id}.")
 
-            # return (df_uniprot)
+            #Create a df for NCBI ids and info
             df_ncbi = pd.DataFrame()
+
             if fetch_ncbi is True:
                 ## Get NCBI gene ID and description (for genes only)
                 url = NCBI_URL + f"/gene/?term={ens_id}"
@@ -293,7 +296,9 @@ def info(
                 df_ncbi = df_ncbi.T
                 df_ncbi.columns = [ens_id]
 
+            #Create a df for PDB ids and info
             df_pdb = pd.DataFrame()
+            
             if fetch_pdb:
                 ## Get PDB IDs from Ensembl ID
                 pdb_ids = get_pdb_ids(ens_id)
