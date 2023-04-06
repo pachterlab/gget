@@ -174,9 +174,6 @@ def search(
 
             # Order by ENSEMBL ID (I am using pandas for this instead of SQL to increase speed)
             df_temp = df_temp.sort_values("ensembl_id").reset_index(drop=True)
-            
-            print("df_temp.columns.values after ordering by Ensembl ID")
-            print(df_temp.columns.values)
 
             # If andor="or", keep all results
             if andor == "or":
