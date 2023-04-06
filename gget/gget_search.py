@@ -150,6 +150,7 @@ def search(
                 password="",
                 port=5306,
             )
+            print("Used alt port")
         except Exception as e:
             logging.error(f"The Ensembl server returned the following error: {e}")
 
@@ -225,6 +226,12 @@ def search(
                     df = df[df.stable_id.isin(val)]
 
     # Rename columns
+    print("df.columns.values:")
+    print(df.columns.values)
+    
+    print("df.values.tolist():")
+    print(df.values.tolist())
+    
     df = df.rename(
         columns={
             "stable_id": "ensembl_id",
@@ -232,9 +239,16 @@ def search(
             "biotype": "biotype",
         }
     )
+    
     # Changing description columns name by column index since they were returned with the same name ("description")
     df.columns.values[2] = "ensembl_description"
     df.columns.values[3] = "ext_ref_description"
+    
+    print("df.columns.values after renaming:")
+    print(df.columns.values)
+    
+    print("df.values.tolist() after renaming:")
+    print(df.values.tolist())
 
     # Remove any duplicate search results from the master data frame and reset the index
     df = df.drop_duplicates().reset_index(drop=True)
