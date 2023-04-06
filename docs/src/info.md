@@ -13,14 +13,17 @@ Path to the file the results will be saved in, e.g. path/to/directory/results.cs
 Python: `save=True` will save the output in the current working directory.
 
 **Flags**  
-`-ncbi` `--ncbi`  
-Return results from NCBI in output.
+`-n` `--ncbi`  
+TURN OFF results from [NCBI](https://www.ncbi.nlm.nih.gov/).  
+Python: `ncbi=False` prevents data retrieval from NCBI (default: True).    
 
-`-uniprot` `--uniprot`  
-Return results from UniProt in output.
+`-u` `--uniprot`  
+TURN OFF results from [UniProt](https://www.uniprot.org/).  
+Python: `uniprot=False` prevents data retrieval from UniProt (default: True).   
 
 `-pdb` `--pdb`  
-Include PDB IDs in output (might increase runtime).  
+INCLUDE [PDB](https://www.ebi.ac.uk/pdbe/) IDs in output (might increase runtime).  
+Python: `pdb=False` prevents data retrieval from PDB (default: False).   
 
 `-q` `--quiet`   
 Command-line only. Prevents progress information from being displayed.  
