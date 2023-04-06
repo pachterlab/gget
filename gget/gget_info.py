@@ -53,7 +53,7 @@ def info(
     Returns a data frame containing the requested information.
 
     Deprecated arguments:
-    -'expand' (gget info now always returns all of the available information)
+    - expand        (gget info now always returns all of the available information)
     - ensembl_only  If True, only returns results from Ensembl (excludes PDB, UniProt, and NCBI results). Default: False.
     """
     # Handle deprecated arguments
