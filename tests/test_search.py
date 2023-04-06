@@ -13,9 +13,16 @@ class TestSearch(unittest.TestCase):
         test = "test1"
         expected_result = search_dict[test]["expected_result"]
         result_to_test = search(**search_dict[test]["args"])
+        print("result_to_test:")
+        print(result_to_test)
         # If result is a DataFrame, convert to list
         if isinstance(result_to_test, pd.DataFrame):
             result_to_test = result_to_test.values.tolist()
+            
+        print("result_to_test after conversion:")
+        print(result_to_test)
+        print("expected_result:")
+        print(expected_result)
 
         self.assertListEqual(result_to_test, expected_result)
 
