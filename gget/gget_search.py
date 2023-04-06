@@ -150,7 +150,7 @@ def search(
                 password="",
                 port=5306,
             )
-            print("Used alt port")
+
         except Exception as e:
             logging.error(f"The Ensembl server returned the following error: {e}")
 
@@ -163,7 +163,7 @@ def search(
     for i, searchword in enumerate(searchwords):
         if id_type == "gene":
             query = f"""
-            SELECT gene.stable_id, xref.display_label, gene.description, xref.description, gene.biotype
+            SELECT gene.stable_id AS 'ensembl_id', xref.display_label  AS 'gene_name', gene.description AS 'ensembl_description', xref.description AS 'ext_ref_description', gene.biotype  AS 'biotype'
             FROM gene
             LEFT JOIN xref ON gene.display_xref_id = xref.xref_id
             WHERE (gene.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%')
@@ -171,12 +171,9 @@ def search(
 
             # Fetch the search results from the host using the specified query
             df_temp = pd.read_sql(query, con=db_connection)
-            
-            print("df_temp.columns.values")
-            print(df_temp.columns.values)
-            
+
             # Order by ENSEMBL ID (I am using pandas for this instead of SQL to increase speed)
-            df_temp = df_temp.sort_values("stable_id").reset_index(drop=True)
+            df_temp = df_temp.sort_values("ensembl_id").reset_index(drop=True)
             
             print("df_temp.columns.values after ordering by Ensembl ID")
             print(df_temp.columns.values)
@@ -197,12 +194,12 @@ def search(
                     df = df_temp.copy()
                 # Only keep overlapping results in master data frame
                 else:
-                    val = np.intersect1d(df["stable_id"], df_temp["stable_id"])
-                    df = df[df.stable_id.isin(val)]
+                    val = np.intersect1d(df["ensembl_id"], df_temp["ensembl_id"])
+                    df = df[df.ensembl_id.isin(val)]
 
         if id_type == "transcript":
             query = f"""
-            SELECT transcript.stable_id, xref.display_label, transcript.description, xref.description, transcript.biotype
+            SELECT transcript.stable_id AS 'ensembl_id', xref.display_label  AS 'gene_name', transcript.description AS 'ensembl_description', xref.description AS 'ext_ref_description', transcript.biotype  AS 'biotype'
             FROM transcript
             LEFT JOIN xref ON transcript.display_xref_id = xref.xref_id
             WHERE (transcript.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%')
@@ -211,7 +208,7 @@ def search(
             # Fetch the search results from the host using the specified query
             df_temp = pd.read_sql(query, con=db_connection)
             # Order by ENSEMBL ID (I am using pandas for this instead of SQL to increase speed)
-            df_temp = df_temp.sort_values("stable_id").reset_index(drop=True)
+            df_temp = df_temp.sort_values("ensembl_id").reset_index(drop=True)
 
             # If andor="or", keep all results
             if andor == "or":
@@ -229,33 +226,8 @@ def search(
                     df = df_temp.copy()
                 # Only keep overlapping results in master data frame
                 else:
-                    val = np.intersect1d(df["stable_id"], df_temp["stable_id"])
-                    df = df[df.stable_id.isin(val)]
-
-    # Rename columns
-    print("df.columns.values:")
-    print(df.columns.values)
-    
-    print("df.values.tolist():")
-    print(df.values.tolist())
-    
-    df = df.rename(
-        columns={
-            "stable_id": "ensembl_id",
-            "display_label": "gene_name",
-            "biotype": "biotype",
-        }
-    )
-    
-    # Changing description columns name by column index since they were returned with the same name ("description")
-    df.columns.values[2] = "ensembl_description"
-    df.columns.values[3] = "ext_ref_description"
-    
-    print("df.columns.values after renaming:")
-    print(df.columns.values)
-    
-    print("df.values.tolist() after renaming:")
-    print(df.values.tolist())
+                    val = np.intersect1d(df["ensembl_id"], df_temp["ensembl_id"])
+                    df = df[df.ensembl_id.isin(val)]
 
     # Remove any duplicate search results from the master data frame and reset the index
     df = df.drop_duplicates().reset_index(drop=True)
