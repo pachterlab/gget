@@ -125,7 +125,7 @@ def enrichr(
             # Remove version number if passed
             gene_id = gene_id.split(".")[0]
 
-            info_df = info(gene_id, ensembl_only=True, verbose=False)
+            info_df = info(gene_id, pdb=False, ncbi=False, uniprot=False, verbose=False)
 
             # Check if Ensembl ID was found
             if isinstance(info_df, type(None)):

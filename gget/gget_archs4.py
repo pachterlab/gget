@@ -74,7 +74,7 @@ def archs4(
         # Remove version number if passed
         gene = gene.split(".")[0]
 
-        info_df = info(gene, verbose=False, ensembl_only=True)
+        info_df = info(gene, verbose=False, pdb=False, ncbi=False, uniprot=False)
 
         # Check if Ensembl ID was found
         if isinstance(info_df, type(None)):

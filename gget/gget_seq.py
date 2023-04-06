@@ -131,7 +131,7 @@ def seq(
             # If isoforms true, fetch sequences of isoforms instead
             if isoforms == True:
                 # Get ID type (gene, transcript, ...) using gget info
-                info_df = info(ensembl_ID, verbose=False, ensembl_only=True)
+                info_df = info(ensembl_ID, verbose=False, pdb=False, ncbi=False, uniprot=False)
 
                 # Check if Ensembl ID was found
                 if isinstance(info_df, type(None)):
@@ -234,7 +234,7 @@ def seq(
 
             for ensembl_ID in ens_ids_clean:
                 # Get ID type (gene, transcript, ...) using gget info
-                info_df = info(ensembl_ID, verbose=False, ensembl_only=True)
+                info_df = info(ensembl_ID, verbose=False, pdb=False, ncbi=False, uniprot=False)
 
                 # Check that Ensembl ID was found
                 if isinstance(info_df, type(None)):
@@ -299,7 +299,7 @@ def seq(
 
             for ensembl_ID in ens_ids_clean:
                 # Get ID type (gene, transcript, ...) using gget info
-                info_df = info(ensembl_ID, verbose=False, ensembl_only=True)
+                info_df = info(ensembl_ID, verbose=False, pdb=False, ncbi=False, uniprot=False)
 
                 # Check that Ensembl ID was found
                 if isinstance(info_df, type(None)):
