@@ -37,6 +37,10 @@ Returns only the requested FTP links.
 `-d` `--download`   
 Command-line only. Downloads the requested FTPs to the current directory (requires [curl](https://curl.se/docs/) to be installed).
 
+`-q` `--quiet`   
+Command-line only. Prevents progress information from being displayed.  
+Python: Use `verbose=False` to prevent progress information from being displayed. 
+  
   
 ### Examples
 **Use `gget ref` in combination with [kallisto | bustools](https://www.kallistobus.tools/kb_usage/kb_ref/) to build a reference index:**

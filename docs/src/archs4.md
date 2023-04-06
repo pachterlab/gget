@@ -30,6 +30,10 @@ Add this flag if `gene` is given as an Ensembl gene ID.
 `-csv` `--csv`  
 Command-line only. Returns results in CSV format.  
 Python: Use `json=True` to return output in JSON format.
+
+`-q` `--quiet`   
+Command-line only. Prevents progress information from being displayed.  
+Python: Use `verbose=False` to prevent progress information from being displayed. 
   
   
 ### Examples

@@ -40,6 +40,11 @@ Python: Use `json=True` to return output in JSON format.
 `wrap_text`  
 Python only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).  
   
+
+`-q` `--quiet`   
+Command-line only. Prevents progress information from being displayed.  
+Python: Use `verbose=False` to prevent progress information from being displayed. 
+    
     
 ### Example
 ```bash

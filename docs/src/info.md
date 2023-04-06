@@ -13,11 +13,14 @@ Path to the file the results will be saved in, e.g. path/to/directory/results.cs
 Python: `save=True` will save the output in the current working directory.
 
 **Flags**  
+`-ncbi` `--ncbi`  
+Return results from NCBI in output.
+
+`-uniprot` `--uniprot`  
+Return results from UniProt in output.
+
 `-pdb` `--pdb`  
 Include PDB IDs in output (might increase runtime).  
-
-`-eo` `--ensembl_only`  
-Only return results from Ensembl (excludes results from UniProt, NCBI and PDB, but runs significantly faster).  
 
 `-q` `--quiet`   
 Command-line only. Prevents progress information from being displayed.  
@@ -30,7 +33,7 @@ Python: Use `json=True` to return output in JSON format.
 `wrap_text`  
 Python only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).  
 
-  
+
 ### Example
 ```bash
 gget info ENSG00000034713 ENSG00000104853 ENSG00000170296
