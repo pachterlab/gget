@@ -166,7 +166,7 @@ def search(
     for i, searchword in enumerate(searchwords):
         if id_type == "gene":
             query = f"""
-            SELECT gene.stable_id AS 'ensembl_id', xref.display_label  AS 'gene_name', gene.description AS 'ensembl_description', xref.description AS 'ext_ref_description', gene.biotype  AS 'biotype'
+            SELECT gene.stable_id AS 'ensembl_id', xref.display_label AS 'gene_name', gene.description AS 'ensembl_description', xref.description AS 'ext_ref_description', gene.biotype AS 'biotype'
             FROM gene
             LEFT JOIN xref ON gene.display_xref_id = xref.xref_id
             WHERE (gene.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%')
@@ -199,7 +199,7 @@ def search(
 
         if id_type == "transcript":
             query = f"""
-            SELECT transcript.stable_id AS 'ensembl_id', xref.display_label  AS 'gene_name', transcript.description AS 'ensembl_description', xref.description AS 'ext_ref_description', transcript.biotype  AS 'biotype'
+            SELECT transcript.stable_id AS 'ensembl_id', xref.display_label AS 'gene_name', transcript.description AS 'ensembl_description', xref.description AS 'ext_ref_description', transcript.biotype AS 'biotype'
             FROM transcript
             LEFT JOIN xref ON transcript.display_xref_id = xref.xref_id
             WHERE (transcript.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%')
