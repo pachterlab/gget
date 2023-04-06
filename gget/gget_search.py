@@ -171,8 +171,15 @@ def search(
 
             # Fetch the search results from the host using the specified query
             df_temp = pd.read_sql(query, con=db_connection)
+            
+            print("df_temp.columns.values")
+            print(df_temp.columns.values)
+            
             # Order by ENSEMBL ID (I am using pandas for this instead of SQL to increase speed)
             df_temp = df_temp.sort_values("stable_id").reset_index(drop=True)
+            
+            print("df_temp.columns.values after ordering by Ensembl ID")
+            print(df_temp.columns.values)
 
             # If andor="or", keep all results
             if andor == "or":
