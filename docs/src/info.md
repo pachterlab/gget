@@ -25,13 +25,13 @@ Python: `uniprot=False` prevents data retrieval from UniProt (default: True).
 INCLUDE [PDB](https://www.ebi.ac.uk/pdbe/) IDs in output (might increase runtime).  
 Python: `pdb=False` prevents data retrieval from PDB (default: False).   
 
-`-q` `--quiet`   
-Command-line only. Prevents progress information from being displayed.  
-Python: Use `verbose=False` to prevent progress information from being displayed.  
-
 `-csv` `--csv`  
 Command-line only. Returns results in CSV format.  
 Python: Use `json=True` to return output in JSON format.
+
+`-q` `--quiet`   
+Command-line only. Prevents progress information from being displayed.  
+Python: Use `verbose=False` to prevent progress information from being displayed.  
 
 `wrap_text`  
 Python only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).  
