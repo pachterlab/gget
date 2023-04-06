@@ -34,13 +34,13 @@ Turns on [low complexity filter](https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=We
 `-mbo` `--megablast_off`  
 Turns off MegaBLAST algorithm. Default: MegaBLAST on (blastn only).  
 
-`-q` `--quiet`   
-Command-line only. Prevents progress information from being displayed.  
-Python: Use `verbose=False` to prevent progress information from being displayed.  
-
 `-csv` `--csv`  
 Command-line only. Returns results in CSV format.  
 Python: Use `json=True` to return output in JSON format.
+
+`-q` `--quiet`   
+Command-line only. Prevents progress information from being displayed.  
+Python: Use `verbose=False` to prevent progress information from being displayed.  
 
 `wrap_text`  
 Python only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).   
