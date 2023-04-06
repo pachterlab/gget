@@ -24,15 +24,15 @@ Use multimer model for a monomer.
 `-r` `--relax`   
 AMBER relax the best model. 
 
+`-q` `--quiet`   
+Command-line only. Prevents progress information from being displayed.  
+Python: Use `verbose=False` to prevent progress information from being displayed. 
+
 `plot`  
 Python only. `plot=True` provides an interactive, 3D graphical overview of the predicted structure and alignment quality using [py3Dmol](https://pypi.org/project/py3Dmol/) and [matplotlib](https://matplotlib.org/) (default: True).  
 
 `show_sidechains`  
 Python only. `show_sidechains=True` includes side chains in the plot (default: True).  
-
-`-q` `--quiet`   
-Command-line only. Prevents progress information from being displayed.  
-Python: Use `verbose=False` to prevent progress information from being displayed. 
   
   
 ### Example
