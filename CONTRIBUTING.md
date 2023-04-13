@@ -52,6 +52,8 @@ Commit the changes once you are happy with them.
 8. Add new modules/arguments to the documentation if applicable:
     - The manual for each module can be edited/added as ./docs/src/*.md
 
+If you have any questions, feel free to start a [discussion](https://github.com/pachterlab/gget/discussions) or create an issue as described above.
+
 ### Pull Request
 
 When you're finished with the changes, [create a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request), also known as a PR.
