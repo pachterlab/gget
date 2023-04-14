@@ -22,6 +22,7 @@ import pandas as pd
 # Custom functions
 from .utils import gget_species_options, find_latest_ens_rel, wrap_cols_func
 
+from .constants import ENSEMBL_FTP_URL, ENSEMBL_FTP_URL_PLANT
 
 def search(
     searchwords,
@@ -103,8 +104,16 @@ def search(
     # In case species was passed with upper case letters
     species = species.lower()
 
-    # Fetch all available databases
-    databases = gget_species_options()
+    # Fetch ensembl databases
+    databases = gget_species_options(
+        database=ENSEMBL_FTP_URL, release=None
+    )
+
+    # Add ensembl plant databases
+    databases += gget_species_options(
+        database=ENSEMBL_FTP_URL_PLANT, release=None
+    )
+
     db = []
     for datab in databases:
         if species in datab:
@@ -141,17 +150,17 @@ def search(
     ## Connect to data base
     try:
         db_connection = sql.connect(
-            host="ensembldb.ensembl.org", database=db, user="anonymous", password=""
+            host="mysql-eg-publicsql.ebi.ac.uk", database=db, user="anonymous", password=""
         )
     except:
         try:
             # Try different port
             db_connection = sql.connect(
-                host="ensembldb.ensembl.org",
+                host="mysql-eg-publicsql.ebi.ac.uk",
                 database=db,
                 user="anonymous",
                 password="",
-                port=5306,
+                port=4157,
             )
 
         except Exception as e:
