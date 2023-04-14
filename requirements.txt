@@ -10,3 +10,4 @@ tqdm
 py3Dmol>=1.8.0
 lxml
 openai
+cellxgene_census
