@@ -12,10 +12,10 @@ logging.getLogger("numexpr").setLevel(logging.WARNING)
 
 
 def cellxgene(
-    cell_type,
-    gene,
-    ensembl_id=False,
     tissue=None,
+    cell_type=None,
+    gene=None,
+    ensembl_id=False,
     sex=None,
     development_stage=None,
     disease=None,
@@ -35,19 +35,19 @@ def cellxgene(
     Query data from CZ CELLxGENE Discover (https://cellxgene.cziscience.com/) using the
     CZ CELLxGENE Discover Census (https://github.com/chanzuckerberg/cellxgene-census).
 
-    Querying large datasets requires a large amount of RAM. The CZ CELLxGENE Discover Census
-    recommends >16 GB of memory and a >5 Mbps internet connection.
+    NOTE: Querying large datasets requires a large amount of RAM. Use the 'tissue', 'cell_type' and 'gene' 
+    arguments to define the (sub)dataset of interest.
+    The CZ CELLxGENE Discover Census recommends >16 GB of memory and a >5 Mbps internet connection.
 
     Args:
-        - cell_type           Str or list of celltypes, e.g. ['mucus secreting cell', 'neuroendocrine cell'].
+        - tissue              Str or list of tissues, e.g. ['lung', 'blood']. Default: None.
+                              See https://cellxgene.cziscience.com/gene-expression for available tissues. Default: None.
+        - cell_type           Str or list of celltypes, e.g. ['mucus secreting cell', 'neuroendocrine cell']. Default: None.
                               See https://cellxgene.cziscience.com/gene-expression and select a tissue for available celltypes.
-        - gene                Str or list of gene names or Ensembl IDs, e.g. ['ACE2', 'SLC5A1'] or ['ENSG00000130234', 'ENSG00000100170'].
+        - gene                Str or list of gene names or Ensembl IDs, e.g. ['ACE2', 'SLC5A1'] or ['ENSG00000130234', 'ENSG00000100170']. Default: None.
                               NOTE: Set ensembl_id=True when providing Ensembl IDs instead of gene names.
                               See https://cellxgene.cziscience.com/gene-expression for available genes.
-                              Not required when adata=False (define as None).
         - ensembl_id          True/False whether provided genes are Ensembl IDs or gene names. Default: False.
-        - tissue              Str or list of tissues, e.g. ['lung', 'blood']. Default: None.
-                              See https://cellxgene.cziscience.com/gene-expression for available tissues.
         - sex                 Str or list of sexes, e.g. 'female'. Default: None.
         - development_stage   Str or list of development stage(s). Default: None.
         - disease             Str or list of disease(s). Default: None.
