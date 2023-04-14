@@ -14,7 +14,7 @@ with open("./tests/fixtures/test_enrichr.json") as json_file:
     enrichr_dict = json.load(json_file)
 
 # Sleep time (in seconds) between tests to prevent surpassing the server rate limit
-sleep_time = 2
+sleep_time = 3
 
 class TestEnrichr(unittest.TestCase):
     def test_enrichr_pathway(self):
@@ -118,6 +118,7 @@ class TestEnrichr(unittest.TestCase):
     def test_enrichr_bad_gene(self):
         test = "test10"
         df = enrichr(**enrichr_dict[test]["args"])
+        time.sleep(sleep_time)
         self.assertTrue(df.empty, "Invalid gene result is not empty data frame.")
 
     def test_enrichr_plot(self):
