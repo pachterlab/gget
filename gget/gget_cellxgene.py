@@ -40,23 +40,23 @@ def cellxgene(
     The CZ CELLxGENE Discover Census recommends >16 GB of memory and a >5 Mbps internet connection.
 
     Args:
-        - tissue              Str or list of tissues, e.g. ['lung', 'blood']. Default: None.
+        - tissue              Str or list of tissue(s), e.g. ['lung', 'blood']. Default: None.
                               See https://cellxgene.cziscience.com/gene-expression for available tissues. Default: None.
-        - cell_type           Str or list of celltypes, e.g. ['mucus secreting cell', 'neuroendocrine cell']. Default: None.
+        - cell_type           Str or list of celltype(s), e.g. ['mucus secreting cell', 'neuroendocrine cell']. Default: None.
                               See https://cellxgene.cziscience.com/gene-expression and select a tissue for available celltypes.
         - gene                Str or list of gene names or Ensembl IDs, e.g. ['ACE2', 'SLC5A1'] or ['ENSG00000130234', 'ENSG00000100170']. Default: None.
                               NOTE: Set ensembl_id=True when providing Ensembl IDs instead of gene names.
                               See https://cellxgene.cziscience.com/gene-expression for available genes.
         - ensembl_id          True/False whether provided genes are Ensembl IDs or gene names. Default: False.
-        - sex                 Str or list of sexes, e.g. 'female'. Default: None.
+        - sex                 Str or list of sex(es), e.g. 'female'. Default: None.
         - development_stage   Str or list of development stage(s). Default: None.
         - disease             Str or list of disease(s). Default: None.
         - species             Choice of 'homo_sapiens' or 'mus_musculus'. Default: 'homo_sapiens'.
-        - column_names        List of columns to return (stored in .obs when adata=True).
+        - column_names        List of metadata columns to return (stored in .obs when adata=True).
                               Default: ["dataset_id", "assay", "suspension_type", "sex", "tissue_general", "tissue", "cell_type"]
                               For more options see: https://api.cellxgene.cziscience.com/curation/ui/#/ -> dataset
-        - adata               True/False. Returns AnnData object. Default: True.
-                              If False, only returns dataset metadata (corresponds to adata.obs).
+        - adata               True/False. If True, returns AnnData object. Default: True.
+                              If False, only returns metadata (corresponds to adata.obs).
 
     Returns AnnData object (when adata=True) or dataframe (when adata=False).
     """
