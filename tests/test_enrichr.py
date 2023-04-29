@@ -14,7 +14,7 @@ with open("./tests/fixtures/test_enrichr.json") as json_file:
     enrichr_dict = json.load(json_file)
 
 # Sleep time (in seconds) between tests to prevent surpassing the server rate limit
-sleep_time = 3
+sleep_time = 5
 
 class TestEnrichr(unittest.TestCase):
     def test_enrichr_pathway(self):
