@@ -27,4 +27,5 @@
 ---
 
 [Contributing Guide](contributing.md)  
-[Terms of Use](cite.md)  
+[Code of Conduct](code_of_conduct.md)  
+[Citation guidelines](cite.md)  
