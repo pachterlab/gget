@@ -45,7 +45,7 @@ def gpt(
     - frequency_penalty (float) Number between -2.0 and 2.0. Higher values decrease the model's likelihood to repeat the same line verbatim.
                                 Default is 0.
     - logit_bias (dict)         A dictionary that specifies a bias towards certain tokens in the generated text. Default is None.
-    - out (str)                 If provided, saves the generated text to a file with the specified path. Default: Standard out.
+    - out (str)                 If provided, saves the generated text to a file with the specified path. Default is None.
     - verbose                   True/False whether to print progress information. Default True.
 
     Returns:

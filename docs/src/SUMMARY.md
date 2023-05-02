@@ -13,6 +13,7 @@
 - [gget archs4](archs4.md)  
 - [gget blast](blast.md)  
 - [gget blat](blat.md)  
+- [gget cellxgene](cellxgene.md)  
 - [gget enrichr](enrichr.md)  
 - [gget gpt](gpt.md)  
 - [gget info](info.md)  
@@ -25,4 +26,5 @@
 
 ---
 
+[Contributing Guide](contributing.md)  
 [Terms of Use](cite.md)  

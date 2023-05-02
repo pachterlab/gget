@@ -49,10 +49,10 @@ $ gget info ENSG00000130234 ENST00000252519
 # Fetch the amino acid sequence of the canonical transcript of gene ENSG00000130234
 $ gget seq --translate ENSG00000130234
 
-# Quickly find the genomic location of (the start of) that amino acid sequence
+# Quickly find the genomic location of (the start of) the amino acid sequence returned by gget seq
 $ gget blat MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS
 
-# BLAST (the start of) that amino acid sequence
+# BLAST (the start of) the amino acid sequence returned by gget seq
 $ gget blast MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS
 
 # Align nucleotide or amino acid sequences stored in a FASTA file
@@ -64,7 +64,8 @@ $ gget enrichr -db ontology ACE2 AGT AGTR1 ACE AGTRAP AGTR2 ACE3P
 # Get the human tissue expression of gene ACE2
 $ gget archs4 -w tissue ACE2
 
-# Get the protein structure (in PDB format) of ACE2 as stored in the Protein Data Bank (PDB ID returned by gget info)
+# Get the protein structure (in PDB format) of ACE2 as stored in the Protein Data Bank 
+# (PDB IDs can be returned by gget info with flag --pdb)
 $ gget pdb 1R42 -o 1R42.pdb
 
 # Predict the protein structure of GFP from its amino acid sequence

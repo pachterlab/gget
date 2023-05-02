@@ -580,7 +580,7 @@ def find_latest_ens_rel(database=ENSEMBL_FTP_URL):
     return ENS_rel
 
 
-def gget_species_options(release=None):
+def gget_species_options(database=ENSEMBL_FTP_URL, release=None):
     """
     Function to find all available species core databases for gget.
 
@@ -591,7 +591,7 @@ def gget_species_options(release=None):
     Returns list of available core databases.
     """
     # Find latest Ensembl release
-    ENS_rel = find_latest_ens_rel()
+    ENS_rel = find_latest_ens_rel(database)
 
     # If release != None, use user-defined Ensembl release
     if release != None:
@@ -604,7 +604,7 @@ def gget_species_options(release=None):
             ENS_rel = release
 
     # Find all available databases
-    url = ENSEMBL_FTP_URL + f"release-{ENS_rel}/mysql/"
+    url = database + f"release-{ENS_rel}/mysql/"
     html = requests.get(url)
 
     # Raise error if status code not "OK" Response
