@@ -4,7 +4,7 @@ Thank you for investing your time in contributing to our project! Any contributi
 
 Read our [Code of Conduct](./code_of_conduct.md) to keep our community approachable and respectable.
 
-In this guide you will get an overview of the contribution workflow from opening an issue, creating a PR, reviewing, and merging the PR.
+In this guide you will get an overview of the contribution workflow from opening an issue or creating a pull request (PR) to reviewing and merging a PR.
 
 ## Issues
 
@@ -14,7 +14,7 @@ If you spot a problem with gget or you have an idea for a new feature, [check if
 
 ### Solve an issue
 
-Scan through our [existing issues](https://github.com/pachterlab/gget/issues) to find one that interests you. You can narrow down the search using `labels` as filters. If you find an issue to work on, you are welcome to open a pull request (PR) with a fix.
+Scan through our [existing issues](https://github.com/pachterlab/gget/issues) to find one that interests you. You can narrow down the search using `labels` as filters. If you find an issue to work on, you are welcome to open a PR with a fix.
 
 ## Contribute through pull requests
 
