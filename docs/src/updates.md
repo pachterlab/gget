@@ -1,4 +1,8 @@
 ## ✨ What's new  
+**Version ≥ 0.27.6** (May 1, 2023):  
+- Thanks to PR by [Tomás Di Domenico](https://github.com/tdido): [`gget search`](./search.md) can now also query plant 🌱 Ensembl IDs.  
+- New module: [`gget cellxgene`](./cellxgene.md)  
+
 **Version ≥ 0.27.5** (April 6, 2023):  
 - Updated [`gget search`](./search.md) to function correctly with new [Pandas](https://pypi.org/project/pandas/2.0.0/) version 2.0.0 (released on April 3rd, 2023) as well as older versions of Pandas
 - Updated [`gget info`](./info.md) with new flags `uniprot` and `ncbi` which allow turning off results from these databases independently to save runtime (note: flag `ensembl_only` was deprecated)
