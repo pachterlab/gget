@@ -28,4 +28,4 @@
 
 [Contributing Guide](contributing.md)  
 [Code of Conduct](code_of_conduct.md)  
-[Citation guidelines](cite.md)  
+[Citation Guidelines](cite.md)  
