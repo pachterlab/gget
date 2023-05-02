@@ -1213,7 +1213,7 @@ def main():
         ],
         help=(
             """
-            List of metadata columns to return (stored in .obs when anndata=True).
+            List of metadata columns to return (stored in .obs).
             Default: ["dataset_id", "assay", "suspension_type", "sex", "tissue_general", "tissue", "cell_type"]
             For more options see: https://api.cellxgene.cziscience.com/curation/ui/#/ -> Schemas -> dataset
             """
