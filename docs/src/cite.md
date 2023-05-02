@@ -35,6 +35,9 @@ Gene set knowledge discovery with Enrichr. Current Protocols, 1, e90. 2021. doi:
   And, if applicable:  
   - Evans, R. et al. Protein complex prediction with AlphaFold-Multimer. bioRxiv 2021.10.04.463034; https://doi.org/10.1101/2021.10.04.463034
 
+- If using `gget cellxgene`, please also cite:  
+  - Chanzuckerberg Initiative. (n.d.). CZ CELLxGENE Discover. Retrieved [insert date here], from https://cellxgene.cziscience.com/
+
 ___
 # Disclaimer  
 `gget` is only as accurate as the databases/servers/APIs it queries from. The accuracy or reliability of the data is not guaranteed or warranted in any way and the providers disclaim liability of any kind whatsoever, including, without limitation, liability for quality, performance, merchantability and fitness for a particular purpose arising out of the use, or inability to use the data.
