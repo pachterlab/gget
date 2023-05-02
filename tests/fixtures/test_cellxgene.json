@@ -1,0 +1,299 @@
+{
+    "test1": {
+        "type": "assert_equal",
+        "args": {
+            "cell_type": [
+                "mucus secreting cell",
+                "neuroendocrine cell"
+            ],
+            "gene": [
+                "ACE2",
+                "ABCA1",
+                "SLC5A1"
+            ],
+            "tissue": "lung"
+        },
+        "expected_result": {
+            "n_obs": 3322,
+            "n_vars": 3,
+            "obs": [
+                "dataset_id",
+                "assay",
+                "suspension_type",
+                "sex",
+                "tissue_general",
+                "tissue",
+                "cell_type",
+                "is_primary_data"
+            ],
+            "var": [
+                "soma_joinid",
+                "feature_id",
+                "feature_name",
+                "feature_length"
+            ]
+        }
+    },
+    "test2": {
+        "type": "assert_equal",
+        "args": {
+            "gene": "ENSMUSG00000015405",
+            "ensembl": true,
+            "tissue": "lung",
+            "anndata": false,
+            "species": "mus_musculus"
+        },
+        "expected_result": [
+            [
+                "047d57f2-4d14-45de-aa98-336c6f583750",
+                "10x 3' v2",
+                "cell",
+                "unknown",
+                "lung",
+                "lung",
+                "mesenchymal stem cell",
+                true
+            ],
+            [
+                "047d57f2-4d14-45de-aa98-336c6f583750",
+                "10x 3' v2",
+                "cell",
+                "unknown",
+                "lung",
+                "lung",
+                "progenitor cell",
+                true
+            ],
+            [
+                "047d57f2-4d14-45de-aa98-336c6f583750",
+                "10x 3' v2",
+                "cell",
+                "unknown",
+                "lung",
+                "lung",
+                "mesenchymal cell",
+                true
+            ],
+            [
+                "047d57f2-4d14-45de-aa98-336c6f583750",
+                "10x 3' v2",
+                "cell",
+                "unknown",
+                "lung",
+                "lung",
+                "mesenchymal stem cell",
+                true
+            ],
+            [
+                "047d57f2-4d14-45de-aa98-336c6f583750",
+                "10x 3' v2",
+                "cell",
+                "unknown",
+                "lung",
+                "lung",
+                "mesenchymal cell",
+                true
+            ],
+            [
+                "047d57f2-4d14-45de-aa98-336c6f583750",
+                "10x 3' v2",
+                "cell",
+                "unknown",
+                "lung",
+                "lung",
+                "mesenchymal stem cell",
+                true
+            ],
+            [
+                "047d57f2-4d14-45de-aa98-336c6f583750",
+                "10x 3' v2",
+                "cell",
+                "unknown",
+                "lung",
+                "lung",
+                "mesothelial cell of visceral pleura",
+                true
+            ],
+            [
+                "047d57f2-4d14-45de-aa98-336c6f583750",
+                "10x 3' v2",
+                "cell",
+                "unknown",
+                "lung",
+                "lung",
+                "mesenchymal stem cell",
+                true
+            ],
+            [
+                "047d57f2-4d14-45de-aa98-336c6f583750",
+                "10x 3' v2",
+                "cell",
+                "unknown",
+                "lung",
+                "lung",
+                "mesenchymal stem cell",
+                true
+            ],
+            [
+                "047d57f2-4d14-45de-aa98-336c6f583750",
+                "10x 3' v2",
+                "cell",
+                "unknown",
+                "lung",
+                "lung",
+                "progenitor cell",
+                true
+            ],
+            [
+                "047d57f2-4d14-45de-aa98-336c6f583750",
+                "10x 3' v2",
+                "cell",
+                "unknown",
+                "lung",
+                "lung",
+                "mesenchymal cell",
+                true
+            ],
+            [
+                "047d57f2-4d14-45de-aa98-336c6f583750",
+                "10x 3' v2",
+                "cell",
+                "unknown",
+                "lung",
+                "lung",
+                "mesenchymal stem cell",
+                true
+            ],
+            [
+                "047d57f2-4d14-45de-aa98-336c6f583750",
+                "10x 3' v2",
+                "cell",
+                "unknown",
+                "lung",
+                "lung",
+                "aortic smooth muscle cell",
+                true
+            ],
+            [
+                "047d57f2-4d14-45de-aa98-336c6f583750",
+                "10x 3' v2",
+                "cell",
+                "unknown",
+                "lung",
+                "lung",
+                "mesenchymal stem cell",
+                true
+            ],
+            [
+                "047d57f2-4d14-45de-aa98-336c6f583750",
+                "10x 3' v2",
+                "cell",
+                "unknown",
+                "lung",
+                "lung",
+                "mesenchymal stem cell",
+                true
+            ],
+            [
+                "047d57f2-4d14-45de-aa98-336c6f583750",
+                "10x 3' v2",
+                "cell",
+                "unknown",
+                "lung",
+                "lung",
+                "mesenchymal stem cell",
+                true
+            ],
+            [
+                "047d57f2-4d14-45de-aa98-336c6f583750",
+                "10x 3' v2",
+                "cell",
+                "unknown",
+                "lung",
+                "lung",
+                "aortic smooth muscle cell",
+                true
+            ],
+            [
+                "047d57f2-4d14-45de-aa98-336c6f583750",
+                "10x 3' v2",
+                "cell",
+                "unknown",
+                "lung",
+                "lung",
+                "mesenchymal stem cell",
+                true
+            ],
+            [
+                "047d57f2-4d14-45de-aa98-336c6f583750",
+                "10x 3' v2",
+                "cell",
+                "unknown",
+                "lung",
+                "lung",
+                "mesenchymal stem cell",
+                true
+            ],
+            [
+                "047d57f2-4d14-45de-aa98-336c6f583750",
+                "10x 3' v2",
+                "cell",
+                "unknown",
+                "lung",
+                "lung",
+                "mesenchymal cell",
+                true
+            ],
+            [
+                "047d57f2-4d14-45de-aa98-336c6f583750",
+                "10x 3' v2",
+                "cell",
+                "unknown",
+                "lung",
+                "lung",
+                "mesenchymal stem cell",
+                true
+            ],
+            [
+                "047d57f2-4d14-45de-aa98-336c6f583750",
+                "10x 3' v2",
+                "cell",
+                "unknown",
+                "lung",
+                "lung",
+                "mesenchymal stem cell",
+                true
+            ],
+            [
+                "047d57f2-4d14-45de-aa98-336c6f583750",
+                "10x 3' v2",
+                "cell",
+                "unknown",
+                "lung",
+                "lung",
+                "mesenchymal stem cell",
+                true
+            ],
+            [
+                "047d57f2-4d14-45de-aa98-336c6f583750",
+                "10x 3' v2",
+                "cell",
+                "unknown",
+                "lung",
+                "lung",
+                "mesenchymal stem cell",
+                true
+            ],
+            [
+                "047d57f2-4d14-45de-aa98-336c6f583750",
+                "10x 3' v2",
+                "cell",
+                "unknown",
+                "lung",
+                "lung",
+                "mesenchymal stem cell",
+                true
+            ]
+        ]
+    }
+}

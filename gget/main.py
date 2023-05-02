@@ -34,6 +34,7 @@ from .gget_alphafold import alphafold
 from .gget_setup import setup
 from .gget_pdb import pdb
 from .gget_gpt import gpt
+from .gget_cellxgene import cellxgene
 
 
 def main():
@@ -155,7 +156,6 @@ def main():
         dest="species_deprecated",
         help="DEPRECATED - use positional argument instead. Species for which the FTPs will be fetched, e.g. homo_sapiens.",
     )
-   
 
     ## gget search subparser
     search_desc = (
@@ -265,7 +265,6 @@ def main():
         required=False,
         help="DEPRECATED - json is now the default output format (convert to csv using flag [--csv]).",
     )
-   
 
     ## gget info subparser
     info_desc = "Fetch gene and transcript metadata using Ensembl IDs."
@@ -436,7 +435,6 @@ def main():
         required=False,
         help="DEPRECATED - use True/False flag 'translate' instead.",
     )
- 
 
     ## gget muscle subparser
     muscle_desc = "Align multiple nucleotide or amino acid sequences against each other (using the Muscle v5 algorithm)."
@@ -490,7 +488,6 @@ def main():
         dest="fasta_deprecated",
         help="DEPRECATED - use positional argument instead. Path to fasta file containing the sequences to be aligned.",
     )
-  
 
     ## gget blast subparser
     blast_desc = "BLAST a nucleotide or amino acid sequence against any BLAST database."
@@ -698,7 +695,6 @@ def main():
         required=False,
         help="DEPRECATED - json is now the default output format (convert to csv using flag [--csv]).",
     )
-    
 
     ## gget enrichr subparser
     enrichr_desc = "Perform an enrichment analysis on a list of genes using Enrichr."
@@ -778,7 +774,6 @@ def main():
         required=False,
         help="DEPRECATED - json is now the default output format (convert to csv using flag [--csv]).",
     )
-  
 
     ## gget archs4 subparser
     archs4_desc = "Find the most correlated genes or the tissue expression atlas of a gene using data from the human and mouse RNA-seq database ARCHS4 (https://maayanlab.cloud/archs4/)."
@@ -893,7 +888,6 @@ def main():
         required=False,
         help="DEPRECATED - json is now the default output format (convert to csv using flag [--csv]).",
     )
-    
 
     ## gget setup subparser
     setup_desc = "Install third-party dependencies for a specified gget module."
@@ -1152,7 +1146,260 @@ def main():
         type=str,
         default=None,
         required=False,
-        help="The file name to save the generated text to as a text file (defaults to printing the output to the console)",
+        help="The file name to save the generated text to (defaults to printing the output to the console)",
+    )
+
+    # cellxgene parser arguments
+    cellxgene_desc = (
+        "Query data from CZ CELLxGENE Discover (https://cellxgene.cziscience.com/)."
+    )
+    parser_cellxgene = parent_subparsers.add_parser(
+        "cellxgene",
+        parents=[parent],
+        description=cellxgene_desc,
+        help=cellxgene_desc,
+        add_help=True,
+    )
+    parser_cellxgene.add_argument(
+        "-o",
+        "--out",
+        type=str,
+        required=True,
+        help="Path to save the generated AnnData h5ad (or csv with --meta_only) file.",
+    )
+    parser_cellxgene.add_argument(
+        "-s",
+        "--species",
+        default="homo_sapiens",
+        type=str,
+        choices=["homo_sapiens", "mus_musculus"],
+        required=False,
+        help="Choice of 'homo_sapiens' or 'mus_musculus'.",
+    )
+    parser_cellxgene.add_argument(
+        "-g",
+        "--gene",
+        type=str,
+        nargs="+",
+        required=False,
+        default=None,
+        help=(
+            "Str or space-separated list of gene name(s) or Ensembl ID(s), e.g. ACE2 SLC5A1 or ENSG00000130234 ENSG00000100170"
+            "NOTE: Set ensembl=True when providing Ensembl ID(s) instead of gene name(s)."
+        ),
+    )
+    parser_cellxgene.add_argument(
+        "-e",
+        "--ensembl",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Use this flag when genes are provided as Ensembl IDs.",
+    )
+    parser_cellxgene.add_argument(
+        "-cn",
+        "--column_names",
+        type=str,
+        nargs="+",
+        required=False,
+        default=[
+            "dataset_id",
+            "assay",
+            "suspension_type",
+            "sex",
+            "tissue_general",
+            "tissue",
+            "cell_type",
+        ],
+        help=(
+            """
+            List of metadata columns to return (stored in .obs when anndata=True).
+            Default: ["dataset_id", "assay", "suspension_type", "sex", "tissue_general", "tissue", "cell_type"]
+            For more options see: https://api.cellxgene.cziscience.com/curation/ui/#/ -> Schemas -> dataset
+            """
+        ),
+    )
+    parser_cellxgene.add_argument(
+        "-mo",
+        "--meta_only",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Only returns metadata dataframe (corresponds to AnnData.obs).",
+    )
+    parser_cellxgene.add_argument(
+        "--tissue",
+        type=str,
+        nargs="+",
+        required=False,
+        default=None,
+        help="Str or space-separated list of tissue(s), e.g. lung blood",
+    )
+    parser_cellxgene.add_argument(
+        "--cell_type",
+        type=str,
+        nargs="+",
+        required=False,
+        default=None,
+        help="Str or space-separated list of cell_type(s), e.g. 'mucus secreting cell' 'neuroendocrine cell'",
+    )
+    parser_cellxgene.add_argument(
+        "--development_stage",
+        type=str,
+        nargs="+",
+        required=False,
+        default=None,
+        help="Str or space-separated list of development_stage(s).",
+    )
+    parser_cellxgene.add_argument(
+        "--disease",
+        type=str,
+        nargs="+",
+        required=False,
+        default=None,
+        help="Str or space-separated list of disease(s).",
+    )
+    parser_cellxgene.add_argument(
+        "--sex",
+        type=str,
+        nargs="+",
+        required=False,
+        default=None,
+        help="Str or space-separated list of sex(es).",
+    )
+    parser_cellxgene.add_argument(
+        "-is",
+        "--include_secondary",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Do not restrict results to the canonical instance of the cellular observation.",
+    )
+    parser_cellxgene.add_argument(
+        "--dataset_id",
+        type=str,
+        nargs="+",
+        required=False,
+        default=None,
+        help="Str or space-separated list of CELLxGENE dataset ID(s).",
+    )
+    parser_cellxgene.add_argument(
+        "--tissue_general_ontology_term_id",
+        type=str,
+        nargs="+",
+        required=False,
+        default=None,
+        help=(
+            "Str or space-separated list of high-level tissue UBERON ID(s)."
+            "Also see: https://github.com/chanzuckerberg/single-cell-data-portal/blob/9b94ccb0a2e0a8f6182b213aa4852c491f6f6aff/backend/wmg/data/tissue_mapper.py"
+        ),
+    )
+    parser_cellxgene.add_argument(
+        "--tissue_general",
+        type=str,
+        nargs="+",
+        required=False,
+        default=None,
+        help=(
+            "Str or space-separated list of high-level tissue label(s)."
+            "Also see: https://github.com/chanzuckerberg/single-cell-data-portal/blob/9b94ccb0a2e0a8f6182b213aa4852c491f6f6aff/backend/wmg/data/tissue_mapper.py"
+        ),
+    )
+    parser_cellxgene.add_argument(
+        "--tissue_ontology_term_id",
+        type=str,
+        nargs="+",
+        required=False,
+        default=None,
+        help="Str or space-separated list of tissue ontology term ID(s).",
+    )
+    parser_cellxgene.add_argument(
+        "--assay_ontology_term_id",
+        type=str,
+        nargs="+",
+        required=False,
+        default=None,
+        help="Str or space-separated list of assay ontology term ID(s).",
+    )
+    parser_cellxgene.add_argument(
+        "--assay",
+        type=str,
+        nargs="+",
+        required=False,
+        default=None,
+        help="Str or space-separated list of assay(s).",
+    )
+    parser_cellxgene.add_argument(
+        "--cell_type_ontology_term_id",
+        type=str,
+        nargs="+",
+        required=False,
+        default=None,
+        help="Str or space-separated list of celltype ontology term ID(s).",
+    )
+    parser_cellxgene.add_argument(
+        "--development_stage_ontology_term_id",
+        type=str,
+        nargs="+",
+        required=False,
+        default=None,
+        help="Str or space-separated list of development stage ontology term ID(s).",
+    )
+    parser_cellxgene.add_argument(
+        "--disease_ontology_term_id",
+        type=str,
+        nargs="+",
+        required=False,
+        default=None,
+        help="Str or space-separated list of disease ontology term ID(s).",
+    )
+    parser_cellxgene.add_argument(
+        "--donor_id",
+        type=str,
+        nargs="+",
+        required=False,
+        default=None,
+        help="Str or space-separated list of donor ID(s).",
+    )
+    parser_cellxgene.add_argument(
+        "--self_reported_ethnicity_ontology_term_id",
+        type=str,
+        nargs="+",
+        required=False,
+        default=None,
+        help="Str or space-separated list of self reported ethnicity ontology ID(s).",
+    )
+    parser_cellxgene.add_argument(
+        "--self_reported_ethnicity",
+        type=str,
+        nargs="+",
+        required=False,
+        default=None,
+        help="Str or space-separated list of self reported ethnicity.",
+    )
+    parser_cellxgene.add_argument(
+        "--sex_ontology_term_id",
+        type=str,
+        nargs="+",
+        required=False,
+        default=None,
+        help="Str or space-separated list of sex ontology ID(s).",
+    )
+    parser_cellxgene.add_argument(
+        "--suspension_type",
+        type=str,
+        nargs="+",
+        required=False,
+        default=None,
+        help="Str or space-separated list of suspension type(s).",
+    )
+    parser_cellxgene.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Do not print progress information.",
     )
 
     ### Define return values
@@ -1198,6 +1445,7 @@ def main():
         "alphafold": parser_alphafold,
         "pdb": parser_pdb,
         "gpt": parser_gpt,
+        "cellxgene": parser_cellxgene,
     }
 
     if len(sys.argv) == 2:
@@ -1206,6 +1454,38 @@ def main():
         else:
             parent_parser.print_help(sys.stderr)
         sys.exit(1)
+
+    ## cellxgene return
+    if args.command == "cellxgene":
+        cellxgene_results = cellxgene(
+            species=args.species,
+            gene=args.gene,
+            ensembl=args.ensembl,
+            column_names=args.column_names,
+            anndata=args.meta_only,
+            tissue=args.tissue,
+            cell_type=args.cell_type,
+            development_stage=args.development_stage,
+            disease=args.disease,
+            sex=args.sex,
+            is_primary_data=args.include_secondary,
+            dataset_id=args.dataset_id,
+            tissue_general_ontology_term_id=args.tissue_general_ontology_term_id,
+            tissue_general=args.tissue_general,
+            assay_ontology_term_id=args.assay_ontology_term_id,
+            assay=args.assay,
+            cell_type_ontology_term_id=args.cell_type_ontology_term_id,
+            development_stage_ontology_term_id=args.development_stage_ontology_term_id,
+            disease_ontology_term_id=args.disease_ontology_term_id,
+            donor_id=args.donor_id,
+            self_reported_ethnicity_ontology_term_id=args.self_reported_ethnicity_ontology_term_id,
+            self_reported_ethnicity=args.self_reported_ethnicity,
+            sex_ontology_term_id=args.sex_ontology_term_id,
+            suspension_type=args.suspension_type,
+            tissue_ontology_term_id=args.tissue_ontology_term_id,
+            verbose=args.quiet,
+            out=args.out,
+        )
 
     ## gpt return
     if args.command == "gpt":
@@ -1796,7 +2076,6 @@ def main():
             resource=args.resource,
             identifier=args.identifier,
             verbose=args.quiet,
-            
         )
 
         if pdb_results:

@@ -28,7 +28,7 @@ def convert_to_list(lst):
 def cellxgene(
     species="homo_sapiens",
     gene=None,
-    ensembl_id=False,
+    ensembl=False,
     column_names=[
         "dataset_id",
         "assay",
@@ -39,7 +39,6 @@ def cellxgene(
         "cell_type",
     ],
     anndata=True,
-    verbose=True,
     tissue=None,
     cell_type=None,
     development_stage=None,
@@ -60,6 +59,8 @@ def cellxgene(
     sex_ontology_term_id=None,
     suspension_type=None,
     tissue_ontology_term_id=None,
+    verbose=True,
+    out=None,
 ):
     """
     Query data from CZ CELLxGENE Discover (https://cellxgene.cziscience.com/) using the
@@ -72,15 +73,16 @@ def cellxgene(
     General args:
         - species       Choice of 'homo_sapiens' or 'mus_musculus'. Default: 'homo_sapiens'.
         - gene          Str or list of gene name(s) or Ensembl ID(s), e.g. ['ACE2', 'SLC5A1'] or ['ENSG00000130234', 'ENSG00000100170']. Default: None.
-                        NOTE: Set ensembl_id=True when providing Ensembl IDs instead of gene names.
+                        NOTE: Set ensembl=True when providing Ensembl ID(s) instead of gene name(s).
                         See https://cellxgene.cziscience.com/gene-expression for examples of available genes.
-        - ensembl_id    True/False (default: False) whether provided genes are Ensembl IDs or gene names.
+        - ensembl       True/False (default: False). Set to True when genes are provided as Ensembl IDs.
         - column_names  List of metadata columns to return (stored in .obs when anndata=True).
                         Default: ["dataset_id", "assay", "suspension_type", "sex", "tissue_general", "tissue", "cell_type"]
                         For more options see: https://api.cellxgene.cziscience.com/curation/ui/#/ -> Schemas -> dataset
         - anndata       True/False (default: True). If True, returns AnnData object.
                         If False, only returns metadata (corresponds to AnnData.obs).
         - verbose       True/False whether to print progress information. Default True.
+        - out           If provided, saves the generated AnnData h5ad (or csv when anndata=False) file with the specified path. Default: None.
 
     Cell metadata attributes:
         - tissue                          Str or list of tissue(s), e.g. ['lung', 'blood']. Default: None.
@@ -151,16 +153,14 @@ def cellxgene(
     args = convert_to_list(args)
 
     # Define metadata filter
-    first = True
-    obs_value_filter = None
+    if is_primary_data:
+        obs_value_filter = f"is_primary_data == True"
+    else:
+        obs_value_filter = None
     for arg_name, arg in zip(arg_names, args):
         if arg:
-            if first:
-                if is_primary_data:
-                    obs_value_filter = f"is_primary_data == True and {arg_name} in {str(arg)}"
-                else:
-                    obs_value_filter = f"{arg_name} in {str(arg)}"
-                    first = False
+            if obs_value_filter is None:
+                obs_value_filter = f"{arg_name} in {str(arg)}"
             else:
                 obs_value_filter = obs_value_filter + f" and {arg_name} in {str(arg)}"
 
@@ -174,10 +174,13 @@ def cellxgene(
             adata = cellxgene_census.get_anndata(
                 census=census,
                 organism=species,
-                var_value_filter=f"{'feature_id' if ensembl_id else 'feature_name'} in {gene}",
+                var_value_filter=f"{'feature_id' if ensembl else 'feature_name'} in {gene}",
                 obs_value_filter=obs_value_filter,
                 column_names={"obs": column_names},
             )
+
+            if out:
+                adata.write(out)
 
             return adata
 
@@ -196,5 +199,8 @@ def cellxgene(
 
             # Converts to pandas.DataFrame
             cell_metadata = cell_metadata.to_pandas()
+
+            if out:
+                cell_metadata.to_csv(out, index=False)
 
             return cell_metadata
