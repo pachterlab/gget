@@ -1165,7 +1165,7 @@ def main():
         "--out",
         type=str,
         required=True,
-        help="Path to save the generated AnnData h5ad (or csv with --meta_only) file.",
+        help="Path to save the generated AnnData .h5ad file (or .csv with --meta_only).",
     )
     parser_cellxgene.add_argument(
         "-s",
@@ -1462,7 +1462,7 @@ def main():
             gene=args.gene,
             ensembl=args.ensembl,
             column_names=args.column_names,
-            anndata=args.meta_only,
+            meta_only=args.meta_only,
             tissue=args.tissue,
             cell_type=args.cell_type,
             development_stage=args.development_stage,

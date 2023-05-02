@@ -38,7 +38,7 @@ def cellxgene(
         "tissue",
         "cell_type",
     ],
-    anndata=True,
+    meta_only=False,
     tissue=None,
     cell_type=None,
     development_stage=None,
@@ -76,13 +76,12 @@ def cellxgene(
                         NOTE: Set ensembl=True when providing Ensembl ID(s) instead of gene name(s).
                         See https://cellxgene.cziscience.com/gene-expression for examples of available genes.
         - ensembl       True/False (default: False). Set to True when genes are provided as Ensembl IDs.
-        - column_names  List of metadata columns to return (stored in .obs when anndata=True).
+        - column_names  List of metadata columns to return (stored in AnnData.obs when meta_only=False).
                         Default: ["dataset_id", "assay", "suspension_type", "sex", "tissue_general", "tissue", "cell_type"]
                         For more options see: https://api.cellxgene.cziscience.com/curation/ui/#/ -> Schemas -> dataset
-        - anndata       True/False (default: True). If True, returns AnnData object.
-                        If False, only returns metadata (corresponds to AnnData.obs).
+        - meta_only     True/False (default: False). If True, returns only metadata dataframe (corresponds to AnnData.obs).
         - verbose       True/False whether to print progress information. Default True.
-        - out           If provided, saves the generated AnnData h5ad (or csv when anndata=False) file with the specified path. Default: None.
+        - out           If provided, saves the generated AnnData h5ad (or csv when meta_only=True) file with the specified path. Default: None.
 
     Cell metadata attributes:
         - tissue                          Str or list of tissue(s), e.g. ['lung', 'blood']. Default: None.
@@ -111,7 +110,7 @@ def cellxgene(
         - sex_ontology_term_id            Str or list of sex ontology ID(s) as defined in the CELLxGENE dataset schema. Default: None.
         - suspension_type                 Str or list of suspension type(s) as defined in the CELLxGENE dataset schema. Default: None.
 
-    Returns AnnData object (when anndata=True) or dataframe (when anndata=False).
+    Returns AnnData object (when meta_only=False) or dataframe (when meta_only=True).
     """
     # List of metadata arguments
     args = [
@@ -165,7 +164,7 @@ def cellxgene(
                 obs_value_filter = obs_value_filter + f" and {arg_name} in {str(arg)}"
 
     # Fetch AnnData object
-    if anndata:
+    if not meta_only:
         if verbose:
             logging.info(
                 "Fetching AnnData object from CZ CELLxGENE Discover. This might take a few minutes..."

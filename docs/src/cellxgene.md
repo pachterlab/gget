@@ -25,8 +25,7 @@ Required when using from command line!
 Use when genes are provided as Ensembl IDs instead of gene names.  
 
 `-mo` `--meta_only`  
-Command line only! Only returns metadata dataframe (corresponds to AnnData.obs).  
-Python: Use `anndata=False`.
+Only returns metadata dataframe (corresponds to AnnData.obs).  
 
 `-q` `--quiet`   
 Command-line only. Prevents progress information from being displayed.  
@@ -117,7 +116,7 @@ gget cellxgene --meta_only --gene ENSMUSG00000015405 --ensembl --tissue lung --s
 ```python
 # Python
 df = gget.cellxgene(
-    anndata = False,
+    meta_only = True,
     gene = "ENSMUSG00000015405",
     ensembl = True,
     tissue = "lung",  

@@ -40,7 +40,7 @@
             "gene": "ENSMUSG00000015405",
             "ensembl": true,
             "tissue": "lung",
-            "anndata": false,
+            "meta_only": true,
             "species": "mus_musculus"
         },
         "expected_result": [
