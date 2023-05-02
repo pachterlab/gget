@@ -2,7 +2,7 @@
 ## gget cellxgene 🍱  
 Query data from [CZ CELLxGENE Discover](https://cellxgene.cziscience.com/) using the [CZ CELLxGENE Discover Census](https://github.com/chanzuckerberg/cellxgene-census).
 
-**General optional arguments**  
+**Optional arguments**  
 `-s` `--species`  
 Choice of 'homo_sapiens' or 'mus_musculus'. Default: 'homo_sapiens'.  
 
@@ -20,7 +20,7 @@ For more options see: https://api.cellxgene.cziscience.com/curation/ui/#/ -> Sch
 Path to file to save generated AnnData .h5ad file (or .csv with `-mo / --meta_only` (`anndata=False`)).  
 Required when using from command line!  
 
-**General flags**  
+**Flags**  
 `-e` `--ensembl`  
 Use when genes are provided as Ensembl IDs instead of gene names.  
 
