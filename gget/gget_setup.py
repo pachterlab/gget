@@ -130,6 +130,32 @@ def setup(module):
                 """
             )
 
+        ## Install py3Dmol
+        logging.info("Installing py3Dmol (requires pip).")
+        command = "pip install py3Dmol>=1.8.0"
+        with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
+            stderr = process.stderr.read().decode("utf-8")
+        # Exit system if the subprocess returned with an error
+        if process.wait() != 0:
+            if stderr:
+                # Log the standard error if it is not empty
+                sys.stderr.write(stderr)
+            logging.error(
+                "py3Dmol>=1.8.0 installation with pip (https://pypi.org/project/py3Dmol/) failed."
+            )
+            return
+
+        # Test installation
+        try:
+            import py3Dmol
+
+            logging.info(f"py3Dmol installed succesfully.")
+        except ImportError:
+            logging.error(
+                "py3Dmol installation with pip (https://pypi.org/project/py3Dmol/) failed."
+            )
+            return
+
         ## Install Alphafold if not already installed
         logging.info("Installing AlphaFold from source (requires pip and git).")
 

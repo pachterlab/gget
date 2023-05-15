@@ -7,5 +7,4 @@ mysql-connector-python>=8.0.5,<=8.0.29
 beautifulsoup4>=4.10.0
 ipywidgets
 tqdm
-py3Dmol>=1.8.0
 lxml

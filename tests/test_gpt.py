@@ -2,6 +2,10 @@ import unittest
 from unittest.mock import patch
 from gget.gget_gpt import gpt
 
+# Install gpt module specific dependencies
+from gget.gget_setup import setup
+setup("gpt")
+
 
 class TestGpt(unittest.TestCase):
     @patch("openai.ChatCompletion.create")
@@ -39,4 +43,3 @@ class TestGpt(unittest.TestCase):
         # Check that the output matches the mock response
         expected_output = "This is a generated response.\n"
         self.assertEqual(output, expected_output)
-

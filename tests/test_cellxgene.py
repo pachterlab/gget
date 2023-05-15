@@ -3,9 +3,14 @@ import pandas as pd
 import json
 from gget.gget_cellxgene import cellxgene
 
+# Install cellxgene module specific dependencies
+from gget.gget_setup import setup
+setup("cellxgene")
+
 # Load dictionary containing arguments and expected results
 with open("./tests/fixtures/test_cellxgene.json") as json_file:
     cellxgene_dict = json.load(json_file)
+
 
 def repr_dict(adata):
     """
@@ -33,6 +38,7 @@ def repr_dict(adata):
                 d[attr] = keys
     return d
 
+
 class TestCellxgene(unittest.TestCase):
     def test_cellxgene_adata(self):
         test = "test1"
@@ -53,4 +59,3 @@ class TestCellxgene(unittest.TestCase):
         result_to_test = result_to_test.values.tolist()[:25]
 
         self.assertListEqual(result_to_test, expected_result)
-

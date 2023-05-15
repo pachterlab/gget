@@ -1,4 +1,3 @@
-import cellxgene_census
 import logging
 
 # Add and format time stamp in logging messages
@@ -112,6 +111,18 @@ def cellxgene(
 
     Returns AnnData object (when meta_only=False) or dataframe (when meta_only=True).
     """
+    # Check if cellxgene_census is installed
+    try:
+        import cellxgene_census
+    except ImportError:
+        logging.error(
+            """
+            Some third-party dependencies are missing. Please run the following command: 
+            >>> gget.setup('cellxgene') or $ gget setup cellxgene
+            """
+        )
+        return
+
     # List of metadata arguments
     args = [
         dataset_id,
