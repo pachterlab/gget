@@ -20,7 +20,7 @@ from .compile import PACKAGE_PATH
 
 ## Variables for alphafold module
 ALPHAFOLD_GIT_REPO = "https://github.com/deepmind/alphafold"
-ALPHAFOLD_GIT_REPO_VERSION = "v2.3.0"
+ALPHAFOLD_GIT_REPO_VERSION = "v2.3.2"
 PDBFIXER_GIT_REPO = "https://github.com/openmm/pdbfixer.git"
 # Unique ID to name temporary jackhmmer folder
 UUID = "fcb45c67-8b27-4156-bbd8-9d11512babf2"
@@ -37,55 +37,72 @@ PARAMS_PATH = os.path.join(PARAMS_DIR, "params_temp.tar")
 def setup(module):
     """
     Function to install third-party dependencies for a specified gget module.
+    Requires pip to be installed (https://pip.pypa.io/en/stable/installation/).
 
     Args:
-    module      - (str) gget module for which dependencies should be installed, e.g. "alphafold"
+    - module    (str) gget module for which dependencies should be installed, e.g. "alphafold", "cellxgene" or "gpt".
     """
-    supported_modules = ["alphafold"]
+    supported_modules = ["alphafold", "cellxgene", "gpt"]
     if module not in supported_modules:
         raise ValueError(
             f"'module' argument specified as {module}. Expected one of: {', '.join(supported_modules)}"
         )
+
+    if module == "gpt":
+        logging.info("Installing openai package (requires pip).")
+        command = "pip install -U openai"
+        with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
+            stderr = process.stderr.read().decode("utf-8")
+        # Exit system if the subprocess returned with an error
+        if process.wait() != 0:
+            if stderr:
+                # Log the standard error if it is not empty
+                sys.stderr.write(stderr)
+            logging.error(
+                "openai installation with pip (https://pypi.org/project/openai/) failed."
+            )
+            return
+
+        try:
+            import openai
+
+            logging.info(f"openai installed succesfully.")
+        except ImportError:
+            logging.error(
+                "openai installation with pip (https://pypi.org/project/openai/) failed."
+            )
+            return
+
+    if module == "cellxgene":
+        logging.info("Installing cellxgene-census package (requires pip).")
+        command = "pip install -U cellxgene-census"
+        with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
+            stderr = process.stderr.read().decode("utf-8")
+        # Exit system if the subprocess returned with an error
+        if process.wait() != 0:
+            if stderr:
+                # Log the standard error if it is not empty
+                sys.stderr.write(stderr)
+            logging.error(
+                "cellxgene-census installation with pip (https://pypi.org/project/cellxgene-census/) failed."
+            )
+            return
+
+        try:
+            import cellxgene_census
+
+            logging.info(f"cellxgene_census installed succesfully.")
+        except ImportError:
+            logging.error(
+                "cellxgene-census installation with pip (https://pypi.org/project/cellxgene-census/) failed."
+            )
+            return
 
     if module == "alphafold":
         if platform.system() == "Windows":
             logging.warning(
                 "gget setup alphafold and gget alphafold are not supported on Windows OS."
             )
-
-        # ## Make sure package paths are appended so openmm can be imported
-        # site_packages_path = os.__file__.split("os.py")[0] + "site-packages"
-        # if site_packages_path not in sys.path:
-        #     sys.path.append(site_packages_path)
-
-        # site_packages_path_python = (
-        #     "/".join(str(os.__file__.split("os.py")[0]).split("/")[:-2])
-        #     + f"/python{'.'.join(python_version().split('.')[:2])}/site-packages"
-        # )
-        # if site_packages_path_python not in sys.path:
-        #     sys.path.append(site_packages_path_python)
-
-        # site_packages_path_python37 = (
-        #     "/".join(str(os.__file__.split("os.py")[0]).split("/")[:-2])
-        #     + f"/python3.7/site-packages"
-        # )
-        # if site_packages_path_python37 not in sys.path:
-        #     sys.path.append(site_packages_path_python37)
-
-        # conda_python_path = os.path.expanduser(
-        #     f"~/opt/conda/lib/python{'.'.join(python_version().split('.')[:2])}/site-packages"
-        # )
-        # if conda_python_path not in sys.path:
-        #     sys.path.append(conda_python_path)
-
-        # conda_python37_path = os.path.expanduser(
-        #     f"~/opt/conda/lib/python3.7/site-packages"
-        # )
-        # if conda_python37_path not in sys.path:
-        #     sys.path.append(conda_python37_path)
-
-        # # Global location of temporary disk
-        # global TMP_DISK
 
         ## Ask user to install openmm if not already installed
         try:
@@ -115,38 +132,12 @@ def setup(module):
 
         ## Install Alphafold if not already installed
         logging.info("Installing AlphaFold from source (requires pip and git).")
-        # Install AlphaFold and apply OpenMM patch.
-        # command = f"""
-        #     git clone {ALPHAFOLD_GIT_REPO} alphafold \
-        #     && sed -i '' 's/\/tmp\/ramdisk/~\/tmp\/jackhmmer\/{UUID}/g' ./alphafold/alphafold/data/tools/jackhmmer.py \
-        #     && pip install ./alphafold \
-        #     && pushd {os.__file__.split('os.py')[0] + 'site-packages/'} \
-        #     && patch -p0 < /content/alphafold/docker/openmm.patch \
-        #     && popd \
-        #     && rm -rf alphafold
-        #     """
 
         ## Install AlphaFold and change jackhmmer directory where database chunks are saved in
         # Define AlphaFold folder name and location
         alphafold_folder = os.path.join(
             PACKAGE_PATH, "tmp_alphafold_" + str(uuid.uuid4())
         )
-        # command = """
-        #     git clone -q {} {} \
-        #     && sed -i '' 's/\/tmp\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \
-        #     && sed -i '' '/{}/d' {}/alphafold/data/tools/jackhmmer.py \
-        #     && pip install -q {} \
-        #     """.format(
-        #     ALPHAFOLD_GIT_REPO,
-        #     alphafold_folder,
-        #     os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace(
-        #         "/", "\/"
-        #     ),  # Replace directory where jackhmmer database chunks will be saved
-        #     alphafold_folder,
-        #     "logging.info",  # Delete all info loggers
-        #     alphafold_folder,
-        #     alphafold_folder,
-        # )
 
         # Clone AlphaFold github repo
         # Replace directory where jackhmmer database chunks will be saved
