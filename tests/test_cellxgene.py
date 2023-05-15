@@ -2,10 +2,7 @@ import unittest
 import pandas as pd
 import json
 from gget.gget_cellxgene import cellxgene
-
-# Install cellxgene module specific dependencies
 from gget.gget_setup import setup
-setup("cellxgene")
 
 # Load dictionary containing arguments and expected results
 with open("./tests/fixtures/test_cellxgene.json") as json_file:
@@ -40,6 +37,9 @@ def repr_dict(adata):
 
 
 class TestCellxgene(unittest.TestCase):
+    def install_dependencies(self):
+        setup("cellxgene")
+
     def test_cellxgene_adata(self):
         test = "test1"
         expected_result = cellxgene_dict[test]["expected_result"]
