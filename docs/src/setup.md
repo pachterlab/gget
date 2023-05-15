@@ -5,7 +5,7 @@ Function to install/download third-party dependencies for a specified gget modul
 
 **Positional argument**  
 `module`  
-gget module for which dependencies should be installed (currently only "alphafold").  
+gget module for which dependencies should be installed ("alphafold", "gpt" or "cellxgene").  
 
 ### Example
 ```bash

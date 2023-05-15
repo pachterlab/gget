@@ -34,13 +34,14 @@ PARAMS_DIR = os.path.join(PACKAGE_PATH, "bins/alphafold/")
 PARAMS_PATH = os.path.join(PARAMS_DIR, "params_temp.tar")
 
 
-def setup(module):
+def setup(module, verbose=True):
     """
     Function to install third-party dependencies for a specified gget module.
     Requires pip to be installed (https://pip.pypa.io/en/stable/installation).
 
     Args:
     - module    (str) gget module for which dependencies should be installed, e.g. "alphafold", "cellxgene" or "gpt".
+    - verbose   True/False whether to print progress information. Default True.
     """
     supported_modules = ["alphafold", "cellxgene", "gpt"]
     if module not in supported_modules:
@@ -49,7 +50,8 @@ def setup(module):
         )
 
     if module == "gpt":
-        logging.info("Installing openai package (requires pip).")
+        if verbose:
+            logging.info("Installing openai package (requires pip).")
         command = "pip install -q -U openai"
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
             stderr = process.stderr.read().decode("utf-8")
@@ -67,7 +69,8 @@ def setup(module):
         try:
             import openai
 
-            logging.info(f"openai installed succesfully.")
+            if verbose:
+                logging.info(f"openai installed succesfully.")
         except ImportError as e:
             logging.error(
                 f"openai installation with pip (https://pypi.org/project/openai) failed. Import error:\n{e}"
@@ -75,7 +78,8 @@ def setup(module):
             return
 
     if module == "cellxgene":
-        logging.info("Installing cellxgene-census package (requires pip).")
+        if verbose:
+            logging.info("Installing cellxgene-census package (requires pip).")
         command = "pip install -q -U cellxgene-census"
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
             stderr = process.stderr.read().decode("utf-8")
@@ -93,7 +97,8 @@ def setup(module):
         try:
             import cellxgene_census
 
-            logging.info(f"cellxgene_census installed succesfully.")
+            if verbose:
+                logging.info(f"cellxgene_census installed succesfully.")
         except ImportError as e:
             logging.error(
                 f"cellxgene-census installation with pip (https://pypi.org/project/cellxgene-census) failed. Import error:\n{e}"
@@ -102,7 +107,7 @@ def setup(module):
 
     if module == "alphafold":
         if platform.system() == "Windows":
-            logging.warning(
+            logging.error(
                 "gget setup alphafold and gget alphafold are not supported on Windows OS."
             )
 
@@ -118,7 +123,8 @@ def setup(module):
             # if openmm.__version__ != "7.5.1":
             #     raise ImportError()
 
-            # logging.info(f"openmm v{openmm.__version__} already installed.")
+            # if verbose:
+            #   logging.info(f"openmm v{openmm.__version__} already installed.")
 
         except ImportError as e:
             raise ImportError(
@@ -133,7 +139,8 @@ def setup(module):
             )
 
         ## Install py3Dmol
-        logging.info("Installing py3Dmol (requires pip).")
+        if verbose:
+            logging.info("Installing py3Dmol (requires pip).")
         command = "pip install -q py3Dmol"
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
             stderr = process.stderr.read().decode("utf-8")
@@ -151,7 +158,8 @@ def setup(module):
         try:
             import py3Dmol
 
-            logging.info(f"py3Dmol installed succesfully.")
+            if verbose:
+                logging.info(f"py3Dmol installed succesfully.")
         except ImportError as e:
             logging.error(
                 f"py3Dmol installation with pip (https://pypi.org/project/py3Dmol/) failed. Import error:\n{e}"
@@ -159,7 +167,8 @@ def setup(module):
             return
 
         ## Install Alphafold if not already installed
-        logging.info("Installing AlphaFold from source (requires pip and git).")
+        if verbose:
+            logging.info("Installing AlphaFold from source (requires pip and git).")
 
         ## Install AlphaFold and change jackhmmer directory where database chunks are saved in
         # Define AlphaFold folder name and location
@@ -226,7 +235,8 @@ def setup(module):
         try:
             import alphafold as AlphaFold
 
-            logging.info(f"AlphaFold installed succesfully.")
+            if verbose:
+                logging.info(f"AlphaFold installed succesfully.")
         except ImportError as e:
             logging.error(f"AlphaFold installation failed. Import error:\n{e}")
             return
@@ -237,7 +247,8 @@ def setup(module):
             sys.path.append(alphafold_path)
 
         ## Install pdbfixer
-        logging.info("Installing pdbfixer from source (requires pip and git).")
+        if verbose:
+            logging.info("Installing pdbfixer from source (requires pip and git).")
 
         pdbfixer_folder = os.path.join(
             PACKAGE_PATH, "tmp_pdbfixer_" + str(uuid.uuid4())
@@ -288,9 +299,10 @@ def setup(module):
             os.makedirs(os.path.join(PARAMS_DIR, "params/"), exist_ok=True)
 
         if len(os.listdir(os.path.join(PARAMS_DIR, "params/"))) < 12:
-            logging.info(
-                "Downloading AlphaFold model parameters (requires 4.1 GB of storage). This might take a few minutes."
-            )
+            if verbose:
+                logging.info(
+                    "Downloading AlphaFold model parameters (requires 4.1 GB of storage). This might take a few minutes."
+                )
             if platform.system() == "Windows":
                 # The double-quotation marks allow white spaces in the path, but this does not work for Windows
                 command = f"""
@@ -317,6 +329,8 @@ def setup(module):
                 logging.error("Model parameter download failed.")
                 return
             else:
-                logging.info("Model parameter download complete.")
+                if verbose:
+                    logging.info("Model parameter download complete.")
         else:
-            logging.info("AlphaFold model parameters already downloaded.")
+            if verbose:
+                logging.info("AlphaFold model parameters already downloaded.")

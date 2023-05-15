@@ -906,6 +906,15 @@ def main():
         help="gget module for which dependencies should be installed, e.g. 'alphafold'",
     )
 
+    parser_setup.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Does not print progress information.",
+    )
+
     ## gget alphafold subparser
     alphafold_desc = "Predicts the structure of a protein using a simplified version of AlphaFold v2.3.0 (https://doi.org/10.1038/s41586-021-03819-2)."
     parser_alphafold = parent_subparsers.add_parser(
@@ -1147,6 +1156,14 @@ def main():
         default=None,
         required=False,
         help="The file name to save the generated text to (defaults to printing the output to the console)",
+    )
+    parser_gpt.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Do not print progress information.",
     )
 
     # cellxgene parser arguments
@@ -1501,6 +1518,7 @@ def main():
             frequency_penalty=args.frequency_penalty,
             logit_bias=args.logit_bias,
             out=args.out,
+            verbose=args.quiet,
         )
 
         if args.out is None:
@@ -1677,7 +1695,7 @@ def main():
         if not args.fasta_deprecated and not args.fasta:
             parser_muscle.error("the following arguments are required: fasta")
 
-        muscle(fasta=args.fasta, super5=args.super5, out=args.out)
+        muscle(fasta=args.fasta, super5=args.super5, out=args.out, verbose=args.quiet)
 
     ## ref return
     if args.command == "ref":
@@ -2047,7 +2065,7 @@ def main():
 
     ## setup return
     if args.command == "setup":
-        setup(args.module)
+        setup(args.module, verbose=args.quiet)
 
     ## alphafold return
     if args.command == "alphafold":
@@ -2067,6 +2085,7 @@ def main():
             relax=args.relax,
             plot=False,
             show_sidechains=False,
+            verbose=args.quiet,
         )
 
     ## pdb return
