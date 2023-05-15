@@ -38,7 +38,8 @@ def repr_dict(adata):
 
 class TestCellxgene(unittest.TestCase):
     def install_dependencies(self):
-        setup("cellxgene")
+        module = "cellxgene"
+        setup(module)
 
     def test_cellxgene_adata(self):
         test = "test1"

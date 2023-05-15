@@ -132,7 +132,7 @@ def setup(module):
 
         ## Install py3Dmol
         logging.info("Installing py3Dmol (requires pip).")
-        command = "pip install py3Dmol>=1.8.0"
+        command = "pip install py3Dmol"
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
             stderr = process.stderr.read().decode("utf-8")
         # Exit system if the subprocess returned with an error
@@ -141,7 +141,7 @@ def setup(module):
                 # Log the standard error if it is not empty
                 sys.stderr.write(stderr)
             logging.error(
-                "py3Dmol>=1.8.0 installation with pip (https://pypi.org/project/py3Dmol) failed."
+                "py3Dmol installation with pip (https://pypi.org/project/py3Dmol) failed."
             )
             return
 
@@ -245,8 +245,10 @@ def setup(module):
             if openmm.__version__ == "7.5.1":
                 # Install pdbfixer version compatible with openmm v7.5.1
                 PDBFIXER_VERSION = "v1.7"
+            else:
+                PDBFIXER_VERSION = "v1.8.1"
         except:
-            PDBFIXER_VERSION = "v1.8.1" # Latest: v1.9
+            PDBFIXER_VERSION = "v1.8.1"
 
         command = f"""
             git clone -q --branch {PDBFIXER_VERSION} {PDBFIXER_GIT_REPO} {pdbfixer_folder} \
