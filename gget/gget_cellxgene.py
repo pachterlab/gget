@@ -80,7 +80,7 @@ def cellxgene(
                          Default: ["dataset_id", "assay", "suspension_type", "sex", "tissue_general", "tissue", "cell_type"]
                          For more options see: https://api.cellxgene.cziscience.com/curation/ui/#/ -> Schemas -> dataset
         - meta_only      True/False (default: False). If True, returns only metadata dataframe (corresponds to AnnData.obs).
-        - census_version Str defining version of Census or "latest" or "stable". Default: "stable".
+        - census_version Str defining version of Census, e.g. "2023-05-08" or "latest" or "stable". Default: "stable".
         - verbose        True/False whether to print progress information. Default True.
         - out            If provided, saves the generated AnnData h5ad (or csv when meta_only=True) file with the specified path. Default: None.
 

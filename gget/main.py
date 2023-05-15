@@ -1178,12 +1178,19 @@ def main():
         add_help=True,
     )
     parser_cellxgene.add_argument(
+        "-o",
+        "--out",
+        type=str,
+        required=True,
+        help="Path to save the generated AnnData .h5ad file (or .csv with --meta_only).",
+    )
+    parser_cellxgene.add_argument(
         "-cv",
         "--census_version",
         default="stable",
         type=str,
         required=False,
-        help="Version of Census or 'latest'.",
+        help="Census version, e.g. '2023-05-08' or 'latest' or 'stable'.",
     )
     parser_cellxgene.add_argument(
         "-s",
@@ -1412,13 +1419,6 @@ def main():
         help="Str or space-separated list of suspension type(s).",
     )
     parser_cellxgene.add_argument(
-        "-o",
-        "--out",
-        type=str,
-        required=True,
-        help="Path to save the generated AnnData .h5ad file (or .csv with --meta_only).",
-    )
-    parser_cellxgene.add_argument(
         "-q",
         "--quiet",
         default=True,
@@ -1482,7 +1482,7 @@ def main():
 
     ## cellxgene return
     if args.command == "cellxgene":
-        cellxgene_results = cellxgene(
+        cellxgene(
             species=args.species,
             gene=args.gene,
             ensembl=args.ensembl,

@@ -11,7 +11,8 @@
                 "ABCA1",
                 "SLC5A1"
             ],
-            "tissue": "lung"
+            "tissue": "lung",
+            "census_version": "2023-05-08"
         },
         "expected_result": {
             "n_obs": 3322,
@@ -41,7 +42,8 @@
             "ensembl": true,
             "tissue": "lung",
             "meta_only": true,
-            "species": "mus_musculus"
+            "species": "mus_musculus",
+            "census_version": "2023-05-08"
         },
         "expected_result": [
             [
