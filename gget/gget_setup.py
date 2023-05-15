@@ -246,7 +246,7 @@ def setup(module):
                 # Install pdbfixer version compatible with openmm v7.5.1
                 PDBFIXER_VERSION = "v1.7"
         except:
-            PDBFIXER_VERSION = "1.8.1" # Latest: 1.9
+            PDBFIXER_VERSION = "v1.8.1" # Latest: v1.9
 
         command = f"""
             git clone -q --branch {PDBFIXER_VERSION} {PDBFIXER_GIT_REPO} {pdbfixer_folder} \
