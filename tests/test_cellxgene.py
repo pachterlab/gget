@@ -37,11 +37,8 @@ def repr_dict(adata):
 
 
 class TestCellxgene(unittest.TestCase):
-    def install_dependencies(self):
-        module = "cellxgene"
-        gget_setup(module)
-
     def test_cellxgene_adata(self):
+        gget_setup("cellxgene")
         test = "test1"
         expected_result = cellxgene_dict[test]["expected_result"]
         result_to_test = cellxgene(**cellxgene_dict[test]["args"])
@@ -52,6 +49,7 @@ class TestCellxgene(unittest.TestCase):
         self.assertEqual(result_to_test, expected_result)
 
     def test_cellxgene_metadata(self):
+        gget_setup("cellxgene")
         test = "test2"
         expected_result = cellxgene_dict[test]["expected_result"]
         result_to_test = cellxgene(**cellxgene_dict[test]["args"])
