@@ -37,7 +37,7 @@ PARAMS_PATH = os.path.join(PARAMS_DIR, "params_temp.tar")
 def setup(module):
     """
     Function to install third-party dependencies for a specified gget module.
-    Requires pip to be installed (https://pip.pypa.io/en/stable/installation/).
+    Requires pip to be installed (https://pip.pypa.io/en/stable/installation).
 
     Args:
     - module    (str) gget module for which dependencies should be installed, e.g. "alphafold", "cellxgene" or "gpt".
@@ -59,7 +59,7 @@ def setup(module):
                 # Log the standard error if it is not empty
                 sys.stderr.write(stderr)
             logging.error(
-                "openai installation with pip (https://pypi.org/project/openai/) failed."
+                "openai installation with pip (https://pypi.org/project/openai) failed."
             )
             return
 
@@ -69,7 +69,7 @@ def setup(module):
             logging.info(f"openai installed succesfully.")
         except ImportError:
             logging.error(
-                "openai installation with pip (https://pypi.org/project/openai/) failed."
+                "openai installation with pip (https://pypi.org/project/openai) failed."
             )
             return
 
@@ -84,7 +84,7 @@ def setup(module):
                 # Log the standard error if it is not empty
                 sys.stderr.write(stderr)
             logging.error(
-                "cellxgene-census installation with pip (https://pypi.org/project/cellxgene-census/) failed."
+                "cellxgene-census installation with pip (https://pypi.org/project/cellxgene-census) failed."
             )
             return
 
@@ -94,7 +94,7 @@ def setup(module):
             logging.info(f"cellxgene_census installed succesfully.")
         except ImportError:
             logging.error(
-                "cellxgene-census installation with pip (https://pypi.org/project/cellxgene-census/) failed."
+                "cellxgene-census installation with pip (https://pypi.org/project/cellxgene-census) failed."
             )
             return
 
@@ -125,7 +125,7 @@ def setup(module):
                 {e}
 
                 Please install AlphaFold third-party dependency openmm v7.5.1 (or v7.7.0 for Python >= 3.10) by running the following command from the command line: 
-                'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' (or 'openmm=7.7.0' for Python >= 3.10)
+                'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1'   (or 'openmm=7.7.0' for Python >= 3.10)
                 (Recommendation: Follow with 'conda update -qy conda' to update conda to the latest version afterwards.)
                 """
             )
@@ -141,7 +141,7 @@ def setup(module):
                 # Log the standard error if it is not empty
                 sys.stderr.write(stderr)
             logging.error(
-                "py3Dmol>=1.8.0 installation with pip (https://pypi.org/project/py3Dmol/) failed."
+                "py3Dmol>=1.8.0 installation with pip (https://pypi.org/project/py3Dmol) failed."
             )
             return
 
