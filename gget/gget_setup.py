@@ -94,17 +94,21 @@ def setup(module):
             # Silence openmm logger
             logging.getLogger("openmm").setLevel(logging.WARNING)
 
-            # Check if correct version was installed
-            if openmm.__version__ != "7.5.1":
-                raise ImportError()
+            # Commenting the following out because openmm v7.7.0 does not support __version__
+            # # Check if correct version was installed
+            # if openmm.__version__ != "7.5.1":
+            #     raise ImportError()
 
-            logging.info(f"openmm v{openmm.__version__} already installed.")
+            # logging.info(f"openmm v{openmm.__version__} already installed.")
 
-        except ImportError:
+        except ImportError as e:
             raise ImportError(
-                """
-                Please install AlphaFold third-party dependency openmm v7.5.1 by running the following command from the command line: 
-                'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' 
+                f"""
+                Importing openmm resulted in the following error:
+                {e}
+
+                Please install AlphaFold third-party dependency openmm v7.5.1 (or v7.7.0 for Python >= 3.10) by running the following command from the command line: 
+                'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' (or 'openmm=7.7.0' for Python >= 3.10)
                 (Recommendation: Follow with 'conda update -qy conda' to update conda to the latest version afterwards.)
                 """
             )
