@@ -5,9 +5,10 @@ from gget.gget_setup import setup as gget_setup
 
 
 class TestGpt(unittest.TestCase):
+    gget_setup("gpt")
+
     @patch("openai.ChatCompletion.create")
     def test_gpt(self, mock_create):
-        gget_setup("gpt")
 
         # Mock the response from the API
         mock_response = {
