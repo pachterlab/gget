@@ -1,13 +1,13 @@
 import unittest
 from unittest.mock import patch
 from gget.gget_gpt import gpt
-from gget.gget_setup import setup
+from gget.gget_setup import setup as gget_setup
 
 
 class TestGpt(unittest.TestCase):
     def install_dependencies(self):
         module = "gpt"
-        setup(module)
+        gget_setup(module)
 
     @patch("openai.ChatCompletion.create")
     def test_gpt(self, mock_create):
