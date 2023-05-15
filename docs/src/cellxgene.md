@@ -15,6 +15,9 @@ Choice of 'homo_sapiens' or 'mus_musculus'. Default: 'homo_sapiens'.
  NOTE: Use `-e / --ensembl` (Python: `ensembl=True`) when providing Ensembl ID(s) instead of gene name(s).  
  See https://cellxgene.cziscience.com/gene-expression for examples of available genes.  
 
+ `-cv` `--census_version`  
+ Str defining version of Census or "latest" or "stable". Default: "stable".  
+
 `-cn` `--column_names`  
 List of metadata columns to return (stored in AnnData.obs).  
 Default: ['dataset_id', 'assay', 'suspension_type', 'sex', 'tissue_general', 'tissue', 'cell_type']  

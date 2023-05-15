@@ -1178,11 +1178,12 @@ def main():
         add_help=True,
     )
     parser_cellxgene.add_argument(
-        "-o",
-        "--out",
+        "-cv",
+        "--census_version",
+        default="stable",
         type=str,
-        required=True,
-        help="Path to save the generated AnnData .h5ad file (or .csv with --meta_only).",
+        required=False,
+        help="Version of Census or 'latest'.",
     )
     parser_cellxgene.add_argument(
         "-s",
@@ -1411,6 +1412,13 @@ def main():
         help="Str or space-separated list of suspension type(s).",
     )
     parser_cellxgene.add_argument(
+        "-o",
+        "--out",
+        type=str,
+        required=True,
+        help="Path to save the generated AnnData .h5ad file (or .csv with --meta_only).",
+    )
+    parser_cellxgene.add_argument(
         "-q",
         "--quiet",
         default=True,
@@ -1500,6 +1508,7 @@ def main():
             sex_ontology_term_id=args.sex_ontology_term_id,
             suspension_type=args.suspension_type,
             tissue_ontology_term_id=args.tissue_ontology_term_id,
+            census_version=args.census_version,
             verbose=args.quiet,
             out=args.out,
         )

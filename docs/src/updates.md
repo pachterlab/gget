@@ -2,6 +2,7 @@
 **Version ≥ 0.27.7** (May 15, 2023):  
 - Moved dependencies for modules [`gget gpt`](./gpt.md) and [`gget cellxgene`](./cellxgene.md) from automatically installed requirements to [`gget setup`](./setup.md).  
 - Updated [`gget alphafold`](./alphafold.md) dependencies for compatibility with Python >= 3.10.  
+- Added `census_version` argument to [`gget cellxgene`](./cellxgene.md).
 
 **Version ≥ 0.27.6** (May 1, 2023) (YANKED):  
 - Thanks to PR by [Tomás Di Domenico](https://github.com/tdido): [`gget search`](./search.md) can now also query plant 🌱 Ensembl IDs.  
