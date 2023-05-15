@@ -63,13 +63,14 @@ def setup(module):
             )
             return
 
+        # Test installation
         try:
             import openai
 
             logging.info(f"openai installed succesfully.")
-        except ImportError:
+        except ImportError as e:
             logging.error(
-                "openai installation with pip (https://pypi.org/project/openai) failed."
+                f"openai installation with pip (https://pypi.org/project/openai) failed. Import error:\n{e}"
             )
             return
 
@@ -88,13 +89,14 @@ def setup(module):
             )
             return
 
+        # Test installation
         try:
             import cellxgene_census
 
             logging.info(f"cellxgene_census installed succesfully.")
-        except ImportError:
+        except ImportError as e:
             logging.error(
-                "cellxgene-census installation with pip (https://pypi.org/project/cellxgene-census) failed."
+                f"cellxgene-census installation with pip (https://pypi.org/project/cellxgene-census) failed. Import error:\n{e}"
             )
             return
 
@@ -121,7 +123,7 @@ def setup(module):
         except ImportError as e:
             raise ImportError(
                 f"""
-                Importing openmm resulted in the following error:
+                Trying to import openmm resulted in the following error:
                 {e}
 
                 Please install AlphaFold third-party dependency openmm v7.5.1 (or v7.7.0 for Python >= 3.10) by running the following command from the command line: 
@@ -150,9 +152,9 @@ def setup(module):
             import py3Dmol
 
             logging.info(f"py3Dmol installed succesfully.")
-        except ImportError:
+        except ImportError as e:
             logging.error(
-                "py3Dmol installation with pip (https://pypi.org/project/py3Dmol/) failed."
+                f"py3Dmol installation with pip (https://pypi.org/project/py3Dmol/) failed. Import error:\n{e}"
             )
             return
 
@@ -225,8 +227,8 @@ def setup(module):
             import alphafold as AlphaFold
 
             logging.info(f"AlphaFold installed succesfully.")
-        except ImportError:
-            logging.error("AlphaFold installation failed.")
+        except ImportError as e:
+            logging.error(f"AlphaFold installation failed. Import error:\n{e}")
             return
 
         ## Append AlphaFold to path

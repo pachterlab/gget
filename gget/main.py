@@ -902,7 +902,7 @@ def main():
     parser_setup.add_argument(
         "module",
         type=str,
-        choices=["alphafold"],
+        choices=["alphafold", "gpt", "cellxgene"],
         help="gget module for which dependencies should be installed, e.g. 'alphafold'",
     )
 
