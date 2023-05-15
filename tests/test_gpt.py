@@ -1,15 +1,11 @@
 import unittest
 from unittest.mock import patch
 from gget.gget_gpt import gpt
-from gget.gget_setup import setup as gget_setup
 
 
 class TestGpt(unittest.TestCase):
-    gget_setup("gpt")
-
     @patch("openai.ChatCompletion.create")
     def test_gpt(self, mock_create):
-
         # Mock the response from the API
         mock_response = {
             "choices": [{"message": {"content": "This is a generated response."}}],

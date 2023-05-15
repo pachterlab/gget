@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
-from requests.adapters import HTTPAdapter, Retry
-import time
+# from requests.adapters import HTTPAdapter, Retry
+# import time
 import re
 import pandas as pd
 import numpy as np

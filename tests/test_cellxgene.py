@@ -2,7 +2,6 @@ import unittest
 import pandas as pd
 import json
 from gget.gget_cellxgene import cellxgene
-from gget.gget_setup import setup as gget_setup
 
 # Load dictionary containing arguments and expected results
 with open("./tests/fixtures/test_cellxgene.json") as json_file:
@@ -38,7 +37,6 @@ def repr_dict(adata):
 
 class TestCellxgene(unittest.TestCase):
     def test_cellxgene_adata(self):
-        gget_setup("cellxgene")
         test = "test1"
         expected_result = cellxgene_dict[test]["expected_result"]
         result_to_test = cellxgene(**cellxgene_dict[test]["args"])
@@ -49,7 +47,6 @@ class TestCellxgene(unittest.TestCase):
         self.assertEqual(result_to_test, expected_result)
 
     def test_cellxgene_metadata(self):
-        gget_setup("cellxgene")
         test = "test2"
         expected_result = cellxgene_dict[test]["expected_result"]
         result_to_test = cellxgene(**cellxgene_dict[test]["args"])
