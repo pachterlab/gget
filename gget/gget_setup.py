@@ -20,7 +20,7 @@ from .compile import PACKAGE_PATH
 
 ## Variables for alphafold module
 ALPHAFOLD_GIT_REPO = "https://github.com/deepmind/alphafold"
-ALPHAFOLD_GIT_REPO_VERSION = "v2.3.2"
+ALPHAFOLD_GIT_REPO_VERSION = "main" # Get version currently hosted on main branch
 PDBFIXER_GIT_REPO = "https://github.com/openmm/pdbfixer.git"
 # Unique ID to name temporary jackhmmer folder
 UUID = "fcb45c67-8b27-4156-bbd8-9d11512babf2"
@@ -268,53 +268,6 @@ def setup(module):
         else:
             logging.error("pdbfixer installation failed.")
             return
-
-        # ## Create a temporary file system (TMPFS) to store a database chunk to make Jackhmmer run fast.
-        # # TMPFS uses local memory for file system reads and writes, which is typically much faster than reads and writes in a UFS file system.
-        # logging.info("Creating temporary file system (TMPFS) to store a database chunk and make Jackhmmer run faster.")
-        # if platform.system() == "Linux":
-        #   command = f"mkdir -m 777 -p /tmp/ramdisk && mount -t tmpfs -o size=9G ramdisk /tmp/ramdisk"
-
-        #   with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
-        #       stderr = process.stderr.read().decode("utf-8")
-
-        #   # Exit system if the subprocess returned with an error
-        #   if process.wait() != 0:
-        #       # if stderr:
-        #       # # Log the standard error if it is not empty
-        #       # sys.stderr.write(stderr)
-        #       logging.warning("Creating TMPFS failed. Jackhmmer will run slower.")
-
-        # elif platform.system() == "Darwin":
-        #   # Attach disk with 9GB
-        #   command1 = "hdiutil attach -nomount ram://18432000"
-        #   process = subprocess.Popen(command1, shell=True, stdout=subprocess.PIPE)
-        #   hdi_out, err = process.communicate()
-
-        #   # Record number of new disk
-        #   TMP_DISK = hdi_out.decode("utf-8").strip()
-        #   DISK_NUMBER = f"$({TMP_DISK} | tr -dc '0-9')"
-
-        #   # Set up TMPFS
-        #   command2 = f"newfs_hfs -v tmp /dev/rdisk{DISK_NUMBER}"
-        #   command3 = f"diskutil eraseVolume HFS+ /tmp/ramdisk {TMP_DISK}"
-
-        #   command = command2 + " && " + command3
-
-        #   with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
-        #     stderr = process.stderr.read().decode("utf-8")
-
-        #   # Exit system if the subprocess returned with an error
-        #   if process.wait() != 0:
-        #       # if stderr:
-        #       # # Log the standard error if it is not empty
-        #       # sys.stderr.write(stderr)
-        #       logging.warning("Creating TMPFS failed. Jackhmmer will run slower.")
-
-        # else:
-        # # Create folder to save temporary jackhmmer database chunks in
-        # !!! Delete the duplicate line from get_msa function in gget_alphafold.py if this is uncommented
-        # os.makedirs(f"~/tmp/jackhmmer/{UUID}", exist_ok=True)
 
         ## Download model parameters
         # Download parameters if the params directory is empty
