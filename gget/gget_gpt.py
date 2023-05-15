@@ -1,4 +1,5 @@
 import logging
+
 # Add and format time stamp in logging messages
 logging.basicConfig(
     format="%(asctime)s %(levelname)s %(message)s",
@@ -7,8 +8,6 @@ logging.basicConfig(
 )
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
-
-import openai
 
 
 def gpt(
@@ -58,6 +57,19 @@ def gpt(
 
     This module, including its source code, documentation and unittests, were partly written by OpenAI's Chat-GTP3.
     """
+    # Check if cellxgene_census is installed
+    try:
+        import openai
+    except ImportError:
+        logging.error(
+            """
+            Some third-party dependencies are missing. Please run the following command: 
+            >>> gget.setup('gpt') or $ gget setup gpt
+
+            Alternative: Install the openai package using pip (https://pypi.org/project/openai).
+            """
+        )
+        return
 
     openai.api_key = api_key
 

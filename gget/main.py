@@ -902,8 +902,17 @@ def main():
     parser_setup.add_argument(
         "module",
         type=str,
-        choices=["alphafold"],
+        choices=["alphafold", "gpt", "cellxgene"],
         help="gget module for which dependencies should be installed, e.g. 'alphafold'",
+    )
+
+    parser_setup.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Does not print progress information.",
     )
 
     ## gget alphafold subparser
@@ -1148,6 +1157,14 @@ def main():
         required=False,
         help="The file name to save the generated text to (defaults to printing the output to the console)",
     )
+    parser_gpt.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Do not print progress information.",
+    )
 
     # cellxgene parser arguments
     cellxgene_desc = (
@@ -1166,6 +1183,14 @@ def main():
         type=str,
         required=True,
         help="Path to save the generated AnnData .h5ad file (or .csv with --meta_only).",
+    )
+    parser_cellxgene.add_argument(
+        "-cv",
+        "--census_version",
+        default="stable",
+        type=str,
+        required=False,
+        help="Census version, e.g. '2023-05-08' or 'latest' or 'stable'.",
     )
     parser_cellxgene.add_argument(
         "-s",
@@ -1457,7 +1482,7 @@ def main():
 
     ## cellxgene return
     if args.command == "cellxgene":
-        cellxgene_results = cellxgene(
+        cellxgene(
             species=args.species,
             gene=args.gene,
             ensembl=args.ensembl,
@@ -1483,6 +1508,7 @@ def main():
             sex_ontology_term_id=args.sex_ontology_term_id,
             suspension_type=args.suspension_type,
             tissue_ontology_term_id=args.tissue_ontology_term_id,
+            census_version=args.census_version,
             verbose=args.quiet,
             out=args.out,
         )
@@ -1501,6 +1527,7 @@ def main():
             frequency_penalty=args.frequency_penalty,
             logit_bias=args.logit_bias,
             out=args.out,
+            verbose=args.quiet,
         )
 
         if args.out is None:
@@ -1677,7 +1704,7 @@ def main():
         if not args.fasta_deprecated and not args.fasta:
             parser_muscle.error("the following arguments are required: fasta")
 
-        muscle(fasta=args.fasta, super5=args.super5, out=args.out)
+        muscle(fasta=args.fasta, super5=args.super5, out=args.out, verbose=args.quiet)
 
     ## ref return
     if args.command == "ref":
@@ -2047,7 +2074,7 @@ def main():
 
     ## setup return
     if args.command == "setup":
-        setup(args.module)
+        setup(args.module, verbose=args.quiet)
 
     ## alphafold return
     if args.command == "alphafold":
@@ -2067,6 +2094,7 @@ def main():
             relax=args.relax,
             plot=False,
             show_sidechains=False,
+            verbose=args.quiet,
         )
 
     ## pdb return

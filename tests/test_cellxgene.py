@@ -7,6 +7,7 @@ from gget.gget_cellxgene import cellxgene
 with open("./tests/fixtures/test_cellxgene.json") as json_file:
     cellxgene_dict = json.load(json_file)
 
+
 def repr_dict(adata):
     """
     Function to convert the items/structure of an AnnData object to a dictionary.
@@ -33,6 +34,7 @@ def repr_dict(adata):
                 d[attr] = keys
     return d
 
+
 class TestCellxgene(unittest.TestCase):
     def test_cellxgene_adata(self):
         test = "test1"
@@ -53,4 +55,3 @@ class TestCellxgene(unittest.TestCase):
         result_to_test = result_to_test.values.tolist()[:25]
 
         self.assertListEqual(result_to_test, expected_result)
-

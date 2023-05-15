@@ -1,6 +1,10 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python.  The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
 ## gget cellxgene 🍱  
-Query data from [CZ CELLxGENE Discover](https://cellxgene.cziscience.com/) using the [CZ CELLxGENE Discover Census](https://github.com/chanzuckerberg/cellxgene-census).
+Query data from [CZ CELLxGENE Discover](https://cellxgene.cziscience.com/) using the [CZ CELLxGENE Discover Census](https://github.com/chanzuckerberg/cellxgene-census).  
+
+Returns: An AnnData object containing the count matrix and metadata of single-cell RNA sequencing data from the defined tissues/genes/etc.  
+
+Before using `gget cellxgene` for the first time, run `gget setup cellxgene` / `gget.setup("cellxgene")` once (also see [`gget setup`](setup.md)).  
 
 **Optional arguments**  
 `-s` `--species`  
@@ -10,6 +14,9 @@ Choice of 'homo_sapiens' or 'mus_musculus'. Default: 'homo_sapiens'.
  Str or list of gene name(s) or Ensembl ID(s). Default: None.  
  NOTE: Use `-e / --ensembl` (Python: `ensembl=True`) when providing Ensembl ID(s) instead of gene name(s).  
  See https://cellxgene.cziscience.com/gene-expression for examples of available genes.  
+
+ `-cv` `--census_version`  
+ Str defining version of Census or "latest" or "stable". Default: "stable".  
 
 `-cn` `--column_names`  
 List of metadata columns to return (stored in AnnData.obs).  

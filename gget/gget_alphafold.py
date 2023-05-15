@@ -245,11 +245,14 @@ def alphafold(
     # Check if openmm is installed
     try:
         import simtk.openmm as openmm
-    except ImportError:
+    except ImportError as e:
         raise ImportError(
-            """
-            Please install AlphaFold third-party dependency openmm v7.5.1 by running the following command from the command line: 
-            'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' 
+            f"""
+            Importing openmm resulted in the following error:
+            {e}
+
+            Please install AlphaFold third-party dependency openmm v7.5.1 (or v7.7.0 for Python >= 3.10) by running the following command from the command line: 
+            'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' (or 'openmm=7.7.0' for Python >= 3.10)
             (Recommendation: Follow with 'conda update -qy conda' to update conda to the latest version afterwards.)
             """
         )
@@ -317,9 +320,12 @@ def alphafold(
     except ModuleNotFoundError as e:
         if "openmm" in str(e):
             raise ImportError(
-                """
-                Please install AlphaFold third-party dependency openmm v7.5.1 by running the following command from the command line: 
-                'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' 
+                f"""
+                Importing openmm resulted in the following error:
+                {e}
+
+                Please install AlphaFold third-party dependency openmm v7.5.1 (or v7.7.0 for Python >= 3.10) by running the following command from the command line: 
+                'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' (or 'openmm=7.7.0' for Python >= 3.10)
                 (Recommendation: Follow with 'conda update -qy conda' to update conda to the latest version afterwards.)
                 """
             )
@@ -331,9 +337,12 @@ def alphafold(
         except ModuleNotFoundError as e:
             if "openmm" in str(e):
                 raise ImportError(
-                    """
-                    Please install AlphaFold third-party dependency openmm v7.5.1 by running the following command from the command line: 
-                    'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' 
+                    f"""
+                    Importing openmm resulted in the following error:
+                    {e}
+
+                    Please install AlphaFold third-party dependency openmm v7.5.1 (or v7.7.0 for Python >= 3.10) by running the following command from the command line: 
+                    'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' (or 'openmm=7.7.0' for Python >= 3.10)
                     (Recommendation: Follow with 'conda update -qy conda' to update conda to the latest version afterwards.)
                     """
                 )
@@ -413,7 +422,9 @@ def alphafold(
     if len(seqs) == 1:
         if multimer_for_monomer:
             if verbose:
-                logging.info("Using the multimer model for a single chain, as requested.")
+                logging.info(
+                    "Using the multimer model for a single chain, as requested."
+                )
             model_type_to_use = ModelType.MULTIMER
         else:
             if verbose:
@@ -511,7 +522,6 @@ def alphafold(
     features_for_chain = {}
     raw_msa_results_for_sequence = {}
     for sequence_index, sequence in enumerate(sequences, start=1):
-
         # logging.info(f"Getting MSA for sequence {sequence_index}.")
 
         ## Manage permissions to jackhmmer binary

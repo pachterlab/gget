@@ -32,6 +32,7 @@ $ gget archs4 -w tissue ACE2
 $ gget pdb 1R42 -o 1R42.pdb
 
 # Fetch an scRNAseq count matrix (AnnData format) based on specified gene(s), tissue(s) and cell type(s) (default species: human)
+$ gget setup cellxgene # setup only needs to be run once
 $ gget cellxgene --gene ACE2 SLC5A1 --tissue lung --cell_type 'mucus secreting cell' -o example_adata.h5ad
 
 # Predict the protein structure of GFP from its amino acid sequence
@@ -51,6 +52,8 @@ gget.muscle("path/to/file.fa")
 gget.enrichr(["ACE2", "AGT", "AGTR1", "ACE", "AGTRAP", "AGTR2", "ACE3P"], database="ontology", plot=True)
 gget.archs4("ACE2", which="tissue")
 gget.pdb("1R42", save=True)
+
+gget.setup("cellxgene") # setup only needs to be run once
 gget.cellxgene(gene = ["ACE2", "SLC5A1"], tissue = "lung", cell_type = "mucus secreting cell")
 
 gget.setup("alphafold") # setup only needs to be run once

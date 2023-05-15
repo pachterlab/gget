@@ -1,4 +1,3 @@
-import cellxgene_census
 import logging
 
 # Add and format time stamp in logging messages
@@ -59,6 +58,7 @@ def cellxgene(
     sex_ontology_term_id=None,
     suspension_type=None,
     tissue_ontology_term_id=None,
+    census_version="stable",
     verbose=True,
     out=None,
 ):
@@ -71,17 +71,18 @@ def cellxgene(
     The CZ CELLxGENE Discover Census recommends >16 GB of memory and a >5 Mbps internet connection.
 
     General args:
-        - species       Choice of 'homo_sapiens' or 'mus_musculus'. Default: 'homo_sapiens'.
-        - gene          Str or list of gene name(s) or Ensembl ID(s), e.g. ['ACE2', 'SLC5A1'] or ['ENSG00000130234', 'ENSG00000100170']. Default: None.
-                        NOTE: Set ensembl=True when providing Ensembl ID(s) instead of gene name(s).
-                        See https://cellxgene.cziscience.com/gene-expression for examples of available genes.
-        - ensembl       True/False (default: False). Set to True when genes are provided as Ensembl IDs.
-        - column_names  List of metadata columns to return (stored in AnnData.obs when meta_only=False).
-                        Default: ["dataset_id", "assay", "suspension_type", "sex", "tissue_general", "tissue", "cell_type"]
-                        For more options see: https://api.cellxgene.cziscience.com/curation/ui/#/ -> Schemas -> dataset
-        - meta_only     True/False (default: False). If True, returns only metadata dataframe (corresponds to AnnData.obs).
-        - verbose       True/False whether to print progress information. Default True.
-        - out           If provided, saves the generated AnnData h5ad (or csv when meta_only=True) file with the specified path. Default: None.
+        - species        Choice of 'homo_sapiens' or 'mus_musculus'. Default: 'homo_sapiens'.
+        - gene           Str or list of gene name(s) or Ensembl ID(s), e.g. ['ACE2', 'SLC5A1'] or ['ENSG00000130234', 'ENSG00000100170']. Default: None.
+                         NOTE: Set ensembl=True when providing Ensembl ID(s) instead of gene name(s).
+                         See https://cellxgene.cziscience.com/gene-expression for examples of available genes.
+        - ensembl        True/False (default: False). Set to True when genes are provided as Ensembl IDs.
+        - column_names   List of metadata columns to return (stored in AnnData.obs when meta_only=False).
+                         Default: ["dataset_id", "assay", "suspension_type", "sex", "tissue_general", "tissue", "cell_type"]
+                         For more options see: https://api.cellxgene.cziscience.com/curation/ui/#/ -> Schemas -> dataset
+        - meta_only      True/False (default: False). If True, returns only metadata dataframe (corresponds to AnnData.obs).
+        - census_version Str defining version of Census, e.g. "2023-05-08" or "latest" or "stable". Default: "stable".
+        - verbose        True/False whether to print progress information. Default True.
+        - out            If provided, saves the generated AnnData h5ad (or csv when meta_only=True) file with the specified path. Default: None.
 
     Cell metadata attributes:
         - tissue                          Str or list of tissue(s), e.g. ['lung', 'blood']. Default: None.
@@ -112,6 +113,20 @@ def cellxgene(
 
     Returns AnnData object (when meta_only=False) or dataframe (when meta_only=True).
     """
+    # Check if cellxgene_census is installed
+    try:
+        import cellxgene_census
+    except ImportError:
+        logging.error(
+            """
+            Some third-party dependencies are missing. Please run the following command: 
+            >>> gget.setup('cellxgene') or $ gget setup cellxgene
+
+            Alternative: Install the cellxgene-census package using pip (https://pypi.org/project/cellxgene-census).
+            """
+        )
+        return
+
     # List of metadata arguments
     args = [
         dataset_id,
@@ -169,7 +184,7 @@ def cellxgene(
             logging.info(
                 "Fetching AnnData object from CZ CELLxGENE Discover. This might take a few minutes..."
             )
-        with cellxgene_census.open_soma() as census:
+        with cellxgene_census.open_soma(census_version=census_version) as census:
             adata = cellxgene_census.get_anndata(
                 census=census,
                 organism=species,
@@ -187,7 +202,7 @@ def cellxgene(
     else:
         if verbose:
             logging.info("Fetching metadata from CZ CELLxGENE Discover...")
-        with cellxgene_census.open_soma() as census:
+        with cellxgene_census.open_soma(census_version=census_version) as census:
             # Reads SOMADataFrame as a slice
             cell_metadata = census["census_data"][species].obs.read(
                 value_filter=obs_value_filter, column_names=column_names
