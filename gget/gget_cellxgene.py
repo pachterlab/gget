@@ -119,6 +119,8 @@ def cellxgene(
             """
             Some third-party dependencies are missing. Please run the following command: 
             >>> gget.setup('cellxgene') or $ gget setup cellxgene
+
+            Alternative: Install the cellxgene-census package using pip (https://pypi.org/project/cellxgene-census).
             """
         )
         return

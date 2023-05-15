@@ -65,6 +65,8 @@ def gpt(
             """
             Some third-party dependencies are missing. Please run the following command: 
             >>> gget.setup('gpt') or $ gget setup gpt
+
+            Alternative: Install the openai package using pip (https://pypi.org/project/openai).
             """
         )
         return

@@ -20,7 +20,7 @@ from .compile import PACKAGE_PATH
 
 ## Variables for alphafold module
 ALPHAFOLD_GIT_REPO = "https://github.com/deepmind/alphafold"
-ALPHAFOLD_GIT_REPO_VERSION = "main" # Get version currently hosted on main branch
+ALPHAFOLD_GIT_REPO_VERSION = "main"  # Get version currently hosted on main branch
 PDBFIXER_GIT_REPO = "https://github.com/openmm/pdbfixer.git"
 # Unique ID to name temporary jackhmmer folder
 UUID = "fcb45c67-8b27-4156-bbd8-9d11512babf2"
@@ -234,14 +234,22 @@ def setup(module):
         if alphafold_path not in sys.path:
             sys.path.append(alphafold_path)
 
-        ## Install pdbfixer v1.7 (compadible with openmm v7.5.1)
+        ## Install pdbfixer
         logging.info("Installing pdbfixer from source (requires pip and git).")
 
         pdbfixer_folder = os.path.join(
             PACKAGE_PATH, "tmp_pdbfixer_" + str(uuid.uuid4())
         )
+
+        try:
+            if openmm.__version__ == "7.5.1":
+                # Install pdbfixer version compatible with openmm v7.5.1
+                PDBFIXER_VERSION = "v1.7"
+        except:
+            PDBFIXER_VERSION = "main"
+
         command = f"""
-            git clone -q --branch v1.7 {PDBFIXER_GIT_REPO} {pdbfixer_folder} \
+            git clone -q --branch {PDBFIXER_VERSION} {PDBFIXER_GIT_REPO} {pdbfixer_folder} \
             && pip install -q {pdbfixer_folder} \
             """
 
