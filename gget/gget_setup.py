@@ -50,7 +50,7 @@ def setup(module):
 
     if module == "gpt":
         logging.info("Installing openai package (requires pip).")
-        command = "pip install -U openai"
+        command = "pip install -q -U openai"
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
             stderr = process.stderr.read().decode("utf-8")
         # Exit system if the subprocess returned with an error
@@ -75,7 +75,7 @@ def setup(module):
 
     if module == "cellxgene":
         logging.info("Installing cellxgene-census package (requires pip).")
-        command = "pip install -U cellxgene-census"
+        command = "pip install -q -U cellxgene-census"
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
             stderr = process.stderr.read().decode("utf-8")
         # Exit system if the subprocess returned with an error
@@ -132,7 +132,7 @@ def setup(module):
 
         ## Install py3Dmol
         logging.info("Installing py3Dmol (requires pip).")
-        command = "pip install py3Dmol"
+        command = "pip install -q py3Dmol"
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
             stderr = process.stderr.read().decode("utf-8")
         # Exit system if the subprocess returned with an error
