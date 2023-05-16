@@ -16,7 +16,7 @@ Choice of 'homo_sapiens' or 'mus_musculus'. Default: 'homo_sapiens'.
  See https://cellxgene.cziscience.com/gene-expression for examples of available genes.  
 
  `-cv` `--census_version`  
- Str defining version of Census or "latest" or "stable". Default: "stable".  
+ Str defining version of Census, e.g. "2023-05-08", or "latest" or "stable". Default: "stable".  
 
 `-cn` `--column_names`  
 List of metadata columns to return (stored in AnnData.obs).  
