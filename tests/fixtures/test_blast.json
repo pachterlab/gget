@@ -7,7 +7,7 @@
         },
         "expected_result": [
             [
-                "Homo sapiens CASP8 and FADD like apoptosis regulator (CFLAR), RefSeqGene on chromosome 2",
+                "Homo sapiens ATAC-STARR-seq lymphoblastoid active region 16974 (LOC129935398) on chromosome 2",
                 "Homo sapiens",
                 "human",
                 9606,
@@ -16,8 +16,8 @@
                 "100%",
                 9e-54,
                 "100.00%",
-                67524,
-                "NG_029005.2"
+                460,
+                "NG_168413.1"
             ]
         ]
     },
@@ -30,7 +30,7 @@
         },
         "expected_result": [
             {
-                "Description": "Homo sapiens CASP8 and FADD like apoptosis regulator (CFLAR), RefSeqGene on chromosome 2",
+                "Description": "Homo sapiens ATAC-STARR-seq lymphoblastoid active region 16974 (LOC129935398) on chromosome 2",
                 "Scientific Name": "Homo sapiens",
                 "Common Name": "human",
                 "Taxid": 9606,
@@ -39,8 +39,8 @@
                 "Query Cover": "100%",
                 "E value": 9e-54,
                 "Per. Ident": "100.00%",
-                "Acc. Len": 67524,
-                "Accession": "NG_029005.2"
+                "Acc. Len": 460,
+                "Accession": "NG_168413.1"
             }
         ]
     },
