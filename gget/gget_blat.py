@@ -94,6 +94,9 @@ def blat(sequence, seqtype="default", assembly="human", json=False, save=False, 
             )
         sequence = sequence[:8000]
 
+    # Convert sequence to upper case
+    sequence = sequence.upper()
+
     ## Set seqtype
     # Valid seqtype options
     seqtypes = ["DNA", "protein", "translated%20RNA", "translated%20DNA"]

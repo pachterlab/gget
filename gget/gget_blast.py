@@ -141,6 +141,9 @@ def blast(
                 "File contains more than one sequence. Only the first sequence will be submitted to BLAST."
             )
 
+    # Convert sequence to upper case
+    sequence = sequence.upper()
+
     ## Set program and database
 
     # Convert program and database to lower case
