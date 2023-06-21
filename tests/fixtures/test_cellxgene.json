@@ -12,10 +12,10 @@
                 "SLC5A1"
             ],
             "tissue": "lung",
-            "census_version": "2023-05-08"
+            "census_version": "2023-05-15"
         },
         "expected_result": {
-            "n_obs": 3322,
+            "n_obs": 3679,
             "n_vars": 3,
             "obs": [
                 "dataset_id",
@@ -43,7 +43,7 @@
             "tissue": "lung",
             "meta_only": true,
             "species": "mus_musculus",
-            "census_version": "2023-05-08"
+            "census_version": "2023-05-15"
         },
         "expected_result": [
             [

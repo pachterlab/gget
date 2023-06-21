@@ -3230,7 +3230,7 @@
                         },
                         {
                             "depth": 2,
-                            "id": "200803",
+                            "id": "200802",
                             "name": "X: Spectrin repeat-like"
                         },
                         {
@@ -3245,7 +3245,7 @@
                         },
                         {
                             "depth": 5,
-                            "id": "505831",
+                            "id": "506011",
                             "name": "F: Succ_DH_flav_C"
                         }
                     ]
@@ -3265,7 +3265,7 @@
                         },
                         {
                             "depth": 2,
-                            "id": "201646",
+                            "id": "201645",
                             "name": "X: Succinate dehydrogenase/fumarate reductase flavoprotein, catalytic domain (From Topology)"
                         },
                         {
@@ -3280,7 +3280,7 @@
                         },
                         {
                             "depth": 5,
-                            "id": "510501",
+                            "id": "510848",
                             "name": "F: FAD_binding_2"
                         }
                     ]
@@ -3300,7 +3300,7 @@
                         },
                         {
                             "depth": 2,
-                            "id": "201882",
+                            "id": "201881",
                             "name": "X: Rossmann-like"
                         },
                         {
@@ -3315,7 +3315,7 @@
                         },
                         {
                             "depth": 5,
-                            "id": "511361",
+                            "id": "511740",
                             "name": "F: FAD_binding_3_1st"
                         }
                     ]
