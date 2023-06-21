@@ -1190,7 +1190,7 @@ def main():
         default="stable",
         type=str,
         required=False,
-        help="Census version, e.g. '2023-05-08' or 'latest' or 'stable'.",
+        help="Census version, e.g. '2023-05-15' or 'latest' or 'stable'.",
     )
     parser_cellxgene.add_argument(
         "-s",
