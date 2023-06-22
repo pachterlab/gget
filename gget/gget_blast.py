@@ -157,8 +157,8 @@ def blast(
     # check if a nulceotide or amino acid sequence was passed
     if program == "default":
         # Set of all possible nucleotides and amino acids
-        nucleotides = set("ATGC")
-        amino_acids = set("ARNDCQEGHILKMFPSTWYVBZ")
+        nucleotides = set("ATGCN")
+        amino_acids = set("ARNDCQEGHILKMFPSTWYVBZXBJZ")
 
         # If sequence is a nucleotide sequence, set program to blastn
         if set(sequence) <= nucleotides:

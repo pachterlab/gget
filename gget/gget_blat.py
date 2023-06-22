@@ -105,8 +105,8 @@ def blat(sequence, seqtype="default", assembly="human", json=False, save=False, 
     # check if a nucleotide or amino acid sequence was passed
     if seqtype == "default":
         # Set of all possible nucleotides and amino acids
-        nucleotides = set("ATGC")
-        amino_acids = set("ARNDCQEGHILKMFPSTWYVBZ")
+        nucleotides = set("ATGCN")
+        amino_acids = set("ARNDCQEGHILKMFPSTWYVBZXBJZ")
 
         # If sequence is a nucleotide sequence, set seqtype to DNA
         if set(sequence) <= nucleotides:
