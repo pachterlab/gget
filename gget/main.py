@@ -594,7 +594,7 @@ def main():
         type=str,
         required=False,
         help=(
-            "Path to the csv file the results will be saved in, e.g. path/to/directory/results.csv.\n"
+            "Path to the file the results will be saved in, e.g. path/to/directory/results.json.\n"
             "Default: Standard out."
         ),
     )
@@ -1439,7 +1439,7 @@ def main():
         "sequence",
         type=str,
         default=None,
-        help="Amino acid sequence or Uniprot ID",
+        help="Amino acid sequence or UniProt ID. Use flag [-u][--uniprot] for UniProt IDs.",
     )
 
     parser_elm.add_argument(
@@ -1447,7 +1447,7 @@ def main():
         "--uniprot",
         default=False,
         required=False,
-        help="Search using Uniprot ID",
+        help="Search using Uniprot ID.",
     )
 
     parser_elm.add_argument(
@@ -1465,7 +1465,7 @@ def main():
         type=str,
         required=False,
         help=(
-            "Path to the csv file the results will be saved in, e.g. path/to/directory/results.csv.\n"
+            "Path to the file the results will be saved in, e.g. path/to/directory/results.json.\n"
             "Default: Standard out."
         ),
     )
