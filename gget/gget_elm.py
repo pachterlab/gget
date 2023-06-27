@@ -16,11 +16,18 @@ logging.getLogger("numexpr").setLevel(logging.WARNING)
 
 # Call elm api to get elm id, start, stop and boolean values
 # Returns tab separated values
-def get_response_api(seq):
+def get_response_api(seq, uniprot):
+    sleep_time = 65
+    if (uniprot):
+        sleep_time = sleep_time * 3
     url = "http://elm.eu.org/start_search/"
     # Build URL
-    html = requests.get(url + seq)
- 
+    try:
+        html = requests.get(url + seq)
+    except RuntimeError:
+        time.sleep(sleep_time)
+        html = requests.get(url + seq)
+    
     # Raise error if status code not "OK" Response 
     if html.status_code != 200:
         raise RuntimeError(
@@ -33,10 +40,18 @@ def get_response_api(seq):
 
 # Scrapes webpage for information about functional site class, description, pattern probability
 # Return html tags in text format
-def get_html(elm_id):
+def get_html(elm_id, uniprot):
+    sleep_time = 65
+    if (uniprot):
+        sleep_time = sleep_time * 3
     url = "http://elm.eu.org/elms/"
-    resp = requests.get(url + elm_id)
-    html = resp.text
+    try:
+        resp = requests.get(url + elm_id)
+        html = resp.text
+    except RuntimeError:
+        time.sleep(sleep_time)
+        resp = requests.get(url + elm_id)
+        html = resp.text
 
     # Raise error if status code not "OK" Response
     if resp.status_code != 200:
@@ -91,7 +106,7 @@ def elm(
     if uniprot:
         sequence = sequence + ".tsv"
 
-    tab_separated_values = get_response_api(sequence)
+    tab_separated_values = get_response_api(sequence, uniprot)
     df = tsv_to_df(tab_separated_values)
 
     # for amino acid sequences, more information can be scraped from the webpage using elm ids returned
@@ -132,7 +147,7 @@ def elm(
         elm_id_index = 0
         # Loop through each elm identifier, get and parse html content 
         for elm_id in elm_ids:
-            html = get_html(elm_id)
+            html = get_html(elm_id, uniprot)
             soup = BeautifulSoup(html, "html.parser")
         
             for column in column_names:
