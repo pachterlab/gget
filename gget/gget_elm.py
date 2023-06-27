@@ -44,15 +44,13 @@ def get_html(elm_id, uniprot):
     sleep_time = 65
     if (uniprot):
         sleep_time = sleep_time * 3
-        
     url = "http://elm.eu.org/elms/"
     try:
         resp = requests.get(url + elm_id)
         html = resp.text
     except RuntimeError:
         time.sleep(sleep_time)
-        resp = requests.get(url + elm_id)
-        html = resp.text
+        html = requests.get(url + seq)
 
     # Raise error if status code not "OK" Response
     if resp.status_code != 200:
@@ -148,7 +146,7 @@ def elm(
         elm_id_index = 0
         # Loop through each elm identifier, get and parse html content 
         for elm_id in elm_ids:
-            html = get_html(elm_id)
+            html = get_html(elm_id, uniprot)
             soup = BeautifulSoup(html, "html.parser")
         
             for column in column_names:
