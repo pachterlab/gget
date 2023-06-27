@@ -16,18 +16,11 @@ logging.getLogger("numexpr").setLevel(logging.WARNING)
 
 # Call elm api to get elm id, start, stop and boolean values
 # Returns tab separated values
-def get_response_api(seq, uniprot):
-    sleep_time = 65
-    if (uniprot):
-        sleep_time = sleep_time * 3
+def get_response_api(seq):
     url = "http://elm.eu.org/start_search/"
     # Build URL
-    try:
-        html = requests.get(url + seq)
-    except RuntimeError:
-        time.sleep(sleep_time)
-        html = requests.get(url + seq)
-    
+    html = requests.get(url + seq)
+ 
     # Raise error if status code not "OK" Response 
     if html.status_code != 200:
         raise RuntimeError(
@@ -40,17 +33,10 @@ def get_response_api(seq, uniprot):
 
 # Scrapes webpage for information about functional site class, description, pattern probability
 # Return html tags in text format
-def get_html(elm_id, uniprot):
-    sleep_time = 65
-    if (uniprot):
-        sleep_time = sleep_time * 3
+def get_html(elm_id):
     url = "http://elm.eu.org/elms/"
-    try:
-        resp = requests.get(url + elm_id)
-        html = resp.text
-    except RuntimeError:
-        time.sleep(sleep_time)
-        html = requests.get(url + seq)
+    resp = requests.get(url + elm_id)
+    html = resp.text
 
     # Raise error if status code not "OK" Response
     if resp.status_code != 200:
@@ -105,7 +91,7 @@ def elm(
     if uniprot:
         sequence = sequence + ".tsv"
 
-    tab_separated_values = get_response_api(sequence, uniprot)
+    tab_separated_values = get_response_api(sequence)
     df = tsv_to_df(tab_separated_values)
 
     # for amino acid sequences, more information can be scraped from the webpage using elm ids returned
@@ -146,7 +132,7 @@ def elm(
         elm_id_index = 0
         # Loop through each elm identifier, get and parse html content 
         for elm_id in elm_ids:
-            html = get_html(elm_id, uniprot)
+            html = get_html(elm_id)
             soup = BeautifulSoup(html, "html.parser")
         
             for column in column_names:
