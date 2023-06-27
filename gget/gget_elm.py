@@ -23,6 +23,7 @@ def get_response_api(seq, uniprot):
     url = "http://elm.eu.org/start_search/"
     # Build URL
     try:
+        time.sleep(sleep_time)
         html = requests.get(url + seq)
     except RuntimeError:
         time.sleep(sleep_time)
