@@ -1438,7 +1438,6 @@ def main():
     parser_elm.add_argument(
         "sequence",
         type=str,
-        required=True,
         help="Amino acid sequence or UniProt ID. Use flag [-u][--uniprot] for UniProt IDs.",
     )
 
