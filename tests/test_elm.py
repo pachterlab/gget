@@ -16,7 +16,7 @@ class Testelm(unittest.TestCase):
     def test_elm_aa_seq(self):
         test = "test1"
         expected_result = elm_dict[test]["expected_result"]
-        time.sleep(sleep_time)
+        time.sleep(sleep_time + 5)
         result_to_test = elm(**elm_dict[test]["args"])
         # If result is a DataFrame, convert to list
         if isinstance(result_to_test, pd.DataFrame):
@@ -31,7 +31,7 @@ class Testelm(unittest.TestCase):
     def test_elm_aa_seq_2(self):
         test = "test2"
         expected_result = elm_dict[test]["expected_result"]
-        time.sleep(sleep_time)
+        time.sleep(sleep_time + 5)
         result_to_test = elm(**elm_dict[test]["args"])
         # If result is a DataFrame, convert to list
         if isinstance(result_to_test, pd.DataFrame):

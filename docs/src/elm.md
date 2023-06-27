@@ -4,7 +4,7 @@ Fetch functional sites information from [ELM](http://elm.eu.org/) using an amino
 Return format: JSON (command-line) or data frame/CSV (Python).
 
 **Positional argument**  
-`-seq` `--sequence`  
+`sequence`  
 Amino acid sequence or Uniprot ID.
 
 **Optional arguments**  
@@ -14,6 +14,10 @@ Amino acid sequence or Uniprot ID.
 `-u` `--uniprot`  
 Search using Uniprot ID instead of amino acid sequence 
 Python: `uniprot=True` turns on search using Uniprot ID (default: False).   
+
+`-csv` `--csv`  
+Command-line only. Returns results in CSV format.  
+Python: Use `json=True` to return output in JSON format.
   
 
 ### Example
@@ -24,11 +28,14 @@ gget elm DRVYVHPFHL
 # Python
 gget.info("DRVYVHPFHL")
 ```
-&rarr; Returns extensive information about each requested Ensembl ID:  
+&rarr; Returns functional site information about each elm identifier:  
 
 |      | elm_identifier     | Accession     | Functional site class | Functional site description | ELM Description | ELMs with same func. site | Pattern | Pattern Probability | Present in taxons | Interaction Domain | ... |
 | -------------- |-------------------------| ------------------------| -------------- | ----------|-----|----|----|----|----|----|----|
 | LIG_Arc_Nlobe_1| ELME000534 | Arc N-lobe binding ligand | The activity-regulated cytoskeleton-associated... | The motif peptide binds Arc in an unusual conf... | NaN| [^P][P]G{0,1}[^P][YFH][^P] | 0.0043852 |Mammalia Tetrapoda| Activity-regulated cytoskeleton-associated pro... |... |
 | . . .            | . . .                     | . . .                     | . . .            | . . .       | . . . | . . . | . . . | . . . | . . . | . . . | ... |
   
+Note:
+If you encounter 429 too many requests error from ELM server, try adding time.sleep() to get_response_api(). An example is found in gget/gget_elm.py.
+
 #### [More examples](https://github.com/pachterlab/gget_examples)

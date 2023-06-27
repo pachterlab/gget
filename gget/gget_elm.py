@@ -4,7 +4,8 @@ import numpy as np
 import logging
 from bs4 import BeautifulSoup
 from io import StringIO
-import time
+import json as json_package
+
 # Add and format time stamp in logging messages
 logging.basicConfig(
     format="%(asctime)s %(levelname)s %(message)s",
@@ -16,19 +17,10 @@ logging.getLogger("numexpr").setLevel(logging.WARNING)
 
 # Call elm api to get elm id, start, stop and boolean values
 # Returns tab separated values
-def get_response_api(seq, uniprot):
-    sleep_time = 65
-    if (uniprot):
-        sleep_time = sleep_time * 3
+def get_response_api(seq):
     url = "http://elm.eu.org/start_search/"
     # Build URL
-    try:
-        time.sleep(sleep_time)
-        html = requests.get(url + seq)
-    except RuntimeError:
-        time.sleep(sleep_time)
-        html = requests.get(url + seq)
-    
+    html = requests.get(url + seq) 
     # Raise error if status code not "OK" Response 
     if html.status_code != 200:
         raise RuntimeError(
@@ -41,18 +33,10 @@ def get_response_api(seq, uniprot):
 
 # Scrapes webpage for information about functional site class, description, pattern probability
 # Return html tags in text format
-def get_html(elm_id, uniprot):
-    sleep_time = 65
-    if (uniprot):
-        sleep_time = sleep_time * 3
+def get_html(elm_id):
     url = "http://elm.eu.org/elms/"
-    try:
-        resp = requests.get(url + elm_id)
-        html = resp.text
-    except RuntimeError:
-        time.sleep(sleep_time)
-        resp = requests.get(url + elm_id)
-        html = resp.text
+    resp = requests.get(url + elm_id)
+    html = resp.text
 
     # Raise error if status code not "OK" Response
     if resp.status_code != 200:
@@ -79,17 +63,19 @@ def tsv_to_df(tab_separated_values):
 def elm(
     sequence,
     uniprot=False,
+    json=False,
+    save=False,
 ):
     """
     Searches the Eukaryotic Linear Motif resource for Functional Sites in Proteins.
     Args:
      - sequence       amino acid sequence or Uniprot ID
                       (If more than one sequence in FASTA file, only the first will be submitted to BLAST.)
-
      - uniprot        If True, searches using Uniprot ID instead of amino acid sequence. Default: False
+     - json           If True, returns results in json format instead of data frame. Default: False.
+     - save           If True, the data frame is saved as a csv in the current directory (default: False).
 
     Returns a data frame with the ELM results.
-
     
     """
     # Server rules:
@@ -103,11 +89,25 @@ def elm(
     # Note: this does not always work for sequences longer than 2000 amino acids:
     # URLs may be truncated beyond this length.
 
+    # Note: If you encounter 429 error, try adding time.sleep() to get_response_api()
+    # Ex: import time
+    # def get_response_api(seq, uniprot):
+    # sleep_time = 65
+    # if (uniprot):
+    #     sleep_time = sleep_time * 3
+    # url = "http://elm.eu.org/start_search/"
+    # # Build URL
+    # try:
+    #     time.sleep(sleep_time)
+    #     html = requests.get(url + seq)
+    # except RuntimeError:
+    #     time.sleep(sleep_time)
+    #     html = requests.get(url + seq)
     
     if uniprot:
         sequence = sequence + ".tsv"
 
-    tab_separated_values = get_response_api(sequence, uniprot)
+    tab_separated_values = get_response_api(sequence)
     df = tsv_to_df(tab_separated_values)
 
     # for amino acid sequences, more information can be scraped from the webpage using elm ids returned
@@ -148,7 +148,7 @@ def elm(
         elm_id_index = 0
         # Loop through each elm identifier, get and parse html content 
         for elm_id in elm_ids:
-            html = get_html(elm_id, uniprot)
+            html = get_html(elm_id)
             soup = BeautifulSoup(html, "html.parser")
         
             for column in column_names:
@@ -182,8 +182,37 @@ def elm(
         # Merge two dataframes and sort by pattern probability 
         df_merge = df_2.merge(df, on='elm_identifier', how="right")
         df_merge = df_merge.sort_values(by='Pattern Probability', ascending=False)
-        return df_merge
+
+        if json:
+            results_dict = json_package.loads(df_merge.to_json(orient="records"))
+            if save:
+                with open("gget_elm_results.json", "w", encoding="utf-8") as f:
+                    json_package.dump(results_dict, f, ensure_ascii=False, indent=4)
+
+            return results_dict
+
+        else:
+            # Save
+            if save:
+                df_merge.to_csv("gget_elm_results.csv", index=False)
+
+            return df_merge
 
     # if search using Uniprot ID, return only dataframe from api call
-    return df
+    
+    if json:
+        results_dict = json_package.loads(df.to_json(orient="records"))
+        if save:
+            with open("gget_elm_results.json", "w", encoding="utf-8") as f:
+                json_package.dump(results_dict, f, ensure_ascii=False, indent=4)
+
+        return results_dict
+
+    else:
+        # Save
+        if save:
+            df.to_csv("gget_elm_results.csv", index=False)
+
+        return df
+  
 
