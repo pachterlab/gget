@@ -40,11 +40,19 @@ def get_response_api(seq, uniprot):
 
 # Scrapes webpage for information about functional site class, description, pattern probability
 # Return html tags in text format
-def get_html(elm_id):
+def get_html(elm_id, uniprot):
+    sleep_time = 65
+    if (uniprot):
+        sleep_time = sleep_time * 3
+        
     url = "http://elm.eu.org/elms/"
-    # Build URL
-    resp = requests.get(url + elm_id)
-    html = resp.text
+    try:
+        resp = requests.get(url + elm_id)
+        html = resp.text
+    except RuntimeError:
+        time.sleep(sleep_time)
+        resp = requests.get(url + elm_id)
+        html = resp.text
 
     # Raise error if status code not "OK" Response
     if resp.status_code != 200:
