@@ -9,8 +9,14 @@ Find the most correlated genes to a gene of interest or find the gene's tissue e
 BLAST a nucleotide or amino acid sequence to any [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi) database.  
   
 - [`gget blat`](blat.md)  
-Find the genomic location of a nucleotide or amino acid sequence using [BLAT](https://genome.ucsc.edu/cgi-bin/hgBlat).  
-  
+Find the genomic location of a nucleotide or amino acid sequence using [BLAT](https://genome.ucsc.edu/cgi-bin/hgBlat). 
+
+- [`gget cellxgene`](cellxgene.md)  
+Query data from [CZ CELLxGENE Discover](https://cellxgene.cziscience.com/) using the [CZ CELLxGENE Discover Census](https://github.com/chanzuckerberg/cellxgene-census).  
+
+- [`gget elm`](elm.md)  
+Fetch functional sites information from [ELM](http://elm.eu.org/) using an amino acid sequence or Uniprot ID.  
+
 - [`gget enrichr`](enrichr.md)  
 Perform an enrichment analysis on a list of genes using [Enrichr](https://maayanlab.cloud/Enrichr/).  
   

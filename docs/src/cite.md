@@ -38,6 +38,9 @@ Gene set knowledge discovery with Enrichr. Current Protocols, 1, e90. 2021. doi:
 - If using `gget cellxgene`, please also cite:  
   - Chanzuckerberg Initiative. (n.d.). CZ CELLxGENE Discover. Retrieved [insert date here], from https://cellxgene.cziscience.com/
 
+
+- If using `gget elm`, please also cite:     
+  - Manjeet Kumar and others, The Eukaryotic Linear Motif resource: 2022 release, Nucleic Acids Research, Volume 50, Issue D1, 7 January 2022, Pages D497–D508, https://doi.org/10.1093/nar/gkab975
 ___
 # Disclaimer  
 `gget` is only as accurate as the databases/servers/APIs it queries from. The accuracy or reliability of the data is not guaranteed or warranted in any way and the providers disclaim liability of any kind whatsoever, including, without limitation, liability for quality, performance, merchantability and fitness for a particular purpose arising out of the use, or inability to use the data.

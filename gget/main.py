@@ -35,6 +35,7 @@ from .gget_setup import setup
 from .gget_pdb import pdb
 from .gget_gpt import gpt
 from .gget_cellxgene import cellxgene
+from .gget_elm import elm
 
 
 def main():
@@ -1426,6 +1427,29 @@ def main():
         required=False,
         help="Do not print progress information.",
     )
+    
+    ## gget elm subparser
+    elm_desc = "Searches the Eukaryotic Linear Motif resource for Functional Sites in Proteins."
+    parser_elm = parent_subparsers.add_parser(
+        "elm", parents=[parent], description=elm_desc, help=elm_desc, add_help=True
+    )
+
+    # elm parser arguments
+    parser_elm.add_argument(
+        "-seq"
+        "--sequence",
+        type=str,
+        default=None,
+        help="Amino acid sequence or Uniprot ID",
+    )
+
+    parser_elm.add_argument(
+        "-u",
+        "--uniprot",
+        default=False,
+        required=False,
+        help="Search using Uniprot ID",
+    )
 
     ### Define return values
     args = parent_parser.parse_args()
@@ -1471,6 +1495,7 @@ def main():
         "pdb": parser_pdb,
         "gpt": parser_gpt,
         "cellxgene": parser_cellxgene,
+        "elm": parser_elm
     }
 
     if len(sys.argv) == 2:
@@ -1479,6 +1504,12 @@ def main():
         else:
             parent_parser.print_help(sys.stderr)
         sys.exit(1)
+
+    ## elm return 
+    if args.command == "elm":
+        if not args.sequence:
+            parser_elm.error("the following arguments are required: sequence")
+        elm(sequence=args.sequence, uniprot=args.uniprot)
 
     ## cellxgene return
     if args.command == "cellxgene":
