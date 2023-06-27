@@ -1436,8 +1436,7 @@ def main():
 
     # elm parser arguments
     parser_elm.add_argument(
-        "-seq"
-        "--sequence",
+        "sequence",
         type=str,
         default=None,
         help="Amino acid sequence or Uniprot ID",
@@ -1449,6 +1448,26 @@ def main():
         default=False,
         required=False,
         help="Search using Uniprot ID",
+    )
+
+    parser_elm.add_argument(
+        "-csv",
+        "--csv",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Returns results in csv format instead of json.",
+    )
+
+    parser_elm.add_argument(
+        "-o",
+        "--out",
+        type=str,
+        required=False,
+        help=(
+            "Path to the csv file the results will be saved in, e.g. path/to/directory/results.csv.\n"
+            "Default: Standard out."
+        ),
     )
 
     ### Define return values
@@ -1507,9 +1526,39 @@ def main():
 
     ## elm return 
     if args.command == "elm":
-        if not args.sequence:
-            parser_elm.error("the following arguments are required: sequence")
-        elm(sequence=args.sequence, uniprot=args.uniprot)
+        elm(sequence=args.sequence, uniprot=args.uniprot, json=args.csv,)
+
+        # Run gget elm function
+        elm_results = elm(
+            sequence=args.sequence,
+            json=args.csv,
+        )
+
+        # Check if the function returned something
+        if not isinstance(blat_results, type(None)):
+            # Save elm results if args.out specified
+            if args.out and not args.csv:
+                # Create saving directory
+                directory = "/".join(args.out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+                # Save to csv
+                elm_results.to_csv(args.out, index=False)
+
+            if args.out and args.csv:
+                # Create saving directory
+                directory = "/".join(args.out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+                # Save json
+                with open(args.out, "w", encoding="utf-8") as f:
+                    json.dump(elm_results, f, ensure_ascii=False, indent=4)
+
+            # Print results if no directory specified
+            if not args.out and not args.csv:
+                elm_results.to_csv(sys.stdout, index=False)
+            if not args.out and args.csv:
+                print(json.dumps(blat_results, ensure_ascii=False, indent=4))
 
     ## cellxgene return
     if args.command == "cellxgene":
