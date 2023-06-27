@@ -71,6 +71,7 @@ class Testelm(unittest.TestCase):
         self.assertListEqual(result_to_test, expected_result)
 
     def test_elm_bad_aa_seq(self):
+        time.sleep(sleep_time)
         test = "test5"
         with self.assertRaises(ValueError):
             elm(**elm_dict[test]["args"])
