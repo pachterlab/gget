@@ -4,7 +4,7 @@ import numpy as np
 import logging
 from bs4 import BeautifulSoup
 from io import StringIO
-
+import time
 # Add and format time stamp in logging messages
 logging.basicConfig(
     format="%(asctime)s %(levelname)s %(message)s",
@@ -16,16 +16,24 @@ logging.getLogger("numexpr").setLevel(logging.WARNING)
 
 # Call elm api to get elm id, start, stop and boolean values
 # Returns tab separated values
-def get_response_api(seq):
+def get_response_api(seq, uniprot):
+    sleep_time = 65
+    if (uniprot):
+        sleep_time = sleep_time * 3
     url = "http://elm.eu.org/start_search/"
     # Build URL
-    html = requests.get(url + seq)
-
-    # Raise error if status code not "OK" Response
+    try:
+        html = requests.get(url + seq)
+    except RuntimeError:
+        time.sleep(sleep_time)
+        html = requests.get(url + seq)
+    
+    # Raise error if status code not "OK" Response 
     if html.status_code != 200:
         raise RuntimeError(
             f"The ELM server returned error status code {html.status_code}. Please try again."
         )
+
     soup = BeautifulSoup(html.text, "html.parser")
     soup_string = str(soup)
     return soup_string
@@ -91,7 +99,7 @@ def elm(
     if uniprot:
         sequence = sequence + ".tsv"
 
-    tab_separated_values = get_response_api(sequence)
+    tab_separated_values = get_response_api(sequence, uniprot)
     df = tsv_to_df(tab_separated_values)
 
     # for amino acid sequences, more information can be scraped from the webpage using elm ids returned
