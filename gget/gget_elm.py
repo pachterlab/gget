@@ -203,7 +203,8 @@ def elm(
             # Get motifs associated with each elm id in original sequence
             start = df.iloc[elm_id_index]['start']
             stop = df.iloc[elm_id_index]['stop']
-            if isinstance(start, int) & isinstance(stop, int):
+            # numpy.int64 is not Python int, therefore needing additional np.integer
+            if isinstance(start, (int, np.integer)) & isinstance(stop,  (int, np.integer)):
                 df_2.loc[elm_id, 'Motif in original sequence'] = sequence[start-1: stop]
                 print(sequence[start-1: stop])
             else:
