@@ -5,6 +5,7 @@ import logging
 from bs4 import BeautifulSoup
 from io import StringIO
 import json as json_package
+import time
 
 # Add and format time stamp in logging messages
 logging.basicConfig(
@@ -37,10 +38,13 @@ def get_response_api(seq):
     return soup_string
 
 
-def tsv_to_df(tab_separated_values):
+def tsv_to_df(tab_separated_values, sequence_if_fails):
     error_str = tab_separated_values.__contains__("Internal Server Error")
     if not error_str:
-        df = pd.read_csv(StringIO(tab_separated_values), sep='\t')
+        try:
+            df = pd.read_csv(StringIO(tab_separated_values), sep='\t')
+        except pd.errors.EmptyDataError:
+            logging.warning(f"No data in dataframe. Likely due to a 429 too many requests error returning no tab separated values. Please try again")
     else: 
         df = pd.DataFrame()
     return df
@@ -144,7 +148,7 @@ def elm(
         
     tab_separated_values = get_response_api(sequence)
     
-    df = tsv_to_df(tab_separated_values)
+    df = tsv_to_df(tab_separated_values, sequence)
 
     column_names = ['Accession:',
     'Functional site class:',
@@ -200,8 +204,11 @@ def elm(
                 # Get motifs associated with each elm id in original sequence
                 start = df.iloc[elm_id_index]['start']
                 stop = df.iloc[elm_id_index]['stop']
+                print(type(start))
+                print(type(stop))
                 if isinstance(start, int) & isinstance(stop, int):
                     df_2.loc[elm_id, 'Motif in original sequence'] = sequence[start-1: stop]
+                    print(sequence[start-1: stop])
                 else:
                     df_2.loc[elm_id, 'Motif in original sequence'] = np.nan
 
