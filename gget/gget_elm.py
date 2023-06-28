@@ -20,29 +20,55 @@ logging.getLogger("numexpr").setLevel(logging.WARNING)
 def get_response_api(seq):
     url = "http://elm.eu.org/start_search/"
     # Build URL
-    html = requests.get(url + seq) 
-    # Raise error if status code not "OK" Response 
-    if html.status_code != 200:
-        raise RuntimeError(
-            f"The ELM server returned error status code {html.status_code}. Please try again."
-        )
-
+    try:
+        html = requests.get(url + seq) 
+    except: 
+        # Incorrect UniProt ID results in 500 internal server error
+        if html.status_code == 500:
+            raise RuntimeError(f"The ELM server returned error status code {html.status_code}. Check that you entered the correct UniProt ID and try again.")
+        # Raise error if status code not "OK" Response 
+        if html.status_code != 200:
+            raise RuntimeError(
+                f"The ELM server returned error status code {html.status_code}. Please try again."
+            )
+    
     soup = BeautifulSoup(html.text, "html.parser")
     soup_string = str(soup)
     return soup_string
+
+
+def tsv_to_df(tab_separated_values):
+    error_str = tab_separated_values.__contains__("Internal Server Error")
+    if not error_str:
+        df = pd.read_csv(StringIO(tab_separated_values), sep='\t')
+    else: 
+        df = pd.DataFrame()
+    return df
 
 # Scrapes webpage for information about functional site class, description, pattern probability
 # Return html tags in text format
 def get_html(elm_id):
     url = "http://elm.eu.org/elms/"
-    resp = requests.get(url + elm_id)
-    html = resp.text
+    try:
+        resp = requests.get(url + elm_id)
+        html = resp.text
+        soup = BeautifulSoup(html, 'html.parser')
+        soup_string = str(soup)
+        
+    except: 
+        # Incorrect elm id results in 500 internal server error
+        if resp.status_code == 500:
+            logging.debug(f"The ELM server returned error status code {html.status_code}")
 
-    # Raise error if status code not "OK" Response
-    if resp.status_code != 200:
-        raise RuntimeError(
-            f"The ELM server returned error status code {resp.status_code}. Please try again."
-        )
+        # Raise error if status code not "OK" Response
+        if resp.status_code != 200:
+            raise RuntimeError(
+                f"The ELM server returned error status code {resp.status_code}. Please try again."
+            )
+    error_str = html.__contains__("File not found")
+    if error_str:
+        logging.debug(f"The elm id is not recognized. Check that you entered the correct elm id and try again.")
+        html = ""
 
     return html
 
@@ -55,16 +81,12 @@ def get_additional_info(field, soup):
         info = soup.find(text=field).findNext('td').text
     return info
 
-# Convert tab separated values to dataframe format
-def tsv_to_df(tab_separated_values):
-    df = pd.read_csv(StringIO(tab_separated_values), sep='\t', names=['elm_identifier', 'start', 'stop', 'is_annotated', 'is_phiblastmatch', 'is_filtered', 'phiblast', 'topodomfiler', 'taxonfilter', 'structure'])
-    return df
-
 def elm(
     sequence,
     uniprot=False,
     json=False,
     save=False,
+    verbose=True
 ):
     """
     Searches the Eukaryotic Linear Motif resource for Functional Sites in Proteins.
@@ -74,6 +96,7 @@ def elm(
      - uniprot        If True, searches using Uniprot ID instead of amino acid sequence. Default: False
      - json           If True, returns results in json format instead of data frame. Default: False.
      - save           If True, the data frame is saved as a csv in the current directory (default: False).
+    - verbose         True/False whether to print progress information. Default True.
 
     Returns a data frame with the ELM results.
     
@@ -104,115 +127,104 @@ def elm(
     #     time.sleep(sleep_time)
     #     html = requests.get(url + seq)
     
-    if uniprot:
-        sequence = sequence + ".tsv"
-
-    tab_separated_values = get_response_api(sequence)
-    df = tsv_to_df(tab_separated_values)
-
-    # for amino acid sequences, more information can be scraped from the webpage using elm ids returned
     if not uniprot:
         amino_acids = set("ARNDCQEGHILKMFPSTWYVBZXBJZ")
 
         # If sequence is not a valid amino sequence, raise error
         if not set(sequence) <= amino_acids:
-            raise ValueError(
-            f"'Input sequence is not a valid amino acid sequence. Please try again with either amino acid sequence or Uniprot ID"
+            logging.warning(
+            f"Input amino acid sequence contains invalid characters. If the input is a UniProt ID, please specify `uniprot=True`."
             )
+    
+    if uniprot:
+        sequence = sequence + ".tsv"
 
-            
-        column_names = ['Accession:',
-        'Functional site class:',
-        'Functional site description:',
-        'ELM Description:',
-        'ELMs with same func. site:',
-        'Pattern:',
-        'Pattern Probability:',
-        'Present in taxons:',
-        'Interaction Domain:', 
-        ]
-
-        # Creates new dataframe to store information from scraping
-        df_2 = pd.DataFrame()
-        # dropping the first row containing just the column name
-        df = df.drop(index=0)
-        # Grab elm identifiers column from dataframe
-        elm_ids = df['elm_identifier'].values 
-
-        # Add column of elm identifiers to new dataframe
-        df_2['elm_identifier'] = elm_ids
-
-        # Index dataframe using ELM id
-        df_2 = df_2.set_index('elm_identifier')
+    if verbose:
+        logging.info(f"Submitting API request to server...")
         
-        elm_id_index = 0
-        # Loop through each elm identifier, get and parse html content 
-        for elm_id in elm_ids:
-            html = get_html(elm_id)
-            soup = BeautifulSoup(html, "html.parser")
-        
-            for column in column_names:
-                column_ignored_colon = column[:-1]
-                try:
-                    value = get_additional_info(column, soup)
-                except AttributeError:
+    tab_separated_values = get_response_api(sequence)
+    
+    df = tsv_to_df(tab_separated_values)
+
+    column_names = ['Accession:',
+    'Functional site class:',
+    'Functional site description:',
+    'ELM Description:',
+    'ELMs with same func. site:',
+    'Pattern:',
+    'Pattern Probability:',
+    'Present in taxons:',
+    'Interaction Domain:', 
+    ]
+
+    # Creates new dataframe to store information from scraping
+    df_2 = pd.DataFrame()
+    # Grab elm identifiers column from dataframe
+    elm_ids = df['elm_identifier'].values 
+
+    # Add column of elm identifiers to new dataframe
+    df_2['elm_identifier'] = elm_ids
+
+    # Index dataframe using ELM id
+    df_2 = df_2.set_index('elm_identifier')
+    
+    # Loop through each elm identifier, get and parse html content 
+    for elm_id_index, elm_id in enumerate(elm_ids):
+        html = get_html(elm_id)
+        soup = BeautifulSoup(html, "html.parser")
+        for column in column_names:
+            value = np.nan
+            column_ignored_colon = column[:-1]
+            try:
+                value = get_additional_info(column, soup)
+            except AttributeError:
+                if column == 'Present in taxons:':
                     try:
+                        # Some webpages have present in taxons while other have present in taxon (s vs. no s)
                         column = "Present in taxon:" 
                         value = get_additional_info(column, soup)
                     except AttributeError:
+                        if verbose:
+                            logging.debug(f"No values for ELM ID: {elm_id} for {column_ignored_colon}")
+
+                else:
+                    if verbose: 
                         logging.debug(f"No values for ELM ID: {elm_id} for {column_ignored_colon}")
-                        continue
+
+            if not pd.isna(value):
                 # Clean up results and add to corresponding position in new dataframe
                 value = value.strip().replace("\n", " ").replace("\t", " ")
-                df_2.loc[elm_id, column_ignored_colon] = value
-
-            # calculate position of motifs associated with each elm id compared to original sequence
-            start_str = df.iloc[elm_id_index].loc['start']
-            stop_str = df.iloc[elm_id_index]['stop']
-            if (start_str != ""):
-                start = int (start_str)
-            if (stop_str != ""):
-                stop = int (stop_str)
-            df_2.loc[elm_id, 'Motif position in original sequence'] = sequence[start-1: stop-1]
-            elm_id_index += 1
-
-        # if a motif is found more than once in a UniProt ID or sequence, df_2 will have duplicate rows
-        df_2 = df_2.drop_duplicates()
-
-        # Merge two dataframes and sort by pattern probability 
-        df_merge = df_2.merge(df, on='elm_identifier', how="right")
-        df_merge = df_merge.sort_values(by='Pattern Probability', ascending=False)
-
-        if json:
-            results_dict = json_package.loads(df_merge.to_json(orient="records"))
-            if save:
-                with open("gget_elm_results.json", "w", encoding="utf-8") as f:
-                    json_package.dump(results_dict, f, ensure_ascii=False, indent=4)
-
-            return results_dict
-
-        else:
-            # Save
-            if save:
-                df_merge.to_csv("gget_elm_results.csv", index=False)
-
-            return df_merge
-
-    # if search using Uniprot ID, return only dataframe from api call
+            df_2.loc[elm_id, column_ignored_colon] = value
     
+        if not uniprot:
+            # Get motifs associated with each elm id in original sequence
+            start = df.iloc[elm_id_index]['start']
+            stop = df.iloc[elm_id_index]['stop']
+            if isinstance(start, int) & isinstance(stop, int):
+                df_2.loc[elm_id, 'Motif in original sequence'] = sequence[start-1: stop]
+            else:
+                df_2.loc[elm_id, 'Motif in original sequence'] = np.nan
+
+    # if a motif is found more than once in a UniProt ID or sequence, df_2 will have duplicate rows
+    df_2 = df_2.drop_duplicates()
+
+    # Merge two dataframes and sort by pattern probability 
+    df_merge = df_2.merge(df, on='elm_identifier', how="right")
+    df_merge = df_merge.sort_values(by='Pattern Probability', ascending=False)
+
     if json:
-        results_dict = json_package.loads(df.to_json(orient="records"))
+        results_dict = json_package.loads(df_merge.to_json(orient="records"))
         if save:
             with open("gget_elm_results.json", "w", encoding="utf-8") as f:
                 json_package.dump(results_dict, f, ensure_ascii=False, indent=4)
 
         return results_dict
-
     else:
         # Save
         if save:
-            df.to_csv("gget_elm_results.csv", index=False)
+            df_merge.to_csv("gget_elm_results.csv", index=False)
 
-        return df
+        return df_merge
+
   
 

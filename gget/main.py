@@ -1469,6 +1469,15 @@ def main():
             "Default: Standard out."
         ),
     )
+    
+    parser_elm.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Does not print progress information.",
+    )
 
     ### Define return values
     args = parent_parser.parse_args()
@@ -1526,12 +1535,12 @@ def main():
 
     ## elm return 
     if args.command == "elm":
-        elm(sequence=args.sequence, uniprot=args.uniprot, json=args.csv,)
-
         # Run gget elm function
         elm_results = elm(
             sequence=args.sequence,
             json=args.csv,
+            uniprot=args.uniprot,
+            verbose=args.quiet
         )
 
         # Check if the function returned something
@@ -1558,7 +1567,7 @@ def main():
             if not args.out and not args.csv:
                 elm_results.to_csv(sys.stdout, index=False)
             if not args.out and args.csv:
-                print(json.dumps(blat_results, ensure_ascii=False, indent=4))
+                print(json.dumps(elm_results, ensure_ascii=False, indent=4))
 
     ## cellxgene return
     if args.command == "cellxgene":

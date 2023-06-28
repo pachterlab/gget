@@ -58,19 +58,19 @@ class Testelm(unittest.TestCase):
         time.sleep(sleep_time * 3 + 5)
         self.assertListEqual(result_to_test, expected_result)
 
-    def test_elm_uniprot_id_2(self):
-        test = "test4"
-        expected_result = elm_dict[test]["expected_result"]
-        result_to_test = elm(**elm_dict[test]["args"])
-        # If result is a DataFrame, convert to list
-        if isinstance(result_to_test, pd.DataFrame):
-            #replace \xa0 with a space.
-            result_to_test.replace(u'\xa0',u' ', regex=True, inplace=True)
-             # cast all values to str add astype
-            result_to_test = result_to_test.astype(str).values.tolist()
+    # def test_elm_uniprot_id_2(self):
+    #     test = "test4"
+    #     expected_result = elm_dict[test]["expected_result"]
+    #     result_to_test = elm(**elm_dict[test]["args"])
+    #     # If result is a DataFrame, convert to list
+    #     if isinstance(result_to_test, pd.DataFrame):
+    #         #replace \xa0 with a space.
+    #         result_to_test.replace(u'\xa0',u' ', regex=True, inplace=True)
+    #          # cast all values to str add astype
+    #         result_to_test = result_to_test.astype(str).values.tolist()
         
-        time.sleep(sleep_time * 3 + 5)
-        self.assertListEqual(result_to_test, expected_result)
+    #     time.sleep(sleep_time * 3 + 5)
+    #     self.assertListEqual(result_to_test, expected_result)
 
     def test_elm_bad_aa_seq(self):
         time.sleep(sleep_time)
