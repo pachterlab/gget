@@ -39,14 +39,13 @@ def get_response_api(seq):
 
 
 def tsv_to_df(tab_separated_values, sequence_if_fails):
+    df = pd.DataFrame()
     error_str = tab_separated_values.__contains__("Internal Server Error")
     if not error_str:
         try:
             df = pd.read_csv(StringIO(tab_separated_values), sep='\t')
         except pd.errors.EmptyDataError:
             logging.warning(f"No data in dataframe. Likely due to a 429 too many requests error returning no tab separated values. Please try again")
-    else: 
-        df = pd.DataFrame()
     return df
 
 # Scrapes webpage for information about functional site class, description, pattern probability
