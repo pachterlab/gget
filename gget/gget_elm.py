@@ -195,15 +195,15 @@ def elm(
                 # Clean up results and add to corresponding position in new dataframe
                 value = value.strip().replace("\n", " ").replace("\t", " ")
             df_2.loc[elm_id, column_ignored_colon] = value
-    
-        if not uniprot:
-            # Get motifs associated with each elm id in original sequence
-            start = df.iloc[elm_id_index]['start']
-            stop = df.iloc[elm_id_index]['stop']
-            if isinstance(start, int) & isinstance(stop, int):
-                df_2.loc[elm_id, 'Motif in original sequence'] = sequence[start-1: stop]
-            else:
-                df_2.loc[elm_id, 'Motif in original sequence'] = np.nan
+        
+            if not uniprot:
+                # Get motifs associated with each elm id in original sequence
+                start = df.iloc[elm_id_index]['start']
+                stop = df.iloc[elm_id_index]['stop']
+                if isinstance(start, int) & isinstance(stop, int):
+                    df_2.loc[elm_id, 'Motif in original sequence'] = sequence[start-1: stop]
+                else:
+                    df_2.loc[elm_id, 'Motif in original sequence'] = np.nan
 
     # if a motif is found more than once in a UniProt ID or sequence, df_2 will have duplicate rows
     df_2 = df_2.drop_duplicates()
