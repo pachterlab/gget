@@ -5662,6 +5662,6 @@
         "args": {
             "sequence": "banana"
         },
-        "expected_result": "ValueError"
+        "expected_result": "KeyError"
     }
 }
