@@ -1427,9 +1427,9 @@ def main():
         required=False,
         help="Do not print progress information.",
     )
-    
+
     ## gget elm subparser
-    elm_desc = "Searches the Eukaryotic Linear Motif resource for Functional Sites in Proteins."
+    elm_desc = "Searches the Eukaryotic Linear Motif resource for Functional Sites in proteins."
     parser_elm = parent_subparsers.add_parser(
         "elm", parents=[parent], description=elm_desc, help=elm_desc, add_help=True
     )
@@ -1469,7 +1469,7 @@ def main():
             "Default: Standard out."
         ),
     )
-    
+
     parser_elm.add_argument(
         "-q",
         "--quiet",
@@ -1523,7 +1523,7 @@ def main():
         "pdb": parser_pdb,
         "gpt": parser_gpt,
         "cellxgene": parser_cellxgene,
-        "elm": parser_elm
+        "elm": parser_elm,
     }
 
     if len(sys.argv) == 2:
@@ -1533,18 +1533,18 @@ def main():
             parent_parser.print_help(sys.stderr)
         sys.exit(1)
 
-    ## elm return 
+    ## elm return
     if args.command == "elm":
         # Run gget elm function
         elm_results = elm(
             sequence=args.sequence,
             json=args.csv,
             uniprot=args.uniprot,
-            verbose=args.quiet
+            verbose=args.quiet,
         )
 
         # Check if the function returned something
-        if not isinstance(blat_results, type(None)):
+        if not isinstance(elm_results, type(None)):
             # Save elm results if args.out specified
             if args.out and not args.csv:
                 # Create saving directory
