@@ -64,10 +64,10 @@ class TestUtils(unittest.TestCase):
                 "FOXD3",
                 ["HFH2"],
                 "Forkhead box protein D3",
-                "Binds to the consensus sequence 5'-A[AT]T[AG]TTTGTTT-3' and acts as a transcriptional repressor. Also acts as a transcriptional activator. Promotes development of neural crest cells from neural tube progenitors. Restricts neural progenitor cells to the neural crest lineage while suppressing interneuron differentiation. Required for maintenance of pluripotent cells in the pre-implantation and peri-implantation stages of embryogenesis",
+                "Binds to the consensus sequence 5'-A[AT]T[AG]TTTGTTT-3' and acts as a transcriptional repressor (PubMed:11891324). Also acts as a transcriptional activator (PubMed:11891324). Negatively regulates transcription of transcriptional repressor RHIT/ZNF205 (PubMed:22306510). Promotes development of neural crest cells from neural tube progenitors (PubMed:11891324). Restricts neural progenitor cells to the neural crest lineage while suppressing interneuron differentiation (PubMed:11891324). Required for maintenance of pluripotent cells in the pre-implantation and peri-implantation stages of embryogenesis (PubMed:11891324)",
                 ["Nucleus"],
                 "ENSG00000187140",
-            ]
+            ],
         ]
 
         self.assertListEqual(result_to_test, expected_result)
