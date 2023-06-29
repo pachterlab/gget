@@ -70,7 +70,13 @@ def main():
         type=str,
         nargs="?",
         default=None,
-        help="Species for which the FTPs will be fetched, e.g. homo_sapiens.",
+        help=(
+            """
+            Species or database to be searched. Species should be passed in the format "genus_species", e.g. "homo_sapiens".
+            To pass a specific database, enter the name of the core database and release number, e.g. 'mus_musculus_dba2j_core_105_1'.
+            All available databases for each Ensembl release can be found here: http://ftp.ensembl.org/pub/
+            """
+        ),
     )
     parser_ref.add_argument(
         "-l",
