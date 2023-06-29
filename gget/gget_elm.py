@@ -16,14 +16,15 @@ logging.basicConfig(
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
 
+# Constants
+from .constants import GET_ELM_API, ELM_URL
+
 
 # Call elm api to get elm id, start, stop and boolean values
 # Returns tab separated values
 def get_response_api(seq):
-    url = "http://elm.eu.org/start_search/"
-
     # Build URL
-    html = requests.get(url + seq)
+    html = requests.get(GET_ELM_API + seq)
 
     # Incorrect UniProt ID results in 500 internal server error
     if html.status_code == 500:
@@ -53,25 +54,19 @@ def tsv_to_df(tab_separated_values, sequence_if_fails):
         return df
 
     except pd.errors.EmptyDataError:
-        logging.warning(
-            f"Query did not result in any matches."
-        )
+        logging.warning(f"Query did not result in any matches.")
         return None
 
 
 # Scrapes webpage for information about functional site class, description, pattern probability
 # Return html tags in text format
 def get_html(elm_id):
-    url = "http://elm.eu.org/elms/"
-
-    resp = requests.get(url + elm_id)
+    resp = requests.get(ELM_URL + elm_id)
 
     # Raise error if status code not "OK" Response
     # Incorrect elm id results in 500 internal server error
     if resp.status_code != 200:
-        logging.warning(
-            f"No additional information found for ELM ID {elm_id}."
-        )
+        logging.warning(f"No additional information found for ELM ID {elm_id}.")
         html = ""
 
     else:
@@ -103,17 +98,11 @@ def elm(sequence, uniprot=False, json=False, save=False, verbose=True):
 
     Returns a data frame with the ELM results.
 
-    """
-    # Server rules:
+    NOTE: Please limit your searches to a maximum of 1 per minute for amino acid sequences (1 per 3 minutes for Uniprot IDs).
+    If you exceed this limit, you will recieve a "429 Too many requests" error.
+    Also please note that this does not always work for sequences longer than 2000 amino acids: URLs may be truncated beyond this length.
 
-    # Searches via Uniprot ID are limited to a maximum of 1 every 3 minutes.
-    # If you exceed this limit, you will recieve a "429 Too many requests" error.
-    #
-    # Searches of a single sequence is to a maximum of 1 per minute.
-    # If you exceed this limit, you will recieve a "429 Too many requests" error.
-    #
-    # Note: this does not always work for sequences longer than 2000 amino acids:
-    # URLs may be truncated beyond this length.
+    """
 
     # Note: If you encounter 429 error, try adding time.sleep() to get_response_api()
     # Ex: import time
@@ -132,6 +121,9 @@ def elm(sequence, uniprot=False, json=False, save=False, verbose=True):
 
     if not uniprot:
         amino_acids = set("ARNDCQEGHILKMFPSTWYVBZXBJZ")
+
+        # Convert input sequence to upper case letters
+        sequence = sequence.upper()
 
         # If sequence is not a valid amino sequence, raise error
         if not set(sequence) <= amino_acids:

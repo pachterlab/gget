@@ -1,7 +1,9 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
 ## gget elm 💡
 Fetch functional sites information from [ELM](http://elm.eu.org/) using an amino acid sequence or Uniprot ID.  
-NOTE: Server rules  
+NOTE:  
+Please limit your searches to a maximum of 1 per minute for amino acid sequences (1 per 3 minutes for Uniprot IDs). If you exceed this limit, you will recieve a "429 Too many requests" error. Also please note that this does not always work for sequences longer than 2000 amino acids: URLs may be truncated beyond this length.
+
 Return format: JSON (command-line) or data frame/CSV (Python).
 
 **Positional argument**  
@@ -10,6 +12,9 @@ Amino acid sequence or UniProt ID.
 Use `--uniprot` (Python: `uniprot=True`) if a UniProt ID is supplied.
 
 **Optional arguments**  
+`-o` `--out`   
+Path to the file the results will be saved in, e.g. path/to/directory/results.csv (or .json). Default: Standard out.   
+Python: `save=True` will save the output in the current working directory.  
 
 **Flags**   
 
@@ -20,7 +25,10 @@ Search using Uniprot ID instead of amino acid sequence
 Command-line only. Returns results in CSV format.  
 Python: Use `json=True` to return output in JSON format.
   
-  ADD VERBOSE adn OUT ARGs (and other args?)
+`-q` `--quiet`   
+Command-line only. Prevents progress information from being displayed.  
+Python: Use `verbose=False` to prevent progress information from being displayed. 
+
 
 ### Example
 ```bash
