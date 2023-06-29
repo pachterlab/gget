@@ -31,7 +31,7 @@ class Testelm(unittest.TestCase):
         test = "test2"
         expected_result = elm_dict[test]["expected_result"]
 
-        time.sleep(sleep_time)
+        time.sleep(sleep_time * 3)
         result_to_test = elm(**elm_dict[test]["args"])
 
         self.assertEqual(result_to_test, expected_result)
