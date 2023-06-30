@@ -37,7 +37,7 @@
           "...[VLIFY].[ACVILF]$",
           "0.0000789",
           "Eukaryota Homo sapiens Metazoa Mus musculus",
-          "PDZ (PF00595)       PDZ domain (Also known as DHR or GLGF)              (Stochiometry: 1 : 1)                                 PDB Structure: 2PKU",
+          "PDZ (PF00595)       PDZ domain (Also known as DHR or GLGF)              (Stochiometry: 1 : 1)                                 PDB Structure: 2KOH",
           "KVF",
           "5",
           "10",
@@ -57,7 +57,7 @@
       "sequence": "DIEFRVLH",
       "json": true
     },
-    "expected_result": [
+    "expected_result": [[
       [
         "LIG_LIR_Nem_3 ",
         "ELME000370 ",
@@ -125,6 +125,7 @@
         "False"
       ]
     ]
+  ]
   },
   "test3": {
     "type": "assert_equal",
@@ -132,7 +133,7 @@
       "sequence": "A0PK11",
       "uniprot": "True"
     },
-    "expected_result": [
+    "expected_result": [[
       [
         "LIG_WD40_WDR5_VDV_2",
         "ELME000365",

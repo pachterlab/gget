@@ -31,7 +31,7 @@ class Testelm(unittest.TestCase):
         test = "test2"
         expected_result = elm_dict[test]["expected_result"]
 
-        time.sleep(sleep_time * 3)
+        time.sleep(sleep_time + 65)
         result_to_test = elm(**elm_dict[test]["args"])
 
         # replace \xa0 with a space.
@@ -44,7 +44,7 @@ class Testelm(unittest.TestCase):
 
     def test_elm_uniprot_id(self):
         test = "test3"
-        expected_result = set(elm_dict[test]["expected_result"])
+        expected_result = elm_dict[test]["expected_result"]
 
         time.sleep(sleep_time * 3)
         result_to_test = elm(**elm_dict[test]["args"])
