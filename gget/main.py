@@ -192,9 +192,10 @@ def main():
         required=False,
         help=(
             """
-            Ensembl release the FTPs will be fetched from, e.g. 104 (default: latest Ensembl release).
-            Note: This argument is overwritten if a specific database name (which includes a release number) 
-            is passed to the `species` argument.
+            Defines the Ensembl release number from which the files are fetched, e.g. release = 104.
+            Note: Only supports release > 103 and does not apply to plant species. 
+            This argument is overwritten if a specific database (which includes a release number) is passed to the species argument.
+            Default: None -> latest Ensembl release is used
             """
         ),
     )
