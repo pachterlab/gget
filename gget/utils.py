@@ -593,6 +593,9 @@ def gget_species_options(database=ENSEMBL_FTP_URL, release=None):
     # Find latest Ensembl release
     ENS_rel = find_latest_ens_rel(database)
 
+    print("gget_species_options latest release ", ENS_rel)
+    print("gget_species_options defined release ", release)
+
     # If release != None, use user-defined Ensembl release
     if release != None:
         # Do not allow user-defined release if it is higher than the latest release
