@@ -19,6 +19,7 @@ class Testelm(unittest.TestCase):
 
         time.sleep(sleep_time)
         result_to_test = elm(**elm_dict[test]["args"])
+        result_to_test = result_to_test.sort_values(by=['elm_identifier'], ascending=True)
 
         # replace \xa0 with a space.
         result_to_test.replace("\xa0", " ", regex=True, inplace=True)
@@ -32,8 +33,11 @@ class Testelm(unittest.TestCase):
         expected_result = elm_dict[test]["expected_result"]
 
         time.sleep(sleep_time * 3)
-        result_to_test = elm(**elm_dict[test]["args"]) # replace \xa0 with a space.
+        result_to_test = elm(**elm_dict[test]["args"])
+        result_to_test = result_to_test.sort_values(by=['elm_identifier'], ascending=True)
+        # replace \xa0 with a space.
         result_to_test.replace("\xa0", " ", regex=True, inplace=True)
+    
         # cast all values to str add astype
         result_to_test = result_to_test.astype(str).values.tolist()
 
@@ -41,21 +45,22 @@ class Testelm(unittest.TestCase):
 
     def test_elm_uniprot_id(self):
         test = "test3"
-        expected_result = elm_dict[test]["expected_result"]
+        expected_result = set(elm_dict[test]["expected_result"])
 
         time.sleep(sleep_time * 3)
         result_to_test = elm(**elm_dict[test]["args"])
+        #sort values back from pattern probability to by alphabetical elm ids
+        result_to_test = result_to_test.sort_values(by=['elm_identifier'], ascending=True)
 
         # replace \xa0 with a space.
         result_to_test.replace("\xa0", " ", regex=True, inplace=True)
         # cast all values to str add astype
-        result_to_test = result_to_test.astype(str).values.tolist()
+        result_to_test = set(result_to_test.astype(str).values.tolist())
 
         self.assertListEqual(result_to_test, expected_result)
 
     def test_elm_bad_aa_seq(self):
         test = "test5"
-
         time.sleep(sleep_time)
         result_to_test = elm(**elm_dict[test]["args"])
         self.assertIsNone(result_to_test, "Bad AA sequence result is not None.")
