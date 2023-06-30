@@ -48,6 +48,7 @@ def search(
                       To pass a specific database, enter the name of the core database, e.g. 'mus_musculus_dba2j_core_105_1'.
                       All available species databases can be found here: http://ftp.ensembl.org/pub/release-106/mysql/
     - release         Defines the Ensembl release number from which the files are fetched, e.g. release = 104.
+                      Only supports release 103 or higher. 
                       Note: This is overwritten is a specific database (which includes a release number) is passed to the species argument.
                       Default: None -> latest Ensembl release is used
     - id_type         "gene" (default) or "transcript"
