@@ -193,7 +193,7 @@ def main():
         help=(
             """
             Defines the Ensembl release number from which the files are fetched, e.g. release = 104.
-            Note: Only supports release > 103 and does not apply to plant species. 
+            Note: Does not apply to plant species (you can pass a specific plant database (which include a release number) to the species argument instead). 
             This argument is overwritten if a specific database (which includes a release number) is passed to the species argument.
             Default: None -> latest Ensembl release is used
             """
