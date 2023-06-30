@@ -13,14 +13,14 @@ class TestSearch(unittest.TestCase):
         test = "test1"
         expected_result = search_dict[test]["expected_result"]
         result_to_test = search(**search_dict[test]["args"])
-        
+
         print("result_to_test[ensembl_description].values:")
         print(result_to_test["ensembl_description"].values)
-        
+
         # If result is a DataFrame, convert to list
         if isinstance(result_to_test, pd.DataFrame):
             result_to_test = result_to_test.values.tolist()
-            
+
         print("result_to_test after conversion:")
         print(result_to_test)
         print("expected_result:")
@@ -40,16 +40,6 @@ class TestSearch(unittest.TestCase):
 
     def test_search_gene_two_sw_or(self):
         test = "test3"
-        expected_result = search_dict[test]["expected_result"]
-        result_to_test = search(**search_dict[test]["args"])
-        # If result is a DataFrame, convert to list
-        if isinstance(result_to_test, pd.DataFrame):
-            result_to_test = result_to_test.values.tolist()
-
-        self.assertListEqual(result_to_test, expected_result)
-
-    def test_search_gene_two_sw_and(self):
-        test = "test9"
         expected_result = search_dict[test]["expected_result"]
         result_to_test = search(**search_dict[test]["args"])
         # If result is a DataFrame, convert to list
@@ -100,6 +90,56 @@ class TestSearch(unittest.TestCase):
 
     def test_search_gene_two_sw_limit(self):
         test = "test8"
+        expected_result = search_dict[test]["expected_result"]
+        result_to_test = search(**search_dict[test]["args"])
+        # If result is a DataFrame, convert to list
+        if isinstance(result_to_test, pd.DataFrame):
+            result_to_test = result_to_test.values.tolist()
+
+        self.assertListEqual(result_to_test, expected_result)
+
+    def test_search_gene_two_sw_and(self):
+        test = "test9"
+        expected_result = search_dict[test]["expected_result"]
+        result_to_test = search(**search_dict[test]["args"])
+        # If result is a DataFrame, convert to list
+        if isinstance(result_to_test, pd.DataFrame):
+            result_to_test = result_to_test.values.tolist()
+
+        self.assertListEqual(result_to_test, expected_result)
+
+    def test_search_release(self):
+        test = "test10"
+        expected_result = search_dict[test]["expected_result"]
+        result_to_test = search(**search_dict[test]["args"])
+        # If result is a DataFrame, convert to list
+        if isinstance(result_to_test, pd.DataFrame):
+            result_to_test = result_to_test.values.tolist()
+
+        self.assertListEqual(result_to_test, expected_result)
+
+    def test_search_db(self):
+        test = "test11"
+        expected_result = search_dict[test]["expected_result"]
+        result_to_test = search(**search_dict[test]["args"])
+        # If result is a DataFrame, convert to list
+        if isinstance(result_to_test, pd.DataFrame):
+            result_to_test = result_to_test.values.tolist()
+
+        self.assertListEqual(result_to_test, expected_result)
+
+    def test_search_plant(self):
+        test = "test12"
+        expected_result = search_dict[test]["expected_result"]
+        result_to_test = search(**search_dict[test]["args"])
+        # If result is a DataFrame, convert to list
+        if isinstance(result_to_test, pd.DataFrame):
+            result_to_test = result_to_test.values.tolist()
+
+        self.assertListEqual(result_to_test, expected_result)
+
+    def test_search_plant_db(self):
+        test = "test13"
         expected_result = search_dict[test]["expected_result"]
         result_to_test = search(**search_dict[test]["args"])
         # If result is a DataFrame, convert to list
