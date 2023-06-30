@@ -185,6 +185,20 @@ def main():
         help="Species to be queried, e.g. homo_sapiens.",
     )
     parser_gget.add_argument(
+        "-r",
+        "--release",
+        default=None,
+        type=int,
+        required=False,
+        help=(
+            """
+            Ensembl release the FTPs will be fetched from, e.g. 104 (default: latest Ensembl release).
+            Note: This argument is overwritten if a specific database name (which includes a release number) 
+            is passed to the `species` argument.
+            """
+        ),
+    )
+    parser_gget.add_argument(
         "-t",
         "--id_type",
         choices=["gene", "transcript"],
@@ -1947,7 +1961,8 @@ def main():
         # Query Ensembl for genes based on species and searchwords using function search
         gget_results = search(
             sw_clean_final,
-            args.species,
+            species=args.species,
+            release=args.release,
             id_type=args.id_type,
             seqtype=args.seqtype,
             andor=args.andor,
