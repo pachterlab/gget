@@ -48,7 +48,7 @@ def search(
                       To pass a specific database, enter the name of the core database, e.g. 'mus_musculus_dba2j_core_105_1'.
                       All available species databases can be found here: http://ftp.ensembl.org/pub/release-106/mysql/
     - release         Defines the Ensembl release number from which the files are fetched, e.g. release = 104.
-                      Note: Only supports release > 103 and does not apply to plant species. 
+                      Note: Does not apply to plant species (you can pass a specific plant database (which include a release number) to the species argument instead). 
                       This argument is overwritten if a specific database (which includes a release number) is passed to the species argument.
                       Default: None -> latest Ensembl release is used
     - id_type         "gene" (default) or "transcript"
@@ -175,9 +175,18 @@ def search(
             )
 
         except Exception as e:
-            raise RuntimeError(
-                f"The Ensembl server returned the following error: {e}"
-            )
+            if "Access denied" in e:
+                raise RuntimeError(
+                    f"""
+                    The Ensembl server returned the following error: {e}.
+                    This might be caused by the Ensembl release number being too low. 
+                    Please try again with a more recent release.
+                    """
+                )
+            else:
+                raise RuntimeError(
+                    f"The Ensembl server returned the following error: {e}"
+                )
 
     ## Clean up list of searchwords
     # If single searchword passed as string, convert to list
