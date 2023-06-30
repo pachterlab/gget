@@ -39,16 +39,17 @@ def search(
 ):
     """
     Function to query Ensembl for genes based on species and free form search terms.
-    Automatically fetches results from latest Ensembl release, unless user specifies database (see 'species' argument).
+    Automatically fetches results from latest Ensembl release, unless user specifies database (see 'species' argument)
+    or release database (see 'release' argument).
 
     Args:
     - searchwords     Free form search words (not case-sensitive) as a string or list of strings
                       (e.g.searchwords = ["GABA", "gamma-aminobutyric"]).
-    - species         Species can be passed in the format "genus_species", e.g. "homo_sapiens".
-                      To pass a specific database, enter the name of the core database, e.g. 'mus_musculus_dba2j_core_105_1'.
-                      All available species databases can be found here: http://ftp.ensembl.org/pub/release-106/mysql/
+    - species         Species can be passed in the format "genus_species", e.g. "homo_sapiens" or "arabidopsis_thaliana".
+                      To pass a specific database, enter the name of the core database, e.g. "mus_musculus_dba2j_core_105_1".
+                      All available species databases can be found here: http://ftp.ensembl.org/pub
     - release         Defines the Ensembl release number from which the files are fetched, e.g. release = 104.
-                      Note: Does not apply to plant species (you can pass a specific plant database (which include a release number) to the species argument instead). 
+                      Note: Does not apply to plant species (you can pass a specific plant core database (which include a release number) to the species argument instead). 
                       This argument is overwritten if a specific database (which includes a release number) is passed to the species argument.
                       Default: None -> latest Ensembl release is used
     - id_type         "gene" (default) or "transcript"
@@ -63,6 +64,8 @@ def search(
     - verbose         True/False whether to print progress information. Default True.
 
     Returns a data frame with the query results.
+
+    Note: Only returns results based on matches in the "gene name" or "description" sections in the Ensembl database.
 
     Deprecated arguments: 'seqtype' (renamed to id_type)
     """
@@ -108,6 +111,8 @@ def search(
 
     if "core" in species:
         db = species
+        if release:
+            logging.warning("Specified release overwritten because database name was provided.")
     else:
         if release:
             ens_rel = release
