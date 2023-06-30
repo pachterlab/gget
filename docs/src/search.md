@@ -17,9 +17,9 @@ Supported shortcuts: 'human', 'mouse'.
 
 **Optional arguments**  
 `-r` `--release`   
-Defines the Ensembl release number from which the files are fetched, e.g. 104. Default: latest Ensembl release.
-Note: Only supports release 103 or higher.   
-This argument is overwritten if a specific database (which includes a release number) is passed to the `species` argument.  
+Defines the Ensembl release number from which the files are fetched, e.g. release = 104. Default: None -> latest Ensembl release is used  
+Note: Only supports release > 103 and *does not apply to plant species*.   
+This argument is overwritten if a specific database (which includes a release number) is passed to the species argument.  
 
 `-t` `--id_type`  
 'gene' (default) or 'transcript'  
