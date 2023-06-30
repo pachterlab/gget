@@ -24,7 +24,7 @@ class Testelm(unittest.TestCase):
         # replace \xa0 with a space.
         result_to_test.replace("\xa0", " ", regex=True, inplace=True)
         # cast all values to str add astype
-        result_to_test = result_to_test.astype(str).values.tolist()
+        result_to_test = result_to_test.astype(str).values.tolist().sort()
 
         self.assertListEqual(result_to_test, expected_result)
 
@@ -39,7 +39,7 @@ class Testelm(unittest.TestCase):
         result_to_test.replace("\xa0", " ", regex=True, inplace=True)
     
         # cast all values to str add astype
-        result_to_test = result_to_test.astype(str).values.tolist()
+        result_to_test = result_to_test.astype(str).values.tolist().sort()
 
         self.assertEqual(result_to_test, expected_result)
 
@@ -49,13 +49,11 @@ class Testelm(unittest.TestCase):
 
         time.sleep(sleep_time * 3)
         result_to_test = elm(**elm_dict[test]["args"])
-        #sort values back from pattern probability to by alphabetical elm ids
-        result_to_test = result_to_test.sort_values(by=['elm_identifier'], ascending=True)
 
         # replace \xa0 with a space.
         result_to_test.replace("\xa0", " ", regex=True, inplace=True)
         # cast all values to str add astype
-        result_to_test = set(result_to_test.astype(str).values.tolist())
+        result_to_test = result_to_test.astype(str).values.tolist().sort()
 
         self.assertListEqual(result_to_test, expected_result)
 
