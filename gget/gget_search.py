@@ -27,6 +27,7 @@ from .constants import ENSEMBL_FTP_URL, ENSEMBL_FTP_URL_PLANT
 def search(
     searchwords,
     species,
+    release=None,
     id_type="gene",
     seqtype=None,
     andor="or",
@@ -45,7 +46,10 @@ def search(
                       (e.g.searchwords = ["GABA", "gamma-aminobutyric"]).
     - species         Species can be passed in the format "genus_species", e.g. "homo_sapiens".
                       To pass a specific database, enter the name of the core database, e.g. 'mus_musculus_dba2j_core_105_1'.
-                      All availabale species databases can be found here: http://ftp.ensembl.org/pub/release-106/mysql/
+                      All available species databases can be found here: http://ftp.ensembl.org/pub/release-106/mysql/
+    - release         Defines the Ensembl release number from which the files are fetched, e.g. release = 104.
+                      Note: This is overwritten is a specific database (which includes a release number) is passed to the species argument.
+                      Default: None -> latest Ensembl release is used
     - id_type         "gene" (default) or "transcript"
                       Defines whether genes or transcripts matching the searchwords are returned.
     - andor           "or" (default) or "and"
@@ -69,9 +73,6 @@ def search(
         return
 
     start_time = time.time()
-
-    # Find latest Ensembl release
-    ens_rel = find_latest_ens_rel()
 
     ## Check validity or arguments
     # Check if id_type is valid
@@ -104,45 +105,54 @@ def search(
     # In case species was passed with upper case letters
     species = species.lower()
 
-    # Fetch ensembl databases
-    databases = gget_species_options(
-        database=ENSEMBL_FTP_URL, release=None
-    )
-
-    # Add ensembl plant databases
-    databases += gget_species_options(
-        database=ENSEMBL_FTP_URL_PLANT, release=None
-    )
-
-    db = []
-    for datab in databases:
-        if species in datab:
-            db.append(datab)
-
-    # Unless an unambigious mouse database is specified,
-    # the standard core database will be used
-    if len(db) > 1 and "mus_musculus" in species:
-        db = f"mus_musculus_core_{ens_rel}_39"
-
-    # Check for ambigious species matches in species other than mouse
-    elif len(db) > 1 and "mus_musculus" not in species:
-        raise ValueError(
-            "Species matches more than one database.\n"
-            "Please double-check spelling or pass specific CORE database.\n"
-            "All available databases can be found here:\n"
-            f"http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/"
-        )
-    # Raise error if no matching database was found
-    elif len(db) == 0:
-        raise ValueError(
-            "Species not found in database.\n"
-            "Please double-check spelling or pass specific CORE database.\n"
-            "All available databases can be found here:\n"
-            f"http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/"
-        )
-
+    if "core" in species:
+        db = species
     else:
-        db = db[0]
+        if release:
+            ens_rel = release
+        else:
+            # Find latest Ensembl release
+            ens_rel = find_latest_ens_rel()
+
+        # Fetch ensembl databases
+        databases = gget_species_options(
+            database=ENSEMBL_FTP_URL, release=None
+        )
+    
+        # Add ensembl plant databases
+        databases += gget_species_options(
+            database=ENSEMBL_FTP_URL_PLANT, release=None
+        )
+    
+        db = []
+        for datab in databases:
+            if species in datab:
+                db.append(datab)
+    
+        # Unless an unambigious mouse database is specified,
+        # the standard core database will be used
+        if len(db) > 1 and "mus_musculus" in species:
+            db = f"mus_musculus_core_{ens_rel}_39"
+    
+        # Check for ambigious species matches in species other than mouse
+        elif len(db) > 1 and "mus_musculus" not in species:
+            raise ValueError(
+                "Species matches more than one database.\n"
+                "Please double-check spelling or pass specific CORE database.\n"
+                "All available databases can be found here:\n"
+                f"http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/"
+            )
+        # Raise error if no matching database was found
+        elif len(db) == 0:
+            raise ValueError(
+                "Species not found in database.\n"
+                "Please double-check spelling or pass specific CORE database.\n"
+                "All available databases can be found here:\n"
+                f"http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/"
+            )
+    
+        else:
+            db = db[0]
 
     if verbose:
         logging.info(f"Fetching results from database: {db}")
