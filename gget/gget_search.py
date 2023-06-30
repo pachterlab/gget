@@ -174,7 +174,9 @@ def search(
             )
 
         except Exception as e:
-            logging.error(f"The Ensembl server returned the following error: {e}")
+            raise RuntimeError(
+                f"The Ensembl server returned the following error: {e}"
+            )
 
     ## Clean up list of searchwords
     # If single searchword passed as string, convert to list
