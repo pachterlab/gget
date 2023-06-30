@@ -117,12 +117,12 @@ def search(
 
         # Fetch ensembl databases
         databases = gget_species_options(
-            database=ENSEMBL_FTP_URL, release=None
+            database=ENSEMBL_FTP_URL, release=ens_rel
         )
     
         # Add ensembl plant databases
         databases += gget_species_options(
-            database=ENSEMBL_FTP_URL_PLANT, release=None
+            database=ENSEMBL_FTP_URL_PLANT, release=ens_rel
         )
     
         db = []
