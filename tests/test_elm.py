@@ -37,7 +37,7 @@ class Testelm(unittest.TestCase):
         #replace \xa0 with a space.
         df.astype(str).replace("\xa0"," ", regex=True, inplace=True)
         # cast all values to str 
-        result_to_test = result_to_test.astype(str).values.tolist()
+        result_to_test = df.astype(str).values.tolist()
         self.assertListEqual(result_to_test, expected_result)
 
     def test_elm_uniprot_id(self):
