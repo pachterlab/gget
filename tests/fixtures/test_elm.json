@@ -57,7 +57,7 @@
       "sequence": "DIEFRVLH",
       "json": true
     },
-    "expected_result": [
+    "expected_result": 
       [
         [
           "LIG_LIR_Nem_3",
@@ -126,7 +126,7 @@
           "False"
         ]
       ]
-    ]
+    
   },
   "test3": {
     "type": "assert_equal",
