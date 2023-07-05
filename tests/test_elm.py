@@ -35,7 +35,7 @@ class Testelm(unittest.TestCase):
         result_to_test = elm(**elm_dict[test]["args"])
         df = pd.DataFrame(result_to_test)
         #replace \xa0 with a space.
-        df.astype(str).replace("\xa0"," ", regex=True, inplace=True)
+        df = df.astype(str).replace("\xa0"," ", regex=True, inplace=True)
         # cast all values to str 
         result_to_test = df.astype(str).values.tolist()
         self.assertListEqual(result_to_test, expected_result)
