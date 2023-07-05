@@ -58,8 +58,8 @@
       "json": true
     },
     "expected_result": 
+    [
       [
-        [
           "LIG_LIR_Nem_3",
           "ELME000370",
           "Atg8 protein family ligands",
@@ -80,8 +80,8 @@
           "False",
           "False",
           "False"
-        ],
-        [
+      ],
+      [
           "LIG_LIR_Nem_3",
           "ELME000370",
           "Atg8 protein family ligands",
@@ -102,8 +102,8 @@
           "False",
           "False",
           "False"
-        ],
-        [
+      ],
+      [
           "DEG_Nend_UBRbox_2",
           "ELME000352",
           "N-degron",
@@ -124,8 +124,8 @@
           "False",
           "False",
           "False"
-        ]
       ]
+  ]
     
   },
   "test3": {
