@@ -1,4 +1,7 @@
 ## ✨ What's new  
+**Version ≥ 0.27.8** (XXX, 2023):  
+- New argument for [`gget search`](./search.md): Specify the Ensembl release from which information is fetched with `-r` `--release`
+
 **Version ≥ 0.27.7** (May 15, 2023):  
 - Moved dependencies for modules [`gget gpt`](./gpt.md) and [`gget cellxgene`](./cellxgene.md) from automatically installed requirements to [`gget setup`](./setup.md).  
 - Updated [`gget alphafold`](./alphafold.md) dependencies for compatibility with Python >= 3.10.  
