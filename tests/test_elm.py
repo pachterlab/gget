@@ -40,9 +40,8 @@ class Testelm(unittest.TestCase):
         df.replace("\xa0", " ", regex=True, inplace=True)
         # Cast all values to str 
         result_to_test = df.astype(str).values.tolist()
-      
 
-        self.assertListEqual(result_to_test, expected_result
+        self.assertListEqual(result_to_test, expected_result)
 
     def test_elm_uniprot_id(self):
         test = "test3"
