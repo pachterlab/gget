@@ -33,12 +33,16 @@ class Testelm(unittest.TestCase):
 
         time.sleep(sleep_time)
         result_to_test = elm(**elm_dict[test]["args"])
+    
+        # Convert list of dictionaries to dataframe
         df = pd.DataFrame(result_to_test)
-        #replace \xa0 with a space.
-        df = df.astype(str).replace("\xa0"," ", regex=True, inplace=True)
-        # cast all values to str 
+        # Replace unicode 
+        df.replace("\xa0", " ", regex=True, inplace=True)
+        # Cast all values to str 
         result_to_test = df.astype(str).values.tolist()
-        self.assertListEqual(result_to_test, expected_result)
+      
+
+        self.assertListEqual(result_to_test, expected_result
 
     def test_elm_uniprot_id(self):
         test = "test3"
