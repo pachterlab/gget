@@ -1151,7 +1151,7 @@
         "R[^DE]{0,2}[^DEPG]([ST])(([FWYLMV].)|([^PRIKGN]P)|([^PRIKGN].{2,4}[VILMFWYP]))",
         "0.0044767",
         "Eukaryota",
-        "14-3-3 (PF00244)       14-3-3 protein              (Stochiometry: 1 : 1)                                 PDB Structure: 3IQJ",
+        "14-3-3 (PF00244)       14-3-3 protein              (Stochiometry: 1 : 1)                                 PDB Structure: 1QJB",
         "79",
         "87",
         "False",
