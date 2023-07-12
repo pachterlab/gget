@@ -11,7 +11,6 @@ from .gget_alphafold import alphafold
 from .gget_setup import setup
 from .gget_pdb import pdb
 from .gget_gpt import gpt
-from .gget_ref import ref
 from .gget_cellxgene import cellxgene
 
 import logging
