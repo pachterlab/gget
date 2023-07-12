@@ -24,6 +24,7 @@ from .utils import gget_species_options, find_latest_ens_rel, wrap_cols_func
 
 from .constants import ENSEMBL_FTP_URL, ENSEMBL_FTP_URL_PLANT
 
+
 def search(
     searchwords,
     species,
@@ -49,7 +50,7 @@ def search(
                       To pass a specific database, enter the name of the core database, e.g. "mus_musculus_dba2j_core_105_1".
                       All available species databases can be found here: http://ftp.ensembl.org/pub
     - release         Defines the Ensembl release number from which the files are fetched, e.g. 104.
-                      Note: Does not apply to plant species (you can pass a specific plant core database (which include a release number) to the species argument instead). 
+                      Note: Does not apply to plant species (you can pass a specific plant core database (which include a release number) to the species argument instead).
                       This argument is overwritten if a specific database (which includes a release number) is passed to the species argument.
                       Default: None -> latest Ensembl release is used
     - id_type         "gene" (default) or "transcript"
@@ -112,34 +113,37 @@ def search(
     if "core" in species:
         db = species
         if release:
-            logging.warning("Specified release overwritten because database name was provided.")
+            if verbose:
+                logging.warning(
+                    "Specified release overwritten because database name was provided."
+                )
     else:
         if release:
+            if verbose:
+                logging.warning(
+                    "Note: If you passed a plant species, the release argument does not apply.\nYou can pass a specific plant core database (which include a release number) instead."
+                )
             ens_rel = release
         else:
             # Find latest Ensembl release
             ens_rel = find_latest_ens_rel()
 
         # Fetch ensembl databases
-        databases = gget_species_options(
-            database=ENSEMBL_FTP_URL, release=ens_rel
-        )
-    
+        databases = gget_species_options(database=ENSEMBL_FTP_URL, release=ens_rel)
+
         # Add ensembl plant databases
-        databases += gget_species_options(
-            database=ENSEMBL_FTP_URL_PLANT, release=None
-        )
-    
+        databases += gget_species_options(database=ENSEMBL_FTP_URL_PLANT, release=None)
+
         db = []
         for datab in databases:
             if species in datab:
                 db.append(datab)
-    
+
         # Unless an unambigious mouse database is specified,
         # the standard core database will be used
         if len(db) > 1 and "mus_musculus" in species:
             db = f"mus_musculus_core_{ens_rel}_39"
-    
+
         # Check for ambigious species matches in species other than mouse
         elif len(db) > 1 and "mus_musculus" not in species:
             raise ValueError(
@@ -156,17 +160,20 @@ def search(
                 "All available databases can be found here:\n"
                 f"http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/"
             )
-    
+
         else:
             db = db[0]
 
     if verbose:
         logging.info(f"Fetching results from database: {db}")
 
-    ## Connect to data base
+    ## Connect to database
     try:
         db_connection = sql.connect(
-            host="mysql-eg-publicsql.ebi.ac.uk", database=db, user="anonymous", password=""
+            host="mysql-eg-publicsql.ebi.ac.uk",
+            database=db,
+            user="anonymous",
+            password="",
         )
     except:
         try:
@@ -180,17 +187,25 @@ def search(
             )
 
         except Exception as e:
-            if "Access denied" in e:
+            try:
+                if "Access denied" in e:
+                    raise RuntimeError(
+                        f"""
+                        The Ensembl server returned the following error:\n{e}\n
+                        This might be caused by the Ensembl release number being too low. 
+                        Please try again with a more recent release.
+                        """
+                    )
+                else:
+                    raise RuntimeError(
+                        f"The Ensembl server returned the following error:\n{e}\n"
+                    )
+            except TypeError:
                 raise RuntimeError(
                     f"""
-                    The Ensembl server returned the following error: {e}.
-                    This might be caused by the Ensembl release number being too low. 
-                    Please try again with a more recent release.
-                    """
-                )
-            else:
-                raise RuntimeError(
-                    f"The Ensembl server returned the following error: {e}"
+                        The Ensembl server returned the following error:\n{e}\n
+                        Please double-check the spelling/validity of your database.
+                        """
                 )
 
     ## Clean up list of searchwords

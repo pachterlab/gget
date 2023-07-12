@@ -1,5 +1,5 @@
 ## ✨ What's new  
-**Version ≥ 0.27.8** (XXX, 2023):  
+**Version ≥ 0.27.8** (July 12, 2023):  
 - New argument for [`gget search`](./search.md): Specify the Ensembl release from which information is fetched with `-r` `--release`
 - Fixed [bug](https://github.com/pachterlab/gget/issues/91) in [`gget pdb`](./pdb.md) (this bug was introduced in version 0.27.5)
 
