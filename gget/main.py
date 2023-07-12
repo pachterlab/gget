@@ -1063,14 +1063,6 @@ def main():
             "Default: Standard out."
         ),
     )
-    parser_pdb.add_argument(
-        "-q",
-        "--quiet",
-        default=True,
-        action="store_false",
-        required=False,
-        help="Does not print progress information.",
-    )
 
     # gpt parser arguments
     gpt_desc = "Generates natural language text based on a given prompt using the OpenAI API's 'openai.ChatCompletion.create' endpoint."
@@ -2109,7 +2101,6 @@ def main():
             pdb_id=args.pdb_id,
             resource=args.resource,
             identifier=args.identifier,
-            verbose=args.quiet,
         )
 
         if pdb_results:
