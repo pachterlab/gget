@@ -35,7 +35,6 @@ from .gget_setup import setup
 from .gget_pdb import pdb
 from .gget_gpt import gpt
 from .gget_cellxgene import cellxgene
-from .gget_elm import elm
 
 
 def main():
@@ -1448,57 +1447,6 @@ def main():
         help="Do not print progress information.",
     )
 
-    ## gget elm subparser
-    elm_desc = "Searches the Eukaryotic Linear Motif resource for Functional Sites in proteins."
-    parser_elm = parent_subparsers.add_parser(
-        "elm", parents=[parent], description=elm_desc, help=elm_desc, add_help=True
-    )
-
-    # elm parser arguments
-    parser_elm.add_argument(
-        "sequence",
-        type=str,
-        help="Amino acid sequence or UniProt ID. Use flag [-u][--uniprot] for UniProt IDs.",
-    )
-
-    parser_elm.add_argument(
-        "-u",
-        "--uniprot",
-        default=False,
-        action="store_true",
-        required=False,
-        help="Search using Uniprot ID.",
-    )
-
-    parser_elm.add_argument(
-        "-csv",
-        "--csv",
-        default=True,
-        action="store_false",
-        required=False,
-        help="Returns results in csv format instead of json.",
-    )
-
-    parser_elm.add_argument(
-        "-o",
-        "--out",
-        type=str,
-        required=False,
-        help=(
-            "Path to the file the results will be saved in, e.g. path/to/directory/results.json.\n"
-            "Default: Standard out."
-        ),
-    )
-
-    parser_elm.add_argument(
-        "-q",
-        "--quiet",
-        default=True,
-        action="store_false",
-        required=False,
-        help="Does not print progress information.",
-    )
-
     ### Define return values
     args = parent_parser.parse_args()
 
@@ -1543,7 +1491,6 @@ def main():
         "pdb": parser_pdb,
         "gpt": parser_gpt,
         "cellxgene": parser_cellxgene,
-        "elm": parser_elm,
     }
 
     if len(sys.argv) == 2:
@@ -1552,42 +1499,6 @@ def main():
         else:
             parent_parser.print_help(sys.stderr)
         sys.exit(1)
-
-    ## elm return
-    if args.command == "elm":
-        # Run gget elm function
-        elm_results = elm(
-            sequence=args.sequence,
-            json=args.csv,
-            uniprot=args.uniprot,
-            verbose=args.quiet,
-        )
-
-        # Check if the function returned something
-        if not isinstance(elm_results, type(None)):
-            # Save elm results if args.out specified
-            if args.out and not args.csv:
-                # Create saving directory
-                directory = "/".join(args.out.split("/")[:-1])
-                if directory != "":
-                    os.makedirs(directory, exist_ok=True)
-                # Save to csv
-                elm_results.to_csv(args.out, index=False)
-
-            if args.out and args.csv:
-                # Create saving directory
-                directory = "/".join(args.out.split("/")[:-1])
-                if directory != "":
-                    os.makedirs(directory, exist_ok=True)
-                # Save json
-                with open(args.out, "w", encoding="utf-8") as f:
-                    json.dump(elm_results, f, ensure_ascii=False, indent=4)
-
-            # Print results if no directory specified
-            if not args.out and not args.csv:
-                elm_results.to_csv(sys.stdout, index=False)
-            if not args.out and args.csv:
-                print(json.dumps(elm_results, ensure_ascii=False, indent=4))
 
     ## cellxgene return
     if args.command == "cellxgene":
