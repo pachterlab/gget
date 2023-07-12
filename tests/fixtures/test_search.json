@@ -286,6 +286,133 @@
             ]
         ]
     },
+    "test10": {
+        "type": "assert_equal",
+        "args": {
+            "searchwords": [
+                "ACE2"
+            ],
+            "species": "human",
+            "release": 96
+        },
+        "expected_result": [
+            [
+                "ENSG00000130234",
+                "ACE2",
+                "angiotensin I converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]",
+                "angiotensin I converting enzyme 2",
+                "protein_coding",
+                "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000130234"
+            ],
+            [
+                "ENSG00000182240",
+                "BACE2",
+                "beta-secretase 2 [Source:HGNC Symbol;Acc:HGNC:934]",
+                "beta-secretase 2",
+                "protein_coding",
+                "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000182240"
+            ],
+            [
+                "ENSG00000224388",
+                "BACE2-IT1",
+                "BACE2 intronic transcript 1 [Source:HGNC Symbol;Acc:HGNC:16024]",
+                "BACE2 intronic transcript 1",
+                "antisense",
+                "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000224388"
+            ]
+        ]
+    },
+    "test11": {
+        "type": "assert_equal",
+        "args": {
+            "searchwords": [
+                "hi"
+            ],
+            "species": "mus_musculus_dba2j_core_105_1",
+            "limit": 3
+        },
+        "expected_result": [
+            [
+                "MGP_DBA2J_G0002730",
+                "H3f3aos",
+                "H3 histone, family 3A, opposite strand [Source:MGI Symbol;Acc:MGI:3802006]",
+                "H3 histone, family 3A, opposite strand",
+                "antisense",
+                "https://useast.ensembl.org/mus_musculus/Gene/Summary?g=MGP_DBA2J_G0002730"
+            ],
+            [
+                "MGP_DBA2J_G0002983",
+                "Dhx58os",
+                "DEAH (Asp-Glu-Ala-His) box polypeptide 58, opposite strand [Source:MGI Symbol;Acc:MGI:3705104]",
+                "DEAH (Asp-Glu-Ala-His) box polypeptide 58, opposite strand",
+                "antisense",
+                "https://useast.ensembl.org/mus_musculus/Gene/Summary?g=MGP_DBA2J_G0002983"
+            ],
+            [
+                "MGP_DBA2J_G0003041",
+                "Notumos",
+                "notum pectinacetylesterase homolog (Drosophila), opposite strand [Source:MGI Symbol;Acc:MGI:3698431]",
+                "notum pectinacetylesterase homolog (Drosophila), opposite strand",
+                "antisense",
+                "https://useast.ensembl.org/mus_musculus/Gene/Summary?g=MGP_DBA2J_G0003041"
+            ]
+        ]
+    },
+    "test12": {
+        "type": "assert_equal",
+        "args": {
+            "searchwords": [
+                "hi"
+            ],
+            "species": "arabidopsis_thaliana",
+            "limit": 3
+        },
+        "expected_result": [
+            [
+                "AT1G01180",
+                "AT1G01180",
+                "S-adenosyl-L-methionine-dependent methyltransferases superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839239]",
+                "S-adenosyl-L-methionine-dependent methyltransferases superfamily protein",
+                "protein_coding",
+                "https://useast.ensembl.org/arabidopsis_thaliana/Gene/Summary?g=AT1G01180"
+            ],
+            [
+                "AT1G01290",
+                "CNX3",
+                "cofactor of nitrate reductase and xanthine dehydrogenase 3 [Source:NCBI gene (formerly Entrezgene);Acc:839445]",
+                "cofactor of nitrate reductase and xanthine dehydrogenase 3",
+                "protein_coding",
+                "https://useast.ensembl.org/arabidopsis_thaliana/Gene/Summary?g=AT1G01290"
+            ],
+            [
+                "AT1G01370",
+                "HTR12",
+                "Histone superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839104]",
+                "Histone superfamily protein",
+                "protein_coding",
+                "https://useast.ensembl.org/arabidopsis_thaliana/Gene/Summary?g=AT1G01370"
+            ]
+        ]
+    },
+    "test13": {
+        "type": "assert_equal",
+        "args": {
+            "searchwords": [
+                "CLF"
+            ],
+            "species": "arabidopsis_thaliana_core_49_102_11"
+        },
+        "expected_result": [
+            [
+                "AT2G23380",
+                "CLF",
+                "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]",
+                "",
+                "protein_coding",
+                "https://useast.ensembl.org/arabidopsis_thaliana/Gene/Summary?g=AT2G23380"
+            ]
+        ]
+    },
     "error_test1": {
         "type": "error",
         "args": {

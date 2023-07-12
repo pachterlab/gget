@@ -35,6 +35,7 @@ from .gget_setup import setup
 from .gget_pdb import pdb
 from .gget_gpt import gpt
 from .gget_cellxgene import cellxgene
+from .gget_elm import elm
 
 
 def main():
@@ -187,7 +188,29 @@ def main():
         "--species",
         type=str,
         required=True,
-        help="Species to be queried, e.g. homo_sapiens.",
+        help=(
+            """
+            Species or database to be queried, e.g. 'homo_sapiens' or 'arabidopsis_thaliana'.  
+            To pass a specific database, pass the name of the CORE database, e.g. 'mus_musculus_dba2j_core_105_1'.  
+            All availabale databases can be found here: http://ftp.ensembl.org/pub.  
+            Supported shortcuts: 'human', 'mouse'. 
+            """
+        ),
+    )
+    parser_gget.add_argument(
+        "-r",
+        "--release",
+        default=None,
+        type=int,
+        required=False,
+        help=(
+            """
+            Defines the Ensembl release number from which the files are fetched, e.g. 104.
+            Note: Does not apply to plant species (you can pass a specific plant core database (which include a release number) to the species argument instead). 
+            This argument is overwritten if a specific database (which includes a release number) is passed to the species argument.
+            Default: None -> latest Ensembl release is used.
+            """
+        ),
     )
     parser_gget.add_argument(
         "-t",
@@ -599,7 +622,7 @@ def main():
         type=str,
         required=False,
         help=(
-            "Path to the csv file the results will be saved in, e.g. path/to/directory/results.csv.\n"
+            "Path to the file the results will be saved in, e.g. path/to/directory/results.json.\n"
             "Default: Standard out."
         ),
     )
@@ -1425,6 +1448,57 @@ def main():
         help="Do not print progress information.",
     )
 
+    ## gget elm subparser
+    elm_desc = "Searches the Eukaryotic Linear Motif resource for Functional Sites in proteins."
+    parser_elm = parent_subparsers.add_parser(
+        "elm", parents=[parent], description=elm_desc, help=elm_desc, add_help=True
+    )
+
+    # elm parser arguments
+    parser_elm.add_argument(
+        "sequence",
+        type=str,
+        help="Amino acid sequence or UniProt ID. Use flag [-u][--uniprot] for UniProt IDs.",
+    )
+
+    parser_elm.add_argument(
+        "-u",
+        "--uniprot",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Search using Uniprot ID.",
+    )
+
+    parser_elm.add_argument(
+        "-csv",
+        "--csv",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Returns results in csv format instead of json.",
+    )
+
+    parser_elm.add_argument(
+        "-o",
+        "--out",
+        type=str,
+        required=False,
+        help=(
+            "Path to the file the results will be saved in, e.g. path/to/directory/results.json.\n"
+            "Default: Standard out."
+        ),
+    )
+
+    parser_elm.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Does not print progress information.",
+    )
+
     ### Define return values
     args = parent_parser.parse_args()
 
@@ -1469,6 +1543,7 @@ def main():
         "pdb": parser_pdb,
         "gpt": parser_gpt,
         "cellxgene": parser_cellxgene,
+        "elm": parser_elm,
     }
 
     if len(sys.argv) == 2:
@@ -1477,6 +1552,42 @@ def main():
         else:
             parent_parser.print_help(sys.stderr)
         sys.exit(1)
+
+    ## elm return
+    if args.command == "elm":
+        # Run gget elm function
+        elm_results = elm(
+            sequence=args.sequence,
+            json=args.csv,
+            uniprot=args.uniprot,
+            verbose=args.quiet,
+        )
+
+        # Check if the function returned something
+        if not isinstance(elm_results, type(None)):
+            # Save elm results if args.out specified
+            if args.out and not args.csv:
+                # Create saving directory
+                directory = "/".join(args.out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+                # Save to csv
+                elm_results.to_csv(args.out, index=False)
+
+            if args.out and args.csv:
+                # Create saving directory
+                directory = "/".join(args.out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+                # Save json
+                with open(args.out, "w", encoding="utf-8") as f:
+                    json.dump(elm_results, f, ensure_ascii=False, indent=4)
+
+            # Print results if no directory specified
+            if not args.out and not args.csv:
+                elm_results.to_csv(sys.stdout, index=False)
+            if not args.out and args.csv:
+                print(json.dumps(elm_results, ensure_ascii=False, indent=4))
 
     ## cellxgene return
     if args.command == "cellxgene":
@@ -1856,7 +1967,8 @@ def main():
         # Query Ensembl for genes based on species and searchwords using function search
         gget_results = search(
             sw_clean_final,
-            args.species,
+            species=args.species,
+            release=args.release,
             id_type=args.id_type,
             seqtype=args.seqtype,
             andor=args.andor,

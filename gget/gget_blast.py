@@ -141,6 +141,9 @@ def blast(
                 "File contains more than one sequence. Only the first sequence will be submitted to BLAST."
             )
 
+    # Convert sequence to upper case
+    sequence = sequence.upper()
+
     ## Set program and database
 
     # Convert program and database to lower case
@@ -154,8 +157,8 @@ def blast(
     # check if a nulceotide or amino acid sequence was passed
     if program == "default":
         # Set of all possible nucleotides and amino acids
-        nucleotides = set("ATGC")
-        amino_acids = set("ARNDCQEGHILKMFPSTWYVBZ")
+        nucleotides = set("ATGCN")
+        amino_acids = set("ARNDCQEGHILKMFPSTWYVBZXBJZ")
 
         # If sequence is a nucleotide sequence, set program to blastn
         if set(sequence) <= nucleotides:

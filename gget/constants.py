@@ -33,3 +33,9 @@ GET_ENRICHR_URL = "https://maayanlab.cloud/Enrichr/enrich"
 # ARCHS4 API endpoints
 GENECORR_URL = "https://maayanlab.cloud/matrixapi/coltop"
 EXPRESSION_URL = "https://maayanlab.cloud/archs4/search/loadExpressionTissue.php?"
+
+#ELM API endpoints
+GET_ELM_API =  "http://elm.eu.org/start_search/"
+
+#ELM URL for web scraping in gget elm
+ELM_URL = "http://elm.eu.org/elms/"

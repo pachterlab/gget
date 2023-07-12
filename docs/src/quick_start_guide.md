@@ -22,6 +22,9 @@ $ gget blast MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS
 # Align nucleotide or amino acid sequences stored in a FASTA file
 $ gget muscle path/to/file.fa
 
+# Use ELM for functional sites in proteins
+$ gget elm DRVYVHPFHL
+
 # Use Enrichr for an ontology analysis of a list of genes
 $ gget enrichr -db ontology ACE2 AGT AGTR1 ACE AGTRAP AGTR2 ACE3P
 
@@ -49,6 +52,7 @@ gget.seq("ENSG00000130234", translate=True)
 gget.blat("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")
 gget.blast("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")
 gget.muscle("path/to/file.fa")
+gget.elm("DRVYVHPFHL")
 gget.enrichr(["ACE2", "AGT", "AGTR1", "ACE", "AGTRAP", "AGTR2", "ACE3P"], database="ontology", plot=True)
 gget.archs4("ACE2", which="tissue")
 gget.pdb("1R42", save=True)

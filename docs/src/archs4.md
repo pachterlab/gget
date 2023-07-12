@@ -52,7 +52,7 @@ gget.archs4("ACE2")
 | CYP2C18 | 0.576577 | 	
 | . . . | . . . | 	
 
-
+<br/><br/>
 
 ```bash
 gget archs4 -w tissue ACE2
@@ -68,5 +68,11 @@ gget.archs4("ACE2", which="tissue")
 | System.Urogenital/Reproductive System.Kidney.RENAL CORTEX | 0.113644 | 8.274060 | 9.695840 | 10.51670 | 11.21970 |
 | System.Digestive System.Intestine.INTESTINAL EPITHELIAL CELL | 0.113644 | 	5.905560 | 9.570450 | 13.26470 | 13.83590 | 
 | . . . | . . . | . . . | . . . | . . . | . . . |
+
+<br/><br/>
+Check out [this tutorial](https://davetang.org/muse/2023/05/16/check-where-a-gene-is-expressed-from-the-command-line/) by Dave Tang who wrote an R script to create this figure from the `gget archs4` JSON output:  
+
+![image](https://github.com/pachterlab/gget/assets/56094636/f2a34a9e-beaa-45a5-a678-d38399dd3017)
+
 
 #### [More examples](https://github.com/pachterlab/gget_examples)

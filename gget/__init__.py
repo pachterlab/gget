@@ -13,6 +13,7 @@ from .gget_pdb import pdb
 from .gget_gpt import gpt
 from .gget_ref import ref
 from .gget_cellxgene import cellxgene
+from .gget_elm import elm
 
 import logging
 logging.basicConfig(
@@ -23,6 +24,6 @@ logging.basicConfig(
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
 
-__version__ = "0.27.7"
+__version__ = "0.27.8"
 __author__ = "Laura Luebbert"
 __email__ = "lauraluebbert@caltech.edu"
