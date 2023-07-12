@@ -1,7 +1,7 @@
 ## ✨ What's new  
 **Version ≥ 0.27.8** (XXX, 2023):  
 - New argument for [`gget search`](./search.md): Specify the Ensembl release from which information is fetched with `-r` `--release`
-- Fixed [bug](https://github.com/pachterlab/gget/issues/91) in [`gget pdb`](./pdb.md)
+- Fixed [bug](https://github.com/pachterlab/gget/issues/91) in [`gget pdb`](./pdb.md) (this bug was introduced in version 0.27.5)
 
 **Version ≥ 0.27.7** (May 15, 2023):  
 - Moved dependencies for modules [`gget gpt`](./gpt.md) and [`gget cellxgene`](./cellxgene.md) from automatically installed requirements to [`gget setup`](./setup.md).  
