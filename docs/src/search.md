@@ -13,7 +13,8 @@ One or more free form search words, e.g. gaba nmda. (Note: Search is not case-se
 Species or database to be searched.  
 A species can be passed in the format 'genus_species', e.g. 'homo_sapiens' or 'arabidopsis_thaliana'.  
 To pass a specific database, pass the name of the CORE database, e.g. 'mus_musculus_dba2j_core_105_1'.  
-All availabale databases can be found [here](http://ftp.ensembl.org/pub).  
+All available databases for each Ensembl release can be found [here](http://ftp.ensembl.org/pub/).  
+  
 Supported shortcuts: 'human', 'mouse'. 
 
 **Optional arguments**  
