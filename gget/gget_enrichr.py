@@ -22,12 +22,13 @@ import textwrap
 from .gget_info import info
 
 # Constants
-from .constants import POST_ENRICHR_URL, GET_ENRICHR_URL
+from .constants import POST_ENRICHR_URL, GET_ENRICHR_URL, POST_BACKGROUND_ID_ENRICHR_URL, GET_BACKGROUND_ENRICHR_URL
 
 
 def enrichr(
     genes,
     database,
+    background=None,
     ensembl=False,
     plot=False,
     figsize=(10, 10),
@@ -42,6 +43,7 @@ def enrichr(
     Args:
     - genes       List of Entrez gene symbols to perform enrichment analysis on, passed as a list of strings, e.g. ['PHF14', 'RBM3', 'MSL1', 'PHF21A'].
                   Set 'ensembl = True' to input a list of Ensembl gene IDs, e.g. ['ENSG00000106443', 'ENSG00000102317', 'ENSG00000188895'].
+    - background  List of background genes
     - database    Database to use as reference for the enrichment analysis.
                   Supported shortcuts (and their default database):
                   'pathway' (KEGG_2021_Human)
@@ -50,7 +52,7 @@ def enrichr(
                   'diseases_drugs' (GWAS_Catalog_2019)
                   'celltypes' (PanglaoDB_Augmented_2021)
                   'kinase_interactions' (KEA_2015)
-                  or any database listed under Gene-set Library at: https://maayanlab.cloud/Enrichr/#libraries
+                  or any database listed under Gene-set Library at: https://maayanlab.cloud/Enrichr/#libraries  
     - ensembl     Define as 'True' if 'genes' is a list of Ensembl gene IDs. (Default: False)
     - plot        True/False whether to provide a graphical overview of the first 15 results. (Default: False)
     - figsize     (width, height) of plot in inches. (Default: (10,10))
@@ -68,48 +70,32 @@ def enrichr(
     Please note that there might a more appropriate database for your application. 
     Go to https://maayanlab.cloud/Enrichr/#libraries for a full list of supported databases.
     """
+    if verbose:
+        logging.info(
+            f"Performing Enichr analysis using database {database}. " + db_message
+        )
 
     if database == "pathway":
         database = "KEGG_2021_Human"
-        if verbose:
-            logging.info(
-                f"Performing Enichr analysis using database {database}. " + db_message
-            )
+      
     elif database == "transcription":
         database = "ChEA_2016"
-        if verbose:
-            logging.info(
-                f"Performing Enichr analysis using database {database}. " + db_message
-            )
+    
     elif database == "ontology":
         database = "GO_Biological_Process_2021"
-        if verbose:
-            logging.info(
-                f"Performing Enichr analysis using database {database}. " + db_message
-            )
+    
     elif database == "diseases_drugs":
         database = "GWAS_Catalog_2019"
-        if verbose:
-            logging.info(
-                f"Performing Enichr analysis using database {database}. " + db_message
-            )
+  
     elif database == "celltypes":
         database = "PanglaoDB_Augmented_2021"
-        if verbose:
-            logging.info(
-                f"Performing Enichr analysis using database {database}. " + db_message
-            )
+      
     elif database == "kinase_interactions":
         database = "KEA_2015"
-        if verbose:
-            logging.info(
-                f"Performing Enichr analysis using database {database}. " + db_message
-            )
+
     else:
         database = database
-        if verbose:
-            logging.info(f"Performing Enichr analysis using database {database}.")
-
+   
     # If single gene passed as string, convert to list
     if type(genes) == str:
         genes = [genes]
@@ -171,6 +157,19 @@ def enrichr(
 
     r1 = requests.post(POST_ENRICHR_URL, files=args_dict)
 
+    # Submit background list to Enrichr API to get background id
+    if background:
+            ## Submit gene list to Enrichr API
+        args_dict = {
+            "backgroundid": (None, background),
+        }
+
+        request_background_id = requests.post(POST_BACKGROUND_ID_ENRICHR_URL, files=args_dict)
+
+        # Get background ID
+        post_results_background= request_background_id.json()
+        background_list_id = post_results_background["backgroundid"]
+
     if not r1.ok:
         raise RuntimeError(
             f"Enrichr HTTP POST response status code: {r1.status_code}. "
@@ -181,18 +180,22 @@ def enrichr(
     post_results = r1.json()
     userListId = post_results["userListId"]
 
-    ## Fetch results from Enrichr API
-    # Build query with user ID
-    query_string = f"?userListId={userListId}&backgroundType={database}"
+    if background is None:
+        query_string = f"?userListId={userListId}&backgroundType={database}"
+        r2 = requests.get(GET_ENRICHR_URL + query_string)
+    else:
+        query_string = f"?userListId={userListId}&backgroundid={background_list_id}&backgroundType={database}"
+        r2 = requests.get(GET_BACKGROUND_ENRICHR_URL + query_string)
 
-    r2 = requests.get(GET_ENRICHR_URL + query_string)
     if not r2.ok:
         raise RuntimeError(
             f"Enrichr HTTP GET response status code: {r2.status_code}. "
             "Please double-check arguments and try again.\n"
         )
 
+
     enrichr_results = r2.json()
+
 
     # Return error if no results were found
     if len(enrichr_results) > 1:
