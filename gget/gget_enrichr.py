@@ -21,6 +21,8 @@ import textwrap
 # Custom functions
 from gget.gget_info import info
 
+# Constants
+from .constants import POST_ENRICHR_URL, GET_ENRICHR_URL, POST_BACKGROUND_ID_ENRICHR_URL, GET_BACKGROUND_ENRICHR_URL
 
 def enrichr(
     genes,
@@ -169,16 +171,19 @@ def enrichr(
     
     # Get background genes list from user or from file of all genes
     background_final = None
-    if all_bkg:
-        print("Background genes is set to all genes")
-        file = open("enrichr_bkg_genes.txt", "r")
-        bkg_list = file.readlines()
-        background_final = "".join(bkg_list)
+
     if bkg_list is not None:
         print("You have provided a list of background genes. Please set all_bkg to False if you haven't yet.")
-        background_final = "\n".join(bkg_list)
+     
+    if all_bkg:
+        print("Background genes is set to all genes")
+        bkg_list = [line.rstrip() for line in open("enrichr_bkg_genes.txt")]
     
-    print(f"List of background genese used {background_final}")
+    background_final = "\n".join(bkg_list)
+    print(background_final)
+    
+    
+
     
     # Submit background list to Enrichr API to get background id
     background_list_id = None
