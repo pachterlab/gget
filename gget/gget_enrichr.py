@@ -27,7 +27,8 @@ from .constants import POST_ENRICHR_URL, GET_ENRICHR_URL, POST_BACKGROUND_ID_ENR
 def enrichr(
     genes,
     database,
-    background=None,
+    bkg_list=None,
+    all_bkg = True,
     ensembl=False,
     plot=False,
     figsize=(10, 10),
@@ -42,7 +43,9 @@ def enrichr(
     Args:
     - genes       List of Entrez gene symbols to perform enrichment analysis on, passed as a list of strings, e.g. ['PHF14', 'RBM3', 'MSL1', 'PHF21A'].
                   Set 'ensembl = True' to input a list of Ensembl gene IDs, e.g. ['ENSG00000106443', 'ENSG00000102317', 'ENSG00000188895'].
-    - background  List of background genes
+    - bkg_list    List of user provided background genes
+    - all_bkd     If True, set all genes as background genes
+    - all
     - database    Database to use as reference for the enrichment analysis.
                   Supported shortcuts (and their default database):
                   'pathway' (KEGG_2021_Human)
@@ -156,17 +159,31 @@ def enrichr(
 
     r1 = requests.post(POST_ENRICHR_URL, files=args_dict)
 
+    if not r1.ok:
+        raise RuntimeError(
+            f"Enrichr HTTP POST response status code: {request_background_id.status_code}. "
+            "Please double-check arguments and try again.\n"
+        )
+
+    # Get user ID
+    post_results = r1.json()
+    userListId = post_results["userListId"]
     
-    # If single gene passed as string, convert to list
-    if type(background) == str:
-        background = [background]
-
-    # Join background genes from list
-    background_final = "\n".join(background)
-
+    # Get background genes list from user or from file of all genes
+    background_final = None
+    if bkg_list is not None and type(bkg_list) == str:
+        bkg_list = [background]
+        # Join background genes from list
+        background_final = "\n".join(bkg_list)
+    elif all_bkg is True:
+        print("Background genes is set to all genes")
+        file = open("enrichr_bkg_genes.txt", "r")
+        bkg_list = file.readlines()
+        background_final = "".join(bkg_list)
+    
     # Submit background list to Enrichr API to get background id
-    if background is not None:
-        # Submit gene list to Enrichr API
+    background_list_id = None
+    if background_final is not None:
         args_dict_background = {
             "background": (None, background_final),
         }
@@ -177,17 +194,16 @@ def enrichr(
         post_results_background= request_background_id.json()
         background_list_id = post_results_background["backgroundid"]
 
-    if not r1.ok:
-        raise RuntimeError(
-            f"Enrichr HTTP POST response status code: {r1.status_code}. "
-            "Please double-check arguments and try again.\n"
-        )
+        if not request_background_id.ok:
+            raise RuntimeError(
+                f"Enrichr HTTP POST response status code: {request_background_id.status_code}. "
+                "Please double-check arguments and try again.\n"
+            )
+    
+        print(f"Background list id is {background_list_id}")
 
-    # Get user ID
-    post_results = r1.json()
-    userListId = post_results["userListId"]
-
-    if background is None:
+    # Submit query to Enrich using gene list and background genes list 
+    if all_bkg is False:
         query_string = f"?userListId={userListId}&backgroundType={database}"
         r2 = requests.get(GET_ENRICHR_URL + query_string)
     else:
@@ -199,10 +215,8 @@ def enrichr(
             f"Enrichr HTTP GET response status code: {r2.status_code}. "
             "Please double-check arguments and try again.\n"
         )
-
-
+    
     enrichr_results = r2.json()
-
 
     # Return error if no results were found
     if len(enrichr_results) > 1:
@@ -247,3 +261,137 @@ def enrichr(
             f"No Enrichr results were found for genes {genes_clean} and database {database}. \n"
             "If the genes are Ensembl IDs, please set argument 'ensembl=True' (for terminal, add flag: [--ensembl])."
         )
+
+     ## Plot if plot=True
+    if plot and len(df) != 0:
+        if ax is None:
+            fig, ax1 = plt.subplots(figsize=figsize)
+        else:
+            ax1 = ax
+
+        fontsize = 12
+        barcolor = "indigo"
+        p_val_color = "darkorange"
+
+        # Only plot first 15 results
+        if len(df) > 15:
+            overlapping_genes = df["overlapping_genes"].values[:15]
+            path_names = df["path_name"].values[:15]
+            adj_p_values = df["adj_p_val"].values[:15]
+        else:
+            overlapping_genes = df["overlapping_genes"].values
+            path_names = df["path_name"].values
+            adj_p_values = df["adj_p_val"].values
+
+        # # Define bar colors by adj. p-value
+        # cmap = plt.get_cmap("viridis")
+        # c_values = -np.log10(adj_p_values)
+        # # Plot scatter to use for colorbar legend
+        # plot = ax1.scatter(c_values, c_values, c = c_values, cmap = cmap)
+        # # Clear axis to remove unnecessary scatter
+        # plt.cla()
+
+        # Get gene counts
+        gene_counts = []
+        for gene_list in overlapping_genes:
+            gene_counts.append(len(gene_list))
+
+        # Wrap pathway labels
+        labels = []
+        for label in path_names:
+            labels.append(
+                textwrap.fill(
+                    label,
+                    width=40,
+                    break_long_words=False,
+                    max_lines=2,
+                    placeholder="...",
+                )
+            )
+
+        # Plot barplot
+        # ax1.barh(labels, gene_counts, color=cmap(c_values), align="center")
+        ax1.barh(labels, gene_counts, color=barcolor, align="center")
+        ax1.invert_yaxis()
+        # Set x-limit to be gene count + 1
+        ax1.set_xlim(0, ax1.get_xlim()[1] + 1)
+
+        # # Add colorbar legend
+        # cb = plt.colorbar(plot)
+        # cb.set_label("$-log_{10}$(adjusted P value)", fontsize=fontsize)
+        # cb.ax1.tick_params(labelsize=fontsize)
+
+        # Add adj. P value secondary x-axis
+        ax2 = ax1.twiny()
+        ax2.scatter(-np.log10(adj_p_values), labels, color=p_val_color, s=20)
+        # Change label and color of p-value axis
+        ax2.set_xlabel(
+            "$-log_{10}$(adjusted P value)", fontsize=fontsize, color=p_val_color
+        )
+        ax2.spines["top"].set_color(p_val_color)
+        ax2.tick_params(axis="x", colors=p_val_color, labelsize=fontsize)
+
+        # Add alpha=0.05 p-value cutoff
+        ax2.axvline(-np.log10(0.05), color=p_val_color, ls="--", lw=2, alpha=0.5)
+        ax2.text(
+            -np.log10(0.05) + 0.02,
+            -0.3,
+            "p = 0.05",
+            ha="left",
+            va="top",
+            rotation="vertical",
+            color=p_val_color,
+            fontsize=fontsize,
+            alpha=0.5,
+        )
+
+        # Set label and color of count axis
+        ax1.set_xlabel(
+            f"Number of overlapping genes (query size: {len(genes)})",
+            color=barcolor,
+            fontsize=fontsize,
+        )
+        ax2.spines["bottom"].set_color(barcolor)
+        ax1.tick_params(axis="x", labelsize=fontsize, colors=barcolor)
+        # Set bottom x axis to keep only integers since counts cannot be floats
+        ax1.xaxis.set_major_locator(MaxNLocator(integer=True))
+        # Change fontsize of y-tick labels
+        ax1.tick_params(axis="y", labelsize=fontsize)
+
+        # Set title
+        ax1.set_title(
+            f"Enrichr results from database {database}", fontsize=fontsize + 2
+        )
+
+        # Set axis margins
+        ax1.margins(y=0, x=0)
+
+        # Remove grids
+        ax1.grid(False)
+        ax2.grid(False)
+
+        plt.tight_layout()
+
+        if save:
+            fig.savefig(
+                "gget_enrichr_results.png",
+                dpi=300,
+                bbox_inches="tight",
+                transparent=True,
+            )
+
+    if json:
+        results_dict = json_package.loads(df.to_json(orient="records"))
+        if save:
+            with open("gget_enrichr_results.json", "w", encoding="utf-8") as f:
+                json_package.dump(results_dict, f, ensure_ascii=False, indent=4)
+
+        # Return results in json format
+        return results_dict
+
+    else:
+        if save:
+            df.to_csv("gget_enrichr_results.csv", index=False)
+
+        # Return data frame
+        return df
