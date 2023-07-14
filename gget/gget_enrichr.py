@@ -27,8 +27,8 @@ from .constants import POST_ENRICHR_URL, GET_ENRICHR_URL, POST_BACKGROUND_ID_ENR
 def enrichr(
     genes,
     database,
-    bkg_list=None,
-    all_bkg = True,
+    background_list=None,
+    background = True,
     ensembl=False,
     plot=False,
     figsize=(10, 10),
@@ -41,20 +41,19 @@ def enrichr(
     Perform an enrichment analysis on a list of genes using Enrichr (https://maayanlab.cloud/Enrichr/).
 
     Args:
-    - genes       List of Entrez gene symbols to perform enrichment analysis on, passed as a list of strings, e.g. ['PHF14', 'RBM3', 'MSL1', 'PHF21A'].
-                  Set 'ensembl = True' to input a list of Ensembl gene IDs, e.g. ['ENSG00000106443', 'ENSG00000102317', 'ENSG00000188895'].
-    - bkg_list    List of user provided background genes
-    - all_bkd     If True, set all genes as background genes
-    - all
-    - database    Database to use as reference for the enrichment analysis.
-                  Supported shortcuts (and their default database):
-                  'pathway' (KEGG_2021_Human)
-                  'transcription' (ChEA_2016)
-                  'ontology' (GO_Biological_Process_2021)
-                  'diseases_drugs' (GWAS_Catalog_2019)
-                  'celltypes' (PanglaoDB_Augmented_2021)
-                  'kinase_interactions' (KEA_2015)
-                  or any database listed under Gene-set Library at: https://maayanlab.cloud/Enrichr/#libraries  
+    - genes             List of Entrez gene symbols to perform enrichment analysis on, passed as a list of strings, e.g. ['PHF14', 'RBM3', 'MSL1', 'PHF21A'].
+                        Set 'ensembl = True' to input a list of Ensembl gene IDs, e.g. ['ENSG00000106443', 'ENSG00000102317', 'ENSG00000188895'].
+    - background_list   List of user provided background genes
+    - background        If True, set all genes as background genes
+    - database          Database to use as reference for the enrichment analysis.
+                        Supported shortcuts (and their default database):
+                        'pathway' (KEGG_2021_Human)
+                        'transcription' (ChEA_2016)
+                        'ontology' (GO_Biological_Process_2021)
+                        'diseases_drugs' (GWAS_Catalog_2019)
+                        'celltypes' (PanglaoDB_Augmented_2021)
+                        'kinase_interactions' (KEA_2015)
+                        or any database listed under Gene-set Library at: https://maayanlab.cloud/Enrichr/#libraries  
     - ensembl     Define as 'True' if 'genes' is a list of Ensembl gene IDs. (Default: False)
     - plot        True/False whether to provide a graphical overview of the first 15 results. (Default: False)
     - figsize     (width, height) of plot in inches. (Default: (10,10))
@@ -97,6 +96,7 @@ def enrichr(
 
     else:
         database = database
+    print(f"Database is {database}")
    
     # If single gene passed as string, convert to list
     if type(genes) == str:
@@ -168,46 +168,49 @@ def enrichr(
     # Get user ID
     post_results = r1.json()
     userListId = post_results["userListId"]
+    print(f"UserId is {userListId}")
     
     # Get background genes list from user or from file of all genes
     background_final = None
 
-    if bkg_list is not None:
-        print("You have provided a list of background genes. Please set all_bkg to False if you haven't yet.")
+    # If user gives a background list, use the user input instead of the default
+    if background_list:
+        background = False
+        print("You have provided a list of background genes. The default background is set to False")
+        background_final = "%".join(background_list)
      
-    if all_bkg:
+    elif background:
         print("Background genes is set to all genes")
-        bkg_list = [line.rstrip() for line in open("enrichr_bkg_genes.txt")]
+        with open('enrichr_bkg_genes.txt') as f:
+            lines = f.read().splitlines() 
+        background_final = "%".join(lines)
     
-    background_final = "\n".join(bkg_list)
-    print(background_final)
-    
-    
-
+    print(f"Background gene list is: {background_final}")
     
     # Submit background list to Enrichr API to get background id
     background_list_id = None
-    if background_final is not None:
+    if background_final:
         args_dict_background = {
             "background": (None, background_final),
         }
 
         request_background_id = requests.post(POST_BACKGROUND_ID_ENRICHR_URL, files=args_dict_background)
 
-        # Get background ID
-        post_results_background= request_background_id.json()
-        background_list_id = post_results_background["backgroundid"]
-
         if not request_background_id.ok:
             raise RuntimeError(
                 f"Enrichr HTTP POST response status code: {request_background_id.status_code}. "
                 "Please double-check arguments and try again.\n"
             )
-    
+
+        # Get background ID
+        post_results_background = request_background_id.json()
+        background_list_id = post_results_background["backgroundid"]
+        print(post_results_background)
         print(f"Background list id is {background_list_id}")
 
+    
     # Submit query to Enrich using gene list and background genes list 
-    if all_bkg is False:
+    if not background_final:
         query_string = f"?userListId={userListId}&backgroundType={database}"
         r2 = requests.get(GET_ENRICHR_URL + query_string)
     else:
@@ -221,6 +224,7 @@ def enrichr(
         )
     
     enrichr_results = r2.json()
+    
  
     # Return error if no results were found
     if len(enrichr_results) > 1:
