@@ -13,7 +13,8 @@
                 "TRMT112",
                 "MTHFD2L"
             ],
-            "database": "pathway"
+            "database": "pathway",
+            "background": "False"
         },
         "expected_result": [
             [
@@ -47,6 +48,7 @@
         "args": {
             "genes": "ACE2",
             "database": "KEGG_2021_Human",
+            "background": "False",
             "json": true
         },
         "expected_result": [
@@ -104,7 +106,8 @@
                 "TRMT112",
                 "MTHFD2L"
             ],
-            "database": "pathway"
+            "database": "pathway",
+            "background": "False"
         },
         "expected_result": [
             [
@@ -143,7 +146,8 @@
                 "TRMT112",
                 "MTHFD2L"
             ],
-            "database": "transcription"
+            "database": "transcription",
+            "background": "False"
         },
         "expected_result": [
             [
@@ -3372,6 +3376,7 @@
                 "ENSG00000135365"
             ],
             "database": "ontology",
+            "background": "False",
             "ensembl": true
         },
         "expected_result": [
@@ -3704,7 +3709,8 @@
                 "TRMT112",
                 "MTHFD2L"
             ],
-            "database": "ontology"
+            "database": "ontology",
+            "background": "False"
         },
         "expected_result": [
             [
@@ -4953,7 +4959,8 @@
                 "TRMT112",
                 "MTHFD2L"
             ],
-            "database": "diseases_drugs"
+            "database": "diseases_drugs",
+            "background": "False"
         },
         "expected_result": [
             [
@@ -5231,7 +5238,8 @@
                 "HEG1",
                 "HRAT17"
             ],
-            "database": "celltypes"
+            "database": "celltypes",
+            "background": "False"
         },
         "expected_result": [
             [
@@ -5306,7 +5314,8 @@
                 "HEG1",
                 "HRAT17"
             ],
-            "database": "kinase_interactions"
+            "database": "kinase_interactions", 
+            "background": "False"
         },
         "expected_result": [
             [
@@ -5387,7 +5396,8 @@
         "type": "assert_equal",
         "args": {
             "genes": "banana",
-            "database": "ontology"
+            "database": "ontology",
+            "background": "False"
         },
         "expected_result": "df.empty"
     }
