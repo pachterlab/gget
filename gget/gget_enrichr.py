@@ -21,8 +21,6 @@ import textwrap
 # Custom functions
 from gget.gget_info import info
 
-# Constants
-from .constants import POST_ENRICHR_URL, GET_ENRICHR_URL, POST_BACKGROUND_ID_ENRICHR_URL, GET_BACKGROUND_ENRICHR_URL
 
 def enrichr(
     genes,
@@ -171,15 +169,16 @@ def enrichr(
     
     # Get background genes list from user or from file of all genes
     background_final = None
-    if bkg_list is not None and type(bkg_list) == str:
-        bkg_list = [background]
-        # Join background genes from list
-        background_final = "\n".join(bkg_list)
-    elif all_bkg is True:
+    if all_bkg:
         print("Background genes is set to all genes")
         file = open("enrichr_bkg_genes.txt", "r")
         bkg_list = file.readlines()
         background_final = "".join(bkg_list)
+    if bkg_list is not None:
+        print("You have provided a list of background genes. Please set all_bkg to False if you haven't yet.")
+        background_final = "\n".join(bkg_list)
+    
+    print(f"List of background genese used {background_final}")
     
     # Submit background list to Enrichr API to get background id
     background_list_id = None
@@ -217,7 +216,7 @@ def enrichr(
         )
     
     enrichr_results = r2.json()
-
+ 
     # Return error if no results were found
     if len(enrichr_results) > 1:
         logging.error(
@@ -239,6 +238,7 @@ def enrichr(
         "Old p-value",
         "Old adjusted p-value",
     ]
+    
     try:
         # Create data frame from Enrichr results
         df = pd.DataFrame(enrichr_results[database], columns=columns)
@@ -261,7 +261,6 @@ def enrichr(
             f"No Enrichr results were found for genes {genes_clean} and database {database}. \n"
             "If the genes are Ensembl IDs, please set argument 'ensembl=True' (for terminal, add flag: [--ensembl])."
         )
-
      ## Plot if plot=True
     if plot and len(df) != 0:
         if ax is None:
