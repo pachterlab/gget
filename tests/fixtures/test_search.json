@@ -3,7 +3,7 @@
         "type": "assert_equal",
         "args": {
             "searchwords": "swiss",
-            "species": "drosophila_melanogaster_core_110_9",
+            "species": "drosophila_melanogaster_core_110_10",
             "id_type": "gene",
             "limit": null
         },
@@ -14,7 +14,7 @@
                 "swiss cheese",
                 null,
                 "protein_coding",
-                "https://useast.ensembl.org/drosophila_melanogaster_core_110_9//Gene/Summary?g=FBgn0003656"
+                "https://useast.ensembl.org/drosophila_melanogaster_core_110_10/Gene/Summary?g=FBgn0003656"
             ]
         ]
     },
@@ -22,7 +22,7 @@
         "type": "assert_equal",
         "args": {
             "searchwords": "swiss",
-            "species": "drosophila_melanogaster_core_110_9",
+            "species": "drosophila_melanogaster_core_110_10",
             "id_type": "gene",
             "json": true
         },
@@ -33,7 +33,7 @@
                 "ensembl_description": "swiss cheese",
                 "ext_ref_description": null,
                 "biotype": "protein_coding",
-                "url": "https://useast.ensembl.org/drosophila_melanogaster_core_110_9//Gene/Summary?g=FBgn0003656"
+                "url": "https://useast.ensembl.org/drosophila_melanogaster_core_110_10/Gene/Summary?g=FBgn0003656"
             }
         ]
     },
@@ -56,7 +56,7 @@
                 "swiss cheese",
                 null,
                 "protein_coding",
-                "https://useast.ensembl.org/drosophila_melanogaster_core_110_9//Gene/Summary?g=FBgn0003656"
+                "https://useast.ensembl.org/drosophila_melanogaster_core_110_9/Gene/Summary?g=FBgn0003656"
             ],
             [
                 "FBgn0043362",
@@ -64,7 +64,7 @@
                 "blue cheese",
                 null,
                 "protein_coding",
-                "https://useast.ensembl.org/drosophila_melanogaster_core_110_9//Gene/Summary?g=FBgn0043362"
+                "https://useast.ensembl.org/drosophila_melanogaster_core_110_9/Gene/Summary?g=FBgn0043362"
             ]
         ]
     },
