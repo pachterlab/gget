@@ -96,7 +96,6 @@ def enrichr(
 
     else:
         database = database
-    print(f"Database is {database}")
    
     # If single gene passed as string, convert to list
     if type(genes) == str:
@@ -168,7 +167,6 @@ def enrichr(
     # Get user ID
     post_results = r1.json()
     userListId = post_results["userListId"]
-    print(f"UserId is {userListId}")
     
     # Get background genes list from user or from file of all genes
     background_final = None
@@ -176,16 +174,16 @@ def enrichr(
     # If user gives a background list, use the user input instead of the default
     if background_list:
         background = False
-        print("You have provided a list of background genes. The default background is set to False")
-        background_final = "%".join(background_list)
+        if verbose:
+            logging.info("You have provided a list of background genes. The default background is set to False")
+        background_final = "\n".join(background_list)
      
     elif background:
-        print("Background genes is set to all genes")
+        logging.info("Background genes is set to all genes")
         with open('enrichr_bkg_genes.txt') as f:
             lines = f.read().splitlines() 
-        background_final = "%".join(lines)
+        background_final = "\n".join(lines)
     
-    print(f"Background gene list is: {background_final}")
     
     # Submit background list to Enrichr API to get background id
     background_list_id = None
@@ -205,8 +203,6 @@ def enrichr(
         # Get background ID
         post_results_background = request_background_id.json()
         background_list_id = post_results_background["backgroundid"]
-        print(post_results_background)
-        print(f"Background list id is {background_list_id}")
 
     
     # Submit query to Enrich using gene list and background genes list 
@@ -215,7 +211,7 @@ def enrichr(
         r2 = requests.get(GET_ENRICHR_URL + query_string)
     else:
         query_string = f"?userListId={userListId}&backgroundid={background_list_id}&backgroundType={database}"
-        r2 = requests.get(GET_BACKGROUND_ENRICHR_URL + query_string)
+        r2 = requests.post(GET_BACKGROUND_ENRICHR_URL + query_string)
 
     if not r2.ok:
         raise RuntimeError(
