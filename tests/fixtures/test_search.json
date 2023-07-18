@@ -3,7 +3,7 @@
         "type": "assert_equal",
         "args": {
             "searchwords": "swiss",
-            "species": "drosophila melanogaster core 110 9",
+            "species": "drosophila_melanogaster_core_110_9",
             "id_type": "gene",
             "limit": null
         },
@@ -22,7 +22,7 @@
         "type": "assert_equal",
         "args": {
             "searchwords": "swiss",
-            "species": "drosophila melanogaster core 110 9",
+            "species": "drosophila_melanogaster_core_110_9",
             "id_type": "gene",
             "json": true
         },
@@ -44,7 +44,7 @@
                 "swiss",
                 "cheese"
             ],
-            "species": "drosophila melanogaster core 110 9",
+            "species": "drosophila_melanogaster_core_110_9",
             "id_type": "gene",
             "andor": "or",
             "limit": null
@@ -270,7 +270,7 @@
                 "swiss",
                 "cheese"
             ],
-            "species": "droso",
+            "species": "drosophila_melanogaster_core_110_10",
             "id_type": "gene",
             "andor": "and",
             "limit": null
@@ -282,7 +282,7 @@
                 "swiss cheese",
                 null,
                 "protein_coding",
-                "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
+                "https://useast.ensembl.org/drosophila_melanogaster_core_110_10/Gene/Summary?g=FBgn0003656"
             ]
         ]
     },
