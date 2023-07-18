@@ -22,13 +22,20 @@ import textwrap
 from gget.gget_info import info
 
 # Constants
-from .constants import POST_ENRICHR_URL, GET_ENRICHR_URL, POST_BACKGROUND_ID_ENRICHR_URL, GET_BACKGROUND_ENRICHR_URL
+from .constants import (
+    POST_ENRICHR_URL,
+    GET_ENRICHR_URL,
+    POST_BACKGROUND_ID_ENRICHR_URL,
+    GET_BACKGROUND_ENRICHR_URL,
+)
+from .compile import PACKAGE_PATH
+
 
 def enrichr(
     genes,
     database,
-    background_list = None,
-    background = False,
+    background_list=None,
+    background=False,
     ensembl=False,
     plot=False,
     figsize=(10, 10),
@@ -53,7 +60,7 @@ def enrichr(
                         'diseases_drugs' (GWAS_Catalog_2019)
                         'celltypes' (PanglaoDB_Augmented_2021)
                         'kinase_interactions' (KEA_2015)
-                        or any database listed under Gene-set Library at: https://maayanlab.cloud/Enrichr/#libraries  
+                        or any database listed under Gene-set Library at: https://maayanlab.cloud/Enrichr/#libraries
     - ensembl     Define as 'True' if 'genes' is a list of Ensembl gene IDs. (Default: False)
     - plot        True/False whether to provide a graphical overview of the first 15 results. (Default: False)
     - figsize     (width, height) of plot in inches. (Default: (10,10))
@@ -78,25 +85,25 @@ def enrichr(
 
     if database == "pathway":
         database = "KEGG_2021_Human"
-      
+
     elif database == "transcription":
         database = "ChEA_2016"
-    
+
     elif database == "ontology":
         database = "GO_Biological_Process_2021"
-    
+
     elif database == "diseases_drugs":
         database = "GWAS_Catalog_2019"
-  
+
     elif database == "celltypes":
         database = "PanglaoDB_Augmented_2021"
-      
+
     elif database == "kinase_interactions":
         database = "KEA_2015"
 
     else:
         database = database
-   
+
     # If single gene passed as string, convert to list
     if type(genes) == str:
         genes = [genes]
@@ -133,7 +140,6 @@ def enrichr(
         # Move above to function that takes Ensembl IDs and returns gene names and do the same for the bkg list if provided
         # if background_list:
 
-
         if verbose:
             logging.info(
                 f"Performing Enichr analysis on the following gene symbols: {', '.join(genes_v2)}"
@@ -151,13 +157,11 @@ def enrichr(
     # To-do!!!
     # Remove any NaNs/Nones from the background list
 
-
     if len(genes_clean) == 0 and ensembl:
         logging.error("No gene symbols found for given Ensembl IDs.")
         return
     # To-do!!!
     # Add a logging.error("No gene symbols found for given Ensembl IDs.") for bkg genes when ensembl==True
-
 
     # Join genes from list
     genes_clean_final = "\n".join(genes_clean)
@@ -186,17 +190,20 @@ def enrichr(
     # If user gives a background list, use the user input instead of the default
     if background_list:
         if background:
-            logging.warning("Since you provided a list of background genes, the 'background==True' argument to use the example background gene list is being ignored.")
+            logging.warning(
+                "Since you provided a list of background genes, the 'background==True' argument to use the example background gene list is being ignored."
+            )
         background_final = "\n".join(background_list)
-     
+
     elif background:
         if verbose:
-            logging.info("Background genes are set to example genes from https://maayanlab.cloud/Enrichr/.")
-        with open("gget/enrichr_bkg_genes.txt") as f:
+            logging.info(
+                "Background genes are set to example genes from https://maayanlab.cloud/Enrichr/."
+            )
+        with open("{PACKAGE_PATH}/constants/enrichr_bkg_genes.txt") as f:
             lines = f.read().splitlines()
         background_final = "\n".join(lines)
-    
-    
+
     # Submit background list to Enrichr API to get background id
     background_list_id = None
     if background_final:
@@ -204,7 +211,9 @@ def enrichr(
             "background": (None, background_final),
         }
 
-        request_background_id = requests.post(POST_BACKGROUND_ID_ENRICHR_URL, files=args_dict_background)
+        request_background_id = requests.post(
+            POST_BACKGROUND_ID_ENRICHR_URL, files=args_dict_background
+        )
 
         if not request_background_id.ok:
             raise RuntimeError(
@@ -216,8 +225,7 @@ def enrichr(
         post_results_background = request_background_id.json()
         background_list_id = post_results_background["backgroundid"]
 
-    
-    # Submit query to Enrich using gene list and background genes list 
+    # Submit query to Enrich using gene list and background genes list
     if not background_final:
         query_string = f"?userListId={userListId}&backgroundType={database}"
         r2 = requests.get(GET_ENRICHR_URL + query_string)
@@ -230,10 +238,9 @@ def enrichr(
             f"Enrichr HTTP GET response status code: {r2.status_code}. "
             "Please double-check arguments and try again.\n"
         )
-    
+
     enrichr_results = r2.json()
-    
- 
+
     # Return error if no results were found
     # To-do!! Is this right setting this == 0 ????
     if len(enrichr_results) == 0:
@@ -256,7 +263,7 @@ def enrichr(
         "Old p-value",
         "Old adjusted p-value",
     ]
-    
+
     try:
         # Create data frame from Enrichr results
         df = pd.DataFrame(enrichr_results[database], columns=columns)
@@ -280,7 +287,7 @@ def enrichr(
             "If the genes are Ensembl IDs, please set argument 'ensembl=True' (for terminal, add flag: [--ensembl])."
         )
 
-     ## Plot if plot=True
+    ## Plot if plot=True
     if plot and len(df) != 0:
         if ax is None:
             fig, ax1 = plt.subplots(figsize=figsize)
