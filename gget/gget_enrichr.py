@@ -27,8 +27,8 @@ from .constants import POST_ENRICHR_URL, GET_ENRICHR_URL, POST_BACKGROUND_ID_ENR
 def enrichr(
     genes,
     database,
-    background_list=None,
-    background = True,
+    background_list = None,
+    background = False,
     ensembl=False,
     plot=False,
     figsize=(10, 10),
@@ -43,8 +43,8 @@ def enrichr(
     Args:
     - genes             List of Entrez gene symbols to perform enrichment analysis on, passed as a list of strings, e.g. ['PHF14', 'RBM3', 'MSL1', 'PHF21A'].
                         Set 'ensembl = True' to input a list of Ensembl gene IDs, e.g. ['ENSG00000106443', 'ENSG00000102317', 'ENSG00000188895'].
-    - background_list   List of user provided background genes
-    - background        If True, set all genes as background genes
+    - background_list   List of gene names/Ensembl IDs to be used as background genes. (Default: None)
+    - background        If True, use set of example genes from https://maayanlab.cloud/Enrichr/ as background. (Default: False)
     - database          Database to use as reference for the enrichment analysis.
                         Supported shortcuts (and their default database):
                         'pathway' (KEGG_2021_Human)
@@ -129,6 +129,11 @@ def enrichr(
             else:
                 genes_v2.append(str(gene_symbol))
 
+        # To-do!!!
+        # Move above to function that takes Ensembl IDs and returns gene names and do the same for the bkg list if provided
+        # if background_list:
+
+
         if verbose:
             logging.info(
                 f"Performing Enichr analysis on the following gene symbols: {', '.join(genes_v2)}"
@@ -143,9 +148,16 @@ def enrichr(
         if not gene == np.NaN and not gene is None and not isinstance(gene, float):
             genes_clean.append(gene)
 
+    # To-do!!!
+    # Remove any NaNs/Nones from the background list
+
+
     if len(genes_clean) == 0 and ensembl:
         logging.error("No gene symbols found for given Ensembl IDs.")
         return
+    # To-do!!!
+    # Add a logging.error("No gene symbols found for given Ensembl IDs.") for bkg genes when ensembl==True
+
 
     # Join genes from list
     genes_clean_final = "\n".join(genes_clean)
@@ -160,28 +172,28 @@ def enrichr(
 
     if not r1.ok:
         raise RuntimeError(
-            f"Enrichr HTTP POST response status code: {request_background_id.status_code}. "
+            f"Enrichr HTTP POST gene list response status code: {request_background_id.status_code}. "
             "Please double-check arguments and try again.\n"
         )
 
     # Get user ID
     post_results = r1.json()
     userListId = post_results["userListId"]
-    
+
     # Get background genes list from user or from file of all genes
     background_final = None
 
     # If user gives a background list, use the user input instead of the default
     if background_list:
-        background = False
-        if verbose:
-            logging.info("You have provided a list of background genes. The default background is set to False")
+        if background:
+            logging.warning("Since you provided a list of background genes, the 'background==True' argument to use the example background gene list is being ignored.")
         background_final = "\n".join(background_list)
      
     elif background:
-        logging.info("Background genes is set to all genes")
+        if verbose:
+            logging.info("Background genes are set to example genes from https://maayanlab.cloud/Enrichr/.")
         with open("gget/enrichr_bkg_genes.txt") as f:
-            lines = f.read().splitlines() 
+            lines = f.read().splitlines()
         background_final = "\n".join(lines)
     
     
@@ -196,7 +208,7 @@ def enrichr(
 
         if not request_background_id.ok:
             raise RuntimeError(
-                f"Enrichr HTTP POST response status code: {request_background_id.status_code}. "
+                f"Enrichr HTTP POST background gene list response status code: {request_background_id.status_code}. "
                 "Please double-check arguments and try again.\n"
             )
 
@@ -223,7 +235,8 @@ def enrichr(
     
  
     # Return error if no results were found
-    if len(enrichr_results) > 1:
+    # To-do!! Is this right setting this == 0 ????
+    if len(enrichr_results) == 0:
         logging.error(
             f"No Enrichr results were found for genes {genes_clean} and database {database}. \n"
             "If the genes are Ensembl IDs, please set argument 'ensembl=True'. (For command-line, add flag [-e][--ensembl].)"
@@ -266,6 +279,7 @@ def enrichr(
             f"No Enrichr results were found for genes {genes_clean} and database {database}. \n"
             "If the genes are Ensembl IDs, please set argument 'ensembl=True' (for terminal, add flag: [--ensembl])."
         )
+
      ## Plot if plot=True
     if plot and len(df) != 0:
         if ax is None:
