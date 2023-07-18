@@ -180,7 +180,7 @@ def enrichr(
      
     elif background:
         logging.info("Background genes is set to all genes")
-        with open('enrichr_bkg_genes.txt') as f:
+        with open("gget/enrichr_bkg_genes.txt") as f:
             lines = f.read().splitlines() 
         background_final = "\n".join(lines)
     
