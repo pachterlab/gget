@@ -166,7 +166,7 @@
                 "Q9U969",
                 "31716",
                 "drosophila_melanogaster",
-                "BDGP6.32",
+                "BDGP6.46",
                 "sws",
                 "sws",
                 [
@@ -192,9 +192,10 @@
                 7956820,
                 7968236,
                 [
-                    "FBtr0301675",
+                    "FBtr0071126",
                     "FBtr0071125",
-                    "FBtr0071126"
+                    "FBtr0301675"
+                    
                 ],
                 [
                     "protein_coding",
@@ -202,9 +203,10 @@
                     "protein_coding"
                 ],
                 [
-                    "sws-RC",
+                    "sws-RB",
                     "sws-RA",
-                    "sws-RB"
+                    "sws-RC"
+                    
                 ],
                 [
                     -1,
@@ -579,7 +581,7 @@
                 107526965
             ],
             [
-                "ENSG00000169174.11",
+                "ENSG00000169174.12",
                 "Q8NBP7",
                 "homo_sapiens",
                 "GRCh38",
