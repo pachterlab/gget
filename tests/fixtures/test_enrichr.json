@@ -5404,7 +5404,7 @@
             "background": "False"
         },
         "expected_result": "df.empty"
-    }
+    },
     "test11": {
         "type": "assert_equal",
         "args": {
@@ -5556,7 +5556,8 @@
                 "CXXC1",
                 "LINC01314",
                 "ATF7",
-                "ATP5F1""COX15",
+                "ATP5F1",
+                "COX15",
                 "TMEM30A",
                 "NSMCE4A",
                 "TM2D2",
@@ -5584,7 +5585,7 @@
                 "LRRC8A",
                 "SMO",
                 "NUPL2"
-            ]
+            ],
             "json": "True"
         },
         "expected_result": [
@@ -5665,8 +5666,8 @@
                 "rank": 5,
                 "path_name": "GLI1 17442700 ChIP-ChIP MESCs Mouse",
                 "p_val": 0.0142740052,
-                "z_score": None,
-                "combined_score": None,
+                "z_score": null,
+                "combined_score": null,
                 "overlapping_genes": [
                     "ROBO2",
                     "PHF21A",
@@ -5679,8 +5680,8 @@
                 "rank": 6,
                 "path_name": "BRD4 28847988 ChIP-Seq BCBL1 Human Blood Lymphoma",
                 "p_val": 0.0142740052,
-                "z_score": None,
-                "combined_score": None,
+                "z_score": null,
+                "combined_score": null,
                 "overlapping_genes": [
                     "CUX1",
                     "PHF21A",
@@ -5693,8 +5694,8 @@
                 "rank": 7,
                 "path_name": "POU2F1 35413990 ChIP-Seq Human ARposCRProstateCancer",
                 "p_val": 0.0142740052,
-                "z_score": None,
-                "combined_score": None,
+                "z_score": null,
+                "combined_score": null,
                 "overlapping_genes": [
                     "ANAPC16",
                     "CRYZL1",
@@ -6110,8 +6111,8 @@
                 "rank": 32,
                 "path_name": "DROSHA 22980978 ChIP-Seq HELA Human",
                 "p_val": 0.0602187514,
-                "z_score": None,
-                "combined_score": None,
+                "z_score": null,
+                "combined_score": null,
                 "overlapping_genes": [
                     "INSR",
                     "PLBD2"
@@ -6123,8 +6124,8 @@
                 "rank": 33,
                 "path_name": "EED 16625203 ChIP-ChIP MESCs Mouse",
                 "p_val": 0.0602187514,
-                "z_score": None,
-                "combined_score": None,
+                "z_score": null,
+                "combined_score": null,
                 "overlapping_genes": [
                     "HSPA1L",
                     "CDH8"
@@ -6136,8 +6137,8 @@
                 "rank": 34,
                 "path_name": "JARID2 20075857 ChIP-Seq MESCs Mouse",
                 "p_val": 0.0602187514,
-                "z_score": None,
-                "combined_score": None,
+                "z_score": null,
+                "combined_score": null,
                 "overlapping_genes": [
                     "CRYZL1",
                     "CDH8"
@@ -6149,8 +6150,8 @@
                 "rank": 35,
                 "path_name": "SOX4 29892750 ChIP-Seq EML Mouse BoneMarrow",
                 "p_val": 0.0602187514,
-                "z_score": None,
-                "combined_score": None,
+                "z_score": null,
+                "combined_score": null,
                 "overlapping_genes": [
                     "PPM1B",
                     "INSR"
@@ -7942,8 +7943,8 @@
                 "rank": 150,
                 "path_name": "TAL1 26923725 Chip-Seq MACROPHAGESS Mouse",
                 "p_val": 0.2481749527,
-                "z_score": None,
-                "combined_score": None,
+                "z_score": null,
+                "combined_score": null,
                 "overlapping_genes": [
                     "CDH8"
                 ],
@@ -7954,8 +7955,8 @@
                 "rank": 151,
                 "path_name": "DMRT1 21621532 ChIP-ChIP FETAL Ovary",
                 "p_val": 0.2481749527,
-                "z_score": None,
-                "combined_score": None,
+                "z_score": null,
+                "combined_score": null,
                 "overlapping_genes": [
                     "LARP7"
                 ],
@@ -7966,8 +7967,8 @@
                 "rank": 152,
                 "path_name": "FOXM1 23109430 ChIP-Seq U2OS Human",
                 "p_val": 0.2481749527,
-                "z_score": None,
-                "combined_score": None,
+                "z_score": null,
+                "combined_score": null,
                 "overlapping_genes": [
                     "PPM1B"
                 ],
@@ -7978,8 +7979,8 @@
                 "rank": 153,
                 "path_name": "NANOG 18700969 ChIP-ChIP MESCs Mouse",
                 "p_val": 0.2481749527,
-                "z_score": None,
-                "combined_score": None,
+                "z_score": null,
+                "combined_score": null,
                 "overlapping_genes": [
                     "CRYZL1"
                 ],
@@ -7990,8 +7991,8 @@
                 "rank": 154,
                 "path_name": "LMO2 26923725 Chip-Seq MACROPHAGESS Mouse",
                 "p_val": 0.2481749527,
-                "z_score": None,
-                "combined_score": None,
+                "z_score": null,
+                "combined_score": null,
                 "overlapping_genes": [
                     "ATF7"
                 ],
@@ -8002,8 +8003,8 @@
                 "rank": 155,
                 "path_name": "VDR 22108803 ChIP-Seq LS180 Human",
                 "p_val": 0.2481749527,
-                "z_score": None,
-                "combined_score": None,
+                "z_score": null,
+                "combined_score": null,
                 "overlapping_genes": [
                     "CDH8"
                 ],
@@ -8014,8 +8015,8 @@
                 "rank": 156,
                 "path_name": "PPARG 20176806 ChIP-Seq THIOMACROPHAGE Mouse",
                 "p_val": 0.2481749527,
-                "z_score": None,
-                "combined_score": None,
+                "z_score": null,
+                "combined_score": null,
                 "overlapping_genes": [
                     "TMCC1"
                 ],
@@ -8026,8 +8027,8 @@
                 "rank": 157,
                 "path_name": "TBX4 33478486 ChIP-Seq IMR90 Human Lung",
                 "p_val": 0.2481749527,
-                "z_score": None,
-                "combined_score": None,
+                "z_score": null,
+                "combined_score": null,
                 "overlapping_genes": [
                     "CDH8"
                 ],
@@ -8038,8 +8039,8 @@
                 "rank": 158,
                 "path_name": "FOXA1 33576154 ChIP-Seq Human HilarLN ProstateCancer",
                 "p_val": 0.2481749527,
-                "z_score": None,
-                "combined_score": None,
+                "z_score": null,
+                "combined_score": null,
                 "overlapping_genes": [
                     "TMCC1"
                 ],
@@ -8050,8 +8051,8 @@
                 "rank": 159,
                 "path_name": "PITX1 30713093 ChIP-Seq Epithelial Human Tongue SCC",
                 "p_val": 0.2481749527,
-                "z_score": None,
-                "combined_score": None,
+                "z_score": null,
+                "combined_score": null,
                 "overlapping_genes": [
                     "TMCC1"
                 ],
@@ -8062,8 +8063,8 @@
                 "rank": 160,
                 "path_name": "RUNX1 22343733 ChIP-Seq Kasumi1 Human PeriphBlood AML",
                 "p_val": 0.2481749527,
-                "z_score": None,
-                "combined_score": None,
+                "z_score": null,
+                "combined_score": null,
                 "overlapping_genes": [
                     "CUX1"
                 ],
