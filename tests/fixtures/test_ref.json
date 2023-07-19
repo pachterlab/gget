@@ -163,7 +163,7 @@
         "expected_result": [
             "http://ftp.ensembl.org/pub/release-110/fasta/taeniopygia_guttata/dna/Taeniopygia_guttata.bTaeGut1_v1.p.dna.toplevel.fa.gz",
             "http://ftp.ensembl.org/pub/release-110/fasta/taeniopygia_guttata/ncrna/Taeniopygia_guttata.bTaeGut1_v1.p.ncrna.fa.gz",
-            "http://ftp.ensembl.org/pub/release-110/gtf/taeniopygia_guttata/Taeniopygia_guttata.bTaeGut1_v1.p.109.gtf.gz"
+            "http://ftp.ensembl.org/pub/release-110/gtf/taeniopygia_guttata/Taeniopygia_guttata.bTaeGut1_v1.p.110.gtf.gz"
         ]
     },
     "test6": {
