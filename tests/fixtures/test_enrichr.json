@@ -6562,319 +6562,319 @@
             "ensembl": true
         },
         "expected_result": [
-            {
-                "rank": 1,
-                "path_name": "histone H3-K14 acetylation (GO:0044154)",
-                "p_val": 0.0013993412,
-                "z_score": 1110.5555555556,
-                "combined_score": 7298.2976057219,
-                "overlapping_genes": [
+            [
+                1,
+                "histone H3-K14 acetylation (GO:0044154)",
+                0.0013993412035435105,
+                1110.5555555555557,
+                7298.29760572189,
+                [
                     "PHF14"
                 ],
-                "adj_p_val": 0.0253881476,
-                "database": "GO_Biological_Process_2021"
-            },
-            {
-                "rank": 2,
-                "path_name": "positive regulation of mRNA splicing, via spliceosome (GO:0048026)",
-                "p_val": 0.0035953576,
-                "z_score": 391.7450980392,
-                "combined_score": 2204.7852142154,
-                "overlapping_genes": [
+                0.025388147590576983,
+                "GO_Biological_Process_2021"
+            ],
+            [
+                2,
+                "positive regulation of mRNA splicing, via spliceosome (GO:0048026)",
+                0.003595357627375994,
+                391.7450980392157,
+                2204.7852142154165,
+                [
                     "RBM3"
                 ],
-                "adj_p_val": 0.0253881476,
-                "database": "GO_Biological_Process_2021"
-            },
-            {
-                "rank": 3,
-                "path_name": "histone H4-K16 acetylation (GO:0043984)",
-                "p_val": 0.0037948161,
-                "z_score": 369.962962963,
-                "combined_score": 2062.2177011886,
-                "overlapping_genes": [
+                0.025388147590576983,
+                "GO_Biological_Process_2021"
+            ],
+            [
+                3,
+                "histone H4-K16 acetylation (GO:0043984)",
+                0.0037948161126764622,
+                369.962962962963,
+                2062.2177011886433,
+                [
                     "MSL1"
                 ],
-                "adj_p_val": 0.0253881476,
-                "database": "GO_Biological_Process_2021"
-            },
-            {
-                "rank": 4,
-                "path_name": "positive regulation of mRNA processing (GO:0050685)",
-                "p_val": 0.004592351,
-                "z_score": 302.6363636364,
-                "combined_score": 1629.201456416,
-                "overlapping_genes": [
+                0.025388147590576983,
+                "GO_Biological_Process_2021"
+            ],
+            [
+                4,
+                "positive regulation of mRNA processing (GO:0050685)",
+                0.004592351033521324,
+                302.6363636363636,
+                1629.2014564159526,
+                [
                     "RBM3"
                 ],
-                "adj_p_val": 0.0253881476,
-                "database": "GO_Biological_Process_2021"
-            },
-            {
-                "rank": 5,
-                "path_name": "positive regulation of RNA splicing (GO:0033120)",
-                "p_val": 0.0061859858,
-                "z_score": 221.8444444444,
-                "combined_score": 1128.1830239295,
-                "overlapping_genes": [
+                0.025388147590576983,
+                "GO_Biological_Process_2021"
+            ],
+            [
+                5,
+                "positive regulation of RNA splicing (GO:0033120)",
+                0.0061859857715872765,
+                221.84444444444443,
+                1128.183023929502,
+                [
                     "RBM3"
                 ],
-                "adj_p_val": 0.0253881476,
-                "database": "GO_Biological_Process_2021"
-            },
-            {
-                "rank": 6,
-                "path_name": "regulation of cellular amide metabolic process (GO:0034248)",
-                "p_val": 0.0063850556,
-                "z_score": 214.6774193548,
-                "combined_score": 1084.9356859844,
-                "overlapping_genes": [
+                0.025388147590576983,
+                "GO_Biological_Process_2021"
+            ],
+            [
+                6,
+                "regulation of cellular amide metabolic process (GO:0034248)",
+                0.006385055602597088,
+                214.67741935483872,
+                1084.93568598441,
+                [
                     "RBM3"
                 ],
-                "adj_p_val": 0.0253881476,
-                "database": "GO_Biological_Process_2021"
-            },
-            {
-                "rank": 7,
-                "path_name": "histone H3 acetylation (GO:0043966)",
-                "p_val": 0.0083741106,
-                "z_score": 162.2357723577,
-                "combined_score": 775.9104929668,
-                "overlapping_genes": [
+                0.025388147590576983,
+                "GO_Biological_Process_2021"
+            ],
+            [
+                7,
+                "histone H3 acetylation (GO:0043966)",
+                0.008374110589681004,
+                162.2357723577236,
+                775.9104929668098,
+                [
                     "PHF14"
                 ],
-                "adj_p_val": 0.0253881476,
-                "database": "GO_Biological_Process_2021"
-            },
-            {
-                "rank": 8,
-                "path_name": "posttranscriptional regulation of gene expression (GO:0010608)",
-                "p_val": 0.0091688963,
-                "z_score": 147.7851851852,
-                "combined_score": 693.3989791915,
-                "overlapping_genes": [
+                0.025388147590576983,
+                "GO_Biological_Process_2021"
+            ],
+            [
+                8,
+                "posttranscriptional regulation of gene expression (GO:0010608)",
+                0.009168896311972097,
+                147.78518518518518,
+                693.3989791915002,
+                [
                     "RBM3"
                 ],
-                "adj_p_val": 0.0253881476,
-                "database": "GO_Biological_Process_2021"
-            },
-            {
-                "rank": 9,
-                "path_name": "histone H4 acetylation (GO:0043967)",
-                "p_val": 0.0095661101,
-                "z_score": 141.4822695035,
-                "combined_score": 657.8258626059,
-                "overlapping_genes": [
+                0.025388147590576983,
+                "GO_Biological_Process_2021"
+            ],
+            [
+                9,
+                "histone H4 acetylation (GO:0043967)",
+                0.009566110051223143,
+                141.4822695035461,
+                657.8258626058753,
+                [
                     "MSL1"
                 ],
-                "adj_p_val": 0.0253881476,
-                "database": "GO_Biological_Process_2021"
-            },
-            {
-                "rank": 10,
-                "path_name": "regulation of cellular protein metabolic process (GO:0032268)",
-                "p_val": 0.0097646722,
-                "z_score": 138.5277777778,
-                "combined_score": 641.2429069488,
-                "overlapping_genes": [
+                0.025388147590576983,
+                "GO_Biological_Process_2021"
+            ],
+            [
+                10,
+                "regulation of cellular protein metabolic process (GO:0032268)",
+                0.009764672150221917,
+                138.52777777777777,
+                641.2429069487843,
+                [
                     "RBM3"
                 ],
-                "adj_p_val": 0.0253881476,
-                "database": "GO_Biological_Process_2021"
-            },
-            {
-                "rank": 11,
-                "path_name": "positive regulation of cellular amide metabolic process (GO:0034250)",
-                "p_val": 0.0161029164,
-                "z_score": 82.9833333333,
-                "combined_score": 342.617842287,
-                "overlapping_genes": [
+                0.025388147590576983,
+                "GO_Biological_Process_2021"
+            ],
+            [
+                11,
+                "positive regulation of cellular amide metabolic process (GO:0034250)",
+                0.01610291644199292,
+                82.98333333333333,
+                342.6178422869891,
+                [
                     "RBM3"
                 ],
-                "adj_p_val": 0.037599389,
-                "database": "GO_Biological_Process_2021"
-            },
-            {
-                "rank": 12,
-                "path_name": "regulation of mRNA splicing, via spliceosome (GO:0048024)",
-                "p_val": 0.0178800538,
-                "z_score": 74.5580524345,
-                "combined_score": 300.0267846684,
-                "overlapping_genes": [
+                0.03759938901014196,
+                "GO_Biological_Process_2021"
+            ],
+            [
+                12,
+                "regulation of mRNA splicing, via spliceosome (GO:0048024)",
+                0.017880053832220178,
+                74.55805243445693,
+                300.0267846683708,
+                [
                     "RBM3"
                 ],
-                "adj_p_val": 0.037599389,
-                "database": "GO_Biological_Process_2021"
-            },
-            {
-                "rank": 13,
-                "path_name": "positive regulation of translation (GO:0045727)",
-                "p_val": 0.0198518268,
-                "z_score": 66.9932659933,
-                "combined_score": 262.5773759433,
-                "overlapping_genes": [
+                0.03759938901014196,
+                "GO_Biological_Process_2021"
+            ],
+            [
+                13,
+                "positive regulation of translation (GO:0045727)",
+                0.01985182675975813,
+                66.993265993266,
+                262.5773759432504,
+                [
                     "RBM3"
                 ],
-                "adj_p_val": 0.037599389,
-                "database": "GO_Biological_Process_2021"
-            },
-            {
-                "rank": 14,
-                "path_name": "positive regulation of cellular protein metabolic process (GO:0032270)",
-                "p_val": 0.0202458249,
-                "z_score": 65.6600660066,
-                "combined_score": 256.0615644719,
-                "overlapping_genes": [
+                0.03759938901014196,
+                "GO_Biological_Process_2021"
+            ],
+            [
+                14,
+                "positive regulation of cellular protein metabolic process (GO:0032270)",
+                0.020245824851614903,
+                65.66006600660066,
+                256.06156447186925,
+                [
                     "RBM3"
                 ],
-                "adj_p_val": 0.037599389,
-                "database": "GO_Biological_Process_2021"
-            },
-            {
-                "rank": 15,
-                "path_name": "positive regulation of macromolecule biosynthetic process (GO:0010557)",
-                "p_val": 0.0255531833,
-                "z_score": 51.7395833333,
-                "combined_score": 189.7287094266,
-                "overlapping_genes": [
+                0.03759938901014196,
+                "GO_Biological_Process_2021"
+            ],
+            [
+                15,
+                "positive regulation of macromolecule biosynthetic process (GO:0010557)",
+                0.02555318334636167,
+                51.739583333333336,
+                189.7287094266052,
+                [
                     "RBM3"
                 ],
-                "adj_p_val": 0.0427986344,
-                "database": "GO_Biological_Process_2021"
-            },
-            {
-                "rank": 16,
-                "path_name": "RNA metabolic process (GO:0016070)",
-                "p_val": 0.0263376211,
-                "z_score": 50.1616161616,
-                "combined_score": 182.4256036925,
-                "overlapping_genes": [
+                0.04279863436552726,
+                "GO_Biological_Process_2021"
+            ],
+            [
+                16,
+                "RNA metabolic process (GO:0016070)",
+                0.026337621148016778,
+                50.16161616161616,
+                182.4256036925459,
+                [
                     "RBM3"
                 ],
-                "adj_p_val": 0.0427986344,
-                "database": "GO_Biological_Process_2021"
-            },
-            {
-                "rank": 17,
-                "path_name": "regulation of translation (GO:0006417)",
-                "p_val": 0.0351299532,
-                "z_score": 37.3239171375,
-                "combined_score": 124.9866440993,
-                "overlapping_genes": [
+                0.04279863436552726,
+                "GO_Biological_Process_2021"
+            ],
+            [
+                17,
+                "regulation of translation (GO:0006417)",
+                0.03512995315402264,
+                37.32391713747646,
+                124.9866440992687,
+                [
                     "RBM3"
                 ],
-                "adj_p_val": 0.0486054077,
-                "database": "GO_Biological_Process_2021"
-            },
-            {
-                "rank": 18,
-                "path_name": "RNA processing (GO:0006396)",
-                "p_val": 0.0353246595,
-                "z_score": 37.1123595506,
-                "combined_score": 124.0730751468,
-                "overlapping_genes": [
+                0.048605407652638336,
+                "GO_Biological_Process_2021"
+            ],
+            [
+                18,
+                "RNA processing (GO:0006396)",
+                0.03532465949288908,
+                37.1123595505618,
+                124.0730751467649,
+                [
                     "RBM3"
                 ],
-                "adj_p_val": 0.0486054077,
-                "database": "GO_Biological_Process_2021"
-            },
-            {
-                "rank": 19,
-                "path_name": "positive regulation of cellular biosynthetic process (GO:0031328)",
-                "p_val": 0.0355193364,
-                "z_score": 36.9031657356,
-                "combined_score": 123.1708860499,
-                "overlapping_genes": [
+                0.048605407652638336,
+                "GO_Biological_Process_2021"
+            ],
+            [
+                19,
+                "positive regulation of cellular biosynthetic process (GO:0031328)",
+                0.0355193363615434,
+                36.90316573556797,
+                123.17088604991437,
+                [
                     "RBM3"
                 ],
-                "adj_p_val": 0.0486054077,
-                "database": "GO_Biological_Process_2021"
-            },
-            {
-                "rank": 20,
-                "path_name": "regulation of transcription by RNA polymerase II (GO:0006357)",
-                "p_val": 0.0626874001,
-                "z_score": 8.0725952813,
-                "combined_score": 22.3578179691,
-                "overlapping_genes": [
+                0.048605407652638336,
+                "GO_Biological_Process_2021"
+            ],
+            [
+                20,
+                "regulation of transcription by RNA polymerase II (GO:0006357)",
+                0.0626874001004503,
+                8.072595281306715,
+                22.35781796909627,
+                [
                     "PHF14",
                     "PHF21A"
                 ],
-                "adj_p_val": 0.0814936201,
-                "database": "GO_Biological_Process_2021"
-            },
-            {
-                "rank": 21,
-                "path_name": "gene expression (GO:0010467)",
-                "p_val": 0.0693262094,
-                "z_score": 18.4422535211,
-                "combined_score": 49.2211250549,
-                "overlapping_genes": [
+                0.0814936201305854,
+                "GO_Biological_Process_2021"
+            ],
+            [
+                21,
+                "gene expression (GO:0010467)",
+                0.069326209353562,
+                18.442253521126762,
+                49.221125054940394,
+                [
                     "RBM3"
                 ],
-                "adj_p_val": 0.0858324497,
-                "database": "GO_Biological_Process_2021"
-            },
-            {
-                "rank": 22,
-                "path_name": "regulation of cellular macromolecule biosynthetic process (GO:2000112)",
-                "p_val": 0.0903718318,
-                "z_score": 13.9393290507,
-                "combined_score": 33.5076749782,
-                "overlapping_genes": [
+                0.08583244967583867,
+                "GO_Biological_Process_2021"
+            ],
+            [
+                22,
+                "regulation of cellular macromolecule biosynthetic process (GO:2000112)",
+                0.09037183175546923,
+                13.939329050678086,
+                33.5076749781881,
+                [
                     "RBM3"
                 ],
-                "adj_p_val": 0.1051046728,
-                "database": "GO_Biological_Process_2021"
-            },
-            {
-                "rank": 23,
-                "path_name": "positive regulation of gene expression (GO:0010628)",
-                "p_val": 0.0929772106,
-                "z_score": 13.5239085239,
-                "combined_score": 32.1247039821,
-                "overlapping_genes": [
+                0.10510467284470977,
+                "GO_Biological_Process_2021"
+            ],
+            [
+                23,
+                "positive regulation of gene expression (GO:0010628)",
+                0.09297721059339711,
+                13.523908523908524,
+                32.12470398208089,
+                [
                     "RBM3"
                 ],
-                "adj_p_val": 0.1051046728,
-                "database": "GO_Biological_Process_2021"
-            },
-            {
-                "rank": 24,
-                "path_name": "negative regulation of transcription by RNA polymerase II (GO:0000122)",
-                "p_val": 0.1299497004,
-                "z_score": 9.4255734505,
-                "combined_score": 19.2338989223,
-                "overlapping_genes": [
+                0.10510467284470977,
+                "GO_Biological_Process_2021"
+            ],
+            [
+                24,
+                "negative regulation of transcription by RNA polymerase II (GO:0000122)",
+                0.12994970041059192,
+                9.425573450463641,
+                19.233898922273635,
+                [
                     "PHF21A"
                 ],
-                "adj_p_val": 0.1407788421,
-                "database": "GO_Biological_Process_2021"
-            },
-            {
-                "rank": 25,
-                "path_name": "negative regulation of transcription, DNA-templated (GO:0045892)",
-                "p_val": 0.1765522906,
-                "z_score": 6.7050334389,
-                "combined_score": 11.627454502,
-                "overlapping_genes": [
+                0.14077884211147457,
+                "GO_Biological_Process_2021"
+            ],
+            [
+                25,
+                "negative regulation of transcription, DNA-templated (GO:0045892)",
+                0.17655229057751712,
+                6.705033438929954,
+                11.62745450199778,
+                [
                     "PHF21A"
                 ],
-                "adj_p_val": 0.1836143822,
-                "database": "GO_Biological_Process_2021"
-            },
-            {
-                "rank": 26,
-                "path_name": "regulation of transcription, DNA-templated (GO:0006355)",
-                "p_val": 0.3787814091,
-                "z_score": 2.6382820627,
-                "combined_score": 2.5612336661,
-                "overlapping_genes": [
+                0.18361438220061782,
+                "GO_Biological_Process_2021"
+            ],
+            [
+                26,
+                "regulation of transcription, DNA-templated (GO:0006355)",
+                0.3787814091118562,
+                2.6382820627136274,
+                2.5612336660956663,
+                [
                     "PHF14"
                 ],
-                "adj_p_val": 0.3787814091,
-                "database": "GO_Biological_Process_2021"
-            }
+                0.3787814091118562,
+                "GO_Biological_Process_2021"
+            ]
         ]
     },
     "test6": {
