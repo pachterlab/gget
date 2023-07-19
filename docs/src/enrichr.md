@@ -20,6 +20,9 @@ Supports any database listed [here](https://maayanlab.cloud/Enrichr/#libraries) 
 'kinase_interactions'   (KEA_2015)  
   
 **Optional arguments**  
+`-bkgr_l` `--background_list`
+List of gene names/Ensembl IDs to be used as background genes. (Default: None)
+
 `-o` `--out`   
 Path to the file the results will be saved in, e.g. path/to/directory/results.csv (or .json). Default: Standard out.   
 Python: `save=True` will save the output in the current working directory.
@@ -29,10 +32,14 @@ Python only. (width, height) of plot in inches. (Default: (10,10))
 
 `ax`  
 Python only. Pass a matplotlib axes object for plot customization. (Default: None)
+
   
 **Flags**  
 `-e` `--ensembl`  
-Add this flag if `genes` are given as Ensembl gene IDs.  
+Add this flag if `genes` are given as Ensembl gene IDs. 
+
+`-bkgr` `--background`
+If True, use set of example genes from https://maayanlab.cloud/Enrichr/ as background. (Default: False)
  
 `-csv` `--csv`  
 Command-line only. Returns results in CSV format.  

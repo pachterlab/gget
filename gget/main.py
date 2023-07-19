@@ -795,6 +795,23 @@ def main():
         help="DEPRECATED - use positional argument instead. List of gene symbols or Ensembl gene IDs to perform enrichment analysis on.",
     )
     parser_enrichr.add_argument(
+        "-bkgr_l",
+        "--background_list",
+        type=str,
+        nargs="*",
+        default=None,
+        help="List of gene names/Ensembl IDs to be used as background genes. (Default: None)",
+    )
+    parser_enrichr.add_argument(
+        "-bkgr",
+        "--background",
+        default=False,
+        action="store_true",
+        required=False,
+        help="If True, use set of example genes from https://maayanlab.cloud/Enrichr/ as background. (Default: False)",
+    )
+
+    parser_enrichr.add_argument(
         "-j",
         "--json",
         default=False,
