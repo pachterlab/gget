@@ -21,7 +21,6 @@ import textwrap
 # Custom functions
 from gget.gget_info import info
 
-# Constants
 from .constants import (
     POST_ENRICHR_URL,
     GET_ENRICHR_URL,
@@ -30,6 +29,39 @@ from .constants import (
 )
 from .compile import PACKAGE_PATH
 
+def ensembl_to_gene_names(ensembl_ids):
+    genes_v2 = []
+
+    for gene_id in ensembl_ids:
+        # Remove version number if passed
+        gene_id = gene_id.split(".")[0]
+
+        info_df = info(gene_id, pdb=False, ncbi=False, uniprot=False, verbose=False)
+
+        # Check if Ensembl ID was found
+        if isinstance(info_df, type(None)):
+            logging.warning(
+                f"ID '{gene_id}' not found. Please double-check spelling/arguments."
+            )
+            continue
+
+        gene_symbol = info_df.loc[gene_id]["ensembl_gene_name"]
+
+        # If more than one gene symbol was returned, use first entry
+        if isinstance(gene_symbol, list):
+            genes_v2.append(str(gene_symbol[0]))
+        else:
+            genes_v2.append(str(gene_symbol))
+
+    return genes_v2
+
+def clean_genes_list(genes_list):
+    # Remove any NaNs/Nones from the gene list
+    genes_clean = []
+    for gene in genes_list:
+        if not gene == np.NaN and not gene is None and not isinstance(gene, float):
+            genes_clean.append(gene)
+    return genes_clean
 
 def enrichr(
     genes,
@@ -113,58 +145,36 @@ def enrichr(
         if verbose:
             logging.info("Getting gene symbols from Ensembl IDs.")
 
-        genes_v2 = []
-
-        for gene_id in genes:
-            # Remove version number if passed
-            gene_id = gene_id.split(".")[0]
-
-            info_df = info(gene_id, pdb=False, ncbi=False, uniprot=False, verbose=False)
-
-            # Check if Ensembl ID was found
-            if isinstance(info_df, type(None)):
-                logging.warning(
-                    f"ID '{gene_id}' not found. Please double-check spelling/arguments."
-                )
-                continue
-
-            gene_symbol = info_df.loc[gene_id]["ensembl_gene_name"]
-
-            # If more than one gene symbol was returned, use first entry
-            if isinstance(gene_symbol, list):
-                genes_v2.append(str(gene_symbol[0]))
-            else:
-                genes_v2.append(str(gene_symbol))
-
-        # To-do!!!
-        # Move above to function that takes Ensembl IDs and returns gene names and do the same for the bkg list if provided
-        # if background_list:
-
+        genes_v2 = ensembl_to_gene_names(genes)
         if verbose:
             logging.info(
                 f"Performing Enichr analysis on the following gene symbols: {', '.join(genes_v2)}"
             )
 
+        if background_list:
+            background_list = ensembl_to_gene_names(background_list)
+
+      
     else:
         genes_v2 = genes
 
-    # Remove any NaNs/Nones from the gene list
-    genes_clean = []
-    for gene in genes_v2:
-        if not gene == np.NaN and not gene is None and not isinstance(gene, float):
-            genes_clean.append(gene)
-
-    # To-do!!!
-    # Remove any NaNs/Nones from the background list
-
-    if len(genes_clean) == 0 and ensembl:
+    if len(genes_v2) == 0 and ensembl:
         logging.error("No gene symbols found for given Ensembl IDs.")
         return
-    # To-do!!!
-    # Add a logging.error("No gene symbols found for given Ensembl IDs.") for bkg genes when ensembl==True
 
+    if background_list:
+        if len(background_list) == 0 and ensembl:
+            logging.error("No background gene symbols found for given Ensembl IDs.")
+            return
+
+
+    genes_clean = clean_genes_list(genes_v2)
     # Join genes from list
     genes_clean_final = "\n".join(genes_clean)
+    
+    # Remove any NaNs/Nones from the background list
+    if background_list:
+        background_list = clean_genes_list(background_list)
 
     # Submit gene list to Enrichr API
     args_dict = {
@@ -241,8 +251,6 @@ def enrichr(
 
     enrichr_results = r2.json()
 
-    # Return error if no results were found
-    # To-do!! Is this right setting this == 0 ????
     if len(enrichr_results) == 0:
         logging.error(
             f"No Enrichr results were found for genes {genes_clean} and database {database}. \n"
