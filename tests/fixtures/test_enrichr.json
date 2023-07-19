@@ -6567,7 +6567,6 @@
                 "ENSG00000135365"
             ],
             "database": "ontology",
-            "background": "False",
             "ensembl": true
         },
         "expected_result": [
