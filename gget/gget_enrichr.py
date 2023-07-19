@@ -210,7 +210,7 @@ def enrichr(
             logging.info(
                 "Background genes are set to example genes from https://maayanlab.cloud/Enrichr/."
             )
-        with open("{PACKAGE_PATH}/constants/enrichr_bkg_genes.txt") as f:
+        with open(f"{PACKAGE_PATH}/constants/enrichr_bkg_genes.txt") as f:
             lines = f.read().splitlines()
         background_final = "\n".join(lines)
 
