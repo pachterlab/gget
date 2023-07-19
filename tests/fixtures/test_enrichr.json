@@ -8149,8 +8149,7 @@
                 "TRMT112",
                 "MTHFD2L"
             ],
-            "database": "diseases_drugs",
-            "background": "False"
+            "database": "diseases_drugs"
         },
         "expected_result": [
             [
@@ -8428,8 +8427,7 @@
                 "HEG1",
                 "HRAT17"
             ],
-            "database": "celltypes",
-            "background": "False"
+            "database": "celltypes"
         },
         "expected_result": [
             [
