@@ -40,8 +40,8 @@
                 "non-coding_seq_ncRNA": {
                     "ftp": "http://ftp.ensembl.org/pub/release-110/fasta/taeniopygia_guttata/ncrna/Taeniopygia_guttata.bTaeGut1_v1.p.ncrna.fa.gz",
                     "ensembl_release": 110,
-                    "release_date": "2023-04-21",
-                    "release_time": "18:52",
+                    "release_date": "2023-04-22",
+                    "release_time": "00:09",
                     "bytes": "5.0M"
                 },
                 "protein_translation_pep": {
