@@ -64,7 +64,7 @@
                 "blue cheese",
                 null,
                 "protein_coding",
-                "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0043362"
+                "https://useast.ensembl.org/drosophila_melanogaster_core_110_10/Gene/Summary?g=FBgn0043362"
             ]
         ]
     },
@@ -134,7 +134,7 @@
                 null,
                 null,
                 "protein_coding",
-                "https://useast.ensembl.org/drosophila_melanogaster_core_110_10/Gene/Summary?g=FBtr0307555"
+                "https://useast.ensembl.org/drosophila_melanogaster_core_110_09/Gene/Summary?g=FBtr0307555"
             ]
         ]
     },
@@ -282,7 +282,7 @@
                 "swiss cheese",
                 null,
                 "protein_coding",
-                "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
+                "https://useast.ensembl.org/drosophila_melanogaster_core_110_10/Gene/Summary?g=FBgn0003656"
             ]
         ]
     },
