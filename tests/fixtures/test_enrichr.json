@@ -48,32 +48,43 @@
         "args": {
             "genes": "ACE2",
             "database": "KEGG_2021_Human",
-            "background": "False",
             "json": true
         },
         "expected_result": [
             {
                 "rank": 1,
-                "path_name": "One carbon pool by folate",
-                "p_val": 0.0089657735,
-                "z_score": 131.3947368421,
-                "combined_score": 619.4395814244,
+                "path_name": "Renin-angiotensin system",
+                "p_val": 0.0011499749,
+                "z_score": 19977.0,
+                "combined_score": 135204.6392226724,
                 "overlapping_genes": [
-                    "MTHFD2L"
+                    "ACE2"
                 ],
-                "adj_p_val": 0.017931547,
+                "adj_p_val": 0.0034499246,
                 "database": "KEGG_2021_Human"
             },
             {
                 "rank": 2,
-                "path_name": "Mitophagy",
-                "p_val": 0.0301928946,
-                "z_score": 37.171641791,
-                "combined_score": 130.10627217,
+                "path_name": "Protein digestion and absorption",
+                "p_val": 0.0051499318,
+                "z_score": 19897.0,
+                "combined_score": 104832.7525292024,
                 "overlapping_genes": [
-                    "FUNDC1"
+                    "ACE2"
                 ],
-                "adj_p_val": 0.0301928946,
+                "adj_p_val": 0.0077248977,
+                "database": "KEGG_2021_Human"
+            },
+            {
+                "rank": 3,
+                "path_name": "Coronavirus disease",
+                "p_val": 0.0115998901,
+                "z_score": 19768.0,
+                "combined_score": 88101.2248015025,
+                "overlapping_genes": [
+                    "ACE2"
+                ],
+                "adj_p_val": 0.0115998901,
                 "database": "KEGG_2021_Human"
             }
         ]
