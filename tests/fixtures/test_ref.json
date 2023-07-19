@@ -20,7 +20,7 @@
                     "ftp": "http://ftp.ensembl.org/pub/release-110/fasta/taeniopygia_guttata/dna/Taeniopygia_guttata.bTaeGut1_v1.p.dna.toplevel.fa.gz",
                     "ensembl_release": 110,
                     "release_date": "2023-04-21",
-                    "release_time": "00:08",
+                    "release_time": "17:16",
                     "bytes": "304M"
                 },
                 "annotation_gtf": {
