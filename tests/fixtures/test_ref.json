@@ -10,7 +10,7 @@
         "expected_result": {
             "taeniopygia_guttata": {
                 "transcriptome_cdna": {
-                    "ftp": "http://ftp.ensembl.org/pub/release-109/fasta/taeniopygia_guttata/cdna/Taeniopygia_guttata.bTaeGut1_v1.p.cdna.all.fa.gz",
+                    "ftp": "http://ftp.ensembl.org/pub/release-110/fasta/taeniopygia_guttata/cdna/Taeniopygia_guttata.bTaeGut1_v1.p.cdna.all.fa.gz",
                     "ensembl_release": 109,
                     "release_date": "2022-12-13",
                     "release_time": "18:32",
