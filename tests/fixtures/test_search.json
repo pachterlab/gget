@@ -118,7 +118,7 @@
                 null,
                 null,
                 "protein_coding",
-                "https://useast.ensembl.org/drosophila_melanogaster_core_110_10/Gene/Summary?g=FBtr0070000"
+                "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBtr0070000"
             ],
             [
                 "FBtr0307554",
@@ -126,7 +126,7 @@
                 null,
                 null,
                 "protein_coding",
-                "https://useast.ensembl.org/drosophila_melanogaster_core_110_10/Gene/Summary?g=FBtr0307554"
+                "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBtr0307554"
             ],
             [
                 "FBtr0307555",
@@ -134,7 +134,7 @@
                 null,
                 null,
                 "protein_coding",
-                "https://useast.ensembl.org/drosophila_melanogaster_core_110_10/Gene/Summary?g=FBtr0307555"
+                "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBtr0307555"
             ]
         ]
     },
