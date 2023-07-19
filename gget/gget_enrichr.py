@@ -48,7 +48,7 @@ def ensembl_to_gene_names(ensembl_ids):
         gene_symbol = info_df.loc[gene_id]["ensembl_gene_name"]
 
         # If more than one gene symbol was returned, use first entry
-        if isinstance(gene_symbol, __builtins__.list):
+        if isinstance(gene_symbol, list):
             genes_v2.append(str(gene_symbol[0]))
         else:
             genes_v2.append(str(gene_symbol))

@@ -147,8 +147,7 @@
                 "TRMT112",
                 "MTHFD2L"
             ],
-            "database": "transcription",
-            "background": "False"
+            "database": "transcription"
         },
         "expected_result": [
             [
