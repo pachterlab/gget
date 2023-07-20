@@ -819,7 +819,6 @@ def main():
         dest="genes_deprecated",
         help="DEPRECATED - use positional argument instead. List of gene symbols or Ensembl gene IDs to perform enrichment analysis on.",
     )
-    
 
     parser_enrichr.add_argument(
         "-j",
@@ -1965,16 +1964,20 @@ def main():
         while "" in genes_clean_final:
             genes_clean_final.remove("")
 
-        ## Clean up args.bkg_l
-        bkg_genes_clean = []
-        # Split by comma (spaces are automatically split by nargs:"+")
-        for gene in args.background_list:
-            bkg_genes_clean.append(gene.split(","))
-        # Flatten bkg_genes_clean
-        bkg_genes_clean_final = [item for sublist in bkg_genes_clean for item in sublist]
-        # Remove empty strings resulting from split
-        while "" in genes_clean_final:
-            bkg_genes_clean_final.remove("")
+        bkg_genes_clean_final = None
+        if args.background_list:
+            ## Clean up args.bkg_l
+            bkg_genes_clean = []
+            # Split by comma (spaces are automatically split by nargs:"+")
+            for gene in args.background_list:
+                bkg_genes_clean.append(gene.split(","))
+            # Flatten bkg_genes_clean
+            bkg_genes_clean_final = [
+                item for sublist in bkg_genes_clean for item in sublist
+            ]
+            # Remove empty strings resulting from split
+            while "" in genes_clean_final:
+                bkg_genes_clean_final.remove("")
 
         # Submit Enrichr query
         enrichr_results = enrichr(
