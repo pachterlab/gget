@@ -69,6 +69,7 @@ def enrichr(
     background_list=None,
     background=False,
     ensembl=False,
+    ensembl_bkg=False,
     plot=False,
     figsize=(10, 10),
     ax=None,
@@ -82,8 +83,6 @@ def enrichr(
     Args:
     - genes             List of Entrez gene symbols to perform enrichment analysis on, passed as a list of strings, e.g. ['PHF14', 'RBM3', 'MSL1', 'PHF21A'].
                         Set 'ensembl = True' to input a list of Ensembl gene IDs, e.g. ['ENSG00000106443', 'ENSG00000102317', 'ENSG00000188895'].
-    - background_list   List of gene names/Ensembl IDs to be used as background genes. (Default: None)
-    - background        If True, use set of example genes from https://maayanlab.cloud/Enrichr/ as background. (Default: False)
     - database          Database to use as reference for the enrichment analysis.
                         Supported shortcuts (and their default database):
                         'pathway' (KEGG_2021_Human)
@@ -93,7 +92,11 @@ def enrichr(
                         'celltypes' (PanglaoDB_Augmented_2021)
                         'kinase_interactions' (KEA_2015)
                         or any database listed under Gene-set Library at: https://maayanlab.cloud/Enrichr/#libraries
+    - background_list   List of gene names/Ensembl IDs to be used as background genes. (Default: None)
+    - background        If True, use set of example genes from https://maayanlab.cloud/Enrichr/ as background. (Default: False)
+
     - ensembl     Define as 'True' if 'genes' is a list of Ensembl gene IDs. (Default: False)
+    - ensembl_bkg Define as 'True' if 'background_list' is a list of Ensembl gene IDs. (Default: False)
     - plot        True/False whether to provide a graphical overview of the first 15 results. (Default: False)
     - figsize     (width, height) of plot in inches. (Default: (10,10))
     - ax          Pass a matplotlib axes object for further customization of the plot. (Default: None)
@@ -150,19 +153,19 @@ def enrichr(
             logging.info(
                 f"Performing Enichr analysis on the following gene symbols: {', '.join(genes_v2)}"
             )
-
-        if background_list:
-            background_list = ensembl_to_gene_names(background_list)
-
       
     else:
         genes_v2 = genes
-
+    
     if len(genes_v2) == 0 and ensembl:
         logging.error("No gene symbols found for given Ensembl IDs.")
         return
 
-    if background_list:
+    # Transform Ensembl IDs to gene symbols for background genes
+    if background_list and ensembl_bkg:
+        background_list = ensembl_to_gene_names(background_list)
+
+    if isinstance(background_list, type(None)):
         if len(background_list) == 0 and ensembl:
             logging.error("No background gene symbols found for given Ensembl IDs.")
             return
@@ -290,10 +293,16 @@ def enrichr(
     df["database"] = database
 
     if len(df) == 0:
-        logging.warning(
-            f"No Enrichr results were found for genes {genes_clean} and database {database}. \n"
-            "If the genes are Ensembl IDs, please set argument 'ensembl=True' (for terminal, add flag: [--ensembl])."
-        )
+        if not background_list:
+            logging.error(
+                f"No Enrichr results were found for genes {genes_clean} and database {database}. \n"
+                "If the genes are Ensembl IDs, please set argument 'ensembl=True' (for terminal, add flag: [--ensembl])."
+            )
+        else:
+            logging.error(
+                f"No Enrichr results were found for genes {genes_clean}, background genes {background_list}, and database {database}. \n"
+                "If the background genes are Ensembl IDs, please set argument 'ensemb_bkg=True' (for terminal, add flag: [--ensembl_bkg])."
+            )
 
     ## Plot if plot=True
     if plot and len(df) != 0:

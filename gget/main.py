@@ -752,12 +752,37 @@ def main():
         ),
     )
     parser_enrichr.add_argument(
+        "-bkgr_l",
+        "--background_list",
+        type=str,
+        nargs="*",
+        default=None,
+        required=False,
+        help="List of gene names/Ensembl IDs to be used as background genes.",
+    )
+    parser_enrichr.add_argument(
+        "-bkgr",
+        "--background",
+        default=False,
+        action="store_true",
+        required=False,
+        help="If True, use set of example genes from https://maayanlab.cloud/Enrichr/ as background.",
+    )
+    parser_enrichr.add_argument(
         "-e",
         "--ensembl",
         default=False,
         action="store_true",
         required=False,
         help="Add this flag if genes are given as Ensembl gene IDs.",
+    )
+    parser_enrichr.add_argument(
+        "-e_b",
+        "--ensembl_bkg",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Add this flag if background genes are given as Ensembl gene IDs.",
     )
     parser_enrichr.add_argument(
         "-csv",
@@ -794,22 +819,7 @@ def main():
         dest="genes_deprecated",
         help="DEPRECATED - use positional argument instead. List of gene symbols or Ensembl gene IDs to perform enrichment analysis on.",
     )
-    parser_enrichr.add_argument(
-        "-bkgr_l",
-        "--background_list",
-        type=str,
-        nargs="*",
-        default=None,
-        help="List of gene names/Ensembl IDs to be used as background genes. (Default: None)",
-    )
-    parser_enrichr.add_argument(
-        "-bkgr",
-        "--background",
-        default=False,
-        action="store_true",
-        required=False,
-        help="If True, use set of example genes from https://maayanlab.cloud/Enrichr/ as background. (Default: False)",
-    )
+    
 
     parser_enrichr.add_argument(
         "-j",
@@ -1955,11 +1965,24 @@ def main():
         while "" in genes_clean_final:
             genes_clean_final.remove("")
 
+        ## Clean up args.bkg_l
+        bkg_genes_clean = []
+        # Split by comma (spaces are automatically split by nargs:"+")
+        for gene in args.background_list:
+            bkg_genes_clean.append(gene.split(","))
+        # Flatten bkg_genes_clean
+        bkg_genes_clean_final = [item for sublist in bkg_genes_clean for item in sublist]
+        # Remove empty strings resulting from split
+        while "" in genes_clean_final:
+            bkg_genes_clean_final.remove("")
+
         # Submit Enrichr query
         enrichr_results = enrichr(
             genes=genes_clean_final,
+            background_list=bkg_genes_clean_final,
             database=args.database,
             ensembl=args.ensembl,
+            ensembl_bkg=args.ensembl_bkg,
             json=args.csv,
             verbose=args.quiet,
         )
