@@ -248,8 +248,8 @@ def enrichr(
 
     if not r2.ok:
         raise RuntimeError(
-            f"Enrichr HTTP GET response status code: {r2.status_code}. "
-            "Please double-check arguments and try again.\n"
+            f"Enrichr HTTP GET response status code: {r2.status_code} for genes {genes_clean}, background genes {background_list}, and database {database}\n"
+             "If the background genes are Ensembl IDs, please set argument 'ensembl_bkg=True'. (For command-line, add flag [-e_b][--ensembl_bkg].\n"
         )
 
     enrichr_results = r2.json()
