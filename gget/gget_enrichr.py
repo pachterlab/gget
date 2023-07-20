@@ -165,7 +165,7 @@ def enrichr(
     if background_list and ensembl_bkg:
         background_list = ensembl_to_gene_names(background_list)
 
-    if isinstance(background_list, type(None)):
+    if not isinstance(background_list, type(None)):
         if len(background_list) == 0 and ensembl:
             logging.error("No background gene symbols found for given Ensembl IDs.")
             return
