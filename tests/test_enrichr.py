@@ -123,7 +123,7 @@ class TestEnrichr(unittest.TestCase):
 
     def test_enrichr_background(self):
         test = "test11"
-                expected_result = enrichr_dict[test]["expected_result"]
+        expected_result = enrichr_dict[test]["expected_result"]
         result_to_test = enrichr(**enrichr_dict[test]["args"])
         # If result is a DataFrame, convert to list
         if isinstance(result_to_test, pd.DataFrame):
