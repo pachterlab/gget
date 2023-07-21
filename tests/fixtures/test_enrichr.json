@@ -5577,8 +5577,7 @@
                 "LRRC8A",
                 "SMO",
                 "NUPL2"
-            ],
-            "json": "True"
+            ]
         },
         "expected_result": [
             [
