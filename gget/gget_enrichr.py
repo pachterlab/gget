@@ -232,8 +232,9 @@ def enrichr(
 
         if not request_background_id.ok:
             raise RuntimeError(
-                f"Enrichr HTTP POST background gene list response status code: {request_background_id.status_code}. "
-                "Please double-check arguments and try again.\n"
+                f"""
+                Enrichr HTTP POST background gene list response status code: {request_background_id.status_code}. \n
+                Please double-check arguments and try again.\n"""
             )
 
         # Get background ID
@@ -251,22 +252,27 @@ def enrichr(
     if not r2.ok:
         if background_final:
             raise RuntimeError(
-                f"Enrichr HTTP GET response status code: {r2.status_code} for genes {genes_clean}, background genes {background_final}, and database {database}\n"
-                "If the input genes are Ensembl IDs, please set argument 'ensembl=True'. (For command-line, add flag [-e][--ensembl].)\n"
-                "If the background genes are Ensembl IDs, please set argument 'ensembl_bkg=True'. (For command-line, add flag [-e_b][--ensembl_bkg].\n"
+                f"""
+                Enrichr HTTP GET response status code: {r2.status_code} for genes {genes_clean}, background genes {background_final}, and database {database}\n
+                If the input genes are Ensembl IDs, please set argument 'ensembl=True'. (For command-line, add flag [-e][--ensembl].)\n
+                If the background genes are Ensembl IDs, please set argument 'ensembl_bkg=True'. (For command-line, add flag [-e_b][--ensembl_bkg].\n
+                """
+                
             )
         else:
             raise RuntimeError(
-                f"Enrichr HTTP GET response status code: {r2.status_code} for genes {genes_clean}, and database {database}\n"
-                "If the input genes are Ensembl IDs, please set argument 'ensembl=True'. (For command-line, add flag [-e][--ensembl].)\n"
+                f"""
+                Enrichr HTTP GET response status code: {r2.status_code} for genes {genes_clean}, and database {database}\n
+                If the input genes are Ensembl IDs, please set argument 'ensembl=True'. (For command-line, add flag [-e][--ensembl].)\n"""
             )
 
     enrichr_results = r2.json()
 
     if len(enrichr_results) == 0:
         logging.error(
-            f"No Enrichr results were found for genes {genes_clean} and database {database}. \n"
-            "If the genes are Ensembl IDs, please set argument 'ensembl=True'. (For command-line, add flag [-e][--ensembl].)"
+            f"""
+            No Enrichr results were found for genes {genes_clean} and database {database}. \n
+            If the genes are Ensembl IDs, please set argument 'ensembl=True'. (For command-line, add flag [-e][--ensembl].)"""
         )
         return
 
@@ -290,8 +296,9 @@ def enrichr(
 
     except KeyError:
         logging.error(
-            f"Database {database} not found. Go to https://maayanlab.cloud/Enrichr/#libraries "
-            "for a full list of supported databases."
+            f"""
+            Database {database} not found. Go to https://maayanlab.cloud/Enrichr/#libraries 
+            for a full list of supported databases."""
         )
         return
 
@@ -303,8 +310,10 @@ def enrichr(
 
     if len(df) == 0:
         logging.error(
-            f"No Enrichr results were found for genes {genes_clean} and database {database}. \n"
-            "If the genes are Ensembl IDs, please set argument 'ensembl=True' (for terminal, add flag: [--ensembl])."
+            f"""
+            No Enrichr results were found for genes {genes_clean} and database {database}. \n
+            If the genes are Ensembl IDs, please set argument 'ensembl=True' (for terminal, add flag: [--ensembl]).
+            """
         )
 
     ## Plot if plot=True
