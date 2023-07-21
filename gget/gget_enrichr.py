@@ -29,6 +29,7 @@ from .constants import (
 )
 from .compile import PACKAGE_PATH
 
+
 def ensembl_to_gene_names(ensembl_ids):
     genes_v2 = []
 
@@ -55,6 +56,7 @@ def ensembl_to_gene_names(ensembl_ids):
 
     return genes_v2
 
+
 def clean_genes_list(genes_list):
     # Remove any NaNs/Nones from the gene list
     genes_clean = []
@@ -62,6 +64,7 @@ def clean_genes_list(genes_list):
         if not gene == np.NaN and not gene is None and not isinstance(gene, float):
             genes_clean.append(gene)
     return genes_clean
+
 
 def enrichr(
     genes,
@@ -153,10 +156,10 @@ def enrichr(
             logging.info(
                 f"Performing Enichr analysis on the following gene symbols: {', '.join(genes_v2)}"
             )
-      
+
     else:
         genes_v2 = genes
-    
+
     if len(genes_v2) == 0 and ensembl:
         logging.error("No gene symbols found for given Ensembl IDs.")
         return
@@ -170,11 +173,10 @@ def enrichr(
             logging.error("No background gene symbols found for given Ensembl IDs.")
             return
 
-
     genes_clean = clean_genes_list(genes_v2)
     # Join genes from list
     genes_clean_final = "\n".join(genes_clean)
-    
+
     # Remove any NaNs/Nones from the background list
     if background_list:
         background_list = clean_genes_list(background_list)
@@ -247,10 +249,17 @@ def enrichr(
         r2 = requests.post(GET_BACKGROUND_ENRICHR_URL + query_string)
 
     if not r2.ok:
-        raise RuntimeError(
-            f"Enrichr HTTP GET response status code: {r2.status_code} for genes {genes_clean}, background genes {background_list}, and database {database}\n"
-             "If the background genes are Ensembl IDs, please set argument 'ensembl_bkg=True'. (For command-line, add flag [-e_b][--ensembl_bkg].\n"
-        )
+        if background_final:
+            raise RuntimeError(
+                f"Enrichr HTTP GET response status code: {r2.status_code} for genes {genes_clean}, background genes {background_final}, and database {database}\n"
+                "If the input genes are Ensembl IDs, please set argument 'ensembl=True'. (For command-line, add flag [-e][--ensembl].)\n"
+                "If the background genes are Ensembl IDs, please set argument 'ensembl_bkg=True'. (For command-line, add flag [-e_b][--ensembl_bkg].\n"
+            )
+        else:
+            raise RuntimeError(
+                f"Enrichr HTTP GET response status code: {r2.status_code} for genes {genes_clean}, and database {database}\n"
+                "If the input genes are Ensembl IDs, please set argument 'ensembl=True'. (For command-line, add flag [-e][--ensembl].)\n"
+            )
 
     enrichr_results = r2.json()
 
@@ -293,16 +302,10 @@ def enrichr(
     df["database"] = database
 
     if len(df) == 0:
-        if not background_list:
-            logging.error(
-                f"No Enrichr results were found for genes {genes_clean} and database {database}. \n"
-                "If the genes are Ensembl IDs, please set argument 'ensembl=True' (for terminal, add flag: [--ensembl])."
-            )
-        else:
-            logging.error(
-                f"No Enrichr results were found for genes {genes_clean}, background genes {background_list}, and database {database}. \n"
-                "If the background genes are Ensembl IDs, please set argument 'ensemb_bkg=True' (for terminal, add flag: [--ensembl_bkg])."
-            )
+        logging.error(
+            f"No Enrichr results were found for genes {genes_clean} and database {database}. \n"
+            "If the genes are Ensembl IDs, please set argument 'ensembl=True' (for terminal, add flag: [--ensembl])."
+        )
 
     ## Plot if plot=True
     if plot and len(df) != 0:
