@@ -96,7 +96,7 @@ def enrichr(
                         'kinase_interactions' (KEA_2015)
                         or any database listed under Gene-set Library at: https://maayanlab.cloud/Enrichr/#libraries
     - background_list   List of gene names/Ensembl IDs to be used as background genes. (Default: None)
-    - background        If True, use set of example genes from https://maayanlab.cloud/Enrichr/ as background. (Default: False)
+    - background        If True, use set of 20,625 default background genes from https://maayanlab.cloud/Enrichr/. (Default: False)
 
     - ensembl     Define as 'True' if 'genes' is a list of Ensembl gene IDs. (Default: False)
     - ensembl_bkg Define as 'True' if 'background_list' is a list of Ensembl gene IDs. (Default: False)
@@ -206,14 +206,14 @@ def enrichr(
     if background_list:
         if background:
             logging.warning(
-                "Since you provided a list of background genes, the 'background==True' argument to use the example background gene list is being ignored."
+                "Since you provided a list of background genes, the 'background==True' argument to use the default background gene list is being ignored."
             )
         background_final = "\n".join(background_list)
 
     elif background:
         if verbose:
             logging.info(
-                "Background genes are set to example genes from https://maayanlab.cloud/Enrichr/."
+                "Background genes are set to the 20,625 default genes from https://maayanlab.cloud/Enrichr/."
             )
         with open(f"{PACKAGE_PATH}/constants/enrichr_bkg_genes.txt") as f:
             lines = f.read().splitlines()

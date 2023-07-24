@@ -752,7 +752,7 @@ def main():
         ),
     )
     parser_enrichr.add_argument(
-        "-bkgr_l",
+        "-bkg_l",
         "--background_list",
         type=str,
         nargs="*",
@@ -761,12 +761,12 @@ def main():
         help="List of gene names/Ensembl IDs to be used as background genes.",
     )
     parser_enrichr.add_argument(
-        "-bkgr",
+        "-bkg",
         "--background",
         default=False,
         action="store_true",
         required=False,
-        help="If True, use set of example genes from https://maayanlab.cloud/Enrichr/ as background.",
+        help="If True, use set of 20,625 default background genes from https://maayanlab.cloud/Enrichr/.",
     )
     parser_enrichr.add_argument(
         "-e",
@@ -1982,6 +1982,7 @@ def main():
         # Submit Enrichr query
         enrichr_results = enrichr(
             genes=genes_clean_final,
+            background=args.background,
             background_list=bkg_genes_clean_final,
             database=args.database,
             ensembl=args.ensembl,
