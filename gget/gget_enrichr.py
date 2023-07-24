@@ -234,7 +234,8 @@ def enrichr(
             raise RuntimeError(
                 f"""
                 Enrichr HTTP POST background gene list response status code: {request_background_id.status_code}. \n
-                Please double-check arguments and try again.\n"""
+                Please double-check arguments and try again.\n
+                """
             )
 
         # Get background ID
@@ -257,13 +258,13 @@ def enrichr(
                 If the input genes are Ensembl IDs, please set argument 'ensembl=True'. (For command-line, add flag [-e][--ensembl].)\n
                 If the background genes are Ensembl IDs, please set argument 'ensembl_bkg=True'. (For command-line, add flag [-e_b][--ensembl_bkg].\n
                 """
-                
             )
         else:
             raise RuntimeError(
                 f"""
                 Enrichr HTTP GET response status code: {r2.status_code} for genes {genes_clean}, and database {database}\n
-                If the input genes are Ensembl IDs, please set argument 'ensembl=True'. (For command-line, add flag [-e][--ensembl].)\n"""
+                If the input genes are Ensembl IDs, please set argument 'ensembl=True'. (For command-line, add flag [-e][--ensembl].)\n
+                """
             )
 
     enrichr_results = r2.json()
@@ -272,7 +273,8 @@ def enrichr(
         logging.error(
             f"""
             No Enrichr results were found for genes {genes_clean} and database {database}. \n
-            If the genes are Ensembl IDs, please set argument 'ensembl=True'. (For command-line, add flag [-e][--ensembl].)"""
+            If the genes are Ensembl IDs, please set argument 'ensembl=True'. (For command-line, add flag [-e][--ensembl].)
+            """
         )
         return
 
@@ -298,7 +300,8 @@ def enrichr(
         logging.error(
             f"""
             Database {database} not found. Go to https://maayanlab.cloud/Enrichr/#libraries 
-            for a full list of supported databases."""
+            for a full list of supported databases.
+            """
         )
         return
 
