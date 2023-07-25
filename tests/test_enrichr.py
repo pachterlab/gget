@@ -116,7 +116,7 @@ class TestEnrichr(unittest.TestCase):
         result_to_test = enrichr(**enrichr_dict[test]["args"])
         # If result is a DataFrame, convert to list
         if isinstance(result_to_test, pd.DataFrame):
-            result_taddo_test = result_to_test.values.tolist()
+            result_to_test = result_to_test.values.tolist()
 
         self.assertListEqual(result_to_test, expected_result)
 
