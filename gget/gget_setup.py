@@ -40,10 +40,10 @@ def setup(module, verbose=True):
     Requires pip to be installed (https://pip.pypa.io/en/stable/installation).
 
     Args:
-    - module    (str) gget module for which dependencies should be installed, e.g. "alphafold", "cellxgene" or "gpt".
+    - module    (str) gget module for which dependencies should be installed, e.g. "alphafold", "cellxgene", "elm", or "gpt".
     - verbose   True/False whether to print progress information. Default True.
     """
-    supported_modules = ["alphafold", "cellxgene", "gpt"]
+    supported_modules = ["alphafold", "cellxgene", "elm", "gpt"]
     if module not in supported_modules:
         raise ValueError(
             f"'module' argument specified as {module}. Expected one of: {', '.join(supported_modules)}"
@@ -104,6 +104,57 @@ def setup(module, verbose=True):
                 f"cellxgene-census installation with pip (https://pypi.org/project/cellxgene-census) failed. Import error:\n{e}"
             )
             return
+
+    if module == "elm":
+        if verbose:
+            logging.info("Installing elm files")
+        
+        elm_files = os.path.join(
+            PACKAGE_PATH, "constants"
+        )
+       
+        elm_classes_tsv_path = f"{elm_files}/elms_classes.tsv"
+        elm_instances_fasta_path = f"{elm_files}/elm_instances.fa"
+        elm_instances_tsv_path = f"{elm_files}/elm_instances.tsv"
+
+        if platform.system() == "Windows":
+            # The double-quotation marks allow white spaces in the path, but this does not work for Windows
+            command = f"""
+                curl -o {elm_instances_fasta_path} http://elm.eu.org/instances.fasta \
+                &&  curl -o {elm_classes_tsv_path} http://elm.eu.org/elms/elms_index.tsv \
+                &&  curl -o {elm_instances_tsv_path} http://elm.eu.org/instances.tsv
+                """
+        else:
+            command = f"""
+                curl -o '{elm_instances_fasta_path}' http://elm.eu.org/instances.fasta \
+                &&  curl -o '{elm_classes_tsv_path}' http://elm.eu.org/elms/elms_index.tsv \
+                &&  curl -o '{elm_instances_tsv_path}' http://elm.eu.org/instances.tsv
+                """
+            
+        with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
+            stderr = process.stderr.read().decode("utf-8")
+            # Log the standard error if it is not empty
+            if stderr:
+                sys.stderr.write(stderr)
+        # Exit system if the subprocess returned with an error
+        if process.wait() != 0:
+            logging.error("ELM files download failed.")
+            return
+        else:
+            if verbose:
+                logging.info("ELM files downloaded")
+
+        try:
+            import elm_files
+
+            if verbose:
+                logging.info(f"ELM files installed succesfully.")
+        except ImportError as e:
+            logging.error(
+                f"ELM files download failed. Import error:\n{e}"
+            )
+            return
+
 
     if module == "alphafold":
         if platform.system() == "Windows":
