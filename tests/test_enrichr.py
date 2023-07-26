@@ -118,7 +118,7 @@ class TestEnrichr(unittest.TestCase):
         # If result is a DataFrame, convert to list
         if isinstance(result_to_test, pd.DataFrame):
             result_to_test = result_to_test.values.tolist()
-            result_to_test = list(map(lambda x: x.replace(math.inf, 'inf'), l))
+            result_to_test = list(map(lambda x: x.replace(math.inf, 'inf'), result_to_test))
 
         self.assertListEqual(result_to_test, expected_result)
 
