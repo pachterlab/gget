@@ -360,7 +360,51 @@
                         "taxonomy_id": 49390,
                         "provenance_code": "up:organism"
                     }
-                }
+                },
+                "rcsb_uniprot_annotation": [
+                    {
+                        "annotation_id": "GO:0047172",
+                        "name": "shikimate O-hydroxycinnamoyltransferase activity",
+                        "provenance_source": "UNIPROT",
+                        "type": "GO"
+                    },
+                    {
+                        "annotation_id": "GO:0009963",
+                        "name": "positive regulation of flavonoid biosynthetic process",
+                        "provenance_source": "UNIPROT",
+                        "type": "GO"
+                    },
+                    {
+                        "annotation_id": "GO:0016020",
+                        "name": "membrane",
+                        "provenance_source": "UNIPROT",
+                        "type": "GO"
+                    },
+                    {
+                        "annotation_id": "GO:0009809",
+                        "name": "lignin biosynthetic process",
+                        "provenance_source": "UNIPROT",
+                        "type": "GO"
+                    },
+                    {
+                        "annotation_id": "GO:0047205",
+                        "name": "quinate O-hydroxycinnamoyltransferase activity",
+                        "provenance_source": "UNIPROT",
+                        "type": "GO"
+                    },
+                    {
+                        "annotation_id": "GO:0005737",
+                        "name": "cytoplasm",
+                        "provenance_source": "UNIPROT",
+                        "type": "GO"
+                    },
+                    {
+                        "annotation_id": "IPR023213",
+                        "name": "Chloramphenicol acetyltransferase-like domain superfamily",
+                        "provenance_source": "UNIPROT",
+                        "type": "InterPro"
+                    }
+                ]
             }
         ]
     },
@@ -764,10 +808,10 @@
                     "mogul_angles_rmsz": 0.56,
                     "mogul_bond_outliers": 1,
                     "mogul_bonds_rmsz": 2.75,
-                    "ranking_model_fit": 0.7526,
-                    "ranking_model_geometry": 0.2432,
-                    "score_model_fit": -0.9457,
-                    "score_model_geometry": 0.6964,
+                    "ranking_model_fit": 0.7558,
+                    "ranking_model_geometry": 0.2397,
+                    "score_model_fit": -0.954,
+                    "score_model_geometry": 0.7063,
                     "stereo_outliers": 0,
                     "type": "RCSB_LIGAND_QUALITY_SCORE_2021"
                 }
