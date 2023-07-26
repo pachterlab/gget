@@ -260,7 +260,6 @@ def search(
             WHERE (transcript.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%' OR external_synonym.synonym LIKE '%{searchword}%' OR gene_attrib.value LIKE '%{searchword}%')
             """
 
-
             # Fetch the search results from the host using the specified query
             df_temp = pd.read_sql(query, con=db_connection)
             # Order by ENSEMBL ID (I am using pandas for this instead of SQL to increase speed)
@@ -291,7 +290,6 @@ def search(
     df = df.groupby("ensembl_id").agg(tuple).applymap(list).reset_index()
     df["gene_name"] = df["gene_name"].apply(set)
     df["biotype"] = df["biotype"].apply(set)
-    
 
     # If limit is not None, keep only the first {limit} rows
     if limit != None:
