@@ -222,7 +222,7 @@ def search(
             LEFT JOIN xref ON gene.display_xref_id = xref.xref_id 
             LEFT JOIN external_synonym ON gene.display_xref_id = external_synonym.xref_id 
             LEFT JOIN gene_attrib ON gene.gene_id = gene_attrib.gene_id 
-            WHERE (gene.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}% OR external_synonym.synonym LIKE '%{searchword}' OR gene_attrib.value LIKE '%{searchword}')
+            WHERE (gene.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%' OR external_synonym.synonym LIKE '%{searchword}%' OR gene_attrib.value LIKE '%{searchword}%')
             """
 
             # Fetch the search results from the host using the specified query
