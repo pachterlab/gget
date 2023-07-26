@@ -217,10 +217,12 @@ def search(
     for i, searchword in enumerate(searchwords):
         if id_type == "gene":
             query = f"""
-            SELECT gene.stable_id AS 'ensembl_id', xref.display_label AS 'gene_name', gene.description AS 'ensembl_description', xref.description AS 'ext_ref_description', gene.biotype AS 'biotype'
-            FROM gene
-            LEFT JOIN xref ON gene.display_xref_id = xref.xref_id
-            WHERE (gene.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%')
+            SELECT gene.stable_id AS 'ensembl_id', gene_attrib.value AS 'ensembl_gene_name', xref.display_label AS 'gene_name', gene.description AS 'ensembl_description', xref.description AS 'ext_ref_description', gene.biotype AS 'biotype', external_synonym.synonym AS 'synonym'
+            FROM gene 
+            LEFT JOIN xref ON gene.display_xref_id = xref.xref_id 
+            LEFT JOIN external_synonym ON gene.display_xref_id = external_synonym.xref_id 
+            LEFT JOIN gene_attrib ON gene.gene_id = gene_attrib.gene_id 
+            WHERE (gene.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}% OR external_synonym.synonym LIKE '%{searchword}' OR gene_attrib.value LIKE '%{searchword}')
             """
 
             # Fetch the search results from the host using the specified query
