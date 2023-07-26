@@ -252,11 +252,14 @@ def search(
 
         if id_type == "transcript":
             query = f"""
-            SELECT transcript.stable_id AS 'ensembl_id', xref.display_label AS 'gene_name', transcript.description AS 'ensembl_description', xref.description AS 'ext_ref_description', transcript.biotype AS 'biotype'
-            FROM transcript
-            LEFT JOIN xref ON transcript.display_xref_id = xref.xref_id
-            WHERE (transcript.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%')
+            SELECT transcript.stable_id AS 'ensembl_id', gene_attrib.value AS 'ensembl_gene_name', xref.display_label AS 'gene_name', transcript.description AS 'ensembl_description', xref.description AS 'ext_ref_description', transcript.biotype AS 'biotype', external_synonym.synonym AS 'synonym'
+            FROM transcript 
+            LEFT JOIN xref ON transcript.display_xref_id = xref.xref_id 
+            LEFT JOIN external_synonym ON transcript.display_xref_id = external_synonym.xref_id 
+            LEFT JOIN gene_attrib ON transcript.gene_id = gene_attrib.gene_id 
+            WHERE (transcript.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%' OR external_synonym.synonym LIKE '%{searchword}%' OR gene_attrib.value LIKE '%{searchword}%')
             """
+
 
             # Fetch the search results from the host using the specified query
             df_temp = pd.read_sql(query, con=db_connection)
@@ -284,6 +287,11 @@ def search(
 
     # Remove any duplicate search results from the master data frame and reset the index
     df = df.drop_duplicates().reset_index(drop=True)
+    # Collapse entries for the same Ensembl ID
+    df = df.groupby("ensembl_id").agg(tuple).applymap(list).reset_index()
+    df["gene_name"] = df["gene_name"].apply(set)
+    df["biotype"] = df["biotype"].apply(set)
+    
 
     # If limit is not None, keep only the first {limit} rows
     if limit != None:
