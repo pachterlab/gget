@@ -166,7 +166,7 @@
                 "Q9U969",
                 "31716",
                 "drosophila_melanogaster",
-                "BDGP6.46",
+                "BDGP6.32",
                 "sws",
                 "sws",
                 [
@@ -192,9 +192,9 @@
                 7956820,
                 7968236,
                 [
-                    "FBtr0071126",
+                    "FBtr0301675",
                     "FBtr0071125",
-                    "FBtr0301675"
+                    "FBtr0071126"
                 ],
                 [
                     "protein_coding",
@@ -202,9 +202,9 @@
                     "protein_coding"
                 ],
                 [
-                    "sws-RB",
+                    "sws-RC",
                     "sws-RA",
-                    "sws-RC"
+                    "sws-RB"
                 ],
                 [
                     -1,
@@ -217,9 +217,9 @@
                     7956820
                 ],
                 [
-                    7959369,
                     7968236,
-                    7968236
+                    7968236,
+                    7959369
                 ]
             ]
         ]
@@ -233,14 +233,20 @@
             [
                 "EnsMUSG00000000001.5",
                 "Q9DC51",
+                "14679",
                 "mus_musculus",
                 "GRCm39",
                 "Gnai3",
                 "Gnai3",
-                [],
+                [
+                    "Galphai3",
+                    "Gnai-3",
+                    "Hg1a"
+                ],
                 "Guanine nucleotide-binding protein G(i) subunit alpha-3",
                 "guanine nucleotide binding protein (G protein), alpha inhibiting 3 [Source:MGI Symbol;Acc:MGI:95773]",
                 "Heterotrimeric guanine nucleotide-binding proteins (G proteins) function as transducers downstream of G protein-coupled receptors (GPCRs) in numerous signaling cascades. The alpha chain contains the guanine nucleotide binding site and alternates between an active, GTP-bound state and an inactive, GDP-bound state. Signaling by an activated GPCR promotes GDP release and GTP binding. The alpha subunit has a low GTPase activity that converts bound GTP to GDP, thereby terminating the signal. Both GDP release and GTP hydrolysis are modulated by numerous regulatory proteins. Signaling is mediated via effector proteins, such as adenylate cyclase. Inhibits adenylate cyclase activity, leading to decreased intracellular cAMP levels. Stimulates the activity of receptor-regulated K(+) channels. The active GTP-bound form prevents the association of RGS14 with centrosomes and is required for the translocation of RGS14 from the cytoplasm to the plasma membrane. May play a role in cell division",
+                "Predicted to enable several functions, including G-protein beta/gamma-subunit complex binding activity; GDP binding activity; and GTPase activating protein binding activity. Predicted to be involved in several processes, including positive regulation of NAD(P)H oxidase activity; positive regulation of superoxide anion generation; and positive regulation of vascular associated smooth muscle cell proliferation. Predicted to act upstream of or within G protein-coupled receptor signaling pathway. Located in Golgi apparatus. Is expressed in early conceptus; inner ear; and oocyte. Orthologous to human GNAI3 (G protein subunit alpha i3). [provided by Alliance of Genome Resources, Apr 2022]",
                 [
                     "Cytoplasm",
                     "Cell membrane",
@@ -573,7 +579,7 @@
                 107526965
             ],
             [
-                "ENSG00000169174.12",
+                "ENSG00000169174.11",
                 "Q8NBP7",
                 "homo_sapiens",
                 "GRCh38",
@@ -819,8 +825,6 @@
                     "7ya1",
                     "7ydi",
                     "7yeg",
-                    "7yhw",
-                    "7yj3",
                     "7yr2",
                     "7yr3",
                     "7zdq",
@@ -841,10 +845,8 @@
                     "8dv1",
                     "8dv2",
                     "8e7m",
-                    "8h06",
-                    "8h5c",
                     "8if2",
-                    "8iou",
+                    "8iou", 
                     "8iov"
                 ],
                 "59272",
@@ -1078,7 +1080,7 @@
                 "ENSCARG00000016705.1",
                 "carassius_auratus",
                 "ASM336829v1",
-                "ube2wa",
+                "ube2w",
                 "Gene",
                 "protein_coding",
                 "27",
