@@ -20,9 +20,19 @@ import pandas as pd
 
 
 # Custom functions
-from .utils import gget_species_options, find_latest_ens_rel, wrap_cols_func
+from gget.utils import gget_species_options, find_latest_ens_rel, wrap_cols_func
 
-from .constants import ENSEMBL_FTP_URL, ENSEMBL_FTP_URL_PLANT
+from gget.constants import ENSEMBL_FTP_URL, ENSEMBL_FTP_URL_PLANT
+
+def clean_cols(x):
+    if isinstance(x, list):
+        unique_list = list(set(x))
+        if len(unique_list) == 1:
+            return unique_list[0]
+        else:
+            return unique_list
+    else:
+        return x
 
 
 def search(
@@ -50,7 +60,7 @@ def search(
                       To pass a specific database, enter the name of the core database, e.g. "mus_musculus_dba2j_core_105_1".
                       All available species databases can be found here: http://ftp.ensembl.org/pub
     - release         Defines the Ensembl release number from which the files are fetched, e.g. 104.
-                      Note: Does not apply to plant species (you can pass a specific plant core database (which include a release number) to the species argument instead).
+                      Note: Does not apply to plant species (you can pass a specific plant core database (which include a release number) to the species argument instead). 
                       This argument is overwritten if a specific database (which includes a release number) is passed to the species argument.
                       Default: None -> latest Ensembl release is used
     - id_type         "gene" (default) or "transcript"
@@ -113,37 +123,34 @@ def search(
     if "core" in species:
         db = species
         if release:
-            if verbose:
-                logging.warning(
-                    "Specified release overwritten because database name was provided."
-                )
+            logging.warning("Specified release overwritten because database name was provided.")
     else:
         if release:
-            if verbose:
-                logging.warning(
-                    "Note: If you passed a plant species, the release argument does not apply.\nYou can pass a specific plant core database (which include a release number) instead."
-                )
             ens_rel = release
         else:
             # Find latest Ensembl release
             ens_rel = find_latest_ens_rel()
 
         # Fetch ensembl databases
-        databases = gget_species_options(database=ENSEMBL_FTP_URL, release=ens_rel)
-
+        databases = gget_species_options(
+            database=ENSEMBL_FTP_URL, release=ens_rel
+        )
+    
         # Add ensembl plant databases
-        databases += gget_species_options(database=ENSEMBL_FTP_URL_PLANT, release=None)
-
+        databases += gget_species_options(
+            database=ENSEMBL_FTP_URL_PLANT, release=None
+        )
+    
         db = []
         for datab in databases:
             if species in datab:
                 db.append(datab)
-
+    
         # Unless an unambigious mouse database is specified,
         # the standard core database will be used
         if len(db) > 1 and "mus_musculus" in species:
             db = f"mus_musculus_core_{ens_rel}_39"
-
+    
         # Check for ambigious species matches in species other than mouse
         elif len(db) > 1 and "mus_musculus" not in species:
             raise ValueError(
@@ -160,20 +167,17 @@ def search(
                 "All available databases can be found here:\n"
                 f"http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/"
             )
-
+    
         else:
             db = db[0]
 
     if verbose:
         logging.info(f"Fetching results from database: {db}")
 
-    ## Connect to database
+    ## Connect to data base
     try:
         db_connection = sql.connect(
-            host="mysql-eg-publicsql.ebi.ac.uk",
-            database=db,
-            user="anonymous",
-            password="",
+            host="mysql-eg-publicsql.ebi.ac.uk", database=db, user="anonymous", password=""
         )
     except:
         try:
@@ -187,25 +191,17 @@ def search(
             )
 
         except Exception as e:
-            try:
-                if "Access denied" in e:
-                    raise RuntimeError(
-                        f"""
-                        The Ensembl server returned the following error:\n{e}\n
-                        This might be caused by the Ensembl release number being too low. 
-                        Please try again with a more recent release.
-                        """
-                    )
-                else:
-                    raise RuntimeError(
-                        f"The Ensembl server returned the following error:\n{e}\n"
-                    )
-            except TypeError:
+            if "Access denied" in e:
                 raise RuntimeError(
                     f"""
-                        The Ensembl server returned the following error:\n{e}\n
-                        Please double-check the spelling/validity of your database.
-                        """
+                    The Ensembl server returned the following error: {e}.
+                    This might be caused by the Ensembl release number being too low. 
+                    Please try again with a more recent release.
+                    """
+                )
+            else:
+                raise RuntimeError(
+                    f"The Ensembl server returned the following error: {e}"
                 )
 
     ## Clean up list of searchwords
@@ -217,10 +213,12 @@ def search(
     for i, searchword in enumerate(searchwords):
         if id_type == "gene":
             query = f"""
-            SELECT gene.stable_id AS 'ensembl_id', xref.display_label AS 'gene_name', gene.description AS 'ensembl_description', xref.description AS 'ext_ref_description', gene.biotype AS 'biotype'
-            FROM gene
-            LEFT JOIN xref ON gene.display_xref_id = xref.xref_id
-            WHERE (gene.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%')
+            SELECT gene.stable_id AS 'ensembl_id', xref.display_label AS 'gene_name', gene.description AS 'ensembl_description', xref.description AS 'ext_ref_description', gene.biotype AS 'biotype', external_synonym.synonym AS 'synonym'
+            FROM gene 
+            LEFT JOIN xref ON gene.display_xref_id = xref.xref_id 
+            LEFT JOIN external_synonym ON gene.display_xref_id = external_synonym.xref_id 
+            LEFT JOIN gene_attrib ON gene.gene_id = gene_attrib.gene_id 
+            WHERE (gene.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%' OR external_synonym.synonym LIKE '%{searchword}%' OR gene_attrib.value LIKE '%{searchword}%')
             """
 
             # Fetch the search results from the host using the specified query
@@ -250,10 +248,12 @@ def search(
 
         if id_type == "transcript":
             query = f"""
-            SELECT transcript.stable_id AS 'ensembl_id', xref.display_label AS 'gene_name', transcript.description AS 'ensembl_description', xref.description AS 'ext_ref_description', transcript.biotype AS 'biotype'
-            FROM transcript
-            LEFT JOIN xref ON transcript.display_xref_id = xref.xref_id
-            WHERE (transcript.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%')
+            SELECT transcript.stable_id AS 'ensembl_id', gene_attrib.value AS 'ensembl_gene_name', xref.display_label AS 'gene_name', transcript.description AS 'ensembl_description', xref.description AS 'ext_ref_description', transcript.biotype AS 'biotype', external_synonym.synonym AS 'synonym'
+            FROM transcript 
+            LEFT JOIN xref ON transcript.display_xref_id = xref.xref_id 
+            LEFT JOIN external_synonym ON transcript.display_xref_id = external_synonym.xref_id 
+            LEFT JOIN gene_attrib ON transcript.gene_id = gene_attrib.gene_id 
+            WHERE (transcript.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%' OR external_synonym.synonym LIKE '%{searchword}%' OR gene_attrib.value LIKE '%{searchword}%')
             """
 
             # Fetch the search results from the host using the specified query
@@ -269,6 +269,7 @@ def search(
                 # Add new search results to master data frame
                 else:
                     df = pd.concat([df, df_temp])
+                    return df
 
             # If andor="and", only keep overlap between results
             if andor == "and":
@@ -279,9 +280,19 @@ def search(
                 else:
                     val = np.intersect1d(df["ensembl_id"], df_temp["ensembl_id"])
                     df = df[df.ensembl_id.isin(val)]
+                    
 
     # Remove any duplicate search results from the master data frame and reset the index
     df = df.drop_duplicates().reset_index(drop=True)
+
+    # Collapse entries for the same Ensembl ID
+    df = df.groupby("ensembl_id").agg(tuple).applymap(list).reset_index()
+
+    # convert list of values to type string if there is only one value
+    df = df.apply(clean_cols, axis=1)
+
+    # Keep synonyms always of type list for consistency
+    df["synonym"] = [[syn] if not isinstance(syn, list) else syn for syn in df["synonym"].values]
 
     # If limit is not None, keep only the first {limit} rows
     if limit != None:
