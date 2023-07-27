@@ -25,6 +25,17 @@ from .utils import gget_species_options, find_latest_ens_rel, wrap_cols_func
 from .constants import ENSEMBL_FTP_URL, ENSEMBL_FTP_URL_PLANT
 
 
+def clean_cols(x):
+    if isinstance(x, list):
+        unique_list = list(set(x))
+        if len(unique_list) == 1:
+            return unique_list[0]
+        else:
+            return unique_list
+    else:
+        return x
+
+
 def search(
     searchwords,
     species,
@@ -288,8 +299,14 @@ def search(
     df = df.drop_duplicates().reset_index(drop=True)
     # Collapse entries for the same Ensembl ID
     df = df.groupby("ensembl_id").agg(tuple).applymap(list).reset_index()
-    df["gene_name"] = df["gene_name"].apply(set)
-    df["biotype"] = df["biotype"].apply(set)
+
+    # convert list of values to type string if there is only one value
+    df = df.apply(clean_cols, axis=1)
+
+    # Keep synonyms always of type list for consistency
+    df["synonym"] = [
+        [syn] if not isinstance(syn, list) else syn for syn in df["synonym"].values
+    ]
 
     # If limit is not None, keep only the first {limit} rows
     if limit != None:

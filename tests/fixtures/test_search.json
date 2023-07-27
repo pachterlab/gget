@@ -101,27 +101,75 @@
         "expected_result": [
             [
                 "ENSG00000069509",
-                "FUNDC1",
-                "FUN14 domain containing 1 [Source:HGNC Symbol;Acc:HGNC:28746]",
-                "FUN14 domain containing 1",
-                "protein_coding",
+                [
+                    "FUNDC1"
+                ],
+                [
+                    "FUN14 domain containing 1 [Source:HGNC Symbol;Acc:HGNC:28746]"
+                ],
+                [
+                    "FUN14 domain containing 1"
+                ],
+                [
+                    "protein_coding"
+                ],
+                [
+                    "MGC51029"
+                ],
                 "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000069509"
             ],
             [
                 "ENSG00000084754",
-                "HADHA",
-                "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha [Source:HGNC Symbol;Acc:HGNC:4801]",
-                "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha",
-                "protein_coding",
+                [
+                    "HADHA",
+                    "HADHA",
+                    "HADHA",
+                    "HADHA"
+                ],
+                [
+                    "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha [Source:HGNC Symbol;Acc:HGNC:4801]",
+                    "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha [Source:HGNC Symbol;Acc:HGNC:4801]",
+                    "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha [Source:HGNC Symbol;Acc:HGNC:4801]",
+                    "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha [Source:HGNC Symbol;Acc:HGNC:4801]"
+                ],
+                [
+                    "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha",
+                    "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha",
+                    "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha",
+                    "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha"
+                ],
+                [
+                    "protein_coding",
+                    "protein_coding",
+                    "protein_coding",
+                    "protein_coding"
+                ],
+                [
+                    "LCHAD",
+                    "MTPA",
+                    "GBP",
+                    "LCEH"
+                ],
                 "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000084754"
             ],
             [
-                "ENSG00000103429",
-                "BFAR",
-                "bifunctional apoptosis regulator [Source:HGNC Symbol;Acc:HGNC:17613]",
-                "bifunctional apoptosis regulator",
-                "protein_coding",
-                "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000103429"
+                "ENSG00000100603",
+                [
+                    "SNW1"
+                ],
+                [
+                    "SNW domain containing 1 [Source:HGNC Symbol;Acc:HGNC:16696]"
+                ],
+                [
+                    "SNW domain containing 1"
+                ],
+                [
+                    "protein_coding"
+                ],
+                [
+                    "FUN20"
+                ],
+                "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000100603"
             ]
         ]
     },
@@ -1281,10 +1329,21 @@
         "expected_result": [
             [
                 "FBgn0003656",
-                "sws",
-                "swiss cheese",
-                null,
-                "protein_coding",
+                [
+                    "sws"
+                ],
+                [
+                    "swiss cheese"
+                ],
+                [
+                    null
+                ],
+                [
+                    "protein_coding"
+                ],
+                [
+                    "sws"
+                ],
                 "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
             ]
         ]
@@ -1414,26 +1473,59 @@
         "expected_result": [
             [
                 "MGP_DBA2J_G0002730",
-                "H3f3aos",
-                "H3 histone, family 3A, opposite strand [Source:MGI Symbol;Acc:MGI:3802006]",
-                "H3 histone, family 3A, opposite strand",
-                "antisense",
+                [
+                    "H3f3aos"
+                ],
+                [
+                    "H3 histone, family 3A, opposite strand [Source:MGI Symbol;Acc:MGI:3802006]"
+                ],
+                [
+                    "H3 histone, family 3A, opposite strand"
+                ],
+                [
+                    "antisense"
+                ],
+                [
+                    "Gm16067"
+                ],
                 "https://useast.ensembl.org/mus_musculus/Gene/Summary?g=MGP_DBA2J_G0002730"
             ],
             [
                 "MGP_DBA2J_G0002983",
-                "Dhx58os",
-                "DEAH (Asp-Glu-Ala-His) box polypeptide 58, opposite strand [Source:MGI Symbol;Acc:MGI:3705104]",
-                "DEAH (Asp-Glu-Ala-His) box polypeptide 58, opposite strand",
-                "antisense",
+                [
+                    "Dhx58os"
+                ],
+                [
+                    "DEAH (Asp-Glu-Ala-His) box polypeptide 58, opposite strand [Source:MGI Symbol;Acc:MGI:3705104]"
+                ],
+                [
+                    "DEAH (Asp-Glu-Ala-His) box polypeptide 58, opposite strand"
+                ],
+                [
+                    "antisense"
+                ],
+                [
+                    "Gm11547"
+                ],
                 "https://useast.ensembl.org/mus_musculus/Gene/Summary?g=MGP_DBA2J_G0002983"
             ],
             [
                 "MGP_DBA2J_G0003041",
-                "Notumos",
-                "notum pectinacetylesterase homolog (Drosophila), opposite strand [Source:MGI Symbol;Acc:MGI:3698431]",
-                "notum pectinacetylesterase homolog (Drosophila), opposite strand",
-                "antisense",
+                [
+                    "Notumos"
+                ],
+                [
+                    "notum pectinacetylesterase homolog (Drosophila), opposite strand [Source:MGI Symbol;Acc:MGI:3698431]"
+                ],
+                [
+                    "notum pectinacetylesterase homolog (Drosophila), opposite strand"
+                ],
+                [
+                    "antisense"
+                ],
+                [
+                    "4732444A12Rik"
+                ],
                 "https://useast.ensembl.org/mus_musculus/Gene/Summary?g=MGP_DBA2J_G0003041"
             ]
         ]
