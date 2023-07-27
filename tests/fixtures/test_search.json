@@ -11,6 +11,9 @@
             [
                 "FBgn0003656",
                 [
+                    "44.69"
+                ],
+                [
                     "sws"
                 ],
                 [
@@ -43,6 +46,9 @@
                 "gene_name": [
                     "sws"
                 ],
+                "ensembl_gene_name": [
+                    "44.69"
+                ],
                 "ensembl_description": [
                     "swiss cheese"
                 ],
@@ -74,11 +80,24 @@
         "expected_result": [
             [
                 "FBgn0003656",
-                "sws",
-                "swiss cheese",
-                null,
-                "protein_coding",
-                "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
+                [
+                    "44.69"
+                ],
+                [
+                    "sws"
+                ],
+                [
+                    "swiss cheese"
+                ],
+                [
+                    null
+                ],
+                [
+                    "protein_coding"
+                ],
+                [
+                    "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
+                ]
             ],
             [
                 "FBgn0043362",
@@ -102,7 +121,9 @@
             [
                 "ENSG00000069509",
                 [
-                    "FUNDC1"
+                    "FUNDC1",
+                    "OTTHUMG00000021399",
+                    "ENST00000378045"
                 ],
                 [
                     "FUN14 domain containing 1 [Source:HGNC Symbol;Acc:HGNC:28746]"
@@ -1330,6 +1351,9 @@
             [
                 "FBgn0003656",
                 [
+                    "44.69"
+                ],
+                [
                     "sws"
                 ],
                 [
@@ -1360,6 +1384,7 @@
         "expected_result": [
             [
                 "ENSG00000130234",
+                ["Havana", "ACE2", "vega@sanger.ac.uk", "38"],
                 [
                     "ACE2"
                 ],
@@ -1474,6 +1499,10 @@
             [
                 "MGP_DBA2J_G0002730",
                 [
+                    "ENSMUSG00000073485.3",
+                    "50.19"
+                ],
+                [
                     "H3f3aos"
                 ],
                 [
@@ -1543,6 +1572,9 @@
             [
                 "AT1G01180",
                 [
+                    "42.45",
+                    "0.934853420195439739",
+                    "0.959866",
                     "AT1G01180"
                 ],
                 [
@@ -1635,6 +1667,7 @@
         "expected_result": [
             [
                 "AT2G23380",
+                ["38.81", "38.81", "0.964912280701754386"],
                 "CLF",
                 "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]",
                 "",
