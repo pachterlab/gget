@@ -102,10 +102,12 @@
             ],
             [
                 "FBgn0043362",
+                ["47.69"],
                 ["bchs"],
                 ["blue cheese"],
                 [null],
-                "protein_coding",
+                ["protein_coding"],
+                ["bchs"],
                 "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0043362"
             ]
         ]
@@ -126,7 +128,7 @@
                     "OTTHUMG00000021399",
                     "ENST00000378045", "41.03"
                 ],
-                ["FUNDC1", "FUNDC1", "FUNDC1"],
+                ["FUNDC1", "FUNDC1", "FUNDC1", "FUNDC1"],
                 [
                     "FUN14 domain containing 1 [Source:HGNC Symbol;Acc:HGNC:28746]"
                 ],
@@ -1393,6 +1395,7 @@
                     "ACE2",
                     "ACE2",
                     "ACE2",
+                    "ACE2",
                     "ACE2"
                 ],
                 [
@@ -1589,15 +1592,15 @@
                     "AT1G01180",
                     "AT1G01180"
                 ],
-                [
+                
                     "S-adenosyl-L-methionine-dependent methyltransferases superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839239]"
-                ],
-                [
+                ,
+                
                     "S-adenosyl-L-methionine-dependent methyltransferases superfamily protein"
-                ],
-                [
+                ,
+                
                     "protein_coding"
-                ],
+                ,
                 [
                     "F6F3.5"
                 ],
@@ -1685,7 +1688,7 @@
                     "0.964912280701754386",
                     "0.60975609756097561",
                     "38.81",
-                    "0.964912280701754386", "0.60975609756097561",""
+                    "0.964912280701754386", "0.60975609756097561", "38.81", "0.964912280701754386", "0.609756"
                 ],
                 "CLF",
                 "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]",
