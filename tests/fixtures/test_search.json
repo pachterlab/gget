@@ -102,9 +102,9 @@
             ],
             [
                 "FBgn0043362",
-                "bchs",
-                "blue cheese",
-                null,
+                ["bchs"],
+                ["blue cheese"],
+                [null],
                 "protein_coding",
                 "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0043362"
             ]
@@ -124,8 +124,9 @@
                 [
                     "FUNDC1",
                     "OTTHUMG00000021399",
-                    "ENST00000378045"
+                    "ENST00000378045", "41.03"
                 ],
+                ["FUNDC1", "FUNDC1", "FUNDC1"]
                 [
                     "FUN14 domain containing 1 [Source:HGNC Symbol;Acc:HGNC:28746]"
                 ],
@@ -287,12 +288,24 @@
         "expected_result": [
             [
                 "ENSANIT00000000884",
-                "69.53",
-                "RNaseP_nuc-201",
-                null,
-                "Nuclear RNase P",
-                "ribozyme",
-                null
+                [
+                    "69.53"
+                ],
+                [
+                    "RNaseP_nuc-201"
+                ],
+                [
+                    null
+                ],
+                [
+                    "Nuclear RNase P"
+                ],
+                [
+                    "ribozyme"
+                ],
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000001698",
@@ -328,15 +341,6 @@
                 null,
                 "Small nucleolar RNA SNORA71",
                 "snoRNA",
-                null
-            ],
-            [
-                "ENSANIT00000001839",
-                "43.39",
-                "U2-201",
-                null,
-                "U2 spliceosomal RNA",
-                "snRNA",
                 null
             ],
             [
@@ -1382,9 +1386,13 @@
                     "vega@sanger.ac.uk",
                     "38.39",
                     "OTTHUMG00000193402",
-                    "overlapping"
+                    "overlapping locus"
                 ],
                 [
+                    "ACE2",
+                    "ACE2",
+                    "ACE2",
+                    "ACE2",
                     "ACE2"
                 ],
                 [
@@ -1505,9 +1513,9 @@
                     "H3f3aos",
                     "H3f3aos"
                 ],
-                [
+                
                     "H3 histone, family 3A, opposite strand [Source:MGI Symbol;Acc:MGI:3802006]"
-                ],
+                ,
                 [
                     "H3 histone, family 3A, opposite strand"
                 ],
@@ -1577,6 +1585,7 @@
                     "0.959866220735785953"
                 ],
                 [
+                    "AT1G01180",
                     "AT1G01180",
                     "AT1G01180"
                 ],
@@ -1676,7 +1685,7 @@
                     "0.964912280701754386",
                     "0.60975609756097561",
                     "38.81",
-                    "0.9649"
+                    "0.964912280701754386", "0.60975609756097561",""
                 ],
                 "CLF",
                 "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]",
