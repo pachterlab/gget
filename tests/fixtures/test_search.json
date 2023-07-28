@@ -96,8 +96,9 @@
                     "protein_coding"
                 ],
                 [
-                    "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
-                ]
+                    "sws"
+                ],
+                "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
             ],
             [
                 "FBgn0043362",
@@ -285,24 +286,6 @@
         },
         "expected_result": [
             [
-                "ENSANIT00000001698",
-                "54.14",
-                "SNORA71-201",
-                null,
-                "Small nucleolar RNA SNORA71",
-                "snoRNA",
-                null
-            ],
-            [
-                "ENSANIT00000001705",
-                "62.69",
-                "SNORA71-201",
-                null,
-                "Small nucleolar RNA SNORA71",
-                "snoRNA",
-                null
-            ],
-            [
                 "ENSANIT00000000884",
                 "69.53",
                 "RNaseP_nuc-201",
@@ -330,12 +313,21 @@
                 null
             ],
             [
-                "ENSANIT00000001802",
-                "56.86",
-                "5_8S_rRNA-201",
+                "ENSANIT00000001698",
+                "54.14",
+                "SNORA71-201",
                 null,
-                "5.8S ribosomal RNA",
-                "rRNA",
+                "Small nucleolar RNA SNORA71",
+                "snoRNA",
+                null
+            ],
+            [
+                "ENSANIT00000001705",
+                "62.69",
+                "SNORA71-201",
+                null,
+                "Small nucleolar RNA SNORA71",
+                "snoRNA",
                 null
             ],
             [
@@ -1384,7 +1376,14 @@
         "expected_result": [
             [
                 "ENSG00000130234",
-                ["Havana", "ACE2", "vega@sanger.ac.uk", "38"],
+                [
+                    "Havana",
+                    "ACE2",
+                    "vega@sanger.ac.uk",
+                    "38.39",
+                    "OTTHUMG00000193402",
+                    "overlapping"
+                ],
                 [
                     "ACE2"
                 ],
@@ -1503,6 +1502,7 @@
                     "50.19"
                 ],
                 [
+                    "H3f3aos",
                     "H3f3aos"
                 ],
                 [
@@ -1574,7 +1574,10 @@
                 [
                     "42.45",
                     "0.934853420195439739",
-                    "0.959866",
+                    "0.959866220735785953"
+                ],
+                [
+                    "AT1G01180",
                     "AT1G01180"
                 ],
                 [
@@ -1667,7 +1670,12 @@
         "expected_result": [
             [
                 "AT2G23380",
-                ["38.81", "38.81", "0.964912280701754386"],
+                [
+                    "38.81",
+                    "38.81",
+                    "0.964912280701754386"
+                    "0.60975609756097561", "38.81", "0.9649"
+                ],
                 "CLF",
                 "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]",
                 "",
