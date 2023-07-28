@@ -129,12 +129,11 @@
                     "ENST00000378045", "41.03"
                 ],
                 ["FUNDC1", "FUNDC1", "FUNDC1", "FUNDC1"],
-                [
-                    "FUN14 domain containing 1 [Source:HGNC Symbol;Acc:HGNC:28746]"
-                ],
-                [
-                    "FUN14 domain containing 1"
-                ],
+                
+                ["FUN14 domain containing 1 [Source:HGNC Symbol;Acc:HGNC:28746]",
+                "FUN14 domain containing 1 [Source:HGNC Symbol;Acc:HGNC:28746]"]
+          
+                ,
                 [
                     "protein_coding"
                 ],
@@ -184,9 +183,9 @@
                 ],
                 [
                     "SNW domain containing 1 [Source:HGNC Symbol;Acc:HGNC:16696]"
-                ],
-                [
-                    "SNW domain containing 1"
+                    "SNW domain containing 1 [Source:HGNC Symbol;Acc:HGNC:16696]"
+                    "SNW domain containing 1 [Source:HGNC Symbol;Acc:HGNC:16696]"
+                    "SNW domain containing 1 [Source:HGNC Symbol;Acc:HGNC:16696]"
                 ],
                 [
                     "protein_coding"
@@ -334,7 +333,8 @@
                 null,
                 "Small nucleolar RNA SNORA71",
                 "snoRNA",
-                null
+                null, 
+                "https://useast.ensembl.org/accipiter_n"
             ],
             [
                 "ENSANIT00000001705",
@@ -343,15 +343,6 @@
                 null,
                 "Small nucleolar RNA SNORA71",
                 "snoRNA",
-                null
-            ],
-            [
-                "ENSANIT00000002211",
-                "65.89",
-                "Metazoa_SRP-201",
-                null,
-                "Metazoan signal recognition particle RNA",
-                "misc_RNA",
                 null
             ],
             [
@@ -1390,11 +1381,13 @@
                     "ACE2"
                 ],
                 [
-                    "angiotensin I converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]"
-                ],
-                [
-                    "angiotensin I converting enzyme 2"
-                ],
+                    "angiotensin I converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]",
+                    "angiotensin I converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]",
+                    "angiotensin I converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]",
+                    "angiotensin I converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]",
+                    "angiotensin I converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]",
+                    "angiotensin I converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]",
+                ]
                 [
                     "protein_coding"
                 ],
@@ -1507,9 +1500,9 @@
                     "H3f3aos",
                     "H3f3aos"
                 ],
-                
+                [
                     "H3 histone, family 3A, opposite strand [Source:MGI Symbol;Acc:MGI:3802006]"
-                ,
+                ],
                 [
                     "H3 histone, family 3A, opposite strand"
                 ],
@@ -1584,11 +1577,10 @@
                     "AT1G01180"
                 ],
                 
-                    "S-adenosyl-L-methionine-dependent methyltransferases superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839239]"
-                ,
-                
-                    "S-adenosyl-L-methionine-dependent methyltransferases superfamily protein"
-                ,
+                ["S-adenosyl-L-methionine-dependent methyltransferases superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839239]",
+                "S-adenosyl-L-methionine-dependent methyltransferases superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839239]",
+                "S-adenosyl-L-methionine-dependent methyltransferases superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839239]"
+                ]
                 
                     "protein_coding"
                 ,
@@ -1679,7 +1671,8 @@
                     "0.964912280701754386",
                     "0.60975609756097561",
                     "38.81",
-                    "0.964912280701754386", "0.60975609756097561", "38.81", "0.964912280701754386", "0.609756"
+                    "0.964912280701754386", "0.60975609756097561", 
+                    "38.81", "0.964912280701754386", "0.60975609756097561", "0.60975609756097561", "0.964912280701754386"
                 ],
                 "CLF",
                 "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]",
