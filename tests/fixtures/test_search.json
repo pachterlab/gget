@@ -182,9 +182,9 @@
                     "SNW1"
                 ],
                 [
-                    "SNW domain containing 1 [Source:HGNC Symbol;Acc:HGNC:16696]"
-                    "SNW domain containing 1 [Source:HGNC Symbol;Acc:HGNC:16696]"
-                    "SNW domain containing 1 [Source:HGNC Symbol;Acc:HGNC:16696]"
+                    "SNW domain containing 1 [Source:HGNC Symbol;Acc:HGNC:16696]",
+                    "SNW domain containing 1 [Source:HGNC Symbol;Acc:HGNC:16696]",
+                    "SNW domain containing 1 [Source:HGNC Symbol;Acc:HGNC:16696]",
                     "SNW domain containing 1 [Source:HGNC Symbol;Acc:HGNC:16696]"
                 ],
                 [
@@ -1386,8 +1386,8 @@
                     "angiotensin I converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]",
                     "angiotensin I converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]",
                     "angiotensin I converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]",
-                    "angiotensin I converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]",
-                ]
+                    "angiotensin I converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]"
+                ],
                 [
                     "protein_coding"
                 ],
@@ -1580,7 +1580,7 @@
                 ["S-adenosyl-L-methionine-dependent methyltransferases superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839239]",
                 "S-adenosyl-L-methionine-dependent methyltransferases superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839239]",
                 "S-adenosyl-L-methionine-dependent methyltransferases superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839239]"
-                ]
+                ],
                 
                     "protein_coding"
                 ,
