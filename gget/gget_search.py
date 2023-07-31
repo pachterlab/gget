@@ -263,7 +263,7 @@ def search(
 
         if id_type == "transcript":
             query = f"""
-            SELECT transcript.stable_id AS 'ensembl_id', xref.display_label AS 'gene_name', transcript.description AS 'ensembl_description', xref.description AS 'ext_ref_description', transcript.biotype AS 'biotype', external_synonym.synonym AS 'synonym'
+            SELECT transcript.stable_id AS 'ensembl_id', transcript.description AS 'ensembl_description', xref.description AS 'ext_ref_description', transcript.biotype AS 'biotype', external_synonym.synonym AS 'synonym'
             FROM transcript 
             LEFT JOIN xref ON transcript.display_xref_id = xref.xref_id 
             LEFT JOIN external_synonym ON transcript.display_xref_id = external_synonym.xref_id 

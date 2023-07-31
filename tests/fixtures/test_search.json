@@ -310,17 +310,13 @@
         "expected_result": [
             [
                 "ENSANIT00000001698",
-                null,
                 "Small nucleolar RNA SNORA71",
-                "snoRNA",
-                null
+                "snoRNA"
             ],
             [
                 "ENSANIT00000001705",
-                null,
                 "Small nucleolar RNA SNORA71",
-                "snoRNA",
-                null
+                "snoRNA"
             ],
             [
                 "ENSANIT00000000884",
