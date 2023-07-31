@@ -41,28 +41,22 @@
             "json": true
         },
         "expected_result": [
-            {
-                "ensembl_id": "FBgn0003656",
-                "gene_name": [
-                    "sws"
-                ],
-                "ensembl_gene_name": [
-                    "44.69"
-                ],
-                "ensembl_description": [
+            [
+                "FBgn0003656",
+                [
                     "swiss cheese"
                 ],
-                "ext_ref_description": [
+                [
                     null
                 ],
-                "biotype": [
+                [
                     "protein_coding"
                 ],
-                "synonym": [
+                [
                     "sws"
                 ],
-                "url": "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
-            }
+                "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
+            ]
         ]
     },
     "test3": {
@@ -81,12 +75,6 @@
             [
                 "FBgn0003656",
                 [
-                    "44.69"
-                ],
-                [
-                    "sws"
-                ],
-                [
                     "swiss cheese"
                 ],
                 [
@@ -102,12 +90,6 @@
             ],
             [
                 "FBgn0043362",
-                [
-                    "47.69"
-                ],
-                [
-                    "bchs"
-                ],
                 [
                     "blue cheese"
                 ],
@@ -1096,15 +1078,15 @@
         },
         "expected_result": [
             [
-                "ENST00000362582",
+                "ENSANIT00000001698",
                 [
-                    "SNORA71.3-201"
+                    "SNORA71-201"
                 ],
                 [
                     null
                 ],
                 [
-                    null
+                    "Small nucleolar RNA SNORA71"
                 ],
                 [
                     "snoRNA"
@@ -1112,18 +1094,18 @@
                 [
                     null
                 ],
-                "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENST00000362582"
+                "https://useast.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001698"
             ],
             [
-                "ENST00000363484",
+                "ENSANIT00000001705",
                 [
-                    "SNORA71D-201"
+                    "SNORA71-201"
                 ],
                 [
                     null
                 ],
                 [
-                    "small nucleolar RNA, H/ACA box 71D"
+                    "Small nucleolar RNA SNORA71"
                 ],
                 [
                     "snoRNA"
@@ -1131,26 +1113,7 @@
                 [
                     null
                 ],
-                "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENST00000363484"
-            ],
-            [
-                "ENST00000364523",
-                [
-                    "SNORA71.1-201"
-                ],
-                [
-                    null
-                ],
-                [
-                    null
-                ],
-                [
-                    "snoRNA"
-                ],
-                [
-                    null
-                ],
-                "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENST00000364523"
+                "https://useast.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001705"
             ]
         ]
     },
@@ -1242,12 +1205,6 @@
             [
                 "FBgn0003656",
                 [
-                    "44.69"
-                ],
-                [
-                    "sws"
-                ],
-                [
                     "swiss cheese"
                 ],
                 [
@@ -1276,28 +1233,10 @@
             [
                 "ENSG00000130234",
                 [
-                    "Havana",
-                    "ACE2",
-                    "vega@sanger.ac.uk",
-                    "38.39",
-                    "OTTHUMG00000193402",
-                    "overlapping locus"
-                ],
-                [
-                    "ACE2",
-                    "ACE2",
-                    "ACE2",
-                    "ACE2",
-                    "ACE2",
-                    "ACE2"
-                ],
-                [
-                    "angiotensin I converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]",
-                    "angiotensin I converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]",
-                    "angiotensin I converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]",
-                    "angiotensin I converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]",
-                    "angiotensin I converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]",
                     "angiotensin I converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]"
+                ],
+                [
+                    "angiotensin I converting enzyme 2"
                 ],
                 [
                     "protein_coding"
@@ -1309,9 +1248,6 @@
             ],
             [
                 "ENSG00000173653",
-                [
-                    "RCE1"
-                ],
                 [
                     "Ras converting CAAX endopeptidase 1 [Source:HGNC Symbol;Acc:HGNC:13721]"
                 ],
@@ -1328,12 +1264,6 @@
             ],
             [
                 "ENSG00000182240",
-                [
-                    "BACE2",
-                    "BACE2",
-                    "BACE2",
-                    "BACE2"
-                ],
                 [
                     "beta-secretase 2 [Source:HGNC Symbol;Acc:HGNC:934]",
                     "beta-secretase 2 [Source:HGNC Symbol;Acc:HGNC:934]",
@@ -1362,11 +1292,6 @@
             ],
             [
                 "ENSG00000224388",
-                [
-                    "BACE2-IT1",
-                    "BACE2-IT1",
-                    "BACE2-IT1"
-                ],
                 [
                     "BACE2 intronic transcript 1 [Source:HGNC Symbol;Acc:HGNC:16024]",
                     "BACE2 intronic transcript 1 [Source:HGNC Symbol;Acc:HGNC:16024]",
