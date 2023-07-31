@@ -998,6 +998,161 @@
                 null
             ]
         ]
+    },"test7": {
+        "type": "assert_equal",
+        "args": {
+            "searchwords": [
+                "SNORA71",
+                "201"
+            ],
+            "species": "accipiter",
+            "id_type": "transcript",
+            "andor": "and",
+            "limit": null
+        },
+        "expected_result": [
+            [
+                "ENSANIT00000001698",
+                [
+                    "SNORA71-201"
+                ],
+                [
+                    null
+                ],
+                [
+                    "Small nucleolar RNA SNORA71"
+                ],
+                [
+                    "snoRNA"
+                ],
+                [
+                    null
+                ],
+                "https://useast.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001698"
+            ],
+            [
+                "ENSANIT00000001705",
+                [
+                    "SNORA71-201"
+                ],
+                [
+                    null
+                ],
+                [
+                    "Small nucleolar RNA SNORA71"
+                ],
+                [
+                    "snoRNA"
+                ],
+                [
+                    null
+                ],
+                "https://useast.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001705"
+            ]
+        ]
+    },
+    "test8": {
+        "type": "assert_equal",
+        "args": {
+            "searchwords": [
+                "SNORA71",
+                "201"
+            ],
+            "species": "homo",
+            "id_type": "transcript",
+            "andor": "and",
+            "limit": 3
+        },
+        "expected_result": [
+            [
+                "ENST00000362582",
+                [
+                    "SNORA71.3-201"
+                ],
+                [
+                    null
+                ],
+                [
+                    null
+                ],
+                [
+                    "snoRNA"
+                ],
+                [
+                    null
+                ],
+                "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENST00000362582"
+            ],
+            [
+                "ENST00000363484",
+                [
+                    "SNORA71D-201"
+                ],
+                [
+                    null
+                ],
+                [
+                    "small nucleolar RNA, H/ACA box 71D"
+                ],
+                [
+                    "snoRNA"
+                ],
+                [
+                    null
+                ],
+                "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENST00000363484"
+            ],
+            [
+                "ENST00000364523",
+                [
+                    "SNORA71.1-201"
+                ],
+                [
+                    null
+                ],
+                [
+                    null
+                ],
+                [
+                    "snoRNA"
+                ],
+                [
+                    null
+                ],
+                "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENST00000364523"
+            ]
+        ]
+    },
+    "test9": {
+        "type": "assert_equal",
+        "args": {
+            "searchwords": [
+                "swiss",
+                "cheese"
+            ],
+            "species": "drosophila_melanogaster_core_110_10",
+            "id_type": "gene",
+            "andor": "and",
+            "limit": null
+        },
+        "expected_result": [
+            [
+                "FBgn0003656",
+                [
+                    "swiss cheese"
+                ],
+                [
+                    null
+                ],
+                [
+                    "protein_coding"
+                ],
+                [
+                    "sws"
+                ],
+                "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
+            ]
+        ]
     },
     "test10": {
         "type": "assert_equal",
