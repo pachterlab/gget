@@ -998,7 +998,8 @@
                 null
             ]
         ]
-    },"test7": {
+    },
+    "test7": {
         "type": "assert_equal",
         "args": {
             "searchwords": [
@@ -1067,9 +1068,6 @@
             [
                 "ENST00000362582",
                 [
-                    "SNORA71.3-201"
-                ],
-                [
                     null
                 ],
                 [
@@ -1086,9 +1084,6 @@
             [
                 "ENST00000363484",
                 [
-                    "SNORA71D-201"
-                ],
-                [
                     null
                 ],
                 [
@@ -1104,9 +1099,6 @@
             ],
             [
                 "ENST00000364523",
-                [
-                    "SNORA71.1-201"
-                ],
                 [
                     null
                 ],
@@ -1263,9 +1255,6 @@
             [
                 "MGP_DBA2J_G0002730",
                 [
-                    "H3f3aos"
-                ],
-                [
                     "H3 histone, family 3A, opposite strand [Source:MGI Symbol;Acc:MGI:3802006]"
                 ],
                 [
@@ -1282,9 +1271,6 @@
             [
                 "MGP_DBA2J_G0002983",
                 [
-                    "Dhx58os"
-                ],
-                [
                     "DEAH (Asp-Glu-Ala-His) box polypeptide 58, opposite strand [Source:MGI Symbol;Acc:MGI:3705104]"
                 ],
                 [
@@ -1300,9 +1286,6 @@
             ],
             [
                 "MGP_DBA2J_G0003041",
-                [
-                    "Notumos"
-                ],
                 [
                     "notum pectinacetylesterase homolog (Drosophila), opposite strand [Source:MGI Symbol;Acc:MGI:3698431]"
                 ],
