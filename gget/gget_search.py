@@ -228,7 +228,7 @@ def search(
     for i, searchword in enumerate(searchwords):
         if id_type == "gene":
             query = f"""
-            SELECT gene.stable_id AS 'ensembl_id', xref.display_label AS 'gene_name', gene.description AS 'ensembl_description', xref.description AS 'ext_ref_description', gene.biotype AS 'biotype', external_synonym.synonym AS 'synonym'
+            SELECT gene.stable_id AS 'ensembl_id', gene.description AS 'ensembl_description', xref.description AS 'ext_ref_description', gene.biotype AS 'biotype', external_synonym.synonym AS 'synonym'
             FROM gene 
             LEFT JOIN xref ON gene.display_xref_id = xref.xref_id 
             LEFT JOIN external_synonym ON gene.display_xref_id = external_synonym.xref_id 
