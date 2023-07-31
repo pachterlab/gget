@@ -11,12 +11,6 @@
             [
                 "FBgn0003656",
                 [
-                    "44.69"
-                ],
-                [
-                    "sws"
-                ],
-                [
                     "swiss cheese"
                 ],
                 [
@@ -42,20 +36,64 @@
         },
         "expected_result": [
             [
-                "FBgn0003656",
+                "ENSG00000069509",
                 [
-                    "swiss cheese"
+                    "FUN14 domain containing 1 [Source:HGNC Symbol;Acc:HGNC:28746]"
                 ],
                 [
-                    null
+                    "FUN14 domain containing 1"
                 ],
                 [
                     "protein_coding"
                 ],
                 [
-                    "sws"
+                    "MGC51029"
                 ],
-                "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
+                "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000069509"
+            ],
+            [
+                "ENSG00000084754",
+                [
+                    "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha [Source:HGNC Symbol;Acc:HGNC:4801]",
+                    "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha [Source:HGNC Symbol;Acc:HGNC:4801]",
+                    "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha [Source:HGNC Symbol;Acc:HGNC:4801]",
+                    "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha [Source:HGNC Symbol;Acc:HGNC:4801]"
+                ],
+                [
+                    "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha",
+                    "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha",
+                    "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha",
+                    "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha"
+                ],
+                [
+                    "protein_coding",
+                    "protein_coding",
+                    "protein_coding",
+                    "protein_coding"
+                ],
+                [
+                    "LCHAD",
+                    "MTPA",
+                    "GBP",
+                    "LCEH"
+                ],
+                "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000084754"
+            ],
+            [
+                "ENSG00000100603",
+                [
+                    "SNW domain containing 1 [Source:HGNC Symbol;Acc:HGNC:16696]"
+                ],
+                [
+                    "SNW domain containing 1"
+                ],
+                [
+                    "protein_coding"
+                ],
+                [
+                    "FUN20"
+                ],
+                "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000100603"
             ]
         ]
     },
@@ -1143,9 +1181,6 @@
             [
                 "AT1G01180",
                 [
-                    "AT1G01180"
-                ],
-                [
                     "S-adenosyl-L-methionine-dependent methyltransferases superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839239]"
                 ],
                 [
@@ -1161,11 +1196,6 @@
             ],
             [
                 "AT1G01290",
-                [
-                    "CNX3",
-                    "CNX3",
-                    "CNX3"
-                ],
                 [
                     "cofactor of nitrate reductase and xanthine dehydrogenase 3 [Source:NCBI gene (formerly Entrezgene);Acc:839445]",
                     "cofactor of nitrate reductase and xanthine dehydrogenase 3 [Source:NCBI gene (formerly Entrezgene);Acc:839445]",
@@ -1190,12 +1220,6 @@
             ],
             [
                 "AT1G01370",
-                [
-                    "HTR12",
-                    "HTR12",
-                    "HTR12",
-                    "HTR12"
-                ],
                 [
                     "Histone superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839104]",
                     "Histone superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839104]",
@@ -1235,15 +1259,6 @@
         "expected_result": [
             [
                 "AT2G23380",
-                [
-                    "CLF",
-                    "CLF",
-                    "CLF",
-                    "CLF",
-                    "CLF",
-                    "CLF",
-                    "CLF"
-                ],
                 [
                     "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]",
                     "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]",
