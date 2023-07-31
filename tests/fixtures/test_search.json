@@ -102,12 +102,24 @@
             ],
             [
                 "FBgn0043362",
-                ["47.69"],
-                ["bchs"],
-                ["blue cheese"],
-                [null],
-                ["protein_coding"],
-                ["bchs"],
+                [
+                    "47.69"
+                ],
+                [
+                    "bchs"
+                ],
+                [
+                    "blue cheese"
+                ],
+                [
+                    null
+                ],
+                [
+                    "protein_coding"
+                ],
+                [
+                    "bchs"
+                ],
                 "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0043362"
             ]
         ]
@@ -124,16 +136,14 @@
             [
                 "ENSG00000069509",
                 [
-                    "FUNDC1",
-                    "OTTHUMG00000021399",
-                    "ENST00000378045", "41.03"
+                    "FUNDC1"
                 ],
-                ["FUNDC1", "FUNDC1", "FUNDC1", "FUNDC1"],
-                
-                ["FUN14 domain containing 1 [Source:HGNC Symbol;Acc:HGNC:28746]",
-                "FUN14 domain containing 1 [Source:HGNC Symbol;Acc:HGNC:28746]"]
-          
-                ,
+                [
+                    "FUN14 domain containing 1 [Source:HGNC Symbol;Acc:HGNC:28746]"
+                ],
+                [
+                    "FUN14 domain containing 1"
+                ],
                 [
                     "protein_coding"
                 ],
@@ -182,10 +192,10 @@
                     "SNW1"
                 ],
                 [
-                    "SNW domain containing 1 [Source:HGNC Symbol;Acc:HGNC:16696]",
-                    "SNW domain containing 1 [Source:HGNC Symbol;Acc:HGNC:16696]",
-                    "SNW domain containing 1 [Source:HGNC Symbol;Acc:HGNC:16696]",
                     "SNW domain containing 1 [Source:HGNC Symbol;Acc:HGNC:16696]"
+                ],
+                [
+                    "SNW domain containing 1"
                 ],
                 [
                     "protein_coding"
@@ -209,9 +219,6 @@
             [
                 "FBtr0070000",
                 [
-                    "43.59"
-                ],
-                [
                     "Nep3-RA"
                 ],
                 [
@@ -231,9 +238,6 @@
             [
                 "FBtr0307554",
                 [
-                    "43.59"
-                ],
-                [
                     "Nep3-RB"
                 ],
                 [
@@ -252,9 +256,6 @@
             ],
             [
                 "FBtr0307555",
-                [
-                    "43.59"
-                ],
                 [
                     "Nep3-RC"
                 ],
@@ -288,29 +289,31 @@
         },
         "expected_result": [
             [
+                "ENSANIT00000001698",
+                "SNORA71-201",
+                null,
+                "Small nucleolar RNA SNORA71",
+                "snoRNA",
+                null
+            ],
+            [
+                "ENSANIT00000001705",
+                "SNORA71-201",
+                null,
+                "Small nucleolar RNA SNORA71",
+                "snoRNA",
+                null
+            ],
+            [
                 "ENSANIT00000000884",
-                [
-                    "69.53"
-                ],
-                [
-                    "RNaseP_nuc-201"
-                ],
-                [
-                    null
-                ],
-                [
-                    "Nuclear RNase P"
-                ],
-                [
-                    "ribozyme"
-                ],
-                [
-                    null
-                ]
+                "RNaseP_nuc-201",
+                null,
+                "Nuclear RNase P",
+                "ribozyme",
+                null
             ],
             [
                 "ENSANIT00000001698",
-                "54.14",
                 "SNORA71-201",
                 null,
                 "Small nucleolar RNA SNORA71",
@@ -319,7 +322,6 @@
             ],
             [
                 "ENSANIT00000001705",
-                "62.69",
                 "SNORA71-201",
                 null,
                 "Small nucleolar RNA SNORA71",
@@ -327,27 +329,39 @@
                 null
             ],
             [
-                "ENSANIT00000001698",
-                "54.14",
-                "SNORA71-201",
+                "ENSANIT00000001802",
+                "5_8S_rRNA-201",
                 null,
-                "Small nucleolar RNA SNORA71",
-                "snoRNA",
-                null, 
-                "https://useast.ensembl.org/accipiter_n"
+                "5.8S ribosomal RNA",
+                "rRNA",
+                null
             ],
             [
-                "ENSANIT00000001705",
-                "62.69",
-                "SNORA71-201",
+                "ENSANIT00000001839",
+                "U2-201",
                 null,
-                "Small nucleolar RNA SNORA71",
-                "snoRNA",
+                "U2 spliceosomal RNA",
+                "snRNA",
+                null
+            ],
+            [
+                "ENSANIT00000002204",
+                "Metazoa_SRP-201",
+                null,
+                "Metazoan signal recognition particle RNA",
+                "misc_RNA",
+                null
+            ],
+            [
+                "ENSANIT00000002211",
+                "Metazoa_SRP-201",
+                null,
+                "Metazoan signal recognition particle RNA",
+                "misc_RNA",
                 null
             ],
             [
                 "ENSANIT00000002517",
-                "45.79",
                 "U6-201",
                 null,
                 "U6 spliceosomal RNA",
@@ -356,7 +370,6 @@
             ],
             [
                 "ENSANIT00000003002",
-                "43.72",
                 "U2-201",
                 null,
                 "U2 spliceosomal RNA",
@@ -365,7 +378,6 @@
             ],
             [
                 "ENSANIT00000003342",
-                "50.34",
                 "U1-201",
                 null,
                 "U1 spliceosomal RNA",
@@ -374,7 +386,6 @@
             ],
             [
                 "ENSANIT00000003859",
-                "38.42",
                 "U2-201",
                 null,
                 "U2 spliceosomal RNA",
@@ -383,7 +394,6 @@
             ],
             [
                 "ENSANIT00000004170",
-                "35.71",
                 "SNORD82-201",
                 null,
                 "Small nucleolar RNA SNORD82",
@@ -392,7 +402,6 @@
             ],
             [
                 "ENSANIT00000004182",
-                "46.76",
                 "SNORA75-201",
                 null,
                 "Small nucleolar RNA SNORA75",
@@ -401,7 +410,6 @@
             ],
             [
                 "ENSANIT00000004556",
-                "40.99",
                 "U1-201",
                 null,
                 "U1 spliceosomal RNA",
@@ -410,7 +418,6 @@
             ],
             [
                 "ENSANIT00000004761",
-                "79.73",
                 "SNORA70-201",
                 null,
                 "Small nucleolar RNA SNORA70",
@@ -419,7 +426,6 @@
             ],
             [
                 "ENSANIT00000004806",
-                "39.47",
                 "U2-201",
                 null,
                 "U2 spliceosomal RNA",
@@ -428,7 +434,6 @@
             ],
             [
                 "ENSANIT00000005395",
-                "45.81",
                 "U2-201",
                 null,
                 "U2 spliceosomal RNA",
@@ -437,7 +442,6 @@
             ],
             [
                 "ENSANIT00000005444",
-                "45.79",
                 "U6-201",
                 null,
                 "U6 spliceosomal RNA",
@@ -446,7 +450,6 @@
             ],
             [
                 "ENSANIT00000005459",
-                "48.77",
                 "U1-201",
                 null,
                 "U1 spliceosomal RNA",
@@ -455,7 +458,6 @@
             ],
             [
                 "ENSANIT00000005983",
-                "69.12",
                 "SNORD31-201",
                 null,
                 "Small nucleolar RNA SNORD31",
@@ -464,7 +466,6 @@
             ],
             [
                 "ENSANIT00000005989",
-                "66.41",
                 "SNORD22-201",
                 null,
                 "Small nucleolar RNA SNORD22",
@@ -473,7 +474,6 @@
             ],
             [
                 "ENSANIT00000006620",
-                "59.60",
                 "RNaseP_nuc-201",
                 null,
                 "Nuclear RNase P",
@@ -482,7 +482,6 @@
             ],
             [
                 "ENSANIT00000007001",
-                "50.00",
                 "Y_RNA-201",
                 null,
                 "Y RNA",
@@ -491,7 +490,6 @@
             ],
             [
                 "ENSANIT00000007263",
-                "43.62",
                 "SNORD62-201",
                 null,
                 "Small nucleolar RNA SNORD62",
@@ -500,7 +498,6 @@
             ],
             [
                 "ENSANIT00000008540",
-                "37.23",
                 "SNORA66-201",
                 null,
                 "Small nucleolar RNA SNORA66",
@@ -509,7 +506,6 @@
             ],
             [
                 "ENSANIT00000008746",
-                "57.05",
                 "U12-201",
                 null,
                 "U12 minor spliceosomal RNA",
@@ -518,7 +514,6 @@
             ],
             [
                 "ENSANIT00000008775",
-                "42.03",
                 "SNORD58-201",
                 null,
                 "Small nucleolar RNA SNORD58",
@@ -527,7 +522,6 @@
             ],
             [
                 "ENSANIT00000008785",
-                "35.14",
                 "SNORD58-201",
                 null,
                 "Small nucleolar RNA SNORD58",
@@ -536,7 +530,6 @@
             ],
             [
                 "ENSANIT00000009578",
-                "45.36",
                 "SNORD14-201",
                 null,
                 "Small nucleolar RNA SNORD14",
@@ -545,7 +538,6 @@
             ],
             [
                 "ENSANIT00000009584",
-                "42.86",
                 "SNORD14-201",
                 null,
                 "Small nucleolar RNA SNORD14",
@@ -554,7 +546,6 @@
             ],
             [
                 "ENSANIT00000009733",
-                "61.34",
                 "5S_rRNA-201",
                 null,
                 "5S ribosomal RNA",
@@ -563,7 +554,6 @@
             ],
             [
                 "ENSANIT00000009775",
-                "65.24",
                 "Metazoa_SRP-201",
                 null,
                 "Metazoan signal recognition particle RNA",
@@ -572,7 +562,6 @@
             ],
             [
                 "ENSANIT00000010819",
-                "50.00",
                 "SNORD15-201",
                 null,
                 "Small nucleolar RNA SNORD15",
@@ -581,7 +570,6 @@
             ],
             [
                 "ENSANIT00000010828",
-                "46.94",
                 "SNORD15-201",
                 null,
                 "Small nucleolar RNA SNORD15",
@@ -590,7 +578,6 @@
             ],
             [
                 "ENSANIT00000011321",
-                "64.86",
                 "U3-201",
                 null,
                 "Small nucleolar RNA U3",
@@ -599,7 +586,6 @@
             ],
             [
                 "ENSANIT00000011334",
-                "67.80",
                 "U3-201",
                 null,
                 "Small nucleolar RNA U3",
@@ -608,7 +594,6 @@
             ],
             [
                 "ENSANIT00000012038",
-                "68.00",
                 "Metazoa_SRP-201",
                 null,
                 "Metazoan signal recognition particle RNA",
@@ -617,7 +602,6 @@
             ],
             [
                 "ENSANIT00000012259",
-                "45.79",
                 "U6-201",
                 null,
                 "U6 spliceosomal RNA",
@@ -626,7 +610,6 @@
             ],
             [
                 "ENSANIT00000012725",
-                "47.92",
                 "U1-201",
                 null,
                 "U1 spliceosomal RNA",
@@ -635,7 +618,6 @@
             ],
             [
                 "ENSANIT00000012754",
-                "59.15",
                 "U1-201",
                 null,
                 "U1 spliceosomal RNA",
@@ -644,7 +626,6 @@
             ],
             [
                 "ENSANIT00000012928",
-                "44.74",
                 "SNORD83-201",
                 null,
                 "Small nucleolar RNA SNORD83",
@@ -653,7 +634,6 @@
             ],
             [
                 "ENSANIT00000012957",
-                "44.74",
                 "SNORD83-201",
                 null,
                 "Small nucleolar RNA SNORD83",
@@ -662,7 +642,6 @@
             ],
             [
                 "ENSANIT00000013099",
-                "47.93",
                 "U1-201",
                 null,
                 "U1 spliceosomal RNA",
@@ -671,7 +650,6 @@
             ],
             [
                 "ENSANIT00000014832",
-                "46.43",
                 "Y_RNA-201",
                 null,
                 "Y RNA",
@@ -680,7 +658,6 @@
             ],
             [
                 "ENSANIT00000014838",
-                "41.18",
                 "Y_RNA-201",
                 null,
                 "Y RNA",
@@ -689,7 +666,6 @@
             ],
             [
                 "ENSANIT00000014848",
-                "40.62",
                 "Y_RNA-201",
                 null,
                 "Y RNA",
@@ -698,7 +674,6 @@
             ],
             [
                 "ENSANIT00000014980",
-                "58.85",
                 "U3-201",
                 null,
                 "Small nucleolar RNA U3",
@@ -707,7 +682,6 @@
             ],
             [
                 "ENSANIT00000015142",
-                "50.94",
                 "SNORA62-201",
                 null,
                 "Small nucleolar RNA SNORA62/SNORA6 family",
@@ -716,7 +690,6 @@
             ],
             [
                 "ENSANIT00000015156",
-                "51.88",
                 "SNORA62-201",
                 null,
                 "Small nucleolar RNA SNORA62/SNORA6 family",
@@ -725,7 +698,6 @@
             ],
             [
                 "ENSANIT00000016191",
-                "45.51",
                 "U1-201",
                 null,
                 "U1 spliceosomal RNA",
@@ -734,7 +706,6 @@
             ],
             [
                 "ENSANIT00000017034",
-                "31.82",
                 "U5-201",
                 null,
                 "U5 spliceosomal RNA",
@@ -743,7 +714,6 @@
             ],
             [
                 "ENSANIT00000017217",
-                "45.39",
                 "U4-201",
                 null,
                 "U4 spliceosomal RNA",
@@ -752,7 +722,6 @@
             ],
             [
                 "ENSANIT00000017228",
-                "48.23",
                 "U4-201",
                 null,
                 "U4 spliceosomal RNA",
@@ -761,7 +730,6 @@
             ],
             [
                 "ENSANIT00000017435",
-                "43.56",
                 "U1-201",
                 null,
                 "U1 spliceosomal RNA",
@@ -770,7 +738,6 @@
             ],
             [
                 "ENSANIT00000017873",
-                "40.30",
                 "SNORD42-201",
                 null,
                 "Small nucleolar RNA SNORD42",
@@ -779,7 +746,6 @@
             ],
             [
                 "ENSANIT00000017982",
-                "64.10",
                 "SNORD33-201",
                 null,
                 "Small nucleolar RNA Z195/SNORD33/SNORD32 family",
@@ -788,7 +754,6 @@
             ],
             [
                 "ENSANIT00000017987",
-                "39.44",
                 "SNORD34-201",
                 null,
                 "Small nucleolar RNA SNORD34",
@@ -797,7 +762,6 @@
             ],
             [
                 "ENSANIT00000019244",
-                "48.24",
                 "SNORD39-201",
                 null,
                 "Small nucleolar RNA SNORD55/SNORD39",
@@ -806,7 +770,6 @@
             ],
             [
                 "ENSANIT00000019899",
-                "40.19",
                 "U6-201",
                 null,
                 "U6 spliceosomal RNA",
@@ -815,7 +778,6 @@
             ],
             [
                 "ENSANIT00000020107",
-                "59.02",
                 "SNORA73-201",
                 null,
                 "Small nucleolar RNA SNORA73 family",
@@ -824,7 +786,6 @@
             ],
             [
                 "ENSANIT00000020177",
-                "33.13",
                 "U2-201",
                 null,
                 "U2 spliceosomal RNA",
@@ -833,7 +794,6 @@
             ],
             [
                 "ENSANIT00000020415",
-                "59.90",
                 "U3-201",
                 null,
                 "Small nucleolar RNA U3",
@@ -842,7 +802,6 @@
             ],
             [
                 "ENSANIT00000020719",
-                "41.93",
                 "MTNR1B-201",
                 null,
                 "",
@@ -851,7 +810,6 @@
             ],
             [
                 "ENSANIT00000020794",
-                "51.67",
                 "U7-201",
                 null,
                 "U7 small nuclear RNA",
@@ -860,7 +818,6 @@
             ],
             [
                 "ENSANIT00000020800",
-                "65.12",
                 "U8-201",
                 null,
                 "U8 small nucleolar RNA",
@@ -869,7 +826,6 @@
             ],
             [
                 "ENSANIT00000020990",
-                "51.94",
                 "U1-201",
                 null,
                 "U1 spliceosomal RNA",
@@ -878,7 +834,6 @@
             ],
             [
                 "ENSANIT00000021089",
-                "34.78",
                 "U6-201",
                 null,
                 "U6 spliceosomal RNA",
@@ -887,7 +842,6 @@
             ],
             [
                 "ENSANIT00000021788",
-                "45.62",
                 "U1-201",
                 null,
                 "U1 spliceosomal RNA",
@@ -896,7 +850,6 @@
             ],
             [
                 "ENSANIT00000022086",
-                "40.51",
                 "SNORD79-201",
                 null,
                 "Small nucleolar RNA SNORD79",
@@ -905,7 +858,6 @@
             ],
             [
                 "ENSANIT00000022119",
-                "42.68",
                 "SNORD24-201",
                 null,
                 "Small nucleolar RNA SNORD24",
@@ -914,7 +866,6 @@
             ],
             [
                 "ENSANIT00000022288",
-                "59.27",
                 "RNaseP_nuc-201",
                 null,
                 "Nuclear RNase P",
@@ -923,7 +874,6 @@
             ],
             [
                 "ENSANIT00000022407",
-                "35.71",
                 "SNORD73-201",
                 null,
                 "Small nucleolar RNA SNORD73",
@@ -932,7 +882,6 @@
             ],
             [
                 "ENSANIT00000023041",
-                "40.94",
                 "U6-201",
                 null,
                 "U6 spliceosomal RNA",
@@ -941,7 +890,6 @@
             ],
             [
                 "ENSANIT00000023147",
-                "45.14",
                 "U1-201",
                 null,
                 "U1 spliceosomal RNA",
@@ -950,7 +898,6 @@
             ],
             [
                 "ENSANIT00000023393",
-                "45.54",
                 "SNORD16-201",
                 null,
                 "Small nucleolar RNA SNORD16",
@@ -959,7 +906,6 @@
             ],
             [
                 "ENSANIT00000023398",
-                "40.28",
                 "SNORD18-201",
                 null,
                 "Small nucleolar RNA SNORD18",
@@ -968,7 +914,6 @@
             ],
             [
                 "ENSANIT00000023401",
-                "53.17",
                 "SNORA74-201",
                 null,
                 "Small nucleolar RNA SNORA74",
@@ -977,7 +922,6 @@
             ],
             [
                 "ENSANIT00000023405",
-                "48.00",
                 "SNORD16-201",
                 null,
                 "Small nucleolar RNA SNORD16",
@@ -986,7 +930,6 @@
             ],
             [
                 "ENSANIT00000023412",
-                "40.85",
                 "SNORD18-201",
                 null,
                 "Small nucleolar RNA SNORD18",
@@ -995,7 +938,6 @@
             ],
             [
                 "ENSANIT00000023478",
-                "45.81",
                 "SNORA74-201",
                 null,
                 "Small nucleolar RNA SNORA74",
@@ -1004,7 +946,6 @@
             ],
             [
                 "ENSANIT00000023686",
-                "35.62",
                 "SNORD36-201",
                 null,
                 "Small nucleolar RNA SNORD36",
@@ -1013,7 +954,6 @@
             ],
             [
                 "ENSANIT00000023691",
-                "37.66",
                 "SNORD36-201",
                 null,
                 "Small nucleolar RNA SNORD36",
@@ -1022,7 +962,6 @@
             ],
             [
                 "ENSANIT00000023695",
-                "37.88",
                 "SNORD24-201",
                 null,
                 "Small nucleolar RNA SNORD24",
@@ -1031,7 +970,6 @@
             ],
             [
                 "ENSANIT00000023703",
-                "39.73",
                 "SNORD24-201",
                 null,
                 "Small nucleolar RNA SNORD24",
@@ -1040,7 +978,6 @@
             ],
             [
                 "ENSANIT00000024495",
-                "44.86",
                 "U6-201",
                 null,
                 "U6 spliceosomal RNA",
@@ -1049,7 +986,6 @@
             ],
             [
                 "ENSANIT00000024574",
-                "38.03",
                 "SNORD63-201",
                 null,
                 "Small nucleolar RNA SNORD63",
@@ -1058,7 +994,6 @@
             ],
             [
                 "ENSANIT00000024772",
-                "39.42",
                 "SNORA66-201",
                 null,
                 "Small nucleolar RNA SNORA66",
@@ -1067,7 +1002,6 @@
             ],
             [
                 "ENSANIT00000024780",
-                "44.00",
                 "SNORA63-201",
                 null,
                 "Small nucleolar RNA SNORA63",
@@ -1076,7 +1010,6 @@
             ],
             [
                 "ENSANIT00000024839",
-                "55.32",
                 "U1-201",
                 null,
                 "U1 spliceosomal RNA",
@@ -1085,7 +1018,6 @@
             ],
             [
                 "ENSANIT00000025072",
-                "47.42",
                 "SNORD21-201",
                 null,
                 "Small nucleolar RNA SNORD21",
@@ -1094,7 +1026,6 @@
             ],
             [
                 "ENSANIT00000025574",
-                "71.54",
                 "RNase_MRP-201",
                 null,
                 "RNase MRP",
@@ -1103,7 +1034,6 @@
             ],
             [
                 "ENSANIT00000026134",
-                "54.29",
                 "U6-201",
                 null,
                 "U6 spliceosomal RNA",
@@ -1112,7 +1042,6 @@
             ],
             [
                 "ENSANIT00000026662",
-                "32.41",
                 "U5-201",
                 null,
                 "U5 spliceosomal RNA",
@@ -1121,7 +1050,6 @@
             ],
             [
                 "ENSANIT00000026948",
-                "42.61",
                 "U5-201",
                 null,
                 "U5 spliceosomal RNA",
@@ -1130,7 +1058,6 @@
             ],
             [
                 "ENSANIT00000026950",
-                "42.61",
                 "U5-201",
                 null,
                 "U5 spliceosomal RNA",
@@ -1139,7 +1066,6 @@
             ],
             [
                 "ENSANIT00000026951",
-                "43.48",
                 "U5-201",
                 null,
                 "U5 spliceosomal RNA",
@@ -1148,7 +1074,6 @@
             ],
             [
                 "ENSANIT00000027531",
-                "42.22",
                 "SNORA72-201",
                 null,
                 "Small nucleolar RNA SNORA72",
@@ -1171,18 +1096,15 @@
         },
         "expected_result": [
             [
-                "ENSANIT00000001698",
+                "ENST00000362582",
                 [
-                    "54.14"
-                ],
-                [
-                    "SNORA71-201"
+                    "SNORA71.3-201"
                 ],
                 [
                     null
                 ],
                 [
-                    "Small nucleolar RNA SNORA71"
+                    null
                 ],
                 [
                     "snoRNA"
@@ -1190,21 +1112,18 @@
                 [
                     null
                 ],
-                "https://useast.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001698"
+                "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENST00000362582"
             ],
             [
-                "ENSANIT00000001705",
+                "ENST00000363484",
                 [
-                    "62.69"
-                ],
-                [
-                    "SNORA71-201"
+                    "SNORA71D-201"
                 ],
                 [
                     null
                 ],
                 [
-                    "Small nucleolar RNA SNORA71"
+                    "small nucleolar RNA, H/ACA box 71D"
                 ],
                 [
                     "snoRNA"
@@ -1212,7 +1131,26 @@
                 [
                     null
                 ],
-                "https://useast.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001705"
+                "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENST00000363484"
+            ],
+            [
+                "ENST00000364523",
+                [
+                    "SNORA71.1-201"
+                ],
+                [
+                    null
+                ],
+                [
+                    null
+                ],
+                [
+                    "snoRNA"
+                ],
+                [
+                    null
+                ],
+                "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENST00000364523"
             ]
         ]
     },
@@ -1232,27 +1170,18 @@
             [
                 "ENST00000362582",
                 [
-                    "ENSG10010134933.1",
-                    "51.56"
-                ],
-                [
-                    "SNORA71.3-201",
                     "SNORA71.3-201"
                 ],
                 [
-                    null,
                     null
                 ],
                 [
-                    null,
                     null
                 ],
                 [
-                    "snoRNA",
                     "snoRNA"
                 ],
                 [
-                    null,
                     null
                 ],
                 "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENST00000362582"
@@ -1260,27 +1189,18 @@
             [
                 "ENST00000363484",
                 [
-                    "53.73",
-                    "ENSG10010135964.1"
-                ],
-                [
-                    "SNORA71D-201",
                     "SNORA71D-201"
                 ],
                 [
-                    null,
                     null
                 ],
                 [
-                    "small nucleolar RNA, H/ACA box 71D",
                     "small nucleolar RNA, H/ACA box 71D"
                 ],
                 [
-                    "snoRNA",
                     "snoRNA"
                 ],
                 [
-                    null,
                     null
                 ],
                 "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENST00000363484"
@@ -1288,27 +1208,18 @@
             [
                 "ENST00000364523",
                 [
-                    "47.86",
-                    "ENSG10010135599.1"
-                ],
-                [
-                    "SNORA71.1-201",
                     "SNORA71.1-201"
                 ],
                 [
-                    null,
                     null
                 ],
                 [
-                    null,
                     null
                 ],
                 [
-                    "snoRNA",
                     "snoRNA"
                 ],
                 [
-                    null,
                     null
                 ],
                 "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENST00000364523"
@@ -1493,11 +1404,6 @@
             [
                 "MGP_DBA2J_G0002730",
                 [
-                    "ENSMUSG00000073485.3",
-                    "50.19"
-                ],
-                [
-                    "H3f3aos",
                     "H3f3aos"
                 ],
                 [
@@ -1567,23 +1473,17 @@
             [
                 "AT1G01180",
                 [
-                    "42.45",
-                    "0.934853420195439739",
-                    "0.959866220735785953"
-                ],
-                [
-                    "AT1G01180",
-                    "AT1G01180",
                     "AT1G01180"
                 ],
-                
-                ["S-adenosyl-L-methionine-dependent methyltransferases superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839239]",
-                "S-adenosyl-L-methionine-dependent methyltransferases superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839239]",
-                "S-adenosyl-L-methionine-dependent methyltransferases superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839239]"
+                [
+                    "S-adenosyl-L-methionine-dependent methyltransferases superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839239]"
                 ],
-                
+                [
+                    "S-adenosyl-L-methionine-dependent methyltransferases superfamily protein"
+                ],
+                [
                     "protein_coding"
-                ,
+                ],
                 [
                     "F6F3.5"
                 ],
@@ -1666,18 +1566,50 @@
             [
                 "AT2G23380",
                 [
-                    "38.81",
-                    "38.81",
-                    "0.964912280701754386",
-                    "0.60975609756097561",
-                    "38.81",
-                    "0.964912280701754386", "0.60975609756097561", 
-                    "38.81", "0.964912280701754386", "0.60975609756097561", "0.60975609756097561", "0.964912280701754386"
+                    "CLF",
+                    "CLF",
+                    "CLF",
+                    "CLF",
+                    "CLF",
+                    "CLF",
+                    "CLF"
                 ],
-                "CLF",
-                "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]",
-                "",
-                "protein_coding",
+                [
+                    "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]",
+                    "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]",
+                    "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]",
+                    "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]",
+                    "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]",
+                    "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]",
+                    "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]"
+                ],
+                [
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    "",
+                    ""
+                ],
+                [
+                    "protein_coding",
+                    "protein_coding",
+                    "protein_coding",
+                    "protein_coding",
+                    "protein_coding",
+                    "protein_coding",
+                    "protein_coding"
+                ],
+                [
+                    "At2g23380",
+                    "SET1",
+                    "SDG1",
+                    "PIF2",
+                    "PIF1",
+                    "ICU1",
+                    "F26B6.3"
+                ],
                 "https://useast.ensembl.org/arabidopsis_thaliana/Gene/Summary?g=AT2G23380"
             ]
         ]
