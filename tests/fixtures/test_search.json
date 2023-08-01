@@ -492,15 +492,13 @@
                 "",
                 "protein_coding",
                 [
-                    [
-                        "At2g23380",
-                        "ICU1",
-                        "PIF2",
-                        "F26B6.3",
-                        "SDG1",
-                        "PIF1",
-                        "SET1"
-                    ]
+                    "PIF1",
+                    "ICU1",
+                    "SET1",
+                    "At2g23380",
+                    "PIF2",
+                    "F26B6.3",
+                    "SDG1"
                 ],
                 "https://useast.ensembl.org/arabidopsis_thaliana/Gene/Summary?g=AT2G23380"
             ]
