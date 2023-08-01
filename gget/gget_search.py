@@ -301,7 +301,7 @@ def search(
     df = df.groupby("ensembl_id").agg(tuple).applymap(list).reset_index()
 
     # convert list of values to type string if there is only one value
-    df = df.apply(clean_cols, axis=1)
+    df = df.applymap(clean_cols)
 
     # Keep synonyms always of type list for consistency
     df["synonym"] = [

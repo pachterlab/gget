@@ -182,18 +182,9 @@
         "expected_result": [
             [
                 "FBtr0070000",
-                [
-                    "Nep3-RA"
-                ],
-                [
-                    null
-                ],
-                [
-                    null
-                ],
-                [
-                    "protein_coding"
-                ],
+                null,
+                null,
+                "protein_coding",
                 [
                     "Nep3-RA"
                 ],
@@ -201,18 +192,9 @@
             ],
             [
                 "FBtr0307554",
-                [
-                    "Nep3-RB"
-                ],
-                [
-                    null
-                ],
-                [
-                    null
-                ],
-                [
-                    "protein_coding"
-                ],
+                null,
+                null,
+                "protein_coding",
                 [
                     "Nep3-RB"
                 ],
@@ -220,18 +202,9 @@
             ],
             [
                 "FBtr0307555",
-                [
-                    "Nep3-RC"
-                ],
-                [
-                    null
-                ],
-                [
-                    null
-                ],
-                [
-                    "protein_coding"
-                ],
+                null,
+                null,
+                "protein_coding",
                 [
                     "Nep3-RC"
                 ],
@@ -253,693 +226,877 @@
         },
         "expected_result": [
             [
-                "ENSANIT00000001698",
-                "Small nucleolar RNA SNORA71",
-                "snoRNA"
-            ],
-            [
-                "ENSANIT00000001705",
-                "Small nucleolar RNA SNORA71",
-                "snoRNA"
-            ],
-            [
                 "ENSANIT00000000884",
                 null,
                 "Nuclear RNase P",
                 "ribozyme",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000001698",
                 null,
                 "Small nucleolar RNA SNORA71",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000001705",
                 null,
                 "Small nucleolar RNA SNORA71",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000001802",
                 null,
                 "5.8S ribosomal RNA",
                 "rRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000001839",
                 null,
                 "U2 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000002204",
                 null,
                 "Metazoan signal recognition particle RNA",
                 "misc_RNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000002211",
                 null,
                 "Metazoan signal recognition particle RNA",
                 "misc_RNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000002517",
                 null,
                 "U6 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000003002",
                 null,
                 "U2 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000003342",
                 null,
                 "U1 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000003859",
                 null,
                 "U2 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000004170",
                 null,
                 "Small nucleolar RNA SNORD82",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000004182",
                 null,
                 "Small nucleolar RNA SNORA75",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000004556",
                 null,
                 "U1 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000004761",
                 null,
                 "Small nucleolar RNA SNORA70",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000004806",
                 null,
                 "U2 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000005395",
                 null,
                 "U2 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000005444",
                 null,
                 "U6 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000005459",
                 null,
                 "U1 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000005983",
                 null,
                 "Small nucleolar RNA SNORD31",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000005989",
                 null,
                 "Small nucleolar RNA SNORD22",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000006620",
                 null,
                 "Nuclear RNase P",
                 "ribozyme",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000007001",
                 null,
                 "Y RNA",
                 "Y_RNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000007263",
                 null,
                 "Small nucleolar RNA SNORD62",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000008540",
                 null,
                 "Small nucleolar RNA SNORA66",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000008746",
                 null,
                 "U12 minor spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000008775",
                 null,
                 "Small nucleolar RNA SNORD58",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000008785",
                 null,
                 "Small nucleolar RNA SNORD58",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000009578",
                 null,
                 "Small nucleolar RNA SNORD14",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000009584",
                 null,
                 "Small nucleolar RNA SNORD14",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000009733",
                 null,
                 "5S ribosomal RNA",
                 "rRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000009775",
                 null,
                 "Metazoan signal recognition particle RNA",
                 "misc_RNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000010819",
                 null,
                 "Small nucleolar RNA SNORD15",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000010828",
                 null,
                 "Small nucleolar RNA SNORD15",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000011321",
                 null,
                 "Small nucleolar RNA U3",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000011334",
                 null,
                 "Small nucleolar RNA U3",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000012038",
                 null,
                 "Metazoan signal recognition particle RNA",
                 "misc_RNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000012259",
                 null,
                 "U6 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000012725",
                 null,
                 "U1 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000012754",
                 null,
                 "U1 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000012928",
                 null,
                 "Small nucleolar RNA SNORD83",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000012957",
                 null,
                 "Small nucleolar RNA SNORD83",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000013099",
                 null,
                 "U1 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000014832",
                 null,
                 "Y RNA",
                 "Y_RNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000014838",
                 null,
                 "Y RNA",
                 "Y_RNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000014848",
                 null,
                 "Y RNA",
                 "Y_RNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000014980",
                 null,
                 "Small nucleolar RNA U3",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000015142",
                 null,
                 "Small nucleolar RNA SNORA62/SNORA6 family",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000015156",
                 null,
                 "Small nucleolar RNA SNORA62/SNORA6 family",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000016191",
                 null,
                 "U1 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000017034",
                 null,
                 "U5 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000017217",
                 null,
                 "U4 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000017228",
                 null,
                 "U4 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000017435",
                 null,
                 "U1 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000017873",
                 null,
                 "Small nucleolar RNA SNORD42",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000017982",
                 null,
                 "Small nucleolar RNA Z195/SNORD33/SNORD32 family",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000017987",
                 null,
                 "Small nucleolar RNA SNORD34",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000019244",
                 null,
                 "Small nucleolar RNA SNORD55/SNORD39",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000019899",
                 null,
                 "U6 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000020107",
                 null,
                 "Small nucleolar RNA SNORA73 family",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000020177",
                 null,
                 "U2 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000020415",
                 null,
                 "Small nucleolar RNA U3",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000020719",
                 null,
                 "",
                 "protein_coding",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000020794",
                 null,
                 "U7 small nuclear RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000020800",
                 null,
                 "U8 small nucleolar RNA",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000020990",
                 null,
                 "U1 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000021089",
                 null,
                 "U6 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000021788",
                 null,
                 "U1 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000022086",
                 null,
                 "Small nucleolar RNA SNORD79",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000022119",
                 null,
                 "Small nucleolar RNA SNORD24",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000022288",
                 null,
                 "Nuclear RNase P",
                 "ribozyme",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000022407",
                 null,
                 "Small nucleolar RNA SNORD73",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000023041",
                 null,
                 "U6 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000023147",
                 null,
                 "U1 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000023393",
                 null,
                 "Small nucleolar RNA SNORD16",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000023398",
                 null,
                 "Small nucleolar RNA SNORD18",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000023401",
                 null,
                 "Small nucleolar RNA SNORA74",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000023405",
                 null,
                 "Small nucleolar RNA SNORD16",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000023412",
                 null,
                 "Small nucleolar RNA SNORD18",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000023478",
                 null,
                 "Small nucleolar RNA SNORA74",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000023686",
                 null,
                 "Small nucleolar RNA SNORD36",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000023691",
                 null,
                 "Small nucleolar RNA SNORD36",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000023695",
                 null,
                 "Small nucleolar RNA SNORD24",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000023703",
                 null,
                 "Small nucleolar RNA SNORD24",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000024495",
                 null,
                 "U6 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000024574",
                 null,
                 "Small nucleolar RNA SNORD63",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000024772",
                 null,
                 "Small nucleolar RNA SNORA66",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000024780",
                 null,
                 "Small nucleolar RNA SNORA63",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000024839",
                 null,
                 "U1 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000025072",
                 null,
                 "Small nucleolar RNA SNORD21",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000025574",
                 null,
                 "RNase MRP",
                 "ribozyme",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000026134",
                 null,
                 "U6 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000026662",
                 null,
                 "U5 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000026948",
                 null,
                 "U5 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000026950",
                 null,
                 "U5 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000026951",
                 null,
                 "U5 spliceosomal RNA",
                 "snRNA",
-                null
+                [
+                    null
+                ]
             ],
             [
                 "ENSANIT00000027531",
                 null,
                 "Small nucleolar RNA SNORA72",
                 "snoRNA",
-                null
+                [
+                    null
+                ]
             ]
         ]
     },
