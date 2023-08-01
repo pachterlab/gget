@@ -367,8 +367,8 @@
                 "beta-secretase 2",
                 "protein_coding",
                 [
-                    "ALP56",
                     "AEPLC",
+                    "ALP56",
                     "CEAP1",
                     "DRAP"
                 ],
