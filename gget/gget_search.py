@@ -305,7 +305,7 @@ def search(
 
     # Keep synonyms always of type list for consistency
     df["synonym"] = [
-        [syn] if not isinstance(syn, list) else syn for syn in df["synonym"].values
+        np.sort([syn]) if not isinstance(syn, list) else np.sort(syn) for syn in df["synonym"].values
     ]
 
     # If limit is not None, keep only the first {limit} rows
