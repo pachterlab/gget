@@ -457,8 +457,8 @@
                 "protein_coding",
                 [
                     "cofactor of nitrate reductase and xanthine dehydrogenase 3",
-                    "F6F3_9",
-                    "F6F3.9"
+                    "F6F3.9",
+                    "F6F3_9"
                 ],
                 "https://useast.ensembl.org/arabidopsis_thaliana/Gene/Summary?g=AT1G01290"
             ],
