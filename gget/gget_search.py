@@ -25,6 +25,17 @@ from .utils import gget_species_options, find_latest_ens_rel, wrap_cols_func
 from .constants import ENSEMBL_FTP_URL, ENSEMBL_FTP_URL_PLANT
 
 
+def clean_cols(x):
+    if isinstance(x, list):
+        unique_list = list(set(x))
+        if len(unique_list) == 1:
+            return unique_list[0]
+        else:
+            return unique_list
+    else:
+        return x
+
+
 def search(
     searchwords,
     species,
@@ -217,10 +228,12 @@ def search(
     for i, searchword in enumerate(searchwords):
         if id_type == "gene":
             query = f"""
-            SELECT gene.stable_id AS 'ensembl_id', xref.display_label AS 'gene_name', gene.description AS 'ensembl_description', xref.description AS 'ext_ref_description', gene.biotype AS 'biotype'
-            FROM gene
-            LEFT JOIN xref ON gene.display_xref_id = xref.xref_id
-            WHERE (gene.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%')
+            SELECT gene.stable_id AS 'ensembl_id', gene.description AS 'ensembl_description', xref.description AS 'ext_ref_description', gene.biotype AS 'biotype', external_synonym.synonym AS 'synonym'
+            FROM gene 
+            LEFT JOIN xref ON gene.display_xref_id = xref.xref_id 
+            LEFT JOIN external_synonym ON gene.display_xref_id = external_synonym.xref_id 
+            LEFT JOIN gene_attrib ON gene.gene_id = gene_attrib.gene_id 
+            WHERE (gene.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%' OR external_synonym.synonym LIKE '%{searchword}%' OR gene_attrib.value LIKE '%{searchword}%')
             """
 
             # Fetch the search results from the host using the specified query
@@ -250,10 +263,12 @@ def search(
 
         if id_type == "transcript":
             query = f"""
-            SELECT transcript.stable_id AS 'ensembl_id', xref.display_label AS 'gene_name', transcript.description AS 'ensembl_description', xref.description AS 'ext_ref_description', transcript.biotype AS 'biotype'
-            FROM transcript
-            LEFT JOIN xref ON transcript.display_xref_id = xref.xref_id
-            WHERE (transcript.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%')
+            SELECT transcript.stable_id AS 'ensembl_id', transcript.description AS 'ensembl_description', xref.description AS 'ext_ref_description', transcript.biotype AS 'biotype', external_synonym.synonym AS 'synonym'
+            FROM transcript 
+            LEFT JOIN xref ON transcript.display_xref_id = xref.xref_id 
+            LEFT JOIN external_synonym ON transcript.display_xref_id = external_synonym.xref_id 
+            LEFT JOIN gene_attrib ON transcript.gene_id = gene_attrib.gene_id 
+            WHERE (transcript.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%' OR external_synonym.synonym LIKE '%{searchword}%' OR gene_attrib.value LIKE '%{searchword}%')
             """
 
             # Fetch the search results from the host using the specified query
@@ -282,6 +297,16 @@ def search(
 
     # Remove any duplicate search results from the master data frame and reset the index
     df = df.drop_duplicates().reset_index(drop=True)
+    # Collapse entries for the same Ensembl ID
+    df = df.groupby("ensembl_id").agg(tuple).applymap(list).reset_index()
+
+    # convert list of values to type string if there is only one value
+    df = df.applymap(clean_cols)
+
+    # Keep synonyms always of type list for consistency
+    df["synonym"] = [
+        np.sort(syn).tolist() if  isinstance(syn, list) else np.sort([syn]).tolist() for syn in df["synonym"].values
+    ]
 
     # If limit is not None, keep only the first {limit} rows
     if limit != None:
