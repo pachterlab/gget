@@ -68,15 +68,9 @@
         "expected_result": [
             [
                 "FBgn0003656",
-                [
-                    "swiss cheese"
-                ],
-                [
-                    null
-                ],
-                [
-                    "protein_coding"
-                ],
+                "swiss cheese",
+                null,
+                "protein_coding",
                 [
                     "sws"
                 ],
@@ -84,15 +78,9 @@
             ],
             [
                 "FBgn0043362",
-                [
-                    "blue cheese"
-                ],
-                [
-                    null
-                ],
-                [
-                    "protein_coding"
-                ],
+                "blue cheese",
+                null,
+                "protein_coding",
                 [
                     "bchs"
                 ],
@@ -111,15 +99,9 @@
         "expected_result": [
             [
                 "ENSG00000069509",
-                [
-                    "FUN14 domain containing 1 [Source:HGNC Symbol;Acc:HGNC:28746]"
-                ],
-                [
-                    "FUN14 domain containing 1"
-                ],
-                [
-                    "protein_coding"
-                ],
+                "FUN14 domain containing 1 [Source:HGNC Symbol;Acc:HGNC:28746]",
+                "FUN14 domain containing 1",
+                "protein_coding",
                 [
                     "MGC51029"
                 ],
@@ -127,43 +109,22 @@
             ],
             [
                 "ENSG00000084754",
+                "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha [Source:HGNC Symbol;Acc:HGNC:4801]",
+                "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha",
+                "protein_coding",
                 [
-                    "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha [Source:HGNC Symbol;Acc:HGNC:4801]",
-                    "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha [Source:HGNC Symbol;Acc:HGNC:4801]",
-                    "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha [Source:HGNC Symbol;Acc:HGNC:4801]",
-                    "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha [Source:HGNC Symbol;Acc:HGNC:4801]"
-                ],
-                [
-                    "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha",
-                    "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha",
-                    "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha",
-                    "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha"
-                ],
-                [
-                    "protein_coding",
-                    "protein_coding",
-                    "protein_coding",
-                    "protein_coding"
-                ],
-                [
-                    "LCHAD",
-                    "MTPA",
                     "GBP",
-                    "LCEH"
+                    "MTPA",
+                    "LCEH",
+                    "LCHAD"
                 ],
                 "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000084754"
             ],
             [
                 "ENSG00000100603",
-                [
-                    "SNW domain containing 1 [Source:HGNC Symbol;Acc:HGNC:16696]"
-                ],
-                [
-                    "SNW domain containing 1"
-                ],
-                [
-                    "protein_coding"
-                ],
+                "SNW domain containing 1 [Source:HGNC Symbol;Acc:HGNC:16696]",
+                "SNW domain containing 1",
+                "protein_coding",
                 [
                     "FUN20"
                 ],
@@ -1115,15 +1076,9 @@
         "expected_result": [
             [
                 "ENSANIT00000001698",
-                [
-                    null
-                ],
-                [
-                    "Small nucleolar RNA SNORA71"
-                ],
-                [
-                    "snoRNA"
-                ],
+                null,
+                "Small nucleolar RNA SNORA71",
+                "snoRNA",
                 [
                     null
                 ],
@@ -1131,15 +1086,9 @@
             ],
             [
                 "ENSANIT00000001705",
-                [
-                    null
-                ],
-                [
-                    "Small nucleolar RNA SNORA71"
-                ],
-                [
-                    "snoRNA"
-                ],
+                null,
+                "Small nucleolar RNA SNORA71",
+                "snoRNA",
                 [
                     null
                 ],
