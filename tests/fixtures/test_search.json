@@ -380,9 +380,9 @@
                 "BACE2 intronic transcript 1",
                 "antisense",
                 [
-                    "PRED43",
                     "C21orf75",
-                    "NCRNA00228"
+                    "NCRNA00228",
+                    "PRED43"
                 ],
                 "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000224388"
             ]
@@ -492,13 +492,13 @@
                 "",
                 "protein_coding",
                 [
-                    "PIF1",
-                    "ICU1",
-                    "SET1",
                     "At2g23380",
-                    "PIF2",
                     "F26B6.3",
-                    "SDG1"
+                    "ICU1",
+                    "PIF1",
+                    "PIF2",
+                    "SDG1",
+                    "SET1"
                 ],
                 "https://useast.ensembl.org/arabidopsis_thaliana/Gene/Summary?g=AT2G23380"
             ]
