@@ -468,10 +468,10 @@
                 "Histone superfamily protein",
                 "protein_coding",
                 [
-                    "F6F3.17",
+                    "CENH3",
                     "CENTROMERIC HISTONE H3",
-                    "F6F3_17",
-                    "CENH3"
+                    "F6F3.17",
+                    "F6F3_17"
                 ],
                 "https://useast.ensembl.org/arabidopsis_thaliana/Gene/Summary?g=AT1G01370"
             ]
