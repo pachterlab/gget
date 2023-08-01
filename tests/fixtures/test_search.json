@@ -102,9 +102,9 @@
                 "protein_coding",
                 [
                     "GBP",
-                    "MTPA",
                     "LCEH",
-                    "LCHAD"
+                    "LCHAD",
+                    "MTPA"
                 ],
                 "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000084754"
             ],
