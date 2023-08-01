@@ -1111,15 +1111,9 @@
         "expected_result": [
             [
                 "ENST00000362582",
-                [
-                    null
-                ],
-                [
-                    null
-                ],
-                [
-                    "snoRNA"
-                ],
+                null,
+                null,
+                "snoRNA",
                 [
                     null
                 ],
@@ -1127,15 +1121,9 @@
             ],
             [
                 "ENST00000363484",
-                [
-                    null
-                ],
-                [
-                    "small nucleolar RNA, H/ACA box 71D"
-                ],
-                [
-                    "snoRNA"
-                ],
+                null,
+                "small nucleolar RNA, H/ACA box 71D",
+                "snoRNA",
                 [
                     null
                 ],
@@ -1143,15 +1131,9 @@
             ],
             [
                 "ENST00000364523",
-                [
-                    null
-                ],
-                [
-                    null
-                ],
-                [
-                    "snoRNA"
-                ],
+                null,
+                null,
+                "snoRNA",
                 [
                     null
                 ],
@@ -1174,15 +1156,9 @@
         "expected_result": [
             [
                 "FBgn0003656",
-                [
-                    "swiss cheese"
-                ],
-                [
-                    null
-                ],
-                [
-                    "protein_coding"
-                ],
+                "swiss cheese",
+                null,
+                "protein_coding",
                 [
                     "sws"
                 ],
@@ -1202,15 +1178,9 @@
         "expected_result": [
             [
                 "ENSG00000130234",
-                [
-                    "angiotensin I converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]"
-                ],
-                [
-                    "angiotensin I converting enzyme 2"
-                ],
-                [
-                    "protein_coding"
-                ],
+                "angiotensin I converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]",
+                "angiotensin I converting enzyme 2",
+                "protein_coding",
                 [
                     null
                 ],
@@ -1218,15 +1188,9 @@
             ],
             [
                 "ENSG00000173653",
-                [
-                    "Ras converting CAAX endopeptidase 1 [Source:HGNC Symbol;Acc:HGNC:13721]"
-                ],
-                [
-                    "Ras converting CAAX endopeptidase 1"
-                ],
-                [
-                    "protein_coding"
-                ],
+                "Ras converting CAAX endopeptidase 1 [Source:HGNC Symbol;Acc:HGNC:13721]",
+                "Ras converting CAAX endopeptidase 1",
+                "protein_coding",
                 [
                     "FACE2"
                 ],
@@ -1234,53 +1198,26 @@
             ],
             [
                 "ENSG00000182240",
+                "beta-secretase 2 [Source:HGNC Symbol;Acc:HGNC:934]",
+                "beta-secretase 2",
+                "protein_coding",
                 [
-                    "beta-secretase 2 [Source:HGNC Symbol;Acc:HGNC:934]",
-                    "beta-secretase 2 [Source:HGNC Symbol;Acc:HGNC:934]",
-                    "beta-secretase 2 [Source:HGNC Symbol;Acc:HGNC:934]",
-                    "beta-secretase 2 [Source:HGNC Symbol;Acc:HGNC:934]"
-                ],
-                [
-                    "beta-secretase 2",
-                    "beta-secretase 2",
-                    "beta-secretase 2",
-                    "beta-secretase 2"
-                ],
-                [
-                    "protein_coding",
-                    "protein_coding",
-                    "protein_coding",
-                    "protein_coding"
-                ],
-                [
-                    "DRAP",
-                    "CEAP1",
                     "AEPLC",
-                    "ALP56"
+                    "CEAP1",
+                    "ALP56",
+                    "DRAP"
                 ],
                 "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000182240"
             ],
             [
                 "ENSG00000224388",
-                [
-                    "BACE2 intronic transcript 1 [Source:HGNC Symbol;Acc:HGNC:16024]",
-                    "BACE2 intronic transcript 1 [Source:HGNC Symbol;Acc:HGNC:16024]",
-                    "BACE2 intronic transcript 1 [Source:HGNC Symbol;Acc:HGNC:16024]"
-                ],
-                [
-                    "BACE2 intronic transcript 1",
-                    "BACE2 intronic transcript 1",
-                    "BACE2 intronic transcript 1"
-                ],
-                [
-                    "antisense",
-                    "antisense",
-                    "antisense"
-                ],
+                "BACE2 intronic transcript 1 [Source:HGNC Symbol;Acc:HGNC:16024]",
+                "BACE2 intronic transcript 1",
+                "antisense",
                 [
                     "PRED43",
-                    "NCRNA00228",
-                    "C21orf75"
+                    "C21orf75",
+                    "NCRNA00228"
                 ],
                 "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000224388"
             ]
@@ -1298,15 +1235,9 @@
         "expected_result": [
             [
                 "MGP_DBA2J_G0002730",
-                [
-                    "H3 histone, family 3A, opposite strand [Source:MGI Symbol;Acc:MGI:3802006]"
-                ],
-                [
-                    "H3 histone, family 3A, opposite strand"
-                ],
-                [
-                    "antisense"
-                ],
+                "H3 histone, family 3A, opposite strand [Source:MGI Symbol;Acc:MGI:3802006]",
+                "H3 histone, family 3A, opposite strand",
+                "antisense",
                 [
                     "Gm16067"
                 ],
@@ -1314,15 +1245,9 @@
             ],
             [
                 "MGP_DBA2J_G0002983",
-                [
-                    "DEAH (Asp-Glu-Ala-His) box polypeptide 58, opposite strand [Source:MGI Symbol;Acc:MGI:3705104]"
-                ],
-                [
-                    "DEAH (Asp-Glu-Ala-His) box polypeptide 58, opposite strand"
-                ],
-                [
-                    "antisense"
-                ],
+                "DEAH (Asp-Glu-Ala-His) box polypeptide 58, opposite strand [Source:MGI Symbol;Acc:MGI:3705104]",
+                "DEAH (Asp-Glu-Ala-His) box polypeptide 58, opposite strand",
+                "antisense",
                 [
                     "Gm11547"
                 ],
@@ -1330,15 +1255,9 @@
             ],
             [
                 "MGP_DBA2J_G0003041",
-                [
-                    "notum pectinacetylesterase homolog (Drosophila), opposite strand [Source:MGI Symbol;Acc:MGI:3698431]"
-                ],
-                [
-                    "notum pectinacetylesterase homolog (Drosophila), opposite strand"
-                ],
-                [
-                    "antisense"
-                ],
+                "notum pectinacetylesterase homolog (Drosophila), opposite strand [Source:MGI Symbol;Acc:MGI:3698431]",
+                "notum pectinacetylesterase homolog (Drosophila), opposite strand",
+                "antisense",
                 [
                     "4732444A12Rik"
                 ],
@@ -1358,15 +1277,9 @@
         "expected_result": [
             [
                 "AT1G01180",
-                [
-                    "S-adenosyl-L-methionine-dependent methyltransferases superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839239]"
-                ],
-                [
-                    "S-adenosyl-L-methionine-dependent methyltransferases superfamily protein"
-                ],
-                [
-                    "protein_coding"
-                ],
+                "S-adenosyl-L-methionine-dependent methyltransferases superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839239]",
+                "S-adenosyl-L-methionine-dependent methyltransferases superfamily protein",
+                "protein_coding",
                 [
                     "F6F3.5"
                 ],
@@ -1374,53 +1287,26 @@
             ],
             [
                 "AT1G01290",
-                [
-                    "cofactor of nitrate reductase and xanthine dehydrogenase 3 [Source:NCBI gene (formerly Entrezgene);Acc:839445]",
-                    "cofactor of nitrate reductase and xanthine dehydrogenase 3 [Source:NCBI gene (formerly Entrezgene);Acc:839445]",
-                    "cofactor of nitrate reductase and xanthine dehydrogenase 3 [Source:NCBI gene (formerly Entrezgene);Acc:839445]"
-                ],
+                "cofactor of nitrate reductase and xanthine dehydrogenase 3 [Source:NCBI gene (formerly Entrezgene);Acc:839445]",
+                "cofactor of nitrate reductase and xanthine dehydrogenase 3",
+                "protein_coding",
                 [
                     "cofactor of nitrate reductase and xanthine dehydrogenase 3",
-                    "cofactor of nitrate reductase and xanthine dehydrogenase 3",
-                    "cofactor of nitrate reductase and xanthine dehydrogenase 3"
-                ],
-                [
-                    "protein_coding",
-                    "protein_coding",
-                    "protein_coding"
-                ],
-                [
                     "F6F3_9",
-                    "cofactor of nitrate reductase and xanthine dehydrogenase 3",
                     "F6F3.9"
                 ],
                 "https://useast.ensembl.org/arabidopsis_thaliana/Gene/Summary?g=AT1G01290"
             ],
             [
                 "AT1G01370",
+                "Histone superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839104]",
+                "Histone superfamily protein",
+                "protein_coding",
                 [
-                    "Histone superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839104]",
-                    "Histone superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839104]",
-                    "Histone superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839104]",
-                    "Histone superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839104]"
-                ],
-                [
-                    "Histone superfamily protein",
-                    "Histone superfamily protein",
-                    "Histone superfamily protein",
-                    "Histone superfamily protein"
-                ],
-                [
-                    "protein_coding",
-                    "protein_coding",
-                    "protein_coding",
-                    "protein_coding"
-                ],
-                [
-                    "F6F3_17",
-                    "CENH3",
+                    "F6F3.17",
                     "CENTROMERIC HISTONE H3",
-                    "F6F3.17"
+                    "F6F3_17",
+                    "CENH3"
                 ],
                 "https://useast.ensembl.org/arabidopsis_thaliana/Gene/Summary?g=AT1G01370"
             ]
@@ -1437,41 +1323,17 @@
         "expected_result": [
             [
                 "AT2G23380",
+                "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]",
+                "",
+                "protein_coding",
                 [
-                    "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]",
-                    "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]",
-                    "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]",
-                    "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]",
-                    "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]",
-                    "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]",
-                    "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]"
-                ],
-                [
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    "",
-                    ""
-                ],
-                [
-                    "protein_coding",
-                    "protein_coding",
-                    "protein_coding",
-                    "protein_coding",
-                    "protein_coding",
-                    "protein_coding",
-                    "protein_coding"
-                ],
-                [
+                    "PIF2",
+                    "ICU1",
+                    "PIF1",
+                    "F26B6.3",
                     "At2g23380",
                     "SET1",
-                    "SDG1",
-                    "PIF2",
-                    "PIF1",
-                    "ICU1",
-                    "F26B6.3"
+                    "SDG1"
                 ],
                 "https://useast.ensembl.org/arabidopsis_thaliana/Gene/Summary?g=AT2G23380"
             ]
