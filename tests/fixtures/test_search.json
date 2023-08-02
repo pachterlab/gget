@@ -10,6 +10,7 @@
         "expected_result": [
             [
                 "FBgn0003656",
+                "sws",
                 "swiss cheese",
                 null,
                 "protein_coding",
@@ -33,6 +34,7 @@
                 "ensembl_id": "FBgn0003656",
                 "ensembl_description": "swiss cheese",
                 "ext_ref_description": null,
+                "gene_name": "sws",
                 "biotype": "protein_coding",
                 "synonym": [
                     "sws"
@@ -56,6 +58,7 @@
         "expected_result": [
             [
                 "FBgn0003656",
+                "sws",
                 "swiss cheese",
                 null,
                 "protein_coding",
@@ -66,6 +69,7 @@
             ],
             [
                 "FBgn0043362",
+                "bchs",
                 "blue cheese",
                 null,
                 "protein_coding",
@@ -87,6 +91,7 @@
         "expected_result": [
             [
                 "ENSG00000069509",
+                "FUNDC1",
                 "FUN14 domain containing 1 [Source:HGNC Symbol;Acc:HGNC:28746]",
                 "FUN14 domain containing 1",
                 "protein_coding",
@@ -309,6 +314,7 @@
     "test9": {
         "type": "assert_equal",
         "args": {
+
             "searchwords": [
                 "swiss",
                 "cheese"
@@ -343,6 +349,7 @@
         "expected_result": [
             [
                 "ENSG00000130234",
+                "ACE2",
                 "angiotensin I converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]",
                 "angiotensin I converting enzyme 2",
                 "protein_coding",
@@ -400,6 +407,7 @@
         "expected_result": [
             [
                 "MGP_DBA2J_G0002730",
+                "H3f3aos", 
                 "H3 histone, family 3A, opposite strand [Source:MGI Symbol;Acc:MGI:3802006]",
                 "H3 histone, family 3A, opposite strand",
                 "antisense",
@@ -453,6 +461,7 @@
             ],
             [
                 "AT1G01290",
+                "CNX3",
                 "cofactor of nitrate reductase and xanthine dehydrogenase 3 [Source:NCBI gene (formerly Entrezgene);Acc:839445]",
                 "cofactor of nitrate reductase and xanthine dehydrogenase 3",
                 "protein_coding",
