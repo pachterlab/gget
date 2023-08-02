@@ -267,7 +267,7 @@ def search(
             FROM transcript 
             LEFT JOIN xref ON transcript.display_xref_id = xref.xref_id 
             LEFT JOIN external_synonym ON transcript.display_xref_id = external_synonym.xref_id 
-            LEFT JOIN transcript_attrib ON transcript.gene_id = transcript_attrib.gene_id 
+            LEFT JOIN transcript_attrib ON gene.gene_id = transcript_attrib.gene_id 
             WHERE (transcript.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%' OR external_synonym.synonym LIKE '%{searchword}%' OR transcript_attrib.value LIKE '%{searchword}%')
             """
 
