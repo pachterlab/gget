@@ -8,6 +8,11 @@ import filecmp
 
 from gget.gget_elm import diamond, elm
 
+# Load dictionary containing arguments and expected results
+with open("./tests/fixtures/test_elm.json") as json_file:
+    elm_dict = json.load(json_file)
+
+
 class TestELM(unittest.TestCase):
     def test_diamond(self):
         # File with sequences to align
