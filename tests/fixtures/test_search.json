@@ -442,6 +442,7 @@
         "expected_result": [
             [
                 "AT1G01180",
+                "AT1G01180",
                 "S-adenosyl-L-methionine-dependent methyltransferases superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839239]",
                 "S-adenosyl-L-methionine-dependent methyltransferases superfamily protein",
                 "protein_coding",
@@ -488,6 +489,7 @@
         "expected_result": [
             [
                 "AT2G23380",
+                "CLF",
                 "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]",
                 "",
                 "protein_coding",
