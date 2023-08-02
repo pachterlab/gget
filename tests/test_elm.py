@@ -5,6 +5,7 @@ from unittest import mock
 import os
 import contextlib
 import filecmp
+import json
 
 from gget.gget_elm import diamond, elm
 
