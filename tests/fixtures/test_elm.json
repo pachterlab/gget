@@ -1,0 +1,59 @@
+{
+    "test1": {
+        "type": "assert_equal",
+        "args": {
+            "sequence": "Q02410",
+            "uniprot": true
+        },
+        "expected_result": [
+            [
+                "Q02410",
+                "LIG_CaMK_CASK_1",
+                "ELMI004545",
+                "LIG",
+                "APBA1_HUMAN",
+                "Q02410 O14914 O60570 Q5VYR8",
+                376,
+                382,
+                "9952408 21763699",
+                "comigration in gel electrophoresis; far western blotting; glutathione s tranferase tag; mutation analysis; pull down",
+                "true positive",
+                null,
+                "Homo sapiens",
+                "ELME000357",
+                "CASK CaMK domain binding ligand motif",
+                "Motif that mediates binding to the calmodulin-dependent protein kinase (CaMK) domain of the peripheral plasma membrane protein CASK/Lin2.",
+                "[STED].{0,2}[IV]W[IVLM].[RHK]",
+                1.11776693962e-05,
+                7,
+                3,
+                null,
+                null
+            ],
+            [
+                "Q02410",
+                "LIG_PDZ_Class_2",
+                "ELMI001594",
+                "LIG",
+                "APBA1_HUMAN",
+                "Q02410 O14914 O60570 Q5VYR8",
+                832,
+                837,
+                "16007100",
+                "mutation analysis; nuclear magnetic resonullce; two hybrid",
+                "true positive",
+                "1U38",
+                "Homo sapiens",
+                "ELME000091",
+                "PDZ domain ligands",
+                "The C-terminal class 2 PDZ-binding motif is classically represented by a pattern such as (VYF)X(VIL)*",
+                "...[VLIFY].[ACVILF]$",
+                7.88851572129e-05,
+                13,
+                8,
+                null,
+                null
+            ]
+        ]
+    }
+}
