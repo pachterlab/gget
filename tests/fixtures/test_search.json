@@ -138,6 +138,7 @@
         "expected_result": [
             [
                 "FBtr0070000",
+                "Nep3-RA",
                 null,
                 null,
                 "protein_coding",
@@ -148,6 +149,7 @@
             ],
             [
                 "FBtr0307554",
+                "Nep3-RB",
                 null,
                 null,
                 "protein_coding",
@@ -158,6 +160,7 @@
             ],
             [
                 "FBtr0307555",
+                "Nep3-RC",
                 null,
                 null,
                 "protein_coding",
@@ -288,6 +291,7 @@
         "expected_result": [
             [
                 "ENST00000362582",
+                "SNORA71.3-201",
                 null,
                 null,
                 "snoRNA",
@@ -298,6 +302,7 @@
             ],
             [
                 "ENST00000363484",
+                "SNORA71D-201",
                 null,
                 "small nucleolar RNA, H/ACA box 71D",
                 "snoRNA",
@@ -308,6 +313,7 @@
             ],
             [
                 "ENST00000364523",
+                "SNORA71.1-201",
                 null,
                 null,
                 "snoRNA",
@@ -333,6 +339,7 @@
         "expected_result": [
             [
                 "FBgn0003656",
+                "sws",
                 "swiss cheese",
                 null,
                 "protein_coding",
@@ -413,7 +420,7 @@
             "species": "mus_musculus_dba2j_core_105_1",
             "limit": 3
         },
-        "expected_result": [
+        "expected_result":  [
             [
                 "MGP_DBA2J_G0002730",
                 "H3f3aos",
@@ -427,6 +434,7 @@
             ],
             [
                 "MGP_DBA2J_G0002983",
+                "Dhx58os",
                 "DEAH (Asp-Glu-Ala-His) box polypeptide 58, opposite strand [Source:MGI Symbol;Acc:MGI:3705104]",
                 "DEAH (Asp-Glu-Ala-His) box polypeptide 58, opposite strand",
                 "antisense",
@@ -437,6 +445,7 @@
             ],
             [
                 "MGP_DBA2J_G0003041",
+                "Notumos",
                 "notum pectinacetylesterase homolog (Drosophila), opposite strand [Source:MGI Symbol;Acc:MGI:3698431]",
                 "notum pectinacetylesterase homolog (Drosophila), opposite strand",
                 "antisense",
