@@ -851,7 +851,9 @@
                     "8h5c",
                     "8if2",
                     "8iou",
-                    "8iov"
+                    "8iov",
+                    "8sph",
+                    "8spi"
                 ],
                 "59272",
                 "homo_sapiens",
