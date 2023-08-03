@@ -14,6 +14,7 @@
                 "swiss cheese",
                 null,
                 "protein_coding",
+                ["sws"],
                 "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
             ]
         ]
@@ -33,6 +34,7 @@
                 "ensembl_description": "swiss cheese",
                 "ext_ref_description": null,
                 "biotype": "protein_coding",
+                "synonym": ["sws"],
                 "url": "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
             }
         ]
@@ -56,6 +58,7 @@
                 "swiss cheese",
                 null,
                 "protein_coding",
+                ["sws"],
                 "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
             ],
             [
@@ -64,6 +67,7 @@
                 "blue cheese",
                 null,
                 "protein_coding",
+                ["bchs"],
                 "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0043362"
             ]
         ]
@@ -83,6 +87,7 @@
                 "FUN14 domain containing 1 [Source:HGNC Symbol;Acc:HGNC:28746]",
                 "FUN14 domain containing 1",
                 "protein_coding",
+                ["MGC51029"],
                 "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000069509"
             ],
             [
@@ -118,6 +123,7 @@
                 null,
                 null,
                 "protein_coding",
+                ["Nep3-RA"],
                 "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBtr0070000"
             ],
             [
@@ -126,6 +132,7 @@
                 null,
                 null,
                 "protein_coding",
+                ["Nep3-RB"],
                 "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBtr0307554"
             ],
             [
@@ -134,6 +141,7 @@
                 null,
                 null,
                 "protein_coding",
+                ["Nep3-RC"],
                 "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBtr0307555"
             ]
         ]
@@ -212,6 +220,7 @@
                 null,
                 "Small nucleolar RNA SNORA71",
                 "snoRNA",
+                [null],
                 "https://useast.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001698"
             ],
             [
@@ -220,6 +229,7 @@
                 null,
                 "Small nucleolar RNA SNORA71",
                 "snoRNA",
+                [null],
                 "https://useast.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001705"
             ]
         ]
@@ -243,6 +253,7 @@
                 null,
                 null,
                 "snoRNA",
+                [null],
                 "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENST00000362582"
             ],
             [
@@ -251,6 +262,7 @@
                 null,
                 "small nucleolar RNA, H/ACA box 71D",
                 "snoRNA",
+                [null],
                 "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENST00000363484"
             ],
             [
@@ -259,6 +271,7 @@
                 null,
                 null,
                 "snoRNA",
+                [null],
                 "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENST00000364523"
             ]
         ]
@@ -282,6 +295,7 @@
                 "swiss cheese",
                 null,
                 "protein_coding",
+                ["sws"],
                 "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
             ]
         ]
@@ -302,6 +316,7 @@
                 "angiotensin I converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]",
                 "angiotensin I converting enzyme 2",
                 "protein_coding",
+                [null],
                 "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000130234"
             ],
             [
@@ -311,14 +326,6 @@
                 "beta-secretase 2",
                 "protein_coding",
                 "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000182240"
-            ],
-            [
-                "ENSG00000224388",
-                "BACE2-IT1",
-                "BACE2 intronic transcript 1 [Source:HGNC Symbol;Acc:HGNC:16024]",
-                "BACE2 intronic transcript 1",
-                "antisense",
-                "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000224388"
             ]
         ]
     },
@@ -338,6 +345,7 @@
                 "H3 histone, family 3A, opposite strand [Source:MGI Symbol;Acc:MGI:3802006]",
                 "H3 histone, family 3A, opposite strand",
                 "antisense",
+                ["Gm16067"],
                 "https://useast.ensembl.org/mus_musculus/Gene/Summary?g=MGP_DBA2J_G0002730"
             ],
             [
@@ -374,6 +382,7 @@
                 "S-adenosyl-L-methionine-dependent methyltransferases superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839239]",
                 "S-adenosyl-L-methionine-dependent methyltransferases superfamily protein",
                 "protein_coding",
+                ["F6F3.5"],
                 "https://useast.ensembl.org/arabidopsis_thaliana/Gene/Summary?g=AT1G01180"
             ],
             [
@@ -409,6 +418,7 @@
                 "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]",
                 "",
                 "protein_coding",
+                ["At2g23380", "F26B6.3", "ICU1", "PIF1", "PIF2", "SDG1", "SET1"],
                 "https://useast.ensembl.org/arabidopsis_thaliana/Gene/Summary?g=AT2G23380"
             ]
         ]
