@@ -102,6 +102,7 @@
             ],
             [
                 "ENSG00000084754",
+                "HADHA",
                 "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha [Source:HGNC Symbol;Acc:HGNC:4801]",
                 "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha",
                 "protein_coding",
@@ -115,6 +116,7 @@
             ],
             [
                 "ENSG00000100603",
+                "SNW1",
                 "SNW domain containing 1 [Source:HGNC Symbol;Acc:HGNC:16696]",
                 "SNW domain containing 1",
                 "protein_coding",
@@ -181,6 +183,7 @@
         "expected_result": [
             [
                 "ENSANIT00000000884",
+                "RNaseP_nuc-201",
                 null,
                 "Nuclear RNase P",
                 "ribozyme",
@@ -191,6 +194,7 @@
             ],
             [
                 "ENSANIT00000001698",
+                "SNORA71-201",
                 null,
                 "Small nucleolar RNA SNORA71",
                 "snoRNA",
@@ -201,6 +205,7 @@
             ],
             [
                 "ENSANIT00000001705",
+                "SNORA71-201",
                 null,
                 "Small nucleolar RNA SNORA71",
                 "snoRNA",
@@ -211,6 +216,7 @@
             ],
             [
                 "ENSANIT00000001802",
+                "5_8S_rRNA-201",
                 null,
                 "5.8S ribosomal RNA",
                 "rRNA",
@@ -221,6 +227,7 @@
             ],
             [
                 "ENSANIT00000001839",
+                "U2-201",
                 null,
                 "U2 spliceosomal RNA",
                 "snRNA",
@@ -314,7 +321,6 @@
     "test9": {
         "type": "assert_equal",
         "args": {
-
             "searchwords": [
                 "swiss",
                 "cheese"
@@ -360,6 +366,7 @@
             ],
             [
                 "ENSG00000173653",
+                "RCE1",
                 "Ras converting CAAX endopeptidase 1 [Source:HGNC Symbol;Acc:HGNC:13721]",
                 "Ras converting CAAX endopeptidase 1",
                 "protein_coding",
@@ -370,6 +377,7 @@
             ],
             [
                 "ENSG00000182240",
+                "BACE2",
                 "beta-secretase 2 [Source:HGNC Symbol;Acc:HGNC:934]",
                 "beta-secretase 2",
                 "protein_coding",
@@ -383,6 +391,7 @@
             ],
             [
                 "ENSG00000224388",
+                "BACE2-IT1",
                 "BACE2 intronic transcript 1 [Source:HGNC Symbol;Acc:HGNC:16024]",
                 "BACE2 intronic transcript 1",
                 "antisense",
@@ -407,7 +416,7 @@
         "expected_result": [
             [
                 "MGP_DBA2J_G0002730",
-                "H3f3aos", 
+                "H3f3aos",
                 "H3 histone, family 3A, opposite strand [Source:MGI Symbol;Acc:MGI:3802006]",
                 "H3 histone, family 3A, opposite strand",
                 "antisense",
