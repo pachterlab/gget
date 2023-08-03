@@ -256,6 +256,7 @@
         "expected_result": [
             [
                 "ENSANIT00000001698",
+                "SNORA71-201",
                 null,
                 "Small nucleolar RNA SNORA71",
                 "snoRNA",
@@ -266,6 +267,7 @@
             ],
             [
                 "ENSANIT00000001705",
+                "SNORA71-201",
                 null,
                 "Small nucleolar RNA SNORA71",
                 "snoRNA",
@@ -420,7 +422,7 @@
             "species": "mus_musculus_dba2j_core_105_1",
             "limit": 3
         },
-        "expected_result":  [
+        "expected_result": [
             [
                 "MGP_DBA2J_G0002730",
                 "H3f3aos",
@@ -492,6 +494,7 @@
             ],
             [
                 "AT1G01370",
+                "HTR12",
                 "Histone superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839104]",
                 "Histone superfamily protein",
                 "protein_coding",
