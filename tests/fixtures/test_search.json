@@ -10,6 +10,7 @@
         "expected_result": [
             [
                 "FBgn0003656",
+                "sws",
                 "swiss cheese",
                 null,
                 "protein_coding",
@@ -33,6 +34,7 @@
                 "ensembl_id": "FBgn0003656",
                 "ensembl_description": "swiss cheese",
                 "ext_ref_description": null,
+                "gene_name": "sws",
                 "biotype": "protein_coding",
                 "synonym": [
                     "sws"
@@ -56,6 +58,7 @@
         "expected_result": [
             [
                 "FBgn0003656",
+                "sws",
                 "swiss cheese",
                 null,
                 "protein_coding",
@@ -66,6 +69,7 @@
             ],
             [
                 "FBgn0043362",
+                "bchs",
                 "blue cheese",
                 null,
                 "protein_coding",
@@ -87,6 +91,7 @@
         "expected_result": [
             [
                 "ENSG00000069509",
+                "FUNDC1",
                 "FUN14 domain containing 1 [Source:HGNC Symbol;Acc:HGNC:28746]",
                 "FUN14 domain containing 1",
                 "protein_coding",
@@ -97,6 +102,7 @@
             ],
             [
                 "ENSG00000084754",
+                "HADHA",
                 "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha [Source:HGNC Symbol;Acc:HGNC:4801]",
                 "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha",
                 "protein_coding",
@@ -110,6 +116,7 @@
             ],
             [
                 "ENSG00000100603",
+                "SNW1",
                 "SNW domain containing 1 [Source:HGNC Symbol;Acc:HGNC:16696]",
                 "SNW domain containing 1",
                 "protein_coding",
@@ -131,6 +138,7 @@
         "expected_result": [
             [
                 "FBtr0070000",
+                "Nep3-RA",
                 null,
                 null,
                 "protein_coding",
@@ -141,6 +149,7 @@
             ],
             [
                 "FBtr0307554",
+                "Nep3-RB",
                 null,
                 null,
                 "protein_coding",
@@ -151,6 +160,7 @@
             ],
             [
                 "FBtr0307555",
+                "Nep3-RC",
                 null,
                 null,
                 "protein_coding",
@@ -176,6 +186,7 @@
         "expected_result": [
             [
                 "ENSANIT00000000884",
+                "RNaseP_nuc-201",
                 null,
                 "Nuclear RNase P",
                 "ribozyme",
@@ -186,6 +197,7 @@
             ],
             [
                 "ENSANIT00000001698",
+                "SNORA71-201",
                 null,
                 "Small nucleolar RNA SNORA71",
                 "snoRNA",
@@ -196,6 +208,7 @@
             ],
             [
                 "ENSANIT00000001705",
+                "SNORA71-201",
                 null,
                 "Small nucleolar RNA SNORA71",
                 "snoRNA",
@@ -206,6 +219,7 @@
             ],
             [
                 "ENSANIT00000001802",
+                "5_8S_rRNA-201",
                 null,
                 "5.8S ribosomal RNA",
                 "rRNA",
@@ -216,6 +230,7 @@
             ],
             [
                 "ENSANIT00000001839",
+                "U2-201",
                 null,
                 "U2 spliceosomal RNA",
                 "snRNA",
@@ -241,6 +256,7 @@
         "expected_result": [
             [
                 "ENSANIT00000001698",
+                "SNORA71-201",
                 null,
                 "Small nucleolar RNA SNORA71",
                 "snoRNA",
@@ -251,6 +267,7 @@
             ],
             [
                 "ENSANIT00000001705",
+                "SNORA71-201",
                 null,
                 "Small nucleolar RNA SNORA71",
                 "snoRNA",
@@ -276,6 +293,7 @@
         "expected_result": [
             [
                 "ENST00000362582",
+                "SNORA71.3-201",
                 null,
                 null,
                 "snoRNA",
@@ -286,6 +304,7 @@
             ],
             [
                 "ENST00000363484",
+                "SNORA71D-201",
                 null,
                 "small nucleolar RNA, H/ACA box 71D",
                 "snoRNA",
@@ -296,6 +315,7 @@
             ],
             [
                 "ENST00000364523",
+                "SNORA71.1-201",
                 null,
                 null,
                 "snoRNA",
@@ -321,6 +341,7 @@
         "expected_result": [
             [
                 "FBgn0003656",
+                "sws",
                 "swiss cheese",
                 null,
                 "protein_coding",
@@ -343,6 +364,7 @@
         "expected_result": [
             [
                 "ENSG00000130234",
+                "ACE2",
                 "angiotensin I converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]",
                 "angiotensin I converting enzyme 2",
                 "protein_coding",
@@ -353,6 +375,7 @@
             ],
             [
                 "ENSG00000173653",
+                "RCE1",
                 "Ras converting CAAX endopeptidase 1 [Source:HGNC Symbol;Acc:HGNC:13721]",
                 "Ras converting CAAX endopeptidase 1",
                 "protein_coding",
@@ -363,6 +386,7 @@
             ],
             [
                 "ENSG00000182240",
+                "BACE2",
                 "beta-secretase 2 [Source:HGNC Symbol;Acc:HGNC:934]",
                 "beta-secretase 2",
                 "protein_coding",
@@ -376,6 +400,7 @@
             ],
             [
                 "ENSG00000224388",
+                "BACE2-IT1",
                 "BACE2 intronic transcript 1 [Source:HGNC Symbol;Acc:HGNC:16024]",
                 "BACE2 intronic transcript 1",
                 "antisense",
@@ -400,6 +425,7 @@
         "expected_result": [
             [
                 "MGP_DBA2J_G0002730",
+                "H3f3aos",
                 "H3 histone, family 3A, opposite strand [Source:MGI Symbol;Acc:MGI:3802006]",
                 "H3 histone, family 3A, opposite strand",
                 "antisense",
@@ -410,6 +436,7 @@
             ],
             [
                 "MGP_DBA2J_G0002983",
+                "Dhx58os",
                 "DEAH (Asp-Glu-Ala-His) box polypeptide 58, opposite strand [Source:MGI Symbol;Acc:MGI:3705104]",
                 "DEAH (Asp-Glu-Ala-His) box polypeptide 58, opposite strand",
                 "antisense",
@@ -420,6 +447,7 @@
             ],
             [
                 "MGP_DBA2J_G0003041",
+                "Notumos",
                 "notum pectinacetylesterase homolog (Drosophila), opposite strand [Source:MGI Symbol;Acc:MGI:3698431]",
                 "notum pectinacetylesterase homolog (Drosophila), opposite strand",
                 "antisense",
@@ -442,6 +470,7 @@
         "expected_result": [
             [
                 "AT1G01180",
+                "AT1G01180",
                 "S-adenosyl-L-methionine-dependent methyltransferases superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839239]",
                 "S-adenosyl-L-methionine-dependent methyltransferases superfamily protein",
                 "protein_coding",
@@ -452,6 +481,7 @@
             ],
             [
                 "AT1G01290",
+                "CNX3",
                 "cofactor of nitrate reductase and xanthine dehydrogenase 3 [Source:NCBI gene (formerly Entrezgene);Acc:839445]",
                 "cofactor of nitrate reductase and xanthine dehydrogenase 3",
                 "protein_coding",
@@ -464,6 +494,7 @@
             ],
             [
                 "AT1G01370",
+                "HTR12",
                 "Histone superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839104]",
                 "Histone superfamily protein",
                 "protein_coding",
@@ -488,6 +519,7 @@
         "expected_result": [
             [
                 "AT2G23380",
+                "CLF",
                 "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]",
                 "",
                 "protein_coding",

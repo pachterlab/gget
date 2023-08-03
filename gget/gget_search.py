@@ -228,7 +228,7 @@ def search(
     for i, searchword in enumerate(searchwords):
         if id_type == "gene":
             query = f"""
-            SELECT gene.stable_id AS 'ensembl_id', gene.description AS 'ensembl_description', xref.description AS 'ext_ref_description', gene.biotype AS 'biotype', external_synonym.synonym AS 'synonym'
+            SELECT gene.stable_id AS 'ensembl_id', xref.display_label AS 'gene_name', gene.description AS 'ensembl_description', xref.description AS 'ext_ref_description', gene.biotype AS 'biotype', external_synonym.synonym AS 'synonym'
             FROM gene 
             LEFT JOIN xref ON gene.display_xref_id = xref.xref_id 
             LEFT JOIN external_synonym ON gene.display_xref_id = external_synonym.xref_id 
@@ -263,12 +263,12 @@ def search(
 
         if id_type == "transcript":
             query = f"""
-            SELECT transcript.stable_id AS 'ensembl_id', transcript.description AS 'ensembl_description', xref.description AS 'ext_ref_description', transcript.biotype AS 'biotype', external_synonym.synonym AS 'synonym'
+            SELECT transcript.stable_id AS 'ensembl_id', xref.display_label AS 'gene_name', transcript.description AS 'ensembl_description', xref.description AS 'ext_ref_description', transcript.biotype AS 'biotype', external_synonym.synonym AS 'synonym'
             FROM transcript 
             LEFT JOIN xref ON transcript.display_xref_id = xref.xref_id 
             LEFT JOIN external_synonym ON transcript.display_xref_id = external_synonym.xref_id 
-            LEFT JOIN gene_attrib ON transcript.gene_id = gene_attrib.gene_id 
-            WHERE (transcript.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%' OR external_synonym.synonym LIKE '%{searchword}%' OR gene_attrib.value LIKE '%{searchword}%')
+            LEFT JOIN transcript_attrib ON transcript.transcript_id = transcript_attrib.transcript_id 
+            WHERE (transcript.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%' OR external_synonym.synonym LIKE '%{searchword}%' OR transcript_attrib.value LIKE '%{searchword}%')
             """
 
             # Fetch the search results from the host using the specified query
@@ -281,7 +281,7 @@ def search(
                 # In the first iteration, make the search results equal to the master data frame
                 if i == 0:
                     df = df_temp.copy()
-                # Add new search results to master data frame
+                # Add new search results to mastser data frame
                 else:
                     df = pd.concat([df, df_temp])
 
@@ -305,7 +305,8 @@ def search(
 
     # Keep synonyms always of type list for consistency
     df["synonym"] = [
-        np.sort(syn).tolist() if  isinstance(syn, list) else np.sort([syn]).tolist() for syn in df["synonym"].values
+        np.sort(syn).tolist() if isinstance(syn, list) else np.sort([syn]).tolist()
+        for syn in df["synonym"].values
     ]
 
     # If limit is not None, keep only the first {limit} rows
