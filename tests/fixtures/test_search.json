@@ -14,7 +14,9 @@
                 "swiss cheese",
                 null,
                 "protein_coding",
-                ["sws"],
+                [
+                    "sws"
+                ],
                 "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
             ]
         ]
@@ -30,11 +32,13 @@
         "expected_result": [
             {
                 "ensembl_id": "FBgn0003656",
-                "gene_name": "sws",
                 "ensembl_description": "swiss cheese",
                 "ext_ref_description": null,
+                "gene_name": "sws",
                 "biotype": "protein_coding",
-                "synonym": ["sws"],
+                "synonym": [
+                    "sws"
+                ],
                 "url": "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
             }
         ]
@@ -58,7 +62,9 @@
                 "swiss cheese",
                 null,
                 "protein_coding",
-                ["sws"],
+                [
+                    "sws"
+                ],
                 "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
             ],
             [
@@ -67,7 +73,9 @@
                 "blue cheese",
                 null,
                 "protein_coding",
-                ["bchs"],
+                [
+                    "bchs"
+                ],
                 "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0043362"
             ]
         ]
@@ -87,7 +95,9 @@
                 "FUN14 domain containing 1 [Source:HGNC Symbol;Acc:HGNC:28746]",
                 "FUN14 domain containing 1",
                 "protein_coding",
-                ["MGC51029"],
+                [
+                    "MGC51029"
+                ],
                 "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000069509"
             ],
             [
@@ -96,15 +106,24 @@
                 "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha [Source:HGNC Symbol;Acc:HGNC:4801]",
                 "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha",
                 "protein_coding",
+                [
+                    "GBP",
+                    "LCEH",
+                    "LCHAD",
+                    "MTPA"
+                ],
                 "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000084754"
             ],
             [
-                "ENSG00000103429",
-                "BFAR",
-                "bifunctional apoptosis regulator [Source:HGNC Symbol;Acc:HGNC:17613]",
-                "bifunctional apoptosis regulator",
+                "ENSG00000100603",
+                "SNW1",
+                "SNW domain containing 1 [Source:HGNC Symbol;Acc:HGNC:16696]",
+                "SNW domain containing 1",
                 "protein_coding",
-                "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000103429"
+                [
+                    "FUN20"
+                ],
+                "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000100603"
             ]
         ]
     },
@@ -119,29 +138,32 @@
         "expected_result": [
             [
                 "FBtr0070000",
-                "Nep3-RA",
                 null,
                 null,
                 "protein_coding",
-                ["Nep3-RA"],
+                [
+                    "Nep3-RA"
+                ],
                 "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBtr0070000"
             ],
             [
                 "FBtr0307554",
-                "Nep3-RB",
                 null,
                 null,
                 "protein_coding",
-                ["Nep3-RB"],
+                [
+                    "Nep3-RB"
+                ],
                 "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBtr0307554"
             ],
             [
                 "FBtr0307555",
-                "Nep3-RC",
                 null,
                 null,
                 "protein_coding",
-                ["Nep3-RC"],
+                [
+                    "Nep3-RC"
+                ],
                 "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBtr0307555"
             ]
         ]
@@ -160,11 +182,25 @@
         },
         "expected_result": [
             [
+                "ENSANIT00000000884",
+                "RNaseP_nuc-201",
+                null,
+                "Nuclear RNase P",
+                "ribozyme",
+                [
+                    null
+                ],
+                "https://useast.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000000884"
+            ],
+            [
                 "ENSANIT00000001698",
                 "SNORA71-201",
                 null,
                 "Small nucleolar RNA SNORA71",
                 "snoRNA",
+                [
+                    null
+                ],
                 "https://useast.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001698"
             ],
             [
@@ -173,15 +209,10 @@
                 null,
                 "Small nucleolar RNA SNORA71",
                 "snoRNA",
+                [
+                    null
+                ],
                 "https://useast.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001705"
-            ],
-            [
-                "ENSANIT00000000884",
-                "RNaseP_nuc-201",
-                null,
-                "Nuclear RNase P",
-                "ribozyme",
-                "https://useast.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000000884"
             ],
             [
                 "ENSANIT00000001802",
@@ -189,6 +220,9 @@
                 null,
                 "5.8S ribosomal RNA",
                 "rRNA",
+                [
+                    null
+                ],
                 "https://useast.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001802"
             ],
             [
@@ -197,6 +231,9 @@
                 null,
                 "U2 spliceosomal RNA",
                 "snRNA",
+                [
+                    null
+                ],
                 "https://useast.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001839"
             ]
         ]
@@ -216,20 +253,22 @@
         "expected_result": [
             [
                 "ENSANIT00000001698",
-                "SNORA71-201",
                 null,
                 "Small nucleolar RNA SNORA71",
                 "snoRNA",
-                [null],
+                [
+                    null
+                ],
                 "https://useast.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001698"
             ],
             [
                 "ENSANIT00000001705",
-                "SNORA71-201",
                 null,
                 "Small nucleolar RNA SNORA71",
                 "snoRNA",
-                [null],
+                [
+                    null
+                ],
                 "https://useast.ensembl.org/accipiter_nisus/Gene/Summary?g=ENSANIT00000001705"
             ]
         ]
@@ -249,29 +288,32 @@
         "expected_result": [
             [
                 "ENST00000362582",
-                "SNORA71.3-201",
                 null,
                 null,
                 "snoRNA",
-                [null],
+                [
+                    null
+                ],
                 "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENST00000362582"
             ],
             [
                 "ENST00000363484",
-                "SNORA71D-201",
                 null,
                 "small nucleolar RNA, H/ACA box 71D",
                 "snoRNA",
-                [null],
+                [
+                    null
+                ],
                 "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENST00000363484"
             ],
             [
                 "ENST00000364523",
-                "SNORA71.1-201",
                 null,
                 null,
                 "snoRNA",
-                [null],
+                [
+                    null
+                ],
                 "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENST00000364523"
             ]
         ]
@@ -291,11 +333,12 @@
         "expected_result": [
             [
                 "FBgn0003656",
-                "sws",
                 "swiss cheese",
                 null,
                 "protein_coding",
-                ["sws"],
+                [
+                    "sws"
+                ],
                 "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
             ]
         ]
@@ -316,8 +359,21 @@
                 "angiotensin I converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]",
                 "angiotensin I converting enzyme 2",
                 "protein_coding",
-                [null],
+                [
+                    null
+                ],
                 "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000130234"
+            ],
+            [
+                "ENSG00000173653",
+                "RCE1",
+                "Ras converting CAAX endopeptidase 1 [Source:HGNC Symbol;Acc:HGNC:13721]",
+                "Ras converting CAAX endopeptidase 1",
+                "protein_coding",
+                [
+                    "FACE2"
+                ],
+                "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000173653"
             ],
             [
                 "ENSG00000182240",
@@ -325,7 +381,26 @@
                 "beta-secretase 2 [Source:HGNC Symbol;Acc:HGNC:934]",
                 "beta-secretase 2",
                 "protein_coding",
+                [
+                    "AEPLC",
+                    "ALP56",
+                    "CEAP1",
+                    "DRAP"
+                ],
                 "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000182240"
+            ],
+            [
+                "ENSG00000224388",
+                "BACE2-IT1",
+                "BACE2 intronic transcript 1 [Source:HGNC Symbol;Acc:HGNC:16024]",
+                "BACE2 intronic transcript 1",
+                "antisense",
+                [
+                    "C21orf75",
+                    "NCRNA00228",
+                    "PRED43"
+                ],
+                "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000224388"
             ]
         ]
     },
@@ -345,23 +420,29 @@
                 "H3 histone, family 3A, opposite strand [Source:MGI Symbol;Acc:MGI:3802006]",
                 "H3 histone, family 3A, opposite strand",
                 "antisense",
-                ["Gm16067"],
+                [
+                    "Gm16067"
+                ],
                 "https://useast.ensembl.org/mus_musculus/Gene/Summary?g=MGP_DBA2J_G0002730"
             ],
             [
                 "MGP_DBA2J_G0002983",
-                "Dhx58os",
                 "DEAH (Asp-Glu-Ala-His) box polypeptide 58, opposite strand [Source:MGI Symbol;Acc:MGI:3705104]",
                 "DEAH (Asp-Glu-Ala-His) box polypeptide 58, opposite strand",
                 "antisense",
+                [
+                    "Gm11547"
+                ],
                 "https://useast.ensembl.org/mus_musculus/Gene/Summary?g=MGP_DBA2J_G0002983"
             ],
             [
                 "MGP_DBA2J_G0003041",
-                "Notumos",
                 "notum pectinacetylesterase homolog (Drosophila), opposite strand [Source:MGI Symbol;Acc:MGI:3698431]",
                 "notum pectinacetylesterase homolog (Drosophila), opposite strand",
                 "antisense",
+                [
+                    "4732444A12Rik"
+                ],
                 "https://useast.ensembl.org/mus_musculus/Gene/Summary?g=MGP_DBA2J_G0003041"
             ]
         ]
@@ -382,7 +463,9 @@
                 "S-adenosyl-L-methionine-dependent methyltransferases superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839239]",
                 "S-adenosyl-L-methionine-dependent methyltransferases superfamily protein",
                 "protein_coding",
-                ["F6F3.5"],
+                [
+                    "F6F3.5"
+                ],
                 "https://useast.ensembl.org/arabidopsis_thaliana/Gene/Summary?g=AT1G01180"
             ],
             [
@@ -391,14 +474,24 @@
                 "cofactor of nitrate reductase and xanthine dehydrogenase 3 [Source:NCBI gene (formerly Entrezgene);Acc:839445]",
                 "cofactor of nitrate reductase and xanthine dehydrogenase 3",
                 "protein_coding",
+                [
+                    "F6F3.9",
+                    "F6F3_9",
+                    "cofactor of nitrate reductase and xanthine dehydrogenase 3"
+                ],
                 "https://useast.ensembl.org/arabidopsis_thaliana/Gene/Summary?g=AT1G01290"
             ],
             [
                 "AT1G01370",
-                "HTR12",
                 "Histone superfamily protein [Source:NCBI gene (formerly Entrezgene);Acc:839104]",
                 "Histone superfamily protein",
                 "protein_coding",
+                [
+                    "CENH3",
+                    "CENTROMERIC HISTONE H3",
+                    "F6F3.17",
+                    "F6F3_17"
+                ],
                 "https://useast.ensembl.org/arabidopsis_thaliana/Gene/Summary?g=AT1G01370"
             ]
         ]
@@ -418,7 +511,15 @@
                 "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]",
                 "",
                 "protein_coding",
-                ["At2g23380", "F26B6.3", "ICU1", "PIF1", "PIF2", "SDG1", "SET1"],
+                [
+                    "At2g23380",
+                    "F26B6.3",
+                    "ICU1",
+                    "PIF1",
+                    "PIF2",
+                    "SDG1",
+                    "SET1"
+                ],
                 "https://useast.ensembl.org/arabidopsis_thaliana/Gene/Summary?g=AT2G23380"
             ]
         ]
