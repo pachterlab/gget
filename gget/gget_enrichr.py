@@ -213,7 +213,7 @@ def enrichr(
 
     if not r1.ok:
         raise RuntimeError(
-            f"Enrichr HTTP POST gene list response status code: {request_background_id.status_code}. "
+            f"Enrichr HTTP POST gene list response status code: {r1.status_code}. "
             "Please double-check arguments and try again.\n"
         )
 
@@ -276,7 +276,7 @@ def enrichr(
         if background_final:
             raise RuntimeError(
                 f"""
-                Enrichr HTTP GET response status code: {r2.status_code} for genes {genes_clean}, background genes {background_final}, and database {database}\n
+                Enrichr HTTP GET response status code: {r2.status_code} for genes {genes_clean}, background genes {background_list}, and database {database}\n
                 If the input genes are Ensembl IDs, please set argument 'ensembl=True'. (For command-line, add flag [-e][--ensembl].)\n
                 If the background genes are Ensembl IDs, please set argument 'ensembl_bkg=True'. (For command-line, add flag [-e_b][--ensembl_bkg].\n
                 """
