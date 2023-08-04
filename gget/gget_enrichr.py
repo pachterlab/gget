@@ -19,7 +19,7 @@ from matplotlib.ticker import MaxNLocator
 import textwrap
 
 # Custom functions
-from gget.gget_info import info
+from .gget_info import info
 
 from .constants import (
     POST_ENRICHR_URL,
