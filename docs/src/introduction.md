@@ -10,9 +10,8 @@
 `gget` is a free, open-source command-line tool and Python package that enables efficient querying of genomic databases. `gget`  consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.  
 
 
-<img src="https://github.com/pachterlab/gget/blob/main/figures/gget_overview.png?raw=true)" width="150" height="150" style=" float: left" > 
- 
-`gget` currently consists of the following modules:  
+<img src="https://github.com/pachterlab/gget/blob/main/figures/gget_overview.png?raw=true)" width="350" height="250" style=" float: left" > 
+
 | Module        |     Description      |
 |---------------|-------------|
 | [`gget alphafold`](alphafold.md) |    Predict the 3D structure of a protein from its amino acid sequence using a simplified version of [DeepMind](https://www.deepmind.com/)’s [AlphaFold2](https://github.com/deepmind/alphafold). |
