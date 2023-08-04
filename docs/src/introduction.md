@@ -7,9 +7,20 @@
 ![status](https://github.com/lauraluebbert/test_gget_alphafold/workflows/CI_alphafold/badge.svg)
 [![Star on GitHub](https://img.shields.io/github/stars/pachterlab/gget.svg?style=social)](https://github.com/pachterlab/gget/)  
 
-<img src="https://github.com/pachterlab/gget/blob/main/figures/gget_overview.png?raw=true)" width="380" height="300" float= "left"  > 
-<p float="left" text-align=justify>`gget` is a free, open-source command-line tool and Python package that enables efficient querying of genomic databases. `gget`  consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.  </p>
-
+<img src="https://github.com/pachterlab/gget/blob/main/figures/gget_overview.png?raw=true)"  > 
+<p>`gget` is a free, open-source command-line tool and Python package that enables efficient querying of genomic databases. `gget`  consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.  </p>
+  <style>
+    img {
+      float: left;
+      margin: 5px;
+      width: 350;
+      height: 300;
+    }
+    p {
+      text-align: justify;
+      font-size: 25px;
+    }
+  </style>
 | Module        |     Description      |
 |---------------|-------------|
 | [`gget alphafold`](alphafold.md) |    Predict the 3D structure of a protein from its amino acid sequence using a simplified version of [DeepMind](https://www.deepmind.com/)’s [AlphaFold2](https://github.com/deepmind/alphafold). |
