@@ -7,12 +7,12 @@
 ![status](https://github.com/lauraluebbert/test_gget_alphafold/workflows/CI_alphafold/badge.svg)
 [![Star on GitHub](https://img.shields.io/github/stars/pachterlab/gget.svg?style=social)](https://github.com/pachterlab/gget/)  
 
-|<img src="https://github.com/pachterlab/gget/blob/main/figures/gget_overview.png?raw=true)" float= "left" margin= "5px" width= 350px height= 300px> |
-<p text-align=justify>`gget` is a free, open-source command-line tool and Python package that enables efficient querying of genomic databases. `gget`  consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.  </p> |
+<img src="https://github.com/pachterlab/gget/blob/main/figures/gget_overview.png?raw=true)" float= "left" margin= "5px" width= 350px height= 300px> 
+<p text-align=justify>`gget` is a free, open-source command-line tool and Python package that enables efficient querying of genomic databases. `gget`  consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.  </p> 
  
     
-| Module        |     Description      |
-|---------------|-------------|
+| Module        |     Description  |
+|---------------|------------------|
 | [`gget alphafold`](alphafold.md) |    Predict the 3D structure of a protein from its amino acid sequence using a simplified version of [DeepMind](https://www.deepmind.com/)’s [AlphaFold2](https://github.com/deepmind/alphafold). |
 |  [`gget archs4`](archs4.md)   |  Find the most correlated genes to a gene of interest or find the gene's tissue expression atlas using [ARCHS4](https://maayanlab.cloud/archs4/). Archs4 is a resource that provides access to gene and transcript counts uniformly processed from all human and mouse RNA-seq experiments from the Gene Expression Omnibus (GEO) and the Sequence Read Archive (SRA). | 
 |  [`gget blast`](blast.md)   | BLAST a nucleotide or amino acid sequence to any [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi) database.  BLAST finds regions of similarity between biological sequences. The program compares nucleotide or protein sequences to sequence databases and calculates the statistical significance.|
