@@ -32,9 +32,9 @@
         "expected_result": [
             {
                 "ensembl_id": "FBgn0003656",
+                "gene_name": "sws",
                 "ensembl_description": "swiss cheese",
                 "ext_ref_description": null,
-                "gene_name": "sws",
                 "biotype": "protein_coding",
                 "synonym": [
                     "sws"
