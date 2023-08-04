@@ -113,31 +113,51 @@ def enrichr(
     # Define database
     # All available libraries: https://maayanlab.cloud/Enrichr/#libraries
     db_message = f"""
-    Please note that there might a more appropriate database for your application. 
+    Please note that there might be a more appropriate database for your application. 
     Go to https://maayanlab.cloud/Enrichr/#libraries for a full list of supported databases.
     """
-    if verbose:
-        logging.info(
-            f"Performing Enichr analysis using database {database}. " + db_message
-        )
 
     if database == "pathway":
         database = "KEGG_2021_Human"
+        if verbose:
+            logging.info(
+                f"Performing Enichr analysis using database {database}. " + db_message
+            )
 
     elif database == "transcription":
         database = "ChEA_2016"
+        if verbose:
+            logging.info(
+                f"Performing Enichr analysis using database {database}. " + db_message
+            )
 
     elif database == "ontology":
         database = "GO_Biological_Process_2021"
+        if verbose:
+            logging.info(
+                f"Performing Enichr analysis using database {database}. " + db_message
+            )
 
     elif database == "diseases_drugs":
         database = "GWAS_Catalog_2019"
+        if verbose:
+            logging.info(
+                f"Performing Enichr analysis using database {database}. " + db_message
+            )
 
     elif database == "celltypes":
         database = "PanglaoDB_Augmented_2021"
+        if verbose:
+            logging.info(
+                f"Performing Enichr analysis using database {database}. " + db_message
+            )
 
     elif database == "kinase_interactions":
         database = "KEA_2015"
+        if verbose:
+            logging.info(
+                f"Performing Enichr analysis using database {database}. " + db_message
+            )
 
     else:
         database = database
