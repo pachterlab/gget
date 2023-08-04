@@ -161,6 +161,8 @@ def enrichr(
 
     else:
         database = database
+        if verbose:
+            logging.info(f"Performing Enichr analysis using database {database}.")
 
     # If single gene passed as string, convert to list
     if type(genes) == str:
