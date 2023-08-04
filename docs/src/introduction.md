@@ -9,7 +9,7 @@
 
 
 
-<img src="https://github.com/pachterlab/gget/blob/main/figures/gget_overview.png?raw=true)" width="410" height="350" style=" float: left" > `gget` is a free, open-source command-line tool and Python package that enables efficient querying of genomic databases. `gget`  consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.  
+<img src="https://github.com/pachterlab/gget/blob/main/figures/gget_overview.png?raw=true)" width="360" height="350" style=" float: left" > `gget` is a free, open-source command-line tool and Python package that enables efficient querying of genomic databases. `gget`  consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.  
 
 
 | Module        |     Description      |
