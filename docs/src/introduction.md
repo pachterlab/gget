@@ -7,7 +7,7 @@
 ![status](https://github.com/lauraluebbert/test_gget_alphafold/workflows/CI_alphafold/badge.svg)
 [![Star on GitHub](https://img.shields.io/github/stars/pachterlab/gget.svg?style=social)](https://github.com/pachterlab/gget/)  
 
-<img src="https://github.com/pachterlab/gget/blob/main/figures/gget_overview.png?raw=true)" float= "left" margin= "5px" width= 350px height= 300px  flex-direction=column> 
+<img src="https://github.com/pachterlab/gget/blob/main/figures/gget_overview.png?raw=true)" float= "left" margin= "5px" width= 50% height= 50%  flex-direction=column> 
 <p text-align=justify>`gget` is a free, open-source command-line tool and Python package that enables efficient querying of genomic databases. `gget`  consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.  </p> 
  
     
