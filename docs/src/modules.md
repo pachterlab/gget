@@ -14,9 +14,6 @@ Find the genomic location of a nucleotide or amino acid sequence using [BLAT](ht
 - [`gget cellxgene`](cellxgene.md)  
 Query data from [CZ CELLxGENE Discover](https://cellxgene.cziscience.com/) using the [CZ CELLxGENE Discover Census](https://github.com/chanzuckerberg/cellxgene-census).  
 
-- [`gget elm`](elm.md)  
-Fetch functional sites information from [ELM](http://elm.eu.org/) using an amino acid sequence or Uniprot ID.  
-
 - [`gget enrichr`](enrichr.md)  
 Perform an enrichment analysis on a list of genes using [Enrichr](https://maayanlab.cloud/Enrichr/).  
   
