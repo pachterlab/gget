@@ -21,7 +21,7 @@
 <br>
 <br>
 <br>
-<br>
+
 
 | Module |     Description  |
 |:--------------|:------------------|
@@ -40,6 +40,10 @@
   |[`gget seq`](seq.md)  | *Fetch the nucleotide or amino acid sequence(s) of a gene or transcript* from its Ensembl ID.<br>  The nucleotide or amino acid sequences are fetched from [Ensembl](https://www.ensembl.org/) or [UniProt](https://www.uniprot.org/), respectively. <br> `gget seq` can fetch the canonical transcript or all isoforms.
 
 <br>
+
+
+[![gget_alphafold](https://github.com/pachterlab/gget/assets/56094636/a9530cbd-1236-47ea-9573-bc1b1d448fbd 'test')](https://codecademy.com)
+
 
 If you use `gget` in a publication, please [cite*](cite.md):    
 ```
