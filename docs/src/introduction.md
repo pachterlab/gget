@@ -19,30 +19,27 @@
 <br>  
 <br>  
 
-[<img src="https://github.com/pachterlab/gget/assets/56094636/fbeb2662-7e97-47eb-a0eb-e27b68a6f256" width="30%" height="30%" />](alphafold.md)
-[<img src="https://github.com/pachterlab/gget/assets/56094636/feda5cec-89b4-4ebc-83c3-40bab363ca72" width="30%" height="30%" />](archs4.md)
-[<img src="https://github.com/pachterlab/gget/assets/56094636/02336057-bda2-4555-9696-d65789533331" width="30%" height="30%" />](blast.md)  
+[<img src="https://github.com/pachterlab/gget/assets/56094636/e6ea5513-ecbb-4898-a20b-f06fc1f9af5e" width="30%" height="30%" />](alphafold.md)
+[<img src="https://github.com/pachterlab/gget/assets/56094636/d5c4776a-bf58-42eb-afb7-f2ea0e43f216" width="30%" height="30%" />](archs4.md)
+[<img src="https://github.com/pachterlab/gget/assets/56094636/6da309b8-6e6a-468f-b9c8-3562eb0609e0" width="30%" height="30%" />](blast.md)  
 
+[<img src="https://github.com/pachterlab/gget/assets/56094636/eb6402eb-db1f-4cc5-ad77-6bc974090184" width="30%" height="30%" />](blat.md)
+[<img src="https://github.com/pachterlab/gget/assets/56094636/399dee34-9869-4c01-8fd3-4ea561e7a6fd" width="30%" height="30%" />](cellxgene.md)
+[<img src="https://github.com/pachterlab/gget/assets/56094636/c39b45db-ab2e-4187-883d-c4b9169774cc" width="30%" height="30%" />](enrichr.md)  
 
+[<img src="https://github.com/pachterlab/gget/assets/56094636/c56f2a34-29e2-4b23-a307-3b48ada23124" width="30%" height="30%" />](info.md)
+[<img src="https://github.com/pachterlab/gget/assets/56094636/ffe450e2-1fab-43ea-9b3b-fcbc9d209dfa" width="30%" height="30%" />](muscle.md)
+[<img src="https://github.com/pachterlab/gget/assets/56094636/91c355dd-2787-4077-b328-dcffb52cd08d" width="30%" height="30%" />](pdb.md)  
 
+[<img src="https://github.com/pachterlab/gget/assets/56094636/7850a6b5-6fcd-42aa-b0a8-464836002e19" width="30%" height="30%" />](ref.md)
+[<img src="https://github.com/pachterlab/gget/assets/56094636/0bd76b45-0f65-472d-a2ad-475e99112257" width="30%" height="30%" />](search.md)
+[<img src="https://github.com/pachterlab/gget/assets/56094636/1ee0c199-3504-49b9-9c9b-6203f2856e00" width="30%" height="30%" />](seq.md) 
 
+<br>  
 
-| Module |     Description  |
-|:--------------|:------------------|
+### [More tutorials](https://github.com/pachterlab/gget_examples)
 
-| [`gget blat`](blat.md) | *Find the location of a nucleotide or amino acid sequence in a genome* using [BLAT](https://genome.ucsc.edu/cgi-bin/hgBlat). BLAT is designed <br> to quickly find sequences of >95% similarity.  |
-| [`gget cellxgene`](cellxgene.md)   |  *Query single-cell transcriptomics data by tissue, gene, and more* from [CZ CELLxGENE Discover](https://cellxgene.cziscience.com/). <br> [CZ CELLxGENE Discover](https://cellxgene.cziscience.com/) comprises hundreds of standardized data collections and millions of cells <br>  characterizing the functionality of mouse and human tissues. `gget cellxgene` returns an AnnData <br>  object containing the requested count matrix and metadata.|
-| [`gget enrichr`](enrichr.md)  | *Perform an enrichment analysis on a list of target and background genes* using [Enrichr](https://maayanlab.cloud/Enrichr/). Gene set <br> enrichment analysis (GSEA) identifies classes of genes that are over-represented in a large set of<br>  genes or proteins associated with different phenotypes (e.g. cell types, diseases, pathways, etc.). <br> [Enrichr](https://maayanlab.cloud/Enrichr/) facilitates enrichment analysis against a diverse collection of >200 GSEA databases. |
-| [`gget gpt`](gpt.md) | *Generate text based on a text prompt* using [OpenAI](https://openai.com/). |
-|[`gget info`](info.md)  | *Fetch extensive gene and transcript metadata associated with an Ensembl ID* including <br> transcript and isoform information. `gget info` combines data from [Ensembl](https://www.ensembl.org/), [UniProt](https://www.uniprot.org/), <br> and [NCBI](https://www.ncbi.nlm.nih.gov/).  |
-|[`gget muscle`](muscle.md)  | *Align multiple nucleotide or amino acid sequences to each other* using the [Muscle5](https://www.drive5.com/muscle/) algorithm.  <br> [Muscle5](https://www.drive5.com/muscle/)  constructs an ensemble of high-accuracy alignment with diverse biases by perturbing <br> a hidden Markov model and permuting its guide tree.|
- |[`gget pdb`](pdb.md)  | *Get the structure and metadata of a protein* from the [RCSB Protein Data Bank](https://www.rcsb.org/). `gget pdb` returns <br> 3D structure data deposited in the [RCSB PDB](https://www.rcsb.org/) database in Protein Data Bank (PDB) format.
- |[`gget ref`](ref.md)  | *Fetch File Transfer Protocol (FTP) links and metadata for a species' reference genome*  from <br> [Ensembl](https://www.ensembl.org/). `gget ref` will fetch data on the latest genome by default, but also supports the <br> specification of an Ensembl release. It can also download the genome directly.
- |[`gget search`](search.md)   | *Search for genes and transcripts from [Ensembl](https://www.ensembl.org/) using free-form search terms.*  <br>  `gget search` supports fetching data from a specific Ensembl release or database <br> (e.g. different mouse strains).
-  |[`gget seq`](seq.md)  | *Fetch the nucleotide or amino acid sequence(s) of a gene or transcript* from its Ensembl ID.<br>  The nucleotide or amino acid sequences are fetched from [Ensembl](https://www.ensembl.org/) or [UniProt](https://www.uniprot.org/), respectively. <br> `gget seq` can fetch the canonical transcript or all isoforms.
-
-<br>
-
+<br>  
 
 If you use `gget` in a publication, please [cite*](cite.md):    
 ```
