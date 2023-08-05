@@ -13,21 +13,23 @@
   
 `gget` is a free, open-source command-line tool and Python package that enables efficient querying of genomic databases.  
 <br>
-`gget` consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.  
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
+`gget` consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.   
+<br>  
+<br>  
+<br>  
+<br>  
+
+[<img src="https://github.com/pachterlab/gget/assets/56094636/fbeb2662-7e97-47eb-a0eb-e27b68a6f256" width="30%" height="30%" />](alphafold.md)
+[<img src="https://github.com/pachterlab/gget/assets/56094636/feda5cec-89b4-4ebc-83c3-40bab363ca72" width="30%" height="30%" />](archs4.md)
+[<img src="https://github.com/pachterlab/gget/assets/56094636/02336057-bda2-4555-9696-d65789533331" width="30%" height="30%" />](blast.md)  
+
+
+
 
 
 | Module |     Description  |
 |:--------------|:------------------|
-| [`gget alphafold`](alphafold.md) |    *Predict the 3D structure of a protein from its amino acid sequence*  using a simplified version of <br> [DeepMind](https://www.deepmind.com/)’s [AlphaFold2](https://github.com/deepmind/alphafold). |
-|  [`gget archs4`](archs4.md)   |  *Fetch the genes most often co-expressed with a gene of interest* or *fetch a gene's tissue expression<br> atlas* using [ARCHS4](https://maayanlab.cloud/archs4/). Archs4 provides access to gene and transcript counts uniformly processed from <br> all human and mouse RNA-seq experiments from the  Gene Expression Omnibus (GEO) and the<br>  Sequence Read Archive (SRA). | 
-|  [`gget blast`](blast.md)   | *BLAST a nucleotide or amino acid sequence to any [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi) database.* BLAST finds regions of   <br>  similarity between biological sequences. The program compares nucleotide or protein sequences<br> to sequence  databases and calculates the statistical significance.|
+
 | [`gget blat`](blat.md) | *Find the location of a nucleotide or amino acid sequence in a genome* using [BLAT](https://genome.ucsc.edu/cgi-bin/hgBlat). BLAT is designed <br> to quickly find sequences of >95% similarity.  |
 | [`gget cellxgene`](cellxgene.md)   |  *Query single-cell transcriptomics data by tissue, gene, and more* from [CZ CELLxGENE Discover](https://cellxgene.cziscience.com/). <br> [CZ CELLxGENE Discover](https://cellxgene.cziscience.com/) comprises hundreds of standardized data collections and millions of cells <br>  characterizing the functionality of mouse and human tissues. `gget cellxgene` returns an AnnData <br>  object containing the requested count matrix and metadata.|
 | [`gget enrichr`](enrichr.md)  | *Perform an enrichment analysis on a list of target and background genes* using [Enrichr](https://maayanlab.cloud/Enrichr/). Gene set <br> enrichment analysis (GSEA) identifies classes of genes that are over-represented in a large set of<br>  genes or proteins associated with different phenotypes (e.g. cell types, diseases, pathways, etc.). <br> [Enrichr](https://maayanlab.cloud/Enrichr/) facilitates enrichment analysis against a diverse collection of >200 GSEA databases. |
@@ -40,9 +42,6 @@
   |[`gget seq`](seq.md)  | *Fetch the nucleotide or amino acid sequence(s) of a gene or transcript* from its Ensembl ID.<br>  The nucleotide or amino acid sequences are fetched from [Ensembl](https://www.ensembl.org/) or [UniProt](https://www.uniprot.org/), respectively. <br> `gget seq` can fetch the canonical transcript or all isoforms.
 
 <br>
-
-
-[![gget_alphafold](https://github.com/pachterlab/gget/assets/56094636/a9530cbd-1236-47ea-9573-bc1b1d448fbd 'test')](https://codecademy.com)
 
 
 If you use `gget` in a publication, please [cite*](cite.md):    
