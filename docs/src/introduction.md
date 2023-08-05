@@ -7,7 +7,7 @@
 ![status](https://github.com/lauraluebbert/test_gget_alphafold/workflows/CI_alphafold/badge.svg)
 [![Star on GitHub](https://img.shields.io/github/stars/pachterlab/gget.svg?style=social)](https://github.com/pachterlab/gget/)  
 
-<img align="right" width="50%" height="50%" src="https://github.com/pachterlab/gget/assets/56094636/39141e6d-761e-4037-9cb9-a70437f5c06b" />
+[<img align="right" width="50%" height="50%" src="https://github.com/pachterlab/gget/assets/56094636/39141e6d-761e-4037-9cb9-a70437f5c06b" />](https://raw.githubusercontent.com/pachterlab/gget/main/figures/gget_overview.png)
 
   
 # Welcome!
