@@ -1,4 +1,8 @@
 ## ✨ What's new  
+**Version ≥ 0.27.9** (August 7, 2023):  
+- New arguments for [`gget enrichr`](./enrichr.md): Use argument `background_list` to provide a list of background genes
+- [`gget search`](./search.md) now also searches [Ensembl](https://ensembl.org/) synonyms (in addition to gene descriptions and names) to return more comprehensive search results (thanks to [Samuel Klein](https://github.com/KleinSamuel) for the [suggestion](https://github.com/pachterlab/gget/issues/90))
+
 **Version ≥ 0.27.8** (July 12, 2023):  
 - New argument for [`gget search`](./search.md): Specify the Ensembl release from which information is fetched with `-r` `--release`
 - Fixed [bug](https://github.com/pachterlab/gget/issues/91) in [`gget pdb`](./pdb.md) (this bug was introduced in version 0.27.5)
