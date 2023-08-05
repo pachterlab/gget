@@ -11,24 +11,35 @@
   
 # Welcome!
   
-`gget` is a free, open-source command-line tool and Python package that enables efficient querying of genomic databases. `gget` consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.
-    
+`gget` is a free, open-source command-line tool and Python package that enables efficient querying of genomic databases.  
+<br>
+`gget` consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.  
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
 | Module |     Description  |
-|--------------|------------------|
-| [`gget alphafold`](alphafold.md) |    Predict the 3D structure of a protein from its amino acid sequence <br> using a simplified version of [DeepMind](https://www.deepmind.com/)’s [AlphaFold2](https://github.com/deepmind/alphafold). |
-|  [`gget archs4`](archs4.md)   |  Find the most correlated genes to a gene of interest or find the gene's tissue expression <br> atlas using [ARCHS4](https://maayanlab.cloud/archs4/). Archs4 is a resource that provides access to gene and transcript  <br> counts uniformly processed from all human and mouse RNA-seq experiments from the  <br> Gene Expression Omnibus (GEO) and the Sequence Read Archive (SRA). | 
-|  [`gget blast`](blast.md)   | BLAST a nucleotide or amino acid sequence to any [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi) database. BLAST finds regions of   <br>  similarity between biological sequences. The program compares nucleotide or protein  <br> sequences to sequence  databases and calculates the statistical significance.|
-| [`gget blat`](blat.md) | Find the genomic location of a nucleotide or amino acid sequence using [BLAT](https://genome.ucsc.edu/cgi-bin/hgBlat). BLAT on DNA  <br> is designed to quickly find sequences of 95% and greater similarity of length 25 bases or more.  |
-| [`gget cellxgene`](cellxgene.md)   |  Query data from [CZ CELLxGENE Discover](https://cellxgene.cziscience.com/) using the [CZ CELLxGENE Discover Census](https://github.com/chanzuckerberg/cellxgene-census).  <br> Cellxgene is an interactive, performant explorer for single cell transcriptomics data.|
-| [`gget enrichr`](enrichr.md)  | Perform an enrichment analysis on a list of genes using [Enrichr](https://maayanlab.cloud/Enrichr/).  <br> Enrichr is an interactive and collaborative HTML5 gene list enrichment analysis tool.|
-| [`gget gpt`](gpt.md) |Generates text based on a given prompt using the [OpenAI API](https://openai.com/)'s 'openai.ChatCompletion.create' endpoint. |
-|[`gget info`](info.md)  |Fetch extensive gene and transcript metadata from [Ensembl](https://www.ensembl.org/), [UniProt](https://www.uniprot.org/), and [NCBI](https://www.ncbi.nlm.nih.gov/) using Ensembl IDs.  |
-|[`gget muscle`](muscle.md)  | Align multiple nucleotide or amino acid sequences to each other using [Muscle5](https://www.drive5.com/muscle/).  <br> Muscle5 is a novel algorithm which constructs an ensemble of high-accuracy alignment with  <br> diverse biases by perturbing a hidden Markov model and permuting its guide tree.|
- |[`gget pdb`](pdb.md)  | Get the structure and metadata of a protein from the [RCSB Protein Data Bank](https://www.rcsb.org/).  
- |[`gget ref`](ref.md)  | Fetch File Transfer Protocols (FTPs) and metadata for reference genomes  <br> and annotations from [Ensembl](https://www.ensembl.org/) by species.  
- |[`gget search`](search.md)   | Fetch genes and transcripts from [Ensembl](https://www.ensembl.org/) using free-form search terms.  
-  [`gget setup`](setup.md)  |Helper module to install/download third-party dependencies for a specified gget module.  
-  |[`gget seq`](seq.md)  |Fetch nucleotide or amino acid sequences of genes or transcripts from [Ensembl](https://www.ensembl.org/) or [UniProt](https://www.uniprot.org/), respectively.  
+|:--------------|:------------------|
+| [`gget alphafold`](alphafold.md) |    *Predict the 3D structure of a protein from its amino acid sequence*  using a simplified version of <br> [DeepMind](https://www.deepmind.com/)’s [AlphaFold2](https://github.com/deepmind/alphafold). |
+|  [`gget archs4`](archs4.md)   |  *Fetch the genes most often co-expressed with a gene of interest* or *fetch a gene's tissue expression<br> atlas* using [ARCHS4](https://maayanlab.cloud/archs4/). Archs4 provides access to gene and transcript counts uniformly processed from <br> all human and mouse RNA-seq experiments from the  Gene Expression Omnibus (GEO) and the<br>  Sequence Read Archive (SRA). | 
+|  [`gget blast`](blast.md)   | *BLAST a nucleotide or amino acid sequence to any [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi) database.* BLAST finds regions of   <br>  similarity between biological sequences. The program compares nucleotide or protein sequences<br> to sequence  databases and calculates the statistical significance.|
+| [`gget blat`](blat.md) | *Find the location of a nucleotide or amino acid sequence in a genome* using [BLAT](https://genome.ucsc.edu/cgi-bin/hgBlat). BLAT is designed <br> to quickly find sequences of >95% similarity.  |
+| [`gget cellxgene`](cellxgene.md)   |  *Query single-cell transcriptomics data by tissue, gene, and more* from [CZ CELLxGENE Discover](https://cellxgene.cziscience.com/). <br> [CZ CELLxGENE Discover](https://cellxgene.cziscience.com/) comprises hundreds of standardized data collections and millions of cells <br>  characterizing the functionality of mouse and human tissues. `gget cellxgene` returns an AnnData <br>  object containing the requested count matrix and metadata.|
+| [`gget enrichr`](enrichr.md)  | *Perform an enrichment analysis on a list of target and background genes* using [Enrichr](https://maayanlab.cloud/Enrichr/). Gene set <br> enrichment analysis (GSEA) identifies classes of genes that are over-represented in a large set of<br>  genes or proteins associated with different phenotypes (e.g. cell types, diseases, pathways, etc.). <br> [Enrichr](https://maayanlab.cloud/Enrichr/) facilitates enrichment analysis against a diverse collection of >200 GSEA databases. |
+| [`gget gpt`](gpt.md) | *Generate text based on a text prompt* using [OpenAI](https://openai.com/). |
+|[`gget info`](info.md)  | *Fetch extensive gene and transcript metadata associated with an Ensembl ID* including <br> transcript and isoform information. `gget info` combines data from [Ensembl](https://www.ensembl.org/), [UniProt](https://www.uniprot.org/), <br> and [NCBI](https://www.ncbi.nlm.nih.gov/).  |
+|[`gget muscle`](muscle.md)  | *Align multiple nucleotide or amino acid sequences to each other* using the [Muscle5](https://www.drive5.com/muscle/) algorithm.  <br> [Muscle5](https://www.drive5.com/muscle/)  constructs an ensemble of high-accuracy alignment with diverse biases by perturbing <br> a hidden Markov model and permuting its guide tree.|
+ |[`gget pdb`](pdb.md)  | *Get the structure and metadata of a protein* from the [RCSB Protein Data Bank](https://www.rcsb.org/). `gget pdb` returns <br> 3D structure data deposited in the [RCSB PDB](https://www.rcsb.org/) database in Protein Data Bank (PDB) format.
+ |[`gget ref`](ref.md)  | *Fetch File Transfer Protocol (FTP) links and metadata for a species' reference genome*  from <br> [Ensembl](https://www.ensembl.org/). `gget ref` will fetch data on the latest genome by default, but also supports the <br> specification of an Ensembl release. It can also download the genome directly.
+ |[`gget search`](search.md)   | *Search for genes and transcripts from [Ensembl](https://www.ensembl.org/) using free-form search terms.*  <br>  `gget search` supports fetching data from a specific Ensembl release or database <br> (e.g. different mouse strains).
+  |[`gget seq`](seq.md)  | *Fetch the nucleotide or amino acid sequence(s) of a gene or transcript* from its Ensembl ID.<br>  The nucleotide or amino acid sequences are fetched from [Ensembl](https://www.ensembl.org/) or [UniProt](https://www.uniprot.org/), respectively. <br> `gget seq` can fetch the canonical transcript or all isoforms.
+
+<br>
 
 If you use `gget` in a publication, please [cite*](cite.md):    
 ```
@@ -36,9 +47,6 @@ Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference data
 ```
 Read the article here: [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
 
-<br>
-<br>
-<br>
 <br>
 <br>
 
