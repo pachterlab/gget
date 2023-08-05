@@ -1,7 +1,7 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
 ## gget search 🔎
 Fetch genes and transcripts from [Ensembl](https://www.ensembl.org/) using free-form search terms.   
-Note: Only returns results based on matches in the "gene name" or "description" sections in the Ensembl database.  
+Results are matched based on the "gene name" and "description" sections in the Ensembl database. `gget` version >= 0.27.9 also includes results that match the Ensembl "synonym" section.  
 Return format: JSON (command-line) or data frame/CSV (Python).
 
 **Positional argument**
