@@ -16,13 +16,13 @@
 `gget` consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.   
 <br>
 
-[<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_alphafold.png?raw=true" width="30%" height="30%" />](alphafold.md)
-[<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_archs4.png?raw=true" width="30%" height="30%" />](archs4.md)
-[<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_blast.png?raw=true" width="30%" height="30%" />](blast.md)  
+[<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_alphafold.png?raw=true" width="35%" height="35%" />](alphafold.md)
+[<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_archs4.png?raw=true" width="35%" height="35%" />](archs4.md)
+[<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_blast.png?raw=true" width="35%" height="35%" />](blast.md)  
 
-[<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_blat.png?raw=true" width="30%" height="30%" />](blat.md)
-[<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_cellxgene.png?raw=true" width="30%" height="30%" />](cellxgene.md)
-[<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_enrichr.png?raw=true" width="30%" height="30%" />](enrichr.md)  
+[<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_blat.png?raw=true" width="35%" height="35%" />](blat.md)
+[<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_cellxgene.png?raw=true" width="35%" height="35%" />](cellxgene.md)
+[<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_enrichr.png?raw=true" width="35%" height="35%" />](enrichr.md)  
 
 [<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_info.png?raw=true" width="30%" height="30%" />](info.md)
 [<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_muscle.png?raw=true" width="30%" height="30%" />](muscle.md)
