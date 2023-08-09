@@ -117,7 +117,7 @@ def enrichr(
     Go to https://maayanlab.cloud/Enrichr/#libraries for a full list of supported databases.
     """
     if not (type(background) == bool):
-        logging.error(f"Background must be a boolean True/False. If you are adding a background list, use the argument --background_list instead.")
+        raise RuntimeError(f"Background must be a boolean True/False. If you are adding a background list, use the argument --background_list instead.")
 
     if database == "pathway":
         database = "KEGG_2021_Human"
