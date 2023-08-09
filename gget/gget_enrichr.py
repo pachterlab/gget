@@ -117,7 +117,7 @@ def enrichr(
     Go to https://maayanlab.cloud/Enrichr/#libraries for a full list of supported databases.
     """
     if not (type(background) == bool):
-        raise RuntimeError(f"Background must be a boolean True/False. If you are adding a background list, use the argument --background_list instead.")
+        raise ValueError(f"Argument`background` must be a boolean True/False. If you are adding a background list, use the argument `background_list` instead.")
 
     if database == "pathway":
         database = "KEGG_2021_Human"
@@ -228,7 +228,8 @@ def enrichr(
 
     # If user gives a background list, use the user input instead of the default
     if background_list:
-        logging.info("Enrichment analysis will be using your user input background list")
+        if verbose:
+            logging.info(f"Performing Enichr analysis using user-defined background gene list.")
 
         if background:
             logging.warning(
