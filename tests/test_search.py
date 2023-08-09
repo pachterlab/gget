@@ -28,7 +28,7 @@ class TestSearch(unittest.TestCase):
         if isinstance(result_to_test, pd.DataFrame):
             result_to_test = result_to_test.values.tolist()
 
-        self.assertListEqual(result_to_test, expected_result)
+        self.assertEqual(result_to_test, expected_result)
 
     def test_search_gene_two_sw_or(self):
         test = "test3"
