@@ -230,55 +230,356 @@
             "ens_ids": "EnsMUSG00000000001"
         },
         "expected_result": [
-            [
-                "EnsMUSG00000000001.5",
-                "Q9DC51",
-                "14679",
-                "mus_musculus",
-                "GRCm39",
-                "Gnai3",
-                "Gnai3",
-                [
-                    "Galphai3",
-                    "Gnai-3",
-                    "Hg1a"
+            {
+                "rcsb_id": "A4ZKE4",
+                "rcsb_uniprot_container_identifiers": {
+                    "uniprot_id": "A4ZKE4"
+                },
+                "rcsb_uniprot_accession": [
+                    "A4ZKE4"
                 ],
-                "Guanine nucleotide-binding protein G(i) subunit alpha-3",
-                "guanine nucleotide binding protein (G protein), alpha inhibiting 3 [Source:MGI Symbol;Acc:MGI:95773]",
-                "Heterotrimeric guanine nucleotide-binding proteins (G proteins) function as transducers downstream of G protein-coupled receptors (GPCRs) in numerous signaling cascades. The alpha chain contains the guanine nucleotide binding site and alternates between an active, GTP-bound state and an inactive, GDP-bound state. Signaling by an activated GPCR promotes GDP release and GTP binding. The alpha subunit has a low GTPase activity that converts bound GTP to GDP, thereby terminating the signal. Both GDP release and GTP hydrolysis are modulated by numerous regulatory proteins. Signaling is mediated via effector proteins, such as adenylate cyclase. Inhibits adenylate cyclase activity, leading to decreased intracellular cAMP levels. Stimulates the activity of receptor-regulated K(+) channels. The active GTP-bound form prevents the association of RGS14 with centrosomes and is required for the translocation of RGS14 from the cytoplasm to the plasma membrane. May play a role in cell division",
-                "Predicted to enable several functions, including G-protein beta/gamma-subunit complex binding activity; GDP binding activity; and GTPase activating protein binding activity. Predicted to be involved in several processes, including positive regulation of NAD(P)H oxidase activity; positive regulation of superoxide anion generation; and positive regulation of vascular associated smooth muscle cell proliferation. Predicted to act upstream of or within G protein-coupled receptor signaling pathway. Located in Golgi apparatus. Is expressed in early conceptus; inner ear; and oocyte. Orthologous to human GNAI3 (G protein subunit alpha i3). [provided by Alliance of Genome Resources, Apr 2022]",
-                [
-                    "Cytoplasm",
-                    "Cell membrane",
-                    "Cytoplasm, cytoskeleton, microtubule organizing center, centrosome"
+                "rcsb_uniprot_entry_name": [
+                    "A4ZKE4_COFCA"
                 ],
-                "Gene",
-                "protein_coding",
-                "ENSMUST00000000001.5",
-                "3",
-                -1,
-                108014596,
-                108053462,
-                [
-                    "ENSMUST00000000001.5"
+                "rcsb_uniprot_keyword": [
+                    {
+                        "id": "KW-0002",
+                        "value": "3D-structure"
+                    },
+                    {
+                        "id": "KW-0808",
+                        "value": "Transferase"
+                    }
                 ],
-                [
-                    "protein_coding"
-                ],
-                [
-                    "Gnai3-201"
-                ],
-                [
-                    -1
-                ],
-                [
-                    108014596
-                ],
-                [
-                    108053462
+                "rcsb_uniprot_protein": {
+                    "sequence": "MKIEVKESTMVRPAQETPGRNLWNSNVDLVVPNFHTPSVYFYRPTGSSNFFDAKVLKDALSRALVPFYPMAGRLKRDEDGRIEIECNGEGVLFVEAESDGVVDDFGDFAPTLELRRLIPAVDYSQGISSYALLVLQVTYFKCGGVSLGVGMRHHAADGFSGLHFINSWSDMARGLDVTLPPFIDRTLLRARDPPQPQFQHIEYQPPPALKVSPQTAKSDSVPETAVSIFKLTREQISALKAKSKEDGNTISYSSYEMLAGHVWRCACKARGLEVDQGTKLYIATDGRARLRPSLPPGYFGNVIFTATPIAIAGDLEFKPVWYAASKIHDALARMDNDYLRSALDYLELQPDLKALVRGAHTFKCPNLGITSWVRLPIHDADFGWGRPIFMGPGGIAYEGLSFILPSPTNDGSMSVAISLQGEHMKLFQSFLYDI",
+                    "name": {
+                        "value": "Hydroxycinnamoyl-CoA shikimate/quinate hydroxycinnamoyltransferase",
+                        "provenullce_code": "up:Protein.up:submittedName.up:fullName"
+                    },
+                    "source_organism": {
+                        "scientific_name": "Coffea canephora",
+                        "taxonomy_id": 49390,
+                        "provenullce_code": "up:organism"
+                    }
+                },
+                "rcsb_uniprot_annotation": [
+                    {
+                        "annotation_id": "IPR023213",
+                        "name": "Chloramphenicol acetyltransferase-like domain superfamily",
+                        "provenullce_source": "UNIPROT",
+                        "type": "InterPro",
+                        "annotation_lineage": [
+                            {
+                                "id": "IPR023213",
+                                "name": "Chloramphenicol acetyltransferase-like domain superfamily"
+                            }
+                        ],
+                        "additional_properties": [
+                            {
+                                "name": "INTERPRO_TYPE",
+                                "values": [
+                                    "Homologous_superfamily"
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "annotation_id": "GO:0009809",
+                        "name": "lignin biosynthetic process",
+                        "provenullce_source": "UNIPROT",
+                        "type": "GO",
+                        "annotation_lineage": [
+                            {
+                                "id": "GO:0009698",
+                                "name": "phenylpropanoid metabolic process"
+                            },
+                            {
+                                "id": "GO:0044249",
+                                "name": "cellular biosynthetic process"
+                            },
+                            {
+                                "id": "GO:0044237",
+                                "name": "cellular metabolic process"
+                            },
+                            {
+                                "id": "GO:0009699",
+                                "name": "phenylpropanoid biosynthetic process"
+                            },
+                            {
+                                "id": "GO:0009808",
+                                "name": "lignin metabolic process"
+                            },
+                            {
+                                "id": "GO:0019748",
+                                "name": "secondary metabolic process"
+                            },
+                            {
+                                "id": "GO:1901360",
+                                "name": "organic cyclic compound metabolic process"
+                            },
+                            {
+                                "id": "GO:0071704",
+                                "name": "organic substance metabolic process"
+                            },
+                            {
+                                "id": "GO:0009058",
+                                "name": "biosynthetic process"
+                            },
+                            {
+                                "id": "GO:0044550",
+                                "name": "secondary metabolite biosynthetic process"
+                            },
+                            {
+                                "id": "GO:0019438",
+                                "name": "aromatic compound biosynthetic process"
+                            },
+                            {
+                                "id": "GO:1901362",
+                                "name": "organic cyclic compound biosynthetic process"
+                            },
+                            {
+                                "id": "GO:1901576",
+                                "name": "organic substance biosynthetic process"
+                            },
+                            {
+                                "id": "GO:0008150",
+                                "name": "biological_process"
+                            },
+                            {
+                                "id": "GO:0008152",
+                                "name": "metabolic process"
+                            },
+                            {
+                                "id": "GO:0009987",
+                                "name": "cellular process"
+                            },
+                            {
+                                "id": "GO:0009809",
+                                "name": "lignin biosynthetic process"
+                            },
+                            {
+                                "id": "GO:0006725",
+                                "name": "cellular aromatic compound metabolic process"
+                            }
+                        ]
+                    },
+                    {
+                        "annotation_id": "GO:0016020",
+                        "name": "membrane",
+                        "provenullce_source": "UNIPROT",
+                        "type": "GO",
+                        "annotation_lineage": [
+                            {
+                                "id": "GO:0005575",
+                                "name": "cellular_component"
+                            },
+                            {
+                                "id": "GO:0016020",
+                                "name": "membrane"
+                            },
+                            {
+                                "id": "GO:0110165",
+                                "name": "cellular anatomical entity"
+                            }
+                        ]
+                    },
+                    {
+                        "annotation_id": "GO:0005737",
+                        "name": "cytoplasm",
+                        "provenullce_source": "UNIPROT",
+                        "type": "GO",
+                        "annotation_lineage": [
+                            {
+                                "id": "GO:0005575",
+                                "name": "cellular_component"
+                            },
+                            {
+                                "id": "GO:0005622",
+                                "name": "intracellular anatomical structure"
+                            },
+                            {
+                                "id": "GO:0005737",
+                                "name": "cytoplasm"
+                            },
+                            {
+                                "id": "GO:0110165",
+                                "name": "cellular anatomical entity"
+                            }
+                        ]
+                    },
+                    {
+                        "annotation_id": "GO:0009963",
+                        "name": "positive regulation of flavonoid biosynthetic process",
+                        "provenullce_source": "UNIPROT",
+                        "type": "GO",
+                        "annotation_lineage": [
+                            {
+                                "id": "GO:0009889",
+                                "name": "regulation of biosynthetic process"
+                            },
+                            {
+                                "id": "GO:0050789",
+                                "name": "regulation of biological process"
+                            },
+                            {
+                                "id": "GO:0009812",
+                                "name": "flavonoid metabolic process"
+                            },
+                            {
+                                "id": "GO:0065007",
+                                "name": "biological regulation"
+                            },
+                            {
+                                "id": "GO:0048518",
+                                "name": "positive regulation of biological process"
+                            },
+                            {
+                                "id": "GO:0044238",
+                                "name": "primary metabolic process"
+                            },
+                            {
+                                "id": "GO:0080090",
+                                "name": "regulation of primary metabolic process"
+                            },
+                            {
+                                "id": "GO:0009893",
+                                "name": "positive regulation of metabolic process"
+                            },
+                            {
+                                "id": "GO:0009962",
+                                "name": "regulation of flavonoid biosynthetic process"
+                            },
+                            {
+                                "id": "GO:0071704",
+                                "name": "organic substance metabolic process"
+                            },
+                            {
+                                "id": "GO:0009058",
+                                "name": "biosynthetic process"
+                            },
+                            {
+                                "id": "GO:0009813",
+                                "name": "flavonoid biosynthetic process"
+                            },
+                            {
+                                "id": "GO:0009891",
+                                "name": "positive regulation of biosynthetic process"
+                            },
+                            {
+                                "id": "GO:0009963",
+                                "name": "positive regulation of flavonoid biosynthetic process"
+                            },
+                            {
+                                "id": "GO:1901576",
+                                "name": "organic substance biosynthetic process"
+                            },
+                            {
+                                "id": "GO:0008150",
+                                "name": "biological_process"
+                            },
+                            {
+                                "id": "GO:0008152",
+                                "name": "metabolic process"
+                            },
+                            {
+                                "id": "GO:0019222",
+                                "name": "regulation of metabolic process"
+                            }
+                        ]
+                    },
+                    {
+                        "annotation_id": "GO:0047205",
+                        "name": "quinate O-hydroxycinnamoyltransferase activity",
+                        "provenullce_source": "UNIPROT",
+                        "type": "GO",
+                        "annotation_lineage": [
+                            {
+                                "id": "GO:0050734",
+                                "name": "hydroxycinnamoyltransferase activity"
+                            },
+                            {
+                                "id": "GO:0050737",
+                                "name": "O-hydroxycinnamoyltransferase activity"
+                            },
+                            {
+                                "id": "GO:0047205",
+                                "name": "quinate O-hydroxycinnamoyltransferase activity"
+                            },
+                            {
+                                "id": "GO:0008374",
+                                "name": "O-acyltransferase activity"
+                            },
+                            {
+                                "id": "GO:0016746",
+                                "name": "acyltransferase activity"
+                            },
+                            {
+                                "id": "GO:0016747",
+                                "name": "acyltransferase activity, transferring groups other than amino-acyl groups"
+                            },
+                            {
+                                "id": "GO:0016740",
+                                "name": "transferase activity"
+                            },
+                            {
+                                "id": "GO:0003824",
+                                "name": "catalytic activity"
+                            },
+                            {
+                                "id": "GO:0003674",
+                                "name": "molecular_function"
+                            }
+                        ]
+                    },
+                    {
+                        "annotation_id": "GO:0047172",
+                        "name": "shikimate O-hydroxycinnamoyltransferase activity",
+                        "provenullce_source": "UNIPROT",
+                        "type": "GO",
+                        "annotation_lineage": [
+                            {
+                                "id": "GO:0050734",
+                                "name": "hydroxycinnamoyltransferase activity"
+                            },
+                            {
+                                "id": "GO:0050737",
+                                "name": "O-hydroxycinnamoyltransferase activity"
+                            },
+                            {
+                                "id": "GO:0008374",
+                                "name": "O-acyltransferase activity"
+                            },
+                            {
+                                "id": "GO:0016746",
+                                "name": "acyltransferase activity"
+                            },
+                            {
+                                "id": "GO:0016747",
+                                "name": "acyltransferase activity, transferring groups other than amino-acyl groups"
+                            },
+                            {
+                                "id": "GO:0016740",
+                                "name": "transferase activity"
+                            },
+                            {
+                                "id": "GO:0003824",
+                                "name": "catalytic activity"
+                            },
+                            {
+                                "id": "GO:0003674",
+                                "name": "molecular_function"
+                            },
+                            {
+                                "id": "GO:0047172",
+                                "name": "shikimate O-hydroxycinnamoyltransferase activity"
+                            }
+                        ]
+                    }
                 ]
-            ]
+            }
         ]
+        
     },
     "test5": {
         "type": "assert_equal",
@@ -818,8 +1119,6 @@
                     "7xwa",
                     "7y1y",
                     "7y1z",
-                    "7y20",
-                    "7y21",
                     "7y75",
                     "7y76",
                     "7y9z",
@@ -864,7 +1163,7 @@
                 "ACE2",
                 [
                     "ACEH"
-                ], null,
+                ],
                 "Angiotensin-converting enzyme 2",
                 "angiotensin converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]",
                 "(Microbial infection) Acts as a receptor for human coronaviruses SARS-CoV and SARS-CoV-2, as well as human coronavirus NL63/HCoV-NL63 (Microbial infection) Non-functional as a receptor for human coronavirus SARS-CoV-2 Essential counter-regulatory carboxypeptidase of the renin-angiotensin hormone system that is a critical regulator of blood volume, systemic vascular resistance, and thus cardiovascular homeostasis (PubMed:27217402). Converts angiotensin I to angiotensin 1-9, a nine-amino acid peptide with anti-hypertrophic effects in cardiomyocytes, and angiotensin II to angiotensin 1-7, which then acts as a beneficial vasodilator and anti-proliferation agent, counterbalancing the actions of the vasoconstrictor angiotensin II (PubMed:10969042, PubMed:10924499, PubMed:11815627, PubMed:19021774, PubMed:14504186). Also removes the C-terminal residue from three other vasoactive peptides, neurotensin, kinetensin, and des-Arg bradykinin, but is not active on bradykinin (PubMed:10969042, PubMed:11815627). Also cleaves other biological peptides, such as apelins (apelin-13, [Pyr1]apelin-13, apelin-17, apelin-36), casomorphins (beta-casomorphin-7, neocasomorphin) and dynorphin A with high efficiency (PubMed:11815627, PubMed:27217402, PubMed:28293165). In addition, ACE2 C-terminus is homologous to collectrin and is responsible for the trafficking of the neutral amino acid transporter SL6A19 to the plasma membrane of gut epithelial cells via direct interaction, regulating its expression on the cell surface and its catalytic activity (PubMed:18424768, PubMed:19185582) Non-functional as a carboxypeptidase",
@@ -961,7 +1260,7 @@
                     15600960,
                     15566287,
                     15566709
-                ], null, null, null, null, null, null
+                ]
             ]
         ]
     },
