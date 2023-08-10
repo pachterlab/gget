@@ -12,6 +12,7 @@ from .gget_setup import setup
 from .gget_pdb import pdb
 from .gget_gpt import gpt
 from .gget_cellxgene import cellxgene
+from .gget_elm import elm
 
 import logging
 logging.basicConfig(
