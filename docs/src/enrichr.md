@@ -20,9 +20,9 @@ Supports any database listed [here](https://maayanlab.cloud/Enrichr/#libraries) 
 'kinase_interactions'   (KEA_2015)  
   
 **Optional arguments**  
-`-bkg_l` `--background_list`
-Short names (gene symbols) of background genes to perform enrichment analysis on, e.g. PHF14 RBM3 MSL1 PHF21A.  
-Alternatively: use flag `--ensembl_background` to input a list of Ensembl gene IDs, e.g. ENSG00000106443 ENSG00000102317 ENSG00000188895.
+`-bkg_l` `--background_list`  
+Short names (gene symbols) of background genes to perform enrichment analysis on, e.g. NSUN3 POLRMT NLRX1.  
+Alternatively: use flag `--ensembl_background` to input a list of Ensembl gene IDs.
 
 `-o` `--out`   
 Path to the file the results will be saved in, e.g. path/to/directory/results.csv (or .json). Default: Standard out.   
@@ -36,14 +36,14 @@ Python only. Pass a matplotlib axes object for plot customization. (Default: Non
 
   
 **Flags**  
-`-e` `--ensembl`  
-Add this flag if `genes` are given as Ensembl gene IDs. 
+`-e` `--ensembl`   
+Add this flag if `genes` are given as Ensembl gene IDs.
 
 `-e_b` `--ensembl_background`  
-Add this flag if `background_list` are given as Ensembl gene IDs. 
+Add this flag if `background_list` are given as Ensembl gene IDs.
 
-`-bkg` `--background`
-If True, use set of 20,625 default background genes from https://maayanlab.cloud/Enrichr/. (Default: False)
+`-bkg` `--background`  
+If True, use set of 20,625 default background genes from https://maayanlab.cloud/Enrichr/.
  
 `-csv` `--csv`  
 Command-line only. Returns results in CSV format.  
@@ -71,6 +71,7 @@ gget.enrichr(["ACE2", "AGT", "AGTR1"], database="ontology", plot=True)
 
 <br/><br/>
 
+**Use `gget enrichr` with a background gene list:**  
 ```bash
 # Here, we are passing the input genes first (positional argument 'genes'), so they are not added to the background gene list behind the '-bkgr_l' argument
 gget enrichr \
@@ -123,7 +124,8 @@ gget.enrichr(
 <br/><br/>
 
 The following example was submitted by [Dylan Lawless](https://github.com/DylanLawless) via [PR](https://github.com/pachterlab/gget/pull/54) (with slight adjustments by [Laura Luebbert](https://github.com/lauraluebbert)):  
-**Use `gget enrichr` in R and create a similar plot using [ggplot](https://ggplot2.tidyverse.org/reference/ggplot.html).** NOTE the switch of axes compared to the Python plot.  
+**Use `gget enrichr` in R and create a similar plot using [ggplot](https://ggplot2.tidyverse.org/reference/ggplot.html).**  
+NOTE the switch of axes compared to the Python plot.  
 ```r
 system("pip install gget")
 install.packages("reticulate")

@@ -19,7 +19,7 @@ from matplotlib.ticker import MaxNLocator
 import textwrap
 
 # Custom functions
-from gget.gget_info import info
+from .gget_info import info
 
 from .constants import (
     POST_ENRICHR_URL,
@@ -113,34 +113,56 @@ def enrichr(
     # Define database
     # All available libraries: https://maayanlab.cloud/Enrichr/#libraries
     db_message = f"""
-    Please note that there might a more appropriate database for your application. 
+    Please note that there might be a more appropriate database for your application. 
     Go to https://maayanlab.cloud/Enrichr/#libraries for a full list of supported databases.
     """
-    if verbose:
-        logging.info(
-            f"Performing Enichr analysis using database {database}. " + db_message
-        )
 
     if database == "pathway":
         database = "KEGG_2021_Human"
+        if verbose:
+            logging.info(
+                f"Performing Enichr analysis using database {database}. " + db_message
+            )
 
     elif database == "transcription":
         database = "ChEA_2016"
+        if verbose:
+            logging.info(
+                f"Performing Enichr analysis using database {database}. " + db_message
+            )
 
     elif database == "ontology":
         database = "GO_Biological_Process_2021"
+        if verbose:
+            logging.info(
+                f"Performing Enichr analysis using database {database}. " + db_message
+            )
 
     elif database == "diseases_drugs":
         database = "GWAS_Catalog_2019"
+        if verbose:
+            logging.info(
+                f"Performing Enichr analysis using database {database}. " + db_message
+            )
 
     elif database == "celltypes":
         database = "PanglaoDB_Augmented_2021"
+        if verbose:
+            logging.info(
+                f"Performing Enichr analysis using database {database}. " + db_message
+            )
 
     elif database == "kinase_interactions":
         database = "KEA_2015"
+        if verbose:
+            logging.info(
+                f"Performing Enichr analysis using database {database}. " + db_message
+            )
 
     else:
         database = database
+        if verbose:
+            logging.info(f"Performing Enichr analysis using database {database}.")
 
     # If single gene passed as string, convert to list
     if type(genes) == str:
@@ -191,7 +213,7 @@ def enrichr(
 
     if not r1.ok:
         raise RuntimeError(
-            f"Enrichr HTTP POST gene list response status code: {request_background_id.status_code}. "
+            f"Enrichr HTTP POST gene list response status code: {r1.status_code}. "
             "Please double-check arguments and try again.\n"
         )
 
@@ -254,7 +276,7 @@ def enrichr(
         if background_final:
             raise RuntimeError(
                 f"""
-                Enrichr HTTP GET response status code: {r2.status_code} for genes {genes_clean}, background genes {background_final}, and database {database}\n
+                Enrichr HTTP GET response status code: {r2.status_code} for genes {genes_clean}, background genes {background_list}, and database {database}\n
                 If the input genes are Ensembl IDs, please set argument 'ensembl=True'. (For command-line, add flag [-e][--ensembl].)\n
                 If the background genes are Ensembl IDs, please set argument 'ensembl_bkg=True'. (For command-line, add flag [-e_b][--ensembl_bkg].\n
                 """
