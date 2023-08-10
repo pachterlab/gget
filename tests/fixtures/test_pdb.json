@@ -327,8 +327,7 @@
             "resource": "uniprot",
             "identifier": 1
         },
-        "expected_result":
-        [
+        "expected_result": [
             {
                 "rcsb_id": "A4ZKE4",
                 "rcsb_uniprot_container_identifiers": {
@@ -354,163 +353,39 @@
                     "sequence": "MKIEVKESTMVRPAQETPGRNLWNSNVDLVVPNFHTPSVYFYRPTGSSNFFDAKVLKDALSRALVPFYPMAGRLKRDEDGRIEIECNGEGVLFVEAESDGVVDDFGDFAPTLELRRLIPAVDYSQGISSYALLVLQVTYFKCGGVSLGVGMRHHAADGFSGLHFINSWSDMARGLDVTLPPFIDRTLLRARDPPQPQFQHIEYQPPPALKVSPQTAKSDSVPETAVSIFKLTREQISALKAKSKEDGNTISYSSYEMLAGHVWRCACKARGLEVDQGTKLYIATDGRARLRPSLPPGYFGNVIFTATPIAIAGDLEFKPVWYAASKIHDALARMDNDYLRSALDYLELQPDLKALVRGAHTFKCPNLGITSWVRLPIHDADFGWGRPIFMGPGGIAYEGLSFILPSPTNDGSMSVAISLQGEHMKLFQSFLYDI",
                     "name": {
                         "value": "Hydroxycinnamoyl-CoA shikimate/quinate hydroxycinnamoyltransferase",
-                        "provenance_code": "up:Protein.up:submittedName.up:fullName"
+                        "provenullce_code": "up:Protein.up:submittedName.up:fullName"
                     },
                     "source_organism": {
                         "scientific_name": "Coffea canephora",
                         "taxonomy_id": 49390,
-                        "provenance_code": "up:organism"
+                        "provenullce_code": "up:organism"
                     }
                 },
                 "rcsb_uniprot_annotation": [
                     {
                         "annotation_id": "IPR023213",
                         "name": "Chloramphenicol acetyltransferase-like domain superfamily",
-                        "provenance_source": "UNIPROT",
-                        "type": "GO",
+                        "provenullce_source": "UNIPROT",
+                        "type": "InterPro",
                         "annotation_lineage": [
                             {
-                                "id": "GO:0050734",
-                                "name": "hydroxycinnamoyltransferase activity"
-                            },
+                                "id": "IPR023213",
+                                "name": "Chloramphenicol acetyltransferase-like domain superfamily"
+                            }
+                        ],
+                        "additional_properties": [
                             {
-                                "id": "GO:0050737",
-                                "name": "O-hydroxycinnamoyltransferase activity"
-                            },
-                            {
-                                "id": "GO:0008374",
-                                "name": "O-acyltransferase activity"
-                            },
-                            {
-                                "id": "GO:0016746",
-                                "name": "acyltransferase activity"
-                            },
-                            {
-                                "id": "GO:0016747",
-                                "name": "acyltransferase activity, transferring groups other than amino-acyl groups"
-                            },
-                            {
-                                "id": "GO:0016740",
-                                "name": "transferase activity"
-                            },
-                            {
-                                "id": "GO:0003824",
-                                "name": "catalytic activity"
-                            },
-                            {
-                                "id": "GO:0003674",
-                                "name": "molecular_function"
-                            },
-                            {
-                                "id": "GO:0047172",
-                                "name": "shikimate O-hydroxycinnamoyltransferase activity"
+                                "name": "INTERPRO_TYPE",
+                                "values": [
+                                    "Homologous_superfamily"
+                                ]
                             }
                         ]
                     },
                     {
                         "annotation_id": "GO:0009809",
                         "name": "lignin biosynthetic process",
-                        "provenance_source": "UNIPROT",
-                        "type": "GO",
-                        "annotation_lineage": [
-                            {
-                                "id": "GO:0009889",
-                                "name": "regulation of biosynthetic process"
-                            },
-                            {
-                                "id": "GO:0050789",
-                                "name": "regulation of biological process"
-                            },
-                            {
-                                "id": "GO:0009812",
-                                "name": "flavonoid metabolic process"
-                            },
-                            {
-                                "id": "GO:0065007",
-                                "name": "biological regulation"
-                            },
-                            {
-                                "id": "GO:0048518",
-                                "name": "positive regulation of biological process"
-                            },
-                            {
-                                "id": "GO:0044238",
-                                "name": "primary metabolic process"
-                            },
-                            {
-                                "id": "GO:0080090",
-                                "name": "regulation of primary metabolic process"
-                            },
-                            {
-                                "id": "GO:0009893",
-                                "name": "positive regulation of metabolic process"
-                            },
-                            {
-                                "id": "GO:0009962",
-                                "name": "regulation of flavonoid biosynthetic process"
-                            },
-                            {
-                                "id": "GO:0071704",
-                                "name": "organic substance metabolic process"
-                            },
-                            {
-                                "id": "GO:0009058",
-                                "name": "biosynthetic process"
-                            },
-                            {
-                                "id": "GO:0009813",
-                                "name": "flavonoid biosynthetic process"
-                            },
-                            {
-                                "id": "GO:0009891",
-                                "name": "positive regulation of biosynthetic process"
-                            },
-                            {
-                                "id": "GO:0009963",
-                                "name": "positive regulation of flavonoid biosynthetic process"
-                            },
-                            {
-                                "id": "GO:1901576",
-                                "name": "organic substance biosynthetic process"
-                            },
-                            {
-                                "id": "GO:0008150",
-                                "name": "biological_process"
-                            },
-                            {
-                                "id": "GO:0008152",
-                                "name": "metabolic process"
-                            },
-                            {
-                                "id": "GO:0019222",
-                                "name": "regulation of metabolic process"
-                            }
-                        ]
-                    },
-                    {
-                        "annotation_id": "GO:0016020",
-                        "name": "membrane",
-                        "provenance_source": "UNIPROT",
-                        "type": "GO",
-                        "annotation_lineage": [
-                            {
-                                "id": "GO:0005575",
-                                "name": "cellular_component"
-                            },
-                            {
-                                "id": "GO:0016020",
-                                "name": "membrane"
-                            },
-                            {
-                                "id": "GO:0110165",
-                                "name": "cellular anatomical entity"
-                            }
-                        ]
-                    },
-                    {
-                        "annotation_id": "GO:0005737",
-                        "name": "cytoplasm",
-                        "provenance_source": "UNIPROT",
+                        "provenullce_source": "UNIPROT",
                         "type": "GO",
                         "annotation_lineage": [
                             {
@@ -588,9 +463,133 @@
                         ]
                     },
                     {
+                        "annotation_id": "GO:0016020",
+                        "name": "membrane",
+                        "provenullce_source": "UNIPROT",
+                        "type": "GO",
+                        "annotation_lineage": [
+                            {
+                                "id": "GO:0005575",
+                                "name": "cellular_component"
+                            },
+                            {
+                                "id": "GO:0016020",
+                                "name": "membrane"
+                            },
+                            {
+                                "id": "GO:0110165",
+                                "name": "cellular anatomical entity"
+                            }
+                        ]
+                    },
+                    {
+                        "annotation_id": "GO:0005737",
+                        "name": "cytoplasm",
+                        "provenullce_source": "UNIPROT",
+                        "type": "GO",
+                        "annotation_lineage": [
+                            {
+                                "id": "GO:0005575",
+                                "name": "cellular_component"
+                            },
+                            {
+                                "id": "GO:0005622",
+                                "name": "intracellular anatomical structure"
+                            },
+                            {
+                                "id": "GO:0005737",
+                                "name": "cytoplasm"
+                            },
+                            {
+                                "id": "GO:0110165",
+                                "name": "cellular anatomical entity"
+                            }
+                        ]
+                    },
+                    {
                         "annotation_id": "GO:0009963",
                         "name": "positive regulation of flavonoid biosynthetic process",
-                        "provenance_source": "UNIPROT",
+                        "provenullce_source": "UNIPROT",
+                        "type": "GO",
+                        "annotation_lineage": [
+                            {
+                                "id": "GO:0009889",
+                                "name": "regulation of biosynthetic process"
+                            },
+                            {
+                                "id": "GO:0050789",
+                                "name": "regulation of biological process"
+                            },
+                            {
+                                "id": "GO:0009812",
+                                "name": "flavonoid metabolic process"
+                            },
+                            {
+                                "id": "GO:0065007",
+                                "name": "biological regulation"
+                            },
+                            {
+                                "id": "GO:0048518",
+                                "name": "positive regulation of biological process"
+                            },
+                            {
+                                "id": "GO:0044238",
+                                "name": "primary metabolic process"
+                            },
+                            {
+                                "id": "GO:0080090",
+                                "name": "regulation of primary metabolic process"
+                            },
+                            {
+                                "id": "GO:0009893",
+                                "name": "positive regulation of metabolic process"
+                            },
+                            {
+                                "id": "GO:0009962",
+                                "name": "regulation of flavonoid biosynthetic process"
+                            },
+                            {
+                                "id": "GO:0071704",
+                                "name": "organic substance metabolic process"
+                            },
+                            {
+                                "id": "GO:0009058",
+                                "name": "biosynthetic process"
+                            },
+                            {
+                                "id": "GO:0009813",
+                                "name": "flavonoid biosynthetic process"
+                            },
+                            {
+                                "id": "GO:0009891",
+                                "name": "positive regulation of biosynthetic process"
+                            },
+                            {
+                                "id": "GO:0009963",
+                                "name": "positive regulation of flavonoid biosynthetic process"
+                            },
+                            {
+                                "id": "GO:1901576",
+                                "name": "organic substance biosynthetic process"
+                            },
+                            {
+                                "id": "GO:0008150",
+                                "name": "biological_process"
+                            },
+                            {
+                                "id": "GO:0008152",
+                                "name": "metabolic process"
+                            },
+                            {
+                                "id": "GO:0019222",
+                                "name": "regulation of metabolic process"
+                            }
+                        ]
+                    },
+                    {
+                        "annotation_id": "GO:0047205",
+                        "name": "quinate O-hydroxycinnamoyltransferase activity",
+                        "provenullce_source": "UNIPROT",
                         "type": "GO",
                         "annotation_lineage": [
                             {
@@ -632,38 +631,46 @@
                         ]
                     },
                     {
-                        "annotation_id": "GO:0047205",
-                        "name": "quinate O-hydroxycinnamoyltransferase activity",
-                        "provenance_source": "UNIPROT",
+                        "annotation_id": "GO:0047172",
+                        "name": "shikimate O-hydroxycinnamoyltransferase activity",
+                        "provenullce_source": "UNIPROT",
                         "type": "GO",
                         "annotation_lineage": [
                             {
-                                "id": "GO:0005575",
-                                "name": "cellular_component"
+                                "id": "GO:0050734",
+                                "name": "hydroxycinnamoyltransferase activity"
                             },
                             {
-                                "id": "GO:0005622",
-                                "name": "intracellular anatomical structure"
+                                "id": "GO:0050737",
+                                "name": "O-hydroxycinnamoyltransferase activity"
                             },
                             {
-                                "id": "GO:0005737",
-                                "name": "cytoplasm"
+                                "id": "GO:0008374",
+                                "name": "O-acyltransferase activity"
                             },
                             {
-                                "id": "GO:0110165",
-                                "name": "cellular anatomical entity"
-                            }
-                        ]
-                    },
-                    {
-                        "annotation_id": "GO:0047172",
-                        "name": "shikimate O-hydroxycinnamoyltransferase activity",
-                        "provenance_source": "UNIPROT",
-                        "type": "InterPro",
-                        "annotation_lineage": [
+                                "id": "GO:0016746",
+                                "name": "acyltransferase activity"
+                            },
                             {
-                                "id": "IPR023213",
-                                "name": "Chloramphenicol acetyltransferase-like domain superfamily"
+                                "id": "GO:0016747",
+                                "name": "acyltransferase activity, transferring groups other than amino-acyl groups"
+                            },
+                            {
+                                "id": "GO:0016740",
+                                "name": "transferase activity"
+                            },
+                            {
+                                "id": "GO:0003824",
+                                "name": "catalytic activity"
+                            },
+                            {
+                                "id": "GO:0003674",
+                                "name": "molecular_function"
+                            },
+                            {
+                                "id": "GO:0047172",
+                                "name": "shikimate O-hydroxycinnamoyltransferase activity"
                             }
                         ]
                     }

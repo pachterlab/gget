@@ -865,7 +865,6 @@
                 [
                     "ACEH"
                 ],
-                null,
                 "Angiotensin-converting enzyme 2",
                 "angiotensin converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]",
                 "(Microbial infection) Acts as a receptor for human coronaviruses SARS-CoV and SARS-CoV-2, as well as human coronavirus NL63/HCoV-NL63 (Microbial infection) Non-functional as a receptor for human coronavirus SARS-CoV-2 Essential counter-regulatory carboxypeptidase of the renin-angiotensin hormone system that is a critical regulator of blood volume, systemic vascular resistance, and thus cardiovascular homeostasis (PubMed:27217402). Converts angiotensin I to angiotensin 1-9, a nine-amino acid peptide with anti-hypertrophic effects in cardiomyocytes, and angiotensin II to angiotensin 1-7, which then acts as a beneficial vasodilator and anti-proliferation agent, counterbalancing the actions of the vasoconstrictor angiotensin II (PubMed:10969042, PubMed:10924499, PubMed:11815627, PubMed:19021774, PubMed:14504186). Also removes the C-terminal residue from three other vasoactive peptides, neurotensin, kinetensin, and des-Arg bradykinin, but is not active on bradykinin (PubMed:10969042, PubMed:11815627). Also cleaves other biological peptides, such as apelins (apelin-13, [Pyr1]apelin-13, apelin-17, apelin-36), casomorphins (beta-casomorphin-7, neocasomorphin) and dynorphin A with high efficiency (PubMed:11815627, PubMed:27217402, PubMed:28293165). In addition, ACE2 C-terminus is homologous to collectrin and is responsible for the trafficking of the neutral amino acid transporter SL6A19 to the plasma membrane of gut epithelial cells via direct interaction, regulating its expression on the cell surface and its catalytic activity (PubMed:18424768, PubMed:19185582) Non-functional as a carboxypeptidase",
@@ -962,13 +961,7 @@
                     15600960,
                     15566287,
                     15566709
-                ],
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
+                ]
             ]
         ]
     },
