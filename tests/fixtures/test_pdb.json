@@ -353,19 +353,19 @@
                     "sequence": "MKIEVKESTMVRPAQETPGRNLWNSNVDLVVPNFHTPSVYFYRPTGSSNFFDAKVLKDALSRALVPFYPMAGRLKRDEDGRIEIECNGEGVLFVEAESDGVVDDFGDFAPTLELRRLIPAVDYSQGISSYALLVLQVTYFKCGGVSLGVGMRHHAADGFSGLHFINSWSDMARGLDVTLPPFIDRTLLRARDPPQPQFQHIEYQPPPALKVSPQTAKSDSVPETAVSIFKLTREQISALKAKSKEDGNTISYSSYEMLAGHVWRCACKARGLEVDQGTKLYIATDGRARLRPSLPPGYFGNVIFTATPIAIAGDLEFKPVWYAASKIHDALARMDNDYLRSALDYLELQPDLKALVRGAHTFKCPNLGITSWVRLPIHDADFGWGRPIFMGPGGIAYEGLSFILPSPTNDGSMSVAISLQGEHMKLFQSFLYDI",
                     "name": {
                         "value": "Hydroxycinnamoyl-CoA shikimate/quinate hydroxycinnamoyltransferase",
-                        "provenullce_code": "up:Protein.up:submittedName.up:fullName"
+                        "provenance_code": "up:Protein.up:submittedName.up:fullName"
                     },
                     "source_organism": {
                         "scientific_name": "Coffea canephora",
                         "taxonomy_id": 49390,
-                        "provenullce_code": "up:organism"
+                        "provenance_code": "up:organism"
                     }
                 },
                 "rcsb_uniprot_annotation": [
                     {
                         "annotation_id": "IPR023213",
                         "name": "Chloramphenicol acetyltransferase-like domain superfamily",
-                        "provenullce_source": "UNIPROT",
+                        "provenance_source": "UNIPROT",
                         "type": "InterPro",
                         "annotation_lineage": [
                             {
@@ -385,7 +385,7 @@
                     {
                         "annotation_id": "GO:0009809",
                         "name": "lignin biosynthetic process",
-                        "provenullce_source": "UNIPROT",
+                        "provenance_source": "UNIPROT",
                         "type": "GO",
                         "annotation_lineage": [
                             {
@@ -465,7 +465,7 @@
                     {
                         "annotation_id": "GO:0016020",
                         "name": "membrane",
-                        "provenullce_source": "UNIPROT",
+                        "provenance_source": "UNIPROT",
                         "type": "GO",
                         "annotation_lineage": [
                             {
@@ -485,7 +485,7 @@
                     {
                         "annotation_id": "GO:0005737",
                         "name": "cytoplasm",
-                        "provenullce_source": "UNIPROT",
+                        "provenance_source": "UNIPROT",
                         "type": "GO",
                         "annotation_lineage": [
                             {
@@ -509,7 +509,7 @@
                     {
                         "annotation_id": "GO:0009963",
                         "name": "positive regulation of flavonoid biosynthetic process",
-                        "provenullce_source": "UNIPROT",
+                        "provenance_source": "UNIPROT",
                         "type": "GO",
                         "annotation_lineage": [
                             {
@@ -589,7 +589,7 @@
                     {
                         "annotation_id": "GO:0047205",
                         "name": "quinate O-hydroxycinnamoyltransferase activity",
-                        "provenullce_source": "UNIPROT",
+                        "provenance_source": "UNIPROT",
                         "type": "GO",
                         "annotation_lineage": [
                             {
@@ -633,7 +633,7 @@
                     {
                         "annotation_id": "GO:0047172",
                         "name": "shikimate O-hydroxycinnamoyltransferase activity",
-                        "provenullce_source": "UNIPROT",
+                        "provenance_source": "UNIPROT",
                         "type": "GO",
                         "annotation_lineage": [
                             {
