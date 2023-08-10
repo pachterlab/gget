@@ -106,7 +106,12 @@
                 "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha [Source:HGNC Symbol;Acc:HGNC:4801]",
                 "hydroxyacyl-CoA dehydrogenase trifunctional multienzyme complex subunit alpha",
                 "protein_coding",
-                ["GBP", "LCEH", "LCHAD", "MTPA"]
+                [
+                    "GBP",
+                    "LCEH",
+                    "LCHAD",
+                    "MTPA"
+                ],
                 "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000084754"
             ],
             [
@@ -368,7 +373,6 @@
                 ],
                 "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000130234"
             ],
-<<<<<<< Updated upstream
             [
                 "ENSG00000173653",
                 "RCE1",
@@ -407,8 +411,6 @@
                 ],
                 "https://useast.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000224388"
             ]
-=======
->>>>>>> Stashed changes
         ]
     },
     "test11": {
@@ -438,13 +440,9 @@
                 "DEAH (Asp-Glu-Ala-His) box polypeptide 58, opposite strand [Source:MGI Symbol;Acc:MGI:3705104]",
                 "DEAH (Asp-Glu-Ala-His) box polypeptide 58, opposite strand",
                 "antisense",
-<<<<<<< Updated upstream
                 [
                     "Gm11547"
                 ],
-=======
-                ["Gm11547"],
->>>>>>> Stashed changes
                 "https://useast.ensembl.org/mus_musculus/Gene/Summary?g=MGP_DBA2J_G0002983"
             ],
             [
@@ -453,13 +451,9 @@
                 "notum pectinacetylesterase homolog (Drosophila), opposite strand [Source:MGI Symbol;Acc:MGI:3698431]",
                 "notum pectinacetylesterase homolog (Drosophila), opposite strand",
                 "antisense",
-<<<<<<< Updated upstream
                 [
                     "4732444A12Rik"
                 ],
-=======
-                ["Gm11547"],
->>>>>>> Stashed changes
                 "https://useast.ensembl.org/mus_musculus/Gene/Summary?g=MGP_DBA2J_G0003041"
             ]
         ]
