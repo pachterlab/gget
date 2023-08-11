@@ -1,64 +1,65 @@
-> Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
+> Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde el Terminal con la bandera `-h` `--help`.
 ## gget alphafold 🪢
-Predict the 3D structure of a protein from its amino acid sequence using a simplified version of [DeepMind](https://www.deepmind.com/)’s [AlphaFold2](https://github.com/deepmind/alphafold) originally released and benchmarked for [AlphaFold Colab](https://colab.research.google.com/github/deepmind/alphafold/blob/main/notebooks/AlphaFold.ipynb).  
-Returns: Predicted structure (PDB) and alignment error (json).  
+Predice la structura en 3D de cualquier proteína basada sobre su sequencía de aminoácidos usando una versión simpleficada del algoritmo [AlphaFold2](https://github.com/deepmind/alphafold) de [DeepMind](https://www.deepmind.com/), originalmente producido i hecho público para [AlphaFold Colab](https://colab.research.google.com/github/deepmind/alphafold/blob/main/notebooks/AlphaFold.ipynb).  
+Regresa: La structura pedicada (en formato PDB) i el errór de alineación (en formato json).  
 
-Before using `gget alphafold` for the first time, run `gget setup alphafold` / `gget.setup("alphafold")` once (also see [`gget setup`](setup.md)).  
+Antes de usar `gget alphafold` por primera vez, corre `gget setup alphafold` / `gget.setup("alphafold")` (ver también [`gget setup`](setup.md)).  
 
-**Positional argument**  
+**Parámetro posicional**  
 `sequence`  
-Amino acid sequence (str), or list of sequences (*gget alphafold will automatically use the multimer model if multiple sequences are passed*), or path to FASTA file.
+Sequencía de aminoácidos (str), o una lista de sequencías (*gget alphafold automaticamente usa el algoritmo de multímero si múltiple sequencías son ingresadas*), o una ruta a un archivo tipo FASTA.  
 
-**Optional arguments**  
+**Parámetros optionales**  
 `-mr` `--multimer_recycles`  
-The multimer model will continue recycling until the predictions stop changing, up to the limit set here. Default: 3.  
-For higher accuracy, at the potential cost of longer inference times, set this to 20.  
+El algoritmo de multímero continuara a recyclar hasta que los prediciones paren de cambiar, hasta el limite indicado aquí. Por defecto: 3  
+Para obtener más exactitude ajusta a 20 (al costo de corridas más largas).  
 
 `-o` `--out`   
-Path to folder to save prediction results in (str). Default: "./[date_time]_gget_alphafold_prediction".  
-  
-**Flags**   
+Ruta a una carpeta para guardar los resultados de la predicción (str). Por defecto: "./[fecha_tiempo]_gget_alphafold_prediction".  
+   
+**Banderas**   
 `-mfm` `--multimer_for_monomer`  
-Use multimer model for a monomer.  
+Usa el algoritmo de multímero para un monómero.  
 
 `-r` `--relax`   
-AMBER relax the best model. 
+Relaja el mejor modelo con el algoritmo AMBER.  
 
 `-q` `--quiet`   
-Command-line only. Prevents progress information from being displayed.  
-Python: Use `verbose=False` to prevent progress information from being displayed. 
+Solo para la Terminal. Impide la informacion de progreso de ser exhibida durante la corrida.  
+Para Python, usa `verbose=False` para imipidir la informacion de progreso de ser exhibida durante la corrida.  
 
 `plot`  
-Python only. `plot=True` provides an interactive, 3D graphical overview of the predicted structure and alignment quality using [py3Dmol](https://pypi.org/project/py3Dmol/) and [matplotlib](https://matplotlib.org/) (default: True).  
+Solo para Python. `plot=True` provee una visualición interactiva de la predicción con el errór de alineación en 3D con [py3Dmol](https://pypi.org/project/py3Dmol/) i [matplotlib](https://matplotlib.org/) (por defecto: True).  
 
 `show_sidechains`  
-Python only. `show_sidechains=True` includes side chains in the plot (default: True).  
+Solo para Python. `show_sidechains=True` incluye las cadenas laterales de proteínas en la visualición (por defecto: True).  
   
   
-### Example
+### Por ejemplo
 ```bash
-# Generate new prediction from amino acid sequence
+# Predice la structura de una proteína basada sobre su sequencía de aminoácidos
 gget alphafold MAAHKGAEHHHKAAEHHEQAAKHHHAAAEHHEKGEHEQAAHHADTAYAHHKHAEEHAAQAAKHDAEHHAPKPH
 
-# Find similar sequences deposited on the PDB for comparative analysis
+# Encuentra sequencías similares depositadas en el PDB para análisis comparativo
 gget blast --database pdbaa MAAHKGAEHHHKAAEHHEQAAKHHHAAAEHHEKGEHEQAAHHADTAYAHHKHAEEHAAQAAKHDAEHHAPKPH
 
-# Fetch the PDB files of similar structures returned by gget blast for comparison, to get a measure for model quality
+# Busca los archivos del PDB por las proteínas encuentradas con gget blast para tener algo con que comparar la predicción
 gget pdb 3UQ3 -o 3UQ3.pdb
 gget pdb 2K42 -o 2K42.pdb
 ```
 ```python
 # Python
+# Predice la structura de una proteína basada sobre su sequencía de aminoácidos
 gget.alphafold("MAAHKGAEHHHKAAEHHEQAAKHHHAAAEHHEKGEHEQAAHHADTAYAHHKHAEEHAAQAAKHDAEHHAPKPH")
 
-# Find similar sequences deposited on the PDB for comparative analysis
+# Encuentra sequencías similares depositadas en el PDB para análisis comparativo
 gget.blast("MAAHKGAEHHHKAAEHHEQAAKHHHAAAEHHEKGEHEQAAHHADTAYAHHKHAEEHAAQAAKHDAEHHAPKPH", database="pdbaa")
 
-# Fetch the PDB files of similar structures returned by gget blast for comparison, to get a measure for model quality
+# Busca los archivos del PDB por las proteínas encuentradas con gget blast para tener algo con que comparar la predicción
 gget.pdb("3UQ3", save=True)
 gget.pdb("2K42", save=True)
 ```
-&rarr; `gget alphafold` returns the predicted structure (PDB) and predicted alignment error (.json) in a new folder ("./[date_time]_gget_alphafold_prediction"). The use case above exemplifies how to use [`gget blast`](blast.md) and [`gget pdb`](pdb.md) for a comparative analysis of the new prediction. PDB files can be viewed interactively in 3D [online](https://rcsb.org/3d-view), or using programs like [PyMOL](https://pymol.org/) or [Blender](https://www.blender.org/). To compare two PDB files, you can use [this website](https://rcsb.org/alignment). The Python interface also returns [interactive plots](https://twitter.com/NeuroLuebbert/status/1555968042948915200), which can be generated from the PDB and JSON as described in the [gget alphafold FAQ](https://github.com/pachterlab/gget/discussions/39) Q4.
+&rarr; `gget alphafold` devuelve la structura pedicada (en formato PDB) i el errór de alineación (en formato json) en una carpeta nueva ("./[fecha_tiempo]_gget_alphafold_prediction"). Este ejemplo demuestra como usar [`gget blast`](blast.md) i [`gget pdb`](pdb.md) para correr un análisis comparativo. Los archivos PDB se pueden ver en 3D con [RCSB 3D view](https://rcsb.org/3d-view), o usando programas como [PyMOL](https://pymol.org/) o [Blender](https://www.blender.org/). Para comparar múltiple archivos PDB, usen [RCSB alignment](https://rcsb.org/alignment). Python también devuelve [visualiciónes interactivas](https://twitter.com/NeuroLuebbert/status/1555968042948915200), que también se pueden generar con los archivos PDB i JSON como describido en [gget alphafold FAQ](https://github.com/pachterlab/gget/discussions/39) Q4.
 
-### [Example in Google Colab](https://github.com/pachterlab/gget_examples/blob/main/gget_alphafold.ipynb)
+### [Ejemplo en Google Colab](https://github.com/pachterlab/gget_examples/blob/main/gget_alphafold.ipynb)
 ### [gget alphafold FAQ](https://github.com/pachterlab/gget/discussions/39)
