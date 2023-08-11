@@ -1,13 +1,13 @@
 # Summary
 
-[Introduction](introduction.md)  
-[What's New?](updates.md)  
+[Introdución](introduction.md)  
+[¡Lo más reciente!](updates.md)  
 
-# User Guide
-- [Installation](installation.md)  
-- [Quick Start Guide](quick_start_guide.md)  
+# Guía del usario
+- [Instalación](installation.md)  
+- [Guía de inicio rápido](quick_start_guide.md)  
 
-# Manual
+# Manuál
 - [gget alphafold](alphafold.md)  
 - [gget archs4](archs4.md)  
 - [gget blast](blast.md)  
@@ -25,6 +25,6 @@
 
 ---
 
-[Contributing Guide](contributing.md)  
-[Code of Conduct](code_of_conduct.md)  
-[Citation Guidelines](cite.md)  
+[Guía de contribución](contributing.md)  
+[Codigo de conducto](code_of_conduct.md)  
+[Cómo citar](cite.md)  
