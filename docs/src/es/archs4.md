@@ -1,42 +1,42 @@
-> Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
+> Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde el Terminal con la bandera `-h` `--help`.  
 ## gget archs4 🐁
-Find the most correlated genes to a gene of interest or find the gene's tissue expression atlas using [ARCHS4](https://maayanlab.cloud/archs4/).  
-Return format: JSON (command-line) or data frame/CSV (Python).
+Encuentra los genes más correlacionados a un gen de interés o encuentra los tejidos donde se expresa un gen usando la base de datos [ARCHS4](https://maayanlab.cloud/archs4/).  
+Regresa: Resultados en formato JSON (Terminal) o Dataframe/CSV (Python).  
 
-**Positional argument**  
+**Parámetro posicional**  
 `gene`  
-Short name (gene symbol) of gene of interest, e.g. STAT4.  
-Alternatively: use flag `--ensembl` to input an Ensembl gene IDs, e.g. ENSG00000138378.
+Nombre corto (símbolo del gen) del gen de interés, p. STAT4.  
+Alternativamente: usen la bandera `--ensembl` para ingresar un ID del tipo Ensembl, p. ENSG00000138378.  
 
-**Optional arguments**  
+**Parámetros optionales**  
  `-w` `--which`  
-'correlation' (default) or 'tissue'.  
-'correlation' returns a gene correlation table that contains the 100 most correlated genes to the gene of interest. The Pearson correlation is calculated over all samples and tissues in [ARCHS4](https://maayanlab.cloud/archs4/).  
-'tissue' returns a tissue expression atlas calculated from human or mouse samples (as defined by 'species') in [ARCHS4](https://maayanlab.cloud/archs4/).  
+'correlation' (correlación; esto se usa por defecto) o 'tissue' (tejido).  
+'correlation' regresa una tabla que contiene los 100 genes más correlacionados con el gen de interés. La correlación de Pearson se calcula sobre todas las muestras y tejidos en [ARCHS4](https://maayanlab.cloud/archs4/).  
+'tissue' regresa un atlas de expresión tisular calculado sobre todas las muestras humanas o de ratón (según lo definido usando el parámetro `--species` (especies)) en [ARCHS4](https://maayanlab.cloud/archs4/).  
 
 `-s` `--species`  
-'human' (default) or 'mouse'.   
-Defines whether to use human or mouse samples from [ARCHS4](https://maayanlab.cloud/archs4/).  
-(Only for tissue expression atlas.)
+'human' (humano; esto se usa por defecto) o 'mouse' (ratón).   
+Define si usar muestras humanas o de ratón de [ARCHS4](https://maayanlab.cloud/archs4/).  
+(Solo aplicable para el atlas de expresión tisular.)  
 
 `-o` `--out`   
-Path to the file the results will be saved in, e.g. path/to/directory/results.csv (or .json). Default: Standard out.   
-Python: `save=True` will save the output in the current working directory.  
+Ruta al archivo en el que se guardarán los resultados, p. ruta/al/directorio/resultados.csv (o .json). Por defecto: salida estándar (STDOUT).  
+Para Python, usa `save=True` para guardar los resultados en el directorio de trabajo actual.  
   
-**Flags**   
+**Banderas**   
 `-e` `--ensembl`  
-Add this flag if `gene` is given as an Ensembl gene ID.  
+Usa esta bandera si `gene` se ingresa como ID de tipo Ensembl.  
 
 `-csv` `--csv`  
-Command-line only. Returns results in CSV format.  
-Python: Use `json=True` to return output in JSON format.
+Solo para la Terminal. Regresa los resultados en formato CSV.    
+Para Python, usa `json=True` para regresar los resultados en formato JSON.    
 
 `-q` `--quiet`   
-Command-line only. Prevents progress information from being displayed.  
-Python: Use `verbose=False` to prevent progress information from being displayed. 
+Solo para la Terminal. Impide la informacion de progreso de ser exhibida durante la corrida.  
+Para Python, usa `verbose=False` para imipidir la informacion de progreso de ser exhibida durante la corrida.  
   
   
-### Examples
+### Por ejemplo
 ```bash
 gget archs4 ACE2
 ```
@@ -44,7 +44,7 @@ gget archs4 ACE2
 # Python
 gget.archs4("ACE2")
 ```
-&rarr; Returns the 100 most correlated genes to ACE2:  
+&rarr; Regresa los 100 genes más correlacionados con el gen ACE2:  
 
 | gene_symbol     | pearson_correlation     |
 | -------------- |-------------------------| 
@@ -61,7 +61,7 @@ gget archs4 -w tissue ACE2
 # Python
 gget.archs4("ACE2", which="tissue")
 ```
-&rarr; Returns the tissue expression of ACE2 (by default, human data is used):
+&rarr; Regresa la expresión tisular de ACE2 (por defecto, se utilizan datos humanos):  
 
 | id     | min     | q1 |  median | q3 | max |
 | ------ |--------| ------ |--------| ------ |--------| 
@@ -70,9 +70,9 @@ gget.archs4("ACE2", which="tissue")
 | . . . | . . . | . . . | . . . | . . . | . . . |
 
 <br/><br/>
-Check out [this tutorial](https://davetang.org/muse/2023/05/16/check-where-a-gene-is-expressed-from-the-command-line/) by Dave Tang who wrote an R script to create this figure from the `gget archs4` JSON output:  
+Consulte [este tutorial](https://davetang.org/muse/2023/05/16/check-where-a-gene-is-expressed-from-the-command-line/) de Dave Tang, quien escribió un script R para crear esta visualición con los resultados de `gget archs4` en formato JSON:  
 
 ![image](https://github.com/pachterlab/gget/assets/56094636/f2a34a9e-beaa-45a5-a678-d38399dd3017)
 
 
-#### [More examples](https://github.com/pachterlab/gget_examples)
+#### [Más ejemplos](https://github.com/pachterlab/gget_examples)  
