@@ -39,7 +39,7 @@ gget blat -a taeGut2 MKWMFKEDHSLEHRCVESAKIRAKYPDRVPVIVEKVSGSQIVDIDKRKYLVPSDITVAQ
 # Python
 gget.blat("MKWMFKEDHSLEHRCVESAKIRAKYPDRVPVIVEKVSGSQIVDIDKRKYLVPSDITVAQFMWIIRKRIQLPSEKAIFLFVDKTVPQSR", assembly="taeGut2")
 ```
-&rarr; Regresas los resultados de BLAT para el ensamblaje taeGut2 (pinzón cebra). En este ejemplo, `gget blat` automáticamente detecta esta secuencia como una secuencia de aminoácidos y, por lo tanto, establece el tipo de secuencia (`--seqtype`) como *proteína*. 
+&rarr; Regresa los resultados de BLAT para el ensamblaje taeGut2 (pinzón cebra). En este ejemplo, `gget blat` automáticamente detecta esta secuencia como una secuencia de aminoácidos y, por lo tanto, establece el tipo de secuencia (`--seqtype`) como *proteína*. 
 
 | genome     | query_size     | aligned_start     | aligned_end        | matches | mismatches | %_aligned | ... |
 | -------------- |-------------------------| ------------------------| -------------- | ----------|-----|---|---|
