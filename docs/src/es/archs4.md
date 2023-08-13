@@ -6,7 +6,7 @@ Regresa: Resultados en formato JSON (Terminal) o Dataframe/CSV (Python).
 **Parámetro posicional**  
 `gene`  
 Nombre corto (símbolo del gen) del gen de interés, p. STAT4.  
-Alternativamente: usen la bandera `--ensembl` para ingresar un ID del tipo Ensembl, p. ENSG00000138378.  
+Alternativamente: usa la bandera `--ensembl` para ingresar un ID del tipo Ensembl, p. ENSG00000138378.  
 
 **Parámetros optionales**  
  `-w` `--which`  
