@@ -1,51 +1,51 @@
-> Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python.  The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
+> Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde el Terminal con la bandera `-h` `--help`.  
 ## gget blast 💥
-BLAST a nucleotide or amino acid sequence to any [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi) database.  
-Return format: JSON (command-line) or data frame/CSV (Python).
+BLAST una secuencia de nucleótidos o aminoácidos a cualquier base de datos [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi).  
+Regresa: Resultados en formato JSON (Terminal) o Dataframe/CSV (Python).  
 
-**Positional argument**  
+**Parámetro posicional**  
 `sequence`   
-Nucleotide or amino acid sequence, or path to FASTA or .txt file.
+Secuencia de nucleótidos o aminoácidos, o una ruta a un archivo tipo FASTA o .txt.  
 
-**Optional arguments**  
+**Parámetros optionales**  
 `-p` `--program`  
-'blastn', 'blastp', 'blastx', 'tblastn', or 'tblastx'.  
-Default: 'blastn' for nucleotide sequences; 'blastp' for amino acid sequences.
+'blastn', 'blastp', 'blastx', 'tblastn', o 'tblastx'.  
+Por defecto: 'blastn' para secuencias de nucleótidos; 'blastp' para secuencias de aminoácidos.  
 
 `-db` `--database`  
-'nt', 'nr', 'refseq_rna', 'refseq_protein', 'swissprot', 'pdbaa', or 'pdbnt'.  
-Default: 'nt' for nucleotide sequences; 'nr' for amino acid sequences.  
-[More info on BLAST databases](https://ncbi.github.io/blast-cloud/blastdb/available-blastdbs.html)
+'nt', 'nr', 'refseq_rna', 'refseq_protein', 'swissprot', 'pdbaa', o 'pdbnt'.  
+Por defecto: 'nt' para secuencias de nucleótidos; 'nr' para secuencias de aminoácidos.  
+[Más información sobre los bases de datos BLAST](https://ncbi.github.io/blast-cloud/blastdb/available-blastdbs.html)  
 
 `-l` `--limit`  
-Limits number of hits to return. Default: 50.  
+Limita el número de resultados para regresar. Por defecto: 50.  
 
 `-e` `--expect`  
-Defines the [expect value](https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=FAQ#expect) cutoff. Default: 10.0.  
+Define el umbral de ['expect value'](https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=FAQ#expect). Por defecto: 10.0.  
 
 `-o` `--out`   
-Path to the file the results will be saved in, e.g. path/to/directory/results.csv (or .json). Default: Standard out.   
-Python: `save=True` will save the output in the current working directory.
+Ruta al archivo en el que se guardarán los resultados, p. ruta/al/directorio/resultados.csv (o .json). Por defecto: salida estándar (STDOUT).  
+Para Python, usa `save=True` para guardar los resultados en el directorio de trabajo actual.  
 
-**Flags**  
+**Banderas**  
 `-lcf` `--low_comp_filt`  
-Turns on [low complexity filter](https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=FAQ#LCR).  
+Activa el ['low complexity filter'](https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=FAQ#LCR) (filtro de baja complejidad).  
 
 `-mbo` `--megablast_off`  
-Turns off MegaBLAST algorithm. Default: MegaBLAST on (blastn only).  
+Desactiva el algoritmo MegaBLAST. Por defecto: MegaBLAST esta activado (solo aplicable para blastn).  
 
 `-csv` `--csv`  
-Command-line only. Returns results in CSV format.  
-Python: Use `json=True` to return output in JSON format.
+Solo para la Terminal. Regresa los resultados en formato CSV.    
+Para Python, usa `json=True` para regresar los resultados en formato JSON.  
 
 `-q` `--quiet`   
-Command-line only. Prevents progress information from being displayed.  
-Python: Use `verbose=False` to prevent progress information from being displayed.  
+Solo para la Terminal. Impide la informacion de progreso de ser exhibida durante la corrida.  
+Para Python, usa `verbose=False` para imipidir la informacion de progreso de ser exhibida durante la corrida.  
 
 `wrap_text`  
-Python only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).   
+Solo para Python. `wrap_text=True` muestra los resultados con texto envuelto para facilitar la lectura (por defecto: False).   
   
-### Example
+### Por ejemplo
 ```bash
 gget blast MKWMFKEDHSLEHRCVESAKIRAKYPDRVPVIVEKVSGSQIVDIDKRKYLVPSDITVAQFMWIIRKRIQLPSEKAIFLFVDKTVPQSR
 ```
@@ -53,7 +53,7 @@ gget blast MKWMFKEDHSLEHRCVESAKIRAKYPDRVPVIVEKVSGSQIVDIDKRKYLVPSDITVAQFMWIIRKRIQ
 # Python
 gget.blast("MKWMFKEDHSLEHRCVESAKIRAKYPDRVPVIVEKVSGSQIVDIDKRKYLVPSDITVAQFMWIIRKRIQLPSEKAIFLFVDKTVPQSR")
 ```
-&rarr; Returns the BLAST result of the sequence of interest. `gget blast` automatically detects this sequence as an amino acid sequence and therefore sets the BLAST program to *blastp* with database *nr*.  
+&rarr; Regresa los resultados BLAST de la secuencia de interés. `gget blast` automáticamente detecta esta secuencia como una secuencia de aminoácidos y, por lo tanto, establece el programa BLAST en *blastp* con la base de datos *nr*.  
 
 | Description     | Scientific Name	     | Common Name     | Taxid        | Max Score | Total Score | Query Cover | ... |
 | -------------- |-------------------------| ------------------------| -------------- | ----------|-----|---|---|
@@ -61,7 +61,7 @@ gget.blast("MKWMFKEDHSLEHRCVESAKIRAKYPDRVPVIVEKVSGSQIVDIDKRKYLVPSDITVAQFMWIIRKRI
 | . . . | . . . | . . . | . . . | . . . | . . . | . . . | ... | 
 
 
-**BLAST from .fa or .txt file:**  
+**BLAST desde un archivo .fa o .txt:**  
 ```bash
 gget blast fasta.fa
 ```
@@ -69,6 +69,6 @@ gget blast fasta.fa
 # Python
 gget.blast("fasta.fa")
 ```
-&rarr; Returns the BLAST results of the first sequence contained in the fasta.fa file. 
+&rarr; Regresa los resultados BLAST de la primera secuencia contenida en el archivo 'fasta.fa'.  
 
-#### [More examples](https://github.com/pachterlab/gget_examples)
+#### [Más ejemplos](https://github.com/pachterlab/gget_examples)
