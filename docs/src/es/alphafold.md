@@ -1,13 +1,13 @@
 > Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde el Terminal con la bandera `-h` `--help`.  
 ## gget alphafold 🪢
-Predice la structura en 3D de cualquier proteína basada sobre su sequencía de aminoácidos usando una versión simpleficada del algoritmo [AlphaFold2](https://github.com/deepmind/alphafold) de [DeepMind](https://www.deepmind.com/), originalmente producido i hecho público para [AlphaFold Colab](https://colab.research.google.com/github/deepmind/alphafold/blob/main/notebooks/AlphaFold.ipynb).  
+Predice la structura en 3D de cualquier proteína basada sobre su secuencia de aminoácidos usando una versión simpleficada del algoritmo [AlphaFold2](https://github.com/deepmind/alphafold) de [DeepMind](https://www.deepmind.com/), originalmente producido i hecho público para [AlphaFold Colab](https://colab.research.google.com/github/deepmind/alphafold/blob/main/notebooks/AlphaFold.ipynb).  
 Regresa: La structura pedicada (en formato PDB) i el errór de alineación (en formato json).  
 
 Antes de usar `gget alphafold` por primera vez, corre `gget setup alphafold` / `gget.setup("alphafold")` (ver también [`gget setup`](setup.md)).  
 
 **Parámetro posicional**  
 `sequence`  
-Sequencía de aminoácidos (str), o una lista de sequencías (*gget alphafold automaticamente usa el algoritmo de multímero si múltiple sequencías son ingresadas*), o una ruta a un archivo tipo FASTA.  
+Secuencia de aminoácidos (str), o una lista de secuencias (*gget alphafold automaticamente usa el algoritmo de multímero si múltiple secuencias son ingresadas*), o una ruta a un archivo tipo FASTA.  
 
 **Parámetros optionales**  
 `-mr` `--multimer_recycles`  
@@ -37,10 +37,10 @@ Solo para Python. `show_sidechains=True` incluye las cadenas laterales de prote�
   
 ### Por ejemplo
 ```bash
-# Predice la structura de una proteína basada sobre su sequencía de aminoácidos
+# Predice la structura de una proteína basada sobre su secuencia de aminoácidos
 gget alphafold MAAHKGAEHHHKAAEHHEQAAKHHHAAAEHHEKGEHEQAAHHADTAYAHHKHAEEHAAQAAKHDAEHHAPKPH
 
-# Encuentra sequencías similares depositadas en el PDB para análisis comparativo
+# Encuentra secuencias similares depositadas en el PDB para análisis comparativo
 gget blast --database pdbaa MAAHKGAEHHHKAAEHHEQAAKHHHAAAEHHEKGEHEQAAHHADTAYAHHKHAEEHAAQAAKHDAEHHAPKPH
 
 # Busca los archivos del PDB por las proteínas encuentradas con gget blast para tener algo con que comparar la predicción
@@ -49,10 +49,10 @@ gget pdb 2K42 -o 2K42.pdb
 ```
 ```python
 # Python
-# Predice la structura de una proteína basada sobre su sequencía de aminoácidos
+# Predice la structura de una proteína basada sobre su secuencia de aminoácidos
 gget.alphafold("MAAHKGAEHHHKAAEHHEQAAKHHHAAAEHHEKGEHEQAAHHADTAYAHHKHAEEHAAQAAKHDAEHHAPKPH")
 
-# Encuentra sequencías similares depositadas en el PDB para análisis comparativo
+# Encuentra secuencias similares depositadas en el PDB para análisis comparativo
 gget.blast("MAAHKGAEHHHKAAEHHEQAAKHHHAAAEHHEKGEHEQAAHHADTAYAHHKHAEEHAAQAAKHDAEHHAPKPH", database="pdbaa")
 
 # Busca los archivos del PDB por las proteínas encuentradas con gget blast para tener algo con que comparar la predicción
