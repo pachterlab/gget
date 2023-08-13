@@ -24,7 +24,7 @@ Default: ['dataset_id', 'assay', 'suspension_type', 'sex', 'tissue_general', 'ti
 For more options see: https://api.cellxgene.cziscience.com/curation/ui/#/ -> Schemas -> dataset  
 
 `-o` `--out`   
-Path to file to save generated AnnData .h5ad file (or .csv with `-mo / --meta_only` (`anndata=False`)).  
+Path to file to save generated AnnData .h5ad file (or .csv with `-mo / --meta_only`).  
 Required when using from command line!  
 
 **Flags**  
