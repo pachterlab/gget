@@ -1,107 +1,106 @@
-> Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python.  The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
+> Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde el Terminal con la bandera `-h` `--help`.  
 ## gget cellxgene 🍱  
-Query data from [CZ CELLxGENE Discover](https://cellxgene.cziscience.com/) using the [CZ CELLxGENE Discover Census](https://github.com/chanzuckerberg/cellxgene-census).  
+Regresa data de la base de datos [CZ CELLxGENE Discover](https://cellxgene.cziscience.com/) usando [CZ CELLxGENE Discover Census](https://github.com/chanzuckerberg/cellxgene-census).  
+Regresa: Un objeto del tipo AnnData que contiene la matriz de recuentos de genes y los metadatos de los datos de single-cell RNA sequencing de los tejidos/genes/etc. definidos.  
 
-Returns: An AnnData object containing the count matrix and metadata of single-cell RNA sequencing data from the defined tissues/genes/etc.  
+Antes de usar `gget cellxgene` por primera vez, corre `gget setup cellxgene` / `gget.setup("cellxgene")` (ver también [`gget setup`](setup.md)).  
 
-Before using `gget cellxgene` for the first time, run `gget setup cellxgene` / `gget.setup("cellxgene")` once (also see [`gget setup`](setup.md)).  
-
-**Optional arguments**  
+**Parámetros optionales**  
 `-s` `--species`  
-Choice of 'homo_sapiens' or 'mus_musculus'. Default: 'homo_sapiens'.  
+'homo_sapiens' o 'mus_musculus'. Por defecto: 'homo_sapiens'.  
 
 `-g` `--gene`  
- Str or list of gene name(s) or Ensembl ID(s). Default: None.  
- NOTE: Use `-e / --ensembl` (Python: `ensembl=True`) when providing Ensembl ID(s) instead of gene name(s).  
- See https://cellxgene.cziscience.com/gene-expression for examples of available genes.  
+Str o lista de genes de interés o ID(s) del tipo Ensembl. Por defecto: None (ninguno).  
+Atención: Utilice la bandera `-e / --ensembl` (Python: `ensembl=True`) cuando ingresas ID(s) del tipo Ensembl.    
+Ver https://cellxgene.cziscience.com/gene-expression para ejemplos de genes.  
 
- `-cv` `--census_version`  
- Str defining version of Census, e.g. "2023-05-15", or "latest" or "stable". Default: "stable".  
+`-cv` `--census_version`  
+Versión del CZ CELLxGENE Discover Census (str), p. "2023-05-15", o "latest" (la ultima) o "stable" (estable). Por defecto: "stable" (estable).  
 
 `-cn` `--column_names`  
-List of metadata columns to return (stored in AnnData.obs).  
-Default: ['dataset_id', 'assay', 'suspension_type', 'sex', 'tissue_general', 'tissue', 'cell_type']  
-For more options see: https://api.cellxgene.cziscience.com/curation/ui/#/ -> Schemas -> dataset  
+Lista de columnas de metadatos a regresar (almacenadas en AnnData.obs).  
+Por defecto: ['dataset_id', 'assay', 'suspension_type', 'sex', 'tissue_general', 'tissue', 'cell_type']   
+Para más opciones, ver: https://api.cellxgene.cziscience.com/curation/ui/#/ -> 'Schemas' -> 'dataset'  
 
 `-o` `--out`   
-Path to file to save generated AnnData .h5ad file (or .csv with `-mo / --meta_only` (`anndata=False`)).  
-Required when using from command line!  
+Ruta al archivo para guardar el objeto AnnData de tipo .h5ad (o .csv con bandera `-mo / --meta_only`).  
+¡Requerido cuando se usa desde la Terminal!  
 
-**Flags**  
+**Banderas**  
 `-e` `--ensembl`  
-Use when genes are provided as Ensembl IDs instead of gene names.  
+Usa esta bandera si `gene` se ingresa como ID del tipo Ensembl.    
 
 `-mo` `--meta_only`  
-Only returns metadata dataframe (corresponds to AnnData.obs).  
+Solo regresa la tabla (Dataframe) con metadatos (corresponde a AnnData.obs).  
 
 `-q` `--quiet`   
-Command-line only. Prevents progress information from being displayed.  
-Python: Use `verbose=False` to prevent progress information from being displayed.  
+Solo para la Terminal. Impide la informacion de progreso de ser exhibida durante la corrida.  
+Para Python, usa `verbose=False` para imipidir la informacion de progreso de ser exhibida durante la corrida.  
 
-**Optional arguments corresponding to CZ CELLxGENE Discover metadata attributes**  
+**Parámetros optionales correspondientes a los atributos de metadatos de CZ CELLxGENE Discover**  
 `--tissue`  
-Str or list of tissue(s), e.g. ['lung', 'blood']. Default: None.  
-See https://cellxgene.cziscience.com/gene-expression for examples of available tissues.  
+Str o lista de tejido(s), p. ['lung', 'blood']. Por defecto: None.  
+Ver https://cellxgene.cziscience.com/gene-expression para ejemplos de tejidos.  
 
 `--cell_type`  
-Str or list of celltype(s), e.g. ['mucus secreting cell', 'neuroendocrine cell']. Default: None.  
-See https://cellxgene.cziscience.com/gene-expression and select a tissue to see examples of available celltypes.  
+Str o lista de tipo(s) de célula(s), p. ['mucus secreting cell', 'neuroendocrine cell']. Por defecto: None.  
+Ver https://cellxgene.cziscience.com/gene-expression y seleccione un tejido para ejemplos de tipos de células.  
 
 `--development_stage`  
-Str or list of development stage(s). Default: None.  
+Str o lista de etapa(s) de desarrollo. Por defecto: None.  
 
 `--disease`  
-Str or list of disease(s). Default: None.  
+Str o lista de enfermedade(s). Por defecto: None.  
 
 `--sex`  
-Str or list of sex(es), e.g. 'female'. Default: None.  
+Str o lista de sexo(s), p. 'female' (femenina). Por defecto: None.  
 
 `--dataset_id`  
-Str or list of CELLxGENE dataset ID(s). Default: None.  
+Str o lista de CELLxGENE ID(s). Por defecto: None.  
 
 `--tissue_general_ontology_term_id`  
-Str or list of high-level tissue UBERON ID(s). Default: None.  
-Tissue labels and their corresponding UBERON IDs are listed [here](https://github.com/chanzuckerberg/single-cell-data-portal/blob/9b94ccb0a2e0a8f6182b213aa4852c491f6f6aff/backend/wmg/data/tissue_mapper.py).  
+Str o lista de tejido(s) del tipo high-level UBERON ID. Por defecto: None.  
+Tejidos y sus IDs de UBERON se enumeran [aquí](https://github.com/chanzuckerberg/single-cell-data-portal/blob/9b94ccb0a2e0a8f6182b213aa4852c491f6f6aff/backend/wmg/data/tissue_mapper.py).  
 
 `--tissue_general`  
-Str or list of high-level tissue label(s). Default: None.  
-Tissue labels and their corresponding UBERON IDs are listed [here](https://github.com/chanzuckerberg/single-cell-data-portal/blob/9b94ccb0a2e0a8f6182b213aa4852c491f6f6aff/backend/wmg/data/tissue_mapper.py).  
+Str o lista de tejido(s) del tipo high-level. Por defecto: None.  
+Tejidos y sus IDs de UBERON se enumeran [aquí](https://github.com/chanzuckerberg/single-cell-data-portal/blob/9b94ccb0a2e0a8f6182b213aa4852c491f6f6aff/backend/wmg/data/tissue_mapper.py).  
 
 `--tissue_ontology_term_id`  
-Str or list of tissue ontology term ID(s) as defined in the CELLxGENE dataset schema. Default: None.  
+Str o lista de ID(s) de 'tissue ontology term' como están definidos en el [esquema de datos del CELLxGENE](https://github.com/chanzuckerberg/single-cell-curation/tree/main/schema). Por defecto: None.   
 
 `--assay_ontology_term_id`  
-Str or list of assay ontology term ID(s) as defined in the CELLxGENE dataset schema. Default: None.  
+Str o lista de ID(s) de 'assay ontology term' como están definidos en el [esquema de datos del CELLxGENE](https://github.com/chanzuckerberg/single-cell-curation/tree/main/schema). Por defecto: None.  
 
 `--assay`  
-Str or list of assay(s) as defined in the CELLxGENE dataset schema. Default: None.  
+Str o lista de 'assays' (métodos) como están definidos en el [esquema de datos del CELLxGENE](https://github.com/chanzuckerberg/single-cell-curation/tree/main/schema). Por defecto: None.  
 
 `--cell_type_ontology_term_id`  
-Str or list of celltype ontology term ID(s) as defined in the CELLxGENE dataset schema. Default: None.  
+Str o lista de ID(s) de 'celltype ontology term' como están definidos en el [esquema de datos del CELLxGENE](https://github.com/chanzuckerberg/single-cell-curation/tree/main/schema). Por defecto: None.  
 
-`--development_stage_ontology_term_id`  
-Str or list of development stage ontology term ID(s) as defined in the CELLxGENE dataset schema. Default: None.  
+`--development_stage_ontology_term_id`   
+Str o lista de ID(s) de 'development stage ontology term' como están definidos en el [esquema de datos del CELLxGENE](https://github.com/chanzuckerberg/single-cell-curation/tree/main/schema). Por defecto: None.  
 
 `--disease_ontology_term_id`  
-Str or list of disease ontology term ID(s) as defined in the CELLxGENE dataset schema. Default: None.  
+Str o lista de ID(s) de 'disease ontology term' como están definidos en el [esquema de datos del CELLxGENE](https://github.com/chanzuckerberg/single-cell-curation/tree/main/schema). Por defecto: None.  
 
 `--donor_id`  
-Str or list of donor ID(s) as defined in the CELLxGENE dataset schema. Default: None.  
+Str o lista de ID(s) de 'donor' (donador) como están definidos en el [esquema de datos del CELLxGENE](https://github.com/chanzuckerberg/single-cell-curation/tree/main/schema). Por defecto: None.  
 
 `--self_reported_ethnicity_ontology_term_id`  
-Str or list of self reported ethnicity ontology ID(s) as defined in the CELLxGENE dataset schema. Default: None.  
+Str o lista de ID(s) de 'self-reported ethnicity ontology' como están definidos en el [esquema de datos del CELLxGENE](https://github.com/chanzuckerberg/single-cell-curation/tree/main/schema). Por defecto: None.  
 
 `--self_reported_ethnicity`  
-Str or list of self reported ethnicity as defined in the CELLxGENE dataset schema. Default: None.  
+Str o lista de etnias autoinformadas como están definidas en el [esquema de datos del CELLxGENE](https://github.com/chanzuckerberg/single-cell-curation/tree/main/schema). Por defecto: None.  
 
 `--sex_ontology_term_id`  
-Str or list of sex ontology ID(s) as defined in the CELLxGENE dataset schema. Default: None.  
+Str o lista de ID(s) de 'sex ontology' como están definidos en el [esquema de datos del CELLxGENE](https://github.com/chanzuckerberg/single-cell-curation/tree/main/schema). Por defecto: None.  
 
 `--suspension_type`  
-Str or list of suspension type(s) as defined in the CELLxGENE dataset schema. Default: None.  
+Str o lista de tipo(s) de suspensión como están definidos en el [esquema de datos del CELLxGENE](https://github.com/chanzuckerberg/single-cell-curation/tree/main/schema). Por defecto: None.  
 
   
-### Examples
+### Por ejemplo
 ```bash
 gget cellxgene --gene ACE2 ABCA1 SLC5A1 --tissue lung --cell_type 'mucus secreting cell' 'neuroendocrine cell' -o example_adata.h5ad
 ```
@@ -114,9 +113,11 @@ adata = gget.cellxgene(
 )
 adata
 ```
-&rarr; Returns an AnnData object containing the scRNAseq ACE2, ABCA1, and SLC5A1 count matrix of 3322 human lung mucus secreting and neuroendocrine cells from CZ CELLxGENE Discover and their corresponding metadata.  
+&rarr; Regresa un objeto AnnData que contiene la matriz de recuentos de scRNAseq de los genes ACE2, ABCA1 y SLC5A1 en 3322 células secretoras de moco y neuroendocrinas del pulmón humano y sus metadatos correspondientes.
 
-Fetch metadata (corresponds to AnnData.obs) only:  
+<br/><br/>
+
+Obtene solo los metadatos (corresponde a AnnData.obs):  
 ```bash
 gget cellxgene --meta_only --gene ENSMUSG00000015405 --ensembl --tissue lung --species mus_musculus -o example_meta.csv
 ```
@@ -131,4 +132,4 @@ df = gget.cellxgene(
 )
 df
 ```
-&rarr; Returns only the metadata from ENSMUSG00000015405 (ACE2) expression datasets corresponding to mouse lung cells.  
+&rarr; Regresa solo los metadatos de conjuntos de datos de células de pulmón de ratón que contienen recuentos para ENSMUSG00000015405 (ACE2).  
