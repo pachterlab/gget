@@ -1,11 +1,11 @@
 > Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
 ## gget info 💡
-Obtenga extensos metadatos de genes y transcripciones de [Ensembl](https://www.ensembl.org/), [UniProt](https://www.uniprot.org/) y [NCBI](https://www. ncbi.nlm.nih.gov/) utilizando sus IDs de tipo Ensembl.  
+Obtenga información detallada sobre genes y transcripciones de [Ensembl](https://www.ensembl.org/), [UniProt](https://www.uniprot.org/) y [NCBI](https://www. ncbi.nlm.nih.gov/) utilizando sus IDs del tipo Ensembl.  
 Regresa: Resultados en formato JSON (Terminal) o Dataframe/CSV (Python).  
 
 **Parámetro posicional**  
 `ens_ids`   
-Uno o más ID de tipo Ensembl.  
+Uno o más ID del tipo Ensembl.  
 
 **Parámetros optionales**  
 `-o` `--out`   
