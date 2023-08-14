@@ -1,4 +1,4 @@
-> Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde el Terminal con la bandera `-h` `--help`.  
+> Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
 ## gget blat 🎯
 Encuentra la ubicación genómica de una secuencia de nucleótidos o aminoácidos usando [BLAT](https://genome.ucsc.edu/cgi-bin/hgBlat).   
 Regresa: Resultados en formato JSON (Terminal) o Dataframe/CSV (Python).  
