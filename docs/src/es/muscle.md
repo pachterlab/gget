@@ -1,28 +1,28 @@
-> Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
+> Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
 ## gget muscle 🦾
-Align multiple nucleotide or amino acid sequences to each other using [Muscle5](https://www.drive5.com/muscle/).  
-Return format: ClustalW formatted standard out or aligned FASTA (.afa).  
+Alinea múltiples secuencias de nucleótidos o aminoácidos usando [Muscle5](https://www.drive5.com/muscle/).  
+Regresa: Salida estándar (STDOUT) en formato ClustalW o archivo de tipo 'aligned FASTA' (.afa).  
 
-**Positional argument**  
+**Parámetro posicional**  
 `fasta`   
-Path to FASTA or .txt file containing the nucleotide or amino acid sequences to be aligned.  
+Ruta al archivo FASTA o .txt que contiene las secuencias de nucleótidos o aminoácidos que se van a alinear.  
 
-**Optional arguments**  
+**Parámetros optionales**  
 `-o` `--out`   
-Path to the aligned FASTA file the results will be saved in, e.g. path/to/directory/results.afa. Default: Standard out.   
-Python: `save=True` will save the output in the current working directory.
+Ruta al archivo en el que se guardarán los resultados, p. ruta/al/directorio/resultados.afa. Por defecto: salida estándar (STDOUT).  
+Para Python, usa `save=True` para guardar los resultados en el directorio de trabajo actual.  
 
-**Flags**  
+**Banderas**  
 `-s5` `--super5`  
-Aligns input using the [Super5 algorithm](https://drive5.com/muscle5/Muscle5_SuppMat.pdf) instead of the [Parallel Perturbed Probcons (PPP) algorithm](https://drive5.com/muscle5/Muscle5_SuppMat.pdf) to decrease time and memory.  
-Use for large inputs (a few hundred sequences).
+Alinea las secuencies usando el algoritmo [Super5](https://drive5.com/muscle5/Muscle5_SuppMat.pdf) en lugar del algoritmo [Parallel Perturbed Probcons (PPP)](https://drive5.com/muscle5/Muscle5_SuppMat.pdf) para disminuir el tiempo y la memoria usada durante la corrida.  
+Use para ingresos grandes (unos cientos secuencias).
 
 `-q` `--quiet`   
-Command-line only. Prevents progress information from being displayed.  
-Python: Use `verbose=False` to prevent progress information from being displayed. 
+Solo para la Terminal. Impide la informacion de progreso de ser exhibida durante la corrida.  
+Para Python, usa `verbose=False` para imipidir la informacion de progreso de ser exhibida durante la corrida.  
   
   
-### Example
+### Por ejemplo
 ```bash
 gget muscle fasta.fa
 ```
@@ -30,7 +30,7 @@ gget muscle fasta.fa
 # Python
 gget.muscle("fasta.fa")
 ```
-&rarr; Returns an overview of the aligned sequences with ClustalW coloring. (To return an aligned FASTA (.afa) file, use `--out` argument (or `save=True` in Jupyter Lab/Google Colab).) In the above example, the 'fasta.fa' includes several sequences to be aligned (e.g. isoforms returned from `gget seq`). 
+&rarr; Regresa las secuencias alineadas con coloración ClustalW. (Para devolver un archivo FASTA alineado (.afa), use el argumento `--out` (o `save=True` en Python).) En este ejemplo, el archivo 'fasta.fa' incluye varias secuencias para alineación (por ejemplo, isoformas devueltas desde `gget seq`).
 
 ![alt text](https://github.com/pachterlab/gget/blob/main/figures/example_muscle_return.png?raw=true)
 
