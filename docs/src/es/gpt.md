@@ -1,65 +1,64 @@
-> Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
+> Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
 ## gget gpt 💬
-Generates natural language text based on a given prompt using the [OpenAI](https://openai.com/) API's 'openai.ChatCompletion.create' endpoint. 
-This module, including its source code, documentation and unit tests, were partly written by OpenAI's Chat-GTP3.  
+Genera texto en lenguaje natural basado en mensaje de entrada. `gget gpt` use la API 'openai.ChatCompletion.create' de [OpenAI](https://openai.com/).
+Este módulo, incluido su código, documentación y pruebas unitarias, fue escrito en parte por Chat-GTP3 de OpenAI.
 
-NOTE:  
-OpenAI API calls are only 'free' for the first three months after generating your OpenAI Account (OpenAI provides a $5 credit that expires).  
-You can define a hard monthly billing limit (e.g. $1) [here](https://platform.openai.com/account/billing/limits).  
-See their pricing and FAQ [here](https://openai.com/pricing).  
-Get your OpenAI API key [here](https://platform.openai.com/account/api-keys).  
+TENGA EN CUENTA:  
+Las llamadas a la API de OpenAI solo son 'gratuitas' durante los primeros tres meses después de generar su cuenta de OpenAI (OpenAI proporciona un crédito de $5 que vence).  
+Puede definir un límite de facturación mensual estricto (por ejemplo, $1) [aquí](https://platform.openai.com/account/billing/limits).  
+Vea sus precios y preguntas frecuentes [aquí](https://openai.com/pricing).  
+Obtenga su clave API de OpenAI [aquí](https://platform.openai.com/account/api-keys).  
 
-Returns: A string containing the generated text.  
+Regresa: El texto generado (str).  
 
-Before using `gget gpt` for the first time, run `gget setup gpt` / `gget.setup("gpt")` once (also see [`gget setup`](setup.md)).  
+Antes de usar  `gget gpt` por primera vez, corre `gget setup gpt` / `gget.setup("gpt")` (ver también [`gget setup`](setup.md)).  
 
-**Positional argument**  
+**Parámetros posicionales**  
 `prompt`  
-The input prompt to generate text from (str).  
+Mensaje de entrada basado en el cual generar texto (str).  
 
 `api_key`  
-Your OpenAI API key (str) ([get your API key](https://platform.openai.com/account/api-keys)).  
+Su clave API de OpenAI (str) ([obtenga su clave API](https://platform.openai.com/account/api-keys)).  
 
-**Optional arguments**  
+**Parámetros optionales**  
 `-m` `--model`  
-The name of the GPT model to use for generating the text (str). Default is "gpt-3.5-turbo".  
+El nombre del algoritmo GPT que se usará para generar el texto (str). Por defecto: "gpt-3.5-turbo".  
 See https://platform.openai.com/docs/models/gpt-4 for more information on the available models.  
 
 `-temp` `--temperature`   
-Value between 0 and 2 that controls the level of randomness and creativity in the generated text (float).  
-Higher values result in more creative and varied text. Default is 1.  
+Valor entre 0 y 2 que controla el nivel de aleatoriedad y creatividad en el texto generado (float).  
+Los valores más altos resultan en un texto más creativo y variado. Por defecto: 1.  
 
 `-tp` `--top_p`   
-Controls the diversity of the generated text as an alternative to sampling with temperature (float).  
-Higher values result in more diverse and unexpected text. Default is 1.  
-Note: OpenAI recommends altering this or temperature but not both.  
+Controla la diversidad del texto generado como alternativa al muestreo con `--temperature` (float).  
+Los valores más altos resultan en un texto más diverso e inesperado. Por defecto: 1.  
+Tenga en cuenta que OpenAI recomienda modificar `--top_p` o el parámetro `--temperature`, pero no ambas.  
 
 `-s` `--stop`   
-A sequence of tokens to mark the end of the generated text (str). Default is None.  
+Una secuencia de tokens para marcar el final del texto generado (str). Por defecto: None.  
 
 `-mt` `--max_tokens`   
-Controls the maximum length of the generated text, in tokens (int). Default is 200.  
+Controla la longitud máxima del texto generado, en tokens (int). Por defecto: 200.  
 
 `-pp` `--presence_penalty`   
-Number between -2.0 and 2.0. Higher values result increase the model's likelihood to talk about new topics (float). Default is 0.  
+Número entre -2.0 y 2.0. Los valores más altos aumentan la probabilidad de que el modelo hable sobre temas nuevos (float). Por defecto: 0.  
 
 `-fp` `--frequency_penalty`   
-Number between -2.0 and 2.0. Higher values decrease the model's likelihood to repeat the same line verbatim (float). Default is 0.  
+Número entre -2.0 y 2.0. Los valores más altos reducen la probabilidad de que el modelo repita la misma línea palabra por palabra (float). Por defecto: 0.  
 
 `-lb` `--logit_bias`   
-A dictionary that specifies a bias towards certain tokens in the generated text (dict). Default is None.  
+Un diccionario que especifica un sesgo hacia ciertos tokens en el texto generado (dict). Por defecto: None.  
 
 `-o` `--out`   
-If provided, saves the generated text to a file with the specified path (str). Default: Standard out.  
+Ruta al archivo en el que se guardarán los resultados, p. ruta/al/directorio/resultados.txt. Por defecto: salida estándar (STDOUT).  
   
-  
-### Example
+### Por ejemplo
 ```bash
-gget gpt "How are you today GPT?" your_api_token
+gget gpt "Cómo estás hoy GPT?" su_clave_api
 ```
 ```python
 # Python
-print(gget.gpt("How are you today GPT?", "your_api_token"))
+print(gget.gpt("Cómo estás hoy GPT?", "su_clave_api"))
 ```
 
 <br>
