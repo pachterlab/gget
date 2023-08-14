@@ -25,7 +25,7 @@ Para Python, usa `save=True` para guardar los resultados en el directorio de tra
   
 **Banderas**   
 `-e` `--ensembl`  
-Usa esta bandera si `gene` se ingresa como ID de tipo Ensembl.  
+Usa esta bandera si `gene` se ingresa como ID del tipo Ensembl.   
 
 `-csv` `--csv`  
 Solo para la Terminal. Regresa los resultados en formato CSV.    
