@@ -1,71 +1,71 @@
-# Welcome to gget's contributing guide
+# Bienvenido a la guía de contribución de gget
 
-Thank you for investing your time in contributing to our project! Any contribution you make will be reflected on the [gget repo](https://github.com/pachterlab/gget). ✨
+¡Gracias por invertir su tiempo en contribuir con nuestro proyecto! Cualquier contribución que hagas se verá reflejada en el [repositorio de GitHub de gget](https://github.com/pachterlab/gget). ✨
 
-Read our [Code of Conduct](./code_of_conduct.md) to keep our community approachable and respectable.
+Lea nuestro [Código de conducta](./code_of_conduct.md) para mantener nuestra comunidad accesible y respetable.
 
-In this guide you will get an overview of the contribution workflow from opening an issue or creating a pull request (PR) to reviewing and merging a PR.
+En esta guía, obtendrá una descripción general del flujo de trabajo de contribución desde la creación de un GitHub Issue (asunto) o la creación de un GitHub Pull Request (PR) hasta la revisión y fusión de un PR.
 
-## Issues
+## Issues (asuntos)
 
-### Create a new issue
+### Crear un nuevo Issue
 
-If you spot a problem with gget or you have an idea for a new feature, [check if an issue already exists](https://github.com/pachterlab/gget/issues). If a related issue doesn't exist, you can open a new issue using the relevant [issue form](https://github.com/pachterlab/gget/issues/new/choose).
+Si detecta un problema con gget o tiene una idea para una nueva función, [comproba si ya existe un Issue para este problema/sugerencia](https://github.com/pachterlab/gget/issues). Si no existe un Issue relacionado, puede abrir un nuevo Issue utilizando el [formulario correspondiente](https://github.com/pachterlab/gget/issues/new/choose).
 
-### Solve an issue
+### Resolver un Issue
 
-Scan through our [existing issues](https://github.com/pachterlab/gget/issues) to find one that interests you. You can narrow down the search using `labels` as filters. If you find an issue to work on, you are welcome to open a PR with a fix.
+Explore nuestros [Issues existentes](https://github.com/pachterlab/gget/issues) para encontrar uno que le interese. Puede restringir la búsqueda utilizando "labels" como filtros. Si encuentra un Issue en el que desea trabajar, puede abrir un PR con una solución.
 
-## Contribute through pull requests
+## Contribuir a través de Pull Requests (PRs)
 
-### Getting started
+### Empezar
 
-1. Fork the repository.
-- Using GitHub Desktop:
-  - [Getting started with GitHub Desktop](https://docs.github.com/en/desktop/installing-and-configuring-github-desktop/getting-started-with-github-desktop) will guide you through setting up Desktop.
-  - Once Desktop is set up, you can use it to [fork the repo](https://docs.github.com/en/desktop/contributing-and-collaborating-using-github-desktop/cloning-and-forking-repositories-from-github-desktop)!
+1. Bifurcar ("fork") el [repositorio de GitHub de gget](https://github.com/pachterlab/gget).
+- Usando GitHub Desktop:
+  - ["Getting started with GitHub Desktop"](https://docs.github.com/en/desktop/installing-and-configuring-github-desktop/getting-started-with-github-desktop) lo guiará a través de la configuración de Desktop.
+  - Una vez que GitHub Desktop está configurado, puede usarlo para [bifurcar el repositorio](https://docs.github.com/en/desktop/contributing-and-collaborating-using-github-desktop/cloning-and-forking-repositories-from-github-desktop)!
 
-- Using the command line:
-  - [Fork the repo](https://docs.github.com/en/github/getting-started-with-github/fork-a-repo#fork-an-example-repository) so that you can make your changes without affecting the original project until you're ready to merge them.
+- Usando la Terminal:
+  - [Bifurca el repositorio](https://docs.github.com/en/github/getting-started-with-github/fork-a-repo#fork-an-example-repository) para que pueda realizar sus cambios sin afectando el proyecto original hasta que esté listo para fusionarlos.
 
-2. Create a working branch and start with your changes!
+2. ¡Cree una rama de trabajo y comience con sus cambios!
 
-### Commit your update
+### Confirma sus actualizaciones
 
-Commit the changes once you are happy with them.
+Confirme sus cambios una vez que esté satisfecho con ellos.
 
-### ‼️ Self-review the following before creating a Pull Request ‼️
+### ‼️ Auto-revisa lo siguiente antes de crear un PR ‼️
 
-1. Review the content for technical accuracy.
-2. Copy-edit the changes/comments for grammar, spelling, and adherence to the general style of existing gget code.
-3. Format your code using [black](https://black.readthedocs.io/en/stable/getting_started.html).
-4. Make sure the unit tests pass:
-    - Developer dependencies can be installed with `pip install -r dev-requirements.txt`
-    - Run existing unit tests from the gget repository root with `coverage run -m pytest -ra -v tests && coverage report --omit=main.py,tests*`
-5. Add new unit tests if applicable:
-    - Arguments and expected results are stored in json files in ./tests/fixtures/
-    - Unit tests can be added to ./tests/test_*.py and will be automatically detected
-6. Make sure the edits are compatible with both the Python and the command line interface
-    - The command line interface and arguments are defined in ./gget/main.py
-8. Add new modules/arguments to the documentation if applicable:
-    - The manual for each module can be edited/added as ./docs/src/*.md
+1. Revise el contenido para mantener precisión técnica.
+2. Edite los cambios/comentarios de gramática, ortografía y adherencia al estilo general del código de gget existente.
+3. Formatee su código usando ["black"](https://black.readthedocs.io/en/stable/getting_started.html).
+4. Asegúrese de que las pruebas unitarias pasen:
+    - Las dependencias de desarrollador se pueden instalar con `pip install -r dev-requirements.txt`
+    - Ejecute pruebas unitarias existentes desde la carpeta de gget con `coverage run -m pytest -ra -v tests && coverage report --omit=main.py,tests*`
+5. Agregue nuevas pruebas unitarias si corresponde:
+    - Los parámetros y los resultados esperados se pueden encontrar en archivos json en ./tests/fixtures/
+    - Las pruebas unitarias se pueden agregar a ./tests/test_*.py y serán detectado automáticamente
+6. Asegúrese de que las ediciones sean compatibles tanto con Python como con la Terminal
+    - Los parámetros para la Terminal se definen en ./gget/main.py
+8. Agregue módulos/argumentos nuevos a la documentación, si corresponde:
+    - El manual de cada módulo se puede editar/añadir como ./docs/src/*.md
+   
+Si tiene alguna pregunta, no dude en iniciar una [discusión](https://github.com/pachterlab/gget/discussions) o crear un Issue como se describe anteriormente.
 
-If you have any questions, feel free to start a [discussion](https://github.com/pachterlab/gget/discussions) or create an issue as described above.
+### Crear un Pull Request (PR)
 
-### Pull Request
+Cuando haya terminado con los cambios, [cree un Pull Request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request), también conocido como "PR".
 
-When you're finished with the changes, [create a pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request), also known as a PR.
+‼️ Realice todos los PRs contra la rama `dev` del repositorio gget
 
-‼️ Please make all PRs against the `dev` branch of the gget repository. 
+- No olvide de [vincular su PR con un Issue](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue) si estás resolviendo uno.
+- Habilite la casilla de verificación para [permitir ediciones del mantenedor](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/allowing-changes-to-a-pull-request-branch-created-from-a-fork) para que la rama se pueda actualizar para una fusión.
+- Si se encuentra con problemas durante la fusión, consulte este [tutorial de git](https://github.com/skills/resolve-merge-conflicts) para ayudarlo a resolver conflictos de fusión y otros problemas.
 
-- Don't forget to [link PR to issue](https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue) if you are solving one.
-- Enable the checkbox to [allow maintainer edits](https://docs.github.com/en/github/collaborating-with-issues-and-pull-requests/allowing-changes-to-a-pull-request-branch-created-from-a-fork) so the branch can be updated for a merge.
-- If you run into any merge issues, checkout this [git tutorial](https://github.com/skills/resolve-merge-conflicts) to help you resolve merge conflicts and other issues.
+Una vez que envíe su PR, un miembro del equipo gget revisará su propuesta. Podemos hacer preguntas o solicitar información adicional.
 
-Once you submit your PR, a gget team member will review your proposal. We may ask questions or request additional information.
+### ¡Su PR está fusionado!
 
-### Your PR is merged!
+¡Felicidades! 🎉	 El equipo de gget te lo agradece. ✨
 
-Congratulations! 🎉	 The gget team thanks you. ✨
-
-Once your PR is merged, your contributions will be publicly visible on the [gget repo](https://github.com/pachterlab/gget).
+Una vez que su PR se fusione, sus contribuciones serán visibles públicamente en el [repositorio de gget](https://github.com/pachterlab/gget).
