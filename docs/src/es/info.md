@@ -1,43 +1,43 @@
-> Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
+> Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
 ## gget info 💡
-Fetch extensive gene and transcript metadata from [Ensembl](https://www.ensembl.org/), [UniProt](https://www.uniprot.org/), and [NCBI](https://www.ncbi.nlm.nih.gov/) using Ensembl IDs.  
-Return format: JSON (command-line) or data frame/CSV (Python).
+Obtenga extensos metadatos de genes y transcripciones de [Ensembl](https://www.ensembl.org/), [UniProt](https://www.uniprot.org/) y [NCBI](https://www. ncbi.nlm.nih.gov/) utilizando sus IDs de tipo Ensembl.  
+Regresa: Resultados en formato JSON (Terminal) o Dataframe/CSV (Python).  
 
-**Positional argument**  
+**Parámetro posicional**  
 `ens_ids`   
-One or more Ensembl IDs.
+Uno o más ID de tipo Ensembl.  
 
-**Optional arguments**  
+**Parámetros optionales**  
 `-o` `--out`   
-Path to the file the results will be saved in, e.g. path/to/directory/results.csv (or .json). Default: Standard out.    
-Python: `save=True` will save the output in the current working directory.
+Ruta al archivo en el que se guardarán los resultados, p. ruta/al/directorio/resultados.csv (o .json). Por defecto: salida estándar (STDOUT).  
+Para Python, usa `save=True` para guardar los resultados en el directorio de trabajo actual.  
 
-**Flags**  
+**Banderas**  
 `-n` `--ncbi`  
-TURN OFF results from [NCBI](https://www.ncbi.nlm.nih.gov/).  
-Python: `ncbi=False` prevents data retrieval from NCBI (default: True).    
+DESACTIVA los resultados de [NCBI](https://www.ncbi.nlm.nih.gov/).  
+Para Python: `ncbi=False` evita la incluida de datos de NCBI (por defecto: True).    
 
 `-u` `--uniprot`  
-TURN OFF results from [UniProt](https://www.uniprot.org/).  
-Python: `uniprot=False` prevents data retrieval from UniProt (default: True).   
+DESACTIVA los resultados de [UniProt](https://www.uniprot.org/).  
+Para Python: `uniprot=False` evita la incluida de datos de UniProt (por defecto: True).   
 
 `-pdb` `--pdb`  
-INCLUDE [PDB](https://www.ebi.ac.uk/pdbe/) IDs in output (might increase runtime).  
-Python: `pdb=False` prevents data retrieval from PDB (default: False).   
+INCLUYE [PDB](https://www.ebi.ac.uk/pdbe/) IDs en los resultados (podría aumentar el tiempo de ejecución).  
+Para Python: `pdb=True` incluye IDs de PDB en los resultados (por defecto: False). 
 
 `-csv` `--csv`  
-Command-line only. Returns results in CSV format.  
-Python: Use `json=True` to return output in JSON format.
+Solo para la Terminal. Regresa los resultados en formato CSV.    
+Para Python, usa `json=True` para regresar los resultados en formato JSON.  
 
 `-q` `--quiet`   
-Command-line only. Prevents progress information from being displayed.  
-Python: Use `verbose=False` to prevent progress information from being displayed.  
+Solo para la Terminal. Impide la informacion de progreso de ser exhibida durante la corrida.  
+Para Python, usa `verbose=False` para imipidir la informacion de progreso de ser exhibida durante la corrida.  
 
 `wrap_text`  
-Python only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).  
+Solo para Python. `wrap_text=True` muestra los resultados con texto envuelto para facilitar la lectura (por defecto: False).  
 
 
-### Example
+### Por ejemplo
 ```bash
 gget info ENSG00000034713 ENSG00000104853 ENSG00000170296
 ```
@@ -45,7 +45,7 @@ gget info ENSG00000034713 ENSG00000104853 ENSG00000170296
 # Python
 gget.info(["ENSG00000034713", "ENSG00000104853", "ENSG00000170296"])
 ```
-&rarr; Returns extensive information about each requested Ensembl ID:  
+&rarr; Regresa información detallada sobre cada ID de Ensembl ingresada:
 
 |      | uniprot_id     | ncbi_gene_id     | primary_gene_name | synonyms | protein_names | ensembl_description | uniprot_description | ncbi_description | biotype | canonical_transcript | ... |
 | -------------- |-------------------------| ------------------------| -------------- | ----------|-----|----|----|----|----|----|----|
