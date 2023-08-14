@@ -1,17 +1,17 @@
-> Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
+> Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
 ## gget enrichr 💰
-Perform an enrichment analysis on a list of genes using [Enrichr](https://maayanlab.cloud/Enrichr/).  
-Return format: JSON (command-line) or data frame/CSV (Python).
+Realice un análisis de enriquecimiento de conjuntos de genes en una lista de genes utilizando [Enrichr](https://maayanlab.cloud/Enrichr/).  
+Regresa: Resultados en formato JSON (Terminal) o Dataframe/CSV (Python).  
   
-**Positional argument**  
+**Parámetro posicional**  
 `genes`  
-Short names (gene symbols) of genes to perform enrichment analysis on, e.g. PHF14 RBM3 MSL1 PHF21A.  
-Alternatively: use flag `--ensembl` to input a list of Ensembl gene IDs, e.g. ENSG00000106443 ENSG00000102317 ENSG00000188895.
+Lista de nombres cortos (símbolos) de los genes de interés con que realizar la análisis de enriquecimiento, p. PHF14 RBM3 MSL1 PHF21A.  
+Alternativamente: usa la bandera `--ensembl` para ingresar IDs del tipo Ensembl, p. ENSG00000106443 ENSG00000102317 ENSG00000188895.  
 
-**Other required arguments**  
+**Otros parámetros requeridos**  
 `-db` `--database`  
-Database to use as reference for the enrichment analysis.  
-Supports any database listed [here](https://maayanlab.cloud/Enrichr/#libraries) under 'Gene-set Library' or one of the following shortcuts:  
+Base de datos a utilizar como referencia para el análisis de enriquecimiento.  
+Admite cualquier base de datos enumerada [aquí](https://maayanlab.cloud/Enrichr/#libraries) o uno de los siguientes accesos directos:  
 'pathway'       (KEGG_2021_Human)  
 'transcription'     (ChEA_2016)  
 'ontology'      (GO_Biological_Process_2021)  
@@ -19,45 +19,45 @@ Supports any database listed [here](https://maayanlab.cloud/Enrichr/#libraries) 
 'celltypes'      (PanglaoDB_Augmented_2021)  
 'kinase_interactions'   (KEA_2015)  
   
-**Optional arguments**  
+**Parámetros optionales**  
 `-bkg_l` `--background_list`  
-Short names (gene symbols) of background genes to perform enrichment analysis on, e.g. NSUN3 POLRMT NLRX1.  
-Alternatively: use flag `--ensembl_background` to input a list of Ensembl gene IDs.
+Lista de nombres cortos (símbolos) de genes de 'background' (de fondo/control), p. NSUN3 POLRMT NLRX1.  
+Alternativamente: usa la bandera `--ensembl_background` para ingresar IDs del tipo Ensembl.  
 
 `-o` `--out`   
-Path to the file the results will be saved in, e.g. path/to/directory/results.csv (or .json). Default: Standard out.   
-Python: `save=True` will save the output in the current working directory.
+Ruta al archivo en el que se guardarán los resultados, p. ruta/al/directorio/resultados.csv (o .json). Por defecto: salida estándar (STDOUT).  
+Para Python, usa `save=True` para guardar los resultados en el directorio de trabajo actual.  
 
 `figsize`  
-Python only. (width, height) of plot in inches. (Default: (10,10))
+Solo para Python. (ancho, alto) de la visualización en pulgadas. (Por defecto: (10,10))
 
-`ax`  
-Python only. Pass a matplotlib axes object for plot customization. (Default: None)
+`ax`   
+Solo para Python. Ingresa un objeto de ejes matplotlib para personalizar la visualización.(Por defecto: None)  
 
   
-**Flags**  
+**Banderas**  
 `-e` `--ensembl`   
-Add this flag if `genes` are given as Ensembl gene IDs.
+Usa esta bandera si `genes` se ingresa como una lista de IDs del tipo Ensembl.     
 
 `-e_b` `--ensembl_background`  
-Add this flag if `background_list` are given as Ensembl gene IDs.
+Usa esta bandera si `background_list` se ingresa como una lista de IDs del tipo Ensembl.  
 
 `-bkg` `--background`  
-If True, use set of 20,625 default background genes from https://maayanlab.cloud/Enrichr/.
+Use un conjunto de 20,625 genes 'background' de [https://maayanlab.cloud/Enrichr/](https://maayanlab.cloud/Enrichr/).
  
 `-csv` `--csv`  
-Command-line only. Returns results in CSV format.  
-Python: Use `json=True` to return output in JSON format.
+Solo para la Terminal. Regresa los resultados en formato CSV.    
+Para Python, usa `json=True` para regresar los resultados en formato JSON.   
 
 `-q` `--quiet`   
-Command-line only. Prevents progress information from being displayed.  
-Python: Use `verbose=False` to prevent progress information from being displayed. 
+Solo para la Terminal. Impide la informacion de progreso de ser exhibida durante la corrida.  
+Para Python, usa `verbose=False` para imipidir la informacion de progreso de ser exhibida durante la corrida.  
   
 `plot`  
-Python only. `plot=True` provides a graphical overview of the first 15 results (default: False).  
+Solo para Python. `plot=True` provee una visualización de los primeros 15 resultados (por defecto: False).  
   
   
-### Examples
+### Por ejemplo
 ```bash
 gget enrichr -db ontology ACE2 AGT AGTR1
 ```
@@ -65,15 +65,15 @@ gget enrichr -db ontology ACE2 AGT AGTR1
 # Python
 gget.enrichr(["ACE2", "AGT", "AGTR1"], database="ontology", plot=True)
 ```
-&rarr; Returns pathways/functions involving genes ACE2, AGT, and AGTR1 from the *GO Biological Process 2021* database. In Python, `plot=True` returns a graphical overview of the results:
+&rarr; Regresa vías/funciones celulares relacionadas con los genes ACE2, AGT y AGTR1 de la base de datos *GO Biological Process 2021*. En Python, `plot=True` provee una visualización de los resultados:
 
 ![alt text](https://github.com/pachterlab/gget/blob/main/figures/gget_enrichr_results.png?raw=true)
 
 <br/><br/>
 
-**Use `gget enrichr` with a background gene list:**  
+**Use `gget enrichr` con una lista de genes 'background':**  
 ```bash
-# Here, we are passing the input genes first (positional argument 'genes'), so they are not added to the background gene list behind the '-bkgr_l' argument
+# Aquí, ingresamos los genes de interés (parámetro posicional 'genes') primero, para que no se agregan a la lista de genes 'background' detrás del parámetro '-bkgr_l'
 gget enrichr \
 	PHF14 RBM3 MSL1 PHF21A ARL10 INSR JADE2 P2RX7 LINC00662 CCDC101 PPM1B KANSL1L CRYZL1 ANAPC16 TMCC1 CDH8 RBM11 CNPY2 HSPA1L CUL2 PLBD2 LARP7 TECPR2 ZNF302 CUX1 MOB2 CYTH2 SEC22C EIF4E3 ROBO2 ADAMTS9-AS2 CXXC1 LINC01314 ATF7 ATP5F1 \
 	-db ChEA_2022 \
@@ -117,15 +117,15 @@ gget.enrichr(
 	plot=True
 )
 ```
-&rarr; Returns hits of the input gene list given the background gene list from the transcription factor/target library *ChEA 2022*. In Python, `plot=True` returns a graphical overview of the results:
+&rarr; Regresa factores de transcripción relacionados con los genes de interés y controlados con la lista de genes background de la base de datos *ChEA 2022*. En Python, `plot=True` provee una visualización de los resultados:
 
 ![alt text](https://github.com/pachterlab/gget/blob/main/figures/gget_enrichr_results_2.png?raw=true)
 
 <br/><br/>
 
-The following example was submitted by [Dylan Lawless](https://github.com/DylanLawless) via [PR](https://github.com/pachterlab/gget/pull/54) (with slight adjustments by [Laura Luebbert](https://github.com/lauraluebbert)):  
-**Use `gget enrichr` in R and create a similar plot using [ggplot](https://ggplot2.tidyverse.org/reference/ggplot.html).**  
-NOTE the switch of axes compared to the Python plot.  
+El siguiente ejemplo fue enviado por [Dylan Lawless](https://github.com/DylanLawless) través de un [PR](https://github.com/pachterlab/gget/pull/54) (con ajustes de [Laura Luebbert](https://github.com/lauraluebbert)):  
+**Use `gget enrichr` en R y cree unq visualización similar usando [ggplot](https://ggplot2.tidyverse.org/reference/ggplot.html).**  
+TENGA EN CUENTA el cambio de ejes en comparación con la visualización en Python. 
 ```r
 system("pip install gget")
 install.packages("reticulate")
@@ -180,4 +180,4 @@ df |>
 	xlab("-log10(adjusted P value)")
 ```
 
-#### [More examples](https://github.com/pachterlab/gget_examples)
+#### [Más ejemplos](https://github.com/pachterlab/gget_examples)
