@@ -70,7 +70,7 @@ gget.archs4("ACE2", which="tissue")
 | . . . | . . . | . . . | . . . | . . . | . . . |
 
 <br/><br/>
-Consulte [este tutorial](https://davetang.org/muse/2023/05/16/check-where-a-gene-is-expressed-from-the-command-line/) de Dave Tang, quien escribió un script R para crear esta visualición con los resultados de `gget archs4` en formato JSON:  
+Consulte [este tutorial](https://davetang.org/muse/2023/05/16/check-where-a-gene-is-expressed-from-the-command-line/) de Dave Tang, quien escribió un script R para crear esta visualización con los resultados de `gget archs4` en formato JSON:  
 
 ![image](https://github.com/pachterlab/gget/assets/56094636/f2a34a9e-beaa-45a5-a678-d38399dd3017)
 
