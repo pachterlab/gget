@@ -1,13 +1,13 @@
-> Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
+> Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
 ## gget setup 🔧
 
-Function to install/download third-party dependencies for a specified gget module.
+Función para instalar/descargar dependencias de terceros para un módulo de gget.  
 
-**Positional argument**  
-`module`  
-gget module for which dependencies should be installed ("alphafold", "gpt" or "cellxgene").  
+**Parámetro posicional**  
+`module`   
+Módulo gget para el que se deben instalar las dependencias ("alphafold", "gpt" o "cellxgene").  
 
-### Example
+### Por ejemplo
 ```bash
 gget setup alphafold
 ```
@@ -15,4 +15,4 @@ gget setup alphafold
 # Python
 gget.setup("alphafold")
 ```
-&rarr; Installs all (modified) third-party dependencies and downloads model parameters (~4GB) required to run `gget alphafold`. 
+&rarr; Instala todas las dependencias de terceros (modificadas) y descarga los parámetros del algoritmo (~4 GB) necesarios para ejecutar `gget alphafold`.  
