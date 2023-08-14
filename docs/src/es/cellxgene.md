@@ -1,4 +1,4 @@
-> Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde el Terminal con la bandera `-h` `--help`.  
+> Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
 ## gget cellxgene 🍱  
 Regresa data de la base de datos [CZ CELLxGENE Discover](https://cellxgene.cziscience.com/) usando [CZ CELLxGENE Discover Census](https://github.com/chanzuckerberg/cellxgene-census).  
 Regresa: Un objeto del tipo AnnData que contiene la matriz de recuentos de genes y los metadatos de los datos de single-cell RNA sequencing de los tejidos/genes/etc. definidos.  
