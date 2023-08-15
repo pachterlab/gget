@@ -24,7 +24,7 @@ Limita el número de resultados para regresar. Por defecto: 50.
 Define el umbral de ['expect value'](https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=FAQ#expect). Por defecto: 10.0.  
 
 `-o` `--out`   
-Ruta al archivo en el que se guardarán los resultados, p. ruta/al/directorio/resultados.csv (o .json). Por defecto: salida estándar (STDOUT).  
+Ruta al archivo en el que se guardarán los resultados, p. ej. ruta/al/directorio/resultados.csv (o .json). Por defecto: salida estándar (STDOUT).  
 Para Python, usa `save=True` para guardar los resultados en el directorio de trabajo actual.  
 
 **Banderas**  
