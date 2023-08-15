@@ -2,9 +2,10 @@
 title = "gget"
 authors = ["Laura Luebbert"]
 multilingual = true
-src = "src"
-language = "en"
 
-[languages]
-en = { name = "English", default = true }
-es = { name = "Español" }
+[languages.en]
+name = "English"
+default = true
+
+[languages.es]
+name = "Español"
