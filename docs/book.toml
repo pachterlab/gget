@@ -1,9 +1,10 @@
-[[translations.en]]
+[book]
 title = "gget"
-author = "Laura Luebbert"
-language_name = "English"
+authors = ["Laura Luebbert"]
+multilingual = true
+src = "src"
+language = "en"
 
-[[translations.es]]
-title = "gget"
-authors = ["Laura Luebbert, Victor Garcia-Ruiz"]
-language_name = "Español"
+[languages]
+en = { name = "English", default = true }
+es = { name = "Español" }
