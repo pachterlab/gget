@@ -3,6 +3,9 @@
 [Introduction](en/introduction.md)  
 [What's New?](en/updates.md)  
 
+[Introdución](es/introduction.md)  
+[¡Lo más reciente!](es/updates.md)  
+
 # User Guide
 - [Installation](en/installation.md)  
 - [Quick Start Guide](en/quick_start_guide.md)  
@@ -25,13 +28,7 @@
 
 ---
 
-[Contributing Guide](en/contributing.md)  
-[Code of Conduct](en/code_of_conduct.md)  
-[Citation Guidelines](en/cite.md)  
-
 # Español
-[Introdución](es/introduction.md)  
-[¡Lo más reciente!](es/updates.md)  
 
 # Guía del usario
 - [Instalación](es/installation.md)  
@@ -54,6 +51,10 @@
 - [gget seq](es/seq.md)  
 
 ---
+
+[Contributing Guide](en/contributing.md)  
+[Code of Conduct](en/code_of_conduct.md)  
+[Citation Guidelines](en/cite.md)  
 
 [Guía de contribución](es/contributing.md)  
 [Codigo de conducto](es/code_of_conduct.md)  
