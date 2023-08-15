@@ -1,42 +1,42 @@
-## 🪄 Quick start guide
-Command line:
+## 🪄 Guía de inicio rápido
+Terminal:
 ```bash
-# Fetch all Homo sapiens reference and annotation FTPs from the latest Ensembl release
+# Obtenga todos los FTP de anotaciones y referencias de Homo sapiens de la última versión de Ensembl
 $ gget ref homo_sapiens
 
-# Get Ensembl IDs of human genes with "ace2" or "angiotensin converting enzyme 2" in their name/description
+# Obtenga IDs de Ensembl de genes humanos con "ace2" o "angiotensin converting enzyme 2" en su nombre/descripción
 $ gget search -s homo_sapiens 'ace2' 'angiotensin converting enzyme 2'
 
-# Look up gene ENSG00000130234 (ACE2) and its transcript ENST00000252519
+# Busque el gen ENSG00000130234 (ACE2) y su transcripción ENST00000252519
 $ gget info ENSG00000130234 ENST00000252519
 
-# Fetch the amino acid sequence of the canonical transcript of gene ENSG00000130234
+# Obtenga la secuencia de aminoácidos de la transcripción canónica del gen ENSG00000130234
 $ gget seq --translate ENSG00000130234
 
-# Quickly find the genomic location of (the start of) that amino acid sequence
+# Rápidamente encuentra la ubicación genómica de la secuencia de aminoácidos
 $ gget blat MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS
 
-# BLAST (the start of) that amino acid sequence
+# BLAST la secuencia de aminoácidos
 $ gget blast MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS
 
-# Align nucleotide or amino acid sequences stored in a FASTA file
+# Alinea secuencias de nucleótidos o aminoácidos en un archivo FASTA
 $ gget muscle path/to/file.fa
 
-# Use Enrichr for an ontology analysis of a list of genes
+# Use Enrichr para un análisis de ontología de una lista de genes
 $ gget enrichr -db ontology ACE2 AGT AGTR1 ACE AGTRAP AGTR2 ACE3P
 
-# Get the human tissue expression of gene ACE2
+# Obtene la expresión en tejido humano del gen ACE2
 $ gget archs4 -w tissue ACE2
 
-# Get the protein structure (in PDB format) of ACE2 as stored in the Protein Data Bank (PDB ID returned by gget info)
+# Obtenga la estructura de la proteína (en formato PDB) de ACE2 (ID de PDB devuelta por gget info)
 $ gget pdb 1R42 -o 1R42.pdb
 
-# Fetch a scRNAseq count matrix (AnnData format) based on specified gene(s), tissue(s), and cell type(s) (default species: human)
-$ gget setup cellxgene # setup only needs to be run once
+# Obtene una matriz de recuento de scRNAseq (formato AnnData) basada en genes, tejidos y tipos de células especificados (especie predeterminada: humano)
+$ gget setup cellxgene # solo debe ejecutarse una vez
 $ gget cellxgene --gene ACE2 SLC5A1 --tissue lung --cell_type 'mucus secreting cell' -o example_adata.h5ad
 
-# Predict the protein structure of GFP from its amino acid sequence
-$ gget setup alphafold # setup only needs to be run once
+# Predice la estructura proteica de GFP a partir de su secuencia de aminoácidos
+$ gget setup alphafold  # solo debe ejecutarse una vez
 $ gget alphafold MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK
 ```
 Python (Jupyter Lab / Google Colab):
@@ -53,13 +53,13 @@ gget.enrichr(["ACE2", "AGT", "AGTR1", "ACE", "AGTRAP", "AGTR2", "ACE3P"], databa
 gget.archs4("ACE2", which="tissue")
 gget.pdb("1R42", save=True)
 
-gget.setup("cellxgene") # setup only needs to be run once
+gget.setup("cellxgene") # solo debe ejecutarse una vez
 gget.cellxgene(gene = ["ACE2", "SLC5A1"], tissue = "lung", cell_type = "mucus secreting cell")
 
-gget.setup("alphafold") # setup only needs to be run once
+gget.setup("alphafold") # solo debe ejecutarse una vez
 gget.alphafold("MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK")
 ```
-Call `gget` from R using [reticulate](https://rstudio.github.io/reticulate/):
+Use a `gget` con R usando [reticulate](https://rstudio.github.io/reticulate/):
 ```r
 system("pip install gget")
 install.packages("reticulate")
@@ -77,4 +77,4 @@ gget$enrichr(list("ACE2", "AGT", "AGTR1", "ACE", "AGTRAP", "AGTR2", "ACE3P"), da
 gget$archs4("ACE2", which="tissue")
 gget$pdb("1R42", save=TRUE)
 ```
-#### [More examples](https://github.com/pachterlab/gget_examples)
+#### [Más ejemplos](https://github.com/pachterlab/gget_examples)
