@@ -1,7 +1,5 @@
 [book]
 title = "gget"
 authors = ["Laura Luebbert"]
-multilingual = true
-
-[languages.es]
-name = "Español"
+description = "gget enables efficient querying of genomic reference databases"
+src = "src"
