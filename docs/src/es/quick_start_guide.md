@@ -1,0 +1,80 @@
+## 🪄 Guía de inicio rápido
+Terminal:
+```bash
+# Obtenga todos los FTP de anotaciones y referencias de Homo sapiens de la última versión de Ensembl
+$ gget ref homo_sapiens
+
+# Obtenga IDs de Ensembl de genes humanos con "ace2" o "angiotensin converting enzyme 2" en su nombre/descripción
+$ gget search -s homo_sapiens 'ace2' 'angiotensin converting enzyme 2'
+
+# Busque el gen ENSG00000130234 (ACE2) y su transcripción ENST00000252519
+$ gget info ENSG00000130234 ENST00000252519
+
+# Obtenga la secuencia de aminoácidos de la transcripción canónica del gen ENSG00000130234
+$ gget seq --translate ENSG00000130234
+
+# Rápidamente encuentra la ubicación genómica de la secuencia de aminoácidos
+$ gget blat MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS
+
+# BLAST la secuencia de aminoácidos
+$ gget blast MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS
+
+# Alinea secuencias de nucleótidos o aminoácidos en un archivo FASTA
+$ gget muscle path/to/file.fa
+
+# Use Enrichr para un análisis de ontología de una lista de genes
+$ gget enrichr -db ontology ACE2 AGT AGTR1 ACE AGTRAP AGTR2 ACE3P
+
+# Obtene la expresión en tejido humano del gen ACE2
+$ gget archs4 -w tissue ACE2
+
+# Obtenga la estructura de la proteína (en formato PDB) de ACE2 (ID de PDB devuelta por gget info)
+$ gget pdb 1R42 -o 1R42.pdb
+
+# Obtene una matriz de recuento de scRNAseq (formato AnnData) basada en genes, tejidos y tipos de células especificados (especie predeterminada: humano)
+$ gget setup cellxgene # solo debe ejecutarse una vez
+$ gget cellxgene --gene ACE2 SLC5A1 --tissue lung --cell_type 'mucus secreting cell' -o example_adata.h5ad
+
+# Predice la estructura proteica de GFP a partir de su secuencia de aminoácidos
+$ gget setup alphafold  # solo debe ejecutarse una vez
+$ gget alphafold MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK
+```
+Python (Jupyter Lab / Google Colab):
+```python  
+import gget
+gget.ref("homo_sapiens")
+gget.search(["ace2", "angiotensin converting enzyme 2"], "homo_sapiens")
+gget.info(["ENSG00000130234", "ENST00000252519"])
+gget.seq("ENSG00000130234", translate=True)
+gget.blat("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")
+gget.blast("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")
+gget.muscle("path/to/file.fa")
+gget.enrichr(["ACE2", "AGT", "AGTR1", "ACE", "AGTRAP", "AGTR2", "ACE3P"], database="ontology", plot=True)
+gget.archs4("ACE2", which="tissue")
+gget.pdb("1R42", save=True)
+
+gget.setup("cellxgene") # solo debe ejecutarse una vez
+gget.cellxgene(gene = ["ACE2", "SLC5A1"], tissue = "lung", cell_type = "mucus secreting cell")
+
+gget.setup("alphafold") # solo debe ejecutarse una vez
+gget.alphafold("MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK")
+```
+Use a `gget` con R usando [reticulate](https://rstudio.github.io/reticulate/):
+```r
+system("pip install gget")
+install.packages("reticulate")
+library(reticulate)
+gget <- import("gget")
+
+gget$ref("homo_sapiens")
+gget$search(list("ace2", "angiotensin converting enzyme 2"), "homo_sapiens")
+gget$info(list("ENSG00000130234", "ENST00000252519"))
+gget$seq("ENSG00000130234", translate=TRUE)
+gget$blat("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")
+gget$blast("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")
+gget$muscle("path/to/file.fa", out="path/to/out.afa")
+gget$enrichr(list("ACE2", "AGT", "AGTR1", "ACE", "AGTRAP", "AGTR2", "ACE3P"), database="ontology")
+gget$archs4("ACE2", which="tissue")
+gget$pdb("1R42", save=TRUE)
+```
+#### [Más ejemplos](https://github.com/pachterlab/gget_examples)
