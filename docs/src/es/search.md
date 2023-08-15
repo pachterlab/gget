@@ -1,59 +1,57 @@
-> Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
+> Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
 ## gget search 🔎
-Fetch genes and transcripts from [Ensembl](https://www.ensembl.org/) using free-form search terms.   
-Results are matched based on the "gene name" and "description" sections in the Ensembl database. `gget` version >= 0.27.9 also includes results that match the Ensembl "synonym" section.  
-Return format: JSON (command-line) or data frame/CSV (Python).
+Obtenga genes y transcripciones de [Ensembl](https://www.ensembl.org/) usando términos de búsqueda de forma libre.     
+Los resultados se comparan según las secciones "nombre del gen" y "descripción" en la base de datos de Ensembl. `gget` versión >= 0.27.9 también incluye resultados que coinciden con la sección "sinónimo" de Ensembl.    
+Regresa: Resultados en formato JSON (Terminal) o Dataframe/CSV (Python).  
 
-**Positional argument**
+**Parámetro posicional**  
 `searchwords`   
-One or more free form search words, e.g. gaba nmda. (Note: Search is not case-sensitive.)
+Una o más palabras de búsqueda de forma libre, p. ej. gaba nmda. (Nota: la búsqueda no distingue entre mayúsculas y minúsculas).  
 
-**Other required arguments**   
+**Otros parámetros requeridos**   
 `-s` `--species`  
-Species or database to be searched.  
-A species can be passed in the format 'genus_species', e.g. 'homo_sapiens' or 'arabidopsis_thaliana'.  
-To pass a specific database, pass the name of the CORE database, e.g. 'mus_musculus_dba2j_core_105_1'.  
-All available databases for each Ensembl release can be found [here](http://ftp.ensembl.org/pub/).  
-  
-Supported shortcuts: 'human', 'mouse'. 
+Especies o base de datos a buscar.   
+Una especie se puede pasar en el formato 'género_especie', p. ej. 'homo_sapiens' o 'arabidopsis_thaliana'.  
+Para pasar una base de datos específica, pase el nombre de la base de datos CORE, p. ej. 'mus_musculus_dba2j_core_105_1'.  
+Todas las bases de datos disponibles para cada versión de Ensembl se pueden encontrar [aquí](http://ftp.ensembl.org/pub/).  
+Accesos directos: 'human', 'mouse'. 
 
-**Optional arguments**  
+**Parámetros optionales**  
 `-r` `--release`   
-Defines the Ensembl release number from which the files are fetched, e.g. 104. Default: None -> latest Ensembl release is used.  
-Note: *Does not apply to plant species* (you can pass a specific plant core database (which includes a release number) to the `species` argument instead).  
-This argument is overwritten if a specific database (which includes a release number) is passed to the species argument.   
+Define el número de versión de Ensembl desde el que se obtienen los archivos, p. ej. 104. Por defecto: None -> se usa la última versión de Ensembl.  
+Nota: *No se aplica a las especies de plantas* (en su lugar, puede pasar una base de datos de una planta específica (incluyen un número de versión) al argumento "especie").    
+Este argumento se sobrescribe si se pasa una base de datos específica (que incluye un número de publicación) al argumento de especie.  
 
 `-t` `--id_type`  
-'gene' (default) or 'transcript'  
-Returns genes or transcripts, respectively.
+'gene' (esto se use por defecto) o 'transcript'   
+Regesa genes o transcripciones, respectivamente.  
 
 `-ao` `--andor`  
-'or' (default) or 'and'  
-'or': Returns all genes that INCLUDE AT LEAST ONE of the searchwords in their name/description.  
-'and': Returns only genes that INCLUDE ALL of the searchwords in their name/description.
+'or' (esto se use por defecto) o 'and'  
+'or' ('o'): Regresa todos los genes que INCLUYEN AL MENOS UNA de las palabras de búsqueda en su nombre/descripción.  
+'and' ('y'): Regresa solo los genes que INCLUYEN TODAS las palabras de búsqueda en su nombre/descripción.  
 
 `-l` `--limit`   
-Limits the number of search results, e.g. 10. Default: None.  
+Limita el número de resultados de búsqueda, p. ej. 10. Por defecto: None.  
 
-`-o` `--out`  
-Path to the csv the results will be saved in, e.g. path/to/directory/results.csv (or .json). Default: Standard out.   
-Python: `save=True` will save the output in the current working directory.
+`-o` `--out`   
+Ruta al archivo en el que se guardarán los resultados, p. ej. ruta/al/directorio/resultados.csv (o .json). Por defecto: salida estándar (STDOUT).  
+Para Python, usa `save=True` para guardar los resultados en el directorio de trabajo actual.  
 
-**Flags**  
+**Banderas**  
 `-csv` `--csv`  
-Command-line only. Returns results in CSV format.  
-Python: Use `json=True` to return output in JSON format.
+Solo para la Terminal. Regresa los resultados en formato CSV.    
+Para Python, usa `json=True` para regresar los resultados en formato JSON.  
 
 `-q` `--quiet`   
-Command-line only. Prevents progress information from being displayed.  
-Python: Use `verbose=False` to prevent progress information from being displayed. 
+Solo para la Terminal. Impide la informacion de progreso de ser exhibida durante la corrida.  
+Para Python, usa `verbose=False` para imipidir la informacion de progreso de ser exhibida durante la corrida.  
 
 `wrap_text`  
-Python only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).  
- 
+Solo para Python. `wrap_text=True` muestra los resultados con texto envuelto para facilitar la lectura (por defecto: False). 
+
     
-    
-### Example
+### Por ejemplo
 ```bash
 gget search -s human gaba gamma-aminobutyric
 ```
@@ -61,11 +59,11 @@ gget search -s human gaba gamma-aminobutyric
 # Python
 gget.search(["gaba", "gamma-aminobutyric"], "homo_sapiens")
 ```
-&rarr; Returns all genes that contain at least one of the search words in their name or Ensembl/external reference description:
+&rarr; Regresa todos los genes que contienen al menos una de las palabras de búsqueda en su nombre o descripción de Ensembl/referencia externa:  
 
 | ensembl_id     | gene_name     | ensembl_description     | ext_ref_description        | biotype | url |
 | -------------- |-------------------------| ------------------------| -------------- | ----------|-----|
 | ENSG00000034713| GABARAPL2 | 	GABA type A receptor associated protein like 2 [Source:HGNC Symbol;Acc:HGNC:13291] | GABA type A receptor associated protein like 2 | protein_coding | https://uswest.ensembl.org/homo_sapiens/Gene/Summary?g=ENSG00000034713 |
 | . . .            | . . .                     | . . .                     | . . .            | . . .       | . . . |
     
-#### [More examples](https://github.com/pachterlab/gget_examples)
+#### [Más ejemplos](https://github.com/pachterlab/gget_examples)
