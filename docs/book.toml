@@ -1,5 +1,5 @@
 [book]
-authors = "Laura Luebbert"
+authors = ["Laura Luebbert"]
 multilingual = true
 src = "src"
 
