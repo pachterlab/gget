@@ -1,7 +1,6 @@
 [book]
 authors = ["Laura Luebbert"]
 multilingual = true
-src = "src"
 
 [[translations.en]]
 title = "gget"
