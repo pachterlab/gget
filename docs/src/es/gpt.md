@@ -50,7 +50,7 @@ Número entre -2.0 y 2.0. Los valores más altos reducen la probabilidad de que 
 Un diccionario que especifica un sesgo hacia ciertos tokens en el texto generado (dict). Por defecto: None.  
 
 `-o` `--out`   
-Ruta al archivo en el que se guardarán los resultados, p. ruta/al/directorio/resultados.txt. Por defecto: salida estándar (STDOUT).  
+Ruta al archivo en el que se guardarán los resultados, p. ej. ruta/al/directorio/resultados.txt. Por defecto: salida estándar (STDOUT).  
   
 ### Por ejemplo
 ```bash
