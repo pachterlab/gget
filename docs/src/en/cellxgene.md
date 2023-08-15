@@ -21,10 +21,10 @@ Choice of 'homo_sapiens' or 'mus_musculus'. Default: 'homo_sapiens'.
 `-cn` `--column_names`  
 List of metadata columns to return (stored in AnnData.obs).  
 Default: ['dataset_id', 'assay', 'suspension_type', 'sex', 'tissue_general', 'tissue', 'cell_type']  
-For more options see: https://api.cellxgene.cziscience.com/curation/ui/#/ -> Schemas -> dataset  
+For more options, see: https://api.cellxgene.cziscience.com/curation/ui/#/ -> Schemas -> dataset  
 
 `-o` `--out`   
-Path to file to save generated AnnData .h5ad file (or .csv with `-mo / --meta_only` (`anndata=False`)).  
+Path to file to save generated AnnData .h5ad file (or .csv with `-mo / --meta_only`).  
 Required when using from command line!  
 
 **Flags**  
@@ -32,7 +32,7 @@ Required when using from command line!
 Use when genes are provided as Ensembl IDs instead of gene names.  
 
 `-mo` `--meta_only`  
-Only returns metadata dataframe (corresponds to AnnData.obs).  
+Only returns metadata data frame (corresponds to AnnData.obs).  
 
 `-q` `--quiet`   
 Command-line only. Prevents progress information from being displayed.  
@@ -44,8 +44,8 @@ Str or list of tissue(s), e.g. ['lung', 'blood']. Default: None.
 See https://cellxgene.cziscience.com/gene-expression for examples of available tissues.  
 
 `--cell_type`  
-Str or list of celltype(s), e.g. ['mucus secreting cell', 'neuroendocrine cell']. Default: None.  
-See https://cellxgene.cziscience.com/gene-expression and select a tissue to see examples of available celltypes.  
+Str or list of cell type (s), e.g. ['mucus secreting cell', 'neuroendocrine cell']. Default: None.  
+See https://cellxgene.cziscience.com/gene-expression and select a tissue to see examples of available cell types.  
 
 `--development_stage`  
 Str or list of development stage(s). Default: None.  
@@ -68,37 +68,37 @@ Str or list of high-level tissue label(s). Default: None.
 Tissue labels and their corresponding UBERON IDs are listed [here](https://github.com/chanzuckerberg/single-cell-data-portal/blob/9b94ccb0a2e0a8f6182b213aa4852c491f6f6aff/backend/wmg/data/tissue_mapper.py).  
 
 `--tissue_ontology_term_id`  
-Str or list of tissue ontology term ID(s) as defined in the CELLxGENE dataset schema. Default: None.  
+Str or list of tissue ontology term ID(s) as defined in the [CELLxGENE dataset schema](https://github.com/chanzuckerberg/single-cell-curation/tree/main/schema). Default: None.  
 
 `--assay_ontology_term_id`  
-Str or list of assay ontology term ID(s) as defined in the CELLxGENE dataset schema. Default: None.  
+Str or list of assay ontology term ID(s) as defined in the [CELLxGENE dataset schema](https://github.com/chanzuckerberg/single-cell-curation/tree/main/schema). Default: None.  
 
 `--assay`  
-Str or list of assay(s) as defined in the CELLxGENE dataset schema. Default: None.  
+Str or list of assay(s) as defined in the [CELLxGENE dataset schema](https://github.com/chanzuckerberg/single-cell-curation/tree/main/schema). Default: None.  
 
 `--cell_type_ontology_term_id`  
-Str or list of celltype ontology term ID(s) as defined in the CELLxGENE dataset schema. Default: None.  
+Str or list of cell type ontology term ID(s) as defined in the [CELLxGENE dataset schema](https://github.com/chanzuckerberg/single-cell-curation/tree/main/schema). Default: None.  
 
 `--development_stage_ontology_term_id`  
-Str or list of development stage ontology term ID(s) as defined in the CELLxGENE dataset schema. Default: None.  
+Str or list of development stage ontology term ID(s) as defined in the [CELLxGENE dataset schema](https://github.com/chanzuckerberg/single-cell-curation/tree/main/schema). Default: None.  
 
 `--disease_ontology_term_id`  
-Str or list of disease ontology term ID(s) as defined in the CELLxGENE dataset schema. Default: None.  
+Str or list of disease ontology term ID(s) as defined in the [CELLxGENE dataset schema](https://github.com/chanzuckerberg/single-cell-curation/tree/main/schema). Default: None.  
 
 `--donor_id`  
-Str or list of donor ID(s) as defined in the CELLxGENE dataset schema. Default: None.  
+Str or list of donor ID(s) as defined in the [CELLxGENE dataset schema](https://github.com/chanzuckerberg/single-cell-curation/tree/main/schema). Default: None.  
 
 `--self_reported_ethnicity_ontology_term_id`  
-Str or list of self reported ethnicity ontology ID(s) as defined in the CELLxGENE dataset schema. Default: None.  
+Str or list of self-reported ethnicity ontology ID(s) as defined in the [CELLxGENE dataset schema](https://github.com/chanzuckerberg/single-cell-curation/tree/main/schema). Default: None.  
 
 `--self_reported_ethnicity`  
-Str or list of self reported ethnicity as defined in the CELLxGENE dataset schema. Default: None.  
+Str or list of self-reported ethnicity as defined in the [CELLxGENE dataset schema](https://github.com/chanzuckerberg/single-cell-curation/tree/main/schema). Default: None.  
 
 `--sex_ontology_term_id`  
-Str or list of sex ontology ID(s) as defined in the CELLxGENE dataset schema. Default: None.  
+Str or list of sex ontology ID(s) as defined in the [CELLxGENE dataset schema](https://github.com/chanzuckerberg/single-cell-curation/tree/main/schema). Default: None.  
 
 `--suspension_type`  
-Str or list of suspension type(s) as defined in the CELLxGENE dataset schema. Default: None.  
+Str or list of suspension type(s) as defined in the [CELLxGENE dataset schema](https://github.com/chanzuckerberg/single-cell-curation/tree/main/schema). Default: None.  
 
   
 ### Examples
@@ -115,6 +115,8 @@ adata = gget.cellxgene(
 adata
 ```
 &rarr; Returns an AnnData object containing the scRNAseq ACE2, ABCA1, and SLC5A1 count matrix of 3322 human lung mucus secreting and neuroendocrine cells from CZ CELLxGENE Discover and their corresponding metadata.  
+
+<br/><br/>
 
 Fetch metadata (corresponds to AnnData.obs) only:  
 ```bash
