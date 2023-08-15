@@ -1,36 +1,35 @@
-> Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
+> Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
 ## gget pdb 🔮
-Query [RCSB Protein Data Bank (PDB)](https://www.rcsb.org/) for the protein structure/metadata of a given PDB ID.  
-Return format: Resource 'pdb' is returned in PDB format. All other resources are returned in JSON format.  
+Obtenga la estructura o los metadatos de una proteína usando data de [RCSB Protein Data Bank (PDB)](https://www.rcsb.org/).  
+Regresa: El archivo 'pdb' se regresa en formato PDB. Todos los demás datos se regresan en formato JSON. 
 
-**Positional argument**  
+**Parámetro posicional**  
 `pdb_id`  
-PDB ID to be queried, e.g. '7S7U'.  
+ID del tipo PDB, p. ej. '7S7U'.  
 
-**Optional arguments**  
+**Parámetros optionales**  
  `-r` `--resource`  
- Defines type of information to be returned. One of the following:  
- 'pdb': Returns the protein structure in PDB format (default).    
- 'entry': Information about PDB structures at the top level of PDB structure hierarchical data organization.  
- 'pubmed': Get PubMed annotations (data integrated from PubMed) for a given entry's primary citation.  
- 'assembly': Information about PDB structures at the quaternary structure level.  
- 'branched_entity': Get branched entity description (define entity ID as 'identifier').  
- 'nonpolymer_entity': Get non-polymer entity data (define entity ID as 'identifier').  
- 'polymer_entity': Get polymer entity data (define entity ID as 'identifier').  
- 'uniprot': Get UniProt annotations for a given macromolecular entity (define entity ID as 'identifier').  
- 'branched_entity_instance': Get branched entity instance description (define chain ID as 'identifier').  
- 'polymer_entity_instance': Get polymer entity instance (a.k.a chain) data (define chain ID as 'identifier').  
- 'nonpolymer_entity_instance': Get non-polymer entity instance description (define chain ID as 'identifier').  
+Define el tipo de información a regresar. Uno de los siguientes:  
+ 'pdb': Regresa la estructura de la proteína en formato PDB (regresa por defecto).    
+ 'entry': Regresa información sobre las estructuras PDB en el nivel superior de la organización de datos PDB jerárquicos.  
+ 'pubmed': Regresa anotaciones de PubMed (datos integrados de PubMed) para la cita principal de un ID PDB.  
+ 'assembly': Regresa información sobre estructuras PDB en el nivel de estructura cuaternaria.  
+ 'branched_entity': Regresa la descripción de la entidad ramificada (defina el ID de la entidad como `identifier`).  
+ 'nonpolymer_entity': Regresa datos de entidades no poliméricas (defina el ID de la entidad como `identifier`).  
+ 'polymer_entity': Regresa datos de entidades poliméricas (defina el ID de la entidad como `identifier`).  
+ 'uniprot': Regresa anotaciones UniProt para una entidad macromolecular (defina el ID de la entidad como `identifier`).  
+ 'branched_entity_instance': Regresa la descripción de instancia de entidad ramificada (defina el ID de cadena como `identifier`).  
+ 'polymer_entity_instance': Regresa datos de instancia de entidad polimérica (también conocida como cadena) (defina el ID de cadena como `identifier`).  
+ 'nonpolymer_entity_instance': Regresa datos de instancia de entidad no polimérica (defina el ID de cadena como `identifier`). 
   
 `-i` `--identifier`  
-Can be used to define assembly, entity or chain ID (default: None). Assembly/entity IDs are numbers (e.g. 1), and chain IDs are letters (e.g. 'A').  
+Este parámetro se puede utilizar para definir el ID de ensamblaje, entidad o cadena (po defecto: None). Los IDs de ensamblaje/entidad son números (p. ej., 1) y los IDs de cadena son letras (p. ej., 'A').
   
 `-o` `--out`   
-Path to the file the results will be saved in, e.g. path/to/directory/7S7U.pdb or path/to/directory/7S7U_entry.json. Default: Standard out.    
-Python: `save=True` will save the output in the current working directory.  
+Ruta al archivo en el que se guardarán los resultados, p. ej. ruta/al/directorio/7S7U.pdb (o 7S7U_entry.json). Por defecto: salida estándar (STDOUT).  
+Para Python, usa `save=True` para guardar los resultados en el directorio de trabajo actual.   
   
-  
-### Examples
+### Por ejemplo
 ```bash
 gget pdb 7S7U -o 7S7U.pdb
 ```
@@ -38,43 +37,43 @@ gget pdb 7S7U -o 7S7U.pdb
 # Python
 gget.pdb("7S7U", save=True)
 ```
-&rarr; Saves the structure of 7S7U in PDB format as '7S7U.pdb' in the current working directory.
+&rarr; Guarda la estructura de 7S7U en formato PDB como '7S7U.pdb' en el directorio de trabajo actual.
 
-**Find PDB crystal structures for a comparative analysis of protein structure:**  
+**Encuentre estructuras cristalinas de PDB para un análisis comparativo de la estructura de proteínas:**  
 ```bash
-# Find PDB IDs associated with an Ensembl ID 
+# Encuentre IDs de PDB asociados con un ID de Ensembl
 gget info ENSG00000130234
 
-# Alternatively: Since many entries in the PDB do not have linked Ensembl IDs, 
-# you will likely find more PDB entries by BLASTing the sequence agains the PDB.
+# Alternativamente: como que muchas entradas en el PDB no tienen ID de Ensembl vinculados,
+# es probable que encuentre más entradas de PDB BLASTing la secuencia contra el PDB:
 
-# Get the amino acid sequence of a transcript from an Ensembl ID
+# Obtenga la secuencia de aminoácidos
 gget seq --translate ENSG00000130234 -o gget_seq_results.fa
 
-# BLAST an amino acid sequence to find similar structures in the PDB
+# BLAST la secuencia de aminoácidos para encontrar estructuras similares en el PDB
 gget blast --database pdbaa gget_seq_results.fa
 
-# Get PDB files from the PDB IDs returned by gget blast for comparative analysis
+# Obtenga archivos PDB de los IDs de PDB regresados por gget blast para un análisis comparativo
 gget pdb 7DQA -o 7DQA.pdb
 gget pdb 7CT5 -o 7CT5.pdb
 ```
 ```python
-# Find PDB IDs associated with an Ensembl ID 
+# Encuentre IDs de PDB asociados con un ID de Ensembl
 gget.info("ENSG00000130234")
 
-# Alternatively: Since many entries in the PDB do not have linked Ensembl IDs, 
-# you will likely find more PDB entries by BLASTing the sequence agains the PDB.
+# Alternativamente: como que muchas entradas en el PDB no tienen ID de Ensembl vinculados,
+# es probable que encuentre más entradas de PDB BLASTing la secuencia contra el PDB:
 
-# Get the amino acid sequence of a transcript from an Ensembl ID
+# Obtenga la secuencia de aminoácidos
 gget.seq("ENSG00000130234", translate=True, save=True)
 
-# BLAST an amino acid sequence to find similar structures in the PDB
+# BLAST la secuencia de aminoácidos para encontrar estructuras similares en el PDB
 gget.blast("gget_seq_results.fa", database="pdbaa")
 
-# Get PDB files from the PDB IDs returned by gget blast for comparative analysis
+# Obtenga archivos PDB de los IDs de PDB regresados por gget blast para un análisis comparativo
 gget.pdb("7DQA", save=True)
 gget.pdb("7CT5", save=True)
 ```
-&rarr; The use case above exemplifies how to find PDB files for comparative analysis of protein structure starting with Ensembl IDs or amino acid sequences. The fetched PDB files can also be compared to predicted structures generated by [`gget alphafold`](alpahfold.md). PDB files can be viewed interactively in 3D [online](https://rcsb.org/3d-view), or using programs like [PyMOL](https://pymol.org/) or [Blender](https://www.blender.org/). To compare two PDB files, you can use [this website](https://rcsb.org/alignment).
+&rarr; Este caso de uso ejemplifica cómo encontrar archivos PDB para un análisis comparativo de la estructura de las proteínas asociado con IDs de Ensembl o secuencias de aminoácidos. Los archivos PDB obtenidos también se pueden comparar con las estructuras predichas generadas por [`gget alphafold`](alpahfold.md). Los archivos PDB se pueden ver de forma interactiva en 3D [aquí](https://rcsb.org/3d-view), o usando programas como [PyMOL](https://pymol.org/) o [Blender](https://www.blender.org/). Múltiple archivos PDB se pueden visualizar para comparación [aquí](https://rcsb.org/alignment).
   
-#### [More examples](https://github.com/pachterlab/gget_examples)
+#### [Más ejemplos](https://github.com/pachterlab/gget_examples)
