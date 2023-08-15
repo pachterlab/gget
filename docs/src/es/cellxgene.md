@@ -15,7 +15,7 @@ Atención: Utilice la bandera `-e / --ensembl` (Python: `ensembl=True`) cuando i
 Ver https://cellxgene.cziscience.com/gene-expression para ejemplos de genes.  
 
 `-cv` `--census_version`  
-Versión del CZ CELLxGENE Discover Census (str), p. "2023-05-15", o "latest" (la ultima) o "stable" (estable). Por defecto: "stable" (estable).  
+Versión del CZ CELLxGENE Discover Census (str), p. ej. "2023-05-15", o "latest" (la ultima) o "stable" (estable). Por defecto: "stable" (estable).  
 
 `-cn` `--column_names`  
 Lista de columnas de metadatos a regresar (almacenadas en AnnData.obs).  
@@ -39,11 +39,11 @@ Para Python, usa `verbose=False` para imipidir la informacion de progreso de ser
 
 **Parámetros optionales correspondientes a los atributos de metadatos de CZ CELLxGENE Discover**  
 `--tissue`  
-Str o lista de tejido(s), p. ['lung', 'blood']. Por defecto: None.  
+Str o lista de tejido(s), p. ej. ['lung', 'blood']. Por defecto: None.  
 Ver https://cellxgene.cziscience.com/gene-expression para ejemplos de tejidos.  
 
 `--cell_type`  
-Str o lista de tipo(s) de célula(s), p. ['mucus secreting cell', 'neuroendocrine cell']. Por defecto: None.  
+Str o lista de tipo(s) de célula(s), p. ej. ['mucus secreting cell', 'neuroendocrine cell']. Por defecto: None.  
 Ver https://cellxgene.cziscience.com/gene-expression y seleccione un tejido para ejemplos de tipos de células.  
 
 `--development_stage`  
@@ -53,7 +53,7 @@ Str o lista de etapa(s) de desarrollo. Por defecto: None.
 Str o lista de enfermedade(s). Por defecto: None.  
 
 `--sex`  
-Str o lista de sexo(s), p. 'female' (femenina). Por defecto: None.  
+Str o lista de sexo(s), p. ej. 'female' (femenina). Por defecto: None.  
 
 `--dataset_id`  
 Str o lista de CELLxGENE ID(s). Por defecto: None.  
