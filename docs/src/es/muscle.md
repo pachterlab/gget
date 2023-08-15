@@ -9,7 +9,7 @@ Ruta al archivo FASTA o .txt que contiene las secuencias de nucleótidos o amino
 
 **Parámetros optionales**  
 `-o` `--out`   
-Ruta al archivo en el que se guardarán los resultados, p. ruta/al/directorio/resultados.afa. Por defecto: salida estándar (STDOUT).  
+Ruta al archivo en el que se guardarán los resultados, p. ej. ruta/al/directorio/resultados.afa. Por defecto: salida estándar (STDOUT).  
 Para Python, usa `save=True` para guardar los resultados en el directorio de trabajo actual.  
 
 **Banderas**  
