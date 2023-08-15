@@ -5,8 +5,8 @@ Regresa: Resultados en formato JSON (Terminal) o Dataframe/CSV (Python).
 
 **Parámetro posicional**  
 `gene`  
-Nombre corto (símbolo del gen) del gen de interés, p. STAT4.  
-Alternativamente: usa la bandera `--ensembl` para ingresar un ID del tipo Ensembl, p. ENSG00000138378.  
+Nombre corto (símbolo del gen) del gen de interés, p. ej. STAT4.  
+Alternativamente: usa la bandera `--ensembl` para ingresar un ID del tipo Ensembl, p. ej. ENSG00000138378.  
 
 **Parámetros optionales**  
  `-w` `--which`  
@@ -20,7 +20,7 @@ Define si usar muestras humanas o de ratón de [ARCHS4](https://maayanlab.cloud/
 (Solo aplicable para el atlas de expresión tisular.)  
 
 `-o` `--out`   
-Ruta al archivo en el que se guardarán los resultados, p. ruta/al/directorio/resultados.csv (o .json). Por defecto: salida estándar (STDOUT).  
+Ruta al archivo en el que se guardarán los resultados, p. ej. ruta/al/directorio/resultados.csv (o .json). Por defecto: salida estándar (STDOUT).  
 Para Python, usa `save=True` para guardar los resultados en el directorio de trabajo actual.  
   
 **Banderas**   
