@@ -3,3 +3,6 @@ title = "gget"
 authors = ["Laura Luebbert"]
 description = "gget enables efficient querying of genomic reference databases"
 src = "src"
+
+[output.html]
+no-section-label = true
