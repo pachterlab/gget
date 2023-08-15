@@ -49,6 +49,8 @@ kb ref -i INDEX -g T2G -f1 FASTA $(gget ref --ftp -w dna,gtf homo_sapiens)
 ```
 &rarr; kb ref builds a reference index using the latest DNA and GTF files of species **Homo sapiens** passed to it by `gget ref`.  
 
+<br/><br/>
+
 **List all available genomes from Ensembl release 103:**  
 ```bash
 gget ref --list_species -r 103
@@ -60,6 +62,7 @@ gget.ref(species=None, list_species=True, release=103)
 &rarr; Returns a list with all available genomes (checks if GTF and FASTAs are available) from Ensembl release 103.   
 (If no release is specified, `gget ref` will always return information from the latest Ensembl release.)  
 
+<br/><br/>
 
 **Get the genome reference for a specific species:**   
 ```bash
