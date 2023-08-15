@@ -15,10 +15,10 @@ Por defecto: 'DNA' para secuencias de nucleótidos; 'protein' para secuencias de
 `-a` `--assembly`    
 Ensamblaje del genoma. 'human' (hg38) (esto se usa por defecto), 'mouse' (mm39) (ratón), 'zebrafinch' (taeGut2) (
 pinzón cebra),   
-o cualquiera de los ensamblajes de especies disponibles [aquí](https://genome.ucsc.edu/cgi-bin/hgBlat) (use el nombre corto del ensamblado, p. 'hg38').  
+o cualquiera de los ensamblajes de especies disponibles [aquí](https://genome.ucsc.edu/cgi-bin/hgBlat) (use el nombre corto del ensamblado, p. ej. 'hg38').  
 
 `-o` `--out`   
-Ruta al archivo en el que se guardarán los resultados, p. ruta/al/directorio/resultados.csv (o .json). Por defecto: salida estándar (STDOUT).  
+Ruta al archivo en el que se guardarán los resultados, p. ej. ruta/al/directorio/resultados.csv (o .json). Por defecto: salida estándar (STDOUT).  
 Para Python, usa `save=True` para guardar los resultados en el directorio de trabajo actual.  
   
 **Banderas**  
