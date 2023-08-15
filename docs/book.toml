@@ -2,6 +2,7 @@
 title = "gget"
 authors = ["Laura Luebbert"]
 multilingual = true
+locales = ["src"]
 
 [languages.en]
 name = "English"
