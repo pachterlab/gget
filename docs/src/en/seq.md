@@ -1,6 +1,6 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
 ## gget seq 🧬
-Fetch nucleotide or amino acid sequence of a gene (and all its isoforms) or a transcript by Ensembl ID.   
+Fetch nucleotide or amino acid sequence(s) of a gene (and all its isoforms) or a transcript by Ensembl ID.   
 Return format: FASTA.
 
 **Positional argument**  
