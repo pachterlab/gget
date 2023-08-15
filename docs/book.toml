@@ -1,7 +1,3 @@
-[book]
-authors = ["Laura Luebbert"]
-multilingual = true
-
 [[translations.en]]
 title = "gget"
 author = "Laura Luebbert"
