@@ -23,7 +23,7 @@ Python: `uniprot=False` prevents data retrieval from UniProt (default: True).
 
 `-pdb` `--pdb`  
 INCLUDE [PDB](https://www.ebi.ac.uk/pdbe/) IDs in output (might increase runtime).  
-Python: `pdb=False` prevents data retrieval from PDB (default: False).   
+Python: `pdb=True` includes PDB IDs in the results (default: False).   
 
 `-csv` `--csv`  
 Command-line only. Returns results in CSV format.  
