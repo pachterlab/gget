@@ -33,32 +33,32 @@
 
 # Español
 
-[Introdución](es/introduction.md)  
-[¡Lo más reciente!](es/updates.md)  
+[Introdución](introduction_es.md)  
+[¡Lo más reciente!](updates_es.md)  
 
 # Guía del usario
-- [Instalación](es/installation.md)  
-- [Guía de inicio rápido](es/quick_start_guide.md)  
+- [Instalación](installation_es.md)  
+- [Guía de inicio rápido](quick_start_guide_es.md)  
 
 # Manuál
-- [gget alphafold](es/alphafold.md)  
-- [gget archs4](es/archs4.md)  
-- [gget blast](es/blast.md)  
-- [gget blat](es/blat.md)  
-- [gget cellxgene](es/cellxgene.md)  
-- [gget enrichr](es/enrichr.md)  
-- [gget gpt](es/gpt.md)  
-- [gget info](es/info.md)  
-- [gget muscle](es/muscle.md)  
-- [gget pdb](es/pdb.md)  
-- [gget ref](es/ref.md)  
-- [gget search](es/search.md)  
-- [gget setup](es/setup.md)  
-- [gget seq](es/seq.md)  
+- [gget alphafold](alphafold_es.md)  
+- [gget archs4](archs4_es.md)  
+- [gget blast](blast_es.md)  
+- [gget blat](blat_es.md)  
+- [gget cellxgene](cellxgene_es.md)  
+- [gget enrichr](enrichr_es.md)  
+- [gget gpt](gpt_es.md)  
+- [gget info](info_es.md)  
+- [gget muscle](muscle_es.md)  
+- [gget pdb](pdb_es.md)  
+- [gget ref](ref_es.md)  
+- [gget search](search_es.md)  
+- [gget setup](setup_es.md)  
+- [gget seq](seq_es.md)  
 
 ---
 
-[Guía de contribución](es/contributing.md)  
-[Codigo de conducto](es/code_of_conduct.md)  
-[Cómo citar](es/cite.md)  
+[Guía de contribución](contributing_es.md)  
+[Codigo de conducto](code_of_conduct_es.md)  
+[Cómo citar](cite_es.md)  
 
