@@ -41,6 +41,13 @@ def tsv_to_df(tsv_file, headers = None):
         logging.warning(f"Query did not result in any matches.")
         return None
 
+def save_df_to_folder(folder_name, df, csv_name):
+    ROOT_DIR = os.path.abspath(os.curdir)
+    path = os.path.join(ROOT_DIR, folder_name)
+    try:
+        df.to_csv(os.path.join(path,csv_name))
+    except OSError: 
+        os.mkdir(path)
 
 def get_elm_instances(UniProtID, elm_instances_tsv, elm_classes_tsv):
 
@@ -121,12 +128,60 @@ def seq_workflow(sequences, sequence_lengths):
 
     return df
 
-def elm(sequence, uniprot=False, json=False, save=False, verbose=True):
+def regex_match(sequence):
+    #Get all motif regex patterns from elm db local file
+    df_elm_classes = tsv_to_df(ELM_CLASSES_TSV)
+    df_full_instances = tsv_to_df(ELM_INSTANCES_TSV)
+
+    elm_ids = df_elm_classes["Accession"]
+
+    regex_patterns = df_elm_classes["Regex"]
+   
+    df = pd.DataFrame()
+
+    #Compare elm regex with input sequence and return all matching elms
+    for elm_id, pattern in zip(elm_ids, regex_patterns):
+
+        regex_matches = re.finditer(pattern, sequence)
+       
+    
+        for match_string in regex_matches:
+            elm_row = df_elm_classes.loc[df_elm_classes["Accession"]== elm_id]
+            elm_row.insert(loc=1, column='Instances (Matched Sequence)', value=match_string.group(0))
+
+            (start, end) = match_string.span()
+            elm_row.insert(loc=2, column='Positions', value=str(start + 1) + "-" + str(end))
+        
+
+            elm_identifier = [str(x) for x in elm_row["ELMIdentifier"]][0]
+  
+            df_instances_matching = df_full_instances.loc[df_full_instances['ELMIdentifier']==elm_identifier]
+   
+
+            #merge two dataframes using ELM Identifier, since some Accessions are missing from elm_instances.tsv
+            
+            df_final = elm_row.merge(df_instances_matching, how='left', on=['ELMIdentifier'])
+            
+            df_final.pop("Accession_y")
+            df_final.pop("#Instances")
+            df_final.pop("#Instances_in_PDB")
+            df_final.pop("References")
+            df_final.pop("InstanceLogic")
+            df_final.pop("PDB")
+            df_final.rename(columns = {'Accession_x':'instance_accession'}, inplace = True)
+            
+            df = pd.concat([df, df_final], ignore_index=True)
+
+
+    return df
+
+def elm(sequence, folder, uniprot=False, json=False, save=False, verbose=True):
     """
     Searches the Eukaryotic Linear Motif resource for Functional Sites in Proteins.
 
     Args:
      - sequence       amino acid sequence or Uniprot ID
+     - folder         folder name to save two resulting csv files 
      - uniprot        If True, searches using Uniprot ID instead of amino acid sequence. Default: False
      - json           If True, returns results in json format instead of data frame. Default: False.
      - save           If True, the data frame is saved as a csv in the current directory (default: False).
@@ -197,4 +252,6 @@ def elm(sequence, uniprot=False, json=False, save=False, verbose=True):
         if save:
             df.to_csv("gget_elm_results.csv", index=False)
 
-        return df
+    save_df_to_folder(folder, df, "orthlog")
+    df_regex_matches = regex_match(sequence)
+    save_df_to_folder(folder_name, df_regex_matches, "regex_matches")
