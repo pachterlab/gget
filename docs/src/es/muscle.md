@@ -1,6 +1,6 @@
 > Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
 ## gget muscle 🦾
-Alinea múltiples secuencias de nucleótidos o aminoácidos usando [Muscle5](https://www.drive5.com/muscle/).  
+Alinea múltiples secuencias de nucleótidos o aminoácidos usando el algoritmo [Muscle5](https://www.drive5.com/muscle/).  
 Regresa: Salida estándar (STDOUT) en formato ClustalW o archivo de tipo 'aligned FASTA' (.afa).  
 
 **Parámetro posicional**  
