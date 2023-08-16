@@ -255,4 +255,4 @@ def elm(sequence, folder, uniprot=False, json=False, save=False, verbose=True):
 
     save_df_to_folder(folder, df, "orthlog")
     df_regex_matches = regex_match(sequence)
-    save_df_to_folder(folder_name, df_regex_matches, "regex_matches")
+    save_df_to_folder(folder, df_regex_matches, "regex_matches")
