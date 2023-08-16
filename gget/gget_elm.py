@@ -176,19 +176,19 @@ def regex_match(sequence):
 
     return df
 
-def elm(sequence, folder, uniprot=False, json=False, save=False, verbose=True):
+def elm(sequence, uniprot=False, json=False, save=False, verbose=True, folder="results"):
     """
     Searches the Eukaryotic Linear Motif resource for Functional Sites in Proteins.
 
     Args:
      - sequence       amino acid sequence or Uniprot ID
-     - folder         folder name to save two resulting csv files 
      - uniprot        If True, searches using Uniprot ID instead of amino acid sequence. Default: False
      - json           If True, returns results in json format instead of data frame. Default: False.
      - save           If True, the data frame is saved as a csv in the current directory (default: False).
      - verbose         True/False whether to print progress information. Default True.
+     - folder         folder name to save two resulting csv files. Default: results
 
-    Returns a data frame with the ELM results.
+    Returns two data frames: orthologs and regex matches from ELM results.
     """
 
     if not uniprot:
