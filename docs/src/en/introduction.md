@@ -36,7 +36,7 @@
 
 <br>  
 
-If you use `gget` in a publication, please [cite*](en/cite.md):    
+If you use `gget` in a publication, please [cite*](cite.md):    
 ```
 Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. https://doi.org/10.1093/bioinformatics/btac836
 ```
