@@ -5,9 +5,10 @@ import sys
 import os
 import logging
 import json as json_package
-import platform
+import re
 
 from .utils import get_uniprot_seqs
+
 from .constants import (
     ELM_CLASSES_TSV,
     ELM_INSTANCES_FASTA,
