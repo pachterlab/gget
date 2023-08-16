@@ -4,7 +4,7 @@ Query data from [CZ CELLxGENE Discover](https://cellxgene.cziscience.com/) using
 
 Returns: An AnnData object containing the count matrix and metadata of single-cell RNA sequencing data from the defined tissues/genes/etc.  
 
-Before using `gget cellxgene` for the first time, run `gget setup cellxgene` / `gget.setup("cellxgene")` once (also see [`gget setup`](en/setup.md)).  
+Before using `gget cellxgene` for the first time, run `gget setup cellxgene` / `gget.setup("cellxgene")` once (also see [`gget setup`](setup.md)).  
 
 **Optional arguments**  
 `-s` `--species`  
