@@ -3,7 +3,7 @@
 Predice la estructura en 3D de cualquier proteína basada sobre su secuencia de aminoácidos usando una versión simpleficada del algoritmo [AlphaFold2](https://github.com/deepmind/alphafold) de [DeepMind](https://www.deepmind.com/), originalmente producido y hecho público para [AlphaFold Colab](https://colab.research.google.com/github/deepmind/alphafold/blob/main/notebooks/AlphaFold.ipynb).  
 Regresa: La estructura pedicada (en formato PDB) y el errór de alineación (en formato json).  
 
-Antes de usar `gget alphafold` por primera vez, corre `gget setup alphafold` / `gget.setup("alphafold")` (ver también [`gget setup`](setup.md)).  
+Antes de usar `gget alphafold` por primera vez, corre `gget setup alphafold` / `gget.setup("alphafold")` (ver también [`gget setup`](es/setup.md)).  
 
 **Parámetro posicional**  
 `sequence`  
@@ -59,7 +59,7 @@ gget.blast("MAAHKGAEHHHKAAEHHEQAAKHHHAAAEHHEKGEHEQAAHHADTAYAHHKHAEEHAAQAAKHDAEHH
 gget.pdb("3UQ3", save=True)
 gget.pdb("2K42", save=True)
 ```
-&rarr; `gget alphafold` devuelve la estructura pedicada (en formato PDB) y el errór de alineación (en formato json) en una carpeta nueva ("./[fecha_tiempo]_gget_alphafold_prediction"). Este ejemplo demuestra como usar [`gget blast`](blast.md) y [`gget pdb`](pdb.md) para correr un análisis comparativo. Los archivos PDB se pueden ver en 3D con [RCSB 3D view](https://rcsb.org/3d-view), o usando programas como [PyMOL](https://pymol.org/) o [Blender](https://www.blender.org/). Para comparar múltiple archivos PDB, usen [RCSB alignment](https://rcsb.org/alignment). Python también devuelve [visualizaciónes interactivas](https://twitter.com/NeuroLuebbert/status/1555968042948915200), que también se pueden generar con los archivos PDB y JSON como describido en [gget alphafold FAQ](https://github.com/pachterlab/gget/discussions/39) Q4.
+&rarr; `gget alphafold` devuelve la estructura pedicada (en formato PDB) y el errór de alineación (en formato json) en una carpeta nueva ("./[fecha_tiempo]_gget_alphafold_prediction"). Este ejemplo demuestra como usar [`gget blast`](es/blast.md) y [`gget pdb`](es/pdb.md) para correr un análisis comparativo. Los archivos PDB se pueden ver en 3D con [RCSB 3D view](https://rcsb.org/3d-view), o usando programas como [PyMOL](https://pymol.org/) o [Blender](https://www.blender.org/). Para comparar múltiple archivos PDB, usen [RCSB alignment](https://rcsb.org/alignment). Python también devuelve [visualizaciónes interactivas](https://twitter.com/NeuroLuebbert/status/1555968042948915200), que también se pueden generar con los archivos PDB y JSON como describido en [gget alphafold FAQ](https://github.com/pachterlab/gget/discussions/39) Q4.
 
 ### [Ejemplo en Google Colab](https://github.com/pachterlab/gget_examples/blob/main/gget_alphafold.ipynb)
 ### [gget alphafold - preguntas más frecuentes](https://github.com/pachterlab/gget/discussions/39)
