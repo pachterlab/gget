@@ -11,7 +11,7 @@ Get your OpenAI API key [here](https://platform.openai.com/account/api-keys).
 
 Returns: A string containing the generated text.  
 
-Before using `gget gpt` for the first time, run `gget setup gpt` / `gget.setup("gpt")` once (also see [`gget setup`](setup.md)).  
+Before using `gget gpt` for the first time, run `gget setup gpt` / `gget.setup("gpt")` once (also see [`gget setup`](en/setup.md)).  
 
 **Positional argument**  
 `prompt`  
