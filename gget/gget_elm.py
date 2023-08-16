@@ -199,7 +199,7 @@ def elm(sequence, uniprot=False, json=False, save=False, verbose=True, folder="r
         # If sequence is not a valid amino sequence, raise error
         if not set(sequence) <= amino_acids:
             logging.warning(
-                f"Input amino acid sequence contains invalid characters. If the input is a UniProt ID, please specify `uniprot=True`."
+                f"Input amino acid sequence contains invalid characters. If the input is a UniProt ID, please specify `uniprot=True` (python: uniprot=True)."
             )
 
     df = pd.DataFrame()
@@ -229,12 +229,15 @@ def elm(sequence, uniprot=False, json=False, save=False, verbose=True, folder="r
         df = pd.concat([df, seq_workflow(aa_seqs, seq_lens)])
         
         if not uniprot:
-            target_start = df['target_start'].values.tolist()
-            target_end = df['target_end'].values.tolist()
-    
-            if (df["Per. Ident"] is not None):
-                # ignore nonoverlapping motifs
-                df.drop(df[ (df['Start'] <= target_start[0]) | (df['End'] >= target_end[0]) ].index, inplace=True)
+            try:
+                target_start = df['target_start'].values.tolist()
+                target_end = df['target_end'].values.tolist()
+        
+                if (df["Per. Ident"] is not None):
+                    # ignore nonoverlapping motifs
+                    df.drop(df[ (df['Start'] <= target_start[0]) | (df['End'] >= target_end[0]) ].index, inplace=True)
+            except KeyError:
+                logging.error("No target start found for input sequence. If you entered a UniProt ID, please set `-uniprot=True`")
         
     if (len(df) == 0):
         logging.warning("No ELM results found for sequence or UniProt ID input")
