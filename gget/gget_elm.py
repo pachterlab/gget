@@ -238,21 +238,28 @@ def elm(sequence, folder, uniprot=False, json=False, save=False, verbose=True):
     if (len(df) == 0):
         logging.warning("No ELM results found for sequence or UniProt ID input")
         return
+
+    # find exact motifs
+    df_regex_matches = regex_match(sequence)
+
+  
         
     # for terminal main.py, check if instance(df, None) 
 
     if json:
-        results_dict = json_package.loads(df.to_json(orient="records"))
+        ortholog_dict = json_package.loads(df.to_json(orient="records"))
+        regex_dict = json_package.loads(df_regex_matches.to_json(orient="records"))
         if save:
-            with open("gget_elm_results.json", "w", encoding="utf-8") as f:
-                json_package.dump(results_dict, f, ensure_ascii=False, indent=4)
+            with open("ortholog.json", "w", encoding="utf-8") as f:
+                json_package.dump(ortholog_dict, f, ensure_ascii=False, indent=4)
+            with open("regex.json", "w", encoding="utf-8") as f:
+                json_package.dump(regex_dict, f, ensure_ascii=False, indent=4)
 
         return results_dict
 
     else:
         if save:
-            df.to_csv("gget_elm_results.csv", index=False)
-
-    save_df_to_folder(folder, df, "orthlog")
-    df_regex_matches = regex_match(sequence)
-    save_df_to_folder(folder, df_regex_matches, "regex_matches")
+            save_df_to_folder(folder, df, "orthlog")
+            save_df_to_folder(folder, df_regex_matches, "regex_matches")
+    
+    return df, df_regex_matches
