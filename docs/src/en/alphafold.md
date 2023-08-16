@@ -3,7 +3,7 @@
 Predict the 3D structure of a protein from its amino acid sequence using a simplified version of [DeepMind](https://www.deepmind.com/)’s [AlphaFold2](https://github.com/deepmind/alphafold) originally released and benchmarked for [AlphaFold Colab](https://colab.research.google.com/github/deepmind/alphafold/blob/main/notebooks/AlphaFold.ipynb).  
 Returns: Predicted structure (PDB) and alignment error (json).  
 
-Before using `gget alphafold` for the first time, run `gget setup alphafold` / `gget.setup("alphafold")` once (also see [`gget setup`](en/setup.md)).  
+Before using `gget alphafold` for the first time, run `gget setup alphafold` / `gget.setup("alphafold")` once (also see [`gget setup`](setup.md)).  
 
 **Positional argument**  
 `sequence`  
@@ -58,7 +58,7 @@ gget.blast("MAAHKGAEHHHKAAEHHEQAAKHHHAAAEHHEKGEHEQAAHHADTAYAHHKHAEEHAAQAAKHDAEHH
 gget.pdb("3UQ3", save=True)
 gget.pdb("2K42", save=True)
 ```
-&rarr; `gget alphafold` returns the predicted structure (PDB) and predicted alignment error (.json) in a new folder ("./[date_time]_gget_alphafold_prediction"). The use case above exemplifies how to use [`gget blast`](en/blast.md) and [`gget pdb`](en/pdb.md) for a comparative analysis of the new prediction. PDB files can be viewed interactively in 3D [online](https://rcsb.org/3d-view), or using programs like [PyMOL](https://pymol.org/) or [Blender](https://www.blender.org/). To compare two PDB files, you can use [this website](https://rcsb.org/alignment). The Python interface also returns [interactive plots](https://twitter.com/NeuroLuebbert/status/1555968042948915200), which can be generated from the PDB and JSON as described in the [gget alphafold FAQ](https://github.com/pachterlab/gget/discussions/39) Q4.
+&rarr; `gget alphafold` returns the predicted structure (PDB) and predicted alignment error (.json) in a new folder ("./[date_time]_gget_alphafold_prediction"). The use case above exemplifies how to use [`gget blast`](blast.md) and [`gget pdb`](pdb.md) for a comparative analysis of the new prediction. PDB files can be viewed interactively in 3D [online](https://rcsb.org/3d-view), or using programs like [PyMOL](https://pymol.org/) or [Blender](https://www.blender.org/). To compare two PDB files, you can use [this website](https://rcsb.org/alignment). The Python interface also returns [interactive plots](https://twitter.com/NeuroLuebbert/status/1555968042948915200), which can be generated from the PDB and JSON as described in the [gget alphafold FAQ](https://github.com/pachterlab/gget/discussions/39) Q4.
 
 ### [Example in Google Colab](https://github.com/pachterlab/gget_examples/blob/main/gget_alphafold.ipynb)
 ### [gget alphafold FAQ](https://github.com/pachterlab/gget/discussions/39)
