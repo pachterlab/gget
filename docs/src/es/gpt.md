@@ -11,7 +11,7 @@ Obtenga su clave API de OpenAI [aquí](https://platform.openai.com/account/api-k
 
 Regresa: El texto generado (str).  
 
-Antes de usar  `gget gpt` por primera vez, corre `gget setup gpt` / `gget.setup("gpt")` (ver también [`gget setup`](es/setup.md)).  
+Antes de usar  `gget gpt` por primera vez, corre `gget setup gpt` / `gget.setup("gpt")` (ver también [`gget setup`](setup.md)).  
 
 **Parámetros posicionales**  
 `prompt`  
