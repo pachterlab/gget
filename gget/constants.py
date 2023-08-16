@@ -39,6 +39,8 @@ GET_ELM_API =  "http://elm.eu.org/start_search/"
 
 #ELM URL for web scraping in gget elm
 ELM_URL = "http://elm.eu.org/elms/"
-ELM_INSTANCES_TSV = "gget/constants/elm_instances.tsv"
-ELM_INSTANCES_FASTA = "gget/constants/elm_instances.fasta"
-ELM_CLASSES_TSV = "gget/constants/elm_classes.tsv"
+
+#elm local database files
+ELM_CLASSES_TSV = "gget/elm_files/elm_classes.tsv"
+ELM_INSTANCES_FASTA = "gget/elm_files/elm_instances.fasta"
+ELM_INSTANCES_TSV = "gget/elm_files/elm_instances.tsv"
