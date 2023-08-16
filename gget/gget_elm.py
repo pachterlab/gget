@@ -228,12 +228,13 @@ def elm(sequence, uniprot=False, json=False, save=False, verbose=True, folder="r
             logging.info(f"Performing pairwise sequence alignment against ELM database using DIAMOND for {len(aa_seqs)} sequence(s)...")
         df = pd.concat([df, seq_workflow(aa_seqs, seq_lens)])
         
-        target_start = df['target_start'].values.tolist()
-        target_end = df['target_end'].values.tolist()
-  
-        if (df["Per. Ident"] is not None):
-            # ignore nonoverlapping motifs
-            df.drop(df[ (df['Start'] <= target_start[0]) | (df['End'] >= target_end[0]) ].index, inplace=True)
+        if not uniprot:
+            target_start = df['target_start'].values.tolist()
+            target_end = df['target_end'].values.tolist()
+    
+            if (df["Per. Ident"] is not None):
+                # ignore nonoverlapping motifs
+                df.drop(df[ (df['Start'] <= target_start[0]) | (df['End'] >= target_end[0]) ].index, inplace=True)
         
     if (len(df) == 0):
         logging.warning("No ELM results found for sequence or UniProt ID input")
