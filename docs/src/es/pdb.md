@@ -74,6 +74,6 @@ gget.blast("gget_seq_results.fa", database="pdbaa")
 gget.pdb("7DQA", save=True)
 gget.pdb("7CT5", save=True)
 ```
-&rarr; Este caso de uso ejemplifica cómo encontrar archivos PDB para un análisis comparativo de la estructura de las proteínas asociado con IDs de Ensembl o secuencias de aminoácidos. Los archivos PDB obtenidos también se pueden comparar con las estructuras predichas generadas por [`gget alphafold`](alpahfold.md). Los archivos PDB se pueden ver de forma interactiva en 3D [aquí](https://rcsb.org/3d-view), o usando programas como [PyMOL](https://pymol.org/) o [Blender](https://www.blender.org/). Múltiple archivos PDB se pueden visualizar para comparación [aquí](https://rcsb.org/alignment).
+&rarr; Este caso de uso ejemplifica cómo encontrar archivos PDB para un análisis comparativo de la estructura de las proteínas asociado con IDs de Ensembl o secuencias de aminoácidos. Los archivos PDB obtenidos también se pueden comparar con las estructuras predichas generadas por [`gget alphafold`](es/alpahfold.md). Los archivos PDB se pueden ver de forma interactiva en 3D [aquí](https://rcsb.org/3d-view), o usando programas como [PyMOL](https://pymol.org/) o [Blender](https://www.blender.org/). Múltiple archivos PDB se pueden visualizar para comparación [aquí](https://rcsb.org/alignment).
   
 #### [Más ejemplos](https://github.com/pachterlab/gget_examples)
