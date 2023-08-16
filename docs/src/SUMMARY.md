@@ -21,7 +21,7 @@
 * [gget ref](en/ref.md)  
 * [gget search](en/search.md)  
 * [gget setup](en/setup.md)  
-* [gget seq](sen/eq.md)  
+* [gget seq](en/seq.md)  
 
 ---
 
