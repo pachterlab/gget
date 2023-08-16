@@ -3,7 +3,7 @@
 Regresa data de la base de datos [CZ CELLxGENE Discover](https://cellxgene.cziscience.com/) usando [CZ CELLxGENE Discover Census](https://github.com/chanzuckerberg/cellxgene-census).  
 Regresa: Un objeto del tipo AnnData que contiene la matriz de recuentos de genes y los metadatos de los datos de single-cell RNA sequencing de los tejidos/genes/etc. definidos.  
 
-Antes de usar `gget cellxgene` por primera vez, corre `gget setup cellxgene` / `gget.setup("cellxgene")` (ver también [`gget setup`](es/setup.md)).  
+Antes de usar `gget cellxgene` por primera vez, corre `gget setup cellxgene` / `gget.setup("cellxgene")` (ver también [`gget setup`](setup.md)).  
 
 **Parámetros optionales**  
 `-s` `--species`  
