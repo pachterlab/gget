@@ -64,7 +64,7 @@ def get_elm_instances(UniProtID, elm_instances_tsv, elm_classes_tsv):
     #merge two dataframes using ELM Identifier
     df = df_instances_matching.merge(df_classes, how='left', on=['ELMIdentifier'])
     #reorder columns 
-    change_column= ["instance_accession","class_accession", "ELMIdentifier", "FunctionalSiteName", "Description", "Regex", "Probability", "Start", "End", "Query Cover", "Per. Ident", "query_start", "query_end", "target_start", "target_end","ProteinName", "Organism", "motif_in_query", "References", "InstanceLogic", "PDB", "#Instances", "#Instances_in_PDB"]
+    change_column= ["instance_accession","class_accession", "ELMIdentifier", "FunctionalSiteName", "Description", "Regex", "Probability", "Start", "End", "Query Cover", "Per. Ident", "query_start", "query_end", "target_start", "target_end","ProteinName", "Organism", "References", "InstanceLogic", "PDB", "#Instances", "#Instances_in_PDB"]
     df_final = df.reindex(columns=change_column)
     return df_final
 
@@ -180,7 +180,7 @@ def regex_match(sequence):
 
     df_final.rename(columns = {'Accession_x':'instance_accession'}, inplace = True)
   
-    change_column = ['instance_accession',"ELMIdentifier", "FunctionalSiteName", "ELMType", "Description", 'Instances (Matched Sequence)', "Probability", "Start in ortholog", "End in ortholog","Methods", "ProteinName", "Organism"]
+    change_column = ['instance_accession',"ELMIdentifier", "FunctionalSiteName", "ELMType", "Description", 'Instances (Matched Sequence)', "Probability", "Start in ortholog", "End in ortholog","Methods", "ProteinName", "Organism", "motif_in_query"]
     df_final = df_final.reindex(columns=change_column)
     return df_final
 
