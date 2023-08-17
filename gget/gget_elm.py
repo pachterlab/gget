@@ -241,8 +241,11 @@ def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
                 logging.warning("No target start found for input sequence. If you entered a UniProt ID, please set 'uniprot' flag to True.")
     
     if uniprot:
+        #TODO: local error when trying to access sequence from 212 
         #use amino acid sequence associated with UniProt ID to do regex match
-        sequence= aa_seqs[0]
+        df_uniprot = get_uniprot_seqs(UNIPROT_REST_API, sequence)
+        sequences = df_uniprot[df_uniprot["id"] == id]["sequence"].values
+        sequence = sequences[0]
     # find exact motifs
     df_regex_matches = regex_match(sequence)
     if (len(df_regex_matches) == 0):
