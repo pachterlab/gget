@@ -55,14 +55,12 @@ def get_elm_instances(UniProtID, elm_instances_tsv, elm_classes_tsv):
     # get class descriptions from elm_classes.tsv
     df_classes = tsv_to_df(elm_classes_tsv)
     df_classes.rename(columns = {'Accession':'class_accession'}, inplace = True)
-    df_classes.rename(columns = {'UniProt_id':'UniProt ID'}, inplace = True)
-    df_classes.rename(columns = {'Start':'Start in ortholog'}, inplace = True)
-    df_classes.rename(columns = {'End':'End in ortholog'}, inplace = True)
+
 
     #merge two dataframes using ELM Identifier
     df = df_instances_matching.merge(df_classes, how='left', on=['ELMIdentifier'])
     #reorder columns 
-    change_column= ['UniProt ID',"Accessions","instance_accession","class_accession", "ELM_identifier", "FunctionalSiteName", "Description", "Regex", "Probability", "Start in ortholog", "End in ortholog", "Query Cover (input to primary acc)", "Per. Ident", "query_start", "query_end", "target_start", "target_end","ProteinName", "Organism", "References", "InstanceLogic", "PDB", "#Instances", "#Instances_in_PDB"]
+    change_column= ["Accessions","instance_accession","class_accession", "ELM_identifier", "FunctionalSiteName", "Description", "Regex", "Probability", "Start", "End", "Query Cover", "Per. Ident", "query_start", "query_end", "target_start", "target_end","ProteinName", "Organism", "References", "InstanceLogic", "PDB", "#Instances", "#Instances_in_PDB"]
     df_final = df.reindex(columns=change_column)
     return df_final
 
