@@ -9,7 +9,7 @@
 
 [<img align="right" width="50%" height="50%" src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_overview.png?raw=true" />](https://raw.githubusercontent.com/pachterlab/gget/main/figures/gget_overview.png)
 
-# ¡Bienvenido!
+# ¡Bienvenidos!
   
 `gget` es un programa gratuito de código abierto de Terminal y Python que permite la consulta eficiente de bases de datos genómicas.  
 <br>
