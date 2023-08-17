@@ -225,14 +225,9 @@ def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
         if verbose:
             logging.info(f"Performing pairwise sequence alignment against ELM database using DIAMOND for {len(aa_seqs)} sequence(s)...")
         df = pd.concat([df, seq_workflow(aa_seqs, seq_lens)])
-
-
-        if uniprot:
-            sequence= aa_seqs[0]
         
         if (len(df) == 0):
             logging.warning("No orthologs found for sequence or UniProt ID input")
-    
         
         if not uniprot and len(df) > 0:
             try:
@@ -245,6 +240,9 @@ def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
             except KeyError:
                 logging.warning("No target start found for input sequence. If you entered a UniProt ID, please set 'uniprot' flag to True.")
     
+    if uniprot:
+        #use amino acid sequence associated with UniProt ID to do regex match
+        sequence= aa_seqs[0]
     # find exact motifs
     df_regex_matches = regex_match(sequence)
     if (len(df_regex_matches) == 0):
