@@ -19,6 +19,8 @@ from .constants import (
 # Custom functions
 from .compile import PACKAGE_PATH
 
+
+
 # Path to precompiled diamond binary
 if platform.system() == "Windows":
     PRECOMPILED_DIAMOND_PATH = os.path.join(
@@ -62,11 +64,13 @@ def get_elm_instances(UniProtID, elm_instances_tsv, elm_classes_tsv):
     #merge two dataframes using ELM Identifier
     df = df_instances_matching.merge(df_classes, how='left', on=['ELMIdentifier'])
     #reorder columns 
-    change_column= ["instance_accession","class_accession", "ELMIdentifier", "FunctionalSiteName", "Description", "Regex", "Probability", "Start", "End", "Query Cover", "Per. Ident", "query_start", "query_end", "target_start", "target_end","ProteinName", "Organism", "References", "InstanceLogic", "PDB", "#Instances", "#Instances_in_PDB"]
+    change_column= ["instance_accession","class_accession", "ELMIdentifier", "FunctionalSiteName", "Description", "Regex", "Probability", "Start", "End", "Query Cover", "Per. Ident", "query_start", "query_end", "target_start", "target_end","ProteinName", "Organism", "motif_in_query", "References", "InstanceLogic", "PDB", "#Instances", "#Instances_in_PDB"]
     df_final = df.reindex(columns=change_column)
     return df_final
 
 def diamond(output_file, elm_file):
+    # Check if diamond is installed
+
     # creating a diamond-formatted database file
 
     # The double-quotation marks allow white spaces in the path, but this does not work for Windows
@@ -80,6 +84,12 @@ def diamond(output_file, elm_file):
     # Exit system if the subprocess returned wstdout = sys.stdout
    
     if process_2.wait() != 0:
+        logging.error(
+            """
+            Some third-party dependencies are missing. Please run the following command: 
+            >>> gget.setup('elm') or $ gget setup elm
+            """
+        )
         return
     else:
         logging.info(
