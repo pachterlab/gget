@@ -144,7 +144,6 @@ def regex_match(sequence):
             elm_row.insert(loc=1, column='Instances (Matched Sequence)', value=match_string.group(0))
 
             (start, end) = match_string.span()
-            print(match_string.span)
             elm_row.insert(loc=2, column='Start in ortholog', value=str(start))
             elm_row.insert(loc=3, column='End in ortholog', value=str(end))
         
