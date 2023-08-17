@@ -182,10 +182,9 @@ def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
      - sequence       amino acid sequence or Uniprot ID
      - uniprot        If True, searches using Uniprot ID instead of amino acid sequence. Default: False
      - json           If True, returns results in json format instead of data frame. Default: False.
-     - save           If True, the data frame is saved as a csv in the current directory (default: False).
-     - verbose         True/False whether to print progress information. Default True.
-     - folder         folder name to save two resulting csv files. Default: results
-
+     - out            folder name to save two resulting csv files. Default: results (default: None).
+     - verbose        True/False whether to print progress information. Default True.
+  
     Returns two data frames: orthologs and regex matches from ELM results.
     """
 
@@ -278,8 +277,16 @@ def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
         else:
             path = os.path.join(ROOT_DIR, out)
         try:
-            df.to_csv(os.path.join(path,"ortholog"))
-            df_regex_matches.to_csv(os.path.join(path,"regex_match"))
+
+            
+            if (len(df) > 0 and len(df_regex_matches) > 0):   
+                df.to_csv(os.path.join(path,"ortholog"))
+                df_regex_matches.to_csv(os.path.join(path,"regex_match"))
+            elif (len(df) > 0):
+                df.to_csv(os.path.join(path,"ortholog"))
+            elif (len(df_regex_matches) > 0):
+                df_regex_matches.to_csv(os.path.join(path,"regex_match"))
+
             
         except OSError: 
             os.mkdir(path)
