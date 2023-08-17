@@ -130,16 +130,15 @@ def regex_match(sequence):
     elm_ids = df_elm_classes["Accession"]
 
     regex_patterns = df_elm_classes["Regex"]
-   
-    df = pd.DataFrame()
 
     #Compare elm regex with input sequence and return all matching elms
     for elm_id, pattern in zip(elm_ids, regex_patterns):
 
         regex_matches = re.finditer(pattern, sequence)
-        print(re.search(pattern, sequence))
+
 
         for match_string in regex_matches:
+            print(match_string)
             elm_row = df_elm_classes.loc[df_elm_classes["Accession"]== elm_id]
             print(match_string.group(0))
             elm_row.insert(loc=1, column='Instances (Matched Sequence)', value=match_string.group(0))
@@ -148,7 +147,7 @@ def regex_match(sequence):
             elm_row.insert(loc=2, column='Start', value=str(start))
             elm_row.insert(loc=3, column='End', value=str(end))
         
-
+           
             elm_identifier = [str(x) for x in elm_row["ELMIdentifier"]][0]
   
             df_instances_matching = df_full_instances.loc[df_full_instances['ELMIdentifier']==elm_identifier]
@@ -167,11 +166,11 @@ def regex_match(sequence):
 
   
 
-    df.rename(columns = {'Accession_x':'instance_accession'}, inplace = True)
+    df_final.rename(columns = {'Accession_x':'instance_accession'}, inplace = True)
   
     change_column = ['instance_accession',"ELMIdentifier", "FunctionalSiteName", "ELMType", "Description", 'Instances (Matched Sequence)', "Probability", "Start", "End","Methods" "ProteinName", "Organism"]
-    df = df.reindex(columns=change_column)
-    return df
+    df_final = df_final.reindex(columns=change_column)
+    return df_final
 
 def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
     """
