@@ -60,7 +60,7 @@ def get_elm_instances(UniProtID, elm_instances_tsv, elm_classes_tsv):
     #merge two dataframes using ELM Identifier
     df = df_instances_matching.merge(df_classes, how='left', on=['ELMIdentifier'])
     #reorder columns 
-    change_column= ["Accession","instance_accession","class_accession", "ELMIdentifier", "FunctionalSiteName", "Description", "Regex", "Probability", "Start", "End", "Query Cover", "Per. Ident", "query_start", "query_end", "target_start", "target_end","ProteinName", "Organism", "References", "InstanceLogic", "PDB", "#Instances", "#Instances_in_PDB"]
+    change_column= ["instance_accession","class_accession", "ELMIdentifier", "FunctionalSiteName", "Description", "Regex", "Probability", "Start", "End", "Query Cover", "Per. Ident", "query_start", "query_end", "target_start", "target_end","ProteinName", "Organism", "References", "InstanceLogic", "PDB", "#Instances", "#Instances_in_PDB"]
     df_final = df.reindex(columns=change_column)
     return df_final
 
@@ -137,8 +137,8 @@ def regex_match(sequence):
     for elm_id, pattern in zip(elm_ids, regex_patterns):
 
         regex_matches = re.finditer(pattern, sequence)
-       
-    
+        print(regex_matches)
+
         for match_string in regex_matches:
             elm_row = df_elm_classes.loc[df_elm_classes["Accession"]== elm_id]
             elm_row.insert(loc=1, column='Instances (Matched Sequence)', value=match_string.group(0))
@@ -166,9 +166,8 @@ def regex_match(sequence):
   
 
     df.rename(columns = {'Accession_x':'instance_accession'}, inplace = True)
-    df.rename(columns = {'Primary_Acc':'UniProt ID'}, inplace = True)
   
-    change_column = ['UniProt ID','instance_accession',"ELMIdentifier", "FunctionalSiteName", "ELMType", "Description", 'Instances (Matched Sequence)', "Probability", "Start", "End","Methods" "ProteinName", "Organism"]
+    change_column = ['instance_accession',"ELMIdentifier", "FunctionalSiteName", "ELMType", "Description", 'Instances (Matched Sequence)', "Probability", "Start", "End","Methods" "ProteinName", "Organism"]
     df = df.reindex(columns=change_column)
     return df
 
@@ -239,12 +238,11 @@ def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
                 logging.warning("No target start found for input sequence. If you entered a UniProt ID, please set 'uniprot' flag to True.")
     
     if uniprot:
-        #TODO: local error when trying to access sequence from 212 
         #use amino acid sequence associated with UniProt ID to do regex match
         df_uniprot = get_uniprot_seqs(UNIPROT_REST_API, sequence)
-        
         sequences = df_uniprot[df_uniprot["uniprot_id"] == sequence]["sequence"].values
         sequence = sequences[0]
+
     # find exact motifs
     df_regex_matches = regex_match(sequence)
     if (len(df_regex_matches) == 0):
