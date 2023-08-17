@@ -145,8 +145,8 @@ def regex_match(sequence):
             elm_row.insert(loc=1, column='Instances (Matched Sequence)', value=match_string.group(0))
 
             (start, end) = match_string.span()
-            elm_row.insert(column='Start', value=str(start))
-            elm_row.insert(column='End', value=str(end))
+            elm_row.insert(loc=2, column='Start', value=str(start))
+            elm_row.insert(loc=3, column='End', value=str(end))
         
 
             elm_identifier = [str(x) for x in elm_row["ELMIdentifier"]][0]
