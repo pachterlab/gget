@@ -6,6 +6,7 @@ import os
 import logging
 import json as json_package
 import re
+import platform
 
 from .utils import get_uniprot_seqs
 
@@ -15,17 +16,18 @@ from .constants import (
     ELM_INSTANCES_TSV,
     UNIPROT_REST_API,
 )
+# Custom functions
+from .compile import PACKAGE_PATH
 
-
-# # Path to precompiled diamond binary
-# if platform.system() == "Windows":
-#     PRECOMPILED_DIAMOND_PATH = os.path.join(
-#         PACKAGE_PATH, f"bins/{platform.system()}/diamond-windows.zip"
-#     )
-# else:
-#     PRECOMPILED_DIAMOND_PATH = os.path.join(
-#         PACKAGE_PATH, f"bins/{platform.system()}/diamond-linux64.tar.gz"
-#     )
+# Path to precompiled diamond binary
+if platform.system() == "Windows":
+    PRECOMPILED_DIAMOND_PATH = os.path.join(
+        PACKAGE_PATH, f"bins/{platform.system()}/diamond.exe"
+    )
+else:
+    PRECOMPILED_DIAMOND_PATH = os.path.join(
+        PACKAGE_PATH, f"bins/{platform.system()}/diamond"
+    )
 
 def motif_in_query(row):
     return True if (row["Start"] >= row["target_start"]) & (row["End"] <= row["target_end"]) else False
