@@ -11,7 +11,7 @@
 
 # ¡Bienvenidos!
   
-`gget` es un programa gratuito de código abierto de Terminal y Python que permite la consulta eficiente de bases de datos genómicas.  
+`gget` es un programa gratuito de código fuente abierta de Terminal y Python que permite la consulta eficiente de bases de datos genómicas.  
 <br>
 `gget` consiste en un conjunto de módulos separados pero interoperables, cada uno diseñado para facilitar un tipo de consulta de base de datos en una sola línea de código.
 <br>
