@@ -138,14 +138,15 @@ def regex_match(sequence):
 
 
         for match_string in regex_matches:
-            print(match_string)
+            
             elm_row = df_elm_classes.loc[df_elm_classes["Accession"]== elm_id]
-            print(match_string.group(0))
+      
             elm_row.insert(loc=1, column='Instances (Matched Sequence)', value=match_string.group(0))
 
             (start, end) = match_string.span()
-            elm_row.insert(loc=2, column='Start', value=str(start))
-            elm_row.insert(loc=3, column='End', value=str(end))
+            print(match_string.span)
+            elm_row.insert(loc=2, column='Start in ortholog', value=str(start))
+            elm_row.insert(loc=3, column='End in ortholog', value=str(end))
         
            
             elm_identifier = [str(x) for x in elm_row["ELMIdentifier"]][0]
@@ -168,7 +169,7 @@ def regex_match(sequence):
 
     df_final.rename(columns = {'Accession_x':'instance_accession'}, inplace = True)
   
-    change_column = ['instance_accession',"ELMIdentifier", "FunctionalSiteName", "ELMType", "Description", 'Instances (Matched Sequence)', "Probability", "Start", "End","Methods" "ProteinName", "Organism"]
+    change_column = ['instance_accession',"ELMIdentifier", "FunctionalSiteName", "ELMType", "Description", 'Instances (Matched Sequence)', "Probability", "Start in ortholog", "End in ortholog","Methods", "ProteinName", "Organism"]
     df_final = df_final.reindex(columns=change_column)
     return df_final
 
