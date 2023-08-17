@@ -17,7 +17,7 @@ from .constants import (
 )
 
 
-# # Path to precompiled muscle binary
+# # Path to precompiled diamond binary
 # if platform.system() == "Windows":
 #     PRECOMPILED_DIAMOND_PATH = os.path.join(
 #         PACKAGE_PATH, f"bins/{platform.system()}/diamond-windows.zip"
@@ -27,6 +27,8 @@ from .constants import (
 #         PACKAGE_PATH, f"bins/{platform.system()}/diamond-linux64.tar.gz"
 #     )
 
+def motif_in_query(row):
+    return True if (row["Start"] >= row["target_start"]) & (row["End"] <= row["target_end"]) else False
 
 def tsv_to_df(tsv_file, headers = None):
     try:
@@ -42,13 +44,6 @@ def tsv_to_df(tsv_file, headers = None):
         logging.warning(f"Query did not result in any matches.")
         return None
 
-def save_df_to_folder(folder_name, df, csv_name):
-    ROOT_DIR = os.path.abspath(os.curdir)
-    path = os.path.join(ROOT_DIR, folder_name)
-    try:
-        df.to_csv(os.path.join(path,csv_name))
-    except OSError: 
-        os.mkdir(path)
 
 def get_elm_instances(UniProtID, elm_instances_tsv, elm_classes_tsv):
 
@@ -60,17 +55,15 @@ def get_elm_instances(UniProtID, elm_instances_tsv, elm_classes_tsv):
     # get class descriptions from elm_classes.tsv
     df_classes = tsv_to_df(elm_classes_tsv)
     df_classes.rename(columns = {'Accession':'class_accession'}, inplace = True)
+    df_classes.rename(columns = {'UniProt_id':'UniProt ID'}, inplace = True)
+    df_classes.rename(columns = {'Start':'Start in ortholog'}, inplace = True)
+    df_classes.rename(columns = {'End':'End in ortholog'}, inplace = True)
 
     #merge two dataframes using ELM Identifier
-    df_final = df_instances_matching.merge(df_classes, how='left', on=['ELMIdentifier'])
-
-    # move uniprot ids and elm identifier columns
-    uniprot_ids = df_final.pop("Primary_Acc")
-    df_final.insert(0, "UniProt_id", uniprot_ids)
-
-    elm_identifiers = df_final.pop("ELMIdentifier")
-    df_final.insert(1, "ELM_identifier", elm_identifiers)
-    
+    df = df_instances_matching.merge(df_classes, how='left', on=['ELMIdentifier'])
+    #reorder columns 
+    change_column= ['UniProt ID',"Accessions","instance_accession","class_accession", "ELM_identifier", "FunctionalSiteName", "Description", "Regex", "Probability", "Start in ortholog", "End in ortholog", "Query Cover (input to primary acc)", "Per. Ident", "query_start", "query_end", "target_start", "target_end","ProteinName", "Organism", "References", "InstanceLogic", "PDB", "#Instances", "#Instances_in_PDB"]
+    df_final = df.reindex(columns=change_column)
     return df_final
 
 def diamond(output_file, elm_file):
@@ -90,7 +83,7 @@ def diamond(output_file, elm_file):
         return
     else:
         logging.info(
-            f"Diamond blast complete."
+            f"Diamond run complete."
         )
 
 def seq_workflow(sequences, sequence_lengths):
@@ -123,6 +116,8 @@ def seq_workflow(sequences, sequence_lengths):
                 df_elm["query_end"] = df_diamond["query_end"]
                 df_elm["target_start"] = df_diamond["target_start"]
                 df_elm["target_end"] = df_diamond["target_end"]
+                df_elm["motif_in_query"] = df_elm.apply(motif_in_query, axis=1)
+    
                 df = pd.concat([df, df_elm])
 
         seq_number += 1
@@ -168,15 +163,18 @@ def regex_match(sequence):
             df_final.pop("#Instances_in_PDB")
             df_final.pop("References")
             df_final.pop("InstanceLogic")
-            df_final.pop("PDB")
-            df_final.rename(columns = {'Accession_x':'instance_accession'}, inplace = True)
-            
-            df = pd.concat([df, df_final], ignore_index=True)
 
 
+  
+
+    df.rename(columns = {'Accession_x':'instance_accession'}, inplace = True)
+    df.rename(columns = {'Primary_Acc':'UniProt ID'}, inplace = True)
+  
+    change_column = ['UniProt ID','instance_accession',"ELMIdentifier", "FunctionalSiteName", "ELMType", "Description", 'Instances (Matched Sequence)', "Probability", "Start", "End","Methods" "ProteinName", "Organism"]
+    df = df.reindex(columns=change_column)
     return df
 
-def elm(sequence, uniprot=False, json=False, save=False, verbose=True, folder="results"):
+def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
     """
     Searches the Eukaryotic Linear Motif resource for Functional Sites in Proteins.
 
@@ -190,6 +188,7 @@ def elm(sequence, uniprot=False, json=False, save=False, verbose=True, folder="r
 
     Returns two data frames: orthologs and regex matches from ELM results.
     """
+
 
     if not uniprot:
         amino_acids = set("ARNDCQEGHILKMFPSTWYVBZXBJZ")
@@ -227,8 +226,20 @@ def elm(sequence, uniprot=False, json=False, save=False, verbose=True, folder="r
         if verbose:
             logging.info(f"Performing pairwise sequence alignment against ELM database using DIAMOND for {len(aa_seqs)} sequence(s)...")
         df = pd.concat([df, seq_workflow(aa_seqs, seq_lens)])
+
+        # find exact motifs
+        if uniprot:
+            sequence= aa_seqs[0]
+        df_regex_matches = regex_match(sequence)
         
-        if not uniprot:
+        if (len(df) == 0):
+            logging.warning("No orthologs found for sequence or UniProt ID input")
+        
+        if (len(df_regex_matches) == 0):
+            logging.warning("No regex matches found for sequence or UniProt ID input")
+    
+        
+        if not uniprot and len(df) > 0:
             try:
                 target_start = df['target_start'].values.tolist()
                 target_end = df['target_end'].values.tolist()
@@ -237,33 +248,46 @@ def elm(sequence, uniprot=False, json=False, save=False, verbose=True, folder="r
                     # ignore nonoverlapping motifs
                     df.drop(df[ (df['Start'] <= target_start[0]) | (df['End'] >= target_end[0]) ].index, inplace=True)
             except KeyError:
-                logging.error("No target start found for input sequence. If you entered a UniProt ID, please set `-uniprot=True`")
-        
-    if (len(df) == 0):
-        logging.warning("No ELM results found for sequence or UniProt ID input")
-        return
-
-    # find exact motifs
-    df_regex_matches = regex_match(sequence)
-
-  
+                logging.warning("No target start found for input sequence. If you entered a UniProt ID, please set 'uniprot' flag to True.")
+    
         
     # for terminal main.py, check if instance(df, None) 
 
     if json:
         ortholog_dict = json_package.loads(df.to_json(orient="records"))
         regex_dict = json_package.loads(df_regex_matches.to_json(orient="records"))
-        if save:
+        if out:
             with open("ortholog.json", "w", encoding="utf-8") as f:
                 json_package.dump(ortholog_dict, f, ensure_ascii=False, indent=4)
             with open("regex.json", "w", encoding="utf-8") as f:
                 json_package.dump(regex_dict, f, ensure_ascii=False, indent=4)
 
-        return results_dict
+        if (len(df) > 0 and len(df_regex_matches) > 0):
+            return ortholog_dict, regex_dict
+
+        elif (len(df) > 0):
+            return ortholog_dict
+        elif (len(df_regex_matches) > 0):
+            return regex_dict
 
     else:
-        if save:
-            save_df_to_folder(folder, df, "orthlog")
-            save_df_to_folder(folder, df_regex_matches, "regex_matches")
+        ROOT_DIR = os.path.abspath(os.curdir)
+        if out is None:
+            # Create temporary results folder
+            path = os.path.join(ROOT_DIR, "results")
+        else:
+            path = os.path.join(ROOT_DIR, out)
+        try:
+            df.to_csv(os.path.join(path,"ortholog"))
+            df_regex_matches.to_csv(os.path.join(path,"regex_match"))
+            
+        except OSError: 
+            os.mkdir(path)
+
     
-    return df, df_regex_matches
+    if (len(df) > 0 and len(df_regex_matches) > 0):
+        return df, df_regex_matches
+    elif (len(df) > 0):
+        return df
+    elif (len(df_regex_matches) > 0):
+        return df_regex_matches
