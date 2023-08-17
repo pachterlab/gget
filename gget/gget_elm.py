@@ -245,7 +245,7 @@ def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
         #use amino acid sequence associated with UniProt ID to do regex match
         df_uniprot = get_uniprot_seqs(UNIPROT_REST_API, sequence)
         
-        sequences = df_uniprot[df_uniprot["uniprot_id"] == id]["sequence"].values
+        sequences = df_uniprot[df_uniprot["uniprot_id"] == sequence]["sequence"].values
         sequence = sequences[0]
     # find exact motifs
     df_regex_matches = regex_match(sequence)
