@@ -49,7 +49,7 @@ def tsv_to_df(tsv_file, headers = None):
         return None
 
 
-def get_elm_instances(UniProtID, elm_instances_tsv, elm_classes_tsv):
+def get_elm_instances(UniProtID, elm_instances_tsv, elm_classes_tsv, verbose):
     #check if local elm files are installed
     try:
         import elm_files
@@ -57,14 +57,15 @@ def get_elm_instances(UniProtID, elm_instances_tsv, elm_classes_tsv):
             logging.info(f"elm files installed succesfully.")
     except ImportError as e:
         logging.error(
-            f"ELM files not found.  Please run the following command: 
-        >>> gget.setup('elm') or $ gget setup elm"
+            f"ELM files not found.  Please run the following command: >>> gget.setup('elm') or $ gget setup elm"
         )
         return
 
     # return matching rows from elm_instances.tsv
     df_full_instances = tsv_to_df(elm_instances_tsv)
-    df_full_instances.rename(columns = {'Accession':'instance_accession'}, inplace = True)
+    df_full_instances.rename(columns = {'Accession':'UniProt ID'}, inplace = True)
+    df_full_instances.rename(columns = {'Start in ortholog':'Start'}, inplace = True)
+    df_full_instances.rename(columns = {'End in ortholog':'End'}, inplace = True)
     df_instances_matching = df_full_instances.loc[df_full_instances['Accessions'].str.contains(UniProtID)]
 
     # get class descriptions from elm_classes.tsv
@@ -72,10 +73,11 @@ def get_elm_instances(UniProtID, elm_instances_tsv, elm_classes_tsv):
     df_classes.rename(columns = {'Accession':'class_accession'}, inplace = True)
 
 
+
     #merge two dataframes using ELM Identifier
     df = df_instances_matching.merge(df_classes, how='left', on=['ELMIdentifier'])
     #reorder columns 
-    change_column= ["instance_accession","class_accession", "ELMIdentifier", "FunctionalSiteName", "Description", "Regex", "Probability", "Start", "End", "Query Cover", "Per. Ident", "query_start", "query_end", "target_start", "target_end","ProteinName", "Organism", "References", "InstanceLogic", "PDB", "#Instances", "#Instances_in_PDB"]
+    change_column= ["UniProt ID","class_accession", "ELMIdentifier", "FunctionalSiteName", "Description", "Regex", "Probability", "Start in ortholog", "End in ortholog", "Query Cover", "Per. Ident", "query_start", "query_end", "target_start", "target_end","ProteinName", "Organism", "References", "InstanceLogic", "PDB", "#Instances", "#Instances_in_PDB"]
     df_final = df.reindex(columns=change_column)
     return df_final
 
@@ -105,7 +107,7 @@ def diamond(output_file, elm_file):
             f"DIAMOND run complete."
         )
 
-def seq_workflow(sequences, sequence_lengths):
+def seq_workflow(sequences, sequence_lengths, verbose):
     df = pd.DataFrame()
     seq_number = 1
     for sequence, seq_len in zip(sequences, sequence_lengths):
@@ -128,7 +130,7 @@ def seq_workflow(sequences, sequence_lengths):
             logging.info(f"Pairwise sequence alignment with DIAMOND matched the following UniProt IDs {uniprot_ids}. Retrieving ELMs for each UniProt ID...")
 
             for id in uniprot_ids:
-                df_elm = get_elm_instances(id, ELM_INSTANCES_TSV, ELM_CLASSES_TSV)
+                df_elm = get_elm_instances(id, ELM_INSTANCES_TSV, ELM_CLASSES_TSV, verbose)
                 df_elm["Query Cover"] = df_diamond["length"] / seq_len * 100
                 df_elm["Per. Ident"] = df_diamond["Per. Ident"]
                 df_elm["query_start"] = df_diamond["query_start"]
@@ -165,8 +167,8 @@ def regex_match(sequence):
             elm_row.insert(loc=1, column='Instances (Matched Sequence)', value=match_string.group(0))
 
             (start, end) = match_string.span()
-            elm_row.insert(loc=2, column='Start in ortholog', value=str(start))
-            elm_row.insert(loc=3, column='End in ortholog', value=str(end))
+            elm_row.insert(loc=2, column='Start in query', value=str(start))
+            elm_row.insert(loc=3, column='End in query', value=str(end))
         
            
             elm_identifier = [str(x) for x in elm_row["ELMIdentifier"]][0]
@@ -243,7 +245,7 @@ def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
             seq_lens = [len(sequence)]
         if verbose:
             logging.info(f"Performing pairwise sequence alignment against ELM database using DIAMOND for {len(aa_seqs)} sequence(s)...")
-        df = pd.concat([df, seq_workflow(aa_seqs, seq_lens)])
+        df = pd.concat([df, seq_workflow(aa_seqs, seq_lens, verbose)])
         
         if (len(df) == 0):
             logging.warning("No orthologs found for sequence or UniProt ID input")
