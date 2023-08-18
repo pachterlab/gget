@@ -9,6 +9,7 @@ import re
 import platform
 
 from .utils import get_uniprot_seqs
+from .gget_diamond import diamond
 
 from .constants import (
     ELM_CLASSES_TSV,
@@ -81,31 +82,6 @@ def get_elm_instances(UniProtID, elm_instances_tsv, elm_classes_tsv, verbose):
     df_final = df.reindex(columns=change_column)
     return df_final
 
-def diamond(output_file, elm_file):
-
-    # creating a diamond-formatted database file
-
-    # The double-quotation marks allow white spaces in the path, but this does not work for Windows
-    command = f"diamond makedb --in {elm_file} -d reference && diamond blastp -q tmp.fa -d reference -o {output_file}.tsv --very-sensitive"
-     # Run diamond command and write command output
-    with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process_2:
-        stderr_2 = process_2.stderr.read().decode("utf-8")
-        # Log the standard error if it is not empty
-        if stderr_2:
-            sys.stderr.write(stderr_2)
-    # Exit system if the subprocess returned wstdout = sys.stdout
-   
-    if process_2.wait() != 0:
-        logging.error(
-            """
-            DIAMOND failed. Please check that you have a diamond executable file for Windows or Linux in the bin folder.
-            """
-        )
-        return
-    else:
-        logging.info(
-            f"DIAMOND run complete."
-        )
 
 def seq_workflow(sequences, sequence_lengths, verbose):
     df = pd.DataFrame()
@@ -115,7 +91,7 @@ def seq_workflow(sequences, sequence_lengths, verbose):
         with open("tmp.fa", "w") as f:
             f.write("> \n" + sequence)
         
-        diamond("out", ELM_INSTANCES_FASTA)
+        diamond("tmp.fa", ELM_INSTANCES_FASTA)
         df_diamond = tsv_to_df("out.tsv", ["query_accession", "target_accession", "Per. Ident" , "length", "mismatches", "gap_openings", "query_start", "query_end", "target_start", "target_end", "e-value", "bit_score"])
         
         # If no match found for sequence, raise error
