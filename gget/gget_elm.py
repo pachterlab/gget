@@ -180,7 +180,7 @@ def regex_match(sequence):
 
     df_final.rename(columns = {'Accession_x':'instance_accession'}, inplace = True)
   
-    change_column = ['instance_accession',"ELMIdentifier", "FunctionalSiteName", "ELMType", "Description", 'Instances (Matched Sequence)', "Probability", "Start in ortholog", "End in ortholog","Methods", "ProteinName", "Organism", "motif_in_query"]
+    change_column = ['instance_accession',"ELMIdentifier", "FunctionalSiteName", "ELMType", "Description", 'Instances (Matched Sequence)', "Probability", "Start in ortholog", "End in ortholog","Methods", "ProteinName", "Organism"]
     df_final = df_final.reindex(columns=change_column)
     return df_final
 
