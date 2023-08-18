@@ -200,7 +200,7 @@ def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
     df = pd.DataFrame()
 
     if uniprot:
-        df_temp = get_elm_instances(sequence, ELM_INSTANCES_TSV, ELM_CLASSES_TSV)
+        df_temp = get_elm_instances(sequence, ELM_INSTANCES_TSV, ELM_CLASSES_TSV, verbose)
         df = pd.concat([df, df_temp])
         df["Query Cover"] = np.nan
         df["Per. Ident"] = np.nan
