@@ -209,7 +209,7 @@ def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
             df_uniprot = get_uniprot_seqs(server=UNIPROT_REST_API, ensembl_ids=sequence)
             try:
                 #only grab sequences where id match exact input uniprot id
-                aa_seqs = df_uniprot[df_uniprot["id"] == id]["sequence"].values
+                aa_seqs = df_uniprot[df_uniprot["uniprot_id"] == id]["sequence"].values
                 seq_lens = df_uniprot["sequence_length"].values
             except KeyError:
                 raise ValueError(f"No sequences found for UniProt ID {sequence} from searching the UniProt server. Please double check your UniProt ID and try again.")
