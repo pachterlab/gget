@@ -90,6 +90,7 @@ def seq_workflow(sequences, sequence_lengths, verbose):
         with open(f"tmp{str(uuid.uuid4())}.fa", "w") as f:
             f.write("> \n" + sequence)
         
+        print(f"{os. getcwd()}tmp{str(uuid.uuid4())}.fa")
         diamond(f"{os. getcwd()}tmp{str(uuid.uuid4())}.fa", ELM_INSTANCES_FASTA)
         df_diamond = tsv_to_df("diamond_out.tsv", ["query_accession", "target_accession", "Per. Ident" , "length", "mismatches", "gap_openings", "query_start", "query_end", "target_start", "target_end", "e-value", "bit_score"])
         
@@ -166,7 +167,7 @@ def regex_match(sequence):
 
     df_final.rename(columns = {'Accession_x':'instance_accession'}, inplace = True)
   
-    change_column = ['instance_accession',"ELMIdentifier", "FunctionalSiteName", "ELMType", "Description", 'Instances (Matched Sequence)', "Probability", "Start in ortholog", "End in ortholog","Methods", "ProteinName", "Organism"]
+    change_column = ['instance_accession',"ELMIdentifier", "FunctionalSiteName", "ELMType", "Description", 'Instances (Matched Sequence)', "Probability", "Start in query", "End in query","Methods", "ProteinName", "Organism"]
     df_final = df_final.reindex(columns=change_column)
     return df_final
 
@@ -198,6 +199,7 @@ def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
 
     df = pd.DataFrame()
 
+    #building first ortholog dataframe
     if uniprot:
         df_temp = get_elm_instances(sequence, ELM_INSTANCES_TSV, ELM_CLASSES_TSV, verbose)
         df = pd.concat([df, df_temp])
@@ -218,8 +220,9 @@ def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
         if not uniprot:
             aa_seqs = [sequence]
             seq_lens = [len(sequence)]
-        if verbose:
-            logging.info(f"Performing pairwise sequence alignment against ELM database using DIAMOND for {len(aa_seqs)} sequence(s)...")
+            if verbose:
+                logging.info(f"Performing pairwise sequence alignment against ELM database using DIAMOND for {len(aa_seqs)} sequence(s)...")
+        
         df = pd.concat([df, seq_workflow(aa_seqs, seq_lens, verbose)])
         
         if (len(df) == 0):
@@ -236,18 +239,17 @@ def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
             except KeyError:
                 logging.warning("No target start found for input sequence. If you entered a UniProt ID, please set 'uniprot' flag to True.")
     
+    # building second data frame with regex motif match
     if uniprot:
         #use amino acid sequence associated with UniProt ID to do regex match
         df_uniprot = get_uniprot_seqs(UNIPROT_REST_API, sequence)
         sequences = df_uniprot[df_uniprot["uniprot_id"] == sequence]["sequence"].values
         sequence = sequences[0]
 
-    # find exact motifs
     df_regex_matches = regex_match(sequence)
     if (len(df_regex_matches) == 0):
         logging.warning("No regex matches found for sequence or UniProt ID input")
    
-    # for terminal main.py, check if instance(df, None) 
 
     if json:
         ortholog_dict = json_package.loads(df.to_json(orient="records"))
