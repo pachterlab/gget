@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
-import subprocess
-import sys
+import uuid
 import os
 import logging
 import json as json_package
@@ -88,10 +87,10 @@ def seq_workflow(sequences, sequence_lengths, verbose):
     seq_number = 1
     for sequence, seq_len in zip(sequences, sequence_lengths):
         sequence = str(sequence)
-        with open("tmp.fa", "w") as f:
+        with open(f"tmp{str(uuid.uuid4())}.fa", "w") as f:
             f.write("> \n" + sequence)
         
-        diamond("tmp.fa", ELM_INSTANCES_FASTA)
+        diamond(f"{os. getcwd()}tmp{str(uuid.uuid4())}.fa", ELM_INSTANCES_FASTA)
         df_diamond = tsv_to_df("diamond_out.tsv", ["query_accession", "target_accession", "Per. Ident" , "length", "mismatches", "gap_openings", "query_start", "query_end", "target_start", "target_end", "e-value", "bit_score"])
         
         # If no match found for sequence, raise error
