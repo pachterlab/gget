@@ -92,7 +92,7 @@ def seq_workflow(sequences, sequence_lengths, verbose):
             f.write("> \n" + sequence)
         
         diamond("tmp.fa", ELM_INSTANCES_FASTA)
-        df_diamond = tsv_to_df("out.tsv", ["query_accession", "target_accession", "Per. Ident" , "length", "mismatches", "gap_openings", "query_start", "query_end", "target_start", "target_end", "e-value", "bit_score"])
+        df_diamond = tsv_to_df("diamond_out.tsv", ["query_accession", "target_accession", "Per. Ident" , "length", "mismatches", "gap_openings", "query_start", "query_end", "target_start", "target_end", "e-value", "bit_score"])
         
         # If no match found for sequence, raise error
         if (len(df_diamond) == 0):
