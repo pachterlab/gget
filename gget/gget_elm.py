@@ -50,6 +50,17 @@ def tsv_to_df(tsv_file, headers = None):
 
 
 def get_elm_instances(UniProtID, elm_instances_tsv, elm_classes_tsv):
+    #check if local elm files are installed
+    try:
+        import elm_files
+        if verbose:
+            logging.info(f"elm files installed succesfully.")
+    except ImportError as e:
+        logging.error(
+            f"ELM files not found.  Please run the following command: 
+        >>> gget.setup('elm') or $ gget setup elm"
+        )
+        return
 
     # return matching rows from elm_instances.tsv
     df_full_instances = tsv_to_df(elm_instances_tsv)
@@ -69,7 +80,6 @@ def get_elm_instances(UniProtID, elm_instances_tsv, elm_classes_tsv):
     return df_final
 
 def diamond(output_file, elm_file):
-    # Check if diamond is installed
 
     # creating a diamond-formatted database file
 
@@ -86,14 +96,13 @@ def diamond(output_file, elm_file):
     if process_2.wait() != 0:
         logging.error(
             """
-            Some third-party dependencies are missing. Please run the following command: 
-            >>> gget.setup('elm') or $ gget setup elm
+            DIAMOND failed. Please check that you have a diamond executable file for Windows or Linux in the bin folder.
             """
         )
         return
     else:
         logging.info(
-            f"Diamond run complete."
+            f"DIAMOND run complete."
         )
 
 def seq_workflow(sequences, sequence_lengths):
@@ -132,7 +141,7 @@ def seq_workflow(sequences, sequence_lengths):
 
         seq_number += 1
 
-    return df
+    return df 
 
 def regex_match(sequence):
     #Get all motif regex patterns from elm db local file
