@@ -6,37 +6,37 @@ Produce: Resultados en formato JSON (Terminal) o Dataframe/CSV (Python).
 **Parámetro posicional**  
 `gene`  
 Nombre corto (símbolo del gen) del gen de interés, p. ej. STAT4.  
-Alternativamente: usa la bandera `--ensembl` para ingresar un ID del tipo Ensembl, p. ej. ENSG00000138378.  
+Alternativamente: usa la bandera `--ensembl` para ingresar un ID tipo Ensembl, p. ej. ENSG00000138378.  
 
 **Parámetros optionales**  
  `-w` `--which`  
-'correlation' (correlación; esto se usa por defecto) o 'tissue' (tejido).  
-'correlation' regresa una tabla que contiene los 100 genes más correlacionados con el gen de interés. La correlación de Pearson se calcula sobre todas las muestras y tejidos en [ARCHS4](https://maayanlab.cloud/archs4/).  
-'tissue' regresa un atlas de expresión tisular calculado sobre todas las muestras humanas o de ratón (según lo definido usando el parámetro `--species` (especies)) en [ARCHS4](https://maayanlab.cloud/archs4/).  
+'correlation' (correlación; se usa por defecto) o 'tissue' (tejido).  
+'correlation' produce una tabla que contiene los 100 genes más correlacionados con el gen de interés. La correlación de Pearson se calcula de todas las muestras y tejidos en [ARCHS4](https://maayanlab.cloud/archs4/).  
+'tissue' produce un atlas de expresión tisular calculado de todas las muestras humanas o de ratón (según lo definido usando el parámetro `--species` (especies)) en [ARCHS4](https://maayanlab.cloud/archs4/).  
 
 `-s` `--species`  
-'human' (humano; esto se usa por defecto) o 'mouse' (ratón).   
-Define si usar muestras humanas o de ratón de [ARCHS4](https://maayanlab.cloud/archs4/).  
-(Solo aplicable para el atlas de expresión tisular.)  
+'human' (humano; se usa por defecto) o 'mouse' (ratón).   
+Define si se usan muestras humanas o de ratón de [ARCHS4](https://maayanlab.cloud/archs4/).  
+(Solo aplica para el atlas de expresión tisular.)  
 
 `-o` `--out`   
 Ruta al archivo en el que se guardarán los resultados, p. ej. ruta/al/directorio/resultados.csv (o .json). Por defecto: salida estándar (STDOUT).  
-Para Python, usa `save=True` para guardar los resultados en el directorio de trabajo actual.  
+Para Python, use `save=True` para guardar los resultados en el directorio de trabajo actual.  
   
 **Banderas**   
 `-e` `--ensembl`  
-Usa esta bandera si `gene` se ingresa como ID del tipo Ensembl.   
+Usa esta bandera si `gene` se ingresa como ID tipo Ensembl.   
 
 `-csv` `--csv`  
-Solo para la Terminal. Regresa los resultados en formato CSV.    
-Para Python, usa `json=True` para regresar los resultados en formato JSON.    
+Solo para Terminal. Produce los resultados en formato CSV.    
+Para Python, usa `json=True` para obtener los resultados en formato JSON.    
 
 `-q` `--quiet`   
-Solo para la Terminal. Impide la informacion de progreso de ser exhibida durante la corrida.  
-Para Python, usa `verbose=False` para imipidir la informacion de progreso de ser exhibida durante la corrida.  
+Solo para Terminal. Impide la información de progreso de ser exhibida durante la ejecución del programa.  
+Para Python, usa `verbose=False` para impedir la información de progreso de ser exhibida durante la ejecución del programa.  
   
   
-### Por ejemplo
+### Ejemplo
 ```bash
 gget archs4 ACE2
 ```
@@ -44,7 +44,7 @@ gget archs4 ACE2
 # Python
 gget.archs4("ACE2")
 ```
-&rarr; Regresa los 100 genes más correlacionados con el gen ACE2:  
+&rarr; Produce los 100 genes más correlacionados con el gen ACE2:  
 
 | gene_symbol     | pearson_correlation     |
 | -------------- |-------------------------| 
@@ -61,7 +61,7 @@ gget archs4 -w tissue ACE2
 # Python
 gget.archs4("ACE2", which="tissue")
 ```
-&rarr; Regresa la expresión tisular de ACE2 (por defecto, se utilizan datos humanos):  
+&rarr; Produce la expresión tisular de ACE2 (por defecto, se utilizan datos humanos):  
 
 | id     | min     | q1 |  median | q3 | max |
 | ------ |--------| ------ |--------| ------ |--------| 
