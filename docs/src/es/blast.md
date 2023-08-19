@@ -1,7 +1,7 @@
-> Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
+> Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Las banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
 ## gget blast 💥
 BLAST una secuencia de nucleótidos o aminoácidos a cualquier base de datos [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi).  
-Regresa: Resultados en formato JSON (Terminal) o Dataframe/CSV (Python).  
+Produce: Resultados en formato JSON (Terminal) o Dataframe/CSV (Python).  
 
 **Parámetro posicional**  
 `sequence`   
@@ -18,7 +18,7 @@ Por defecto: 'nt' para secuencias de nucleótidos; 'nr' para secuencias de amino
 [Más información sobre los bases de datos BLAST](https://ncbi.github.io/blast-cloud/blastdb/available-blastdbs.html)  
 
 `-l` `--limit`  
-Limita el número de resultados para regresar. Por defecto: 50.  
+Limita el número de resultados producidos. Por defecto: 50.  
 
 `-e` `--expect`  
 Define el umbral de ['expect value'](https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD=Web&PAGE_TYPE=BlastDocs&DOC_TYPE=FAQ#expect). Por defecto: 10.0.  
@@ -35,12 +35,12 @@ Activa el ['low complexity filter'](https://blast.ncbi.nlm.nih.gov/Blast.cgi?CMD
 Desactiva el algoritmo MegaBLAST. Por defecto: MegaBLAST esta activado (solo aplicable para blastn).  
 
 `-csv` `--csv`  
-Solo para la Terminal. Regresa los resultados en formato CSV.    
-Para Python, usa `json=True` para regresar los resultados en formato JSON.  
+Solo para Terminal. Produce los resultados en formato CSV.    
+Para Python, usa `json=True` para producir los resultados en formato JSON.  
 
 `-q` `--quiet`   
-Solo para la Terminal. Impide la informacion de progreso de ser exhibida durante la corrida.  
-Para Python, usa `verbose=False` para imipidir la informacion de progreso de ser exhibida durante la corrida.  
+Solo para Terminal. Impide la información de progreso de ser exhibida durante la ejecución del programa.  
+Para Python, usa `verbose=False` para imipidir la informacion de progreso de ser exhibida durante la ejecución del programa.  
 
 `wrap_text`  
 Solo para Python. `wrap_text=True` muestra los resultados con texto envuelto para facilitar la lectura (por defecto: False).   
@@ -53,7 +53,7 @@ gget blast MKWMFKEDHSLEHRCVESAKIRAKYPDRVPVIVEKVSGSQIVDIDKRKYLVPSDITVAQFMWIIRKRIQ
 # Python
 gget.blast("MKWMFKEDHSLEHRCVESAKIRAKYPDRVPVIVEKVSGSQIVDIDKRKYLVPSDITVAQFMWIIRKRIQLPSEKAIFLFVDKTVPQSR")
 ```
-&rarr; Regresa los resultados BLAST de la secuencia de interés. `gget blast` automáticamente detecta esta secuencia como una secuencia de aminoácidos y, por lo tanto, establece el programa BLAST en *blastp* con la base de datos *nr*.  
+&rarr; Produce los resultados BLAST de la secuencia de interés. `gget blast` automáticamente detecta esta secuencia como una secuencia de aminoácidos y, por lo tanto, establece el programa BLAST en *blastp* con la base de datos *nr*.  
 
 | Description     | Scientific Name	     | Common Name     | Taxid        | Max Score | Total Score | Query Cover | ... |
 | -------------- |-------------------------| ------------------------| -------------- | ----------|-----|---|---|
@@ -69,6 +69,6 @@ gget blast fasta.fa
 # Python
 gget.blast("fasta.fa")
 ```
-&rarr; Regresa los resultados BLAST de la primera secuencia contenida en el archivo 'fasta.fa'.  
+&rarr; Produce los resultados BLAST de la primera secuencia contenida en el archivo 'fasta.fa'.  
 
 #### [Más ejemplos](https://github.com/pachterlab/gget_examples)
