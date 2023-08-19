@@ -1,16 +1,16 @@
-> Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
+> Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Las banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
 ## gget enrichr 💰
-Realice un análisis de enriquecimiento de conjuntos de genes en una lista de genes utilizando [Enrichr](https://maayanlab.cloud/Enrichr/).  
-Regresa: Resultados en formato JSON (Terminal) o Dataframe/CSV (Python).  
+Realice un análisis de enriquecimiento de una lista de genes utilizando [Enrichr](https://maayanlab.cloud/Enrichr/).  
+Produce: Resultados en formato JSON (Terminal) o Dataframe/CSV (Python).  
   
 **Parámetro posicional**  
 `genes`  
-Lista de nombres cortos (símbolos) de los genes de interés con que realizar la análisis de enriquecimiento, p. PHF14 RBM3 MSL1 PHF21A.  
-Alternativamente: usa la bandera `--ensembl` para ingresar IDs del tipo Ensembl, p. ENSG00000106443 ENSG00000102317 ENSG00000188895.  
+Lista de nombres cortos (símbolos) de los genes de interés para realizar el análisis de enriquecimiento, p. PHF14 RBM3 MSL1 PHF21A.  
+Alternativamente: use la bandera `--ensembl` para ingresar IDs tipo Ensembl, p. ENSG00000106443 ENSG00000102317 ENSG00000188895.  
 
 **Otros parámetros requeridos**  
 `-db` `--database`  
-Base de datos a utilizar como referencia para el análisis de enriquecimiento.  
+Base de datos que será utilizada como referencia para el análisis de enriquecimiento.  
 Admite cualquier base de datos enumerada [aquí](https://maayanlab.cloud/Enrichr/#libraries) o uno de los siguientes accesos directos:  
 'pathway'       (KEGG_2021_Human)  
 'transcription'     (ChEA_2016)  
@@ -19,10 +19,10 @@ Admite cualquier base de datos enumerada [aquí](https://maayanlab.cloud/Enrichr
 'celltypes'      (PanglaoDB_Augmented_2021)  
 'kinase_interactions'   (KEA_2015)  
   
-**Parámetros optionales**  
+**Parámetros opcionales**  
 `-bkg_l` `--background_list`  
 Lista de nombres cortos (símbolos) de genes de 'background' (de fondo/control), p. NSUN3 POLRMT NLRX1.  
-Alternativamente: usa la bandera `--ensembl_background` para ingresar IDs del tipo Ensembl.  
+Alternativamente: usa la bandera `--ensembl_background` para ingresar IDs tipo Ensembl.  
 
 `-o` `--out`   
 Ruta al archivo en el que se guardarán los resultados, p. ruta/al/directorio/resultados.csv (o .json). Por defecto: salida estándar (STDOUT).  
@@ -37,27 +37,27 @@ Solo para Python. Ingresa un objeto de ejes matplotlib para personalizar la visu
   
 **Banderas**  
 `-e` `--ensembl`   
-Usa esta bandera si `genes` se ingresa como una lista de IDs del tipo Ensembl.     
+Usa esta bandera si `genes` se ingresa como una lista de IDs tipo Ensembl.     
 
 `-e_b` `--ensembl_background`  
-Usa esta bandera si `background_list` se ingresa como una lista de IDs del tipo Ensembl.  
+Usa esta bandera si `background_list` se ingresa como una lista de IDs tipo Ensembl.  
 
 `-bkg` `--background`  
 Use un conjunto de 20,625 genes 'background' de [https://maayanlab.cloud/Enrichr/](https://maayanlab.cloud/Enrichr/).
  
 `-csv` `--csv`  
-Solo para la Terminal. Regresa los resultados en formato CSV.    
-Para Python, usa `json=True` para regresar los resultados en formato JSON.   
+Solo para Terminal. Produce los resultados en formato CSV.    
+Para Python, usa `json=True` produce los resultados en formato JSON.   
 
 `-q` `--quiet`   
-Solo para la Terminal. Impide la informacion de progreso de ser exhibida durante la corrida.  
-Para Python, usa `verbose=False` para imipidir la informacion de progreso de ser exhibida durante la corrida.  
+Solo para Terminal. Impide la información de progreso de ser exhibida durante la ejecución del programa.  
+Para Python, usa `verbose=False` para imipidir la información de progreso de ser exhibida durante la ejecución del programa.  
   
 `plot`  
-Solo para Python. `plot=True` provee una visualización de los primeros 15 resultados (por defecto: False).  
+Solo para Python. `plot=True` provée la visualización de los primeros 15 resultados (por defecto: False).  
   
   
-### Por ejemplo
+### Ejemplo
 ```bash
 gget enrichr -db ontology ACE2 AGT AGTR1
 ```
@@ -65,7 +65,7 @@ gget enrichr -db ontology ACE2 AGT AGTR1
 # Python
 gget.enrichr(["ACE2", "AGT", "AGTR1"], database="ontology", plot=True)
 ```
-&rarr; Regresa vías/funciones celulares relacionadas con los genes ACE2, AGT y AGTR1 de la base de datos *GO Biological Process 2021*. En Python, `plot=True` provee una visualización de los resultados:
+&rarr; Produce vías/funciones celulares relacionadas con los genes ACE2, AGT y AGTR1 de la base de datos *GO Biological Process 2021*. En Python, `plot=True` provee la visualización de resultados:
 
 ![alt text](https://github.com/pachterlab/gget/blob/main/figures/gget_enrichr_results.png?raw=true)
 
@@ -73,7 +73,7 @@ gget.enrichr(["ACE2", "AGT", "AGTR1"], database="ontology", plot=True)
 
 **Use `gget enrichr` con una lista de genes 'background':**  
 ```bash
-# Aquí, ingresamos los genes de interés (parámetro posicional 'genes') primero, para que no se agregan a la lista de genes 'background' detrás del parámetro '-bkgr_l'
+# Aquí, primero ingresamos los genes de interés (parámetro posicional 'genes'), para que no se agreguen a la lista de genes 'background' detrás del parámetro '-bkgr_l'
 gget enrichr \
 	PHF14 RBM3 MSL1 PHF21A ARL10 INSR JADE2 P2RX7 LINC00662 CCDC101 PPM1B KANSL1L CRYZL1 ANAPC16 TMCC1 CDH8 RBM11 CNPY2 HSPA1L CUL2 PLBD2 LARP7 TECPR2 ZNF302 CUX1 MOB2 CYTH2 SEC22C EIF4E3 ROBO2 ADAMTS9-AS2 CXXC1 LINC01314 ATF7 ATP5F1 \
 	-db ChEA_2022 \
@@ -117,13 +117,13 @@ gget.enrichr(
 	plot=True
 )
 ```
-&rarr; Regresa factores de transcripción relacionados con los genes de interés y controlados con la lista de genes background de la base de datos *ChEA 2022*. En Python, `plot=True` provee una visualización de los resultados:
+&rarr; Provée factores de transcripción relacionados a los genes de interés y controlados con la lista de genes background de la base de datos *ChEA 2022*. En Python, `plot=True` permite la visualización de resultados:
 
 ![alt text](https://github.com/pachterlab/gget/blob/main/figures/gget_enrichr_results_2.png?raw=true)
 
 <br/><br/>
 
-El siguiente ejemplo fue enviado por [Dylan Lawless](https://github.com/DylanLawless) través de un [PR](https://github.com/pachterlab/gget/pull/54) (con ajustes de [Laura Luebbert](https://github.com/lauraluebbert)):  
+El siguiente ejemplo fue enviado por [Dylan Lawless](https://github.com/DylanLawless) a través de un [PR](https://github.com/pachterlab/gget/pull/54) (con ajustes de [Laura Luebbert](https://github.com/lauraluebbert)):  
 **Use `gget enrichr` en R y cree unq visualización similar usando [ggplot](https://ggplot2.tidyverse.org/reference/ggplot.html).**  
 TENGA EN CUENTA el cambio de ejes en comparación con la visualización en Python. 
 ```r
