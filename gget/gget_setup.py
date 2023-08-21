@@ -6,6 +6,7 @@ import platform
 import uuid
 from platform import python_version
 
+
 import logging
 
 logging.basicConfig(
@@ -147,14 +148,14 @@ def setup(module, verbose=True):
                 logging.info("ELM files downloaded")
 
         try:
-            pd.read_csv(elm_instances_tsv_path,  sep="\t", skiprows=5)
-            pd.read_csv(elm_classes_tsv_path, sep="\t")
+            if os.path.exists(elm_classes_tsv_path) and os.path.exists(elm_instances_tsv_path):
+                logging.info("ELM tsv files installed successfully")
 
-            if verbose:
-                logging.info(f"ELM files installed succesfully.")
+            if os.path.exists(elm_instances_fasta_path):
+                logging.info(f"ELM fasta file installed succesfully.")
         except:
             logging.error(
-                f"ELM files download failed. Import error:\n{e}"
+                f"ELM files download failed."
             )
             return
 
