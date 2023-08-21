@@ -127,6 +127,10 @@ def seq_workflow(sequences, sequence_lengths, verbose):
     return df 
 
 def regex_match(sequence):
+    """
+    TODO Add function descriptions
+    Make sure this returns empty data frame if no matches were found
+    """
     #Get all motif regex patterns from elm db local file
     df_elm_classes = tsv_to_df(ELM_CLASSES_TSV)
     df_full_instances = tsv_to_df(ELM_INSTANCES_TSV)
@@ -167,13 +171,11 @@ def regex_match(sequence):
             df_final.pop("References")
             df_final.pop("InstanceLogic")
 
-
-  
-
     df_final.rename(columns = {'Accession_x':'instance_accession'}, inplace = True)
   
     change_column = ['instance_accession',"ELMIdentifier", "FunctionalSiteName", "ELMType", "Description", 'Instances (Matched Sequence)', "Probability", "Start in query", "End in query","Methods", "ProteinName", "Organism"]
     df_final = df_final.reindex(columns=change_column)
+    
     return df_final
 
 def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
@@ -252,13 +254,17 @@ def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
         #use amino acid sequence associated with UniProt ID to do regex match
         df_uniprot = get_uniprot_seqs(UNIPROT_REST_API, sequence)
         sequences = df_uniprot[df_uniprot["uniprot_id"] == sequence]["sequence"].values
+        
+        # TODO What if no amino acid seqs are found for ID?
+        
         if len(sequences) > 1:
             logging.info(f"More than one UniProt amino acid sequence found for UniProt ID {sequence}. Using best match to find regex motifs.")
         sequence = sequences[0]
 
     df_regex_matches = regex_match(sequence)
+    
     if (len(df_regex_matches) == 0):
-        logging.warning("No regex matches found for sequence or UniProt ID input")
+        logging.warning("No regex matches found for input sequence or UniProt ID.")
    
 
     if json:
@@ -270,13 +276,7 @@ def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
             with open("regex.json", "w", encoding="utf-8") as f:
                 json_package.dump(regex_dict, f, ensure_ascii=False, indent=4)
 
-        if (len(df) > 0 and len(df_regex_matches) > 0):
-            return ortholog_dict, regex_dict
-
-        elif (len(df) > 0):
-            return ortholog_dict
-        elif (len(df_regex_matches) > 0):
-            return regex_dict
+        return ortholog_dict, regex_dict
 
     else:
         ROOT_DIR = os.path.abspath(os.curdir)
@@ -301,9 +301,4 @@ def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
             os.mkdir(path)
 
     
-    if (len(df) > 0 and len(df_regex_matches) > 0):
-        return df, df_regex_matches
-    elif (len(df) > 0):
-        return df
-    elif (len(df_regex_matches) > 0):
-        return df_regex_matches
+    return df, df_regex_matches
