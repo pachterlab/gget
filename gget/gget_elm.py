@@ -88,11 +88,15 @@ def seq_workflow(sequences, sequence_lengths, verbose):
     seq_number = 1
     for sequence, seq_len in zip(sequences, sequence_lengths):
         sequence = str(sequence)
-        with open(f"tmp{str(uuid.uuid4())}.fa", "w") as f:
+        
+        random_ID = str(uuid.uuid4())
+        with open(f"tmp_{random_ID}.fa", "w") as f:
             f.write("> \n" + sequence)
         
         print(f"{os. getcwd()}tmp{str(uuid.uuid4())}.fa")
-        diamond(f"{os. getcwd()}tmp{str(uuid.uuid4())}.fa", ELM_INSTANCES_FASTA)
+        
+        diamond(f"tmp_{random_ID}.fa.fa", ELM_INSTANCES_FASTA)
+        
         df_diamond = tsv_to_df("diamond_out.tsv", ["query_accession", "target_accession", "Per. Ident" , "length", "mismatches", "gap_openings", "query_start", "query_end", "target_start", "target_end", "e-value", "bit_score"])
         
         # If no match found for sequence, raise error
@@ -202,17 +206,18 @@ def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
 
     #building first ortholog dataframe
     if uniprot:
-        df_temp = get_elm_instances(sequence, ELM_INSTANCES_TSV, ELM_CLASSES_TSV, verbose)
-        df = pd.concat([df, df_temp])
+        df = get_elm_instances(sequence, ELM_INSTANCES_TSV, ELM_CLASSES_TSV, verbose)
         df["Query Cover"] = np.nan
         df["Per. Ident"] = np.nan
+        
         if (len(df) == 0):
-            logging.warning("UniProt ID does not match any results in elm database. Converting UniProt ID to amino acid sequence...")
+            logging.warning("UniProt ID does not match UniProt IDs in the ELM database. Converting UniProt ID to amino acid sequence...")
             df_uniprot = get_uniprot_seqs(server=UNIPROT_REST_API, ensembl_ids=sequence)
             try:
                 #only grab sequences where id match exact input uniprot id
                 aa_seqs = df_uniprot[df_uniprot["uniprot_id"] == id]["sequence"].values
                 seq_lens = df_uniprot["sequence_length"].values
+                
             except KeyError:
                 raise ValueError(f"No sequences found for UniProt ID {sequence} from searching the UniProt server. Please double check your UniProt ID and try again.")
                 
@@ -224,21 +229,23 @@ def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
             if verbose:
                 logging.info(f"Performing pairwise sequence alignment against ELM database using DIAMOND for {len(aa_seqs)} sequence(s)...")
         
-        df = pd.concat([df, seq_workflow(aa_seqs, seq_lens, verbose)])
+        df = seq_workflow(aa_seqs, seq_lens, verbose)]
         
         if (len(df) == 0):
-            logging.warning("No orthologs found for sequence or UniProt ID input")
+            logging.warning("No ELM database orthologs found for input sequence or UniProt ID.")
         
         if not uniprot and len(df) > 0:
             try:
-                target_start = df['target_start'].values.tolist()
-                target_end = df['target_end'].values.tolist()
-        
+                target_start = df['target_start'].values
+                target_end = df['target_end'].values
+
+                # TO-DO: we do not want to drop these results, we just want to add a column "motif_in_overlap" True/False
                 if (df["Per. Ident"] is not None):
                     # ignore nonoverlapping motifs
                     df.drop(df[ (df['Start'] <= target_start[0]) | (df['End'] >= target_end[0]) ].index, inplace=True)
+            
             except KeyError:
-                logging.warning("No target start found for input sequence. If you entered a UniProt ID, please set 'uniprot' flag to True.")
+                logging.warning("No target start found for input sequence. If you entered a UniProt ID, please set 'uniprot' to True.")
     
     # building second data frame with regex motif match
     if uniprot:
