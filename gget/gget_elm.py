@@ -101,19 +101,19 @@ def seq_workflow(sequences, sequence_lengths, verbose):
         
         # If no match found for sequence, raise error
         if (len(df_diamond) == 0):
-            logging.warning(f"Sequence #{seq_number}: No matching sequences found in ELM database.")
+            logging.warning(f"Sequence #{seq_number}: No orthologous proteins found in ELM database.")
         else:
-            logging.info(f"Sequence #{seq_number}: Found similar sequences. Retrieving data about corresponding ELMs...")
+            logging.info(f"Sequence #{seq_number}: Found orthologous proteins in ELM database. Retrieving data about ELMs occurring in orthologs...")
 
             # Construct df with elm instances from uniprot ID returned from diamond 
-            uniprot_ids = []
-            uniprot_ids.append(str(df_diamond["target_accession"]).split('|')[1])
+            # TODO double check taht this gets info if more than one UniProt ID matched 
+            uniprot_ids = str(df_diamond["target_accession"]).split('|')[1]
             logging.info(f"Pairwise sequence alignment with DIAMOND matched the following UniProt IDs {uniprot_ids}. Retrieving ELMs for each UniProt ID...")
 
             for id in uniprot_ids:
                 df_elm = get_elm_instances(id, ELM_INSTANCES_TSV, ELM_CLASSES_TSV, verbose)
                 df_elm["Query Cover"] = df_diamond["length"] / seq_len * 100
-                df_elm["Per. Ident"] = df_diamond["Per. Ident"]
+                df_elm["Per. Ident"] = df_diamond["Per. Ident"]  # TODO Make sure you get query_start etc matching the id you are looking at here
                 df_elm["query_start"] = df_diamond["query_start"]
                 df_elm["query_end"] = df_diamond["query_end"]
                 df_elm["target_start"] = df_diamond["target_start"]
@@ -231,7 +231,7 @@ def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
         
         df = seq_workflow(aa_seqs, seq_lens, verbose)]
         
-        if (len(df) == 0):
+        if len(df) == 0:
             logging.warning("No ELM database orthologs found for input sequence or UniProt ID.")
         
         if not uniprot and len(df) > 0:
@@ -252,6 +252,8 @@ def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
         #use amino acid sequence associated with UniProt ID to do regex match
         df_uniprot = get_uniprot_seqs(UNIPROT_REST_API, sequence)
         sequences = df_uniprot[df_uniprot["uniprot_id"] == sequence]["sequence"].values
+        if len(sequences) > 1:
+            logging.info(f"More than one UniProt amino acid sequence found for UniProt ID {sequence}. Using best match to find regex motifs.")
         sequence = sequences[0]
 
     df_regex_matches = regex_match(sequence)
