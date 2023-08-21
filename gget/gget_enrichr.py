@@ -61,7 +61,7 @@ def clean_genes_list(genes_list):
     # Remove any NaNs/Nones from the gene list
     genes_clean = []
     for gene in genes_list:
-        if not gene == np.NaN and not gene is None and not isinstance(gene, float):
+        if not isinstance(gene, float) and not gene is None and not gene=="nan":
             genes_clean.append(gene)
     return genes_clean
 
