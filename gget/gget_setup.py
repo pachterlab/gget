@@ -139,25 +139,26 @@ def setup(module, verbose=True):
             # Log the standard error if it is not empty
             if stderr:
                 sys.stderr.write(stderr)
+                
         # Exit system if the subprocess returned with an error
         if process.wait() != 0:
             logging.error("ELM files download failed.")
             return
+
+        if os.path.exists(elm_classes_tsv_path) and os.path.exists(elm_instances_tsv_path):
+                logging.info("ELM tsv files installed successfully.")
         else:
-            if verbose:
-                logging.info("ELM files downloaded")
-
-        try:
-            if os.path.exists(elm_classes_tsv_path) and os.path.exists(elm_instances_tsv_path):
-                logging.info("ELM tsv files installed successfully")
-
-            if os.path.exists(elm_instances_fasta_path):
-                logging.info(f"ELM fasta file installed succesfully.")
-        except:
             logging.error(
-                f"ELM files download failed."
+                "ELM tsv files download failed."
             )
-            return
+
+        if os.path.exists(elm_instances_fasta_path):
+            logging.info(f"ELM fasta file installed succesfully.")
+        
+        else:
+            logging.error(
+                "ELM fasta file download failed."
+            )
 
 
     if module == "alphafold":
