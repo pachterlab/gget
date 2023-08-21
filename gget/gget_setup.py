@@ -34,6 +34,8 @@ PARAMS_DIR = os.path.join(PACKAGE_PATH, "bins/alphafold/")
 PARAMS_PATH = os.path.join(PARAMS_DIR, "params_temp.tar")
 
 
+
+
 def setup(module, verbose=True):
     """
     Function to install third-party dependencies for a specified gget module.
@@ -107,10 +109,10 @@ def setup(module, verbose=True):
 
     if module == "elm":
         if verbose:
-            logging.info("Installing elm files")
+            logging.info("Installing ELM files")
         
         elm_files = os.path.join(
-            PACKAGE_PATH, "constants"
+            PACKAGE_PATH, "ELM_files"
         )
        
         elm_classes_tsv_path = f"{elm_files}/elms_classes.tsv"
@@ -145,11 +147,12 @@ def setup(module, verbose=True):
                 logging.info("ELM files downloaded")
 
         try:
-            import elm_files
+            pd.read_csv(elm_instances_tsv_path,  sep="\t", skiprows=5)
+            pd.read_csv(elm_classes_tsv_path, sep="\t")
 
             if verbose:
                 logging.info(f"ELM files installed succesfully.")
-        except ImportError as e:
+        except:
             logging.error(
                 f"ELM files download failed. Import error:\n{e}"
             )
