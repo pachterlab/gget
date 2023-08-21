@@ -55,10 +55,10 @@ def get_elm_instances(UniProtID, elm_instances_tsv, elm_classes_tsv, verbose):
     try:
         import elm_files
         if verbose:
-            logging.info(f"elm files installed succesfully.")
+            logging.info(f"ELM files found succesfully.")
     except ImportError as e:
         logging.error(
-            f"ELM files not found.  Please run the following command: >>> gget.setup('elm') or $ gget setup elm"
+            f"ELM files not found. Please run the following command: >>> gget.setup('elm') or $ gget setup elm"
         )
         return
 
@@ -177,15 +177,15 @@ def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
     Searches the Eukaryotic Linear Motif resource for Functional Sites in Proteins.
 
     Args:
-     - sequence       amino acid sequence or Uniprot ID
-     - uniprot        If True, searches using Uniprot ID instead of amino acid sequence. Default: False
+     - sequence       Amino acid sequence or Uniprot ID (str). 
+                      If Uniprot ID, set 'uniprot==True'.
+     - uniprot        Set to True if input is a Uniprot ID instead of amino acid sequence. Default: False.
      - json           If True, returns results in json format instead of data frame. Default: False.
-     - out            folder name to save two resulting csv files. Default: results (default: None).
-     - verbose        True/False whether to print progress information. Default True.
+     - out            Folder name to save output files. Default: None.  
+     - verbose        True/False whether to print progress information. Default: True.  
   
-    Returns two data frames: orthologs and regex matches from ELM results.
+    Returns two data frames: orthologs and regex matches from ELM database.
     """
-
 
     if not uniprot:
         amino_acids = set("ARNDCQEGHILKMFPSTWYVBZXBJZ")
