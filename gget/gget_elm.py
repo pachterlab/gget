@@ -40,7 +40,8 @@ def tsv_to_df(tsv_file, headers = None):
         if headers:
             df = pd.read_csv(tsv_file, sep="\t", names=headers)
         else:
-            df = pd.read_csv(tsv_file, sep="\t")
+            #ELM Instances. tsv file had 5 lines before headers and data
+            df = pd.read_csv(tsv_file, sep="\t", skiprows=5)
         return df
 
 
