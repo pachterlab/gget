@@ -5,74 +5,80 @@ import os
 import logging
 import json as json_package
 import re
-import platform
-
 from .utils import get_uniprot_seqs
-from .gget_diamond import diamond
 
-from .constants import (
-    ELM_CLASSES_TSV,
-    ELM_INSTANCES_FASTA,
-    ELM_INSTANCES_TSV,
-    UNIPROT_REST_API,
+from .constants import UNIPROT_REST_API
+
+from .gget_diamond import (
+    diamond,
+    tsv_to_df
 )
-# Custom functions
-from .compile import PACKAGE_PATH
 
-
-
-# Path to precompiled diamond binary
-if platform.system() == "Windows":
-    PRECOMPILED_DIAMOND_PATH = os.path.join(
-        PACKAGE_PATH, f"bins/{platform.system()}/diamond.exe"
-    )
-else:
-    PRECOMPILED_DIAMOND_PATH = os.path.join(
-        PACKAGE_PATH, f"bins/{platform.system()}/diamond"
-    )
+from .gget_setup import (
+    ELM_FILES, 
+    ELM_INSTANCES_FASTA,
+    ELM_CLASSES_TSV,
+    ELM_INSTANCES_TSV
+)
 
 def motif_in_query(row):
+    """
+    Checks if motif is in the overlapping region with the query sequence
+
+    Args:
+    row     - row in dataframe
+
+    Returns: True if the motif is in between the target start and end of sequence. False otherwise
+    """
     return True if (row["Start"] >= row["target_start"]) & (row["End"] <= row["target_end"]) else False
 
-def tsv_to_df(tsv_file, headers = None):
-    try:
-        df = pd.DataFrame()
-        if headers:
-            df = pd.read_csv(tsv_file, sep="\t", names=headers)
-        else:
-            #ELM Instances. tsv file had 5 lines before headers and data
-            df = pd.read_csv(tsv_file, sep="\t", skiprows=5)
-        return df
 
 
-    except pd.errors.EmptyDataError:
-        logging.warning(f"Query did not result in any matches.")
-        return None
+def get_elm_instances(UniProtID, verbose):
+    """
+    Get ELM instances and their information from local ELM tsv files
 
+    Args:
 
-def get_elm_instances(UniProtID, elm_instances_tsv, elm_classes_tsv, verbose):
-    #check if local elm files are installed
-    try:
-        import elm_files
+    UniProt ID - UniProt ID to search for in the accession column of ELM tsv files
+    verbose    - If True, turns on logging
+
+    Returns: 
+
+    df_final - dataframe combining ELM instances and information (description, functional site...)
+
+    """
+
+    # Check if ELM files are present
+    if os.path.exists(ELM_INSTANCES_FASTA):
         if verbose:
-            logging.info(f"ELM files found succesfully.")
-    except ImportError as e:
+            logging.info(f"ELM fasta file installed succesfully.")
+    
+    else:
         logging.error(
-            f"ELM files not found. Please run the following command: >>> gget.setup('elm') or $ gget setup elm"
+            "ELM fasta file download failed."
         )
         return
 
+    if os.path.exists(ELM_CLASSES_TSV) and os.path.exists(ELM_INSTANCES_TSV):
+        if verbose:
+            logging.info("ELM tsv files installed successfully.")
+    else:
+        logging.error(
+            "ELM tsv files download failed."
+        )
+        return 
+
     # return matching rows from elm_instances.tsv
-    df_full_instances = tsv_to_df(elm_instances_tsv)
+    df_full_instances = tsv_to_df(ELM_INSTANCES_TSV)
     df_full_instances.rename(columns = {'Accession':'UniProt ID'}, inplace = True)
     df_full_instances.rename(columns = {'Start in ortholog':'Start'}, inplace = True)
     df_full_instances.rename(columns = {'End in ortholog':'End'}, inplace = True)
     df_instances_matching = df_full_instances.loc[df_full_instances['Accessions'].str.contains(UniProtID)]
 
     # get class descriptions from elm_classes.tsv
-    df_classes = tsv_to_df(elm_classes_tsv)
+    df_classes = tsv_to_df(ELM_CLASSES_TSV)
     df_classes.rename(columns = {'Accession':'class_accession'}, inplace = True)
-
 
 
     #merge two dataframes using ELM Identifier
@@ -84,6 +90,20 @@ def get_elm_instances(UniProtID, elm_instances_tsv, elm_classes_tsv, verbose):
 
 
 def seq_workflow(sequences, sequence_lengths, verbose):
+    """
+    Alignment of sequence using DIAMOND to get UniProt ID. Use the UniProt ID to construct an ortholog dataframe similar to the UniProt workflow
+    except for additional columns for start, end and whether the motif overlaps the target sequence.
+
+    Args:
+    sequences        - list of user input amino acid sequence
+    sequence_lengths - list of lengths respective to each sequence
+    verbose          - If True, turns on logging for INFO_level messages
+
+
+    Returns:
+    df              - dataframe consisting of ELM instances, class information, start, end in query, and if motif overlaps with target sequence
+    
+    """
     df = pd.DataFrame()
     seq_number = 1
     for sequence, seq_len in zip(sequences, sequence_lengths):
@@ -128,8 +148,14 @@ def seq_workflow(sequences, sequence_lengths, verbose):
 
 def regex_match(sequence):
     """
-    TODO Add function descriptions
-    Make sure this returns empty data frame if no matches were found
+    Compare ELM regex with input sequence and return all matching elms
+
+    Args:
+    sequence - user input sequence (can be either amino acid seq or UniProt ID)
+
+    Returns:
+    df_final - dataframe containing regex matches 
+    TODO: Make sure this returns empty dataframe if no matches were found
     """
     #Get all motif regex patterns from elm db local file
     df_elm_classes = tsv_to_df(ELM_CLASSES_TSV)
@@ -139,7 +165,7 @@ def regex_match(sequence):
 
     regex_patterns = df_elm_classes["Regex"]
 
-    #Compare elm regex with input sequence and return all matching elms
+    # Compare ELM regex with input sequence and return all matching elms
     for elm_id, pattern in zip(elm_ids, regex_patterns):
 
         regex_matches = re.finditer(pattern, sequence)
@@ -161,7 +187,7 @@ def regex_match(sequence):
             df_instances_matching = df_full_instances.loc[df_full_instances['ELMIdentifier']==elm_identifier]
    
 
-            #merge two dataframes using ELM Identifier, since some Accessions are missing from elm_instances.tsv
+            # merge two dataframes using ELM Identifier, since some Accessions are missing from elm_instances.tsv
             
             df_final = elm_row.merge(df_instances_matching, how='left', on=['ELMIdentifier'])
             
@@ -241,10 +267,10 @@ def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
                 target_start = df['target_start'].values
                 target_end = df['target_end'].values
 
-                # TO-DO: we do not want to drop these results, we just want to add a column "motif_in_overlap" True/False
-                if (df["Per. Ident"] is not None):
-                    # ignore nonoverlapping motifs
-                    df.drop(df[ (df['Start'] <= target_start[0]) | (df['End'] >= target_end[0]) ].index, inplace=True)
+                # # TO-DO: we do not want to drop these results, we just want to add a column "motif_in_overlap" True/False
+                # if (df["Per. Ident"] is not None):
+                #     # ignore nonoverlapping motifs
+                #     df.drop(df[ (df['Start'] <= target_start[0]) | (df['End'] >= target_end[0]) ].index, inplace=True)
             
             except KeyError:
                 logging.warning("No target start found for input sequence. If you entered a UniProt ID, please set 'uniprot' to True.")

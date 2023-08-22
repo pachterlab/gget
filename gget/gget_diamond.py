@@ -1,6 +1,48 @@
 import logging
 import subprocess
 import sys
+import platform
+import os
+import pandas as pd
+
+from .compile import PACKAGE_PATH
+
+# Path to precompiled diamond binary
+if platform.system() == "Windows":
+    PRECOMPILED_DIAMOND_PATH = os.path.join(
+        PACKAGE_PATH, f"bins/{platform.system()}/diamond.exe"
+    )
+else:
+    PRECOMPILED_DIAMOND_PATH = os.path.join(
+        PACKAGE_PATH, f"bins/{platform.system()}/diamond"
+    )
+
+
+def tsv_to_df(tsv_file, headers = None):
+    """
+    Convert tsv file to dataframe format
+
+    Args:
+    tsv_file - file to be converted 
+
+    Returns:
+    df -  dataframe
+    
+    """
+    
+    try:
+        df = pd.DataFrame()
+        if headers:
+            df = pd.read_csv(tsv_file, sep="\t", names=headers)
+        else:
+            # ELM Instances.tsv file had 5 lines before headers and data
+            df = pd.read_csv(tsv_file, sep="\t", skiprows=5)
+        return df
+    
+
+    except pd.errors.EmptyDataError:
+        logging.warning(f"Query did not result in any matches.")
+        return None
 
 def diamond(input, reference, json=False, verbose=True, out=None):
     """

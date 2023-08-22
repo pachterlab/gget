@@ -35,6 +35,14 @@ PARAMS_DIR = os.path.join(PACKAGE_PATH, "bins/alphafold/")
 PARAMS_PATH = os.path.join(PARAMS_DIR, "params_temp.tar")
 
 
+## Variables for elm module     
+ELM_FILES = os.path.join(
+    PACKAGE_PATH, "ELM_files"
+)
+
+ELM_INSTANCES_FASTA = f"{ELM_FILES}/elm_instances.fa"
+ELM_CLASSES_TSV = f"{ELM_FILES}/elms_classes.tsv"
+ELM_INSTANCES_TSV = f"{ELM_FILES}/elm_instances.tsv"
 
 
 def setup(module, verbose=True):
@@ -111,27 +119,20 @@ def setup(module, verbose=True):
     if module == "elm":
         if verbose:
             logging.info("Installing ELM files")
-        
-        elm_files = os.path.join(
-            PACKAGE_PATH, "ELM_files"
-        )
-       
-        elm_classes_tsv_path = f"{elm_files}/elms_classes.tsv"
-        elm_instances_fasta_path = f"{elm_files}/elm_instances.fa"
-        elm_instances_tsv_path = f"{elm_files}/elm_instances.tsv"
+   
 
         if platform.system() == "Windows":
             # The double-quotation marks allow white spaces in the path, but this does not work for Windows
             command = f"""
-                curl -o {elm_instances_fasta_path} http://elm.eu.org/instances.fasta \
-                &&  curl -o {elm_classes_tsv_path} http://elm.eu.org/elms/elms_index.tsv \
-                &&  curl -o {elm_instances_tsv_path} http://elm.eu.org/instances.tsv
+                curl -o {ELM_INSTANCES_FASTA} http://elm.eu.org/instances.fasta \
+                &&  curl -o {ELM_CLASSES_TSV} http://elm.eu.org/elms/elms_index.tsv \
+                &&  curl -o {ELM_INSTANCES_TSV} http://elm.eu.org/instances.tsv
                 """
         else:
             command = f"""
-                curl -o '{elm_instances_fasta_path}' http://elm.eu.org/instances.fasta \
-                &&  curl -o '{elm_classes_tsv_path}' http://elm.eu.org/elms/elms_index.tsv \
-                &&  curl -o '{elm_instances_tsv_path}' http://elm.eu.org/instances.tsv
+                curl -o '{ELM_INSTANCES_FASTA}' http://elm.eu.org/instances.fasta \
+                &&  curl -o '{ELM_CLASSES_TSV}' http://elm.eu.org/elms/elms_index.tsv \
+                &&  curl -o '{ELM_INSTANCES_TSV}' http://elm.eu.org/instances.tsv
                 """
             
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
@@ -144,21 +145,24 @@ def setup(module, verbose=True):
         if process.wait() != 0:
             logging.error("ELM files download failed.")
             return
-
-        if os.path.exists(elm_classes_tsv_path) and os.path.exists(elm_instances_tsv_path):
-                logging.info("ELM tsv files installed successfully.")
-        else:
-            logging.error(
-                "ELM tsv files download failed."
-            )
-
-        if os.path.exists(elm_instances_fasta_path):
+        
+        # Check if files are present
+        if os.path.exists(ELM_INSTANCES_FASTA):
             logging.info(f"ELM fasta file installed succesfully.")
         
         else:
             logging.error(
                 "ELM fasta file download failed."
             )
+
+        if os.path.exists(ELM_CLASSES_TSV) and os.path.exists(ELM_INSTANCES_TSV):
+                logging.info("ELM tsv files installed successfully.")
+        else:
+            logging.error(
+                "ELM tsv files download failed."
+            )
+
+       
 
 
     if module == "alphafold":
