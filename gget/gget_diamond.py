@@ -27,6 +27,31 @@ from .gget_setup import (
 from .constants import RANDOM_ID
 
 
+def tsv_to_df(tsv_file, headers = None):
+    """
+    Convert tsv file to dataframe format
+
+    Args:
+    tsv_file - file to be converted 
+
+    Returns:
+    df -  dataframe
+    
+    """
+    
+    try:
+        df = pd.DataFrame()
+        if headers:
+            df = pd.read_csv(tsv_file, sep="\t", names=headers)
+        else:
+            # ELM Instances.tsv file had 5 lines before headers and data
+            df = pd.read_csv(tsv_file, sep="\t", skiprows=5)
+        return df
+    
+
+    except pd.errors.EmptyDataError:
+        logging.warning(f"Query did not result in any matches.")
+        return None
 
 def diamond(input, reference, json=False, verbose=True, out=None, sensitivity="very-sensitive"):
     """
@@ -71,8 +96,8 @@ def diamond(input, reference, json=False, verbose=True, out=None, sensitivity="v
         )
        
               
-    # df_diamond = tsv_to_df("diamond_out.tsv", ["query_accession", "target_accession", "Per. Ident" , "length", "mismatches", "gap_openings", "query_start", "query_end", "target_start", "target_end", "e-value", "bit_score"])
-    # return df_diamond
+    df_diamond = tsv_to_df("diamond_out.tsv", ["query_accession", "target_accession", "Per. Ident" , "length", "mismatches", "gap_openings", "query_start", "query_end", "target_start", "target_end", "e-value", "bit_score"])
+    return df_diamond
    
 
               

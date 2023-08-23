@@ -9,7 +9,7 @@ from .utils import get_uniprot_seqs
 
 from .constants import UNIPROT_REST_API, RANDOM_ID
 
-from .gget_diamond import diamond
+from .gget_diamond import diamond, tsv_to_df
 
 
 from .gget_setup import (
@@ -19,32 +19,6 @@ from .gget_setup import (
     ELM_INSTANCES_TSV
 )
 
-
-def tsv_to_df(tsv_file, headers = None):
-    """
-    Convert tsv file to dataframe format
-
-    Args:
-    tsv_file - file to be converted 
-
-    Returns:
-    df -  dataframe
-    
-    """
-    
-    try:
-        df = pd.DataFrame()
-        if headers:
-            df = pd.read_csv(tsv_file, sep="\t", names=headers)
-        else:
-            # ELM Instances.tsv file had 5 lines before headers and data
-            df = pd.read_csv(tsv_file, sep="\t", skiprows=5)
-        return df
-    
-
-    except pd.errors.EmptyDataError:
-        logging.warning(f"Query did not result in any matches.")
-        return None
 
 def motif_in_query(row):
     """
@@ -142,9 +116,7 @@ def seq_workflow(sequences, sequence_lengths,input_file=f"tmp_{RANDOM_ID}.fa", r
         
         print(f"{os. getcwd()}tmp{str(uuid.uuid4())}.fa")
         
-        diamond(input=input_file, reference=reference, sensitivity=sensitivity, json=json, verbose=verbose, out=out)
-        
-        df_diamond = tsv_to_df("diamond_out.tsv", ["query_accession", "target_accession", "Per. Ident" , "length", "mismatches", "gap_openings", "query_start", "query_end", "target_start", "target_end", "e-value", "bit_score"])
+        df_diamond = diamond(input=input_file, reference=reference, sensitivity=sensitivity, json=json, verbose=verbose, out=out)
         
         # If no match found for sequence, raise error
         if (len(df_diamond) == 0):
@@ -247,8 +219,8 @@ def remove_temp_files(input, out, reference):
         os.remove("tmp_out.tsv")
     if reference == ELM_INSTANCES_FASTA and os.path.exists("reference.dmnd"):
         os.remove("reference.dmnd")
-    if input == f"tmp_{RANDOM_ID}.fa" and os.path.exists("tmp_{RANDOM_ID}.fa"):
-        os.remove("tmp_{RANDOM_ID}.fa")
+    if os.path.exists(input):
+        os.remove(input)
 
 
 def elm(sequence, uniprot=False, json=False, input_file=f"tmp_{RANDOM_ID}.fa", reference=ELM_INSTANCES_FASTA, out=None, sensitivity= "very-sensitive", verbose=True):
@@ -377,7 +349,7 @@ def elm(sequence, uniprot=False, json=False, input_file=f"tmp_{RANDOM_ID}.fa", r
             os.mkdir(path)
 
     #TODO: delete out tsv, reference binary dmnd, and input fasta files
-    remove_temp_files(input, out, reference)
+    remove_temp_files(input="tmp_{RANDOM_ID}.fa", out, reference)
 
     return df, df_regex_matches
 
