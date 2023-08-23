@@ -158,7 +158,7 @@ def seq_workflow(sequences, sequence_lengths,input_file=f"tmp_{RANDOM_ID}.fa", r
             logging.info(f"Pairwise sequence alignment with DIAMOND matched the following UniProt IDs {uniprot_ids}. Retrieving ELMs for each UniProt ID...")
 
             for id in uniprot_ids:
-                df_elm = get_elm_instances(id, ELM_INSTANCES_TSV, ELM_CLASSES_TSV, verbose)
+                df_elm = get_elm_instances(id, verbose)
                 df_elm["Query Cover"] = df_diamond["length"] / seq_len * 100
                 df_elm["Per. Ident"] = df_diamond["Per. Ident"]  # TODO Make sure you get query_start etc matching the id you are looking at here
                 df_elm["query_start"] = df_diamond["query_start"]
