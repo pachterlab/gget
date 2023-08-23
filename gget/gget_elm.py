@@ -7,13 +7,10 @@ import json as json_package
 import re
 from .utils import get_uniprot_seqs
 
-from .constants import UNIPROT_REST_API
+from .constants import UNIPROT_REST_API, RANDOM_ID
 
-from .gget_diamond import (
-    diamond,
-    tsv_to_df, 
-    remove_temp_files
-)
+from .gget_diamond import diamond
+
 
 from .gget_setup import (
     ELM_FILES, 
@@ -22,7 +19,32 @@ from .gget_setup import (
     ELM_INSTANCES_TSV
 )
 
-RANDOM_ID = str(uuid.uuid4())
+
+def tsv_to_df(tsv_file, headers = None):
+    """
+    Convert tsv file to dataframe format
+
+    Args:
+    tsv_file - file to be converted 
+
+    Returns:
+    df -  dataframe
+    
+    """
+    
+    try:
+        df = pd.DataFrame()
+        if headers:
+            df = pd.read_csv(tsv_file, sep="\t", names=headers)
+        else:
+            # ELM Instances.tsv file had 5 lines before headers and data
+            df = pd.read_csv(tsv_file, sep="\t", skiprows=5)
+        return df
+    
+
+    except pd.errors.EmptyDataError:
+        logging.warning(f"Query did not result in any matches.")
+        return None
 
 def motif_in_query(row):
     """
@@ -208,6 +230,26 @@ def regex_match(sequence):
     df_final = df_final.reindex(columns=change_column)
     
     return df_final
+
+def remove_temp_files(input, out, reference):
+    """
+    Delete temporary files
+
+    Args:
+    input       - Input fasta file containing amino acid sequences
+    out         - Output tsv file containing the output returned by DIAMOND
+    reference   - Reference database binary file produced by DIAMOND
+
+    Returns: 
+    None 
+    """
+    if out is None and os.path.exists("tmp_out.tsv"):
+        os.remove("tmp_out.tsv")
+    if reference == ELM_INSTANCES_FASTA and os.path.exists("reference.dmnd"):
+        os.remove("reference.dmnd")
+    if input == f"tmp_{RANDOM_ID}.fa" and os.path.exists("tmp_{RANDOM_ID}.fa"):
+        os.remove("tmp_{RANDOM_ID}.fa")
+
 
 def elm(sequence, uniprot=False, json=False, input_file=f"tmp_{RANDOM_ID}.fa", reference=ELM_INSTANCES_FASTA, out=None, sensitivity= "very-sensitive", verbose=True):
     """

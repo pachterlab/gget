@@ -24,52 +24,8 @@ from .gget_setup import (
     ELM_INSTANCES_TSV
 )
 
-from .gget_elm import RANDOM_ID
+from .constants import RANDOM_ID
 
-def tsv_to_df(tsv_file, headers = None):
-    """
-    Convert tsv file to dataframe format
-
-    Args:
-    tsv_file - file to be converted 
-
-    Returns:
-    df -  dataframe
-    
-    """
-    
-    try:
-        df = pd.DataFrame()
-        if headers:
-            df = pd.read_csv(tsv_file, sep="\t", names=headers)
-        else:
-            # ELM Instances.tsv file had 5 lines before headers and data
-            df = pd.read_csv(tsv_file, sep="\t", skiprows=5)
-        return df
-    
-
-    except pd.errors.EmptyDataError:
-        logging.warning(f"Query did not result in any matches.")
-        return None
-
-def remove_temp_files(input, out, reference):
-    """
-    Delete temporary files
-
-    Args:
-    input       - Input fasta file containing amino acid sequences
-    out         - Output tsv file containing the output returned by DIAMOND
-    reference   - Reference database binary file produced by DIAMOND
-
-    Returns: 
-    None 
-    """
-    if out is None and os.path.exists("tmp_out.tsv"):
-        os.remove("tmp_out.tsv")
-    if reference == ELM_INSTANCES_FASTA and os.path.exists("reference.dmnd"):
-        os.remove("reference.dmnd")
-    if input == f"tmp_{RANDOM_ID}.fa" and os.path.exists("tmp_{RANDOM_ID}.fa"):
-        os.remove("tmp_{RANDOM_ID}.fa")
 
 
 def diamond(input, reference, json=False, verbose=True, out=None, sensitivity="very-sensitive"):
@@ -113,5 +69,10 @@ def diamond(input, reference, json=False, verbose=True, out=None, sensitivity="v
         logging.info(
             f"DIAMOND run complete."
         )
-
+       
+              
+    # df_diamond = tsv_to_df("diamond_out.tsv", ["query_accession", "target_accession", "Per. Ident" , "length", "mismatches", "gap_openings", "query_start", "query_end", "target_start", "target_end", "e-value", "bit_score"])
+    # return df_diamond
    
+
+              
