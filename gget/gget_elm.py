@@ -118,6 +118,7 @@ def seq_workflow(sequences, sequence_lengths,input_file=f"tmp_{RANDOM_ID}.fa", r
         
         df_diamond = diamond(input=input_file, reference=reference, sensitivity=sensitivity, json=json, verbose=verbose, out=out)
         
+        
         # If no match found for sequence, raise error
         if (len(df_diamond) == 0):
             logging.warning(f"Sequence #{seq_number}: No orthologous proteins found in ELM database.")
@@ -219,8 +220,8 @@ def remove_temp_files(input, out, reference):
         os.remove("tmp_out.tsv")
     if reference == ELM_INSTANCES_FASTA and os.path.exists("reference.dmnd"):
         os.remove("reference.dmnd")
-    if os.path.exists(input):
-        os.remove(input)
+    if input == f"tmp_{RANDOM_ID}.fa" and os.path.exists("tmp_{RANDOM_ID}.fa"):
+        os.remove("tmp_{RANDOM_ID}.fa")
 
 
 def elm(sequence, uniprot=False, json=False, input_file=f"tmp_{RANDOM_ID}.fa", reference=ELM_INSTANCES_FASTA, out=None, sensitivity= "very-sensitive", verbose=True):
@@ -349,7 +350,7 @@ def elm(sequence, uniprot=False, json=False, input_file=f"tmp_{RANDOM_ID}.fa", r
             os.mkdir(path)
 
     #TODO: delete out tsv, reference binary dmnd, and input fasta files
-    remove_temp_files(input="tmp_{RANDOM_ID}.fa", out, reference)
+    remove_temp_files(input, out, reference)
 
     return df, df_regex_matches
 
