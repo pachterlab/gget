@@ -22,15 +22,6 @@ else:
         PACKAGE_PATH, f"bins/{platform.system()}/diamond"
     )
 
-from .gget_setup import (
-    ELM_FILES, 
-    ELM_INSTANCES_FASTA,
-    ELM_CLASSES_TSV,
-    ELM_INSTANCES_TSV
-)
-
-from .constants import RANDOM_ID
-
 
 def tsv_to_df(tsv_file, headers = None):
     """
