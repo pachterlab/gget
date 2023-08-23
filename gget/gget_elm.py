@@ -258,9 +258,7 @@ def elm(sequence, uniprot=False, json=False, input_file=f"tmp_{RANDOM_ID}.fa", r
     #building first ortholog dataframe
     if uniprot:
         df = get_elm_instances(sequence, verbose)
-        df["Query Cover"] = np.nan
-        df["Per. Ident"] = np.nan
-        
+  
         if (len(df) == 0):
             logging.warning("UniProt ID does not match UniProt IDs in the ELM database. Converting UniProt ID to amino acid sequence...")
             df_uniprot = get_uniprot_seqs(server=UNIPROT_REST_API, ensembl_ids=sequence)
@@ -271,7 +269,11 @@ def elm(sequence, uniprot=False, json=False, input_file=f"tmp_{RANDOM_ID}.fa", r
                 
             except KeyError:
                 raise ValueError(f"No sequences found for UniProt ID {sequence} from searching the UniProt server. Please double check your UniProt ID and try again.")
-                
+        
+        if (len(df) > 0):
+            df["Query Cover"] = np.nan
+            df["Per. Ident"] = np.nan
+        
     if len(df) == 0:
         # add input aa sequence and its length to list
         if not uniprot:
