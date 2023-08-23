@@ -66,6 +66,25 @@ def create_input_file(sequences):
     with open("tmp_{RANDOM_ID}.fa", 'r') as f:
         print(f.read())
 
+def remove_temp_files():
+    """
+    Delete temporary files
+
+    Args:
+    input       - Input fasta file containing amino acid sequences
+    out         - Output tsv file containing the output returned by DIAMOND
+    reference   - Reference database binary file produced by DIAMOND
+
+    Returns: 
+    None 
+    """
+    if os.path.exists("tmp_out.tsv"):
+        os.remove("tmp_out.tsv")
+    if os.path.exists("reference.dmnd"):
+        os.remove("reference.dmnd")
+    if os.path.exists("tmp_{RANDOM_ID}.fa"):
+        os.remove("tmp_{RANDOM_ID}.fa")
+
 def diamond(sequences, reference, json=False, verbose=True, out=None, sensitivity="very-sensitive"):
     """
     Perform protein sequence alignment using DIAMOND for multiple sequences
@@ -112,6 +131,7 @@ def diamond(sequences, reference, json=False, verbose=True, out=None, sensitivit
        
               
     df_diamond = tsv_to_df("diamond_out.tsv", ["query_accession", "target_accession", "Per. Ident" , "length", "mismatches", "gap_openings", "query_start", "query_end", "target_start", "target_end", "e-value", "bit_score"])
+    remove_temp_files()
     return df_diamond
    
 

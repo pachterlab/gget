@@ -195,24 +195,6 @@ def regex_match(sequence):
     
     return df_final
 
-def remove_temp_files(input, out, reference):
-    """
-    Delete temporary files
-
-    Args:
-    input       - Input fasta file containing amino acid sequences
-    out         - Output tsv file containing the output returned by DIAMOND
-    reference   - Reference database binary file produced by DIAMOND
-
-    Returns: 
-    None 
-    """
-    if out is None and os.path.exists("tmp_out.tsv"):
-        os.remove("tmp_out.tsv")
-    if reference == ELM_INSTANCES_FASTA and os.path.exists("reference.dmnd"):
-        os.remove("reference.dmnd")
-    if input == f"tmp_{RANDOM_ID}.fa" and os.path.exists("tmp_{RANDOM_ID}.fa"):
-        os.remove("tmp_{RANDOM_ID}.fa")
 
 
 def elm(sequence, uniprot=False, json=False, input_file=f"tmp_{RANDOM_ID}.fa", reference=ELM_INSTANCES_FASTA, out=None, sensitivity= "very-sensitive", verbose=True):
@@ -339,9 +321,6 @@ def elm(sequence, uniprot=False, json=False, input_file=f"tmp_{RANDOM_ID}.fa", r
             
         except OSError: 
             os.mkdir(path)
-
-    #TODO: delete out tsv, reference binary dmnd, and input fasta files
-    remove_temp_files(input, out, reference)
 
     return df, df_regex_matches
 
