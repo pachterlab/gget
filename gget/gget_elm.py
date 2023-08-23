@@ -107,17 +107,10 @@ def seq_workflow(sequences, sequence_lengths,input_file=f"tmp_{RANDOM_ID}.fa", r
     
     """
     df = pd.DataFrame()
+    df_diamond = diamond(sequences, reference=reference, sensitivity=sensitivity, json=json, verbose=verbose, out=out)
     seq_number = 1
     for sequence, seq_len in zip(sequences, sequence_lengths):
         sequence = str(sequence)
-        with open(f"tmp_{RANDOM_ID}.fa", "w") as f:
-            f.write("> \n" + sequence)
-        
-        print(f"{os. getcwd()}tmp{str(uuid.uuid4())}.fa")
-        
-        df_diamond = diamond(input=input_file, reference=reference, sensitivity=sensitivity, json=json, verbose=verbose, out=out)
-        
-        
         
         # If no match found for sequence, raise error
         if (len(df_diamond) == 0):

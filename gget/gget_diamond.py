@@ -4,6 +4,11 @@ import sys
 import platform
 import os
 import pandas as pd
+import uuid
+
+# DIAMOND and ELM id for temporary files
+RANDOM_ID = str(uuid.uuid4())
+
 
 from .compile import PACKAGE_PATH
 
@@ -53,7 +58,24 @@ def tsv_to_df(tsv_file, headers = None):
         logging.warning(f"Query did not result in any matches.")
         return None
 
-def diamond(input, reference, json=False, verbose=True, out=None, sensitivity="very-sensitive"):
+def create_input_file(sequences):
+    """
+    Copy sequences to a temporary fasta file for DIAMOND alignment
+
+    Args:
+    sequences - list of user input amino acid sequences 
+
+    Returns: None
+    """
+    with open(f"tmp_{RANDOM_ID}.fa", 'w') as f:
+        for idx, seq in enumerate(sequences):
+            f.write(f'>Seq {idx}\n{seq}')
+
+    # check if correct sequences are written to file
+    with open("tmp_{RANDOM_ID}.fa", 'r') as f:
+        print(f.read())
+
+def diamond(sequences, reference, json=False, verbose=True, out=None, sensitivity="very-sensitive"):
     """
     Perform protein sequence alignment using DIAMOND for multiple sequences
 
@@ -70,6 +92,8 @@ def diamond(input, reference, json=False, verbose=True, out=None, sensitivity="v
     #TODO: --very_sensitive and makedb --in as args
     # if out is None, create temp file and delete once get dataframe
     # if make
+    create_input_file(sequences)
+
     if out is None:
         command = f"diamond makedb --in {reference} -d reference && diamond blastp -q {input} -d reference -o tmp_out.tsv --{sensitivity}"
     else:
