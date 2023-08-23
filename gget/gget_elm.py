@@ -87,7 +87,7 @@ def get_elm_instances(UniProtID, verbose):
     return df_final
 
 
-def seq_workflow(sequences, sequence_lengths,input_file=f"tmp_{RANDOM_ID}.fa", reference=ELM_INSTANCES_FASTA,  out=None, sensitivity= "very-sensitive", json=False, verbose=True):
+def seq_workflow(sequences, sequence_lengths, reference=ELM_INSTANCES_FASTA,  out=None, sensitivity= "very-sensitive", json=False, verbose=True):
     """
     Alignment of sequence using DIAMOND to get UniProt ID. Use the UniProt ID to construct an ortholog dataframe similar to the UniProt workflow
     except for additional columns for start, end and whether the motif overlaps the target sequence.
