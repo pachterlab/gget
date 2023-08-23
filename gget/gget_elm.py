@@ -70,12 +70,11 @@ def get_elm_instances(UniProtID, verbose):
 
     # return matching rows from elm_instances.tsv
     df_full_instances = tsv_to_df(ELM_INSTANCES_TSV)
-   
     df_full_instances.rename(columns = {'Accession':'UniProt ID'}, inplace = True)
     df_full_instances.rename(columns = {'Start in ortholog':'Start'}, inplace = True)
     df_full_instances.rename(columns = {'End in ortholog':'End'}, inplace = True)
-    df_instances_matching = df_full_instances.loc[df_full_instances['UniProtID'].str.contains(UniProtID)]
-    print(df_instances_matching)
+    print(f"df_full_instances columns {df_full_instances.columns}")
+    df_instances_matching = df_full_instances.loc[df_full_instances['Accessions'].str.contains(UniProtID)]
 
     # get class descriptions from elm_classes.tsv
     df_classes = tsv_to_df(ELM_CLASSES_TSV)
@@ -121,6 +120,7 @@ def seq_workflow(sequences, sequence_lengths,input_file=f"tmp_{RANDOM_ID}.fa", r
         df_diamond = diamond(input=input_file, reference=reference, sensitivity=sensitivity, json=json, verbose=verbose, out=out)
         
         
+        
         # If no match found for sequence, raise error
         if (len(df_diamond) == 0):
             logging.warning(f"Sequence #{seq_number}: No orthologous proteins found in ELM database.")
@@ -145,7 +145,7 @@ def seq_workflow(sequences, sequence_lengths,input_file=f"tmp_{RANDOM_ID}.fa", r
                 df = pd.concat([df, df_elm])
 
         seq_number += 1
-    print(df.columns)
+
     return df 
 
 def regex_match(sequence):
@@ -260,7 +260,9 @@ def elm(sequence, uniprot=False, json=False, input_file=f"tmp_{RANDOM_ID}.fa", r
     #building first ortholog dataframe
     if uniprot:
         df = get_elm_instances(sequence, verbose)
-  
+        df["Query Cover"] = np.nan
+        df["Per. Ident"] = np.nan
+        
         if (len(df) == 0):
             logging.warning("UniProt ID does not match UniProt IDs in the ELM database. Converting UniProt ID to amino acid sequence...")
             df_uniprot = get_uniprot_seqs(server=UNIPROT_REST_API, ensembl_ids=sequence)
@@ -271,11 +273,7 @@ def elm(sequence, uniprot=False, json=False, input_file=f"tmp_{RANDOM_ID}.fa", r
                 
             except KeyError:
                 raise ValueError(f"No sequences found for UniProt ID {sequence} from searching the UniProt server. Please double check your UniProt ID and try again.")
-        
-        if (len(df) > 0):
-            df["Query Cover"] = np.nan
-            df["Per. Ident"] = np.nan
-        
+                
     if len(df) == 0:
         # add input aa sequence and its length to list
         if not uniprot:
