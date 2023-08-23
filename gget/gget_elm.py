@@ -197,7 +197,7 @@ def regex_match(sequence):
 
 
 
-def elm(sequence, uniprot=False, json=False, input_file=f"tmp_{RANDOM_ID}.fa", reference=ELM_INSTANCES_FASTA, out=None, sensitivity= "very-sensitive", verbose=True):
+def elm(sequence, uniprot=False, json=False, input_file=None, reference=ELM_INSTANCES_FASTA, out=None, sensitivity= "very-sensitive", verbose=True):
     """
     Searches the Eukaryotic Linear Motif resource for Functional Sites in Proteins.
 
@@ -206,7 +206,7 @@ def elm(sequence, uniprot=False, json=False, input_file=f"tmp_{RANDOM_ID}.fa", r
                       If Uniprot ID, set 'uniprot==True'.
      - uniprot        Set to True if input is a Uniprot ID instead of amino acid sequence. Default: False.
      - json           If True, returns results in json format instead of data frame. Default: False.
-     - input_file     Set to fasta file path (include .fa) if input contains multiple sequences. Default: t file that gets deleted after alignment, unless input file path is specified
+     - input_file     Set to fasta file path (include .fa) if input contains multiple sequences. Default: None
      - reference      Set to reference file path (include .dmnd). If not specified, the ELM instances tsv file is used to construct the reference database file.
      - out            Folder name to save output files. Default: None (output is converted and returned in dataframe format. The output temporary files is not saved)  
      - sensitivity    Sensitivity level to do DIAMOND alignment. The sensitivity can be adjusted using the options --fast, --mid-sensitive, --sensitive, --more-sensitive, --very-sensitive and --ultra-sensitive. Default: very-sensitive
