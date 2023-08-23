@@ -78,8 +78,7 @@ def get_elm_instances(UniProtID, verbose):
     # get class descriptions from elm_classes.tsv
     df_classes = tsv_to_df(ELM_CLASSES_TSV)
     df_classes.rename(columns = {'Accession':'class_accession'}, inplace = True)
-    return df_classes
-
+  
     #merge two dataframes using ELM Identifier
     df = df_instances_matching.merge(df_classes, how='left', on=['ELMIdentifier'])
     #reorder columns 
