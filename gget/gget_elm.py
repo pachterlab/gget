@@ -142,7 +142,7 @@ def seq_workflow(sequences, sequence_lengths,input_file=f"tmp_{RANDOM_ID}.fa", r
         
         print(f"{os. getcwd()}tmp{str(uuid.uuid4())}.fa")
         
-        diamond(input_file=input_file, reference=reference, sensitivity=sensitivity, json=json, verbose=verbose, out=out)
+        diamond(input=input_file, reference=reference, sensitivity=sensitivity, json=json, verbose=verbose, out=out)
         
         df_diamond = tsv_to_df("diamond_out.tsv", ["query_accession", "target_accession", "Per. Ident" , "length", "mismatches", "gap_openings", "query_start", "query_end", "target_start", "target_end", "e-value", "bit_score"])
         
