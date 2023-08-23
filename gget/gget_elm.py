@@ -214,6 +214,7 @@ def elm(sequence, uniprot=False, json=False, input_file=None, reference=ELM_INST
   
     Returns two data frames: orthologs and regex matches from ELM database.
     """
+    #TODO: check if handle user input file correctly since seq workflow does not have input file arg
 
     if not uniprot:
         amino_acids = set("ARNDCQEGHILKMFPSTWYVBZXBJZ")
@@ -253,7 +254,7 @@ def elm(sequence, uniprot=False, json=False, input_file=None, reference=ELM_INST
             if verbose:
                 logging.info(f"Performing pairwise sequence alignment against ELM database using DIAMOND for {len(aa_seqs)} sequence(s)...")
         
-        df = seq_workflow(sequences=aa_seqs, sequence_lengths=seq_lens, input_file=input_file, reference=reference, out=out, sensitivity=sensitivity, json=json, verbose=verbose)
+        df = seq_workflow(sequences=aa_seqs, sequence_lengths=seq_lens, reference=reference, out=out, sensitivity=sensitivity, json=json, verbose=verbose)
         
         if len(df) == 0:
             logging.warning("No ELM database orthologs found for input sequence or UniProt ID.")
