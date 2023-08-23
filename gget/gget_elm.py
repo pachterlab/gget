@@ -7,7 +7,7 @@ import json as json_package
 import re
 from .utils import get_uniprot_seqs
 
-from .constants import UNIPROT_REST_API, RANDOM_ID
+from .constants import UNIPROT_REST_API
 
 from .gget_diamond import diamond, tsv_to_df
 
@@ -163,11 +163,9 @@ def regex_match(sequence):
 
         regex_matches = re.finditer(pattern, sequence)
 
-
         for match_string in regex_matches:
             
             elm_row = df_elm_classes.loc[df_elm_classes["Accession"]== elm_id]
-      
             elm_row.insert(loc=1, column='Instances (Matched Sequence)', value=match_string.group(0))
 
             (start, end) = match_string.span()
