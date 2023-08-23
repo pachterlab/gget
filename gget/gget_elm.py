@@ -73,7 +73,7 @@ def get_elm_instances(UniProtID, verbose):
     df_full_instances.rename(columns = {'Accession':'UniProt ID'}, inplace = True)
     df_full_instances.rename(columns = {'Start in ortholog':'Start'}, inplace = True)
     df_full_instances.rename(columns = {'End in ortholog':'End'}, inplace = True)
-    print(f"df_full_instances columns {df_full_instances.columns}")
+    return df_full_instances
     df_instances_matching = df_full_instances.loc[df_full_instances['Accessions'].str.contains(UniProtID)]
 
     # get class descriptions from elm_classes.tsv
