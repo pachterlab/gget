@@ -284,7 +284,7 @@ def elm(sequence, uniprot=False, json=False, input_file=f"tmp_{RANDOM_ID}.fa", r
 
     #building first ortholog dataframe
     if uniprot:
-        df = get_elm_instances(sequence, ELM_INSTANCES_TSV, ELM_CLASSES_TSV, verbose)
+        df = get_elm_instances(sequence, verbose)
         df["Query Cover"] = np.nan
         df["Per. Ident"] = np.nan
         
