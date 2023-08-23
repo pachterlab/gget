@@ -35,7 +35,7 @@ from .gget_setup import setup
 from .gget_pdb import pdb
 from .gget_gpt import gpt
 from .gget_cellxgene import cellxgene
-from .gget_elm import elm
+from .gget_elm import elm, RANDOM_ID, ELM_INSTANCES_FASTA
 
 def main():
     """
@@ -293,7 +293,72 @@ def main():
         required=False,
         help="DEPRECATED - json is now the default output format (convert to csv using flag [--csv]).",
     )
-
+    ## gget elm subparser
+    elm_desc = "Fetch motif information using ELM database for input UniProt ID or amino acid sequence"
+    parser_elm = parent_subparsers.add_parser(
+        "elm", parents=[parent], description=elm_desc, help=elm_desc, add_help=True
+    )
+    # elm parser arguments
+    parser_elm.add_argument(
+        "sequence",
+        type=str,
+        nargs="*",
+        default=None,
+        help=" Amino acid sequence or Uniprot ID (str). If Uniprot ID, set 'uniprot==True'.",
+    )
+    parser_elm.add_argument(
+        "-u",
+        "--uniprot",
+        default=True,
+        action="store_false",
+        required=False,
+        help="TURN OFF results from UniProt database.",
+    )
+    parser_elm.add_argument(
+        "-csv",
+        "--csv",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Returns results in csv format instead of json.",
+    )
+    parser_elm.add_argument(
+        "-i",
+        "--input_file",
+        type=str,
+        default=f"tmp_{RANDOM_ID}.fa",
+        help=" Set to fasta file path (include .fa) if input contains multiple sequences. Default: t file that gets deleted after alignment, unless input file path is specified",
+    )
+    parser_elm.add_argument(
+        "-r",
+        "--reference",
+        type=str,
+        default=ELM_INSTANCES_FASTA,
+        help=" Set to reference file path (include .dmnd). If not specified, the ELM instances tsv file is used to construct the reference database file.",
+    )
+    parser_elm.add_argument(
+        "-o",
+        "--out",
+        type=str,
+        default=None,
+        help="Folder name to save output files. Default: None (output is converted and returned in dataframe format. The output temporary files is not saved)  ",
+    )
+    parser_elm.add_argument(
+        "-s",
+        "--sensitivity",
+        type=str,
+        default="very-sensitive",
+        help=" Sensitivity level to do DIAMOND alignment. The sensitivity can be adjusted using the options --fast, --mid-sensitive, --sensitive, --more-sensitive, --very-sensitive and --ultra-sensitive. Default: very-sensitive",
+    )
+    parser_elm.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Does not print progress information.",
+    )
+  
     ## gget info subparser
     info_desc = "Fetch gene and transcript metadata using Ensembl IDs."
     parser_info = parent_subparsers.add_parser(
@@ -930,7 +995,7 @@ def main():
     parser_setup.add_argument(
         "module",
         type=str,
-        choices=["alphafold", "gpt", "cellxgene"],
+        choices=["alphafold", "gpt", "cellxgene", "elm"],
         help="gget module for which dependencies should be installed, e.g. 'alphafold'",
     )
 
@@ -1491,6 +1556,7 @@ def main():
         "pdb": parser_pdb,
         "gpt": parser_gpt,
         "cellxgene": parser_cellxgene,
+        "elm": parser_elm
     }
 
     if len(sys.argv) == 2:
@@ -1725,6 +1791,35 @@ def main():
             parser_muscle.error("the following arguments are required: fasta")
 
         muscle(fasta=args.fasta, super5=args.super5, out=args.out, verbose=args.quiet)
+
+    ## elm return
+    if args.command == "elm":
+        elm_results = elm(sequence=args.sequence, uniprot=args.uniprot, json=args.csv, input_file=args.input_file, reference = args.reference, out=args.out, sensitivity=args.sensitivity, verbose=args.quiet)
+     # Check if the function returned something
+    if not isinstance(elm_results, type(None)):
+            # Save elm results if elm.out specified
+            if args.out and args.csv:
+                # Create saving directory
+                directory = "/".join(args.out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+                # Save to csv
+                elm_results.to_csv(args.out, index=False)
+
+            if args.out and not args.csv:
+                # Create saving directory
+                directory = "/".join(args.out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+                # Save json
+                with open(args.out, "w", encoding="utf-8") as f:
+                    json.dump(elm_results, f, ensure_ascii=False, indent=4)
+
+            # Print results if no directory specified
+            if not args.out and args.csv:
+                elm_results.to_csv(sys.stdout, index=False)
+            if not args.out and not args.csv:
+                print(json.dumps(elm_results, ensure_ascii=False, indent=4))
 
     ## ref return
     if args.command == "ref":

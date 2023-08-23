@@ -17,6 +17,14 @@ else:
         PACKAGE_PATH, f"bins/{platform.system()}/diamond"
     )
 
+from .gget_setup import (
+    ELM_FILES, 
+    ELM_INSTANCES_FASTA,
+    ELM_CLASSES_TSV,
+    ELM_INSTANCES_TSV
+)
+
+from .gget_elm import RANDOM_ID
 
 def tsv_to_df(tsv_file, headers = None):
     """
@@ -44,7 +52,27 @@ def tsv_to_df(tsv_file, headers = None):
         logging.warning(f"Query did not result in any matches.")
         return None
 
-def diamond(input, reference, json=False, verbose=True, out=None):
+def remove_temp_files(input, out, reference):
+    """
+    Delete temporary files
+
+    Args:
+    input       - Input fasta file containing amino acid sequences
+    out         - Output tsv file containing the output returned by DIAMOND
+    reference   - Reference database binary file produced by DIAMOND
+
+    Returns: 
+    None 
+    """
+    if out is None and os.path.exists("tmp_out.tsv"):
+        os.remove("tmp_out.tsv")
+    if reference == ELM_INSTANCES_FASTA and os.path.exists("reference.dmnd"):
+        os.remove("reference.dmnd")
+    if input == f"tmp_{RANDOM_ID}.fa" and os.path.exists("tmp_{RANDOM_ID}.fa"):
+        os.remove("tmp_{RANDOM_ID}.fa")
+
+
+def diamond(input, reference, json=False, verbose=True, out=None, sensitivity="very-sensitive"):
     """
     Perform protein sequence alignment using DIAMOND for multiple sequences
 
@@ -54,15 +82,18 @@ def diamond(input, reference, json=False, verbose=True, out=None):
      - json           If True, returns results in json format instead of data frame. Default: False.
      - out            folder name to save two resulting csv files. Default: results (default: None).
      - verbose        True/False whether to print progress information. Default True.
+     - sensitivity    The sensitivity can be adjusted using the options --fast, --mid-sensitive, --sensitive, --more-sensitive, --very-sensitive and --ultra-sensitive.
 
     Returns DIAMOND output in tsv format 
     """
-    
+    #TODO: --very_sensitive and makedb --in as args
+    # if out is None, create temp file and delete once get dataframe
+    # if make
     if out is None:
-        command = f"diamond makedb --in {reference} -d reference && diamond blastp -q {input} -d reference -o diamond_out.tsv --very-sensitive"
+        command = f"diamond makedb --in {reference} -d reference && diamond blastp -q {input} -d reference -o tmp_out.tsv --{sensitivity}"
     else:
         # The double-quotation marks allow white spaces in the path, but this does not work for Windows
-        command = f"diamond makedb --in {reference} -d reference && diamond blastp -q {input} -d reference -o {out}.tsv --very-sensitive"
+        command = f"diamond makedb --in {reference} -d reference && diamond blastp -q {input} -d reference -o {out}.tsv --{sensitivity}"
     # Run diamond command and write command output
     with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process_2:
         stderr_2 = process_2.stderr.read().decode("utf-8")
@@ -82,3 +113,5 @@ def diamond(input, reference, json=False, verbose=True, out=None):
         logging.info(
             f"DIAMOND run complete."
         )
+
+   

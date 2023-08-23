@@ -11,7 +11,8 @@ from .constants import UNIPROT_REST_API
 
 from .gget_diamond import (
     diamond,
-    tsv_to_df
+    tsv_to_df, 
+    remove_temp_files
 )
 
 from .gget_setup import (
@@ -20,6 +21,8 @@ from .gget_setup import (
     ELM_CLASSES_TSV,
     ELM_INSTANCES_TSV
 )
+
+RANDOM_ID = str(uuid.uuid4())
 
 def motif_in_query(row):
     """
@@ -89,7 +92,7 @@ def get_elm_instances(UniProtID, verbose):
     return df_final
 
 
-def seq_workflow(sequences, sequence_lengths, verbose):
+def seq_workflow(sequences, sequence_lengths,input_file=f"tmp_{RANDOM_ID}.fa", reference=ELM_INSTANCES_FASTA,  out=None, sensitivity= "very-sensitive", json=False, verbose=True):
     """
     Alignment of sequence using DIAMOND to get UniProt ID. Use the UniProt ID to construct an ortholog dataframe similar to the UniProt workflow
     except for additional columns for start, end and whether the motif overlaps the target sequence.
@@ -97,8 +100,12 @@ def seq_workflow(sequences, sequence_lengths, verbose):
     Args:
     sequences        - list of user input amino acid sequence
     sequence_lengths - list of lengths respective to each sequence
+    input_file       - 
+    reference        - 
+    out              - 
+    sensitivity      - 
+    json             - 
     verbose          - If True, turns on logging for INFO_level messages
-
 
     Returns:
     df              - dataframe consisting of ELM instances, class information, start, end in query, and if motif overlaps with target sequence
@@ -108,14 +115,12 @@ def seq_workflow(sequences, sequence_lengths, verbose):
     seq_number = 1
     for sequence, seq_len in zip(sequences, sequence_lengths):
         sequence = str(sequence)
-        
-        random_ID = str(uuid.uuid4())
-        with open(f"tmp_{random_ID}.fa", "w") as f:
+        with open(f"tmp_{RANDOM_ID}.fa", "w") as f:
             f.write("> \n" + sequence)
         
         print(f"{os. getcwd()}tmp{str(uuid.uuid4())}.fa")
         
-        diamond(f"tmp_{random_ID}.fa.fa", ELM_INSTANCES_FASTA)
+        diamond(input_file=input_file, reference=reference, sensitivity=sensitivity, json=json, verbose=verbose, out=out)
         
         df_diamond = tsv_to_df("diamond_out.tsv", ["query_accession", "target_accession", "Per. Ident" , "length", "mismatches", "gap_openings", "query_start", "query_end", "target_start", "target_end", "e-value", "bit_score"])
         
@@ -204,7 +209,7 @@ def regex_match(sequence):
     
     return df_final
 
-def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
+def elm(sequence, uniprot=False, json=False, input_file=f"tmp_{RANDOM_ID}.fa", reference=ELM_INSTANCES_FASTA, out=None, sensitivity= "very-sensitive", verbose=True):
     """
     Searches the Eukaryotic Linear Motif resource for Functional Sites in Proteins.
 
@@ -213,7 +218,10 @@ def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
                       If Uniprot ID, set 'uniprot==True'.
      - uniprot        Set to True if input is a Uniprot ID instead of amino acid sequence. Default: False.
      - json           If True, returns results in json format instead of data frame. Default: False.
-     - out            Folder name to save output files. Default: None.  
+     - input_file     Set to fasta file path (include .fa) if input contains multiple sequences. Default: t file that gets deleted after alignment, unless input file path is specified
+     - reference      Set to reference file path (include .dmnd). If not specified, the ELM instances tsv file is used to construct the reference database file.
+     - out            Folder name to save output files. Default: None (output is converted and returned in dataframe format. The output temporary files is not saved)  
+     - sensitivity    Sensitivity level to do DIAMOND alignment. The sensitivity can be adjusted using the options --fast, --mid-sensitive, --sensitive, --more-sensitive, --very-sensitive and --ultra-sensitive. Default: very-sensitive
      - verbose        True/False whether to print progress information. Default: True.  
   
     Returns two data frames: orthologs and regex matches from ELM database.
@@ -257,7 +265,7 @@ def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
             if verbose:
                 logging.info(f"Performing pairwise sequence alignment against ELM database using DIAMOND for {len(aa_seqs)} sequence(s)...")
         
-        df = seq_workflow(aa_seqs, seq_lens, verbose)]
+        df = seq_workflow(sequences=aa_seqs, sequence_lengths=seq_lens, input_file=input_file, reference=reference, out=out, sensitivity=sensitivity, json=json, verbose=verbose)
         
         if len(df) == 0:
             logging.warning("No ELM database orthologs found for input sequence or UniProt ID.")
@@ -326,5 +334,8 @@ def elm(sequence, uniprot=False, json=False, verbose=True, out=None):
         except OSError: 
             os.mkdir(path)
 
-    
+    #TODO: delete out tsv, reference binary dmnd, and input fasta files
+    remove_temp_files(input, out, reference)
+
     return df, df_regex_matches
+
