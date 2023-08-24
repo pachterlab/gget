@@ -58,7 +58,7 @@ def create_input_file(sequences):
 
     Returns: input file absolute path
     """
-    print(f"sequences for input file{sequences}")
+    # print(f"sequences for input file{sequences}")
     with open(f"tmp_{RANDOM_ID}.fa", 'w') as f:
         for idx, seq in enumerate(sequences):
             f.write(f'>Seq {idx}\n{seq}')
@@ -83,8 +83,8 @@ def remove_temp_files():
     Returns: 
     None 
     """
-    if os.path.exists("tmp_out.tsv"):
-        os.remove("tmp_out.tsv")
+    if os.path.exists("out.tsv"):
+        os.remove("out.tsv")
     if os.path.exists("reference.dmnd"):
         os.remove("reference.dmnd")
     if os.path.exists("tmp_{RANDOM_ID}.fa"):
@@ -109,10 +109,10 @@ def diamond(sequences, reference, json=False, verbose=True, out=None, sensitivit
     # if make
     
     input_file = create_input_file(sequences)
-    print(f"input file name {input_file}")
+    # print(f"input file name {input_file}")
 
     if out is None:
-        command = f"diamond makedb --in {reference} -d reference && diamond blastp -q {input_file} -d reference -o tmp_out.tsv --{sensitivity}"
+        command = f"diamond makedb --in {reference} -d reference && diamond blastp -q {input_file} -d reference -o out.tsv --{sensitivity}"
     else:
         # The double-quotation marks allow white spaces in the path, but this does not work for Windows
         command = f"diamond makedb --in {reference} -d reference && diamond blastp -q {input_file} -d reference -o {out}.tsv --{sensitivity}"
@@ -135,9 +135,13 @@ def diamond(sequences, reference, json=False, verbose=True, out=None, sensitivit
         logging.info(
             f"DIAMOND run complete."
         )
-       
-              
-    df_diamond = tsv_to_df("diamond_out.tsv", ["query_accession", "target_accession", "Per. Ident" , "length", "mismatches", "gap_openings", "query_start", "query_end", "target_start", "target_end", "e-value", "bit_score"])
+    try:
+        with open(f"{os.getcwd()}/out.fa", 'r') as f:
+            print(f.read())
+    except:
+        continue  
+    
+    df_diamond = tsv_to_df("out.tsv", ["query_accession", "target_accession", "Per. Ident" , "length", "mismatches", "gap_openings", "query_start", "query_end", "target_start", "target_end", "e-value", "bit_score"])
     remove_temp_files()
     return df_diamond
    
