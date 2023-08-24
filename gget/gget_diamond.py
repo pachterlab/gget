@@ -23,18 +23,18 @@ else:
     )
 
 
-def tsv_to_df(tsv_file, headers = None):
+def tsv_to_df(tsv_file, headers=None):
     """
     Convert tsv file to dataframe format
 
     Args:
-    tsv_file - file to be converted 
+    tsv_file - file to be converted
 
     Returns:
     df -  dataframe
-    
+
     """
-    
+
     try:
         df = pd.DataFrame()
         if headers:
@@ -43,25 +43,25 @@ def tsv_to_df(tsv_file, headers = None):
             # ELM Instances.tsv file had 5 lines before headers and data
             df = pd.read_csv(tsv_file, sep="\t", skiprows=5)
         return df
-    
 
     except pd.errors.EmptyDataError:
         logging.warning(f"Query did not result in any matches.")
         return None
+
 
 def create_input_file(sequences):
     """
     Copy sequences to a temporary fasta file for DIAMOND alignment
 
     Args:
-    sequences - list of user input amino acid sequences 
+    sequences - list of user input amino acid sequences
 
     Returns: input file absolute path
     """
     # print(f"sequences for input file{sequences}")
-    with open(f"tmp_{RANDOM_ID}.fa", 'w') as f:
+    with open(f"tmp_{RANDOM_ID}.fa", "w") as f:
         for idx, seq in enumerate(sequences):
-            f.write(f'>Seq {idx}\n{seq}')
+            f.write(f">Seq {idx}\n{seq}")
 
     return f"tmp_{RANDOM_ID}.fa"
     # check if correct sequences are written to file
@@ -70,6 +70,7 @@ def create_input_file(sequences):
     #         print(f.read())
     # except:
     #     continue
+
 
 def remove_temp_files():
     """
@@ -80,8 +81,8 @@ def remove_temp_files():
     out         - Output tsv file containing the output returned by DIAMOND
     reference   - Reference database binary file produced by DIAMOND
 
-    Returns: 
-    None 
+    Returns:
+    None
     """
     if os.path.exists(f"tmp_{RANDOM_ID}_out.tsv"):
         os.remove(f"tmp_{RANDOM_ID}_out.tsv")
@@ -90,7 +91,15 @@ def remove_temp_files():
     if os.path.exists("tmp_{RANDOM_ID}.fa"):
         os.remove("tmp_{RANDOM_ID}.fa")
 
-def diamond(sequences, reference, json=False, verbose=True, out=None, sensitivity="very-sensitive"):
+
+def diamond(
+    sequences,
+    reference,
+    json=False,
+    verbose=True,
+    out=None,
+    sensitivity="very-sensitive",
+):
     """
     Perform protein sequence alignment using DIAMOND for multiple sequences
 
@@ -102,21 +111,23 @@ def diamond(sequences, reference, json=False, verbose=True, out=None, sensitivit
      - verbose        True/False whether to print progress information. Default True.
      - sensitivity    The sensitivity can be adjusted using the options --fast, --mid-sensitive, --sensitive, --more-sensitive, --very-sensitive and --ultra-sensitive.
 
-    Returns DIAMOND output in tsv format 
+    Returns DIAMOND output in tsv format
     """
-    #TODO: --very_sensitive and makedb --in as args
+    # TODO: --very_sensitive and makedb --in as args
     # if out is None, create temp file and delete once get dataframe
     # if make
-    
+
     input_file = create_input_file(sequences)
     output = f"tmp_{RANDOM_ID}_out.tsv"
 
     if out is None:
-        command = f"{PRECOMPILED_DIAMOND_PATH} makedb --in {reference} -d reference && diamond blastp -q {input_file} -d reference -o {output} --{sensitivity}"
+        command = f"{PRECOMPILED_DIAMOND_PATH} makedb --in {reference} -d reference \
+            && {PRECOMPILED_DIAMOND_PATH} blastp -q {input_file} -d reference -o {output} --{sensitivity}"
     else:
         output = out
         # The double-quotation marks allow white spaces in the path, but this does not work for Windows
-        command = f"{PRECOMPILED_DIAMOND_PATH} makedb --in {reference} -d reference && diamond blastp -q {input_file} -d reference -o {out}.tsv --{sensitivity}"
+        command = f"{PRECOMPILED_DIAMOND_PATH} makedb --in {reference} -d reference \
+            && {PRECOMPILED_DIAMOND_PATH} blastp -q {input_file} -d reference -o {out}.tsv --{sensitivity}"
     # Run diamond command and write command output
     with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process_2:
         stderr_2 = process_2.stderr.read().decode("utf-8")
@@ -133,21 +144,32 @@ def diamond(sequences, reference, json=False, verbose=True, out=None, sensitivit
         )
         return
     else:
-        logging.info(
-            f"DIAMOND run complete."
-        )
+        logging.info(f"DIAMOND run complete.")
     # try:
     #     with open(f"{os.getcwd()}/out.fa", 'r') as f:
     #         print(f.read())
     # except:
-    #     pass 
+    #     pass
     # print(f"Input file: {input_file}")
     # print(f"Reference file: {reference}")
     # print(f"Output file: {output}")
 
-    df_diamond = tsv_to_df(output, ["query_accession", "target_accession", "Per. Ident" , "length", "mismatches", "gap_openings", "query_start", "query_end", "target_start", "target_end", "e-value", "bit_score"])
+    df_diamond = tsv_to_df(
+        output,
+        [
+            "query_accession",
+            "target_accession",
+            "Per. Ident",
+            "length",
+            "mismatches",
+            "gap_openings",
+            "query_start",
+            "query_end",
+            "target_start",
+            "target_end",
+            "e-value",
+            "bit_score",
+        ],
+    )
     remove_temp_files()
     return df_diamond
-   
-
-              
