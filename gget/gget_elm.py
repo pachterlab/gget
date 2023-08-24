@@ -108,6 +108,7 @@ def seq_workflow(sequences, sequence_lengths, reference=ELM_INSTANCES_FASTA,  ou
     
     """
     df = pd.DataFrame()
+    df_diamond = pd.DataFrame()
     df_diamond = diamond(sequences, reference=reference, sensitivity=sensitivity, json=json, verbose=verbose, out=out)
     print(df_diamond)
     seq_number = 1
