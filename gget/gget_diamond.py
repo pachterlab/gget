@@ -83,8 +83,8 @@ def remove_temp_files():
     Returns: 
     None 
     """
-    if os.path.exists("out.tsv"):
-        os.remove("out.tsv")
+    if os.path.exists(f"tmp_{RANDOM_ID}_out.tsv"):
+        os.remove(f"tmp_{RANDOM_ID}_out.tsv")
     if os.path.exists("reference.dmnd"):
         os.remove("reference.dmnd")
     if os.path.exists("tmp_{RANDOM_ID}.fa"):
@@ -111,10 +111,12 @@ def diamond(sequences, reference, json=False, verbose=True, out=None, sensitivit
     input_file = create_input_file(sequences)
     print(f"input file name {input_file}")
     print(f"reference file {reference}")
+    output = f"tmp_{RANDOM_ID}_out.tsv"
 
     if out is None:
-        command = f"diamond makedb --in {reference} -d reference && diamond blastp -q {input_file} -d reference -o out.tsv --{sensitivity}"
+        command = f"diamond makedb --in {reference} -d reference && diamond blastp -q {input_file} -d reference -o {output} --{sensitivity}"
     else:
+        output = out
         # The double-quotation marks allow white spaces in the path, but this does not work for Windows
         command = f"diamond makedb --in {reference} -d reference && diamond blastp -q {input_file} -d reference -o {out}.tsv --{sensitivity}"
     # Run diamond command and write command output
@@ -142,7 +144,7 @@ def diamond(sequences, reference, json=False, verbose=True, out=None, sensitivit
     # except:
     #     pass 
     
-    df_diamond = tsv_to_df("out.tsv", ["query_accession", "target_accession", "Per. Ident" , "length", "mismatches", "gap_openings", "query_start", "query_end", "target_start", "target_end", "e-value", "bit_score"])
+    df_diamond = tsv_to_df(output, ["query_accession", "target_accession", "Per. Ident" , "length", "mismatches", "gap_openings", "query_start", "query_end", "target_start", "target_end", "e-value", "bit_score"])
     remove_temp_files()
     return df_diamond
    
