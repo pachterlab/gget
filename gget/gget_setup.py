@@ -37,10 +37,10 @@ PARAMS_PATH = os.path.join(PARAMS_DIR, "params_temp.tar")
 
 ## Variables for elm module     
 ELM_FILES = os.path.join(
-    PACKAGE_PATH, "ELM_files"
+    PACKAGE_PATH, "elm_files"
 )
 
-ELM_INSTANCES_FASTA = f"{ELM_FILES}/elm_instances.fa"
+ELM_INSTANCES_FASTA = f"{ELM_FILES}/elm_instances.fasta"
 ELM_CLASSES_TSV = f"{ELM_FILES}/elms_classes.tsv"
 ELM_INSTANCES_TSV = f"{ELM_FILES}/elm_instances.tsv"
 
