@@ -81,7 +81,7 @@ def get_elm_instances(UniProtID, verbose):
   
     #merge two dataframes using ELM Identifier
     df = df_instances_matching.merge(df_classes, how='left', on=['ELMIdentifier'])
-    print(f"columns {df.columns}")
+    print(f"df merged orthologs columns {df.columns}")
     #reorder columns 
     change_column= ["class_accession", "ELMIdentifier", "FunctionalSiteName", "Description", "Regex", "Probability", "Start in ortholog", "End in ortholog", "Query Cover", "Per. Ident", "query_start", "query_end", "target_start", "target_end","ProteinName", "Organism", "References", "InstanceLogic", "PDB", "#Instances", "#Instances_in_PDB"]
     df_final = df.reindex(columns=change_column)
@@ -130,8 +130,8 @@ def seq_workflow(sequences, sequence_lengths, reference=ELM_INSTANCES_FASTA,  ou
                 df_elm["Per. Ident"] = df_diamond["Per. Ident"]  # TODO Make sure you get query_start etc matching the id you are looking at here
                 df_elm["query_start"] = df_diamond["query_start"]
                 df_elm["query_end"] = df_diamond["query_end"]
-                df_elm["target_start"] = int(df_diamond["target_start"])
-                df_elm["target_end"] = int(df_diamond["target_end"])
+                df_elm["target_start"] = df_diamond["target_start"].astype(int)
+                df_elm["target_end"] = df_diamond["target_end"].astype(int)
                 print(f"df_elmm columns: {df_elm.columns}")
                 df_elm["motif_in_query"] = df_elm.apply(motif_in_query, axis=1)
     
@@ -264,8 +264,8 @@ def elm(sequence, uniprot=False, json=False, input_file=None, reference=ELM_INST
         
         if not uniprot and len(df) > 0:
             try:
-                target_start_values = int(df['target_start'].values)
-                target_end_values = int(df['target_end'].values)
+                target_start_values = df['target_start'].values
+                target_end_values = df['target_end'].values
 
                 # # TO-DO: we do not want to drop these results, we just want to add a column "motif_in_overlap" True/False
                 # if (df["Per. Ident"] is not None):
