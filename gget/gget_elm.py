@@ -70,7 +70,7 @@ def get_elm_instances(UniProtID, verbose):
 
     # return matching rows from elm_instances.tsv
     df_full_instances = tsv_to_df(ELM_INSTANCES_TSV)
-    df_full_instances.rename(columns = {'UniProt ID':'ELM ID'}, inplace = True)
+    df_full_instances.rename(columns = {'UniProt ID':'Primary_Acc'}, inplace = True)
     df_full_instances.rename(columns = {'Start in ortholog':'Start'}, inplace = True)
     df_full_instances.rename(columns = {'End in ortholog':'End'}, inplace = True)
     df_instances_matching = df_full_instances.loc[df_full_instances['Accessions'].str.contains(UniProtID)]
@@ -121,7 +121,7 @@ def seq_workflow(sequences, sequence_lengths, reference=ELM_INSTANCES_FASTA,  ou
             logging.info(f"Sequence #{seq_number}: Found orthologous proteins in ELM database. Retrieving data about ELMs occurring in orthologs...")
 
             # Construct df with elm instances from uniprot ID returned from diamond 
-            # TODO double check taht this gets info if more than one UniProt ID matched 
+            # TODO double check that this gets info if more than one UniProt ID matched 
             uniprot_ids = str(df_diamond["target_accession"]).split('|')[1]
             logging.info(f"Pairwise sequence alignment with DIAMOND matched the following UniProt IDs {uniprot_ids}. Retrieving ELMs for each UniProt ID...")
 
