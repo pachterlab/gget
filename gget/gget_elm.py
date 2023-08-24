@@ -71,8 +71,8 @@ def get_elm_instances(UniProtID, verbose):
     # return matching rows from elm_instances.tsv
     df_full_instances = tsv_to_df(ELM_INSTANCES_TSV)
     df_full_instances.rename(columns = {'Accession':'ELM ID'}, inplace = True)
-    df_full_instances.rename(columns = {'Start in ortholog':'Start'}, inplace = True)
-    df_full_instances.rename(columns = {'End in ortholog':'End'}, inplace = True)
+    df_full_instances.rename(columns = {'Start':'Start in ortholog'}, inplace = True)
+    df_full_instances.rename(columns = {'End':'End in ortholog'}, inplace = True)
     df_instances_matching = df_full_instances.loc[df_full_instances['Accessions'].str.contains(UniProtID)]
  
     # get class descriptions from elm_classes.tsv
