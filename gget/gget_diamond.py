@@ -109,8 +109,6 @@ def diamond(sequences, reference, json=False, verbose=True, out=None, sensitivit
     # if make
     
     input_file = create_input_file(sequences)
-    print(f"input file name {input_file}")
-    print(f"reference file {reference}")
     output = f"tmp_{RANDOM_ID}_out.tsv"
 
     if out is None:
@@ -143,9 +141,12 @@ def diamond(sequences, reference, json=False, verbose=True, out=None, sensitivit
     #         print(f.read())
     # except:
     #     pass 
-    
+    print(f"Input file: {input_file}")
+    print(f"Reference file: {reference}")
+    print(f"Output file: {output}")
+
     df_diamond = tsv_to_df(output, ["query_accession", "target_accession", "Per. Ident" , "length", "mismatches", "gap_openings", "query_start", "query_end", "target_start", "target_end", "e-value", "bit_score"])
-    remove_temp_files()
+    # remove_temp_files()
     return df_diamond
    
 
