@@ -238,10 +238,10 @@ def elm(sequence, uniprot=False, json=False, input_file=None, reference=ELM_INST
         if (len(df) == 0):
             logging.warning("UniProt ID does not match UniProt IDs in the ELM database. Converting UniProt ID to amino acid sequence...")
             df_uniprot = get_uniprot_seqs(server=UNIPROT_REST_API, ensembl_ids=sequence)
-            return df_uniprot
+ 
             try:
                 #only grab sequences where id match exact input uniprot id
-                aa_seqs = df_uniprot[df_uniprot["uniprot_id"] == id]["sequence"].values
+                aa_seqs = df_uniprot[df_uniprot["uniprot_id"] == sequence]["sequence"].values
                 seq_lens = df_uniprot["sequence_length"].values
                 print(f"aa_seqs {aa_seqs}")
             except KeyError:
@@ -277,10 +277,13 @@ def elm(sequence, uniprot=False, json=False, input_file=None, reference=ELM_INST
     if uniprot:
         #use amino acid sequence associated with UniProt ID to do regex match
         df_uniprot = get_uniprot_seqs(UNIPROT_REST_API, sequence)
+        # sequences is an array 
         sequences = df_uniprot[df_uniprot["uniprot_id"] == sequence]["sequence"].values
         
         # TODO What if no amino acid seqs are found for ID?
-        
+        if len(sequence) == 0:
+            logging.warning("No sequences found for UniProt ID from UniProt REST Server")
+
         if len(sequences) > 1:
             logging.info(f"More than one UniProt amino acid sequence found for UniProt ID {sequence}. Using best match to find regex motifs.")
         sequence = sequences[0]
