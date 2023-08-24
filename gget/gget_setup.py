@@ -40,7 +40,7 @@ ELM_FILES = os.path.join(
     PACKAGE_PATH, "elm_files"
 )
 
-ELM_INSTANCES_FASTA = f"{ELM_FILES}/elm_instances.fasta"
+ELM_INSTANCES_FASTA = f"{ELM_FILES}/elm_instances.fa"
 ELM_CLASSES_TSV = f"{ELM_FILES}/elms_classes.tsv"
 ELM_INSTANCES_TSV = f"{ELM_FILES}/elm_instances.tsv"
 
