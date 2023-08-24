@@ -62,7 +62,7 @@ def create_input_file(sequences):
         for idx, seq in enumerate(sequences):
             f.write(f'>Seq {idx}\n{seq}')
 
-    return f"{os.getcwd()}/tmp_{RANDOM_ID}.fa"
+    return f"tmp_{RANDOM_ID}.fa"
     # check if correct sequences are written to file
     # try:
     #     with open(f"{os.getcwd()}tmp_{RANDOM_ID}.fa", 'r') as f:
@@ -108,6 +108,7 @@ def diamond(sequences, reference, json=False, verbose=True, out=None, sensitivit
     # if make
     
     input_file = create_input_file(sequences)
+    print(input_file)
 
     if out is None:
         command = f"diamond makedb --in {reference} -d reference && diamond blastp -q {input_file} -d reference -o tmp_out.tsv --{sensitivity}"
