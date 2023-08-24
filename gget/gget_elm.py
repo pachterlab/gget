@@ -108,7 +108,7 @@ def seq_workflow(sequences, sequence_lengths, reference=ELM_INSTANCES_FASTA,  ou
     
     """
     df = pd.DataFrame()
-    df_diamond = pd.DataFrame()
+ 
     df_diamond = diamond(sequences, reference=reference, sensitivity=sensitivity, json=json, verbose=verbose, out=out)
     print(df_diamond)
     seq_number = 1
@@ -116,8 +116,9 @@ def seq_workflow(sequences, sequence_lengths, reference=ELM_INSTANCES_FASTA,  ou
         sequence = str(sequence)
         
         # If no match found for sequence, raise error
-        if (len(df_diamond) == 0):
-            logging.warning(f"Sequence #{seq_number}: No orthologous proteins found in ELM database.")
+        if df_diamond is not None:
+            if (len(df_diamond) == 0):
+                logging.warning(f"Sequence #{seq_number}: No orthologous proteins found in ELM database.")
         else:
             logging.info(f"Sequence #{seq_number}: Found orthologous proteins in ELM database. Retrieving data about ELMs occurring in orthologs...")
 
