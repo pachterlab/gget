@@ -148,11 +148,11 @@ def setup(module, verbose=True):
         
         # Check if files are present
         if os.path.exists(ELM_INSTANCES_FASTA):
-            logging.info(f"ELM fasta file installed succesfully.")
+            logging.info(f"ELM FASTA file installed succesfully.")
         
         else:
             logging.error(
-                "ELM fasta file download failed."
+                "ELM FASTA file download failed."
             )
 
         if os.path.exists(ELM_CLASSES_TSV) and os.path.exists(ELM_INSTANCES_TSV):

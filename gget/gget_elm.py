@@ -29,7 +29,7 @@ def motif_in_query(row):
 
     Returns: True if the motif is in between the target start and end of sequence. False otherwise
     """
-    return True if (row["Start"] >= row["target_start"]) & (row["End"] <= row["target_end"]) else False
+    return True if (row["Start in ortholog"] >= row["target_start"]) & (row["End in ortholog"] <= row["target_end"]) else False
 
 
 
