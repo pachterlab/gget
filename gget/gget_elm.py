@@ -128,6 +128,7 @@ def seq_workflow(sequences, sequence_lengths, reference=ELM_INSTANCES_FASTA,  ou
             for i, uniprot_id in enumerate(df_diamond["target_accession"].values):
                 print(f"UniProt ID {uniprot_id}")
                 df_elm = get_elm_instances(str(uniprot_id).split('|')[1], verbose)
+                #missing motifs other than the first one 
                 df_elm["Query Cover"] = df_diamond["length"].values[i]  / seq_len * 100
                 df_elm["Per. Ident"] = df_diamond["Per. Ident"].values[i]   # TODO Make sure you get query_start etc matching the id you are looking at here
                 df_elm["query_start"] = df_diamond["query_start"].values[i] 
@@ -142,6 +143,7 @@ def seq_workflow(sequences, sequence_lengths, reference=ELM_INSTANCES_FASTA,  ou
                 df = pd.concat([df, df_elm])
 
         seq_number += 1
+
 
     return df 
 
@@ -166,12 +168,14 @@ def regex_match(sequence):
 
     # Compare ELM regex with input sequence and return all matching elms
     for elm_id, pattern in zip(elm_ids, regex_patterns):
-
+        # print(f"ELM ID {elm_id} pattern {pattern}")
         regex_matches = re.finditer(pattern, sequence)
+        
 
         for match_string in regex_matches:
-            
+            print(match_string)
             elm_row = df_elm_classes.loc[df_elm_classes["Accession"]== elm_id]
+            
             elm_row.insert(loc=1, column='Instances (Matched Sequence)', value=match_string.group(0))
 
             (start, end) = match_string.span()
