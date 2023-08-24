@@ -119,7 +119,10 @@ def setup(module, verbose=True):
     if module == "elm":
         if verbose:
             logging.info("Installing ELM files")
-   
+
+        # Create folder for ELM files (if it does not exist)
+        if not os.path.exists(ELM_FILES):
+            os.makedirs(ELM_FILES)
 
         if platform.system() == "Windows":
             # The double-quotation marks allow white spaces in the path, but this does not work for Windows
