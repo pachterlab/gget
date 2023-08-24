@@ -109,7 +109,7 @@ def diamond(sequences, reference, json=False, verbose=True, out=None, sensitivit
     # if make
     
     input_file = create_input_file(sequences)
-    print(input_file)
+    print(f"input file name {input_file}")
 
     if out is None:
         command = f"diamond makedb --in {reference} -d reference && diamond blastp -q {input_file} -d reference -o tmp_out.tsv --{sensitivity}"

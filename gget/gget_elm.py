@@ -238,6 +238,7 @@ def elm(sequence, uniprot=False, json=False, input_file=None, reference=ELM_INST
         if (len(df) == 0):
             logging.warning("UniProt ID does not match UniProt IDs in the ELM database. Converting UniProt ID to amino acid sequence...")
             df_uniprot = get_uniprot_seqs(server=UNIPROT_REST_API, ensembl_ids=sequence)
+            return df_uniprot
             try:
                 #only grab sequences where id match exact input uniprot id
                 aa_seqs = df_uniprot[df_uniprot["uniprot_id"] == id]["sequence"].values
