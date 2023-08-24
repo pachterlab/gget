@@ -58,7 +58,7 @@ def create_input_file(sequences):
 
     Returns: input file absolute path
     """
-    print(sequences)
+    print(f"sequences for input file{sequences}")
     with open(f"tmp_{RANDOM_ID}.fa", 'w') as f:
         for idx, seq in enumerate(sequences):
             f.write(f'>Seq {idx}\n{seq}')
