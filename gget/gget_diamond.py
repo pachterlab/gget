@@ -63,8 +63,11 @@ def create_input_file(sequences):
             f.write(f'>Seq {idx}\n{seq}')
 
     # check if correct sequences are written to file
-    with open("tmp_{RANDOM_ID}.fa", 'r') as f:
-        print(f.read())
+    try:
+        with open(f"{os.getcwd()}tmp_{RANDOM_ID}.fa", 'r') as f:
+            print(f.read())
+    except:
+        continue
 
 def remove_temp_files():
     """
@@ -102,6 +105,7 @@ def diamond(sequences, reference, json=False, verbose=True, out=None, sensitivit
     #TODO: --very_sensitive and makedb --in as args
     # if out is None, create temp file and delete once get dataframe
     # if make
+    
     create_input_file(sequences)
 
     if out is None:
