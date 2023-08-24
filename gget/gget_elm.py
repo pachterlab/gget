@@ -71,8 +71,8 @@ def get_elm_instances(UniProtID, verbose):
     # return matching rows from elm_instances.tsv
     df_full_instances = tsv_to_df(ELM_INSTANCES_TSV)
     df_full_instances.rename(columns = {'Accession':'ELM ID'}, inplace = True)
-    df_full_instances.rename(columns = {'Start':'Start in ortholog'}, inplace = True)
-    df_full_instances.rename(columns = {'End':'End in ortholog'}, inplace = True)
+    # df_full_instances.rename(columns = {'Start':'Start in ortholog'}, inplace = True)
+    # df_full_instances.rename(columns = {'End':'End in ortholog'}, inplace = True)
     df_instances_matching = df_full_instances.loc[df_full_instances['Accessions'].str.contains(UniProtID)]
  
     # get class descriptions from elm_classes.tsv
@@ -83,7 +83,7 @@ def get_elm_instances(UniProtID, verbose):
     df = df_instances_matching.merge(df_classes, how='left', on=['ELMIdentifier'])
     print(f"df merged orthologs columns {df.columns}")
     #reorder columns 
-    change_column= ["class_accession", "ELMIdentifier", "FunctionalSiteName", "Description", "Regex", "Probability", "Start in ortholog", "End in ortholog", "Query Cover", "Per. Ident", "query_start", "query_end", "target_start", "target_end","ProteinName", "Organism", "References", "InstanceLogic", "PDB", "#Instances", "#Instances_in_PDB"]
+    change_column= ["class_accession", "ELMIdentifier", "FunctionalSiteName", "Description", "Regex", "Probability", "Start", "End", "Query Cover", "Per. Ident", "query_start", "query_end", "target_start", "target_end","ProteinName", "Organism", "References", "InstanceLogic", "PDB", "#Instances", "#Instances_in_PDB"]
     df_final = df.reindex(columns=change_column)
     return df_final
 
@@ -132,7 +132,7 @@ def seq_workflow(sequences, sequence_lengths, reference=ELM_INSTANCES_FASTA,  ou
                 df_elm["query_end"] = df_diamond["query_end"]
                 df_elm["target_start"] = df_diamond["target_start"].astype(int)
                 df_elm["target_end"] = df_diamond["target_end"].astype(int)
-                print(f"df_elmm columns: {df_elm.columns}")
+                print(f"df_seq_workflow: {df_elm.columns}")
                 df_elm["motif_in_query"] = df_elm.apply(motif_in_query, axis=1)
     
                 df = pd.concat([df, df_elm])
