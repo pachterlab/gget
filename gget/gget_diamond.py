@@ -146,7 +146,7 @@ def diamond(sequences, reference, json=False, verbose=True, out=None, sensitivit
     # print(f"Output file: {output}")
 
     df_diamond = tsv_to_df(output, ["query_accession", "target_accession", "Per. Ident" , "length", "mismatches", "gap_openings", "query_start", "query_end", "target_start", "target_end", "e-value", "bit_score"])
-    # remove_temp_files()
+    remove_temp_files()
     return df_diamond
    
 
