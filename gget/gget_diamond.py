@@ -135,11 +135,11 @@ def diamond(sequences, reference, json=False, verbose=True, out=None, sensitivit
         logging.info(
             f"DIAMOND run complete."
         )
-    try:
-        with open(f"{os.getcwd()}/out.fa", 'r') as f:
-            print(f.read())
-    except:
-        continue  
+    # try:
+    #     with open(f"{os.getcwd()}/out.fa", 'r') as f:
+    #         print(f.read())
+    # except:
+    #     pass 
     
     df_diamond = tsv_to_df("out.tsv", ["query_accession", "target_accession", "Per. Ident" , "length", "mismatches", "gap_openings", "query_start", "query_end", "target_start", "target_end", "e-value", "bit_score"])
     remove_temp_files()
