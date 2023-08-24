@@ -131,7 +131,7 @@ def seq_workflow(sequences, sequence_lengths, reference=ELM_INSTANCES_FASTA,  ou
                 df_elm["query_start"] = df_diamond["query_start"]
                 df_elm["query_end"] = df_diamond["query_end"]
                 df_elm["target_start"] = df_diamond["target_start"].astype(int)
-                print(df_elm["target start"])
+                print(df_elm["target_start"])
                 
                 df_elm["target_end"] = df_diamond["target_end"].astype(int)
                 print(f"df_seq_workflow: {df_elm.columns}")
