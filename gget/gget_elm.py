@@ -158,7 +158,8 @@ def seq_workflow(
         # If no match found for sequence, raise error
 
         if len(df_diamond) == 0:
-            logging.warning(
+            # !!! TODO change to warning
+            logging.info(
                 f"Sequence #{seq_number}: No orthologous proteins found in ELM database."
             )
         else:
@@ -362,7 +363,8 @@ def elm(
         )
 
         if len(df) == 0:
-            logging.warning(
+            # TODO: change to warning
+            logging.info(
                 "No ELM database orthologs found for input sequence or UniProt ID."
             )
 
