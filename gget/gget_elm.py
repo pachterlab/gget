@@ -163,19 +163,19 @@ def regex_match(sequence):
     df_full_instances = tsv_to_df(ELM_INSTANCES_TSV)
 
     elm_ids = df_elm_classes["Accession"]
-
+    print(f"all elm ids {elm_ids}")
     regex_patterns = df_elm_classes["Regex"]
 
     # Compare ELM regex with input sequence and return all matching elms
     for elm_id, pattern in zip(elm_ids, regex_patterns):
-        # print(f"ELM ID {elm_id} pattern {pattern}")
+       
         regex_matches = re.finditer(pattern, sequence)
         
 
         for match_string in regex_matches:
             print(match_string)
             elm_row = df_elm_classes.loc[df_elm_classes["Accession"]== elm_id]
-            
+            print(f"ELM ID {elm_id} match with pattern {pattern}")
             elm_row.insert(loc=1, column='Instances (Matched Sequence)', value=match_string.group(0))
 
             (start, end) = match_string.span()
