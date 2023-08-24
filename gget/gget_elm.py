@@ -109,6 +109,7 @@ def seq_workflow(sequences, sequence_lengths, reference=ELM_INSTANCES_FASTA,  ou
     """
     df = pd.DataFrame()
     df_diamond = diamond(sequences, reference=reference, sensitivity=sensitivity, json=json, verbose=verbose, out=out)
+    print(df_diamond)
     seq_number = 1
     for sequence, seq_len in zip(sequences, sequence_lengths):
         sequence = str(sequence)
@@ -125,13 +126,14 @@ def seq_workflow(sequences, sequence_lengths, reference=ELM_INSTANCES_FASTA,  ou
             logging.info(f"Pairwise sequence alignment with DIAMOND matched the following UniProt IDs {uniprot_ids}. Retrieving ELMs for each UniProt ID...")
 
             for i, uniprot_id in enumerate(df_diamond["target_accession"].values):
+                print(f"UniProt ID {uniprot_id}")
                 df_elm = get_elm_instances(str(uniprot_id).split('|')[1], verbose)
                 df_elm["Query Cover"] = df_diamond["length"].values[i]  / seq_len * 100
                 df_elm["Per. Ident"] = df_diamond["Per. Ident"].values[i]   # TODO Make sure you get query_start etc matching the id you are looking at here
                 df_elm["query_start"] = df_diamond["query_start"].values[i] 
                 df_elm["query_end"] = df_diamond["query_end"].values[i] 
                 df_elm["target_start"] = df_diamond["target_start"].astype(int)
-                # print(df_elm["target_start"])
+                print(df_elm["target_start"])
                 
                 df_elm["target_end"] = df_diamond["target_end"].astype(int)
                 # print(f"df_seq_workflow: {df_elm.columns}")
