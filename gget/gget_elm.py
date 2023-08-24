@@ -161,11 +161,13 @@ def regex_match(sequence):
     #Get all motif regex patterns from elm db local file
     df_elm_classes = tsv_to_df(ELM_CLASSES_TSV)
     df_full_instances = tsv_to_df(ELM_INSTANCES_TSV)
-    df_final = pd.DataFrame()
+
 
     elm_ids = df_elm_classes["Accession"]
     print(f"all elm ids {elm_ids}")
     regex_patterns = df_elm_classes["Regex"]
+
+    df_final = pd.DataFrame()
 
     # Compare ELM regex with input sequence and return all matching elms
     for elm_id, pattern in zip(elm_ids, regex_patterns):
@@ -173,15 +175,15 @@ def regex_match(sequence):
         regex_matches = re.finditer(pattern, sequence)
         
     
-        for i,match_string in enumerate(regex_matches):
+        for match_string in regex_matches:
             print(match_string)
-            elm_row = df_elm_classes.loc[df_elm_classes["Accession"]== elm_id].values[i]
+            elm_row = df_elm_classes[df_elm_classes["Accession"]== elm_id]
             print(f"ELM ID {elm_id} match with pattern {pattern}")
             elm_row.insert(loc=1, column='Instances (Matched Sequence)', value=match_string.group(0))
 
-            (start, end) = match_string.span().values[i]
-            elm_row.insert(loc=2, column='Start in query', value=str(start)).values[i]
-            elm_row.insert(loc=3, column='End in query', value=str(end)).values[i]
+            (start, end) = match_string.span()
+            elm_row.insert(loc=2, column='Start in query', value=str(start))
+            elm_row.insert(loc=3, column='End in query', value=str(end))
         
            
             elm_identifier = [str(x) for x in elm_row["ELMIdentifier"]][0]
@@ -190,14 +192,15 @@ def regex_match(sequence):
    
 
             # merge two dataframes using ELM Identifier, since some Accessions are missing from elm_instances.tsv
+            elm_row = elm_row.merge(df_instances_matching, how='left', on=['ELMIdentifier'])
+
+            df_final = pd.concat([df_final, elm_row])
             
-            df_final.insert(elm_row.merge(df_instances_matching, how='left', on=['ELMIdentifier']))
-            
-            df_final.pop("Accession_y")
-            df_final.pop("#Instances")
-            df_final.pop("#Instances_in_PDB")
-            df_final.pop("References")
-            df_final.pop("InstanceLogic")
+    df_final.pop("Accession_y")
+    df_final.pop("#Instances")
+    df_final.pop("#Instances_in_PDB")
+    df_final.pop("References")
+    df_final.pop("InstanceLogic")
 
     df_final.rename(columns = {'Accession_x':'instance_accession'}, inplace = True)
   
