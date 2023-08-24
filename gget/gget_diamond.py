@@ -112,11 +112,11 @@ def diamond(sequences, reference, json=False, verbose=True, out=None, sensitivit
     output = f"tmp_{RANDOM_ID}_out.tsv"
 
     if out is None:
-        command = f"diamond makedb --in {reference} -d reference && diamond blastp -q {input_file} -d reference -o {output} --{sensitivity}"
+        command = f"{PRECOMPILED_DIAMOND_PATH} makedb --in {reference} -d reference && diamond blastp -q {input_file} -d reference -o {output} --{sensitivity}"
     else:
         output = out
         # The double-quotation marks allow white spaces in the path, but this does not work for Windows
-        command = f"diamond makedb --in {reference} -d reference && diamond blastp -q {input_file} -d reference -o {out}.tsv --{sensitivity}"
+        command = f"{PRECOMPILED_DIAMOND_PATH} makedb --in {reference} -d reference && diamond blastp -q {input_file} -d reference -o {out}.tsv --{sensitivity}"
     # Run diamond command and write command output
     with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process_2:
         stderr_2 = process_2.stderr.read().decode("utf-8")

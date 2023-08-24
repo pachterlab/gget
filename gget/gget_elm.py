@@ -116,9 +116,9 @@ def seq_workflow(sequences, sequence_lengths, reference=ELM_INSTANCES_FASTA,  ou
         sequence = str(sequence)
         
         # If no match found for sequence, raise error
-        if df_diamond is not None:
-            if (len(df_diamond) == 0):
-                logging.warning(f"Sequence #{seq_number}: No orthologous proteins found in ELM database.")
+ 
+        if (len(df_diamond) == 0):
+            logging.warning(f"Sequence #{seq_number}: No orthologous proteins found in ELM database.")
         else:
             logging.info(f"Sequence #{seq_number}: Found orthologous proteins in ELM database. Retrieving data about ELMs occurring in orthologs...")
 
