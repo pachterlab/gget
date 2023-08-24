@@ -63,11 +63,11 @@ def create_input_file(sequences):
             f.write(f'>Seq {idx}\n{seq}')
 
     # check if correct sequences are written to file
-    try:
-        with open(f"{os.getcwd()}tmp_{RANDOM_ID}.fa", 'r') as f:
-            print(f.read())
-    except:
-        continue
+    # try:
+    #     with open(f"{os.getcwd()}tmp_{RANDOM_ID}.fa", 'r') as f:
+    #         print(f.read())
+    # except:
+    #     continue
 
 def remove_temp_files():
     """
