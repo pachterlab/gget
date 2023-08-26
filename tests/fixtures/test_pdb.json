@@ -163,7 +163,7 @@
                     "kind": "Global Symmetry"
                 }
             ],
-            "rcsb_struct_symmetry_provenance_code": "biojava-structure-6.0.5",
+            "rcsb_struct_symmetry_provenance_code": "biojava-7.0.1",
             "rcsb_struct_symmetry_lineage": [
                 {
                     "id": "Global Symmetry.Cyclic.C3",
@@ -188,7 +188,7 @@
             ],
             "rcsb_latest_revision": {
                 "major_revision": 1,
-                "minor_revision": 3
+                "minor_revision": 4
             }
         }
     },
@@ -701,7 +701,6 @@
                     "name": "Mogul bond angle outlier",
                     "ordinal": 3,
                     "provenance_source": "PDB",
-                    "reference_scheme": "PDB entity",
                     "type": "MOGUL_ANGLE_OUTLIER",
                     "feature_value": [
                         {
@@ -729,7 +728,6 @@
                     "name": "Mogul bond distance outlier",
                     "ordinal": 4,
                     "provenance_source": "PDB",
-                    "reference_scheme": "PDB entity",
                     "type": "MOGUL_BOND_OUTLIER",
                     "feature_value": [
                         {
@@ -3642,7 +3640,6 @@
                     "name": "FAD/NAD(P)-binding domain",
                     "ordinal": 11,
                     "provenance_source": "CATH",
-                    "reference_scheme": "PDB entity",
                     "type": "CATH",
                     "feature_positions": [
                         {
@@ -3671,7 +3668,6 @@
                     "name": "FAD/NAD(P)-binding domain",
                     "ordinal": 12,
                     "provenance_source": "CATH",
-                    "reference_scheme": "PDB entity",
                     "type": "CATH",
                     "feature_positions": [
                         {
@@ -3700,7 +3696,6 @@
                     "name": "Succinate dehydrogenase/fumarate reductase flavoprotein, catalytic domain",
                     "ordinal": 13,
                     "provenance_source": "CATH",
-                    "reference_scheme": "PDB entity",
                     "type": "CATH",
                     "feature_positions": [
                         {
@@ -3730,7 +3725,6 @@
                     "name": "Fumarate reductase/succinate dehydrogenase flavoprotein-like, C-terminal domain",
                     "ordinal": 14,
                     "provenance_source": "CATH",
-                    "reference_scheme": "PDB entity",
                     "type": "CATH",
                     "feature_positions": [
                         {
@@ -3760,7 +3754,6 @@
                     "name": "succinate dehydrogenase protein domain",
                     "ordinal": 15,
                     "provenance_source": "CATH",
-                    "reference_scheme": "PDB entity",
                     "type": "CATH",
                     "feature_positions": [
                         {
@@ -3789,7 +3782,6 @@
                     "name": "Succ_DH_flav_C",
                     "ordinal": 36,
                     "provenance_source": "ECOD",
-                    "reference_scheme": "PDB entity",
                     "type": "ECOD",
                     "feature_positions": [
                         {
@@ -3818,7 +3810,6 @@
                     "name": "FAD_binding_2",
                     "ordinal": 37,
                     "provenance_source": "ECOD",
-                    "reference_scheme": "PDB entity",
                     "type": "ECOD",
                     "feature_positions": [
                         {
@@ -3847,7 +3838,6 @@
                     "name": "FAD_binding_3_1st",
                     "ordinal": 38,
                     "provenance_source": "ECOD",
-                    "reference_scheme": "PDB entity",
                     "type": "ECOD",
                     "feature_positions": [
                         {
@@ -3877,7 +3867,6 @@
                     "name": "sheet",
                     "ordinal": 52,
                     "provenance_source": "PROMOTIF",
-                    "reference_scheme": "PDB entity",
                     "type": "SHEET",
                     "feature_positions": [
                         {
@@ -3913,7 +3902,6 @@
                     "name": "sheet",
                     "ordinal": 53,
                     "provenance_source": "PROMOTIF",
-                    "reference_scheme": "PDB entity",
                     "type": "SHEET",
                     "feature_positions": [
                         {
@@ -3957,7 +3945,6 @@
                     "name": "sheet",
                     "ordinal": 54,
                     "provenance_source": "PROMOTIF",
-                    "reference_scheme": "PDB entity",
                     "type": "SHEET",
                     "feature_positions": [
                         {
@@ -3989,7 +3976,6 @@
                     "name": "sheet",
                     "ordinal": 55,
                     "provenance_source": "PROMOTIF",
-                    "reference_scheme": "PDB entity",
                     "type": "SHEET",
                     "feature_positions": [
                         {
@@ -4021,7 +4007,6 @@
                     "name": "sheet",
                     "ordinal": 56,
                     "provenance_source": "PROMOTIF",
-                    "reference_scheme": "PDB entity",
                     "type": "SHEET",
                     "feature_positions": [
                         {
@@ -4057,7 +4042,6 @@
                     "name": "sheet",
                     "ordinal": 57,
                     "provenance_source": "PROMOTIF",
-                    "reference_scheme": "PDB entity",
                     "type": "SHEET",
                     "feature_positions": [
                         {
@@ -4085,7 +4069,6 @@
                     "name": "sheet",
                     "ordinal": 58,
                     "provenance_source": "PROMOTIF",
-                    "reference_scheme": "PDB entity",
                     "type": "SHEET",
                     "feature_positions": [
                         {
@@ -4112,7 +4095,6 @@
                     "name": "helix",
                     "ordinal": 100,
                     "provenance_source": "PROMOTIF",
-                    "reference_scheme": "PDB entity",
                     "type": "HELIX_P",
                     "feature_positions": [
                         {
@@ -4127,7 +4109,6 @@
                     "name": "helix",
                     "ordinal": 101,
                     "provenance_source": "PROMOTIF",
-                    "reference_scheme": "PDB entity",
                     "type": "HELIX_P",
                     "feature_positions": [
                         {
@@ -4142,7 +4123,6 @@
                     "name": "helix",
                     "ordinal": 102,
                     "provenance_source": "PROMOTIF",
-                    "reference_scheme": "PDB entity",
                     "type": "HELIX_P",
                     "feature_positions": [
                         {
@@ -4157,7 +4137,6 @@
                     "name": "helix",
                     "ordinal": 103,
                     "provenance_source": "PROMOTIF",
-                    "reference_scheme": "PDB entity",
                     "type": "HELIX_P",
                     "feature_positions": [
                         {
@@ -4172,7 +4151,6 @@
                     "name": "helix",
                     "ordinal": 104,
                     "provenance_source": "PROMOTIF",
-                    "reference_scheme": "PDB entity",
                     "type": "HELIX_P",
                     "feature_positions": [
                         {
@@ -4187,7 +4165,6 @@
                     "name": "helix",
                     "ordinal": 105,
                     "provenance_source": "PROMOTIF",
-                    "reference_scheme": "PDB entity",
                     "type": "HELIX_P",
                     "feature_positions": [
                         {
@@ -4202,7 +4179,6 @@
                     "name": "helix",
                     "ordinal": 106,
                     "provenance_source": "PROMOTIF",
-                    "reference_scheme": "PDB entity",
                     "type": "HELIX_P",
                     "feature_positions": [
                         {
@@ -4217,7 +4193,6 @@
                     "name": "helix",
                     "ordinal": 107,
                     "provenance_source": "PROMOTIF",
-                    "reference_scheme": "PDB entity",
                     "type": "HELIX_P",
                     "feature_positions": [
                         {
@@ -4232,7 +4207,6 @@
                     "name": "helix",
                     "ordinal": 108,
                     "provenance_source": "PROMOTIF",
-                    "reference_scheme": "PDB entity",
                     "type": "HELIX_P",
                     "feature_positions": [
                         {
@@ -4247,7 +4221,6 @@
                     "name": "helix",
                     "ordinal": 109,
                     "provenance_source": "PROMOTIF",
-                    "reference_scheme": "PDB entity",
                     "type": "HELIX_P",
                     "feature_positions": [
                         {
@@ -4262,7 +4235,6 @@
                     "name": "helix",
                     "ordinal": 110,
                     "provenance_source": "PROMOTIF",
-                    "reference_scheme": "PDB entity",
                     "type": "HELIX_P",
                     "feature_positions": [
                         {
@@ -4277,7 +4249,6 @@
                     "name": "helix",
                     "ordinal": 111,
                     "provenance_source": "PROMOTIF",
-                    "reference_scheme": "PDB entity",
                     "type": "HELIX_P",
                     "feature_positions": [
                         {
@@ -4292,7 +4263,6 @@
                     "name": "helix",
                     "ordinal": 112,
                     "provenance_source": "PROMOTIF",
-                    "reference_scheme": "PDB entity",
                     "type": "HELIX_P",
                     "feature_positions": [
                         {
@@ -4307,7 +4277,6 @@
                     "name": "helix",
                     "ordinal": 113,
                     "provenance_source": "PROMOTIF",
-                    "reference_scheme": "PDB entity",
                     "type": "HELIX_P",
                     "feature_positions": [
                         {
@@ -4322,7 +4291,6 @@
                     "name": "helix",
                     "ordinal": 114,
                     "provenance_source": "PROMOTIF",
-                    "reference_scheme": "PDB entity",
                     "type": "HELIX_P",
                     "feature_positions": [
                         {
@@ -4337,7 +4305,6 @@
                     "name": "helix",
                     "ordinal": 115,
                     "provenance_source": "PROMOTIF",
-                    "reference_scheme": "PDB entity",
                     "type": "HELIX_P",
                     "feature_positions": [
                         {
@@ -4352,7 +4319,6 @@
                     "name": "helix",
                     "ordinal": 116,
                     "provenance_source": "PROMOTIF",
-                    "reference_scheme": "PDB entity",
                     "type": "HELIX_P",
                     "feature_positions": [
                         {
@@ -4367,7 +4333,6 @@
                     "name": "helix",
                     "ordinal": 117,
                     "provenance_source": "PROMOTIF",
-                    "reference_scheme": "PDB entity",
                     "type": "HELIX_P",
                     "feature_positions": [
                         {
@@ -4382,7 +4347,6 @@
                     "name": "helix",
                     "ordinal": 118,
                     "provenance_source": "PROMOTIF",
-                    "reference_scheme": "PDB entity",
                     "type": "HELIX_P",
                     "feature_positions": [
                         {
@@ -4397,7 +4361,6 @@
                     "name": "unassigned secondary structure",
                     "ordinal": 143,
                     "provenance_source": "PROMOTIF",
-                    "reference_scheme": "PDB entity",
                     "type": "UNASSIGNED_SEC_STRUCT",
                     "feature_positions": [
                         {
@@ -4573,7 +4536,6 @@
                     "name": "cis-peptide",
                     "ordinal": 148,
                     "provenance_source": "PDB",
-                    "reference_scheme": "PDB entity",
                     "type": "CIS-PEPTIDE",
                     "feature_positions": [
                         {
@@ -4597,7 +4559,6 @@
                     "name": "unmodeled residue",
                     "ordinal": 153,
                     "provenance_source": "PDB",
-                    "reference_scheme": "PDB entity",
                     "type": "UNOBSERVED_RESIDUE_XYZ",
                     "feature_positions": [
                         {
@@ -4613,7 +4574,6 @@
                     "name": "partially modeled residue",
                     "ordinal": 158,
                     "provenance_source": "PDB",
-                    "reference_scheme": "PDB entity",
                     "type": "UNOBSERVED_ATOM_XYZ",
                     "feature_positions": [
                         {
@@ -4641,23 +4601,18 @@
                     "name": "Molprobity rotamer outlier",
                     "ordinal": 168,
                     "provenance_source": "PDB",
-                    "reference_scheme": "PDB entity",
                     "type": "ROTAMER_OUTLIER",
                     "feature_positions": [
                         {
-                            "beg_comp_id": "GLU",
                             "beg_seq_id": 72
                         },
                         {
-                            "beg_comp_id": "PHE",
                             "beg_seq_id": 130
                         },
                         {
-                            "beg_comp_id": "SER",
                             "beg_seq_id": 225
                         },
                         {
-                            "beg_comp_id": "ASP",
                             "beg_seq_id": 293
                         }
                     ]
@@ -4669,11 +4624,9 @@
                     "name": "Real space density correlation value < 0.65",
                     "ordinal": 169,
                     "provenance_source": "PDB",
-                    "reference_scheme": "PDB entity",
                     "type": "RSCC_OUTLIER",
                     "feature_positions": [
                         {
-                            "beg_comp_id": "THR",
                             "beg_seq_id": 10
                         }
                     ]
@@ -4685,11 +4638,9 @@
                     "name": "Real space R-value Z score > 2",
                     "ordinal": 170,
                     "provenance_source": "PDB",
-                    "reference_scheme": "PDB entity",
                     "type": "RSRZ_OUTLIER",
                     "feature_positions": [
                         {
-                            "beg_comp_id": "THR",
                             "beg_seq_id": 10
                         }
                     ]
