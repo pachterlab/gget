@@ -163,7 +163,7 @@
                     "kind": "Global Symmetry"
                 }
             ],
-            "rcsb_struct_symmetry_provenance_code": "biojava-7.0.1",
+            "rcsb_struct_symmetry_provenance_code": "biojava-structure-6.0.5",
             "rcsb_struct_symmetry_lineage": [
                 {
                     "id": "Global Symmetry.Cyclic.C3",
@@ -188,7 +188,7 @@
             ],
             "rcsb_latest_revision": {
                 "major_revision": 1,
-                "minor_revision": 4
+                "minor_revision": 3
             }
         }
     },
@@ -701,6 +701,7 @@
                     "name": "Mogul bond angle outlier",
                     "ordinal": 3,
                     "provenance_source": "PDB",
+                    "reference_scheme": "PDB entity",
                     "type": "MOGUL_ANGLE_OUTLIER",
                     "feature_value": [
                         {
@@ -728,6 +729,7 @@
                     "name": "Mogul bond distance outlier",
                     "ordinal": 4,
                     "provenance_source": "PDB",
+                    "reference_scheme": "PDB entity",
                     "type": "MOGUL_BOND_OUTLIER",
                     "feature_value": [
                         {
@@ -1000,18 +1002,86 @@
                     "assignment_version": "V1.0",
                     "comp_id": "Y3P",
                     "description": "Mogul bond angle outlier in Y3P instance J model 1",
-                    "feature_id": "MOGUL_BOND_OUTLIER_1",
+                    "feature_id": "MOGUL_ANGLE_OUTLIER_1",
+                    "name": "Mogul bond angle outlier",
+                    "ordinal": 49,
+                    "provenance_source": "PDB",
+                    "type": "MOGUL_ANGLE_OUTLIER",
+                    "feature_value": [
+                        {
+                            "comp_id": "Y3P",
+                            "details": "O2,C1,C2 angle=117.31 Z=-2.41",
+                            "reference": 120.08,
+                            "reported": 117.31,
+                            "uncertainty_estimate": -2.41,
+                            "uncertainty_estimate_type": "Z-Score"
+                        },
+                        {
+                            "comp_id": "Y3P",
+                            "details": "O3,C2,C1 angle=115.41 Z=2.31",
+                            "reference": 114.01,
+                            "reported": 115.41,
+                            "uncertainty_estimate": 2.31,
+                            "uncertainty_estimate_type": "Z-Score"
+                        },
+                        {
+                            "comp_id": "Y3P",
+                            "details": "O4,C4,C3 angle=116.13 Z=-2.44",
+                            "reference": 123.89,
+                            "reported": 116.13,
+                            "uncertainty_estimate": -2.44,
+                            "uncertainty_estimate_type": "Z-Score"
+                        }
+                    ]
+                },
+                {
+                    "assignment_version": "V1.0",
+                    "comp_id": "Y3P",
+                    "description": "Mogul bond distance outlier in Y3P instance J model 1",
+                    "feature_id": "MOGUL_BOND_OUTLIER_2",
                     "name": "Mogul bond distance outlier",
-                    "ordinal": 51,
+                    "ordinal": 50,
                     "provenance_source": "PDB",
                     "type": "MOGUL_BOND_OUTLIER",
                     "feature_value": [
                         {
                             "comp_id": "Y3P",
-                            "details": "O3,C2 angle=1.39 Z=3.43",
-                            "reference": 1.32,
+                            "details": "O1,C1 angle=1.24 Z=-2.01",
+                            "reference": 1.3,
+                            "reported": 1.24,
+                            "uncertainty_estimate": -2.01,
+                            "uncertainty_estimate_type": "Z-Score"
+                        },
+                        {
+                            "comp_id": "Y3P",
+                            "details": "C2,C1 angle=1.55 Z=5.59",
+                            "reference": 1.48,
+                            "reported": 1.55,
+                            "uncertainty_estimate": 5.59,
+                            "uncertainty_estimate_type": "Z-Score"
+                        },
+                        {
+                            "comp_id": "Y3P",
+                            "details": "O2,C1 angle=1.31 Z=3.39",
+                            "reference": 1.22,
+                            "reported": 1.31,
+                            "uncertainty_estimate": 3.39,
+                            "uncertainty_estimate_type": "Z-Score"
+                        },
+                        {
+                            "comp_id": "Y3P",
+                            "details": "C3,C2 angle=1.32 Z=-2.21",
+                            "reference": 1.36,
+                            "reported": 1.32,
+                            "uncertainty_estimate": -2.21,
+                            "uncertainty_estimate_type": "Z-Score"
+                        },
+                        {
+                            "comp_id": "Y3P",
+                            "details": "O3,C2 angle=1.39 Z=2.06",
+                            "reference": 1.34,
                             "reported": 1.39,
-                            "uncertainty_estimate": 3.43,
+                            "uncertainty_estimate": 2.06,
                             "uncertainty_estimate_type": "Z-Score"
                         }
                     ]
@@ -1038,12 +1108,12 @@
                 },
                 {
                     "comp_id": "Y3P",
-                    "count": 0,
+                    "count": 3,
                     "type": "MOGUL_ANGLE_OUTLIER"
                 },
                 {
                     "comp_id": "Y3P",
-                    "count": 1,
+                    "count": 5,
                     "type": "MOGUL_BOND_OUTLIER"
                 },
                 {
@@ -1072,14 +1142,14 @@
                     "is_best_instance": "N",
                     "is_subject_of_investigation": "Y",
                     "is_subject_of_investigation_provenance": "Author",
-                    "mogul_angle_outliers": 0,
-                    "mogul_angles_rmsz": 0.56,
-                    "mogul_bond_outliers": 1,
-                    "mogul_bonds_rmsz": 2.75,
+                    "mogul_angle_outliers": 3,
+                    "mogul_angles_rmsz": 1.62,
+                    "mogul_bond_outliers": 5,
+                    "mogul_bonds_rmsz": 2.76,
                     "ranking_model_fit": 0.7558,
-                    "ranking_model_geometry": 0.2397,
+                    "ranking_model_geometry": 0.1111,
                     "score_model_fit": -0.954,
-                    "score_model_geometry": 0.7063,
+                    "score_model_geometry": 1.5147,
                     "stereo_outliers": 0,
                     "type": "RCSB_LIGAND_QUALITY_SCORE_2021"
                 }
@@ -1167,7 +1237,7 @@
             "rcsb_id": "2FBW.J",
             "rcsb_latest_revision": {
                 "major_revision": 2,
-                "minor_revision": 0
+                "minor_revision": 1
             }
         }
     },
@@ -4596,10 +4666,29 @@
                 },
                 {
                     "assignment_version": "V1.0",
+                    "description": "Some atom coordinates in this residue are reported with zero-occupancy in model 1",
+                    "feature_id": "1",
+                    "name": "atom coordinates with zero occupancy",
+                    "ordinal": 161,
+                    "provenance_source": "PDB",
+                    "type": "ZERO_OCCUPANCY_ATOM_XYZ",
+                    "feature_positions": [
+                        {
+                            "beg_seq_id": 355,
+                            "end_seq_id": 355
+                        },
+                        {
+                            "beg_seq_id": 447,
+                            "end_seq_id": 447
+                        }
+                    ]
+                },
+                {
+                    "assignment_version": "V1.0",
                     "description": "Molprobity rotamer outlier in instance E model 1",
                     "feature_id": "ROTAMER_OUTLIER_1",
                     "name": "Molprobity rotamer outlier",
-                    "ordinal": 168,
+                    "ordinal": 171,
                     "provenance_source": "PDB",
                     "type": "ROTAMER_OUTLIER",
                     "feature_positions": [
@@ -4622,7 +4711,7 @@
                     "description": "Real space density correlation value < 0.65 in instance E model 1",
                     "feature_id": "RSCC_OUTLIER_2",
                     "name": "Real space density correlation value < 0.65",
-                    "ordinal": 169,
+                    "ordinal": 172,
                     "provenance_source": "PDB",
                     "type": "RSCC_OUTLIER",
                     "feature_positions": [
@@ -4636,7 +4725,7 @@
                     "description": "Real space R-value Z score > 2 in instance E model 1",
                     "feature_id": "RSRZ_OUTLIER_3",
                     "name": "Real space R-value Z score > 2",
-                    "ordinal": 170,
+                    "ordinal": 173,
                     "provenance_source": "PDB",
                     "type": "RSRZ_OUTLIER",
                     "feature_positions": [
@@ -4648,8 +4737,8 @@
                 {
                     "description": "The Accessible Surface Area considering this polymer entity instance by itself (unbound).",
                     "name": "Unbound ASA",
-                    "ordinal": 171,
-                    "provenance_source": "biojava-structure-6.0.5",
+                    "ordinal": 174,
+                    "provenance_source": "biojava-7.0.1",
                     "type": "ASA",
                     "feature_positions": [
                         {
@@ -5644,8 +5733,8 @@
                     "type": "UNOBSERVED_RESIDUE_XYZ"
                 },
                 {
-                    "count": 0,
-                    "coverage": 0.0,
+                    "count": 1,
+                    "coverage": 0.00322,
                     "maximum_length": 0,
                     "maximum_value": 0.0,
                     "minimum_length": 0,
@@ -5852,7 +5941,7 @@
             "rcsb_id": "2FBW.E",
             "rcsb_latest_revision": {
                 "major_revision": 2,
-                "minor_revision": 0
+                "minor_revision": 1
             }
         }
     },
