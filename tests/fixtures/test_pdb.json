@@ -999,7 +999,7 @@
                 {
                     "assignment_version": "V1.0",
                     "comp_id": "Y3P",
-                    "description": "Mogul bond distance outlier in Y3P instance J model 1",
+                    "description": "Mogul bond angle outlier in Y3P instance J model 1",
                     "feature_id": "MOGUL_BOND_OUTLIER_1",
                     "name": "Mogul bond distance outlier",
                     "ordinal": 51,
@@ -4572,7 +4572,7 @@
                     "description": "Some atom coordinates in this residue are not reported in model 1",
                     "feature_id": "1",
                     "name": "partially modeled residue",
-                    "ordinal": 158,
+                    "ordinal": 160,
                     "provenance_source": "PDB",
                     "type": "UNOBSERVED_ATOM_XYZ",
                     "feature_positions": [
