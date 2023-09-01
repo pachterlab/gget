@@ -298,7 +298,7 @@ def search(
     # Remove any duplicate search results from the master data frame and reset the index
     df = df.drop_duplicates().reset_index(drop=True)
     # Collapse entries for the same Ensembl ID
-    df = df.groupby("ensembl_id").agg(tuple).applymap(list).reset_index()
+    df = df.groupby("ensembl_id").agg(tuple).map(list).reset_index()
 
     # convert list of values to type string if there is only one value
     df = df.applymap(clean_cols)
