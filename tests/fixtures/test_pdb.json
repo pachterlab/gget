@@ -163,7 +163,7 @@
                     "kind": "Global Symmetry"
                 }
             ],
-            "rcsb_struct_symmetry_provenance_code": "biojava-structure-6.0.5",
+            "rcsb_struct_symmetry_provenance_code": "biojava-7.0.1",
             "rcsb_struct_symmetry_lineage": [
                 {
                     "id": "Global Symmetry.Cyclic.C3",
@@ -188,7 +188,7 @@
             ],
             "rcsb_latest_revision": {
                 "major_revision": 1,
-                "minor_revision": 3
+                "minor_revision": 4
             }
         }
     },
@@ -389,76 +389,16 @@
                         "type": "GO",
                         "annotation_lineage": [
                             {
-                                "id": "GO:0009698",
-                                "name": "phenylpropanoid metabolic process"
-                            },
-                            {
-                                "id": "GO:0044249",
-                                "name": "cellular biosynthetic process"
-                            },
-                            {
-                                "id": "GO:0044237",
-                                "name": "cellular metabolic process"
+                                "id": "GO:0044550",
+                                "name": "secondary metabolite biosynthetic process"
                             },
                             {
                                 "id": "GO:0009699",
                                 "name": "phenylpropanoid biosynthetic process"
                             },
                             {
-                                "id": "GO:0009808",
-                                "name": "lignin metabolic process"
-                            },
-                            {
-                                "id": "GO:0019748",
-                                "name": "secondary metabolic process"
-                            },
-                            {
-                                "id": "GO:1901360",
-                                "name": "organic cyclic compound metabolic process"
-                            },
-                            {
-                                "id": "GO:0071704",
-                                "name": "organic substance metabolic process"
-                            },
-                            {
-                                "id": "GO:0009058",
-                                "name": "biosynthetic process"
-                            },
-                            {
-                                "id": "GO:0044550",
-                                "name": "secondary metabolite biosynthetic process"
-                            },
-                            {
-                                "id": "GO:0019438",
-                                "name": "aromatic compound biosynthetic process"
-                            },
-                            {
-                                "id": "GO:1901362",
-                                "name": "organic cyclic compound biosynthetic process"
-                            },
-                            {
-                                "id": "GO:1901576",
-                                "name": "organic substance biosynthetic process"
-                            },
-                            {
-                                "id": "GO:0008150",
-                                "name": "biological_process"
-                            },
-                            {
-                                "id": "GO:0008152",
-                                "name": "metabolic process"
-                            },
-                            {
-                                "id": "GO:0009987",
-                                "name": "cellular process"
-                            },
-                            {
                                 "id": "GO:0009809",
                                 "name": "lignin biosynthetic process"
-                            },
-                            {
-                                "id": "GO:0006725",
-                                "name": "cellular aromatic compound metabolic process"
                             }
                         ]
                     },
@@ -469,16 +409,8 @@
                         "type": "GO",
                         "annotation_lineage": [
                             {
-                                "id": "GO:0005575",
-                                "name": "cellular_component"
-                            },
-                            {
                                 "id": "GO:0016020",
                                 "name": "membrane"
-                            },
-                            {
-                                "id": "GO:0110165",
-                                "name": "cellular anatomical entity"
                             }
                         ]
                     },
@@ -489,20 +421,8 @@
                         "type": "GO",
                         "annotation_lineage": [
                             {
-                                "id": "GO:0005575",
-                                "name": "cellular_component"
-                            },
-                            {
-                                "id": "GO:0005622",
-                                "name": "intracellular anatomical structure"
-                            },
-                            {
                                 "id": "GO:0005737",
                                 "name": "cytoplasm"
-                            },
-                            {
-                                "id": "GO:0110165",
-                                "name": "cellular anatomical entity"
                             }
                         ]
                     },
@@ -513,76 +433,12 @@
                         "type": "GO",
                         "annotation_lineage": [
                             {
-                                "id": "GO:0009889",
-                                "name": "regulation of biosynthetic process"
-                            },
-                            {
-                                "id": "GO:0050789",
-                                "name": "regulation of biological process"
-                            },
-                            {
-                                "id": "GO:0009812",
-                                "name": "flavonoid metabolic process"
-                            },
-                            {
-                                "id": "GO:0065007",
-                                "name": "biological regulation"
-                            },
-                            {
-                                "id": "GO:0048518",
-                                "name": "positive regulation of biological process"
-                            },
-                            {
-                                "id": "GO:0044238",
-                                "name": "primary metabolic process"
-                            },
-                            {
-                                "id": "GO:0080090",
-                                "name": "regulation of primary metabolic process"
-                            },
-                            {
-                                "id": "GO:0009893",
-                                "name": "positive regulation of metabolic process"
-                            },
-                            {
-                                "id": "GO:0009962",
-                                "name": "regulation of flavonoid biosynthetic process"
-                            },
-                            {
-                                "id": "GO:0071704",
-                                "name": "organic substance metabolic process"
-                            },
-                            {
-                                "id": "GO:0009058",
-                                "name": "biosynthetic process"
-                            },
-                            {
-                                "id": "GO:0009813",
-                                "name": "flavonoid biosynthetic process"
-                            },
-                            {
                                 "id": "GO:0009891",
                                 "name": "positive regulation of biosynthetic process"
                             },
                             {
                                 "id": "GO:0009963",
                                 "name": "positive regulation of flavonoid biosynthetic process"
-                            },
-                            {
-                                "id": "GO:1901576",
-                                "name": "organic substance biosynthetic process"
-                            },
-                            {
-                                "id": "GO:0008150",
-                                "name": "biological_process"
-                            },
-                            {
-                                "id": "GO:0008152",
-                                "name": "metabolic process"
-                            },
-                            {
-                                "id": "GO:0019222",
-                                "name": "regulation of metabolic process"
                             }
                         ]
                     },
@@ -619,14 +475,6 @@
                             {
                                 "id": "GO:0016740",
                                 "name": "transferase activity"
-                            },
-                            {
-                                "id": "GO:0003824",
-                                "name": "catalytic activity"
-                            },
-                            {
-                                "id": "GO:0003674",
-                                "name": "molecular_function"
                             }
                         ]
                     },
@@ -661,14 +509,6 @@
                                 "name": "transferase activity"
                             },
                             {
-                                "id": "GO:0003824",
-                                "name": "catalytic activity"
-                            },
-                            {
-                                "id": "GO:0003674",
-                                "name": "molecular_function"
-                            },
-                            {
                                 "id": "GO:0047172",
                                 "name": "shikimate O-hydroxycinnamoyltransferase activity"
                             }
@@ -701,7 +541,6 @@
                     "name": "Mogul bond angle outlier",
                     "ordinal": 3,
                     "provenance_source": "PDB",
-                    "reference_scheme": "PDB entity",
                     "type": "MOGUL_ANGLE_OUTLIER",
                     "feature_value": [
                         {
@@ -729,7 +568,6 @@
                     "name": "Mogul bond distance outlier",
                     "ordinal": 4,
                     "provenance_source": "PDB",
-                    "reference_scheme": "PDB entity",
                     "type": "MOGUL_BOND_OUTLIER",
                     "feature_value": [
                         {
