@@ -168,7 +168,7 @@ def muscle(fasta, super5=False, out=None, verbose=True):
                     for letter in seq:
                         final_seq.append(aa_colors(letter))
 
-                print(titles[idx] + "\t" + "".join(final_seq))
+                print(titles[idx], "\t", "".join(final_seq))
 
         # Remove temporary .afa file
         os.remove(f"{abs_out_path}")
