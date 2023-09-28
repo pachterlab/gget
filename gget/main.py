@@ -348,7 +348,7 @@ def main():
         "--sensitivity",
         type=str,
         default="very-sensitive",
-        help=" Sensitivity level to do DIAMOND alignment. The sensitivity can be adjusted using the options --fast, --mid-sensitive, --sensitive, --more-sensitive, --very-sensitive and --ultra-sensitive. Default: very-sensitive",
+        help="Sensitivity level for the DIAMOND alignment. One of the following: 'fast', 'mid-sensitive', 'sensitive', 'more-sensitive', 'very-sensitive', or 'ultra-sensitive'. Default: 'very-sensitive'",
     )
     parser_elm.add_argument(
         "-q",
