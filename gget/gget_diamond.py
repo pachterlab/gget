@@ -61,7 +61,7 @@ def create_input_file(sequences):
     # print(f"sequences for input file{sequences}")
     with open(f"tmp_{RANDOM_ID}.fa", "w") as f:
         for idx, seq in enumerate(sequences):
-            f.write(f">Seq {idx}\n{seq}")
+            f.write(f">Seq {idx}\n{seq}\n")
 
     return f"tmp_{RANDOM_ID}.fa"
     # check if correct sequences are written to file
@@ -137,9 +137,10 @@ def diamond(
     # Exit system if the subprocess returned wstdout = sys.stdout
 
     if process_2.wait() != 0:
+        #TODO: change error message 
         logging.error(
             """
-            DIAMOND failed. Please check that you have a diamond executable file for Windows or Linux in the bin folder.
+            DIAMOND failed. 
             """
         )
         return
