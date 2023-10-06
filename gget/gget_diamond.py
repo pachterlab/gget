@@ -64,7 +64,8 @@ def create_input_file(sequences):
 
     with open(f"tmp_{RANDOM_ID}.fa", "w") as f:
         for idx, seq in enumerate(sequences):
-            f.write(f">Seq {idx}\n{seq}\n")
+            f.write(f">Seq {idx}\n")
+            f.write(f"{seq}\n")
 
     return f"tmp_{RANDOM_ID}.fa"
     # check if correct sequences are written to file
