@@ -34,4 +34,17 @@ gget.muscle("fasta.fa")
 
 ![alt text](https://github.com/pachterlab/gget/blob/main/figures/example_muscle_return.png?raw=true)
 
+También puede ver archivos FASTA alineados devueltos por `gget.muscle` usando programas como [`alv`](https://github.com/arvestad/alv):
+```python
+# Python
+!pip install biopython
+!pip install alv
+from Bio import AlignIO
+import alv
+
+gget.muscle("fasta.fa", out="fasta_aligned.afa")
+msa = AlignIO.read("fasta_aligned.afa", "fasta")
+alv.view(msa)
+```
+
 #### [More examples](https://github.com/pachterlab/gget_examples)
