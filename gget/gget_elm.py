@@ -75,12 +75,12 @@ def get_elm_instances(UniProtID, verbose=False):
     df_full_instances.rename(columns={"Start": "Start in ortholog"}, inplace=True)
     df_full_instances.rename(columns={"End": "End in ortholog"}, inplace=True)
    
-    print("Uniprot ID input", UniProtID)
-    print("Matching uniprot id from instances.tsv", df_full_instances["UniProt ID"])
+    # print("Uniprot ID input", UniProtID)
+    # print("Matching uniprot id from instances.tsv", df_full_instances["UniProt ID"])
     df_instances_matching = df_full_instances.loc[
         df_full_instances["UniProt ID"].str.contains(UniProtID)
     ]
-    return (df_instances_matching)
+    # return (df_instances_matching)
 
     # get class descriptions from elm_classes.tsv
     df_classes = tsv_to_df(ELM_CLASSES_TSV)
