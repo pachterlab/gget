@@ -62,7 +62,5 @@ gget.pdb("2K42", save=True)
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/4qxGF1tbZ3I?si=mEqQ5oSnDYtg2OP7" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
-[![image alt text](http://img.youtube.com/vi/4qxGF1tbZ3I/0.jpg)](https://www.youtube.com/watch?v=4qxGF1tbZ3I)
-
 ### [Example in Google Colab](https://github.com/pachterlab/gget_examples/blob/main/gget_alphafold.ipynb)
 ### [gget alphafold FAQ](https://github.com/pachterlab/gget/discussions/39)
