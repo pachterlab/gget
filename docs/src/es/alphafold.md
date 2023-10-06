@@ -61,5 +61,7 @@ gget.pdb("2K42", save=True)
 ```
 &rarr; `gget alphafold` devuelve la estructura pedicada (en formato PDB) y el errór de alineación (en formato json) en una carpeta nueva ("./[fecha_tiempo]_gget_alphafold_prediction"). Este ejemplo demuestra como usar [`gget blast`](blast.md) y [`gget pdb`](pdb.md) para correr un análisis comparativo. Los archivos PDB se pueden ver en 3D con [RCSB 3D view](https://rcsb.org/3d-view), o usando programas como [PyMOL](https://pymol.org/) o [Blender](https://www.blender.org/). Para comparar múltiple archivos PDB, usen [RCSB alignment](https://rcsb.org/alignment). Python también devuelve [visualizaciónes interactivas](https://twitter.com/NeuroLuebbert/status/1555968042948915200), que también se pueden generar con los archivos PDB y JSON como describido en [gget alphafold FAQ](https://github.com/pachterlab/gget/discussions/39) Q4.
 
+<iframe width="560" height="315" src="https://www.youtube.com/embed/4qxGF1tbZ3I?si=mEqQ5oSnDYtg2OP7" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
 ### [Ejemplo en Google Colab](https://github.com/pachterlab/gget_examplblob/main/gget_alphafold.ipynb)
 ### [gget alphafold - preguntas más frecuentes](https://github.com/pachterlab/gget/discussions/39)
