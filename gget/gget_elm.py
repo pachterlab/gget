@@ -37,14 +37,14 @@ def motif_in_query(row):
     )
 
 
-def get_elm_instances(UniProtID, verbose):
+def get_elm_instances(UniProtID, verbose=False):
     """
     Get ELM instances and their information from local ELM tsv files
 
     Args:
 
     UniProt ID - UniProt ID to search for in the accession column of ELM tsv files
-    verbose    - If True, turns on logging
+    verbose    - If True, turns on logging. Default: False
 
     Returns:
 
@@ -70,12 +70,17 @@ def get_elm_instances(UniProtID, verbose):
 
     # return matching rows from elm_instances.tsv
     df_full_instances = tsv_to_df(ELM_INSTANCES_TSV)
+
     df_full_instances.rename(columns={"Primary_Acc": "UniProt ID"}, inplace=True)
     df_full_instances.rename(columns={"Start": "Start in ortholog"}, inplace=True)
     df_full_instances.rename(columns={"End": "End in ortholog"}, inplace=True)
+   
+    print("Uniprot ID input", UniProtID)
+    print("Matching uniprot id from instances.tsv", df_full_instances["UniProt ID"])
     df_instances_matching = df_full_instances.loc[
-        df_full_instances["Accessions"].str.contains(UniProtID)
+        df_full_instances["UniProt ID"].str.contains(UniProtID)
     ]
+    return (df_instances_matching)
 
     # get class descriptions from elm_classes.tsv
     df_classes = tsv_to_df(ELM_CLASSES_TSV)
@@ -129,11 +134,11 @@ def seq_workflow(
     Args:
     sequences        - list of user input amino acid sequence
     sequence_lengths - list of lengths respective to each sequence
-    input_file       -
-    reference        -
-    out              -
-    sensitivity      -
-    json             -
+    input_file       - Set to fasta file path (include .fa) if input contains multiple sequences. Default: None
+    reference        - Set to reference file path (include .dmnd). If not specified, the ELM instances tsv file is used to construct the reference database file.
+    out              - Folder name to save output files. Default: None (output is converted and returned in dataframe format. The output temporary files is not saved)
+    sensitivity      - Sensitivity level to do DIAMOND alignment. The sensitivity can be adjusted using the options --fast, --mid-sensitive, --sensitive, --more-sensitive, --very-sensitive and --ultra-sensitive. Default: very-sensitive
+    json             - If True, returns results in json format instead of data frame. Default: False.
     verbose          - If True, turns on logging for INFO_level messages
 
     Returns:
