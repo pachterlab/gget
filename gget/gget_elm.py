@@ -178,6 +178,7 @@ def seq_workflow(
             logging.info(
                 f"Pairwise sequence alignment with DIAMOND matched the following UniProt IDs {uniprot_ids}. Retrieving ELMs for each UniProt ID..."
             )
+            # print(df_diamond.columns)
 
             for i, uniprot_id in enumerate(df_diamond["target_accession"].values):
                 # print(f"UniProt ID {uniprot_id}")
@@ -189,9 +190,10 @@ def seq_workflow(
                 ]  # TODO Make sure you get query_start etc matching the id you are looking at here
                 df_elm["query_start"] = df_diamond["query_start"].values[i]
                 df_elm["query_end"] = df_diamond["query_end"].values[i]
+                print("Target start", df_diamond["target_start"].astype(int))
                 df_elm["target_start"] = df_diamond["target_start"].astype(int)
                 # print(df_elm["target_start"])
-
+                print("Target end", df_diamond["target_end"].astype(int))
                 df_elm["target_end"] = df_diamond["target_end"].astype(int)
                 # print(f"df_seq_workflow: {df_elm.columns}")
                 df_elm["motif_in_query"] = df_elm.apply(motif_in_query, axis=1)
