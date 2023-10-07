@@ -185,16 +185,14 @@ def seq_workflow(
                 df_elm = get_elm_instances(str(uniprot_id).split("|")[1], verbose)
                 # missing motifs other than the first one
                 df_elm["Query Cover"] = df_diamond["length"].values[i] / seq_len * 100
-                df_elm["Per. Ident"] = df_diamond["Per. Ident"].values[
-                    i
-                ]  # TODO Make sure you get query_start etc matching the id you are looking at here
-                df_elm["query_start"] = df_diamond["query_start"].values[i]
-                df_elm["query_end"] = df_diamond["query_end"].values[i]
-                print("Target start", df_diamond["target_start"].astype(int))
-                df_elm["target_start"] = df_diamond["target_start"].astype(int)
+                df_elm["Per. Ident"] = df_diamond["Per. Ident"].values[i]  
+                df_elm["query_start"] = int(df_diamond["query_start"].values[i])
+                df_elm["query_end"] = int(df_diamond["query_end"].values[i])
+                print("Target start", df_diamond["target_start"].values[i].astype(int))
+                df_elm["target_start"] = df_diamond["target_start"].values[i].astype(int)
                 # print(df_elm["target_start"])
-                print("Target end", df_diamond["target_end"].astype(int))
-                df_elm["target_end"] = df_diamond["target_end"].astype(int)
+                print("Target end", df_diamond["target_end"].values[i].astype(int))
+                df_elm["target_end"] = df_diamond["target_end"].values[i].astype(int)
                 # print(f"df_seq_workflow: {df_elm.columns}")
                 df_elm["motif_in_query"] = df_elm.apply(motif_in_query, axis=1)
 
