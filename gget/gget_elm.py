@@ -188,11 +188,11 @@ def seq_workflow(
                 df_elm["Per. Ident"] = df_diamond["Per. Ident"].values[i]  
                 df_elm["query_start"] = int(df_diamond["query_start"].values[i])
                 df_elm["query_end"] = int(df_diamond["query_end"].values[i])
-                print("Target start", df_diamond["target_start"].values[i].astype(int))
-                df_elm["target_start"] = df_diamond["target_start"].values[i].astype(int)
+                print("Target start", int(df_diamond["target_start"].values[i]))
+                df_elm["target_start"] = int(df_diamond["target_start"].values[i])
                 # print(df_elm["target_start"])
-                print("Target end", df_diamond["target_end"].values[i].astype(int))
-                df_elm["target_end"] = df_diamond["target_end"].values[i].astype(int)
+                print("Target end", int(df_diamond["target_end"].values[i]))
+                df_elm["target_end"] = int(df_diamond["target_end"].values[i])
                 # print(f"df_seq_workflow: {df_elm.columns}")
                 df_elm["motif_in_query"] = df_elm.apply(motif_in_query, axis=1)
 
