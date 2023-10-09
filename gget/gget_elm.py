@@ -71,16 +71,17 @@ def get_elm_instances(UniProtID, verbose=False):
     # return matching rows from elm_instances.tsv
     df_full_instances = tsv_to_df(ELM_INSTANCES_TSV)
 
-    df_full_instances.rename(columns={"Primary_Acc": "UniProt ID"}, inplace=True)
+    df_full_instances.rename(
+        columns={"Primary_Acc": "Ortholog UniProt ID"}, inplace=True
+    )
     df_full_instances.rename(columns={"Start": "Start in ortholog"}, inplace=True)
     df_full_instances.rename(columns={"End": "End in ortholog"}, inplace=True)
-   
+
     # print("Uniprot ID input", UniProtID)
     # print("Matching uniprot id from instances.tsv", df_full_instances["UniProt ID"])
     df_instances_matching = df_full_instances.loc[
-        df_full_instances["UniProt ID"].str.contains(UniProtID)
+        df_full_instances["Ortholog UniProt ID"].str.contains(UniProtID)
     ]
-    # return (df_instances_matching)
 
     # get class descriptions from elm_classes.tsv
     df_classes = tsv_to_df(ELM_CLASSES_TSV)
@@ -88,10 +89,10 @@ def get_elm_instances(UniProtID, verbose=False):
 
     # merge two dataframes using ELM Identifier
     df = df_instances_matching.merge(df_classes, how="left", on=["ELMIdentifier"])
-    # print(f"df merged orthologs columns {df.columns}")
+
     # reorder columns
     change_column = [
-        "UniProt ID",
+        "Ortholog UniProt ID",
         "class_accession",
         "ELMIdentifier",
         "FunctionalSiteName",
@@ -164,7 +165,7 @@ def seq_workflow(
 
         if len(df_diamond) == 0:
             # !!! TODO change to warning
-            logging.info(
+            logging.warning(
                 f"Sequence #{seq_number}: No orthologous proteins found in ELM database."
             )
         else:
@@ -172,7 +173,7 @@ def seq_workflow(
                 f"Sequence #{seq_number}: Found orthologous proteins in ELM database. Retrieving data about ELMs occurring in orthologs..."
             )
 
-            # Construct df with elm instances from uniprot ID returned from diamond
+            # Construct df with elm instances from UniProt ID returned from diamond
             # TODO double check that this gets info if more than one UniProt ID matched
             uniprot_ids = str(df_diamond["target_accession"]).split("|")[1]
             logging.info(
@@ -185,9 +186,10 @@ def seq_workflow(
                 df_elm = get_elm_instances(str(uniprot_id).split("|")[1], verbose)
                 # missing motifs other than the first one
                 df_elm["Query Cover"] = df_diamond["length"].values[i] / seq_len * 100
-                df_elm["Per. Ident"] = df_diamond["Per. Ident"].values[i]  
+                df_elm["Per. Ident"] = df_diamond["Per. Ident"].values[i]
                 df_elm["query_start"] = int(df_diamond["query_start"].values[i])
                 df_elm["query_end"] = int(df_diamond["query_end"].values[i])
+
                 print("Target start", int(df_diamond["target_start"].values[i]))
                 df_elm["target_start"] = int(df_diamond["target_start"].values[i])
                 # print(df_elm["target_start"])
@@ -219,7 +221,6 @@ def regex_match(sequence):
     df_full_instances = tsv_to_df(ELM_INSTANCES_TSV)
 
     elm_ids = df_elm_classes["Accession"]
-    # print(f"all elm ids {elm_ids}")
     regex_patterns = df_elm_classes["Regex"]
 
     df_final = pd.DataFrame()
@@ -229,9 +230,7 @@ def regex_match(sequence):
         regex_matches = re.finditer(pattern, sequence)
 
         for match_string in regex_matches:
-            # print(match_string)
             elm_row = df_elm_classes[df_elm_classes["Accession"] == elm_id]
-            # print(f"ELM ID {elm_id} match with pattern {pattern}")
             elm_row.insert(
                 loc=1,
                 column="Instances (Matched Sequence)",
