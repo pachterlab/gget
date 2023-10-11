@@ -2007,6 +2007,8 @@ def main():
             ensembl_bkg=args.ensembl_bkg,
             json=args.csv,
             verbose=args.quiet,
+            kegg=args.kegg,
+            kegg_rank=args.kegg_rank,
         )
 
         # Check if the function returned something
