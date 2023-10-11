@@ -835,16 +835,14 @@ def main():
         required=False,
         help=(
             "Path to the png file the marked KEGG pathway images will be saved in, e.g. path/to/directory/pathway.png."
-        )
+        ),
     )
     parser_enrichr.add_argument(
         "-r",
         "--kegg_rank",
         type=int,
         required=False,
-        help=(
-            "Rank of the KEGG pathway to be plotted."
-        )
+        help=("Rank of the KEGG pathway to be plotted."),
     )
 
     ## gget archs4 subparser

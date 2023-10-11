@@ -170,7 +170,6 @@ def enrichr(
         if verbose:
             logging.info(f"Performing Enichr analysis using database {database}.")
 
-
     # Check if KEGG database
     if kegg is not None:
         if not database.startswith("KEGG"):
@@ -466,16 +465,20 @@ def enrichr(
                 bbox_inches="tight",
                 transparent=True,
             )
-            
+
     if kegg is not None:
         try:
             import pykegg
         except ImportError:
             logging.error("Please install `pykegg` for plotting")
             return
-        candidate_rank = df[df["rank"]==kegg_rank].iloc[0,:]
-        kegg_img = pykegg.visualize(candidate_rank["path_name"],
-            candidate_rank["overlapping_genes"], db=database, output=kegg)
+        candidate_rank = df[df["rank"] == kegg_rank].iloc[0, :]
+        kegg_img = pykegg.visualize(
+            candidate_rank["path_name"],
+            candidate_rank["overlapping_genes"],
+            db=database,
+            output=kegg,
+        )
 
     if json:
         results_dict = json_package.loads(df.to_json(orient="records"))
