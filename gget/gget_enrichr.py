@@ -79,6 +79,8 @@ def enrichr(
     json=False,
     save=False,
     verbose=True,
+    kegg=None,
+    kegg_rank=1,
 ):
     """
     Perform an enrichment analysis on a list of genes using Enrichr (https://maayanlab.cloud/Enrichr/).
@@ -106,6 +108,8 @@ def enrichr(
     - json        If True, returns results in json format instead of data frame. (Default: False)
     - save        True/False whether to save the results in the local directory. (Default: False)
     - verbose     True/False whether to print progress information. Default True.
+    - kegg        output file name for the highlighted KEGG pathway image. Default None.
+    - kegg_rank   candidate pathway rank to be plotted. Default 1.    
 
     Returns a data frame with the Enrichr results.
     """
@@ -165,6 +169,13 @@ def enrichr(
         database = database
         if verbose:
             logging.info(f"Performing Enichr analysis using database {database}.")
+
+
+    # Check if KEGG database
+    if kegg is not None:
+        if not database.startswith("KEGG"):
+            logging.error("Please specify KEGG database")
+            return
 
     # If single gene passed as string, convert to list
     if type(genes) == str:
@@ -455,6 +466,16 @@ def enrichr(
                 bbox_inches="tight",
                 transparent=True,
             )
+            
+    if kegg is not None:
+        try:
+            import pykegg
+        except ImportError:
+            logging.error("Please install `pykegg` for plotting")
+            return
+        candidate_rank = df[df["rank"]==kegg_rank].iloc[0,:]
+        kegg_img = pykegg.visualize(candidate_rank["path_name"],
+            candidate_rank["overlapping_genes"], db=database, output=kegg)
 
     if json:
         results_dict = json_package.loads(df.to_json(orient="records"))

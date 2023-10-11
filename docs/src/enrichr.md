@@ -28,6 +28,12 @@ Alternatively: use flag `--ensembl_background` to input a list of Ensembl gene I
 Path to the file the results will be saved in, e.g. path/to/directory/results.csv (or .json). Default: Standard out.   
 Python: `save=True` will save the output in the current working directory.
 
+`-k` `--kegg`
+Path to the png file the marked KEGG pathway images will be saved in, e.g. path/to/directory/pathway.png.
+
+`-r` `--kegg_rank`
+Rank of the KEGG pathway to be plotted.
+
 `figsize`  
 Python only. (width, height) of plot in inches. (Default: (10,10))
 
