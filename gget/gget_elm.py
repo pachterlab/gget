@@ -77,8 +77,7 @@ def get_elm_instances(UniProtID, verbose=False):
     df_full_instances.rename(columns={"Start": "Start in ortholog"}, inplace=True)
     df_full_instances.rename(columns={"End": "End in ortholog"}, inplace=True)
 
-    # print("Uniprot ID input", UniProtID)
-    # print("Matching uniprot id from instances.tsv", df_full_instances["UniProt ID"])
+    
     df_instances_matching = df_full_instances.loc[
         df_full_instances["Ortholog UniProt ID"].str.contains(UniProtID)
     ]
@@ -166,7 +165,7 @@ def seq_workflow(
         if len(df_diamond) == 0:
             # !!! TODO change to warning
             logging.warning(
-                f"Sequence #{seq_number}: No orthologous proteins found in ELM database."
+                f"Sequence #{seq_number}: No orthologous proteins found in ELM database. Ensure that DIAMOND binary is installed."
             )
         else:
             logging.info(
@@ -179,7 +178,7 @@ def seq_workflow(
             logging.info(
                 f"Pairwise sequence alignment with DIAMOND matched the following UniProt IDs {uniprot_ids}. Retrieving ELMs for each UniProt ID..."
             )
-            # print(df_diamond.columns)
+
 
             for i, uniprot_id in enumerate(df_diamond["target_accession"].values):
                 # print(f"UniProt ID {uniprot_id}")
