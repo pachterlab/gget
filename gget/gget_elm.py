@@ -37,7 +37,7 @@ def motif_in_query(row):
     )
 
 
-def get_elm_instances(UniProtID, verbose=False):
+def get_elm_instances(UniProtID, uniprot, verbose=False):
     """
     Get ELM instances and their information from local ELM tsv files
 
@@ -82,12 +82,20 @@ def get_elm_instances(UniProtID, verbose=False):
         df_full_instances["Ortholog UniProt ID"].str.contains(UniProtID)
     ]
 
+
     # get class descriptions from elm_classes.tsv
     df_classes = tsv_to_df(ELM_CLASSES_TSV)
     df_classes.rename(columns={"Accession": "class_accession"}, inplace=True)
 
+
     # merge two dataframes using ELM Identifier
     df = df_instances_matching.merge(df_classes, how="left", on=["ELMIdentifier"])
+    
+    # TODO: User input amino acid sequence, therefore can return motif seq in amino acids
+    print(df.columns)
+    # if (not uniprot):
+    #     df["Motif sequence in amino acids"] = UniProtID[df["target_start"]: df["target_end"]]
+    #     print(df["Motif sequence in amino acids"])
 
     # reorder columns
     change_column = [
@@ -104,6 +112,7 @@ def get_elm_instances(UniProtID, verbose=False):
         "Per. Ident",
         "query_start",
         "query_end",
+        # target_start and target_end not part of columns when I try printing df.columns
         "target_start",
         "target_end",
         "ProteinName",
@@ -115,12 +124,14 @@ def get_elm_instances(UniProtID, verbose=False):
         "#Instances_in_PDB",
     ]
     df_final = df.reindex(columns=change_column)
+
     return df_final
 
 
 def seq_workflow(
     sequences,
     sequence_lengths,
+    uniprot,
     reference=ELM_INSTANCES_FASTA,
     out=None,
     sensitivity="very-sensitive",
@@ -182,7 +193,7 @@ def seq_workflow(
 
             for i, uniprot_id in enumerate(df_diamond["target_accession"].values):
                 # print(f"UniProt ID {uniprot_id}")
-                df_elm = get_elm_instances(str(uniprot_id).split("|")[1], verbose)
+                df_elm = get_elm_instances(str(uniprot_id).split("|")[1], uniprot, verbose)
                 # missing motifs other than the first one
                 df_elm["Query Cover"] = df_diamond["length"].values[i] / seq_len * 100
                 df_elm["Per. Ident"] = df_diamond["Per. Ident"].values[i]
@@ -358,6 +369,7 @@ def elm(
         df = seq_workflow(
             sequences=aa_seqs,
             sequence_lengths=seq_lens,
+            uniprot=uniprot,
             reference=reference,
             out=out,
             sensitivity=sensitivity,
