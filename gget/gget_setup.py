@@ -5,8 +5,6 @@ import subprocess
 import platform
 import uuid
 from platform import python_version
-
-
 import logging
 
 logging.basicConfig(
@@ -18,6 +16,11 @@ logging.basicConfig(
 logging.getLogger("numexpr").setLevel(logging.WARNING)
 
 from .compile import PACKAGE_PATH
+from .constants import (
+    ELM_INSTANCES_FASTA_DOWNLOAD,
+    ELM_CLASSES_TSV_DOWNLOAD,
+    ELM_INSTANCES_TSV_DOWNLOAD,
+)
 
 ## Variables for alphafold module
 ALPHAFOLD_GIT_REPO = "https://github.com/deepmind/alphafold"
@@ -126,15 +129,15 @@ def setup(module, verbose=True):
         if platform.system() == "Windows":
             # The double-quotation marks allow white spaces in the path, but this does not work for Windows
             command = f"""
-                curl -o {ELM_INSTANCES_FASTA} http://elm.eu.org/instances.fasta \
-                &&  curl -o {ELM_CLASSES_TSV} http://elm.eu.org/elms/elms_index.tsv \
-                &&  curl -o {ELM_INSTANCES_TSV} http://elm.eu.org/instances.tsv
+                curl -o {ELM_INSTANCES_FASTA} {ELM_INSTANCES_FASTA_DOWNLOAD} \
+                &&  curl -o {ELM_CLASSES_TSV} {ELM_CLASSES_TSV_DOWNLOAD} \
+                &&  curl -o {ELM_INSTANCES_TSV} {ELM_INSTANCES_TSV_DOWNLOAD}
                 """
         else:
             command = f"""
-                curl -o '{ELM_INSTANCES_FASTA}' http://elm.eu.org/instances.fasta \
-                &&  curl -o '{ELM_CLASSES_TSV}' http://elm.eu.org/elms/elms_index.tsv \
-                &&  curl -o '{ELM_INSTANCES_TSV}' http://elm.eu.org/instances.tsv
+                curl -o '{ELM_INSTANCES_FASTA}' {ELM_INSTANCES_FASTA_DOWNLOAD} \
+                &&  curl -o '{ELM_CLASSES_TSV}' {ELM_CLASSES_TSV_DOWNLOAD} \
+                &&  curl -o '{ELM_INSTANCES_TSV}' {ELM_INSTANCES_TSV_DOWNLOAD}
                 """
 
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
