@@ -4,6 +4,8 @@ import requests
 # from requests.adapters import HTTPAdapter, Retry
 # import time
 import re
+import os
+import uuid
 import pandas as pd
 import numpy as np
 from IPython.display import display, HTML
@@ -767,5 +769,38 @@ def tsv_to_df(tsv_file, headers=None, skiprows=None):
         return df
 
     except pd.errors.EmptyDataError:
-        logging.error(f"tsv to data frame reformatting failed.")
-        return None
+        raise RuntimeError(f"tsv to data frame reformatting failed.")
+
+
+def create_tmp_fasta(sequences):
+    """
+    Create temporary FASTA file from str or list of sequences.
+
+    Args:
+    - sequences     List of user input amino acid sequences
+
+    Returns: Absolute path to temoprary FASTA file.
+    """
+    # Generate random ID
+    random_id = str(uuid.uuid4())
+
+    if type(sequences) == str:
+        sequences = [sequences]
+
+    with open(f"tmp_{random_id}.fa", "w") as f:
+        for idx, seq in enumerate(sequences):
+            f.write(f">Seq {idx}\n" + seq + "\n")
+
+    return os.path.abspath(f"tmp_{random_id}.fa")
+
+
+def remove_temp_files(files_to_delete):
+    """
+    Delete temporary files.
+
+    Args:
+    - files_to_delete   List of paths to files to delete.
+    """
+    for file in files_to_delete:
+        if os.path.exists(file):
+            os.remove(file)
