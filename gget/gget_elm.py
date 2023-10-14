@@ -26,8 +26,8 @@ def motif_in_query(row):
     """
     return (
         True
-        if (row["Start in ortholog"] >= row["target_start"])
-        & (row["End in ortholog"] <= row["target_end"])
+        if (row["motif_start_in_target"] >= row["target_start"])
+        & (row["motif_end_in_target"] <= row["target_end"])
         else False
     )
 
@@ -50,9 +50,9 @@ def get_elm_instances(UniProtID):
     # Rename columns
     df_instances_matching.rename(
         columns={
-            "Primary_Acc": "Ortholog UniProt ID",
-            "Start": "Start in ortholog",
-            "End": "End in ortholog",
+            "Primary_Acc": "Ortholog_UniProt_ID",
+            "Start": "motif_start_in_target",
+            "End": "motif_end_in_target",
         },
         inplace=True,
     )
@@ -63,40 +63,6 @@ def get_elm_instances(UniProtID):
 
     # Merge dataframes using ELM Identifier
     df = df_instances_matching.merge(df_classes, how="left", on="ELMIdentifier")
-
-    # TODO: User input amino acid sequence, therefore can return motif seq in amino acids
-    print(df.columns)
-    # if (not uniprot):
-    #     df["Motif sequence in amino acids"] = UniProtID[df["target_start"]: df["target_end"]]
-    #     print(df["Motif sequence in amino acids"])
-
-    # reorder columns
-    change_column = [
-        "Ortholog UniProt ID",
-        "class_accession",
-        "ELMIdentifier",
-        "FunctionalSiteName",
-        "Description",
-        "Regex",
-        "Probability",
-        "Start in ortholog",
-        "End in ortholog",
-        "Query Cover",
-        "Per. Ident",
-        "query_start",
-        "query_end",
-        # target_start and target_end not part of columns when I try printing df.columns
-        "target_start",
-        "target_end",
-        "ProteinName",
-        "Organism",
-        "References",
-        "InstanceLogic",
-        "PDB",
-        "#Instances",
-        "#Instances_in_PDB",
-    ]
-    df_final = df.reindex(columns=change_column)
 
     return df_final
 
@@ -167,7 +133,7 @@ def seq_workflow(
                 df_elm["query_end"] = int(df_diamond["query_end"].values[i])
                 df_elm["target_start"] = int(df_diamond["target_start"].values[i])
                 df_elm["target_end"] = int(df_diamond["target_end"].values[i])
-                df_elm["motif_in_query"] = df_elm.apply(motif_in_query, axis=1)
+                df_elm["Motif_in_query"] = df_elm.apply(motif_in_query, axis=1)
 
                 df = pd.concat([df, df_elm])
 
@@ -209,8 +175,8 @@ def regex_match(sequence):
             )
 
             (start, end) = match_string.span()
-            elm_row.insert(loc=2, column="Start in query", value=str(start))
-            elm_row.insert(loc=3, column="End in query", value=str(end))
+            elm_row.insert(loc=2, column="motif_start_in_query", value=str(start))
+            elm_row.insert(loc=3, column="motif_end_in_query", value=str(end))
 
             elm_identifier = [str(x) for x in elm_row["ELMIdentifier"]][0]
 
@@ -233,6 +199,7 @@ def regex_match(sequence):
 
     df_final.rename(columns={"Accession_x": "instance_accession"}, inplace=True)
 
+    # Reorder columns
     change_column = [
         "instance_accession",
         "ELMIdentifier",
@@ -241,13 +208,18 @@ def regex_match(sequence):
         "Description",
         "Instances (Matched Sequence)",
         "Probability",
-        "Start in query",
-        "End in query",
+        "motif_start_in_query",
+        "motif_end_in_query",
         "Methods",
         "ProteinName",
         "Organism",
     ]
-    df_final = df_final.reindex(columns=change_column)
+
+    for col in change_column:
+        if col not in df_final.columns:
+            df_final[col] = np.NaN
+
+    df_final = df_final[change_column]
 
     return df_final
 
@@ -305,8 +277,6 @@ def elm(
     ortho_df = pd.DataFrame()
     if uniprot:
         ortho_df = get_elm_instances(sequence, verbose)
-        ortho_df["Query Cover"] = np.nan
-        ortho_df["Per. Ident"] = np.nan
 
         if len(ortho_df) == 0:
             logging.warning(
@@ -361,6 +331,38 @@ def elm(
         #         logging.warning(
         #             "No target start found for input sequence. If you entered a UniProt ID, please set 'uniprot' to True."
         #         )
+
+    # Reorder columns of ortholog data frame
+    final_cols = [
+        "Ortholog_UniProt_ID",
+        "ProteinName",
+        "class_accession",
+        "ELMIdentifier",
+        "FunctionalSiteName",
+        "Description",
+        "Regex",
+        "Probability",
+        "Query Cover",
+        "Per. Ident",
+        "Motif_in_query",
+        "query_start",
+        "query_end",
+        "target_start",
+        "target_end",
+        "motif_start_in_target",
+        "motif_end_in_target",
+        "Organism",
+        "References",
+        "InstanceLogic",
+        "PDB",
+        "#Instances",
+        "#Instances_in_PDB",
+    ]
+    for col in final_cols:
+        if col not in ortho_df.columns:
+            ortho_df[col] = np.NaN
+
+    ortho_df = ortho_df[final_cols]
 
     # Build data frame containing regex motif matches
     fetch_aa_failed = False
