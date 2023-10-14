@@ -35,7 +35,8 @@ from .gget_setup import setup
 from .gget_pdb import pdb
 from .gget_gpt import gpt
 from .gget_cellxgene import cellxgene
-from .gget_elm import elm, RANDOM_ID, ELM_INSTANCES_FASTA
+from .gget_elm import elm
+
 
 def main():
     """
@@ -358,7 +359,7 @@ def main():
         required=False,
         help="Does not print progress information.",
     )
-  
+
     ## gget info subparser
     info_desc = "Fetch gene and transcript metadata using Ensembl IDs."
     parser_info = parent_subparsers.add_parser(
@@ -1556,7 +1557,7 @@ def main():
         "pdb": parser_pdb,
         "gpt": parser_gpt,
         "cellxgene": parser_cellxgene,
-        "elm": parser_elm
+        "elm": parser_elm,
     }
 
     if len(sys.argv) == 2:
@@ -1794,32 +1795,19 @@ def main():
 
     ## elm return
     if args.command == "elm":
-        elm_results = elm(sequence=args.sequence, uniprot=args.uniprot, json=args.csv, input_file=args.input_file, reference = args.reference, out=args.out, sensitivity=args.sensitivity, verbose=args.quiet)
-     # Check if the function returned something
-    if not isinstance(elm_results, type(None)):
-            # Save elm results if elm.out specified
-            if args.out and args.csv:
-                # Create saving directory
-                directory = "/".join(args.out.split("/")[:-1])
-                if directory != "":
-                    os.makedirs(directory, exist_ok=True)
-                # Save to csv
-                elm_results.to_csv(args.out, index=False)
-
-            if args.out and not args.csv:
-                # Create saving directory
-                directory = "/".join(args.out.split("/")[:-1])
-                if directory != "":
-                    os.makedirs(directory, exist_ok=True)
-                # Save json
-                with open(args.out, "w", encoding="utf-8") as f:
-                    json.dump(elm_results, f, ensure_ascii=False, indent=4)
-
-            # Print results if no directory specified
-            if not args.out and args.csv:
-                elm_results.to_csv(sys.stdout, index=False)
-            if not args.out and not args.csv:
-                print(json.dumps(elm_results, ensure_ascii=False, indent=4))
+        elm_results = elm(
+            sequence=args.sequence,
+            uniprot=args.uniprot,
+            json=args.csv,
+            out=args.out,
+            sensitivity=args.sensitivity,
+            verbose=args.quiet,
+        )
+        # Print results if no directory specified
+        if not args.out and args.csv:
+            elm_results.to_csv(sys.stdout, index=False)
+        if not args.out and not args.csv:
+            print(json.dumps(elm_results, ensure_ascii=False, indent=4))
 
     ## ref return
     if args.command == "ref":
