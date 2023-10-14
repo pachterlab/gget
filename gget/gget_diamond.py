@@ -44,7 +44,7 @@ def diamond(
                      One of the following: fast, mid-sensitive, sensitive, more-sensitive, very-sensitive or ultra-sensitive.
                      Default: "very-sensitive"
     - threads        Number of threads to use for alignment. Default: 1.
-    - diamond_binary Path to DIAMOND binary. Default: Uses DIAMOND version 2.1.8 (automatically installed with gget).
+    - diamond_binary Path to DIAMOND binary. Default: None -> Uses DIAMOND binary installed with gget.
     - verbose        True/False whether to print progress information. Default True.
     - json           If True, returns results in json format instead of data frame. Default: False.
     - out            Path to folder to save DIAMOND results in. Default: Standard out, temporary files are deleted.
