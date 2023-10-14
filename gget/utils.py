@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
+
 # from requests.adapters import HTTPAdapter, Retry
 # import time
 import re
@@ -490,7 +491,7 @@ def get_pdb_ids(ens_id):
     """
     Function to fetch all PDB IDs linked to an Ensembl ID.
     using the PDBe API https://wwwdev.ebi.ac.uk/pdbe/aggregated-api/mappings/ensembl_to_pdb/[ens_id]
-    
+
     API documentation:
     https://www.ebi.ac.uk/pdbe/aggregated-api/#/SIFTS/get_ensembl_to_pdb_mappings_api_mappings_ensembl_to_pdb__gene_id__get
     """
@@ -750,3 +751,21 @@ def parse_blast_ref_page(handle):
         raise ValueError(
             f"A non-integer estimated time to completion was found in the NCBI 'please wait' page: '{rtoe}'."
         )
+
+
+def tsv_to_df(tsv_file, headers=None, skiprows=None):
+    """
+    Convert tsv file to dataframe format.
+
+    Args:
+    - tsv_file      File to be converted
+
+    Returns data frame.
+    """
+    try:
+        df = pd.read_csv(tsv_file, sep="\t", names=headers, skiprows=skiprows)
+        return df
+
+    except pd.errors.EmptyDataError:
+        logging.error(f"tsv to data frame reformatting failed.")
+        return None
