@@ -62,7 +62,7 @@ def get_elm_instances(UniProtID):
     df_classes.rename(columns={"Accession": "class_accession"}, inplace=True)
 
     # Merge dataframes using ELM Identifier
-    df = df_instances_matching.merge(df_classes, how="left", on="ELMIdentifier")
+    df_final = df_instances_matching.merge(df_classes, how="left", on="ELMIdentifier")
 
     return df_final
 
@@ -186,7 +186,7 @@ def regex_match(sequence):
 
             # merge two dataframes using ELM Identifier, since some Accessions are missing from elm_instances.tsv
             elm_row = elm_row.merge(
-                df_instances_matching, how="left", on=["ELMIdentifier"]
+                df_instances_matching, how="left", on="ELMIdentifier"
             )
 
             df_final = pd.concat([df_final, elm_row])
@@ -261,6 +261,17 @@ def elm(
         raise FileNotFoundError(
             f"Some or all ELM database files are missing. Please run 'gget setup elm' (Python: gget.setup('elm')) once to download the necessary files."
         )
+
+    # Let user know when local ELM was last updated
+    lines_number = 2
+    with open(ELM_CLASSES_TSV) as input_file:
+        head = [next(input_file) for _ in range(lines_number)]
+    if verbose:
+        logging.info(head)
+    with open(ELM_INSTANCES_TSV) as input_file:
+        head = [next(input_file) for _ in range(lines_number)]
+    if verbose:
+        logging.info(head)
 
     if not uniprot:
         amino_acids = set("ARNDCQEGHILKMFPSTWYVBZXBJZ")
