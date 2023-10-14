@@ -33,5 +33,3 @@ GET_ENRICHR_URL = "https://maayanlab.cloud/Enrichr/enrich"
 # ARCHS4 API endpoints
 GENECORR_URL = "https://maayanlab.cloud/matrixapi/coltop"
 EXPRESSION_URL = "https://maayanlab.cloud/archs4/search/loadExpressionTissue.php?"
-
-

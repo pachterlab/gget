@@ -25,11 +25,12 @@ def diamond(
     query,
     reference,
     diamond_db=None,
-    out=None,
-    json=False,
-    verbose=True,
     sensitivity="very-sensitive",
     threads=1,
+    diamond_binary=None,
+    verbose=True,
+    json=False,
+    out=None,
 ):
     """
     Perform protein sequence alignment using DIAMOND for multiple sequences
@@ -38,13 +39,15 @@ def diamond(
     - query          Sequences (str or list) or path to FASTA file containing sequences to be aligned against the reference.
     - reference      Reference sequences (str or list) or path to FASTA file containing reference sequences.
     - diamond_db     Path to save DIAMOND database created from reference.
-                     Default: None -> Temporary db file will be deleted after alingment or saved in out.
-    - out            Path to folder to save DIAMOND results in. Default: None.
-    - json           If True, returns results in json format instead of data frame. Default: False.
-    - verbose        True/False whether to print progress information. Default True.
-    - sensitivity    One of the following: fast, mid-sensitive, sensitive, more-sensitive, very-sensitive or ultra-sensitive.
+                     Default: None -> Temporary db file will be deleted after alignment or saved in 'out'.
+    - sensitivity    Sensitivity of DIAMOND alignment.
+                     One of the following: fast, mid-sensitive, sensitive, more-sensitive, very-sensitive or ultra-sensitive.
                      Default: "very-sensitive"
     - threads        Number of threads to use for alignment. Default: 1.
+    - diamond_binary Path to DIAMOND binary. Default: Uses DIAMOND version 2.1.8 (automatically installed with gget).
+    - verbose        True/False whether to print progress information. Default True.
+    - json           If True, returns results in json format instead of data frame. Default: False.
+    - out            Path to folder to save DIAMOND results in. Default: Standard out, temporary files are deleted.
 
     Returns a data frame with the DIAMOND alignment results. (Or JSON formatted dictionary if json=True.)
     """
@@ -89,8 +92,17 @@ def diamond(
         diamond_db = os.path.abspath(f"tmp_db_{str(uuid.uuid4())}")
         files_to_delete.append(diamond_db + ".dmnd")
 
-    command = f"{PRECOMPILED_DIAMOND_PATH} makedb --in {reference_file} --db {diamond_db} --threads {threads} \
-        && {PRECOMPILED_DIAMOND_PATH} blastp --query {input_file} --db {reference_file} --out {output} --{sensitivity} --threads {threads}"
+    if diamond_binary:
+        DIAMOND = diamond_binary
+    else:
+        DIAMOND = PRECOMPILED_DIAMOND_PATH
+
+    if platform.system() == "Windows":
+        command = f"{DIAMOND} makedb --in {reference_file} --db {diamond_db} --threads {threads} \
+        && {DIAMOND} blastp --query {input_file} --db {reference_file} --out {output} --{sensitivity} --threads {threads}"
+    else:
+        command = f"'{DIAMOND}' makedb --in '{reference_file}' --db '{diamond_db}' --threads {threads} \
+        && '{DIAMOND}' blastp --query '{input_file}' --db '{reference_file}' --out'{output}' --{sensitivity} --threads {threads}"
 
     # Run DIAMOND
     if verbose:
@@ -130,6 +142,12 @@ def diamond(
     # Delete temporary files
     if files_to_delete:
         remove_temp_files(files_to_delete)
+
+    # Create out folder if it does not exist
+    if out:
+        directory = "/".join(out.split("/")[:-1])
+        if directory != "":
+            os.makedirs(directory, exist_ok=True)
 
     if json:
         results_dict = json_package.loads(df_diamond.to_json(orient="records"))
