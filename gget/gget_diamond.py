@@ -98,10 +98,12 @@ def diamond(
         DIAMOND = PRECOMPILED_DIAMOND_PATH
 
     if platform.system() == "Windows":
-        command = f"{DIAMOND} makedb --in {reference_file} --db {diamond_db} --threads {threads} \
+        command = f"{DIAMOND} version \
+        {DIAMOND} makedb --in {reference_file} --db {diamond_db} --threads {threads} \
         && {DIAMOND} blastp --query {input_file} --db {reference_file} --out {output} --{sensitivity} --threads {threads}"
     else:
-        command = f"'{DIAMOND}' makedb --in '{reference_file}' --db '{diamond_db}' --threads {threads} \
+        command = f"'{DIAMOND}' version \
+        '{DIAMOND}' makedb --in '{reference_file}' --db '{diamond_db}' --threads {threads} \
         && '{DIAMOND}' blastp --query '{input_file}' --db '{reference_file}' --out'{output}' --{sensitivity} --threads {threads}"
 
     # Run DIAMOND
