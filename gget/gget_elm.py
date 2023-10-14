@@ -48,13 +48,12 @@ def get_elm_instances(UniProtID):
         df_full_instances["Primary_Acc"] == UniProtID
     ]
     # Rename columns
-    df_instances_matching.rename(
+    df_instances_matching = df_instances_matching.rename(
         columns={
             "Primary_Acc": "Ortholog_UniProt_ID",
             "Start": "motif_start_in_target",
             "End": "motif_end_in_target",
-        },
-        inplace=True,
+        }
     )
 
     # Get matching class descriptions from elm_classes.tsv
@@ -287,7 +286,7 @@ def elm(
     # Build ortholog dataframe
     ortho_df = pd.DataFrame()
     if uniprot:
-        ortho_df = get_elm_instances(sequence, verbose)
+        ortho_df = get_elm_instances(sequence)
 
         if len(ortho_df) == 0:
             logging.warning(
