@@ -93,7 +93,7 @@ def seq_workflow(
     """
     if verbose:
         logging.info(
-            f"Performing pairwise sequence alignment against ELM database using DIAMOND for {len(sequences)} sequence(s)..."
+            f"ORTHO Performing pairwise sequence alignment against ELM database using DIAMOND for {len(sequences)} sequence(s)..."
         )
 
     df = pd.DataFrame()
@@ -110,7 +110,7 @@ def seq_workflow(
 
         if len(df_diamond) == 0:
             logging.warning(
-                f"Sequence #{seq_number}: No orthologous proteins found in ELM database."
+                f"ORTHO Sequence #{seq_number}: No orthologous proteins found in ELM database."
             )
 
         else:
@@ -119,7 +119,7 @@ def seq_workflow(
             uniprot_ids = str(df_diamond["target_accession"]).split("|")[1]
             if verbose:
                 logging.info(
-                    f"Sequence #{seq_number}: DIAMOND found the following orthologous proteins: {', '.join(uniprot_ids)}. Retrieving ELMs for each UniProt ID..."
+                    f"ORTHO Sequence #{seq_number}: DIAMOND found the following orthologous proteins: {', '.join(uniprot_ids)}. Retrieving ELMs for each UniProt ID..."
                 )
 
             for i, uniprot_id in enumerate(df_diamond["target_accession"].values):
@@ -184,47 +184,12 @@ def regex_match(sequence):
             # ]
 
             # merge two dataframes using ELM Identifier, since some Accessions are missing from elm_instances.tsv
-            elm_row = elm_row.merge(
-                df_full_instances, how="left", on="ELMIdentifier"
-            )
+            elm_row = elm_row.merge(df_full_instances, how="left", on="ELMIdentifier")
 
             df_final = pd.concat([df_final, elm_row])
 
-    # df_final.pop("Accession_y")
-    # df_final.pop("#Instances")
-    # df_final.pop("#Instances_in_PDB")
-    # df_final.pop("References")
-    # df_final.pop("InstanceLogic")
-
     if len(df_final) > 0:
         df_final.rename(columns={"Accession_x": "Instance_accession"}, inplace=True)
-
-        # Reorder columns
-        change_column = [
-            "Instance_accession",
-            "ELMIdentifier",
-            "FunctionalSiteName",
-            "ELMType",
-            "Description",
-            "Regex",
-            "Instances (Matched Sequence)",
-            "Probability",
-            "motif_start_in_query",
-            "motif_end_in_query",
-            "Methods",
-            "ProteinName",
-            "Organism",
-            "References",
-            "InstanceLogic",
-            "#Instances",
-            "#Instances_in_PDB",
-        ]
-
-        for col in change_column:
-            if col not in df_final.columns:
-                df_final[col] = np.NaN
-
-        df_final = df_final[change_column]
 
     return df_final
 
@@ -296,20 +261,20 @@ def elm(
 
         if len(ortho_df) == 0:
             logging.warning(
-                "UniProt ID does not match UniProt IDs in the ELM database. Fetching amino acid sequence from UniProt..."
+                "ORTHO UniProt ID does not match UniProt IDs in the ELM database. Fetching amino acid sequence from UniProt..."
             )
             df_uniprot = get_uniprot_seqs(server=UNIPROT_REST_API, ensembl_ids=sequence)
 
-            try:
+            if len(df_uniprot) > 0:
                 # Only grab sequences where IDs match exactly
                 aa_seqs = df_uniprot[df_uniprot["uniprot_id"] == sequence][
                     "sequence"
                 ].values
                 seq_lens = df_uniprot["sequence_length"].values
 
-            except KeyError:
+            else:
                 raise ValueError(
-                    f"No sequences found for UniProt ID {sequence} from the UniProt server. Please double check your UniProt ID and try again."
+                    f"ORTHO No sequences found for UniProt ID {sequence} from the UniProt server. Please double check your UniProt ID and try again."
                 )
 
     if len(ortho_df) == 0:
@@ -330,7 +295,7 @@ def elm(
 
         if len(ortho_df) == 0:
             logging.warning(
-                "No ELM database orthologs found for input sequence or UniProt ID."
+                "ORTHO No ELM database orthologs found for input sequence or UniProt ID."
             )
 
         # if not uniprot and len(ortho_df) > 0:
@@ -349,7 +314,7 @@ def elm(
         #         )
 
     # Reorder columns of ortholog data frame
-    final_cols = [
+    ortho_cols = [
         "Ortholog_UniProt_ID",
         "ProteinName",
         "class_accession",
@@ -374,11 +339,11 @@ def elm(
         "#Instances",
         "#Instances_in_PDB",
     ]
-    for col in final_cols:
+    for col in ortho_cols:
         if col not in ortho_df.columns:
             ortho_df[col] = np.NaN
 
-    ortho_df = ortho_df[final_cols]
+    ortho_df = ortho_df[ortho_cols]
 
     # Build data frame containing regex motif matches
     fetch_aa_failed = False
@@ -389,7 +354,7 @@ def elm(
         if not "df_uniprot" in locals():
             df_uniprot = get_uniprot_seqs(UNIPROT_REST_API, sequence)
 
-        try:
+        if len(df_uniprot) > 0:
             # Only grab sequences where IDs match exactly
             sequences = df_uniprot[df_uniprot["uniprot_id"] == sequence][
                 "sequence"
@@ -397,14 +362,14 @@ def elm(
 
             if len(sequences) > 1:
                 logging.warning(
-                    f"More than one amino acid sequence found for UniProt ID {sequence}. Using best match to find regex motifs."
+                    f"REGEX More than one amino acid sequence found for UniProt ID {sequence}. Using best match to find regex motifs."
                 )
 
             sequence = sequences[0]
 
-        except KeyError:
+        else:
             logging.warning(
-                "No sequences found for UniProt ID {sequence} from the UniProt server."
+                "REGEX No amino acid sequences found for UniProt ID {sequence} from the UniProt server."
             )
             fetch_aa_failed = True
 
@@ -413,7 +378,34 @@ def elm(
         df_regex_matches = regex_match(sequence)
 
     if len(df_regex_matches) == 0:
-        logging.warning("No regex matches found for input sequence or UniProt ID.")
+        logging.warning("REGEX No regex matches found for input sequence or UniProt ID.")
+
+    # Reorder regex columns
+    regex_cols = [
+        "Instance_accession",
+        "ELMIdentifier",
+        "FunctionalSiteName",
+        "ELMType",
+        "Description",
+        "Regex",
+        "Instances (Matched Sequence)",
+        "Probability",
+        "motif_start_in_query",
+        "motif_end_in_query",
+        "Methods",
+        "ProteinName",
+        "Organism",
+        "References",
+        "InstanceLogic",
+        "#Instances",
+        "#Instances_in_PDB",
+    ]
+
+    for col in regex_cols:
+        if col not in df_regex_matches.columns:
+            df_regex_matches[col] = np.NaN
+
+    df_regex_matches = df_regex_matches[regex_cols]
 
     # Create out folder if it does not exist
     if out:
@@ -435,14 +427,7 @@ def elm(
 
     else:
         if out:
-            if len(ortho_df) > 0 and len(df_regex_matches) > 0:
-                ortho_df.to_csv(f"{out}/ELM_ortho_results.csv", index=False)
-                df_regex_matches.to_csv(f"{out}/ELM_regex_results.csv", index=False)
-
-            elif len(ortho_df) > 0:
-                ortho_df.to_csv(f"{out}/ELM_ortho_results.csv", index=False)
-
-            elif len(df_regex_matches) > 0:
-                df_regex_matches.to_csv(f"{out}/ELM_regex_results.csv", index=False)
+            ortho_df.to_csv(f"{out}/ELM_ortho_results.csv", index=False)
+            df_regex_matches.to_csv(f"{out}/ELM_regex_results.csv", index=False)
 
     return ortho_df, df_regex_matches
