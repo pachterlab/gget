@@ -365,6 +365,9 @@ def elm(
                     f"REGEX More than one amino acid sequence found for UniProt ID {sequence}. Using best match to find regex motifs."
                 )
 
+            print(df_uniprot)
+            print(len(df_uniprot))
+            print(sequences)
             sequence = sequences[0]
 
         else:
