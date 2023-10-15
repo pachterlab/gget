@@ -295,7 +295,7 @@ def main():
         help="DEPRECATED - json is now the default output format (convert to csv using flag [--csv]).",
     )
     ## gget elm subparser
-    elm_desc = "Fetch motif information using ELM database for input UniProt ID or amino acid sequence"
+    elm_desc = "Locally predicts Eukaryotic Linear Motifs from an amino acid sequence or UniProt ID using data from the ELM database."
     parser_elm = parent_subparsers.add_parser(
         "elm", parents=[parent], description=elm_desc, help=elm_desc, add_help=True
     )
@@ -303,17 +303,49 @@ def main():
     parser_elm.add_argument(
         "sequence",
         type=str,
-        nargs="*",
         default=None,
-        help=" Amino acid sequence or Uniprot ID (str). If Uniprot ID, set 'uniprot==True'.",
+        help="Amino acid sequence or Uniprot ID. If Uniprot ID, set 'uniprot==True'.",
     )
     parser_elm.add_argument(
         "-u",
         "--uniprot",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Use this flag if input is a Uniprot ID instead of an amino acid sequence.",
+    )
+    parser_elm.add_argument(
+        "-s",
+        "--sensitivity",
+        type=str,
+        default="very-sensitive",
+        required=False,
+        choices=["fast", "mid-sensitive", "sensitive", "more-sensitive", "very-sensitive", "ultra-sensitive"],
+        help="Sensitivity of DIAMOND alignment.",
+    )
+    parser_elm.add_argument(
+        "-t",
+        "--threads",
+        type=int,
+        default=1,
+        required=False,
+        help="Number of threads used in DIAMOND alignment.",
+    )
+    parser_elm.add_argument(
+        "-db",
+        "--diamond_binary",
+        type=str,
+        default=None,
+        required=False,
+        help="Path to DIAMOND binary. Default: None -> Uses DIAMOND binary installed with gget.",
+    )
+    parser_elm.add_argument(
+        "-q",
+        "--quiet",
         default=True,
         action="store_false",
         required=False,
-        help="TURN OFF results from UniProt database.",
+        help="Does not print progress information.",
     )
     parser_elm.add_argument(
         "-csv",
@@ -324,40 +356,14 @@ def main():
         help="Returns results in csv format instead of json.",
     )
     parser_elm.add_argument(
-        "-i",
-        "--input_file",
-        type=str,
-        default=f"tmp_{RANDOM_ID}.fa",
-        help=" Set to fasta file path (include .fa) if input contains multiple sequences. Default: t file that gets deleted after alignment, unless input file path is specified",
-    )
-    parser_elm.add_argument(
-        "-r",
-        "--reference",
-        type=str,
-        default=ELM_INSTANCES_FASTA,
-        help=" Set to reference file path (include .dmnd). If not specified, the ELM instances tsv file is used to construct the reference database file.",
-    )
-    parser_elm.add_argument(
         "-o",
         "--out",
         type=str,
-        default=None,
-        help="Folder name to save output files. Default: None (output is converted and returned in dataframe format. The output temporary files is not saved)  ",
-    )
-    parser_elm.add_argument(
-        "-s",
-        "--sensitivity",
-        type=str,
-        default="very-sensitive",
-        help="Sensitivity level for the DIAMOND alignment. One of the following: 'fast', 'mid-sensitive', 'sensitive', 'more-sensitive', 'very-sensitive', or 'ultra-sensitive'. Default: 'very-sensitive'",
-    )
-    parser_elm.add_argument(
-        "-q",
-        "--quiet",
-        default=True,
-        action="store_false",
         required=False,
-        help="Does not print progress information.",
+        help=(
+            "Path to folder to save results in, e.g. path/to/directory.\n"
+            "Default: Standard out."
+        ),
     )
 
     ## gget info subparser
@@ -1798,10 +1804,12 @@ def main():
         elm_results = elm(
             sequence=args.sequence,
             uniprot=args.uniprot,
+            sensitivity=args.sensitivity,
+            threads=args.threads,
+            diamond_binary=args.diamond_binary,
+            verbose=args.quiet,
             json=args.csv,
             out=args.out,
-            sensitivity=args.sensitivity,
-            verbose=args.quiet,
         )
         # Print results if no directory specified
         if not args.out and args.csv:

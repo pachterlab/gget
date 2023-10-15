@@ -132,7 +132,7 @@ def seq_workflow(
                 df_elm["query_end"] = int(df_diamond["query_end"].values[i])
                 df_elm["target_start"] = int(df_diamond["target_start"].values[i])
                 df_elm["target_end"] = int(df_diamond["target_end"].values[i])
-                df_elm["Motif_in_query"] = df_elm.apply(motif_in_query, axis=1)
+                df_elm["motif_in_query"] = df_elm.apply(motif_in_query, axis=1)
 
                 df = pd.concat([df, df_elm])
 
@@ -205,7 +205,8 @@ def elm(
     out=None,
 ):
     """
-    Searches the Eukaryotic Linear Motif resource for Functional Sites in Proteins.
+    Locally predicts Eukaryotic Linear Motifs from an amino acid sequence or UniProt ID using
+    data from the ELM database.
 
     Args:
     - sequence         Amino acid sequence or Uniprot ID (str).
@@ -218,7 +219,7 @@ def elm(
     - diamond_binary   Path to DIAMOND binary. Default: None -> Uses DIAMOND binary installed with gget.
     - verbose          True/False whether to print progress information. Default: True.
     - json             If True, returns results in json format instead of data frame. Default: False.
-    - out              Path to folder to save DIAMOND results in. Default: Standard out, temporary files are deleted.
+    - out              Path to folder to save results in. Default: Standard out, temporary files are deleted.
 
     Returns two data frames: orthologs and regex matches from ELM database.
     """
@@ -332,7 +333,7 @@ def elm(
         "Probability",
         "Query Cover",
         "Per. Ident",
-        "Motif_in_query",
+        "motif_in_query",
         "query_start",
         "query_end",
         "target_start",
