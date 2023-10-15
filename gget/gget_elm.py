@@ -270,11 +270,18 @@ def elm(
                 aa_seqs = df_uniprot[df_uniprot["uniprot_id"] == sequence][
                     "sequence"
                 ].values
-                seq_lens = df_uniprot["sequence_length"].values
+                seq_lens = df_uniprot[df_uniprot["uniprot_id"] == sequence][
+                    "sequence_length"
+                ].values
+
+                if len(aa_seqs) == 0:
+                    raise ValueError(
+                        f"No amino acid sequences found for UniProt ID {sequence} from the UniProt server. Please double check your UniProt ID and try again."
+                    )
 
             else:
                 raise ValueError(
-                    f"ORTHO No sequences found for UniProt ID {sequence} from the UniProt server. Please double check your UniProt ID and try again."
+                    f"No amino acid sequences found for UniProt ID {sequence} from the UniProt server. Please double check your UniProt ID and try again."
                 )
 
     if len(ortho_df) == 0:
@@ -360,28 +367,26 @@ def elm(
                 "sequence"
             ].values
 
-            if len(sequences) > 1:
+            if len(sequences) == 0:
                 logging.warning(
-                    f"REGEX More than one amino acid sequence found for UniProt ID {sequence}. Using best match to find regex motifs."
+                    "REGEX No amino acid sequences found for UniProt ID {sequence} from the UniProt server."
                 )
-
-            print(df_uniprot)
-            print(len(df_uniprot))
-            print(sequences)
-            sequence = sequences[0]
-
-        else:
-            logging.warning(
-                "REGEX No amino acid sequences found for UniProt ID {sequence} from the UniProt server."
-            )
-            fetch_aa_failed = True
+                fetch_aa_failed = True
+            else:
+                if len(sequences) > 1:
+                    logging.warning(
+                        f"REGEX More than one amino acid sequence found for UniProt ID {sequence}. Using best match to find regex motifs."
+                    )
+                sequence = sequences[0]
 
     df_regex_matches = pd.DataFrame()
     if not fetch_aa_failed:
         df_regex_matches = regex_match(sequence)
 
     if len(df_regex_matches) == 0:
-        logging.warning("REGEX No regex matches found for input sequence or UniProt ID.")
+        logging.warning(
+            "REGEX No regex matches found for input sequence or UniProt ID."
+        )
 
     # Reorder regex columns
     regex_cols = [
