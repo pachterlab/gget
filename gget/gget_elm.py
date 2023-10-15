@@ -110,7 +110,7 @@ def seq_workflow(
 
         if len(df_diamond) == 0:
             logging.warning(
-                f"ORTHO Sequence #{seq_number}: No orthologous proteins found in ELM database."
+                f"ORTHO Sequence {seq_number}/{len(sequences)}: No orthologous proteins found in ELM database."
             )
 
         else:
@@ -119,7 +119,7 @@ def seq_workflow(
             uniprot_ids = str(df_diamond["target_accession"]).split("|")[1]
             if verbose:
                 logging.info(
-                    f"ORTHO Sequence #{seq_number}: DIAMOND found the following orthologous proteins: {', '.join(uniprot_ids)}. Retrieving ELMs for each UniProt ID..."
+                    f"ORTHO Sequence {seq_number}/{len(sequences)}: DIAMOND found the following orthologous proteins: {', '.join(uniprot_ids)}. Retrieving ELMs for each UniProt ID..."
                 )
 
             for i, uniprot_id in enumerate(df_diamond["target_accession"].values):
