@@ -179,46 +179,52 @@ def regex_match(sequence):
 
             elm_identifier = [str(x) for x in elm_row["ELMIdentifier"]][0]
 
-            df_instances_matching = df_full_instances.loc[
-                df_full_instances["ELMIdentifier"] == elm_identifier
-            ]
+            # df_instances_matching = df_full_instances.loc[
+            #     df_full_instances["ELMIdentifier"] == elm_identifier
+            # ]
 
             # merge two dataframes using ELM Identifier, since some Accessions are missing from elm_instances.tsv
             elm_row = elm_row.merge(
-                df_instances_matching, how="left", on="ELMIdentifier"
+                df_full_instances, how="left", on="ELMIdentifier"
             )
 
             df_final = pd.concat([df_final, elm_row])
 
-    df_final.pop("Accession_y")
-    df_final.pop("#Instances")
-    df_final.pop("#Instances_in_PDB")
-    df_final.pop("References")
-    df_final.pop("InstanceLogic")
+    # df_final.pop("Accession_y")
+    # df_final.pop("#Instances")
+    # df_final.pop("#Instances_in_PDB")
+    # df_final.pop("References")
+    # df_final.pop("InstanceLogic")
 
-    df_final.rename(columns={"Accession_x": "instance_accession"}, inplace=True)
+    if len(df_final) > 0:
+        df_final.rename(columns={"Accession_x": "Instance_accession"}, inplace=True)
 
-    # Reorder columns
-    change_column = [
-        "instance_accession",
-        "ELMIdentifier",
-        "FunctionalSiteName",
-        "ELMType",
-        "Description",
-        "Instances (Matched Sequence)",
-        "Probability",
-        "motif_start_in_query",
-        "motif_end_in_query",
-        "Methods",
-        "ProteinName",
-        "Organism",
-    ]
+        # Reorder columns
+        change_column = [
+            "Instance_accession",
+            "ELMIdentifier",
+            "FunctionalSiteName",
+            "ELMType",
+            "Description",
+            "Regex",
+            "Instances (Matched Sequence)",
+            "Probability",
+            "motif_start_in_query",
+            "motif_end_in_query",
+            "Methods",
+            "ProteinName",
+            "Organism",
+            "References",
+            "InstanceLogic",
+            "#Instances",
+            "#Instances_in_PDB",
+        ]
 
-    for col in change_column:
-        if col not in df_final.columns:
-            df_final[col] = np.NaN
+        for col in change_column:
+            if col not in df_final.columns:
+                df_final[col] = np.NaN
 
-    df_final = df_final[change_column]
+        df_final = df_final[change_column]
 
     return df_final
 
