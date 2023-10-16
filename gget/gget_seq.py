@@ -377,19 +377,19 @@ def seq(
             ):
                 fasta.append(
                     ">"
-                    + query_ensembl_id
+                    + str(query_ensembl_id)
                     + " uniprot_id: "
-                    + uniprot_id
+                    + str(uniprot_id)
                     + " ensembl_id: "
-                    + query_ensembl_id
+                    + str(query_ensembl_id)
                     + " gene_name: "
-                    + gene_name
+                    + str(gene_name)
                     + " organism: "
-                    + organism
+                    + str(organism)
                     + " sequence_length: "
                     + str(sequence_length)
                 )
-                fasta.append(uniprot_seq)
+                fasta.append(str(uniprot_seq))
 
     # Save
     if save:
