@@ -1,6 +1,7 @@
 ## ✨ What's new  
 **Version ≥ 0.28.0** (XXX, 2023):  
 - Updated visualization of [`gget muscle`](./muscle.md) output to allow varying sequence name lengths.
+- [`gget seq`](./seq.md): Allow missing gene names (fixes [https://github.com/pachterlab/gget/issues/107](https://github.com/pachterlab/gget/issues/107))
 
 **Version ≥ 0.27.9** (August 7, 2023):  
 - New arguments for [`gget enrichr`](./enrichr.md): Use argument `background_list` to provide a list of background genes
