@@ -36,6 +36,7 @@ from .gget_pdb import pdb
 from .gget_gpt import gpt
 from .gget_cellxgene import cellxgene
 from .gget_elm import elm
+from .gget_diamond import diamond
 
 
 def main():
@@ -438,14 +439,30 @@ def main():
             "Default: Standard out, temporary files are deleted."
         ),
     )
+    
+    parser_diamond.add_argument(
+        "-t",
+        "--threads",
+        default=1,
+        type=int,
+        required=False,
+        help=(
+            """
+            Number of threads to use for alignment (default: 1).
+            """
+        ),
+    )
 
-  
-
-   
-    # - threads        Number of threads to use for alignment. Default: 1.
-    # - diamond_binary Path to DIAMOND binary. Default: None -> Uses DIAMOND binary installed with gget.
-
-
+    parser_diamond.add_argument(
+        "-bin",
+        "--diamond_binary",
+        type=str,
+        required=False,
+        help=(
+            " Path to DIAMOND binary.  e.g. path/bins/Linux/diamond \n"
+            "Default: None -> Uses DIAMOND binary installed with gget."
+        ),
+    )
 
 
     ## gget info subparser
@@ -1646,6 +1663,7 @@ def main():
         "gpt": parser_gpt,
         "cellxgene": parser_cellxgene,
         "elm": parser_elm,
+        "diamond": parser_diamond,
     }
 
     if len(sys.argv) == 2:
@@ -1898,6 +1916,27 @@ def main():
             elm_results.to_csv(sys.stdout, index=False)
         if not args.out and not args.csv:
             print(json.dumps(elm_results, ensure_ascii=False, indent=4))
+    
+    ## diamond return
+    if args.command == "diamond":
+        
+        diamond_results = diamond(
+            query=args.query,
+            reference=args.reference,
+            diamond_db=args.diamond_db,
+            sensitivity=args.sensitivity,
+            threads=args.threads,
+            diamond_binary=args.diamond_binary,
+            verbose=args.quiet,
+            json=args.csv,
+            out=args.out,
+        )
+ 
+        # Print results if no directory specified
+        if not args.out and args.csv:
+            diamond_results.to_csv(sys.stdout, index=False)
+        if not args.out and not args.csv:
+            print(json.dumps(diamond_results, ensure_ascii=False, indent=4))
 
     ## ref return
     if args.command == "ref":
