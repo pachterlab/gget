@@ -42,3 +42,14 @@ class TestELM(unittest.TestCase):
 
         time.sleep(sleep_time)
         self.assertListEqual(result_to_test, expected_result)
+    
+    def test_elm_seq(self):
+        test = "test2"
+        expected_result = elm_dict[test]["expected_result"]
+        result_to_test = elm(**elm_dict[test]["args"])
+        # If result is a DataFrame, convert to list
+        if isinstance(result_to_test, pd.DataFrame):
+            result_to_test = result_to_test.values.tolist()
+
+        time.sleep(sleep_time)
+        self.assertListEqual(result_to_test, expected_result)
