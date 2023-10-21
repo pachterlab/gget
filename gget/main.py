@@ -365,6 +365,59 @@ def main():
             "Default: Standard out."
         ),
     )
+    # gget diamond parser
+    diamond_desc = "Perform protein sequence alignment using DIAMOND for multiple sequences"
+    parser_diamond = parent_subparsers.add_parser(
+        "diamond", parents=[parent], description=diamond_desc, help=diamond_desc, add_help=True
+    )
+    parser_diamond.add_argument(
+        "query",
+        type=str,
+        nargs="*",
+        default=None,
+        help="Sequences (str or list) or path to FASTA file containing sequences to be aligned against the reference.",
+    )
+
+    parser_diamond.add_argument(
+        "-csv",
+        "--csv",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Returns results in csv format instead of json.",
+    )
+    
+    parser_diamond.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Does not print progress information.",
+    )
+    parser_diamond.add_argument(
+        "-o",
+        "--out",
+        type=str,
+        required=False,
+        help=(
+            " Path to folder to save DIAMOND results in, e.g. path/to/directory/results.json.\n"
+            "Default: Standard out, temporary files are deleted."
+        ),
+    )
+
+    #     -           
+    # - reference      Reference sequences (str or list) or path to FASTA file containing reference sequences.
+    # - diamond_db     Path to save DIAMOND database created from reference.
+    #                  Default: None -> Temporary db file will be deleted after alignment or saved in 'out'.
+    # - sensitivity    Sensitivity of DIAMOND alignment.
+    #                  One of the following: fast, mid-sensitive, sensitive, more-sensitive, very-sensitive or ultra-sensitive.
+    #                  Default: "very-sensitive"
+    # - threads        Number of threads to use for alignment. Default: 1.
+    # - diamond_binary Path to DIAMOND binary. Default: None -> Uses DIAMOND binary installed with gget.
+
+
+
 
     ## gget info subparser
     info_desc = "Fetch gene and transcript metadata using Ensembl IDs."
