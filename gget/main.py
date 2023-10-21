@@ -377,6 +377,39 @@ def main():
         default=None,
         help="Sequences (str or list) or path to FASTA file containing sequences to be aligned against the reference.",
     )
+    
+    parser_diamond.add_argument(
+        "-r",
+        "--reference",
+        type=str,
+        nargs="+",
+        required=False,
+        help="Reference sequences (str or list) or path to FASTA file containing reference sequences.",
+    )
+    
+    parser_diamond.add_argument(
+        "-db",
+        "--diamond_db",
+        type=str,
+        required=False,
+        help=(
+            " Path to save DIAMOND database created from reference\n"
+        ),
+    )
+    
+    parser_diamond.add_argument(
+        "-s",
+        "--sensitivity",
+        choices=["fast", "mid-sensitive", "sensitive", "more-sensitive","very-sensitive", "ultra-sensitive"],
+        default="default",
+        type=str,
+        required=False,
+        help=(
+            "One of the following:'fast', 'mid-sensitive', 'sensitive', 'more-sensitive', 'very-sensitive' or 'ultra-sensitive'. "
+            "Sensitivity of DIAMOND alignment. Default: 'very-sensitive'. "
+        ),
+    )
+
 
     parser_diamond.add_argument(
         "-csv",
@@ -406,13 +439,9 @@ def main():
         ),
     )
 
-    #     -           
-    # - reference      Reference sequences (str or list) or path to FASTA file containing reference sequences.
-    # - diamond_db     Path to save DIAMOND database created from reference.
-    #                  Default: None -> Temporary db file will be deleted after alignment or saved in 'out'.
-    # - sensitivity    Sensitivity of DIAMOND alignment.
-    #                  One of the following: fast, mid-sensitive, sensitive, more-sensitive, very-sensitive or ultra-sensitive.
-    #                  Default: "very-sensitive"
+  
+
+   
     # - threads        Number of threads to use for alignment. Default: 1.
     # - diamond_binary Path to DIAMOND binary. Default: None -> Uses DIAMOND binary installed with gget.
 
