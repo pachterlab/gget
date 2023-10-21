@@ -321,7 +321,14 @@ def main():
         type=str,
         default="very-sensitive",
         required=False,
-        choices=["fast", "mid-sensitive", "sensitive", "more-sensitive", "very-sensitive", "ultra-sensitive"],
+        choices=[
+            "fast",
+            "mid-sensitive",
+            "sensitive",
+            "more-sensitive",
+            "very-sensitive",
+            "ultra-sensitive",
+        ],
         help="Sensitivity of DIAMOND alignment.",
     )
     parser_elm.add_argument(
@@ -367,60 +374,83 @@ def main():
         ),
     )
     # gget diamond parser
-    diamond_desc = "Perform protein sequence alignment using DIAMOND for multiple sequences"
+    diamond_desc = "Align multiple protein or translated DNA sequences using DIAMOND."
     parser_diamond = parent_subparsers.add_parser(
-        "diamond", parents=[parent], description=diamond_desc, help=diamond_desc, add_help=True
+        "diamond",
+        parents=[parent],
+        description=diamond_desc,
+        help=diamond_desc,
+        add_help=True,
     )
     parser_diamond.add_argument(
         "query",
         type=str,
         nargs="*",
-        default=None,
         help="Sequences (str or list) or path to FASTA file containing sequences to be aligned against the reference.",
     )
-    
     parser_diamond.add_argument(
-        "-r",
+        "-ref",
         "--reference",
         type=str,
-        nargs="+",
-        required=False,
+        nargs="*",
+        required=True,
         help="Reference sequences (str or list) or path to FASTA file containing reference sequences.",
     )
-    
     parser_diamond.add_argument(
         "-db",
         "--diamond_db",
         type=str,
+        default=None,
         required=False,
         help=(
-            " Path to save DIAMOND database created from reference\n"
+            """
+            Path to save DIAMOND database created from reference. 
+            Default: None -> Temporary db file will be deleted after alignment or saved in 'out' if 'out' is provided.
+            """
         ),
     )
-    
     parser_diamond.add_argument(
         "-s",
         "--sensitivity",
-        choices=["fast", "mid-sensitive", "sensitive", "more-sensitive","very-sensitive", "ultra-sensitive"],
-        default="default",
+        choices=[
+            "fast",
+            "mid-sensitive",
+            "sensitive",
+            "more-sensitive",
+            "very-sensitive",
+            "ultra-sensitive",
+        ],
+        default="very-sensitive",
         type=str,
         required=False,
         help=(
-            "One of the following:'fast', 'mid-sensitive', 'sensitive', 'more-sensitive', 'very-sensitive' or 'ultra-sensitive'. "
-            "Sensitivity of DIAMOND alignment. Default: 'very-sensitive'. "
+            """
+            One of the following:'fast', 'mid-sensitive', 'sensitive', 'more-sensitive', 'very-sensitive' or 'ultra-sensitive'. 
+            Sensitivity of DIAMOND alignment. Default: 'very-sensitive'. 
+            """
         ),
     )
-
-
     parser_diamond.add_argument(
-        "-csv",
-        "--csv",
-        default=True,
-        action="store_false",
+        "-t",
+        "--threads",
+        default=1,
+        type=int,
         required=False,
-        help="Returns results in csv format instead of json.",
+        help="Number of threads to use for alignment.",
     )
-    
+    parser_diamond.add_argument(
+        "-bin",
+        "--diamond_binary",
+        type=str,
+        default=None,
+        required=False,
+        help=(
+            """
+            Path to DIAMOND binary,  e.g. path/bins/Linux/diamond.
+            Default: None -> Uses DIAMOND binary installed with gget.
+            """
+        ),
+    )
     parser_diamond.add_argument(
         "-q",
         "--quiet",
@@ -430,40 +460,25 @@ def main():
         help="Does not print progress information.",
     )
     parser_diamond.add_argument(
+        "-csv",
+        "--csv",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Returns results in csv format instead of json.",
+    )
+    parser_diamond.add_argument(
         "-o",
         "--out",
         type=str,
         required=False,
         help=(
-            " Path to folder to save DIAMOND results in, e.g. path/to/directory/results.json.\n"
-            "Default: Standard out, temporary files are deleted."
-        ),
-    )
-    
-    parser_diamond.add_argument(
-        "-t",
-        "--threads",
-        default=1,
-        type=int,
-        required=False,
-        help=(
             """
-            Number of threads to use for alignment (default: 1).
+            Path to folder to save DIAMOND results in, e.g. path/to/directory/results.json. 
+            Default: Standard out, temporary files are deleted.
             """
         ),
     )
-
-    parser_diamond.add_argument(
-        "-bin",
-        "--diamond_binary",
-        type=str,
-        required=False,
-        help=(
-            " Path to DIAMOND binary.  e.g. path/bins/Linux/diamond \n"
-            "Default: None -> Uses DIAMOND binary installed with gget."
-        ),
-    )
-
 
     ## gget info subparser
     info_desc = "Fetch gene and transcript metadata using Ensembl IDs."
@@ -1916,10 +1931,9 @@ def main():
             elm_results.to_csv(sys.stdout, index=False)
         if not args.out and not args.csv:
             print(json.dumps(elm_results, ensure_ascii=False, indent=4))
-    
+
     ## diamond return
     if args.command == "diamond":
-        
         diamond_results = diamond(
             query=args.query,
             reference=args.reference,
@@ -1931,7 +1945,7 @@ def main():
             json=args.csv,
             out=args.out,
         )
- 
+
         # Print results if no directory specified
         if not args.out and args.csv:
             diamond_results.to_csv(sys.stdout, index=False)
