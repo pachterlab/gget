@@ -22,12 +22,12 @@ def motif_in_query(row):
     Args:
     row     - row in dataframe
 
-    Returns: True if the motif is in between the target start and end of sequence. False otherwise
+    Returns: True if the motif is in between the subject start and end of sequence. False otherwise
     """
     return (
         True
-        if (row["motif_start_in_target"] >= row["target_start"])
-        & (row["motif_end_in_target"] <= row["target_end"])
+        if (row["motif_start_in_subject"] >= row["subject_start"])
+        & (row["motif_end_in_subject"] <= row["subject_end"])
         else False
     )
 
@@ -51,8 +51,8 @@ def get_elm_instances(UniProtID):
     df_instances_matching = df_instances_matching.rename(
         columns={
             "Primary_Acc": "Ortholog_UniProt_ID",
-            "Start": "motif_start_in_target",
-            "End": "motif_end_in_target",
+            "Start": "motif_start_in_subject",
+            "End": "motif_end_in_subject",
         }
     )
 
@@ -68,7 +68,7 @@ def get_elm_instances(UniProtID):
 
 def seq_workflow(
     sequences,
-    sequence_lengths,
+    # sequence_lengths,
     reference,
     sensitivity,
     threads,
@@ -77,11 +77,11 @@ def seq_workflow(
 ):
     """
     Alignment of sequence using DIAMOND to get UniProt ID. Use the UniProt ID to construct an ortholog dataframe similar to the UniProt workflow
-    except for additional columns for start, end and whether the motif overlaps the target sequence.
+    except for additional columns for start, end and whether the motif overlaps the subject sequence.
 
     Args:
     sequences        - list of user input amino acid sequence
-    sequence_lengths - list of lengths respective to each sequence
+    sequence_lengths - list of lengths respective to each sequence DEPRECATED
     reference        - Path to reference FASTA file
     sensitivity      - Sensitivity of DIAMOND alignment.
                        One of the following: fast, mid-sensitive, sensitive, more-sensitive, very-sensitive or ultra-sensitive.
@@ -89,7 +89,7 @@ def seq_workflow(
     verbose          - If True, turns on logging for INFO_level messages
     diamond_binary   - Path to DIAMOND binary
 
-    Returns: data frame consisting of ELM instances, class information, start, end in query, and if motif overlaps with target sequence
+    Returns: data frame consisting of ELM instances, class information, start, end in query, and if motif overlaps with subject sequence
     """
     if verbose:
         logging.info(
@@ -98,7 +98,8 @@ def seq_workflow(
 
     df = pd.DataFrame()
     seq_number = 1
-    for sequence, seq_len in zip(sequences, sequence_lengths):
+    # for sequence, seq_len in zip(sequences, sequence_lengths):
+    for sequence in sequences:
         df_diamond = diamond(
             query=sequence,
             reference=reference,
@@ -117,21 +118,24 @@ def seq_workflow(
             # Construct df with elm instances from UniProt ID returned from diamond
             # TODO double check that this gets info if more than one UniProt ID matched
             if verbose:
-                uniprot_ids = [str(id).split("|")[1] for id in df_diamond["target_accession"].values]
+                uniprot_ids = [str(id).split("|")[1] for id in df_diamond["subject_accession"].values]
                 logging.info(
                     f"ORTHO Sequence {seq_number}/{len(sequences)}: DIAMOND found the following orthologous proteins: {', '.join(uniprot_ids)}. Retrieving ELMs for each UniProt ID..."
                 )
 
-            for i, uniprot_id in enumerate(df_diamond["target_accession"].values):
+            for i, uniprot_id in enumerate(df_diamond["subject_accession"].values):
                 # print(f"UniProt ID {uniprot_id}")
                 df_elm = get_elm_instances(str(uniprot_id).split("|")[1])
                 # missing motifs other than the first one
-                df_elm["Query Cover"] = df_diamond["length"].values[i] / seq_len * 100
-                df_elm["Per. Ident"] = df_diamond["Per. Ident"].values[i]
+                # df_elm["query_cover"] = df_diamond["length"].values[i] / seq_len * 100
+                df_elm["query_seq_length"] = df_diamond["query_seq_length"].values[i]
+                df_elm["subject_seq_length"] = df_diamond["subject_seq_length"].values[i]
+                df_elm["alignment_length"] = df_diamond["length"].values[i]
+                df_elm["identity_percentage"] = df_diamond["Per. Ident"].values[i]
                 df_elm["query_start"] = int(df_diamond["query_start"].values[i])
                 df_elm["query_end"] = int(df_diamond["query_end"].values[i])
-                df_elm["target_start"] = int(df_diamond["target_start"].values[i])
-                df_elm["target_end"] = int(df_diamond["target_end"].values[i])
+                df_elm["subject_start"] = int(df_diamond["subject_start"].values[i])
+                df_elm["subject_end"] = int(df_diamond["subject_end"].values[i])
                 df_elm["motif_in_query"] = df_elm.apply(motif_in_query, axis=1)
 
                 df = pd.concat([df, df_elm])
@@ -282,7 +286,7 @@ def elm(
                         f"No amino acid sequences found for UniProt ID {sequence} from the UniProt server. Please double-check your UniProt ID and try again."
                     )
 
-                seq_lens = [len(seq) for seq in aa_seqs]
+                # seq_lens = [len(seq) for seq in aa_seqs]
 
             else:
                 raise ValueError(
@@ -293,11 +297,11 @@ def elm(
         # Add input aa sequence and its length to list
         if not uniprot:
             aa_seqs = [sequence]
-            seq_lens = [len(sequence)]
+            # seq_lens = [len(sequence)]
 
         ortho_df = seq_workflow(
             sequences=aa_seqs,
-            sequence_lengths=seq_lens,
+            # sequence_lengths=seq_lens,
             reference=ELM_INSTANCES_FASTA,
             sensitivity=sensitivity,
             threads=threads,
@@ -321,16 +325,18 @@ def elm(
         "Regex",
         "Probability",
         "Methods",
-        "Query Cover",
-        "Per. Ident",
+        "Organism",
+        "query_seq_length",
+        "subject_seq_length",
+        "alignment_length",
+        "identity_percentage",
         "motif_in_query",
         "query_start",
         "query_end",
-        "target_start",
-        "target_end",
-        "motif_start_in_target",
-        "motif_end_in_target",
-        "Organism",
+        "subject_start",
+        "subject_end",
+        "motif_start_in_subject",
+        "motif_end_in_subject",
         "References",
         "InstanceLogic",
         "PDB",
