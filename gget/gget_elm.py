@@ -276,14 +276,13 @@ def elm(
                 aa_seqs = df_uniprot[df_uniprot["uniprot_id"] == sequence][
                     "sequence"
                 ].values
-                seq_lens = df_uniprot[df_uniprot["uniprot_id"] == sequence][
-                    "sequence_length"
-                ].values
 
                 if len(aa_seqs) == 0:
                     raise ValueError(
                         f"No amino acid sequences found for UniProt ID {sequence} from the UniProt server. Please double-check your UniProt ID and try again."
                     )
+
+                seq_lens = [len(seq) for seq in aa_seqs]
 
             else:
                 raise ValueError(
