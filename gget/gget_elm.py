@@ -211,9 +211,9 @@ def elm(
     Args:
     - sequence         Amino acid sequence or Uniprot ID (str).
                        If Uniprot ID, set 'uniprot==True'.
-    - uniprot          Set to True if input is a Uniprot ID instead of amino acid sequence. Default: False.
+    - uniprot          Set to True if the input is a Uniprot ID instead of an amino acid sequence. Default: False.
     - sensitivity      Sensitivity of DIAMOND alignment.
-                       One of the following: fast, mid-sensitive, sensitive, more-sensitive, very-sensitive or ultra-sensitive.
+                       One of the following: fast, mid-sensitive, sensitive, more-sensitive, very-sensitive, or ultra-sensitive.
                        Default: "very-sensitive"
     - threads          Number of threads used in DIAMOND alignment. Default: 1.
     - diamond_binary   Path to DIAMOND binary. Default: None -> Uses DIAMOND binary installed with gget.
@@ -233,17 +233,18 @@ def elm(
             f"Some or all ELM database files are missing. Please run 'gget setup elm' (Python: gget.setup('elm')) once to download the necessary files."
         )
 
-    # Let user know when local ELM was last updated
+    # Let users know when local ELM was last updated
     lines_number = 2
     with open(ELM_CLASSES_TSV) as input_file:
         head = [next(input_file) for _ in range(lines_number)]
     if verbose:
-        logging.info(head)
+        logging.info(", ".join(head).replace("#", "").replace("\n", ""))
     with open(ELM_INSTANCES_TSV) as input_file:
         head = [next(input_file) for _ in range(lines_number)]
     if verbose:
-        logging.info(head)
+        logging.info(", ".join(head).replace("#", "").replace("\n", ""))
 
+    # Check validity of amino acid seq
     if not uniprot:
         amino_acids = set("ARNDCQEGHILKMFPSTWYVBZXBJZ")
         # Convert input sequence to upper case letters
@@ -256,6 +257,10 @@ def elm(
             )
 
     # Build ortholog dataframe
+    if verbose:
+        logging.info(
+            f"ORTHO Compiling ortholog information..."
+        )
     ortho_df = pd.DataFrame()
     if uniprot:
         ortho_df = get_elm_instances(sequence)
@@ -277,12 +282,12 @@ def elm(
 
                 if len(aa_seqs) == 0:
                     raise ValueError(
-                        f"No amino acid sequences found for UniProt ID {sequence} from the UniProt server. Please double check your UniProt ID and try again."
+                        f"No amino acid sequences found for UniProt ID {sequence} from the UniProt server. Please double-check your UniProt ID and try again."
                     )
 
             else:
                 raise ValueError(
-                    f"No amino acid sequences found for UniProt ID {sequence} from the UniProt server. Please double check your UniProt ID and try again."
+                    f"No amino acid sequences found for UniProt ID {sequence} from the UniProt server. Please double-check your UniProt ID and try again."
                 )
 
     if len(ortho_df) == 0:
@@ -306,21 +311,6 @@ def elm(
                 "ORTHO No ELM database orthologs found for input sequence or UniProt ID."
             )
 
-        # if not uniprot and len(ortho_df) > 0:
-        #     try:
-        #         target_start_values = ortho_df["target_start"].values
-        #         target_end_values = ortho_df["target_end"].values
-
-        #         # # TO-DO: we do not want to drop these results, we just want to add a column "motif_in_overlap" True/False
-        #         # if (ortho_df["Per. Ident"] is not None):
-        #         #     # ignore nonoverlapping motifs
-        #         #     ortho_df.drop(ortho_df[ (ortho_df['Start'] <= target_start[0]) | (ortho_df['End'] >= target_end[0]) ].index, inplace=True)
-
-        #     except KeyError:
-        #         logging.warning(
-        #             "No target start found for input sequence. If you entered a UniProt ID, please set 'uniprot' to True."
-        #         )
-
     # Reorder columns of ortholog data frame
     ortho_cols = [
         "Ortholog_UniProt_ID",
@@ -331,6 +321,7 @@ def elm(
         "Description",
         "Regex",
         "Probability",
+        "Methods",
         "Query Cover",
         "Per. Ident",
         "motif_in_query",
@@ -354,6 +345,10 @@ def elm(
     ortho_df = ortho_df[ortho_cols]
 
     # Build data frame containing regex motif matches
+    if verbose:
+        logging.info(
+            f"REGEX Finding regex motif matches..."
+        )
     fetch_aa_failed = False
     if uniprot:
         # use amino acid sequence associated with UniProt ID to do regex match
@@ -398,10 +393,10 @@ def elm(
         "Description",
         "Regex",
         "Instances (Matched Sequence)",
-        "Probability",
+        # "Probability",
         "motif_start_in_query",
         "motif_end_in_query",
-        "Methods",
+        # "Methods",
         "ProteinName",
         "Organism",
         "References",
