@@ -116,8 +116,8 @@ def seq_workflow(
         else:
             # Construct df with elm instances from UniProt ID returned from diamond
             # TODO double check that this gets info if more than one UniProt ID matched
-            uniprot_ids = str(df_diamond["target_accession"]).split("|")[1]
             if verbose:
+                uniprot_ids = [str(id).split("|")[1] for id in df_diamond["target_accession"].values]
                 logging.info(
                     f"ORTHO Sequence {seq_number}/{len(sequences)}: DIAMOND found the following orthologous proteins: {', '.join(uniprot_ids)}. Retrieving ELMs for each UniProt ID..."
                 )
