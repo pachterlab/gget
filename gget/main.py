@@ -1928,9 +1928,11 @@ def main():
         )
         # Print results if no directory specified
         if not args.out and args.csv:
-            elm_results.to_csv(sys.stdout, index=False)
+            for result in elm_results:
+                result.to_csv(sys.stdout, index=False)
         if not args.out and not args.csv:
-            print(json.dumps(elm_results, ensure_ascii=False, indent=4))
+            for result in elm_results:
+                print(json.dumps(result, ensure_ascii=False, indent=4))
 
     ## diamond return
     if args.command == "diamond":
