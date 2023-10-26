@@ -1927,10 +1927,10 @@ def main():
             out=args.out,
         )
         # Print results if no directory specified
-        if not args.out and args.csv:
+        if not args.out and not args.csv:
             ortho.to_csv(sys.stdout, index=False)
             regex.to_csv(sys.stdout, index=False)
-        if not args.out and not args.csv:
+        if not args.out and args.csv:
             print(json.dumps(ortho, ensure_ascii=False, indent=4))
             print(json.dumps(regex, ensure_ascii=False, indent=4))
 
