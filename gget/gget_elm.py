@@ -418,9 +418,7 @@ def elm(
 
     # Create out folder if it does not exist
     if out:
-        directory = "/".join(out.split("/")[:-1])
-        if directory != "":
-            os.makedirs(directory, exist_ok=True)
+        os.makedirs(out, exist_ok=True)
 
     if json:
         ortholog_dict = json_package.loads(ortho_df.to_json(orient="records"))
