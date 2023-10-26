@@ -1916,7 +1916,7 @@ def main():
 
     ## elm return
     if args.command == "elm":
-        elm_results = elm(
+        ortho, regex = elm(
             sequence=args.sequence,
             uniprot=args.uniprot,
             sensitivity=args.sensitivity,
@@ -1928,11 +1928,11 @@ def main():
         )
         # Print results if no directory specified
         if not args.out and args.csv:
-            for result in elm_results:
-                result.to_csv(sys.stdout, index=False)
+            ortho.to_csv(sys.stdout, index=False)
+            regex.to_csv(sys.stdout, index=False)
         if not args.out and not args.csv:
-            for result in elm_results:
-                print(json.dumps(result, ensure_ascii=False, indent=4))
+            print(json.dumps(ortho, ensure_ascii=False, indent=4))
+            print(json.dumps(regex, ensure_ascii=False, indent=4))
 
     ## diamond return
     if args.command == "diamond":
