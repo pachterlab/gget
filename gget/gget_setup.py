@@ -119,10 +119,10 @@ def setup(module, verbose=True):
     if module == "elm":
         if verbose:
             logging.info(
-                """
-                Downloading ELM database files (requires curl to be installed)... 
-                ELM data can be downloaded & distributed for non-commercial use according to the following license: http://elm.eu.org/media/Elm_academic_license.pdf
-                """
+                "ELM data can be downloaded & distributed for non-commercial use according to the following license: http://elm.eu.org/media/Elm_academic_license.pdf"
+            )
+            logging.info(
+                "Downloading ELM database files (requires curl to be installed)..."
             )
 
         # Create folder for ELM files (if it does not exist)
