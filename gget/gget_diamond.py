@@ -100,11 +100,13 @@ def diamond(
     if platform.system() == "Windows":
         command = f"{DIAMOND} version \
         && {DIAMOND} makedb --quiet --in {reference_file} --db {diamond_db} --threads {threads} \
-        && {DIAMOND} blastp --quiet --query {input_file} --db {reference_file} --out {output} --{sensitivity} --threads {threads}"
+        && {DIAMOND} blastp --outfmt 6 qseqid sseqid pident qlen slen length mismatch gapopen qstart qend sstart send evalue bitscore \
+            --quiet --query {input_file} --db {reference_file} --out {output} --{sensitivity} --threads {threads}"
     else:
         command = f"'{DIAMOND}' version \
         && '{DIAMOND}' makedb --quiet --in '{reference_file}' --db '{diamond_db}' --threads {threads} \
-        && '{DIAMOND}' blastp --quiet --query '{input_file}' --db '{reference_file}' --out '{output}' --{sensitivity} --threads {threads}"
+        && '{DIAMOND}' blastp --outfmt 6 qseqid sseqid pident qlen slen length mismatch gapopen qstart qend sstart send evalue bitscore \
+            --quiet --query '{input_file}' --db '{reference_file}' --out '{output}' --{sensitivity} --threads {threads}"
 
     # Run DIAMOND
     if verbose:
@@ -127,15 +129,17 @@ def diamond(
         output,
         headers=[
             "query_accession",
-            "target_accession",
-            "Per. Ident",
+            "subject_accession",
+            "identity_percentage",
+            "query_seq_length",
+            "subject_seq_length",
             "length",
             "mismatches",
             "gap_openings",
             "query_start",
             "query_end",
-            "target_start",
-            "target_end",
+            "subject_start",
+            "subject_end",
             "e-value",
             "bit_score",
         ],
