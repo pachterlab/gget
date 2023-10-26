@@ -131,7 +131,7 @@ def seq_workflow(
                 df_elm["query_seq_length"] = df_diamond["query_seq_length"].values[i]
                 df_elm["subject_seq_length"] = df_diamond["subject_seq_length"].values[i]
                 df_elm["alignment_length"] = df_diamond["length"].values[i]
-                df_elm["identity_percentage"] = df_diamond["Per. Ident"].values[i]
+                df_elm["identity_percentage"] = df_diamond["identity_percentage"].values[i]
                 df_elm["query_start"] = int(df_diamond["query_start"].values[i])
                 df_elm["query_end"] = int(df_diamond["query_end"].values[i])
                 df_elm["subject_start"] = int(df_diamond["subject_start"].values[i])
