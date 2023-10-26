@@ -151,9 +151,7 @@ def diamond(
 
     # Create out folder if it does not exist
     if out:
-        directory = "/".join(out.split("/")[:-1])
-        if directory != "":
-            os.makedirs(directory, exist_ok=True)
+        os.makedirs(out, exist_ok=True)
 
     if json:
         results_dict = json_package.loads(df_diamond.to_json(orient="records"))
