@@ -76,11 +76,11 @@ def enrichr(
     plot=False,
     figsize=(10, 10),
     ax=None,
+    kegg_out=None,
+    kegg_rank=1,
     json=False,
     save=False,
     verbose=True,
-    kegg=None,
-    kegg_rank=1,
 ):
     """
     Perform an enrichment analysis on a list of genes using Enrichr (https://maayanlab.cloud/Enrichr/).
@@ -98,18 +98,17 @@ def enrichr(
                         'kinase_interactions' (KEA_2015)
                         or any database listed under Gene-set Library at: https://maayanlab.cloud/Enrichr/#libraries
     - background_list   List of gene names/Ensembl IDs to be used as background genes. (Default: None)
-    - background        If True, use set of 20,625 default background genes from https://maayanlab.cloud/Enrichr/. (Default: False)
-
-    - ensembl     Define as 'True' if 'genes' is a list of Ensembl gene IDs. (Default: False)
-    - ensembl_bkg Define as 'True' if 'background_list' is a list of Ensembl gene IDs. (Default: False)
-    - plot        True/False whether to provide a graphical overview of the first 15 results. (Default: False)
-    - figsize     (width, height) of plot in inches. (Default: (10,10))
-    - ax          Pass a matplotlib axes object for further customization of the plot. (Default: None)
-    - json        If True, returns results in json format instead of data frame. (Default: False)
-    - save        True/False whether to save the results in the local directory. (Default: False)
-    - verbose     True/False whether to print progress information. Default True.
-    - kegg        output file name for the highlighted KEGG pathway image. Default None.
-    - kegg_rank   candidate pathway rank to be plotted. Default 1.    
+    - background        If True, use set of > 20,000 default background genes from https://maayanlab.cloud/Enrichr/. (Default: False)
+    - ensembl           Define as 'True' if 'genes' is a list of Ensembl gene IDs. (Default: False)
+    - ensembl_bkg       Define as 'True' if 'background_list' is a list of Ensembl gene IDs. (Default: False)
+    - plot              True/False whether to provide a graphical overview of the first 15 results. (Default: False)
+    - figsize           (width, height) of plot in inches. (Default: (10,10))
+    - ax                Pass a matplotlib axes object for further customization of the plot. (Default: None)
+    - kegg_out          Path to file to save the highlighted KEGG pathway image, e.g. path/to/folder/kegg_pathway.png. (Default: None)
+    - kegg_rank         Candidate pathway rank to be plotted in KEGG pathway image. (Default: 1)
+    - json              If True, returns results in json format instead of data frame. (Default: False)
+    - save              True/False whether to save the results in the local directory. (Default: False)
+    - verbose           True/False whether to print progress information. (Default: True)
 
     Returns a data frame with the Enrichr results.
     """
@@ -123,6 +122,7 @@ def enrichr(
     if not (type(background) == bool):
         raise ValueError(f"Argument`background` must be a boolean True/False. If you are adding a background list, use the argument `background_list` instead.")
 
+    # Handle database shortcuts
     if database == "pathway":
         database = "KEGG_2021_Human"
         if verbose:
@@ -170,10 +170,15 @@ def enrichr(
         if verbose:
             logging.info(f"Performing Enichr analysis using database {database}.")
 
-    # Check if KEGG database
-    if kegg is not None:
+    # To generate a KEGG pathway image, confirm that the database is a KEGG database and pykegg is installed
+    if kegg_out:
         if not database.startswith("KEGG"):
-            logging.error("Please specify KEGG database")
+            logging.error("Please specify a KEGG database when generating a KEGG pathway image.")
+            return
+        try:
+            import pykegg
+        except ImportError:
+            logging.error("Please install `pykegg` to generate a KEGG pathway image. Pykegg can be installed using pip: 'pip install pykegg'")
             return
 
     # If single gene passed as string, convert to list
@@ -466,18 +471,14 @@ def enrichr(
                 transparent=True,
             )
 
-    if kegg is not None:
-        try:
-            import pykegg
-        except ImportError:
-            logging.error("Please install `pykegg` for plotting")
-            return
+    # Generate KEGG pathway image
+    if kegg_out:
         candidate_rank = df[df["rank"] == kegg_rank].iloc[0, :]
         kegg_img = pykegg.visualize(
             candidate_rank["path_name"],
             candidate_rank["overlapping_genes"],
             db=database,
-            output=kegg,
+            output=kegg_out,
         )
 
     if json:
