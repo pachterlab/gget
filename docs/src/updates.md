@@ -2,6 +2,8 @@
 **Version ≥ 0.27.8** (July 12, 2023):  
 - New argument for [`gget search`](./search.md): Specify the Ensembl release from which information is fetched with `-r` `--release`
 - Fixed [bug](https://github.com/pachterlab/gget/issues/91) in [`gget pdb`](./pdb.md) (this bug was introduced in version 0.27.5)
+- [`gget muscle`](./muscle.md) now allows list of sequences as input (in addition to FASTA file path)
+- [`gget enrichr`](./enrichr.md) can generate images of KEGG pathways with the genes from the enrichment analysis highlighted
 
 **Version ≥ 0.27.7** (May 15, 2023):  
 - Moved dependencies for modules [`gget gpt`](./gpt.md) and [`gget cellxgene`](./cellxgene.md) from automatically installed requirements to [`gget setup`](./setup.md).  
