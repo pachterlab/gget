@@ -97,11 +97,20 @@ def diamond(
     else:
         DIAMOND = PRECOMPILED_DIAMOND_PATH
 
+    # Replace slashes in paths for Windows compatibility
+    if platform.system() == "Windows":
+        DIAMOND_w = DIAMOND.replace("/", "\\")
+        reference_file_w = reference_file.replace("/", "\\")
+        diamond_db_w = diamond_db.replace("/", "\\")
+        input_file_w = input_file.replace("/", "\\")
+        reference_file_w = reference_file.replace("/", "\\")
+        output_w = output.replace("/", "\\")
+        
     if platform.system() == "Windows":
         command = f"{DIAMOND} version \
-        && {DIAMOND} makedb --quiet --in {reference_file} --db {diamond_db} --threads {threads} \
-        && {DIAMOND} blastp --outfmt 6 qseqid sseqid pident qlen slen length mismatch gapopen qstart qend sstart send evalue bitscore \
-            --quiet --query {input_file} --db {reference_file} --out {output} --{sensitivity} --threads {threads}"
+        && {DIAMOND_w} makedb --quiet --in {reference_file_w} --db {diamond_db_w} --threads {threads} \
+        && {DIAMOND_w} blastp --outfmt 6 qseqid sseqid pident qlen slen length mismatch gapopen qstart qend sstart send evalue bitscore \
+            --quiet --query {input_file_w} --db {reference_file_w} --out {output_w} --{sensitivity} --threads {threads}"
     else:
         command = f"'{DIAMOND}' version \
         && '{DIAMOND}' makedb --quiet --in '{reference_file}' --db '{diamond_db}' --threads {threads} \
