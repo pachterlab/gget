@@ -5,7 +5,7 @@ Función para instalar/descargar dependencias de terceros para un módulo de gge
 
 **Parámetro posicional**  
 `module`   
-Módulo gget para el que se deben instalar las dependencias ("alphafold", "gpt" o "cellxgene").  
+Módulo gget para el que se deben instalar las dependencias.  
 
 ### Por ejemplo
 ```bash
