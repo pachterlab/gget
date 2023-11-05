@@ -22,7 +22,7 @@ Number of threads used in DIAMOND alignment (int). Default: 1.
 Path to DIAMOND binary (str). Default: None -> Uses DIAMOND binary installed with `gget`.  
 
 `-o` `--out`   
-Path to the folder to save results in, e.g. path/to/directory. Default: Standard out; temporary files are deleted.   
+Path to the folder to save results in (str), e.g. "path/to/directory". Default: Standard out; temporary files are deleted.   
 
 **Flags**  
 `-u` `--uniprot`  
