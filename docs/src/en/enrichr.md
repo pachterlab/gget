@@ -22,11 +22,18 @@ Supports any database listed [here](https://maayanlab.cloud/Enrichr/#libraries) 
 **Optional arguments**  
 `-bkg_l` `--background_list`  
 Short names (gene symbols) of background genes to perform enrichment analysis on, e.g. NSUN3 POLRMT NLRX1.  
-Alternatively: use flag `--ensembl_background` to input a list of Ensembl gene IDs.
+Alternatively: use flag `--ensembl_background` to input a list of Ensembl gene IDs.  
+See [this Tweetorial](https://x.com/ChiHoangCaltech/status/1689679611335155712?s=20) to learn why you should use a background gene list when performing an enrichment analysis.  
 
 `-o` `--out`   
-Path to the file the results will be saved in, e.g. path/to/directory/results.csv (or .json). Default: Standard out.   
-Python: `save=True` will save the output in the current working directory.
+Path to the file the results will be saved in, e.g. path/to/directory/results.csv (or .json). (Default: Standard out.)   
+Python: `save=True` will save the output in the current working directory.  
+
+`-ko` `--kegg_out`  
+Path to the png file the marked KEGG pathway images will be saved in, e.g. path/to/directory/pathway.png. (Default: None)  
+
+`-kr` `--kegg_rank`  
+Rank of the KEGG pathway to be plotted. (Default: 1)  
 
 `figsize`  
 Python only. (width, height) of plot in inches. (Default: (10,10))
@@ -43,7 +50,7 @@ Add this flag if `genes` are given as Ensembl gene IDs.
 Add this flag if `background_list` are given as Ensembl gene IDs.
 
 `-bkg` `--background`  
-Use set of 20,625 default background genes from [https://maayanlab.cloud/Enrichr/](https://maayanlab.cloud/Enrichr/).
+If True, use set of > 20,000 default background genes from https://maayanlab.cloud/Enrichr/.  
  
 `-csv` `--csv`  
 Command-line only. Returns results in CSV format.  
@@ -72,6 +79,7 @@ gget.enrichr(["ACE2", "AGT", "AGTR1"], database="ontology", plot=True)
 <br/><br/>
 
 **Use `gget enrichr` with a background gene list:**  
+See [this Tweetorial](https://x.com/ChiHoangCaltech/status/1689679611335155712?s=20) to learn why you should use a background gene list when performing an enrichment analysis.  
 ```bash
 # Here, we are passing the input genes first (positional argument 'genes'), so they are not added to the background gene list behind the '-bkgr_l' argument
 gget enrichr \
@@ -123,7 +131,24 @@ gget.enrichr(
 
 <br/><br/>
 
-The following example was submitted by [Dylan Lawless](https://github.com/DylanLawless) via [PR](https://github.com/pachterlab/gget/pull/54) (with slight adjustments by [Laura Luebbert](https://github.com/lauraluebbert)):  
+**Generate a KEGG pathway image with the genes from the enrichment analysis highlighted:**  
+This feature is available thanks to a [PR](https://github.com/pachterlab/gget/pull/106) by [Noriaki Sato](https://github.com/noriakis).  
+
+```bash
+gget enrichr -db pathway --kegg_out kegg.png --kegg_rank 1 ZBP1 IRF3 RIPK1
+```
+```python
+# Python
+gget.enrichr(["ZBP1", "IRF3", "RIPK1"], database="pathway", kegg_out="kegg.png", kegg_rank=1)
+```
+
+&rarr; In addition to the standard `gget enrichr` output, the `kegg_out` argument saves an image with the genes from the enrichment analysis highlighted in the KEGG pathway:
+
+![kegg](https://github.com/pachterlab/gget/assets/56094636/b0aa5a64-69d0-4a6a-85db-3e7baf9cb2a4)
+
+<br/><br/>
+
+The following example was submitted by [Dylan Lawless](https://github.com/DylanLawless) via [PR](https://github.com/pachterlab/gget/pull/54):  
 **Use `gget enrichr` in R and create a similar plot using [ggplot](https://ggplot2.tidyverse.org/reference/ggplot.html).**  
 NOTE the switch of axes compared to the Python plot.  
 ```r
