@@ -116,5 +116,16 @@
             ">ENST00000392653 uniprot_id: P35326 ensembl_id: ENST00000392653 gene_name: SPRR2A organism: Homo sapiens sequence_length: 72",
             "MSYQQQQCKQPCQPPPVCPTPKCPEPCPPPKCPEPCPPPKCPQPCPPQQCQQKYPPVTPSPPCQSKYPPKSK"
         ]
+    },
+    "test11": {
+        "type": "assert_equal",
+        "args": {
+            "ens_ids": "ENSG00000275740",
+            "translate": true
+        },
+        "expected_result": [
+            ">ENST00000684204 uniprot_id: A0A804HID5 ensembl_id: ENST00000684204 gene_name: nan organism: Homo sapiens sequence_length: 27",
+            "MSGPSSGEGGAGGRRRRRRRRRRSLSL"
+        ]
     }
 }

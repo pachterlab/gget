@@ -61,7 +61,7 @@ def clean_genes_list(genes_list):
     # Remove any NaNs/Nones from the gene list
     genes_clean = []
     for gene in genes_list:
-        if not gene == np.NaN and not gene is None and not isinstance(gene, float):
+        if not isinstance(gene, float) and not gene is None and not gene=="nan":
             genes_clean.append(gene)
     return genes_clean
 
@@ -76,6 +76,8 @@ def enrichr(
     plot=False,
     figsize=(10, 10),
     ax=None,
+    kegg_out=None,
+    kegg_rank=1,
     json=False,
     save=False,
     verbose=True,
@@ -96,16 +98,17 @@ def enrichr(
                         'kinase_interactions' (KEA_2015)
                         or any database listed under Gene-set Library at: https://maayanlab.cloud/Enrichr/#libraries
     - background_list   List of gene names/Ensembl IDs to be used as background genes. (Default: None)
-    - background        If True, use set of 20,625 default background genes from https://maayanlab.cloud/Enrichr/. (Default: False)
-
-    - ensembl     Define as 'True' if 'genes' is a list of Ensembl gene IDs. (Default: False)
-    - ensembl_bkg Define as 'True' if 'background_list' is a list of Ensembl gene IDs. (Default: False)
-    - plot        True/False whether to provide a graphical overview of the first 15 results. (Default: False)
-    - figsize     (width, height) of plot in inches. (Default: (10,10))
-    - ax          Pass a matplotlib axes object for further customization of the plot. (Default: None)
-    - json        If True, returns results in json format instead of data frame. (Default: False)
-    - save        True/False whether to save the results in the local directory. (Default: False)
-    - verbose     True/False whether to print progress information. Default True.
+    - background        If True, use set of > 20,000 default background genes from https://maayanlab.cloud/Enrichr/. (Default: False)
+    - ensembl           Define as 'True' if 'genes' is a list of Ensembl gene IDs. (Default: False)
+    - ensembl_bkg       Define as 'True' if 'background_list' is a list of Ensembl gene IDs. (Default: False)
+    - plot              True/False whether to provide a graphical overview of the first 15 results. (Default: False)
+    - figsize           (width, height) of plot in inches. (Default: (10,10))
+    - ax                Pass a matplotlib axes object for further customization of the plot. (Default: None)
+    - kegg_out          Path to file to save the highlighted KEGG pathway image, e.g. path/to/folder/kegg_pathway.png. (Default: None)
+    - kegg_rank         Candidate pathway rank to be plotted in KEGG pathway image. (Default: 1)
+    - json              If True, returns results in json format instead of data frame. (Default: False)
+    - save              True/False whether to save the results in the local directory. (Default: False)
+    - verbose           True/False whether to print progress information. (Default: True)
 
     Returns a data frame with the Enrichr results.
     """
@@ -116,7 +119,10 @@ def enrichr(
     Please note that there might be a more appropriate database for your application. 
     Go to https://maayanlab.cloud/Enrichr/#libraries for a full list of supported databases.
     """
+    if not (type(background) == bool):
+        raise ValueError(f"Argument`background` must be a boolean True/False. If you are adding a background list, use the argument `background_list` instead.")
 
+    # Handle database shortcuts
     if database == "pathway":
         database = "KEGG_2021_Human"
         if verbose:
@@ -163,6 +169,17 @@ def enrichr(
         database = database
         if verbose:
             logging.info(f"Performing Enichr analysis using database {database}.")
+
+    # To generate a KEGG pathway image, confirm that the database is a KEGG database and pykegg is installed
+    if kegg_out:
+        if not database.startswith("KEGG"):
+            logging.error("Please specify a KEGG database when generating a KEGG pathway image.")
+            return
+        try:
+            import pykegg
+        except ImportError:
+            logging.error("Please install `pykegg` to generate a KEGG pathway image. Pykegg can be installed using pip: 'pip install pykegg'")
+            return
 
     # If single gene passed as string, convert to list
     if type(genes) == str:
@@ -226,6 +243,9 @@ def enrichr(
 
     # If user gives a background list, use the user input instead of the default
     if background_list:
+        if verbose:
+            logging.info(f"Performing Enichr analysis using user-defined background gene list.")
+
         if background:
             logging.warning(
                 "Since you provided a list of background genes, the 'background==True' argument to use the default background gene list is being ignored."
@@ -277,6 +297,7 @@ def enrichr(
             raise RuntimeError(
                 f"""
                 Enrichr HTTP GET response status code: {r2.status_code} for genes {genes_clean}, background genes {background_list}, and database {database}\n
+                This can be due to no results found by Enrichr.
                 If the input genes are Ensembl IDs, please set argument 'ensembl=True'. (For command-line, add flag [-e][--ensembl].)\n
                 If the background genes are Ensembl IDs, please set argument 'ensembl_bkg=True'. (For command-line, add flag [-e_b][--ensembl_bkg].\n
                 """
@@ -290,15 +311,6 @@ def enrichr(
             )
 
     enrichr_results = r2.json()
-
-    if len(enrichr_results) == 0:
-        logging.error(
-            f"""
-            No Enrichr results were found for genes {genes_clean} and database {database}. \n
-            If the genes are Ensembl IDs, please set argument 'ensembl=True'. (For command-line, add flag [-e][--ensembl].)
-            """
-        )
-        return
 
     ## Build data frame (standard return)
     # Define column names
@@ -458,6 +470,16 @@ def enrichr(
                 bbox_inches="tight",
                 transparent=True,
             )
+
+    # Generate KEGG pathway image
+    if kegg_out:
+        candidate_rank = df[df["rank"] == kegg_rank].iloc[0, :]
+        kegg_img = pykegg.visualize(
+            candidate_rank["path_name"],
+            candidate_rank["overlapping_genes"],
+            db=database,
+            output=kegg_out,
+        )
 
     if json:
         results_dict = json_package.loads(df.to_json(orient="records"))

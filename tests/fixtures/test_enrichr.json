@@ -5392,7 +5392,7 @@
         "args": {
             "genes": "banana",
             "database": "ontology",
-            "background": "False"
+            "background": false
         },
         "expected_result": "df.empty"
     },

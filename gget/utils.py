@@ -1,8 +1,11 @@
 from bs4 import BeautifulSoup
 import requests
+
 # from requests.adapters import HTTPAdapter, Retry
 # import time
 import re
+import os
+import uuid
 import pandas as pd
 import numpy as np
 from IPython.display import display, HTML
@@ -490,7 +493,7 @@ def get_pdb_ids(ens_id):
     """
     Function to fetch all PDB IDs linked to an Ensembl ID.
     using the PDBe API https://wwwdev.ebi.ac.uk/pdbe/aggregated-api/mappings/ensembl_to_pdb/[ens_id]
-    
+
     API documentation:
     https://www.ebi.ac.uk/pdbe/aggregated-api/#/SIFTS/get_ensembl_to_pdb_mappings_api_mappings_ensembl_to_pdb__gene_id__get
     """
@@ -750,3 +753,54 @@ def parse_blast_ref_page(handle):
         raise ValueError(
             f"A non-integer estimated time to completion was found in the NCBI 'please wait' page: '{rtoe}'."
         )
+
+
+def tsv_to_df(tsv_file, headers=None, skiprows=None):
+    """
+    Convert tsv file to dataframe format.
+
+    Args:
+    - tsv_file      File to be converted
+
+    Returns data frame.
+    """
+    try:
+        df = pd.read_csv(tsv_file, sep="\t", names=headers, skiprows=skiprows)
+        return df
+
+    except pd.errors.EmptyDataError:
+        raise RuntimeError(f"tsv to data frame reformatting failed.")
+
+
+def create_tmp_fasta(sequences):
+    """
+    Create temporary FASTA file from str or list of sequences.
+
+    Args:
+    - sequences     List of user input amino acid sequences
+
+    Returns: Absolute path to temoprary FASTA file.
+    """
+    # Generate random ID
+    random_id = str(uuid.uuid4())
+
+    if type(sequences) == str:
+        sequences = [sequences]
+
+    with open(f"tmp_{random_id}.fa", "w") as f:
+        for idx, seq in enumerate(sequences):
+            f.write(f">Seq {idx}\n" + seq + "\n")
+
+    return os.path.abspath(f"tmp_{random_id}.fa")
+
+
+def remove_temp_files(files_to_delete):
+    """
+    Delete temporary files.
+
+    Args:
+    - files_to_delete   List of paths to files to delete.
+    """
+    for file in files_to_delete:
+        if os.path.exists(file):
+            os.remove(file)

@@ -36,8 +36,11 @@ GET_BACKGROUND_ENRICHR_URL = "https://maayanlab.cloud/speedrichr/api/backgrounde
 GENECORR_URL = "https://maayanlab.cloud/matrixapi/coltop"
 EXPRESSION_URL = "https://maayanlab.cloud/archs4/search/loadExpressionTissue.php?"
 
-#ELM API endpoints
-GET_ELM_API =  "http://elm.eu.org/start_search/"
-
-#ELM URL for web scraping in gget elm
-ELM_URL = "http://elm.eu.org/elms/"
+# Download links for ELM database
+ELM_INSTANCES_FASTA_DOWNLOAD = (
+    "http://elm.eu.org/instances.fasta?q=*&taxon=&instance_logic="
+)
+ELM_INSTANCES_TSV_DOWNLOAD = (
+    "http://elm.eu.org/instances.tsv?q=*&taxon=&instance_logic="
+)
+ELM_CLASSES_TSV_DOWNLOAD = "http://elm.eu.org/elms/elms_index.tsv"

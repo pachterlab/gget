@@ -12,6 +12,8 @@ from .gget_setup import setup
 from .gget_pdb import pdb
 from .gget_gpt import gpt
 from .gget_cellxgene import cellxgene
+from .gget_elm import elm
+from .gget_diamond import diamond
 
 import logging
 logging.basicConfig(
@@ -22,6 +24,6 @@ logging.basicConfig(
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
 
-__version__ = "0.27.9"
+__version__ = "0.28.0"
 __author__ = "Laura Luebbert"
 __email__ = "lauraluebbert@caltech.edu"
