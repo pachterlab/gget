@@ -5,7 +5,6 @@ import subprocess
 import platform
 import uuid
 from platform import python_version
-
 import logging
 
 logging.basicConfig(
@@ -17,6 +16,11 @@ logging.basicConfig(
 logging.getLogger("numexpr").setLevel(logging.WARNING)
 
 from .compile import PACKAGE_PATH
+from .constants import (
+    ELM_INSTANCES_FASTA_DOWNLOAD,
+    ELM_CLASSES_TSV_DOWNLOAD,
+    ELM_INSTANCES_TSV_DOWNLOAD,
+)
 
 ## Variables for alphafold module
 ALPHAFOLD_GIT_REPO = "https://github.com/deepmind/alphafold"
@@ -33,17 +37,24 @@ PARAMS_URL = (
 PARAMS_DIR = os.path.join(PACKAGE_PATH, "bins/alphafold/")
 PARAMS_PATH = os.path.join(PARAMS_DIR, "params_temp.tar")
 
+## Variables for elm module
+ELM_FILES = os.path.join(PACKAGE_PATH, "elm_files")
+ELM_INSTANCES_FASTA = f"{ELM_FILES}/elm_instances.fasta"
+ELM_CLASSES_TSV = f"{ELM_FILES}/elms_classes.tsv"
+ELM_INSTANCES_TSV = f"{ELM_FILES}/elm_instances.tsv"
+
 
 def setup(module, verbose=True):
     """
     Function to install third-party dependencies for a specified gget module.
-    Requires pip to be installed (https://pip.pypa.io/en/stable/installation).
+    Some modules require pip to be installed (https://pip.pypa.io/en/stable/installation).
+    Some modules require curl to be installed (https://everything.curl.dev/get).
 
     Args:
-    - module    (str) gget module for which dependencies should be installed, e.g. "alphafold", "cellxgene" or "gpt".
+    - module    (str) gget module for which dependencies should be installed, e.g. "alphafold", "cellxgene", "elm", or "gpt".
     - verbose   True/False whether to print progress information. Default True.
     """
-    supported_modules = ["alphafold", "cellxgene", "gpt"]
+    supported_modules = ["alphafold", "cellxgene", "elm", "gpt"]
     if module not in supported_modules:
         raise ValueError(
             f"'module' argument specified as {module}. Expected one of: {', '.join(supported_modules)}"
@@ -104,6 +115,63 @@ def setup(module, verbose=True):
                 f"cellxgene-census installation with pip (https://pypi.org/project/cellxgene-census) failed. Import error:\n{e}"
             )
             return
+
+    if module == "elm":
+        if verbose:
+            logging.info(
+                "ELM data can be downloaded & distributed for non-commercial use according to the following license: http://elm.eu.org/media/Elm_academic_license.pdf"
+            )
+            logging.info(
+                "Downloading ELM database files (requires curl to be installed)..."
+            )
+
+        # Create folder for ELM files (if it does not exist)
+        if not os.path.exists(ELM_FILES):
+            os.makedirs(ELM_FILES)
+
+        if platform.system() == "Windows":
+            # The double-quotation marks allow white spaces in the path, but this does not work for Windows
+            command = f"""
+                curl -o {ELM_INSTANCES_FASTA} {ELM_INSTANCES_FASTA_DOWNLOAD} \
+                &&  curl -o {ELM_CLASSES_TSV} {ELM_CLASSES_TSV_DOWNLOAD} \
+                &&  curl -o {ELM_INSTANCES_TSV} {ELM_INSTANCES_TSV_DOWNLOAD}
+                """
+        else:
+            command = f"""
+                curl -o '{ELM_INSTANCES_FASTA}' {ELM_INSTANCES_FASTA_DOWNLOAD} \
+                &&  curl -o '{ELM_CLASSES_TSV}' {ELM_CLASSES_TSV_DOWNLOAD} \
+                &&  curl -o '{ELM_INSTANCES_TSV}' {ELM_INSTANCES_TSV_DOWNLOAD}
+                """
+
+        with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
+            stderr = process.stderr.read().decode("utf-8")
+            # Log the standard error if it is not empty
+            if stderr:
+                sys.stderr.write(stderr)
+
+        # Exit system if the subprocess returned with an error
+        if process.wait() != 0:
+            logging.error("ELM database files download failed.")
+            return
+
+        # Check if files are present
+        if os.path.exists(ELM_INSTANCES_FASTA):
+            if verbose:
+                logging.info(f"ELM sequences downloaded succesfully.")
+        else:
+            logging.error("ELM FASTA file download failed.")
+
+        if os.path.exists(ELM_CLASSES_TSV):
+            if verbose:
+                logging.info("ELM classes downloaded successfully.")
+        else:
+            logging.error("ELM classes download failed.")
+
+        if os.path.exists(ELM_INSTANCES_TSV):
+            if verbose:
+                logging.info("ELM instances downloaded successfully.")
+        else:
+            logging.error("ELM instances download failed.")
 
     if module == "alphafold":
         if platform.system() == "Windows":

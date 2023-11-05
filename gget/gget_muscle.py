@@ -5,6 +5,7 @@ import itertools
 import sys
 import time
 import logging
+import uuid
 
 # Add and format time stamp in logging messages
 logging.basicConfig(
@@ -17,7 +18,7 @@ logging.getLogger("numexpr").setLevel(logging.WARNING)
 
 # Custom functions
 from .compile import compile_muscle, MUSCLE_PATH, PACKAGE_PATH
-from .utils import aa_colors, n_colors
+from .utils import aa_colors, n_colors, create_tmp_fasta
 
 # Path to precompiled muscle binary
 if platform.system() == "Windows":
@@ -35,7 +36,7 @@ def muscle(fasta, super5=False, out=None, verbose=True):
     Align multiple nucleotide or amino acid sequences against each other (using the Muscle v5 algorithm).
 
     Args:
-    - fasta     Path to fasta file containing the sequences to be aligned.
+    - fasta     List of sequences or path to fasta file containing the sequences to be aligned.
     - super5    True/False (default: False).
                 If True, align input using Super5 algorithm instead of PPP algorithm to decrease time and memory.
                 Use for large inputs (a few hundred sequences).
@@ -47,13 +48,18 @@ def muscle(fasta, super5=False, out=None, verbose=True):
     """
     # Muscle v5 documentation: https://drive5.com/muscle5
 
-    # Get absolute path to input fasta file
-    abs_fasta_path = os.path.abspath(fasta)
-
+    if "." in fasta:
+        abs_fasta_path = os.path.abspath(fasta)
+        fasta_provided = True
+    else:
+        fasta_path = create_tmp_fasta(fasta)
+        abs_fasta_path = os.path.abspath(fasta_path)
+        fasta_provided = False
+        
     # Get absolute path to output .afa file
     if out is None:
         # Create temporary .afa file
-        abs_out_path = os.path.join(os.getcwd(), "tmp.afa")
+        abs_out_path = os.path.join(os.getcwd(), f"tmp_{str(uuid.uuid4())}.afa")
     else:
         directory = "/".join(out.split("/")[:-1])
         if directory != "":
@@ -170,5 +176,7 @@ def muscle(fasta, super5=False, out=None, verbose=True):
 
                 print(titles[idx], "\t", "".join(final_seq))
 
-        # Remove temporary .afa file
-        os.remove(f"{abs_out_path}")
+        # Remove temporary .afa file (and temp .fa file if not provided by user)
+        os.remove(abs_out_path)
+        if not fasta_provided:
+            os.remove(abs_fasta_path)
