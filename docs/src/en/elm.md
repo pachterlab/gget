@@ -48,6 +48,6 @@ gget.setup(“elm”)      # Downloads/updates local ELM database
 ortholog_df, regex_df = gget.elm(“LIAQSIGQASFV”)
 ortholog_df, regex_df = gget.elm(“Q02410”, uniprot=True)
 ```
-&rarr; Returns two data frames containing extensive information about linear motifs based on ortholog and regex matches.  
+&rarr; Returns two data frames containing extensive information about linear motifs associated with orthologous proteins and motifs found in the input sequence directly based on their regex expressions.    
 
 #### [More examples](https://github.com/pachterlab/gget_examples)
