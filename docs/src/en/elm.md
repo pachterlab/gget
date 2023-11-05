@@ -11,21 +11,21 @@ Amino acid sequence or Uniprot ID (str).
 When providing a Uniprot ID, use flag `--uniprot` (Python: `uniprot==True`).  
 
 **Optional arguments**  
-`sensitivity`  
+`-s` `sensitivity`  
 Sensitivity of DIAMOND alignment. Default: "very-sensitive"   
 One of the following: fast, mid-sensitive, sensitive, more-sensitive, very-sensitive, or ultra-sensitive.  
 
-`threads`  
+`-t` `threads`  
 Number of threads used in DIAMOND alignment. Default: 1.  
 
-`diamond_binary`  
+`-db` `diamond_binary`  
 Path to DIAMOND binary. Default: None -> Uses DIAMOND binary installed with `gget`.  
 
 `-o` `--out`   
-Path to folder to save results in, e.g. "path/to/directory". Default: Standard out, temporary files are deleted.   
+Path to the folder to save results in, e.g. path/to/directory. Default: Standard out; temporary files are deleted.   
 
 **Flags**  
-`uniprot`  
+`-u` `uniprot`  
 Set to True if the input is a Uniprot ID instead of an amino acid sequence. Default: False.  
 
 `-csv` `--csv`  
