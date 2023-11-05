@@ -938,12 +938,53 @@ def main():
         ),
     )
     parser_enrichr.add_argument(
+        "-bkg_l",
+        "--background_list",
+        type=str,
+        nargs="*",
+        default=None,
+        required=False,
+        help="List of gene names/Ensembl IDs to be used as background genes.",
+    )
+    parser_enrichr.add_argument(
+        "-bkg",
+        "--background",
+        default=False,
+        action="store_true",
+        required=False,
+        help="If True, use set of 20,625 default background genes from https://maayanlab.cloud/Enrichr/.",
+    )
+    parser_enrichr.add_argument(
         "-e",
         "--ensembl",
         default=False,
         action="store_true",
         required=False,
         help="Add this flag if genes are given as Ensembl gene IDs.",
+    )
+    parser_enrichr.add_argument(
+        "-e_b",
+        "--ensembl_bkg",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Add this flag if background genes are given as Ensembl gene IDs.",
+    )
+    parser_enrichr.add_argument(
+        "-ko",
+        "--kegg_out",
+        type=str,
+        default=None,
+        required=False,
+        help="Path to file to save the highlighted KEGG pathway image, e.g. path/to/folder/kegg_pathway.png.",
+    )
+    parser_enrichr.add_argument(
+        "-kr",
+        "--kegg_rank",
+        type=int,
+        default=1,
+        required=False,
+        help="Candidate pathway rank to be plotted in KEGG pathway image.",
     )
     parser_enrichr.add_argument(
         "-csv",
@@ -980,6 +1021,7 @@ def main():
         dest="genes_deprecated",
         help="DEPRECATED - use positional argument instead. List of gene symbols or Ensembl gene IDs to perform enrichment analysis on.",
     )
+
     parser_enrichr.add_argument(
         "-j",
         "--json",
@@ -2166,11 +2208,31 @@ def main():
         while "" in genes_clean_final:
             genes_clean_final.remove("")
 
+        bkg_genes_clean_final = None
+        if args.background_list:
+            ## Clean up args.bkg_l
+            bkg_genes_clean = []
+            # Split by comma (spaces are automatically split by nargs:"+")
+            for gene in args.background_list:
+                bkg_genes_clean.append(gene.split(","))
+            # Flatten bkg_genes_clean
+            bkg_genes_clean_final = [
+                item for sublist in bkg_genes_clean for item in sublist
+            ]
+            # Remove empty strings resulting from split
+            while "" in genes_clean_final:
+                bkg_genes_clean_final.remove("")
+
         # Submit Enrichr query
         enrichr_results = enrichr(
             genes=genes_clean_final,
+            background=args.background,
+            background_list=bkg_genes_clean_final,
             database=args.database,
             ensembl=args.ensembl,
+            ensembl_bkg=args.ensembl_bkg,
+            kegg_out=args.kegg_out,
+            kegg_rank=args.kegg_rank,
             json=args.csv,
             verbose=args.quiet,
         )

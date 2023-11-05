@@ -154,7 +154,7 @@ def muscle(fasta, super5=False, out=None, verbose=True):
         seqs_master.append(seqs)
 
         # Set of all possible nucleotides
-        nucleotides = set("ATGC-")
+        nucleotides = set("ATGCN-")
 
         # zip_longest pads to the longest length
         for seq_pair in list(itertools.zip_longest(*seqs_master)):
@@ -174,7 +174,7 @@ def muscle(fasta, super5=False, out=None, verbose=True):
                     for letter in seq:
                         final_seq.append(aa_colors(letter))
 
-                print(titles[idx], "".join(final_seq))
+                print(titles[idx], "\t", "".join(final_seq))
 
         # Remove temporary .afa file (and temp .fa file if not provided by user)
         os.remove(abs_out_path)

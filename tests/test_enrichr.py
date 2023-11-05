@@ -1,9 +1,9 @@
 import unittest
 import pandas as pd
 import json
-import time
 import matplotlib
 import matplotlib.pyplot as plt
+import math
 
 # Prevent matplotlib from opening windows
 matplotlib.use("Agg")
@@ -13,8 +13,6 @@ from gget.gget_enrichr import enrichr
 with open("./tests/fixtures/test_enrichr.json") as json_file:
     enrichr_dict = json.load(json_file)
 
-# Sleep time (in seconds) between tests to prevent surpassing the server rate limit
-sleep_time = 10
 
 class TestEnrichr(unittest.TestCase):
     def test_enrichr_pathway(self):
@@ -25,7 +23,6 @@ class TestEnrichr(unittest.TestCase):
         if isinstance(result_to_test, pd.DataFrame):
             result_to_test = result_to_test.values.tolist()
 
-        time.sleep(sleep_time)
         self.assertListEqual(result_to_test, expected_result)
 
     def test_enrichr_json(self):
@@ -36,7 +33,6 @@ class TestEnrichr(unittest.TestCase):
         if isinstance(result_to_test, pd.DataFrame):
             result_to_test = result_to_test.values.tolist()
 
-        time.sleep(sleep_time)
         self.assertListEqual(result_to_test, expected_result)
 
     def test_enrichr_none(self):
@@ -47,7 +43,6 @@ class TestEnrichr(unittest.TestCase):
         if isinstance(result_to_test, pd.DataFrame):
             result_to_test = result_to_test.values.tolist()
 
-        time.sleep(sleep_time)
         self.assertListEqual(result_to_test, expected_result)
 
     def test_enrichr_transcription(self):
@@ -58,7 +53,6 @@ class TestEnrichr(unittest.TestCase):
         if isinstance(result_to_test, pd.DataFrame):
             result_to_test = result_to_test.values.tolist()
 
-        time.sleep(sleep_time)
         self.assertListEqual(result_to_test, expected_result)
 
     def test_enrichr_ensembl_ids(self):
@@ -69,7 +63,6 @@ class TestEnrichr(unittest.TestCase):
         if isinstance(result_to_test, pd.DataFrame):
             result_to_test = result_to_test.values.tolist()
 
-        time.sleep(sleep_time)
         self.assertListEqual(result_to_test, expected_result)
 
     def test_enrichr_ontology(self):
@@ -90,7 +83,6 @@ class TestEnrichr(unittest.TestCase):
         if isinstance(result_to_test, pd.DataFrame):
             result_to_test = result_to_test.values.tolist()
 
-        time.sleep(sleep_time)
         self.assertListEqual(result_to_test, expected_result)
 
     def test_enrichr_celltypes(self):
@@ -101,7 +93,6 @@ class TestEnrichr(unittest.TestCase):
         if isinstance(result_to_test, pd.DataFrame):
             result_to_test = result_to_test.values.tolist()
 
-        time.sleep(sleep_time)
         self.assertListEqual(result_to_test, expected_result)
 
     def test_enrichr_kinase_interactions(self):
@@ -112,15 +103,36 @@ class TestEnrichr(unittest.TestCase):
         if isinstance(result_to_test, pd.DataFrame):
             result_to_test = result_to_test.values.tolist()
 
-        time.sleep(sleep_time)
         self.assertListEqual(result_to_test, expected_result)
 
     def test_enrichr_bad_gene(self):
         test = "test10"
         df = enrichr(**enrichr_dict[test]["args"])
-        time.sleep(sleep_time)
+
         self.assertTrue(df.empty, "Invalid gene result is not empty data frame.")
 
+    def test_enrichr_background(self):
+        test = "test11"
+        expected_result = enrichr_dict[test]["expected_result"]
+        result_to_test = enrichr(**enrichr_dict[test]["args"])
+        # If result is a DataFrame, convert to list
+        if isinstance(result_to_test, pd.DataFrame):
+            result_to_test = result_to_test.values.tolist()
+            result_to_test = [list(map(lambda x: x if x != math.inf else 'inf', i)) for i in result_to_test]
+
+        self.assertListEqual(result_to_test, expected_result)
+    
+    def test_enrichr_background_ensembl(self):
+        test = "test12"
+        expected_result = enrichr_dict[test]["expected_result"]
+        result_to_test = enrichr(**enrichr_dict[test]["args"])
+        # If result is a DataFrame, convert to list
+        if isinstance(result_to_test, pd.DataFrame):
+            result_to_test = result_to_test.values.tolist()
+            result_to_test = [list(map(lambda x: x if x != math.inf else 'inf', i)) for i in result_to_test]
+
+        self.assertListEqual(result_to_test, expected_result)
+        
     def test_enrichr_plot(self):
         # Number of plots before running enrichr plot
         num_figures_before = plt.gcf().number

@@ -35,6 +35,17 @@ def clean_cols(x):
         return x
 
 
+def clean_cols(x):
+    if isinstance(x, list):
+        unique_list = list(set(x))
+        if len(unique_list) == 1:
+            return unique_list[0]
+        else:
+            return unique_list
+    else:
+        return x
+
+
 def search(
     searchwords,
     species,
@@ -248,12 +259,12 @@ def search(
 
         if id_type == "transcript":
             query = f"""
-            SELECT transcript.stable_id AS 'ensembl_id', gene_attrib.value AS 'ensembl_gene_name', xref.display_label AS 'gene_name', transcript.description AS 'ensembl_description', xref.description AS 'ext_ref_description', transcript.biotype AS 'biotype', external_synonym.synonym AS 'synonym'
+            SELECT transcript.stable_id AS 'ensembl_id', xref.display_label AS 'gene_name', transcript.description AS 'ensembl_description', xref.description AS 'ext_ref_description', transcript.biotype AS 'biotype', external_synonym.synonym AS 'synonym'
             FROM transcript 
             LEFT JOIN xref ON transcript.display_xref_id = xref.xref_id 
             LEFT JOIN external_synonym ON transcript.display_xref_id = external_synonym.xref_id 
-            LEFT JOIN gene_attrib ON transcript.gene_id = gene_attrib.gene_id 
-            WHERE (transcript.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%' OR external_synonym.synonym LIKE '%{searchword}%' OR gene_attrib.value LIKE '%{searchword}%')
+            LEFT JOIN transcript_attrib ON transcript.transcript_id = transcript_attrib.transcript_id 
+            WHERE (transcript.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%' OR external_synonym.synonym LIKE '%{searchword}%' OR transcript_attrib.value LIKE '%{searchword}%')
             """
 
             # Fetch the search results from the host using the specified query
@@ -266,7 +277,7 @@ def search(
                 # In the first iteration, make the search results equal to the master data frame
                 if i == 0:
                     df = df_temp.copy()
-                # Add new search results to master data frame
+                # Add new search results to mastser data frame
                 else:
                     df = pd.concat([df, df_temp])
                     return df
@@ -284,6 +295,17 @@ def search(
 
     # Remove any duplicate search results from the master data frame and reset the index
     df = df.drop_duplicates().reset_index(drop=True)
+    # Collapse entries for the same Ensembl ID
+    df = df.groupby("ensembl_id").agg(tuple).applymap(list).reset_index()
+
+    # convert list of values to type string if there is only one value
+    df = df.applymap(clean_cols)
+
+    # Keep synonyms always of type list for consistency
+    df["synonym"] = [
+        np.sort(syn).tolist() if isinstance(syn, list) else np.sort([syn]).tolist()
+        for syn in df["synonym"].values
+    ]
 
     # Collapse entries for the same Ensembl ID
     df = df.groupby("ensembl_id").agg(tuple).applymap(list).reset_index()

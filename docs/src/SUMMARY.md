@@ -5,7 +5,6 @@
 
 # User Guide
 - [Installation](installation.md)  
-- [Modules](modules.md)  
 - [Quick Start Guide](quick_start_guide.md)  
 
 # Manual

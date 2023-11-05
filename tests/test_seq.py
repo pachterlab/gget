@@ -78,3 +78,10 @@ class TestSeq(unittest.TestCase):
         result_to_test = seq(**seq_dict[test]["args"])
 
         self.assertListEqual(result_to_test, expected_result)
+    
+    def test_seq_missing_uniprot_gene_name(self):
+        test = "test11"
+        expected_result = seq_dict[test]["expected_result"]
+        result_to_test = seq(**seq_dict[test]["args"])
+
+        self.assertListEqual(result_to_test, expected_result)

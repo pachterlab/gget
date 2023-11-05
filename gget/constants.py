@@ -27,8 +27,10 @@ BLAST_CLIENT = "gget_client-" + str(uuid.uuid4())
 MUSCLE_GITHUB_LINK = "https://github.com/rcedgar/muscle.git"
 
 # Enrichr API endpoints
-POST_ENRICHR_URL = "https://maayanlab.cloud/Enrichr/addList"
-GET_ENRICHR_URL = "https://maayanlab.cloud/Enrichr/enrich"
+POST_ENRICHR_URL = "https://maayanlab.cloud/speedrichr/api/addList"
+GET_ENRICHR_URL = "https://maayanlab.cloud/speedrichr/api/enrich"
+POST_BACKGROUND_ID_ENRICHR_URL = "https://maayanlab.cloud/speedrichr/api/addbackground"
+GET_BACKGROUND_ENRICHR_URL = "https://maayanlab.cloud/speedrichr/api/backgroundenrich"
 
 # ARCHS4 API endpoints
 GENECORR_URL = "https://maayanlab.cloud/matrixapi/coltop"
