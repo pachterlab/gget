@@ -1976,9 +1976,9 @@ def main():
         )
 
         # Print results if no directory specified
-        if not args.out and args.csv:
-            diamond_results.to_csv(sys.stdout, index=False)
         if not args.out and not args.csv:
+            diamond_results.to_csv(sys.stdout, index=False)
+        if not args.out and args.csv:
             print(json.dumps(diamond_results, ensure_ascii=False, indent=4))
 
     ## ref return
