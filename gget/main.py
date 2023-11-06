@@ -942,7 +942,7 @@ def main():
         default=False,
         action="store_true",
         required=False,
-        help="If True, use set of 20,625 default background genes from https://maayanlab.cloud/Enrichr/.",
+        help="If True, use set of >20,000 default background genes listed here: https://github.com/pachterlab/gget/blob/main/gget/constants/enrichr_bkg_genes.txt.",
     )
     parser_enrichr.add_argument(
         "-e",
