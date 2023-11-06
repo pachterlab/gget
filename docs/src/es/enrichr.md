@@ -28,6 +28,12 @@ Alternativamente: usa la bandera `--ensembl_background` para ingresar IDs tipo E
 Ruta al archivo en el que se guardarán los resultados, p. ruta/al/directorio/resultados.csv (o .json). Por defecto: salida estándar (STDOUT).  
 Para Python, usa `save=True` para guardar los resultados en el directorio de trabajo actual.  
 
+`-ko` `--kegg_out`  
+Ruta al archivo png en el que se guardará la imágen de la vía de señalización celular KEGG, p. ej. ruta/al/directorio/KEGG.png. (Por defecto: None)   
+
+`-kr` `--kegg_rank`  
+Rango de la ruta KEGG que se va a trazar. (Por defecto: 1)  
+
 `figsize`  
 Solo para Python. (ancho, alto) de la visualización en pulgadas. (Por defecto: (10,10))
 
@@ -120,6 +126,23 @@ gget.enrichr(
 &rarr; Provée factores de transcripción relacionados a los genes de interés y controlados con la lista de genes background de la base de datos *ChEA 2022*. En Python, `plot=True` permite la visualización de resultados:
 
 ![alt text](https://github.com/pachterlab/gget/blob/main/figures/gget_enrichr_results_2.png?raw=true)
+
+<br/><br/>
+
+**Genere una imagen de la vía de señalización de células KEGG con los genes del análisis de enriquecimiento resaltados:**  
+Esta función está disponible gracias a un [PR](https://github.com/pachterlab/gget/pull/106) de [Noriaki Sato](https://github.com/noriakis).  
+
+```bash
+gget enrichr -db pathway --kegg_out kegg.png --kegg_rank 1 ZBP1 IRF3 RIPK1
+```
+```python
+# Python
+gget.enrichr(["ZBP1", "IRF3", "RIPK1"], database="pathway", kegg_out="kegg.png", kegg_rank=1)
+```
+
+&rarr; Además de los resultados estándar `gget enrichr`, el argumento `kegg_out` guarda una imagen con los genes del análisis de enriquecimiento resaltados guardado como kegg.png:  
+
+![kegg](https://github.com/pachterlab/gget/assets/56094636/b0aa5a64-69d0-4a6a-85db-3e7baf9cb2a4)
 
 <br/><br/>
 
