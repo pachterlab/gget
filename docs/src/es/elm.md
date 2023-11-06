@@ -18,7 +18,7 @@ Uno de los siguientes: fast, mid-sensitive, sensitive, more-sensitive, very-sens
 `-t` `threads`  
 Número de hilos de procesamiento utilizados en la alineación de secuencias con DIAMOND (int). Por defecto: 1.  
 
-`-db` `diamond_binary`  
+`-bin` `diamond_binary`  
 Ruta al binario DIAMOND (str). Por defecto: None -> Utiliza el binario DIAMOND instalado automáticamente con `gget`.  
 
 `-o` `--out`   
