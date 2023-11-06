@@ -59,7 +59,4 @@ gget.diamond(["GGETISAWESQME", "ELVISISALIVE", "LQVEFRANKLIN", "PACHTERLABRQCKS"
 |Seq3           |Seq1             |100                |15              |15                |15    |0         |0           |1          |15       |1            |15         |2.01e-11|36.2     |
 
 
-
-Copyright © 2013-2023 Data Design Group, Inc. All Rights Reserved  Facebook   Twitter   Privacy Policy   Contact Us   Change Log   Terms of Use   Home
-
 #### [Màs ejemplos](https://github.com/pachterlab/gget_examples)
