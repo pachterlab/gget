@@ -127,7 +127,7 @@ class TestMuscleSeqsInput(unittest.TestCase):
         )
 
     def tearDown(self):
-        super(TestMuscleAA, self).tearDown()
+        super(TestMuscleSeqsInput, self).tearDown()
         # Delete temporary result file
         os.remove("tests/fixtures/tmp.afa")
 
