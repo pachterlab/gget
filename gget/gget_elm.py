@@ -210,7 +210,7 @@ def elm(
 ):
     """
     Locally predicts Eukaryotic Linear Motifs from an amino acid sequence or UniProt ID using
-    data from the ELM database.
+    data from the ELM database (http://elm.eu.org/).
 
     Args:
     - sequence         Amino acid sequence or Uniprot ID (str).
@@ -225,7 +225,9 @@ def elm(
     - json             If True, returns results in json format instead of data frame. Default: False.
     - out              Path to folder to save results in. Default: Standard out, temporary files are deleted.
 
-    Returns two data frames: orthologs and regex matches from ELM database.
+    Returns two data frames (or JSON formatted dictionaries if json=True): 
+    The first contains information on motifs experimentally validated in orthologous proteins and 
+    the second contains motifs found directly based on regex matches in the provided sequence.
     """
     # Check if ELM files were downloaded
     if (
