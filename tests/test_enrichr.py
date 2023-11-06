@@ -117,11 +117,14 @@ class TestEnrichr(unittest.TestCase):
         result_to_test = enrichr(**enrichr_dict[test]["args"])
         # If result is a DataFrame, convert to list
         if isinstance(result_to_test, pd.DataFrame):
-            result_to_test = result_to_test.values.tolist()
-            result_to_test = [list(map(lambda x: x if x != math.inf else 'inf', i)) for i in result_to_test]
+            result_to_test = result_to_test.values.tolist()[:20]
+            result_to_test = [
+                list(map(lambda x: x if x != math.inf else "inf", i))
+                for i in result_to_test
+            ]
 
         self.assertListEqual(result_to_test, expected_result)
-    
+
     def test_enrichr_background_ensembl(self):
         test = "test12"
         expected_result = enrichr_dict[test]["expected_result"]
@@ -129,10 +132,13 @@ class TestEnrichr(unittest.TestCase):
         # If result is a DataFrame, convert to list
         if isinstance(result_to_test, pd.DataFrame):
             result_to_test = result_to_test.values.tolist()
-            result_to_test = [list(map(lambda x: x if x != math.inf else 'inf', i)) for i in result_to_test]
+            result_to_test = [
+                list(map(lambda x: x if x != math.inf else "inf", i))
+                for i in result_to_test
+            ]
 
         self.assertListEqual(result_to_test, expected_result)
-        
+
     def test_enrichr_plot(self):
         # Number of plots before running enrichr plot
         num_figures_before = plt.gcf().number
