@@ -5,7 +5,7 @@ Regresa: Salida estándar (STDOUT) en formato ClustalW o archivo de tipo 'aligne
 
 **Parámetro posicional**  
 `fasta`   
-Ruta al archivo FASTA o .txt que contiene las secuencias de nucleótidos o aminoácidos que se van a alinear.  
+Lista de secuencias o ruta al archivo FASTA o .txt que contiene las secuencias de nucleótidos o aminoácidos que se van a alinear.  
 
 **Parámetros optionales**  
 `-o` `--out`   
@@ -22,7 +22,15 @@ Solo para la Terminal. Impide la informacion de progreso de ser exhibida durante
 Para Python, usa `verbose=False` para imipidir la informacion de progreso de ser exhibida durante la corrida.  
   
   
-### Por ejemplo
+### Por ejemplo  
+```bash
+gget muscle MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS MSSSSWLLLSLVEVTAAQSTIEQQAKTFLDKFHEAEDLFYQSLLAS
+```
+```python
+# Python
+gget.muscle(["MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS", "MSSSSWLLLSLVEVTAAQSTIEQQAKTFLDKFHEAEDLFYQSLLAS"])
+```
+  
 ```bash
 gget muscle fasta.fa
 ```
