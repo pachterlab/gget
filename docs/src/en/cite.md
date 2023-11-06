@@ -7,7 +7,7 @@ Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference data
 
 - If using `gget alphafold`, please also cite:  
   - Jumper, J., Evans, R., Pritzel, A. et al. Highly accurate protein structure prediction with AlphaFold. Nature 596, 583–589 (2021). https://doi.org/10.1038/s41586-021-03819-2
-  
+
   And, if applicable:  
   - Evans, R. et al. Protein complex prediction with AlphaFold-Multimer. bioRxiv 2021.10.04.463034; https://doi.org/10.1101/2021.10.04.463034
 
@@ -24,6 +24,12 @@ Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference data
 
 - If using `gget cellxgene`, please also cite:  
   - Chanzuckerberg Initiative. (n.d.). CZ CELLxGENE Discover. Retrieved [insert date here], from https://cellxgene.cziscience.com/
+
+- If using `gget diamond`, please also cite:  
+  - Buchfink, B., Xie, C. & Huson, D. Fast and sensitive protein alignment using DIAMOND. Nat Methods 12, 59–60 (2015). https://doi.org/10.1038/nmeth.3176
+
+- If using `gget elm`, please also cite:  
+  - Manjeet Kumar, Sushama Michael, Jesús Alvarado-Valverde, Bálint Mészáros, Hugo Sámano‐Sánchez, András Zeke, Laszlo Dobson, Tamas Lazar, Mihkel Örd, Anurag Nagpal, Nazanin Farahi, Melanie Käser, Ramya Kraleti, Norman E Davey, Rita Pancsa, Lucía B Chemes, Toby J Gibson, The Eukaryotic Linear Motif resource: 2022 release, Nucleic Acids Research, Volume 50, Issue D1, 7 January 2022, Pages D497–D508, https://doi.org/10.1093/nar/gkab975
     
 - If using `gget enrichr`, please also cite:     
   - Chen EY, Tan CM, Kou Y, Duan Q, Wang Z, Meirelles GV, Clark NR, Ma'ayan A.
