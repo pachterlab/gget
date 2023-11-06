@@ -295,26 +295,26 @@ def search(
 
     # Remove any duplicate search results from the master data frame and reset the index
     df = df.drop_duplicates().reset_index(drop=True)
-    # Collapse entries for the same Ensembl ID
-    df = df.groupby("ensembl_id").agg(tuple).map(list).reset_index()
 
-    # convert list of values to type string if there is only one value
-    df = df.applymap(clean_cols)
+    # Collapse entries for the same Ensembl ID
+    # .applymap was renamed to .map in pandas 2.1.0
+    try:
+        df = df.groupby("ensembl_id").agg(tuple).map(list).reset_index()
+    except AttributeError:
+        df = df.groupby("ensembl_id").agg(tuple).applymap(list).reset_index()
+
+    # Convert list of values to type string if there is only one value
+    # .applymap was renamed to .map in pandas 2.1.0
+    try:
+        df = df.map(clean_cols)
+    except AttributeError:
+        df = df.applymap(clean_cols)
 
     # Keep synonyms always of type list for consistency
     df["synonym"] = [
         np.sort(syn).tolist() if isinstance(syn, list) else np.sort([syn]).tolist()
         for syn in df["synonym"].values
     ]
-
-    # Collapse entries for the same Ensembl ID
-    df = df.groupby("ensembl_id").agg(tuple).applymap(list).reset_index()
-
-    # convert list of values to type string if there is only one value
-    df = df.apply(clean_cols, axis=1)
-
-    # Keep synonyms always of type list for consistency
-    df["synonym"] = [[syn] if not isinstance(syn, list) else syn for syn in df["synonym"].values]
 
     # If limit is not None, keep only the first {limit} rows
     if limit != None:
