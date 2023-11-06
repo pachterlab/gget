@@ -103,6 +103,35 @@ class TestMuscleAA(unittest.TestCase):
         os.remove("tests/fixtures/tmp.afa")
 
 
+class TestMuscleSeqsInput(unittest.TestCase):
+    # File the results will be saved in
+    out = "tests/fixtures/tmp.afa"
+
+    def test_muscle_seqs_as_input(self):
+        # Run muscle
+        with contextlib.redirect_stdout(open(os.devnull, "w")):
+            muscle(
+                [
+                    "MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS",
+                    "MSSSSWLLLSLVEVTAAQSTIEQQAKTFLDKFHEAEDLFYQSLLAS",
+                    "MSAASWLLAAQSTIEQQAKTFLDKFHEAEDLFYQSS",
+                ],
+                out=out,
+            )
+
+        # Expected result
+        ref_path = "tests/fixtures/muscle_SeqsAsInput_test.afa"
+        self.assertTrue(
+            filecmp.cmp(out, ref_path, shallow=False),
+            "The reference and muscle amino acid alignment are not the same.",
+        )
+
+    def tearDown(self):
+        super(TestMuscleAA, self).tearDown()
+        # Delete temporary result file
+        os.remove("tests/fixtures/tmp.afa")
+
+
 class TestMuscleAASuper(unittest.TestCase):
     def test_muscle_aa_super5(self):
         # File with sequences to align
@@ -139,5 +168,5 @@ class TestMusclePrints(unittest.TestCase):
             # print_mock.assert_called_with("\n")
             # print_mock.assert_called_with("test1\n", "\x1b[38;5;15m\x1b[48;5;9mA\x1b[0;0m")
             print_mock.assert_called_with(
-                "test2\n", "\x1b[38;5;15m\x1b[48;5;9mA\x1b[0;0m"
+                "test2\n", "\t", "\x1b[38;5;15m\x1b[48;5;9mA\x1b[0;0m"
             )
