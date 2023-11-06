@@ -33,7 +33,7 @@ def diamond(
     out=None,
 ):
     """
-    Align multiple protein or translated DNA sequences using DIAMOND.
+    Align multiple protein or translated DNA sequences using DIAMOND (https://www.nature.com/articles/nmeth.3176).
 
     Args:
     - query          Sequences (str or list) or path to FASTA file containing sequences to be aligned against the reference.
