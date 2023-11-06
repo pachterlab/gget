@@ -50,7 +50,7 @@ Add this flag if `genes` are given as Ensembl gene IDs.
 Add this flag if `background_list` are given as Ensembl gene IDs.
 
 `-bkg` `--background`  
-If True, use set of > 20,000 default background genes from https://maayanlab.cloud/Enrichr/.  
+If True, use set of > 20,000 default background genes listed [here](https://github.com/pachterlab/gget/blob/main/gget/constants/enrichr_bkg_genes.txt).  
  
 `-csv` `--csv`  
 Command-line only. Returns results in CSV format.  
