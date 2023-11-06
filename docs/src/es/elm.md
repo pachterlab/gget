@@ -60,13 +60,13 @@ ortholog_df, regex_df = gget.elm("Q02410", uniprot=True)
 ```
 &rarr; Produce dos resultados con información extensa sobre ELMs asociados con proteínas ortólogas y motivos encontrados en la secuencia de entrada directamente en función de sus expresiones regex:  
 
-Ortholog data frame:  
+ortholog_df:  
 |Ortholog_UniProt_ID|ProteinName|class_accession|ELMIdentifier  |FunctionalSiteName                   |Description                                                                                                                              |Organism    |…  |
 |:-----------------:|:---------:|:-------------:|:-------------:|:-----------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------:|:----------:|:-:|
 |Q02410             |APBA1_HUMAN|ELME000357     |LIG_CaMK_CASK_1|CASK CaMK domain binding ligand motif|Motif that mediates binding to the calmodulin-dependent protein kinase (CaMK) domain of the peripheral plasma membrane protein CASK/Lin2.|Homo sapiens|…  |
 |Q02410             |APBA1_HUMAN|ELME000091     |LIG_PDZ_Class_2|PDZ domain ligands                   |The C-terminal class 2 PDZ-binding motif is classically represented by a pattern such as                                                 |Homo sapiens|…  |
 
-Regex data frame:  
+regex_df:  
 |Instance_accession|ELMIdentifier     |FunctionalSiteName             |ELMType|Description                                                                                                                                            |Instances (Matched Sequence)|Organism                      |…  |
 |:----------------:|:----------------:|:-----------------------------:|:-----:|:-----------------------------------------------------------------------------------------------------------------------------------------------------:|:--------------------------:|:----------------------------:|:-:|
 |ELME000321        |CLV_C14_Caspase3-7|Caspase cleavage motif         |CLV    |Caspase-3 and Caspase-7 cleavage site.                                                                                                                 |ERSDG                       |Mus musculus                  |…  |
@@ -75,7 +75,6 @@ Regex data frame:
 |ELME000146        |CLV_PCSK_SKI1_1   |PCSK cleavage site             |CLV    |Subtilisin/kexin isozyme-1 (SKI1) cleavage site.                                                                                                       |RLLTA                       |Homo sapiens                  |…  |
 |ELME000231        |DEG_APCC_DBOX_1   |APCC-binding Destruction motifs|DEG    |An RxxL-based motif that binds to the Cdh1 and Cdc20 components of APC/C thereby targeting the protein for destruction in a cell cycle dependent manner|SRVKLNIVR                   |Saccharomyces cerevisiae S288c|…  |
 |…                 |…                 |…                              |…      |…                                                                                                                                                      |…                           |…                             |…  |
-
 
 (Los motivos que aparecen en muchas especies diferentes pueden parecer repetidos, pero todas las filas deben ser únicas.)
 
