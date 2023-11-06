@@ -104,10 +104,10 @@ class TestMuscleAA(unittest.TestCase):
 
 
 class TestMuscleSeqsInput(unittest.TestCase):
-    # File the results will be saved in
-    out = "tests/fixtures/tmp.afa"
-
     def test_muscle_seqs_as_input(self):
+        # File the results will be saved in
+        out = "tests/fixtures/tmp.afa"
+
         # Run muscle
         with contextlib.redirect_stdout(open(os.devnull, "w")):
             muscle(
