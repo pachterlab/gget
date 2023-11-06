@@ -18,7 +18,7 @@ One of the following: fast, mid-sensitive, sensitive, more-sensitive, very-sensi
 `-t` `--threads`  
 Number of threads used in DIAMOND alignment (int). Default: 1.  
 
-`-db` `--diamond_binary`  
+`-bin` `--diamond_binary`  
 Path to DIAMOND binary (str). Default: None -> Uses DIAMOND binary installed with `gget`.  
 
 `-o` `--out`   
