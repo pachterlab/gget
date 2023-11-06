@@ -360,6 +360,10 @@ def alphafold(
     if verbose:
         logging.info(f"Validating input sequence(s).")
 
+    # Handle command line passing path to FASTA as a list
+    if isinstance(sequence, list) and len(sequence) == 1:
+        sequence = sequence[0]
+
     # If the path to a fasta file was provided instead of a nucleotide sequence,
     # read the file and extract the first sequence
     if "." in sequence:
