@@ -45,7 +45,7 @@ Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference data
 ```
 Lea el artículo aquí: [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
 
-Gracias a Victor Garcia-Ruiz por su ayuda con la traduccion del sitio web.
+Gracias a [Victor Garcia-Ruiz](https://github.com/victorg775) y [Anna Karen Orta](https://www.linkedin.com/in/akorta/) por su ayuda con la traduccion del sitio web.  
 
 <br>
 <br>
