@@ -19,6 +19,12 @@ $ gget blat MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS
 # BLAST la secuencia de aminoácidos
 $ gget blast MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS
 
+# Alinee múltiples secuencias de nucleótidos o aminoácidos entre sí (también acepta la ruta al archivo FASTA)  
+$ gget muscle MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS MSSSSWLLLSLVEVTAAQSTIEQQAKTFLDKFHEAEDLFYQSLLAS
+
+# Alinee una o más secuencias de aminoácidos con una referencia (que contiene una o más secuencias) (BLAST local) (también acepta rutas a archivos FASTA)  
+$ gget diamond MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS -ref MSSSSWLLLSLVEVTAAQSTIEQQAKTFLDKFHEAEDLFYQSLLAS
+
 # Alinea secuencias de nucleótidos o aminoácidos en un archivo FASTA
 $ gget muscle path/to/file.fa
 
@@ -31,8 +37,12 @@ $ gget archs4 -w tissue ACE2
 # Obtenga la estructura de la proteína (en formato PDB) de ACE2 (ID de PDB devuelta por gget info)
 $ gget pdb 1R42 -o 1R42.pdb
 
+# Encuentre motivos lineales eucarióticos (ELM) en una secuencia de aminoácidos
+$ gget setup elm        # solo debe ejecutarse una vez
+$ gget elm -o results MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS
+
 # Obtene una matriz de recuento de scRNAseq (formato AnnData) basada en genes, tejidos y tipos de células especificados (especie predeterminada: humano)
-$ gget setup cellxgene # solo debe ejecutarse una vez
+$ gget setup cellxgene  # solo debe ejecutarse una vez
 $ gget cellxgene --gene ACE2 SLC5A1 --tissue lung --cell_type 'mucus secreting cell' -o example_adata.h5ad
 
 # Predice la estructura proteica de GFP a partir de su secuencia de aminoácidos
@@ -48,15 +58,19 @@ gget.info(["ENSG00000130234", "ENST00000252519"])
 gget.seq("ENSG00000130234", translate=True)
 gget.blat("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")
 gget.blast("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")
-gget.muscle("path/to/file.fa")
+gget.muscle(["MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS", "MSSSSWLLLSLVEVTAAQSTIEQQAKTFLDKFHEAEDLFYQSLLAS"])
+gget.diamond("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS", reference="MSSSSWLLLSLVEVTAAQSTIEQQAKTFLDKFHEAEDLFYQSLLAS")
 gget.enrichr(["ACE2", "AGT", "AGTR1", "ACE", "AGTRAP", "AGTR2", "ACE3P"], database="ontology", plot=True)
 gget.archs4("ACE2", which="tissue")
 gget.pdb("1R42", save=True)
 
-gget.setup("cellxgene") # solo debe ejecutarse una vez
+gget.setup("elm")         # solo debe ejecutarse una vez
+ortho_df, regex_df = gget.elm("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")
+
+gget.setup("cellxgene")   # solo debe ejecutarse una vez
 gget.cellxgene(gene = ["ACE2", "SLC5A1"], tissue = "lung", cell_type = "mucus secreting cell")
 
-gget.setup("alphafold") # solo debe ejecutarse una vez
+gget.setup("alphafold")   # solo debe ejecutarse una vez
 gget.alphafold("MSKGEELFTGVVPILVELDGDVNGHKFSVSGEGEGDATYGKLTLKFICTTGKLPVPWPTLVTTFSYGVQCFSRYPDHMKQHDFFKSAMPEGYVQERTIFFKDDGNYKTRAEVKFEGDTLVNRIELKGIDFKEDGNILGHKLEYNYNSHNVYIMADKQKNGIKVNFKIRHNIEDGSVQLADHYQQNTPIGDGPVLLPDNHYLSTQSALSKDPNEKRDHMVLLEFVTAAGITHGMDELYK")
 ```
 Use a `gget` con R usando [reticulate](https://rstudio.github.io/reticulate/):
@@ -72,7 +86,8 @@ gget$info(list("ENSG00000130234", "ENST00000252519"))
 gget$seq("ENSG00000130234", translate=TRUE)
 gget$blat("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")
 gget$blast("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")
-gget$muscle("path/to/file.fa", out="path/to/out.afa")
+gget$muscle(list("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS", "MSSSSWLLLSLVEVTAAQSTIEQQAKTFLDKFHEAEDLFYQSLLAS"), out="out.afa")
+gget$diamond("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS", reference="MSSSSWLLLSLVEVTAAQSTIEQQAKTFLDKFHEAEDLFYQSLLAS")
 gget$enrichr(list("ACE2", "AGT", "AGTR1", "ACE", "AGTRAP", "AGTR2", "ACE3P"), database="ontology")
 gget$archs4("ACE2", which="tissue")
 gget$pdb("1R42", save=TRUE)
