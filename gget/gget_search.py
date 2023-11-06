@@ -277,10 +277,9 @@ def search(
                 # In the first iteration, make the search results equal to the master data frame
                 if i == 0:
                     df = df_temp.copy()
-                # Add new search results to mastser data frame
+                # Add new search results to master data frame
                 else:
                     df = pd.concat([df, df_temp])
-                    return df
 
             # If andor="and", only keep overlap between results
             if andor == "and":
