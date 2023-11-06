@@ -27,5 +27,7 @@ jobs:
           architecture: x64
       - name: Install dependencies
         run: pip install -r requirements.txt && pip install -r dev-requirements.txt
+      - name: Download ELM
+        run: gget setup elm
       - name: Run tests
         run: coverage run -m pytest -ra -v tests && coverage report --omit=main.py,tests*
