@@ -65,6 +65,12 @@ def diamond(
             f"'sensitivity' argument specified as {sensitivity}. Expected one of: {', '.join(supported_sens)}"
         )
 
+    # Handle command line passing path to FASTA as a list
+    if isinstance(query, list) and len(query) == 1:
+        query = query[0]
+    if isinstance(reference, list) and len(reference) == 1:
+        reference = reference[0]
+        
     # Define paths to query/reference/db/output files
     files_to_delete = []
     if "." in query:
