@@ -48,6 +48,10 @@ def muscle(fasta, super5=False, out=None, verbose=True):
     """
     # Muscle v5 documentation: https://drive5.com/muscle5
 
+    # Handle command line passing path to FASTA as a list
+    if isinstance(fasta, list) and len(fasta) == 1:
+        fasta = fasta[0]
+
     if "." in fasta:
         abs_fasta_path = os.path.abspath(fasta)
         fasta_provided = True
