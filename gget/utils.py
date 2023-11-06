@@ -789,7 +789,7 @@ def create_tmp_fasta(sequences):
 
     with open(f"tmp_{random_id}.fa", "w") as f:
         for idx, seq in enumerate(sequences):
-            f.write(f">Seq {idx}\n" + seq + "\n")
+            f.write(f">Seq{idx}\n" + seq + "\n")
 
     return os.path.abspath(f"tmp_{random_id}.fa")
 
