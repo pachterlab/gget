@@ -49,14 +49,17 @@ $ gget info ENSG00000130234 ENST00000252519
 # Fetch the amino acid sequence of the canonical transcript of gene ENSG00000130234
 $ gget seq --translate ENSG00000130234
 
-# Quickly find the genomic location of (the start of) the amino acid sequence returned by gget seq
+# Quickly find the genomic location of (the start of) that amino acid sequence
 $ gget blat MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS
 
-# BLAST (the start of) the amino acid sequence returned by gget seq
+# BLAST (the start of) that amino acid sequence
 $ gget blast MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS
 
-# Align nucleotide or amino acid sequences stored in a FASTA file
-$ gget muscle path/to/file.fa
+# Align multiple nucleotide or amino acid sequences against each other (also accepts path to FASTA file)  
+$ gget muscle MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS MSSSSWLLLSLVEVTAAQSTIEQQAKTFLDKFHEAEDLFYQSLLAS
+
+# Align one or more amino acid sequences against a reference (containing one or more sequences) (local BLAST) (also accepts paths to FASTA files)  
+$ gget diamond MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS -ref MSSSSWLLLSLVEVTAAQSTIEQQAKTFLDKFHEAEDLFYQSLLAS  
 
 # Use Enrichr for an ontology analysis of a list of genes
 $ gget enrichr -db ontology ACE2 AGT AGTR1 ACE AGTRAP AGTR2 ACE3P
@@ -64,11 +67,14 @@ $ gget enrichr -db ontology ACE2 AGT AGTR1 ACE AGTRAP AGTR2 ACE3P
 # Get the human tissue expression of gene ACE2
 $ gget archs4 -w tissue ACE2
 
-# Get the protein structure (in PDB format) of ACE2 as stored in the Protein Data Bank 
-# (PDB IDs can be returned by gget info with flag --pdb)
+# Get the protein structure (in PDB format) of ACE2 as stored in the Protein Data Bank (PDB ID returned by gget info)
 $ gget pdb 1R42 -o 1R42.pdb
 
-# Fetch an scRNAseq count matrix (AnnData format) based on specified gene(s), tissue(s) and cell type(s) (default species: human)
+# Find Eukaryotic Linear Motifs (ELMs) in a protein sequence
+$ gget setup elm # setup only needs to be run once
+$ gget elm -o results MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS
+
+# Fetch a scRNAseq count matrix (AnnData format) based on specified gene(s), tissue(s), and cell type(s) (default species: human)
 $ gget setup cellxgene # setup only needs to be run once
 $ gget cellxgene --gene ACE2 SLC5A1 --tissue lung --cell_type 'mucus secreting cell' -o example_adata.h5ad
 
@@ -85,10 +91,14 @@ gget.info(["ENSG00000130234", "ENST00000252519"])
 gget.seq("ENSG00000130234", translate=True)
 gget.blat("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")
 gget.blast("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")
-gget.muscle("path/to/file.fa")
+gget.muscle(["MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS", "MSSSSWLLLSLVEVTAAQSTIEQQAKTFLDKFHEAEDLFYQSLLAS"])
+gget.diamond("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS", reference="MSSSSWLLLSLVEVTAAQSTIEQQAKTFLDKFHEAEDLFYQSLLAS")
 gget.enrichr(["ACE2", "AGT", "AGTR1", "ACE", "AGTRAP", "AGTR2", "ACE3P"], database="ontology", plot=True)
 gget.archs4("ACE2", which="tissue")
 gget.pdb("1R42", save=True)
+
+gget.setup("elm") # setup only needs to be run once
+ortho_df, regex_df = gget.elm("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")
 
 gget.setup("cellxgene") # setup only needs to be run once
 gget.cellxgene(gene = ["ACE2", "SLC5A1"], tissue = "lung", cell_type = "mucus secreting cell")
@@ -109,7 +119,8 @@ gget$info(list("ENSG00000130234", "ENST00000252519"))
 gget$seq("ENSG00000130234", translate=TRUE)
 gget$blat("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")
 gget$blast("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")
-gget$muscle("path/to/file.fa", out="path/to/out.afa")
+gget$muscle(list("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS", "MSSSSWLLLSLVEVTAAQSTIEQQAKTFLDKFHEAEDLFYQSLLAS"), out="out.afa")
+gget$diamond("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS", reference="MSSSSWLLLSLVEVTAAQSTIEQQAKTFLDKFHEAEDLFYQSLLAS")
 gget$enrichr(list("ACE2", "AGT", "AGTR1", "ACE", "AGTRAP", "AGTR2", "ACE3P"), database="ontology")
 gget$archs4("ACE2", which="tissue")
 gget$pdb("1R42", save=TRUE)
