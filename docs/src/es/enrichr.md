@@ -49,7 +49,8 @@ Usa esta bandera si `genes` se ingresa como una lista de IDs tipo Ensembl.
 Usa esta bandera si `background_list` se ingresa como una lista de IDs tipo Ensembl.  
 
 `-bkg` `--background`  
-Use un conjunto de 20,625 genes 'background' de [https://maayanlab.cloud/Enrichr/](https://maayanlab.cloud/Enrichr/).
+Use un conjunto de 20,625 genes 'background' 
+listados [aquí](https://github.com/pachterlab/gget/blob/main/gget/constants/enrichr_bkg_genes.txt).
  
 `-csv` `--csv`  
 Solo para Terminal. Produce los resultados en formato CSV.    
