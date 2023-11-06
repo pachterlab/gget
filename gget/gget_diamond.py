@@ -85,6 +85,10 @@ def diamond(
         reference_file = create_tmp_fasta(reference)
         files_to_delete.append(reference_file)
 
+    # Create out folder if it does not exist
+    if out:
+        os.makedirs(out, exist_ok=True)
+
     if out:
         out = os.path.abspath(out)
         output = f"{out}/DIAMOND_results.tsv"
@@ -163,10 +167,6 @@ def diamond(
     # Delete temporary files
     if files_to_delete:
         remove_temp_files(files_to_delete)
-
-    # Create out folder if it does not exist
-    if out:
-        os.makedirs(out, exist_ok=True)
 
     if json:
         results_dict = json_package.loads(df_diamond.to_json(orient="records"))
