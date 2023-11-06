@@ -47,6 +47,12 @@ gget diamond GGETISAWESQME ELVISISALIVE LQVEFRANKLIN PACHTERLABRQCKS -ref GGETIS
 # Python
 gget.diamond(["GGETISAWESQME", "ELVISISALIVE", "LQVEFRANKLIN", "PACHTERLABRQCKS"], reference=["GGETISAWESQMEELVISISALIVELQVEFRANKLIN", "PACHTERLABRQCKS"])
 ```
-&rarr;    
+&rarr; Returns results in JSON (command-line) or data frame/CSV (Python) format:     
+
+|query_accession|subject_accession|identity_percentage|query_seq_length|subject_seq_length|length|mismatches|gap_openings|query_start|query_end|subject_start|subject_end|e-value |bit_score|
+|---------------|-----------------|-------------------|----------------|------------------|------|----------|------------|-----------|---------|-------------|-----------|--------|---------|
+|Seq0           |Seq0             |100                |13              |37                |13    |0         |0           |1          |13       |1            |13         |2.82e-09|30.8     |
+|Seq2           |Seq0             |100                |12              |37                |12    |0         |0           |1          |12       |26           |37         |4.35e-08|27.7     |
+|Seq3           |Seq1             |100                |15              |15                |15    |0         |0           |1          |15       |1            |15         |2.01e-11|36.2     |
 
 #### [More examples](https://github.com/pachterlab/gget_examples)
