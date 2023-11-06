@@ -1,4 +1,4 @@
 coverage>=5.1
 pytest>=7.0.0
-openai>=1.0.1
+openai<=0.28.1
 cellxgene-census
