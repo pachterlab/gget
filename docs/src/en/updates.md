@@ -3,7 +3,7 @@
 - Updated documentation of [`gget muscle`](./muscle.md) to add a tutorial on how to visualize sequences with sequence name lengths + slight change to returned visualization so it's a bit more robust to varying sequence names
 - [`gget muscle`](./muscle.md) now also allows a list of sequences as input (as an alternative to providing the path to a FASTA file)  
 - [`gget seq`](./seq.md): Allow missing gene names (fixes [https://github.com/pachterlab/gget/issues/107](https://github.com/pachterlab/gget/issues/107))
-- New arguments for [`gget enrichr`](enrichr.md): Use argument `kegg_out` and `kegg_rank` to create an image of the KEGG pathway with the genes from the enrichment analysis highlighted (thanks to [this PR](https://github.com/pachterlab/gget/pull/106) by [Noriaki Sato](https://github.com/noriakis))  
+- New arguments for [`gget enrichr`](enrichr.md): Use arguments `kegg_out` and `kegg_rank` to create an image of the KEGG pathway with the genes from the enrichment analysis highlighted (thanks to [this PR](https://github.com/pachterlab/gget/pull/106) by [Noriaki Sato](https://github.com/noriakis))  
 - New modules: [`gget elm`](elm.md) and [`gget diamond`](diamond.md)  
   
 **Version ≥ 0.27.9** (August 7, 2023):  
