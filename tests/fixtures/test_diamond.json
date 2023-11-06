@@ -248,7 +248,8 @@
         "type": "assert_equal",
         "args": {
             "query": "tests/fixtures/muscle_aa_test.fa",
-            "reference": "tests/fixtures/muscle_aa_test.fa"
+            "reference": "tests/fixtures/muscle_aa_test.fa",
+            "json": true
         },
         "expected_result": [
             {
