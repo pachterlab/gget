@@ -93,7 +93,7 @@
         "type": "assert_equal",
         "args": {
             "query": "MLMPGPLRRALGQKFSIFPSVDHDSDDDSYEVLDLTEYARRHHWWNRLFGRNSGPVVEKYSVATQIVMGGVTGWCAGFLFQKVGKLAA",
-            "reference": "./fixtures/muscle_aa_test.fa"
+            "reference": "tests/fixtures/muscle_aa_test.fa"
         },
         "expected_result": [
             [
@@ -133,7 +133,7 @@
     "test4": {
         "type": "assert_equal",
         "args": {
-            "query": "./fixtures/muscle_aa_test.fa",
+            "query": "tests/fixtures/muscle_aa_test.fa",
             "reference": "MLMPGPLRRALGQKFSIFPSVDHDSDDDSYEVLDLTEYARRHHWWNRLFGRNSGPVVEKYSVATQIVMGGVTGWCAGFLFQKVGKLAA"
         },
         "expected_result": [
@@ -174,8 +174,8 @@
     "test5": {
         "type": "assert_equal",
         "args": {
-            "query": "./fixtures/muscle_aa_test.fa",
-            "reference": "./fixtures/muscle_aa_test.fa"
+            "query": "tests/fixtures/muscle_aa_test.fa",
+            "reference": "tests/fixtures/muscle_aa_test.fa"
         },
         "expected_result": [
             [
@@ -247,8 +247,8 @@
     "test6": {
         "type": "assert_equal",
         "args": {
-            "query": "./fixtures/muscle_aa_test.fa",
-            "reference": "./fixtures/muscle_aa_test.fa"
+            "query": "tests/fixtures/muscle_aa_test.fa",
+            "reference": "tests/fixtures/muscle_aa_test.fa"
         },
         "expected_result": [
             {
