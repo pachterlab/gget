@@ -41,11 +41,11 @@ Python: Use `verbose=False` to prevent progress information from being displayed
 ### Example
 ```bash
 # !!! Make sure to list the positional argument first here so it is not added as a reference sequence
-gget diamond SEQ -ref TESTSEQ 
+gget diamond GGETISAWESQME ELVISISALIVE LQVEFRANKLIN PACHTERLABRQCKS -ref GGETISAWESQMEELVISISALIVELQVEFRANKLIN PACHTERLABRQCKS
 ```
 ```python
 # Python
-gget.diamond(“SEQ”, reference="TESTSEQ")
+gget.diamond(["GGETISAWESQME", "ELVISISALIVE", "LQVEFRANKLIN", "PACHTERLABRQCKS"], reference=["GGETISAWESQMEELVISISALIVELQVEFRANKLIN", "PACHTERLABRQCKS"])
 ```
 &rarr;    
 
