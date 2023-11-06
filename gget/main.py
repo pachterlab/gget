@@ -340,7 +340,7 @@ def main():
         help="Number of threads used in DIAMOND alignment.",
     )
     parser_elm.add_argument(
-        "-db",
+        "-bin",
         "--diamond_binary",
         type=str,
         default=None,
