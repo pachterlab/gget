@@ -98,7 +98,8 @@ def enrichr(
                         'kinase_interactions' (KEA_2015)
                         or any database listed under Gene-set Library at: https://maayanlab.cloud/Enrichr/#libraries
     - background_list   List of gene names/Ensembl IDs to be used as background genes. (Default: None)
-    - background        If True, use set of > 20,000 default background genes from https://maayanlab.cloud/Enrichr/. (Default: False)
+    - background        If True, use set of > 20,000 default background genes listed here: https://github.com/pachterlab/gget/blob/main/gget/constants/enrichr_bkg_genes.txt. 
+                        (Default: False)
     - ensembl           Define as 'True' if 'genes' is a list of Ensembl gene IDs. (Default: False)
     - ensembl_bkg       Define as 'True' if 'background_list' is a list of Ensembl gene IDs. (Default: False)
     - plot              True/False whether to provide a graphical overview of the first 15 results. (Default: False)
