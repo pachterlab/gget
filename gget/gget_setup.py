@@ -62,8 +62,8 @@ def setup(module, verbose=True):
 
     if module == "gpt":
         if verbose:
-            logging.info("Installing openai package (requires pip).")
-        command = "pip install -q -U openai"
+            logging.info("Installing openai version <=0.28.1 (requires pip).")
+        command = "pip install -q -U 'openai<=0.28.1'"
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
             stderr = process.stderr.read().decode("utf-8")
         # Exit system if the subprocess returned with an error
@@ -72,7 +72,7 @@ def setup(module, verbose=True):
                 # Log the standard error if it is not empty
                 sys.stderr.write(stderr)
             logging.error(
-                "openai installation with pip (https://pypi.org/project/openai) failed."
+                "Installation of openai version <=0.28.1 with pip (https://pypi.org/project/openai) failed."
             )
             return
 
