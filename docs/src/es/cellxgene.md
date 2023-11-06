@@ -133,3 +133,5 @@ df = gget.cellxgene(
 df
 ```
 &rarr; Produce solo los metadatos de los conjuntos de datos de ENSMUSG00000015405 (ACE2), los cuales corresponden a células pulmonares murinas.  
+
+Ver también: [https://chanzuckerberg.github.io/cellxgene-census/notebooks/api_demo/census_gget_demo.html](https://chanzuckerberg.github.io/cellxgene-census/notebooks/api_demo/census_gget_demo.html)
