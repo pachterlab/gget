@@ -1,0 +1,320 @@
+{
+    "test1": {
+        "type": "assert_equal",
+        "args": {
+            "query": [
+                "GGETISAWESQME",
+                "ELVISISALIVE",
+                "LQVEFRANKLIN",
+                "PACHTERLABRQCKS"
+            ],
+            "reference": [
+                "GGETISAWESQMEELVISISALIVELQVEFRANKLIN",
+                "PACHTERLABRQCKS"
+            ]
+        },
+        "expected_result": [
+            [
+                "Seq0",
+                "Seq0",
+                100,
+                13,
+                37,
+                13,
+                0,
+                0,
+                1,
+                13,
+                1,
+                13,
+                2.82e-09,
+                30.8
+            ],
+            [
+                "Seq2",
+                "Seq0",
+                100,
+                12,
+                37,
+                12,
+                0,
+                0,
+                1,
+                12,
+                26,
+                37,
+                4.35e-08,
+                27.7
+            ],
+            [
+                "Seq3",
+                "Seq1",
+                100,
+                15,
+                15,
+                15,
+                0,
+                0,
+                1,
+                15,
+                1,
+                15,
+                2.01e-11,
+                36.2
+            ]
+        ]
+    },
+    "test2": {
+        "type": "assert_equal",
+        "args": {
+            "query": "GGETISAWESQME",
+            "reference": "GGETISAWESQMEELVISISALIVELQVEFRANKLIN"
+        },
+        "expected_result": [
+            [
+                "Seq0",
+                "Seq0",
+                100,
+                13,
+                37,
+                13,
+                0,
+                0,
+                1,
+                13,
+                1,
+                13,
+                2.01e-09,
+                30.8
+            ]
+        ]
+    },
+    "test3": {
+        "type": "assert_equal",
+        "args": {
+            "query": "MLMPGPLRRALGQKFSIFPSVDHDSDDDSYEVLDLTEYARRHHWWNRLFGRNSGPVVEKYSVATQIVMGGVTGWCAGFLFQKVGKLAA",
+            "reference": "./fixtures/muscle_aa_test.fa"
+        },
+        "expected_result": [
+            [
+                "Seq0",
+                "ENSTGUT00000027003",
+                100,
+                88,
+                88,
+                88,
+                0,
+                0,
+                1,
+                88,
+                1,
+                88,
+                7.199999999999999e-69,
+                187
+            ],
+            [
+                "Seq0",
+                "ENSTGUT00000006367",
+                100,
+                88,
+                84,
+                67,
+                0,
+                0,
+                22,
+                88,
+                11,
+                77,
+                2.74e-52,
+                145
+            ]
+        ]
+    },
+    "test4": {
+        "type": "assert_equal",
+        "args": {
+            "query": "./fixtures/muscle_aa_test.fa",
+            "reference": "MLMPGPLRRALGQKFSIFPSVDHDSDDDSYEVLDLTEYARRHHWWNRLFGRNSGPVVEKYSVATQIVMGGVTGWCAGFLFQKVGKLAA"
+        },
+        "expected_result": [
+            [
+                "ENSTGUT00000006367",
+                "Seq0",
+                100,
+                84,
+                88,
+                67,
+                0,
+                0,
+                11,
+                77,
+                22,
+                88,
+                3.8399999999999994e-52,
+                144
+            ],
+            [
+                "ENSTGUT00000027003",
+                "Seq0",
+                100,
+                88,
+                88,
+                88,
+                0,
+                0,
+                1,
+                88,
+                1,
+                88,
+                3.69e-69,
+                187
+            ]
+        ]
+    },
+    "test5": {
+        "type": "assert_equal",
+        "args": {
+            "query": "./fixtures/muscle_aa_test.fa",
+            "reference": "./fixtures/muscle_aa_test.fa"
+        },
+        "expected_result": [
+            [
+                "ENSTGUT00000006367",
+                "ENSTGUT00000006367",
+                100,
+                84,
+                84,
+                84,
+                0,
+                0,
+                1,
+                84,
+                1,
+                84,
+                2.04e-64,
+                176
+            ],
+            [
+                "ENSTGUT00000006367",
+                "ENSTGUT00000027003",
+                100,
+                84,
+                88,
+                67,
+                0,
+                0,
+                11,
+                77,
+                22,
+                88,
+                7.509999999999999e-52,
+                144
+            ],
+            [
+                "ENSTGUT00000027003",
+                "ENSTGUT00000027003",
+                100,
+                88,
+                88,
+                88,
+                0,
+                0,
+                1,
+                88,
+                1,
+                88,
+                7.199999999999999e-69,
+                187
+            ],
+            [
+                "ENSTGUT00000027003",
+                "ENSTGUT00000006367",
+                100,
+                88,
+                84,
+                67,
+                0,
+                0,
+                22,
+                88,
+                11,
+                77,
+                2.74e-52,
+                145
+            ]
+        ]
+    },
+    "test6": {
+        "type": "assert_equal",
+        "args": {
+            "query": "./fixtures/muscle_aa_test.fa",
+            "reference": "./fixtures/muscle_aa_test.fa"
+        },
+        "expected_result": [
+            {
+                "query_accession": "ENSTGUT00000006367",
+                "subject_accession": "ENSTGUT00000006367",
+                "identity_percentage": 100,
+                "query_seq_length": 84,
+                "subject_seq_length": 84,
+                "length": 84,
+                "mismatches": 0,
+                "gap_openings": 0,
+                "query_start": 1,
+                "query_end": 84,
+                "subject_start": 1,
+                "subject_end": 84,
+                "e-value": 2.04e-64,
+                "bit_score": 176
+            },
+            {
+                "query_accession": "ENSTGUT00000006367",
+                "subject_accession": "ENSTGUT00000027003",
+                "identity_percentage": 100,
+                "query_seq_length": 84,
+                "subject_seq_length": 88,
+                "length": 67,
+                "mismatches": 0,
+                "gap_openings": 0,
+                "query_start": 11,
+                "query_end": 77,
+                "subject_start": 22,
+                "subject_end": 88,
+                "e-value": 7.51e-52,
+                "bit_score": 144
+            },
+            {
+                "query_accession": "ENSTGUT00000027003",
+                "subject_accession": "ENSTGUT00000027003",
+                "identity_percentage": 100,
+                "query_seq_length": 88,
+                "subject_seq_length": 88,
+                "length": 88,
+                "mismatches": 0,
+                "gap_openings": 0,
+                "query_start": 1,
+                "query_end": 88,
+                "subject_start": 1,
+                "subject_end": 88,
+                "e-value": 7.2e-69,
+                "bit_score": 187
+            },
+            {
+                "query_accession": "ENSTGUT00000027003",
+                "subject_accession": "ENSTGUT00000006367",
+                "identity_percentage": 100,
+                "query_seq_length": 88,
+                "subject_seq_length": 84,
+                "length": 67,
+                "mismatches": 0,
+                "gap_openings": 0,
+                "query_start": 22,
+                "query_end": 88,
+                "subject_start": 11,
+                "subject_end": 77,
+                "e-value": 2.74e-52,
+                "bit_score": 145
+            }
+        ]
+    }
+}

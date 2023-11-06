@@ -1,6 +1,4 @@
 import unittest
-
-# Library to test functions that have calls to print()
 import json
 
 from gget.gget_elm import elm
