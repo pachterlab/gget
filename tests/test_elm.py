@@ -8,11 +8,10 @@ from gget.gget_setup import setup
 with open("./tests/fixtures/test_elm.json") as json_file:
     elm_dict = json.load(json_file)
 
+# Download ELM files
+setup("elm")
 
 class TestELM(unittest.TestCase):
-    # Download ELM files
-    setup("elm")
-
     def test_elm_uniprot_id_in_elm(self):
         test = "test1"
         expected_result = elm_dict[test]["expected_result"]
