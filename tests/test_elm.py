@@ -2,14 +2,10 @@ import unittest
 import json
 
 from gget.gget_elm import elm
-from gget.gget_setup import setup
 
 # Load dictionary containing arguments and expected results
 with open("./tests/fixtures/test_elm.json") as json_file:
     elm_dict = json.load(json_file)
-
-# Download ELM files
-setup("elm")
 
 class TestELM(unittest.TestCase):
     def test_elm_uniprot_id_in_elm(self):
