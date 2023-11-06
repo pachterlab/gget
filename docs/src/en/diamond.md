@@ -1,6 +1,6 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
 ## gget diamond 💎
-Align multiple protein or translated DNA sequences using [DIAMOND](https://www.nature.com/articles/nmeth.3176).     
+Align multiple protein or translated DNA sequences using [DIAMOND](https://www.nature.com/articles/nmeth.3176) (DIAMOND is similar to BLAST, but this is a local computation).     
 Return format: JSON (command-line) or data frame/CSV (Python).  
 
 **Positional argument**  
