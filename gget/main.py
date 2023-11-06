@@ -181,7 +181,7 @@ def main():
         "searchwords",
         type=str,
         nargs="*",
-        default=None,
+        required=True,
         help="One or more free form search words, e.g. gaba, nmda.",
     )
     parser_gget.add_argument(
@@ -304,8 +304,8 @@ def main():
     parser_elm.add_argument(
         "sequence",
         type=str,
-        default=None,
-        help="Amino acid sequence or Uniprot ID. If Uniprot ID, set 'uniprot==True'.",
+        required=True,
+        help="Amino acid sequence or Uniprot ID. If Uniprot ID, use flag '--uniprot'.",
     )
     parser_elm.add_argument(
         "-u",
@@ -386,6 +386,7 @@ def main():
         "query",
         type=str,
         nargs="*",
+        required=True,
         help="Sequences (str or list) or path to FASTA file containing sequences to be aligned against the reference.",
     )
     parser_diamond.add_argument(
@@ -490,7 +491,7 @@ def main():
         "ens_ids",
         type=str,
         nargs="*",
-        default=None,
+        required=True,
         help="One or more Ensembl, WormBase or FlyBase IDs.",
     )
     parser_info.add_argument(
@@ -587,7 +588,7 @@ def main():
         "ens_ids",
         type=str,
         nargs="*",
-        default=None,
+        required=True,
         help="One or more Ensembl, WormBase or FlyBase IDs.",
     )
     parser_seq.add_argument(
@@ -663,9 +664,9 @@ def main():
     parser_muscle.add_argument(
         "fasta",
         type=str,
-        nargs="?",
-        default=None,
-        help="Path to fasta file containing the sequences to be aligned.",
+        nargs="*",
+        required=True,
+        help="List of sequences or path to fasta file containing the sequences to be aligned.",
     )
     parser_muscle.add_argument(
         "-s5",
@@ -716,8 +717,7 @@ def main():
     parser_blast.add_argument(
         "sequence",
         type=str,
-        nargs="?",
-        default=None,
+        required=True,
         help="Sequence (str) or path to fasta file.",
     )
     parser_blast.add_argument(
@@ -839,8 +839,7 @@ def main():
     parser_blat.add_argument(
         "sequence",
         type=str,
-        nargs="?",
-        default=None,
+        required=True,
         help="Sequence (str) or path to fasta file.",
     )
     parser_blat.add_argument(
@@ -924,7 +923,7 @@ def main():
         "genes",
         type=str,
         nargs="*",
-        default=None,
+        required=True,
         help="List of gene symbols or Ensembl gene IDs to perform enrichment analysis on.",
     )
     parser_enrichr.add_argument(
@@ -1044,8 +1043,7 @@ def main():
     parser_archs4.add_argument(
         "gene",
         type=str,
-        nargs="?",
-        default=None,
+        required=True,
         help="Gene symbol or Ensembl gene ID of gene of interest, e.g. 'STAT4'.",
     )
     parser_archs4.add_argument(
@@ -1159,6 +1157,7 @@ def main():
         "module",
         type=str,
         choices=["alphafold", "gpt", "cellxgene", "elm"],
+        required=True,
         help="gget module for which dependencies should be installed, e.g. 'alphafold'",
     )
 
@@ -1184,8 +1183,8 @@ def main():
     parser_alphafold.add_argument(
         "sequence",
         type=str,
-        nargs="?",
-        default=None,
+        nargs="*",
+        required=True,
         help="Sequence (str), list of sequences, or path to fasta file.",
     )
     parser_alphafold.add_argument(
@@ -1249,8 +1248,7 @@ def main():
     parser_pdb.add_argument(
         "pdb_id",
         type=str,
-        nargs="?",
-        default=None,
+        required=True,
         help="PDB ID to be queried, e.g. '7S7U'.",
     )
     parser_pdb.add_argument(
@@ -1326,6 +1324,7 @@ def main():
     parser_gpt.add_argument(
         "prompt",
         type=str,
+        required=True,
         help="The input prompt to generate text from.",
     )
     parser_gpt.add_argument(
