@@ -5,7 +5,7 @@ Return format: ClustalW formatted standard out or aligned FASTA (.afa).
 
 **Positional argument**  
 `fasta`   
-Path to FASTA or .txt file containing the nucleotide or amino acid sequences to be aligned.  
+List of sequences or path to FASTA or .txt file containing the nucleotide or amino acid sequences to be aligned.  
 
 **Optional arguments**  
 `-o` `--out`   
@@ -23,6 +23,14 @@ Python: Use `verbose=False` to prevent progress information from being displayed
   
   
 ### Example
+```bash
+gget muscle MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS MSSSSWLLLSLVEVTAAQSTIEQQAKTFLDKFHEAEDLFYQSLLAS
+```
+```python
+# Python
+gget.muscle(["MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS", "MSSSSWLLLSLVEVTAAQSTIEQQAKTFLDKFHEAEDLFYQSLLAS"])
+```
+
 ```bash
 gget muscle fasta.fa
 ```
