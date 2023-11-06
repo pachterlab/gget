@@ -40,7 +40,8 @@ Python: Use `verbose=False` to prevent progress information from being displayed
 
 ### Example
 ```bash
-gget diamond -ref TESTSEQ SEQ
+# !!! Make sure to list the positional argument first here so it is not added as a reference sequence
+gget diamond SEQ -ref TESTSEQ 
 ```
 ```python
 # Python
