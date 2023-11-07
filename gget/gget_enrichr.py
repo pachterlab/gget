@@ -442,7 +442,7 @@ def enrichr(
 
         # Set label and color of count axis
         ax1.set_xlabel(
-            f"Number of overlapping genes (query size: {len(genes)})",
+            f"Number of overlapping genes (query size: {len(genes_clean)})",
             color=barcolor,
             fontsize=fontsize,
         )
