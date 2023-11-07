@@ -184,11 +184,17 @@ def cellxgene(
             logging.info(
                 "Fetching AnnData object from CZ CELLxGENE Discover. This might take a few minutes..."
             )
+
+        if gene:
+            var_value_filter = f"{'feature_id' if ensembl else 'feature_name'} in {gene}"
+        else:
+            var_value_filter = None
+
         with cellxgene_census.open_soma(census_version=census_version) as census:
             adata = cellxgene_census.get_anndata(
                 census=census,
                 organism=species,
-                var_value_filter=f"{'feature_id' if ensembl else 'feature_name'} in {gene}",
+                var_value_filter=var_value_filter,
                 obs_value_filter=obs_value_filter,
                 column_names={"obs": column_names},
             )
