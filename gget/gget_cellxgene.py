@@ -188,7 +188,7 @@ def cellxgene(
             adata = cellxgene_census.get_anndata(
                 census=census,
                 organism=species,
-                var_value_filter=f"{'feature_id' if ensembl else 'feature_name'} in {gene}",
+                # var_value_filter=f"{'feature_id' if ensembl else 'feature_name'} in {gene}",
                 obs_value_filter=obs_value_filter,
                 column_names={"obs": column_names},
             )
