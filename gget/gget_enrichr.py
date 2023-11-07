@@ -259,7 +259,7 @@ def enrichr(
     elif background:
         if verbose:
             logging.info(
-                "Background genes are set to the 20,625 default genes from https://maayanlab.cloud/Enrichr/."
+                "Background genes set to > 20,000 default background genes listed here: https://github.com/pachterlab/gget/blob/main/gget/constants/enrichr_bkg_genes.txt."
             )
         with open(f"{PACKAGE_PATH}/constants/enrichr_bkg_genes.txt") as f:
             lines = f.read().splitlines()
