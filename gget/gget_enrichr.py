@@ -192,10 +192,6 @@ def enrichr(
             logging.info("Getting gene symbols from Ensembl IDs.")
 
         genes_v2 = ensembl_to_gene_names(genes)
-        if verbose:
-            logging.info(
-                f"Performing Enichr analysis on the following gene symbols: {', '.join(genes_v2)}"
-            )
 
     else:
         genes_v2 = genes
@@ -214,6 +210,13 @@ def enrichr(
             return
 
     genes_clean = clean_genes_list(genes_v2)
+
+    if ensembl:
+        if verbose:
+            logging.info(
+                f"Performing Enichr analysis on the following gene symbols: {', '.join(genes_clean)}"
+            )
+ 
     # Join genes from list
     genes_clean_final = "\n".join(genes_clean)
 
