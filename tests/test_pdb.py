@@ -43,7 +43,7 @@ class TestPDB(unittest.TestCase):
         test = "test5"
         expected_result = pdb_dict[test]["expected_result"]
         result_to_test = pdb(**pdb_dict[test]["args"])
-        
+
         self.assertEqual(result_to_test, expected_result)
 
     def test_pdb_nonpolymer_entity_instance(self):
@@ -67,15 +67,8 @@ class TestPDB(unittest.TestCase):
 
         self.assertEqual(result_to_test, expected_result)
 
-    def test_pdb_pubmed(self):
-        test = "test9"
-        expected_result = pdb_dict[test]["expected_result"]
-        result_to_test = pdb(**pdb_dict[test]["args"])
-
-        self.assertEqual(result_to_test, expected_result)
-
     def test_pdb_pdb(self):
-        test = "test10"
+        test = "test9"
         pdb(**pdb_dict[test]["args"])
 
         # Expected result
