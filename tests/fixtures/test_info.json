@@ -1057,7 +1057,7 @@
                 "homo_sapiens",
                 "GRCh38",
                 "KRTAP9-8",
-                [],
+                ["KAP9.8", "KRTAP9.8"],
                 "Gene",
                 "protein_coding",
                 "17",
