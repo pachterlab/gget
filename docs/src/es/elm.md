@@ -1,6 +1,6 @@
 > Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
 ## gget elm 🎭
-Prediga localmente motivos lineales eucarióticos (ELMs) a partir de una secuencia de aminoácidos o UniProt ID utilizando datos de la [base de datos ELM](http://elm.eu.org/).  
+Prediga localmente motivos lineales eucarióticos (ELMs) a partir de una secuencia de aminoácidos o UniProt ID utilizando datos de la [base de datos ELM](http://elm.eu.org/). Los datos de ELM se pueden descargar y distribuir para uso no comercial de acuerdo con el [Acuerdo de licencia de software de ELM](http://elm.eu.org/media/Elm_academic_license.pdf).    
 Produce: Resultados en formato JSON (Terminal) o Dataframe/CSV (Python). Este módulo devuelve dos tipos de resultados (ver ejemplos).   
 
 Antes de usar `gget elm` por primera vez, ejecute `gget setup elm` / `gget.setup("elm")` una vez (consulte también [`gget setup`](setup.md)).   
