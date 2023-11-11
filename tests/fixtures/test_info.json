@@ -33,7 +33,8 @@
                 [
                     "protein_coding"
                 ],
-                [nan
+                [
+                    "unittest.mock.ANY"
                 ],
                 [
                     -1
