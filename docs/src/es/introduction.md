@@ -47,7 +47,3 @@ Lea el artículo aquí: [https://doi.org/10.1093/bioinformatics/btac836](https:/
 
 Gracias a [Victor Garcia-Ruiz](https://github.com/victorg775) y [Anna Karen Orta](https://www.linkedin.com/in/akorta/) por su ayuda con la traduccion del sitio web.  
 
-<br>
-<br>
-
-<img src="https://user-images.githubusercontent.com/56094636/222949999-0b89cba2-134f-4cbe-acbb-8f20b3f52684.jpg" alt="" width="250" height="160" />
