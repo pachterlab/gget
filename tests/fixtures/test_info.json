@@ -2,13 +2,13 @@
     "test1": {
         "type": "assert_equal",
         "args": {
-            "ens_ids": "WBGene00043981"
+            "ens_ids": "WBGene00043981",
+            "ncbi": false
         },
         "expected_result": [
             [
                 "WBGene00043981",
                 "Q5WRS0",
-                "3565421",
                 "caenorhabditis_elegans",
                 "WBcel235",
                 "aaim-1",
@@ -51,7 +51,8 @@
     "test2": {
         "type": "assert_equal",
         "args": {
-            "ens_ids": "T14E8.4.1"
+            "ens_ids": "T14E8.4.1",
+            "ncbi": false
         },
         "expected_result": [
             [
@@ -158,29 +159,21 @@
     "test3": {
         "type": "assert_equal",
         "args": {
-            "ens_ids": "FBgn0003656"
+            "ens_ids": "FBgn0003656",
+            "ncbi": false
         },
         "expected_result": [
             [
                 "FBgn0003656",
                 "Q9U969",
-                "31716",
                 "drosophila_melanogaster",
                 "BDGP6.46",
                 "sws",
                 "sws",
-                [
-                    "CG2212",
-                    "Dmel\\CG2212",
-                    "PNPLA6",
-                    "SWS",
-                    "Sws",
-                    "olfE"
-                ],
+                [],
                 "Neuropathy target esterase sws",
                 "swiss cheese",
                 "Phospholipase B that deacylates intracellular phosphatidylcholine (PtdCho), generating glycerophosphocholine (GroPtdCho). This deacylation occurs at both sn-2 and sn-1 positions of PtdCho. Its specific chemical modification by certain organophosphorus (OP) compounds leads to distal axonopathy. Plays a role in the signaling mechanism between neurons and glia that regulates glia wrapping during development of the adult brain. Essential for membrane lipid homeostasis and cell survival in both neurons and glia of the adult brain",
-                "Enables lysophospholipase activity and protein kinase A catalytic subunit binding activity. Involved in several processes, including negative regulation of cAMP-dependent protein kinase activity; photoreceptor cell maintenance; and sensory perception of smell. Located in endoplasmic reticulum membrane and plasma membrane. Is expressed in adult head and interface glial cell. Used to study blindness; cerebellar ataxia; hereditary spastic paraplegia; and neurodegenerative disease. Human ortholog(s) of this gene implicated in Boucher-Neuhauser syndrome; Laurence-Moon syndrome; Oliver-McFarlane syndrome; and hereditary spastic paraplegia 39. Orthologous to human PNPLA6 (patatin like phospholipase domain containing 6) and PNPLA7 (patatin like phospholipase domain containing 7). [provided by Alliance of Genome Resources, Apr 2022]",
                 [
                     "Endoplasmic reticulum membrane"
                 ],
@@ -287,14 +280,14 @@
                 "ENSMMUG00000054106.1",
                 "ENSMMUG00000053116.1",
                 "ENSMMUG00000021246.4"
-            ]
+            ],
+            "ncbi": false
         },
         "expected_result": [
             [
                 "ENSMMUG00000054106.1",
                 "macaca_mulatta",
                 "Mmul_10",
-                [],
                 "Gene",
                 "lncRNA",
                 "ENSMMUT00000080640.1",
@@ -331,7 +324,6 @@
                 "ENSMMUG00000053116.1",
                 "macaca_mulatta",
                 "Mmul_10",
-                [],
                 "Gene",
                 "protein_coding",
                 "ENSMMUT00000091015.1",
@@ -362,9 +354,6 @@
                 "ENSMMUG00000021246.4",
                 "macaca_mulatta",
                 "Mmul_10",
-                [
-                    "HIGD1A"
-                ],
                 "Gene",
                 "protein_coding",
                 "ENSMMUT00000029894.4",
@@ -450,26 +439,21 @@
     "test6": {
         "type": "assert_equal",
         "args": {
-            "ens_ids": "ENSMUst00000000001.1"
+            "ens_ids": "ENSMUst00000000001.1",
+            "ncbi": false
         },
         "expected_result": [
             [
                 "ENSMUst00000000001.5",
                 "Q9DC51",
-                "14679",
                 "mus_musculus",
                 "GRCm39",
                 "Gnai3",
                 "Gnai3-201",
-                [
-                    "Galphai3",
-                    "Gnai-3",
-                    "Hg1a"
-                ],
+                [],
                 "ENSMUSG00000000001",
                 "Guanine nucleotide-binding protein G(i) subunit alpha-3",
                 "Heterotrimeric guanine nucleotide-binding proteins (G proteins) function as transducers downstream of G protein-coupled receptors (GPCRs) in numerous signaling cascades. The alpha chain contains the guanine nucleotide binding site and alternates between an active, GTP-bound state and an inactive, GDP-bound state. Signaling by an activated GPCR promotes GDP release and GTP binding. The alpha subunit has a low GTPase activity that converts bound GTP to GDP, thereby terminating the signal. Both GDP release and GTP hydrolysis are modulated by numerous regulatory proteins. Signaling is mediated via effector proteins, such as adenylate cyclase. Inhibits adenylate cyclase activity, leading to decreased intracellular cAMP levels. Stimulates the activity of receptor-regulated K(+) channels. The active GTP-bound form prevents the association of RGS14 with centrosomes and is required for the translocation of RGS14 from the cytoplasm to the plasma membrane. May play a role in cell division",
-                "Predicted to enable several functions, including G-protein beta/gamma-subunit complex binding activity; GDP binding activity; and GTPase activating protein binding activity. Predicted to be involved in several processes, including positive regulation of NAD(P)H oxidase activity; positive regulation of superoxide anion generation; and positive regulation of vascular associated smooth muscle cell proliferation. Predicted to act upstream of or within G protein-coupled receptor signaling pathway. Located in Golgi apparatus. Is expressed in early conceptus; inner ear; and oocyte. Orthologous to human GNAI3 (G protein subunit alpha i3). [provided by Alliance of Genome Resources, Apr 2022]",
                 [
                     "Cytoplasm",
                     "Cell membrane",
@@ -556,7 +540,8 @@
             "ens_ids": [
                 "ENSTGUT00000027003.1",
                 "ENSG00000169174"
-            ]
+            ],
+            "ncbi": false
         },
         "expected_result": [
             [
@@ -586,13 +571,7 @@
                 "PCSK9",
                 "PCSK9",
                 [
-                    "FH3",
-                    "FHCL3",
-                    "HCHOLA3",
-                    "LDLCQ1",
-                    "NARC-1",
-                    "NARC1",
-                    "PC9"
+                    "NARC1"
                 ],
                 "Crucial player in the regulation of plasma cholesterol homeostasis. Binds to low-density lipid receptor family members: low density lipoprotein receptor (LDLR), very low density lipoprotein receptor (VLDLR), apolipoprotein E receptor (LRP1/APOER) and apolipoprotein receptor 2 (LRP8/APOER2), and promotes their degradation in intracellular acidic compartments (PubMed:18039658). Acts via a non-proteolytic mechanism to enhance the degradation of the hepatic LDLR through a clathrin LDLRAP1/ARH-mediated pathway. May prevent the recycling of LDLR from endosomes to the cell surface or direct it to lysosomes for degradation. Can induce ubiquitination of LDLR leading to its subsequent degradation (PubMed:18799458, PubMed:17461796, PubMed:18197702, PubMed:22074827). Inhibits intracellular degradation of APOB via the autophagosome/lysosome pathway in a LDLR-independent manner. Involved in the disposal of non-acetylated intermediates of BACE1 in the early secretory pathway (PubMed:18660751). Inhibits epithelial Na(+) channel (ENaC)-mediated Na(+) absorption by reducing ENaC surface expression primarily by increasing its proteasomal degradation. Regulates neuronal apoptosis via modulation of LRP8/APOER2 levels and related anti-apoptotic signaling pathways",
                 [
@@ -640,7 +619,8 @@
             "ens_ids": [
                 "ENSG00000130234"
             ],
-            "pdb": true
+            "pdb": true,
+            "ncbi": false
         },
         "expected_result": [
             [
@@ -868,18 +848,14 @@
                     "8sph",
                     "8spi"
                 ],
-                "59272",
                 "homo_sapiens",
                 "GRCh38",
                 "ACE2",
                 "ACE2",
-                [
-                    "ACEH"
-                ],
+                [],
                 "Angiotensin-converting enzyme 2",
                 "angiotensin converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]",
                 "(Microbial infection) Acts as a receptor for human coronaviruses SARS-CoV and SARS-CoV-2, as well as human coronavirus NL63/HCoV-NL63 (Microbial infection) Non-functional as a receptor for human coronavirus SARS-CoV-2 Essential counter-regulatory carboxypeptidase of the renin-angiotensin hormone system that is a critical regulator of blood volume, systemic vascular resistance, and thus cardiovascular homeostasis (PubMed:27217402). Converts angiotensin I to angiotensin 1-9, a nine-amino acid peptide with anti-hypertrophic effects in cardiomyocytes, and angiotensin II to angiotensin 1-7, which then acts as a beneficial vasodilator and anti-proliferation agent, counterbalancing the actions of the vasoconstrictor angiotensin II (PubMed:10969042, PubMed:10924499, PubMed:11815627, PubMed:19021774, PubMed:14504186). Also removes the C-terminal residue from three other vasoactive peptides, neurotensin, kinetensin, and des-Arg bradykinin, but is not active on bradykinin (PubMed:10969042, PubMed:11815627). Also cleaves other biological peptides, such as apelins (apelin-13, [Pyr1]apelin-13, apelin-17, apelin-36), casomorphins (beta-casomorphin-7, neocasomorphin) and dynorphin A with high efficiency (PubMed:11815627, PubMed:27217402, PubMed:28293165). In addition, ACE2 C-terminus is homologous to collectrin and is responsible for the trafficking of the neutral amino acid transporter SL6A19 to the plasma membrane of gut epithelial cells via direct interaction, regulating its expression on the cell surface and its catalytic activity (PubMed:18424768, PubMed:19185582) Non-functional as a carboxypeptidase",
-                "The protein encoded by this gene belongs to the angiotensin-converting enzyme family of dipeptidyl carboxydipeptidases and has considerable homology to human angiotensin 1 converting enzyme. This secreted protein catalyzes the cleavage of angiotensin I into angiotensin 1-9, and angiotensin II into the vasodilator angiotensin 1-7. ACE2 is known to be expressed in various human organs, and its organ- and cell-specific expression suggests that it may play a role in the regulation of cardiovascular and renal function, as well as fertility. In addition, the encoded protein is a functional receptor for the spike glycoprotein of the human coronavirus HCoV-NL63 and the human severe acute respiratory syndrome coronaviruses, SARS-CoV and SARS-CoV-2, the latter is the causative agent of coronavirus disease-2019 (COVID-19). Multiple splice variants have been found for this gene and the dACE2 (or MIRb-ACE2) splice variant has been found to be interferon inducible. [provided by RefSeq, Nov 2020]",
                 [
                     "Secreted",
                     "Cell membrane",
@@ -1030,53 +1006,48 @@
     "test11": {
         "type": "assert_equal",
         "args": {
-            "ens_ids": [
-                "ENSMAMT00000050164.1 ",
-                "ENSG00000187272",
-                "WBGene00004893"
-            ],
+            "ens_ids": "ENSG00000187272",
             "ncbi": true,
             "uniprot": false
         },
         "expected_result": [
             [
-                "ENSMAMT00000050164.1",
-                "mastacembelus_armatus",
-                "fMasArm1.2",
-                "dhh-206",
-                [],
-                "Transcript",
-                "protein_coding",
-                "7",
-                -1,
-                734953,
-                739905
-            ],
-            [
                 "ENSG00000187272.7",
+                "83901",
                 "homo_sapiens",
                 "GRCh38",
                 "KRTAP9-8",
-                ["KAP9.8", "KRTAP9.8"],
+                [
+                    "KAP9.8",
+                    "KRTAP9.8"
+                ],
+                "keratin associated protein 9-8 [Source:HGNC Symbol;Acc:HGNC:17231]",
+                "This protein is a member of the keratin-associated protein (KAP) family. The KAP proteins form a matrix of keratin intermediate filaments which contribute to the structure of hair fibers. KAP family members appear to have unique, family-specific amino- and carboxyl-terminal regions and are subdivided into three multi-gene families according to amino acid composition: the high sulfur, the ultrahigh sulfur, and the high tyrosine/glycine KAPs. This protein is a member of the ultrahigh sulfur KAP family and the gene is localized to a cluster of KAPs at 17q12-q21. [provided by RefSeq, Jul 2008]",
                 "Gene",
                 "protein_coding",
+                "ENST00000254072.7",
                 "17",
                 1,
                 41237999,
-                41239004
-            ],
-            [
-                "WBGene00004893",
-                "caenorhabditis_elegans",
-                "WBcel235",
-                "sms-2",
-                [],
-                "Gene",
-                "protein_coding",
-                "X",
-                -1,
-                944826,
-                948883
+                41239004,
+                [
+                    "ENST00000254072.7"
+                ],
+                [
+                    "protein_coding"
+                ],
+                [
+                    "KRTAP9-8-201"
+                ],
+                [
+                    1
+                ],
+                [
+                    41237999
+                ],
+                [
+                    41239004
+                ]
             ]
         ]
     },

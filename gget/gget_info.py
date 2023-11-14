@@ -236,56 +236,72 @@ def info(
                     html = requests.get(url)
                     # Raise error if status code not "OK" Response
                     if html.status_code != 200:
-                        if verbose:
-                            logging.warning(
-                                f"NCBI server request for {ens_id} returned error status code:\n{html.status_code}.\nPlease double-check arguments or try again later."
-                            )
+                        logging.error(
+                            f"NCBI server request for {ens_id} returned error status code:\n{html.status_code}.\nPlease double-check arguments or try again later."
+                        )
 
                     ## Web scrape NCBI website for gene ID, synonyms and description
                     soup = BeautifulSoup(html.text, "html.parser")
+
+                    # Check for error message in NCBI return
+                    if (
+                        soup.find("li", class_="error icon") is not None
+                        and "An error has occured"
+                        in soup.find("li", class_="error icon").text.strip()
+                    ):
+                        error_message = soup.find(
+                            "li", class_="error icon"
+                        ).text.strip()
+
+                        logging.error(
+                            f"The NCBI server request for Ensembl ID '{ens_id}' returned the following error:\n{error_message}"
+                        )
+
+                        ncbi_gene_id = np.nan
+                        ncbi_description = np.nan
+                        ncbi_synonyms = None
+                        continue
 
                     # Check if NCBI gene ID is available
                     try:
                         ncbi_gene_id = soup.find("input", {"id": "gene-id-value"}).get(
                             "value"
                         )
-                    except:
+                    except AttributeError:
                         ncbi_gene_id = np.nan
 
                     # Check if NCBI description is available
                     try:
                         ncbi_description = (
                             soup.find("div", class_="section", id="summaryDiv")
-                            .find("dt", text="Summary")
+                            .find("dt", string="Summary")
                             .find_next_sibling("dd")
                             .text
                         )
-                    except:
+                    except AttributeError:
                         ncbi_description = np.nan
 
                     # Check if NCBI synonyms are available
                     try:
                         ncbi_synonyms = (
                             soup.find("div", class_="section", id="summaryDiv")
-                            .find("dt", text="Also known as")
+                            .find("dt", string="Also known as")
                             .find_next_sibling("dd")
                             .text
                         )
                         # Split NCBI synonyms
                         ncbi_synonyms = ncbi_synonyms.split("; ")
-                    except:
+                    except AttributeError:
                         ncbi_synonyms = None
 
                 except Exception as e:
-                    if verbose:
-                        logging.warning(
-                            f"The NCBI server request for Ensembl ID '{ens_id}' returned the following error:\n{e}"
-                        )
+                    logging.error(
+                        f"The NCBI server request for Ensembl ID '{ens_id}' returned the following error:\n{e}"
+                    )
 
                     ncbi_gene_id = np.nan
                     ncbi_description = np.nan
                     ncbi_synonyms = None
-
                     continue
 
                 # Save NCBI info to data frame

@@ -571,7 +571,7 @@ def find_latest_ens_rel(database=ENSEMBL_FTP_URL):
 
     soup = BeautifulSoup(html.text, "html.parser")
     # Find all releases
-    releases = soup.body.findAll(text=re.compile("release-"))
+    releases = soup.body.findAll(string=re.compile("release-"))
     # Get release numbers
     rels = []
     for rel in releases:
