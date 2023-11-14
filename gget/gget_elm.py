@@ -350,6 +350,7 @@ def elm(
             ortho_df[col] = np.NaN
 
     ortho_df = ortho_df[ortho_cols]
+    ortho_df = ortho_df.drop_duplicates()
 
     # Build data frame containing regex motif matches
     if verbose:
@@ -417,6 +418,7 @@ def elm(
             df_regex_matches[col] = np.NaN
 
     df_regex_matches = df_regex_matches[regex_cols]
+    df_regex_matches = df_regex_matches.drop_duplicates()
 
     # Create out folder if it does not exist
     if out:
