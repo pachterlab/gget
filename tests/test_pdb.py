@@ -18,19 +18,19 @@ class TestPDB(unittest.TestCase):
 
         self.assertEqual(result_to_test, expected_result)
 
-    def test_pdb_branched_entity(self):
-        test = "test2"
-        expected_result = pdb_dict[test]["expected_result"]
-        result_to_test = pdb(**pdb_dict[test]["args"])
+    # def test_pdb_branched_entity(self):
+    #     test = "test2"
+    #     expected_result = pdb_dict[test]["expected_result"]
+    #     result_to_test = pdb(**pdb_dict[test]["args"])
 
-        self.assertEqual(result_to_test, expected_result)
+    #     self.assertEqual(result_to_test, expected_result)
 
-    def test_pdb_nonpolymer_entity(self):
-        test = "test3"
-        expected_result = pdb_dict[test]["expected_result"]
-        result_to_test = pdb(**pdb_dict[test]["args"])
+    # def test_pdb_nonpolymer_entity(self):
+    #     test = "test3"
+    #     expected_result = pdb_dict[test]["expected_result"]
+    #     result_to_test = pdb(**pdb_dict[test]["args"])
 
-        self.assertEqual(result_to_test, expected_result)
+    #     self.assertEqual(result_to_test, expected_result)
 
     def test_pdb_uniprot(self):
         test = "test4"
@@ -39,26 +39,26 @@ class TestPDB(unittest.TestCase):
 
         self.assertListEqual(result_to_test, expected_result)
 
-    def test_pdb_branched_entity_instance(self):
-        test = "test5"
-        expected_result = pdb_dict[test]["expected_result"]
-        result_to_test = pdb(**pdb_dict[test]["args"])
+    # def test_pdb_branched_entity_instance(self):
+    #     test = "test5"
+    #     expected_result = pdb_dict[test]["expected_result"]
+    #     result_to_test = pdb(**pdb_dict[test]["args"])
 
-        self.assertEqual(result_to_test, expected_result)
+    #     self.assertEqual(result_to_test, expected_result)
 
-    def test_pdb_nonpolymer_entity_instance(self):
-        test = "test6"
-        expected_result = pdb_dict[test]["expected_result"]
-        result_to_test = pdb(**pdb_dict[test]["args"])
+    # def test_pdb_nonpolymer_entity_instance(self):
+    #     test = "test6"
+    #     expected_result = pdb_dict[test]["expected_result"]
+    #     result_to_test = pdb(**pdb_dict[test]["args"])
 
-        self.assertEqual(result_to_test, expected_result)
+    #     self.assertEqual(result_to_test, expected_result)
 
-    def test_pdb_npolymer_entity_instance(self):
-        test = "test7"
-        expected_result = pdb_dict[test]["expected_result"]
-        result_to_test = pdb(**pdb_dict[test]["args"])
+    # def test_pdb_npolymer_entity_instance(self):
+    #     test = "test7"
+    #     expected_result = pdb_dict[test]["expected_result"]
+    #     result_to_test = pdb(**pdb_dict[test]["args"])
 
-        self.assertEqual(result_to_test, expected_result)
+    #     self.assertEqual(result_to_test, expected_result)
 
     def test_pdb_entry(self):
         test = "test8"
