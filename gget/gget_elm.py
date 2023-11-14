@@ -228,6 +228,8 @@ def elm(
     Returns two data frames (or JSON formatted dictionaries if json=True): 
     The first contains information on motifs experimentally validated in orthologous proteins and 
     the second contains motifs found directly based on regex matches in the provided sequence.
+
+    ELM data can be downloaded & distributed for non-commercial use according to the ELM Software License Agreement (http://elm.eu.org/media/Elm_academic_license.pdf).
     """
     # Check if ELM files were downloaded
     if (
