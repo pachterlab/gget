@@ -295,7 +295,7 @@ def main():
         help="DEPRECATED - json is now the default output format (convert to csv using flag [--csv]).",
     )
     ## gget elm subparser
-    elm_desc = "Locally predicts Eukaryotic Linear Motifs from an amino acid sequence or UniProt ID using data from the ELM database."
+    elm_desc = "Locally predicts Eukaryotic Linear Motifs from an amino acid sequence or UniProt ID using data from the ELM database (http://elm.eu.org/media/Elm_academic_license.pdf)."
     parser_elm = parent_subparsers.add_parser(
         "elm", parents=[parent], description=elm_desc, help=elm_desc, add_help=True
     )
