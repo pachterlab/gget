@@ -1,6 +1,6 @@
 ## ✨ What's new  
-**Version ≥ 0.28.1** (XX, XXXX):  
-- [`gget info`](./info.md): Return a warning message when the NCBI server fails for a reason other than a fetch fail (this is an error on the server side rather than an error with `gget`)
+**Version ≥ 0.28.1** (November 14, 2023):  
+- [`gget info`](./info.md): Return a logging error message when the NCBI server fails for a reason other than a fetch fail (this is an error on the server side rather than an error with `gget`)
 - Replace deprecated 'text' argument to find()-type methods whenever used with dependency `BeautifulSoup`
   
 **Version ≥ 0.28.0** (November 5, 2023):  
