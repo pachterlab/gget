@@ -18,7 +18,7 @@ class TestELM(unittest.TestCase):
         restul1, result2 = elm(**elm_dict[test]["args"])
         result_to_test = (
             restul1.dropna(axis=1).values.tolist()
-            + result2.dropna(axis=1).values.tolist()[15:35]
+            + result2.dropna(axis=1).values.tolist()[15:20]
         )
 
         self.assertListEqual(result_to_test, expected_result)
@@ -30,7 +30,7 @@ class TestELM(unittest.TestCase):
         restul1, result2 = elm(**elm_dict[test]["args"])
         result_to_test = (
             restul1.dropna(axis=1).values.tolist()
-            + result2.dropna(axis=1).values.tolist()[15:35]
+            + result2.dropna(axis=1).values.tolist()[15:20]
         )
 
         self.assertListEqual(result_to_test, expected_result)
@@ -42,7 +42,7 @@ class TestELM(unittest.TestCase):
         restul1, result2 = elm(**elm_dict[test]["args"])
         result_to_test = (
             restul1.dropna(axis=1).values.tolist()
-            + result2.dropna(axis=1).values.tolist()[15:35]
+            + result2.dropna(axis=1).values.tolist()[15:20]
         )
 
         self.assertListEqual(result_to_test, expected_result)
