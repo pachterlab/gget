@@ -350,7 +350,10 @@ def elm(
             ortho_df[col] = np.NaN
 
     ortho_df = ortho_df[ortho_cols]
+    # Drop duplicate rows
     ortho_df = ortho_df.drop_duplicates()
+    # Remove false positives and true negatives
+    ortho_df = ortho_df[(ortho_df["InstanceLogic"] != "false positive") & (ortho_df["InstanceLogic"] != "true negative")]
 
     # Build data frame containing regex motif matches
     if verbose:
@@ -418,7 +421,10 @@ def elm(
             df_regex_matches[col] = np.NaN
 
     df_regex_matches = df_regex_matches[regex_cols]
+    # Drop duplicates
     df_regex_matches = df_regex_matches.drop_duplicates()
+    # Remove false positives and true negatives
+    df_regex_matches = df_regex_matches[(df_regex_matches["InstanceLogic"] != "false positive") & (df_regex_matches["InstanceLogic"] != "true negative")]
 
     # Create out folder if it does not exist
     if out:
