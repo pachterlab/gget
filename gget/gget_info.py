@@ -236,10 +236,9 @@ def info(
                     html = requests.get(url)
                     # Raise error if status code not "OK" Response
                     if html.status_code != 200:
-                        if verbose:
-                            logging.warning(
-                                f"NCBI server request for {ens_id} returned error status code:\n{html.status_code}.\nPlease double-check arguments or try again later."
-                            )
+                        logging.error(
+                            f"NCBI server request for {ens_id} returned error status code:\n{html.status_code}.\nPlease double-check arguments or try again later."
+                        )
 
                     ## Web scrape NCBI website for gene ID, synonyms and description
                     soup = BeautifulSoup(html.text, "html.parser")
@@ -253,10 +252,10 @@ def info(
                         error_message = soup.find(
                             "li", class_="error icon"
                         ).text.strip()
-                        if verbose:
-                            logging.warning(
-                                f"The NCBI server request for Ensembl ID '{ens_id}' returned the following error:\n{error_message}"
-                            )
+
+                        logging.error(
+                            f"The NCBI server request for Ensembl ID '{ens_id}' returned the following error:\n{error_message}"
+                        )
 
                         ncbi_gene_id = np.nan
                         ncbi_description = np.nan
@@ -296,10 +295,9 @@ def info(
                         ncbi_synonyms = None
 
                 except Exception as e:
-                    if verbose:
-                        logging.warning(
-                            f"The NCBI server request for Ensembl ID '{ens_id}' returned the following error:\n{e}"
-                        )
+                    logging.error(
+                        f"The NCBI server request for Ensembl ID '{ens_id}' returned the following error:\n{e}"
+                    )
 
                     ncbi_gene_id = np.nan
                     ncbi_description = np.nan
