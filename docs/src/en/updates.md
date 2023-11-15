@@ -1,7 +1,8 @@
 ## ✨ What's new  
-**Version ≥ 0.28.1** (November 14, 2023):  
+**Version ≥ 0.28.2** (November 15, 2023):  
 - [`gget info`](./info.md): Return a logging error message when the NCBI server fails for a reason other than a fetch fail (this is an error on the server side rather than an error with `gget`)
 - Replace deprecated 'text' argument to find()-type methods whenever used with dependency `BeautifulSoup`
+- [`gget elm`](elm.md): Remove false positive and true negative instances from returned results
   
 **Version ≥ 0.28.0** (November 5, 2023):  
 - Updated documentation of [`gget muscle`](./muscle.md) to add a tutorial on how to visualize sequences with sequence name lengths + slight change to returned visualization so it's a bit more robust to varying sequence names
