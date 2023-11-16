@@ -366,7 +366,7 @@ def elm(
         & (ortho_df["InstanceLogic"] != "true negative")
     ]
     # Drop duplicate rows and reset the index
-    ortho_df = ortho_df.drop_duplicates().reset_index()
+    ortho_df = ortho_df.drop_duplicates().reset_index(drop=True)
 
     # Build data frame containing regex motif matches
     if verbose:
@@ -459,7 +459,7 @@ def elm(
         & (df_regex_matches["InstanceLogic"] != "true negative")
     ]
     # Drop duplicates and reset index
-    df_regex_matches = df_regex_matches.drop_duplicates().reset_index()
+    df_regex_matches = df_regex_matches.drop_duplicates().reset_index(drop=True)
 
     # Create out folder if it does not exist
     if out:
