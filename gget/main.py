@@ -346,6 +346,14 @@ def main():
         help="Path to DIAMOND binary. Default: None -> Uses DIAMOND binary installed with gget.",
     )
     parser_elm.add_argument(
+        "-e",
+        "--expand",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Expand the information returned in the regex data frame to include the protein names, organisms, and references that the motif was orignally validated on.",
+    )
+    parser_elm.add_argument(
         "-q",
         "--quiet",
         default=True,
@@ -1949,6 +1957,7 @@ def main():
             sensitivity=args.sensitivity,
             threads=args.threads,
             diamond_binary=args.diamond_binary,
+            expand=args.expand,
             verbose=args.quiet,
             json=args.csv,
             out=args.out,

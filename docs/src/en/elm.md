@@ -26,7 +26,10 @@ Path to the folder to save results in (str), e.g. "path/to/directory". Default: 
 
 **Flags**  
 `-u` `--uniprot`  
-Set to True if `sequence` is a Uniprot ID instead of an amino acid sequence. Default: False.  
+Set to True if `sequence` is a Uniprot ID instead of an amino acid sequence.  
+
+`-e` `--expand`   
+Expand the information returned in the regex data frame to include the protein names, organisms, and references that the motif was orignally validated on. 
 
 `-csv` `--csv`  
 Command-line only. Returns results in CSV format.  
@@ -51,12 +54,12 @@ ortholog_df, regex_df = gget.elm("LIAQSIGQASFV")
 Find ELMs giving a UniProt ID as input:  
 ```bash
 gget setup elm          # Downloads/updates local ELM database
-gget elm -o gget_elm_results --uniprot Q02410
+gget elm -o gget_elm_results --uniprot Q02410 -e
 ```
 ```python
 # Python
 gget.setup(“elm”)      # Downloads/updates local ELM database
-ortholog_df, regex_df = gget.elm("Q02410", uniprot=True)
+ortholog_df, regex_df = gget.elm("Q02410", uniprot=True, expand=True)
 ```
 &rarr; Returns two data frames (or JSON formatted dictionaries for command line) containing extensive information about linear motifs associated with orthologous proteins and motifs found in the input sequence directly based on their regex expressions:  
 
@@ -77,7 +80,5 @@ regex_df:
 |ELME000146        |CLV_PCSK_SKI1_1   |PCSK cleavage site             |CLV    |Subtilisin/kexin isozyme-1 (SKI1) cleavage site.                                                                                                       |RLLTA                       |Homo sapiens                  |…  |
 |ELME000231        |DEG_APCC_DBOX_1   |APCC-binding Destruction motifs|DEG    |An RxxL-based motif that binds to the Cdh1 and Cdc20 components of APC/C thereby targeting the protein for destruction in a cell cycle dependent manner|SRVKLNIVR                   |Saccharomyces cerevisiae S288c|…  |
 |…                 |…                 |…                              |…      |…                                                                                                                                                      |…                           |…                             |…  |
-
-(Motifs that occur in many different species might look repeated, but all rows should be unique.)
 
 #### [More examples](https://github.com/pachterlab/gget_examples)

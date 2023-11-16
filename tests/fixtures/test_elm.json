@@ -3,7 +3,8 @@
         "type": "assert_equal",
         "args": {
             "sequence": "P11387",
-            "uniprot": true
+            "uniprot": true,
+            "expand": true
         },
         "expected_result": [
             [
@@ -90,7 +91,8 @@
         "type": "assert_equal",
         "args": {
             "sequence": "O35923",
-            "uniprot": true
+            "uniprot": true,
+            "expand": true
         },
         "expected_result": [
             [
@@ -239,7 +241,8 @@
     "test3": {
         "type": "assert_equal",
         "args": {
-            "sequence": "GGETISAWESQMEELVISISALIVELQVEFRANKLINPACHTERLABRQCKSFKIEPPGLFRGRG"
+            "sequence": "GGETISAWESQMEELVISISALIVELQVEFRANKLINPACHTERLABRQCKSFKIEPPGLFRGRG",
+            "expand": true
         },
         "expected_result": [
             [

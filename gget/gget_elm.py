@@ -118,7 +118,10 @@ def seq_workflow(
             # Construct df with elm instances from UniProt ID returned from diamond
             # TODO double check that this gets info if more than one UniProt ID matched
             if verbose:
-                uniprot_ids = [str(id).split("|")[1] for id in df_diamond["subject_accession"].values]
+                uniprot_ids = [
+                    str(id).split("|")[1]
+                    for id in df_diamond["subject_accession"].values
+                ]
                 logging.info(
                     f"ORTHO Sequence {seq_number}/{len(sequences)}: DIAMOND found the following orthologous proteins: {', '.join(uniprot_ids)}. Retrieving ELMs for each UniProt ID..."
                 )
@@ -129,9 +132,13 @@ def seq_workflow(
                 # missing motifs other than the first one
                 # df_elm["query_cover"] = df_diamond["length"].values[i] / seq_len * 100
                 df_elm["query_seq_length"] = df_diamond["query_seq_length"].values[i]
-                df_elm["subject_seq_length"] = df_diamond["subject_seq_length"].values[i]
+                df_elm["subject_seq_length"] = df_diamond["subject_seq_length"].values[
+                    i
+                ]
                 df_elm["alignment_length"] = df_diamond["length"].values[i]
-                df_elm["identity_percentage"] = df_diamond["identity_percentage"].values[i]
+                df_elm["identity_percentage"] = df_diamond[
+                    "identity_percentage"
+                ].values[i]
                 df_elm["query_start"] = int(df_diamond["query_start"].values[i])
                 df_elm["query_end"] = int(df_diamond["query_end"].values[i])
                 df_elm["subject_start"] = int(df_diamond["subject_start"].values[i])
@@ -204,6 +211,7 @@ def elm(
     sensitivity="very-sensitive",
     threads=1,
     diamond_binary=None,
+    expand=False,
     verbose=True,
     json=False,
     out=None,
@@ -221,12 +229,14 @@ def elm(
                        Default: "very-sensitive"
     - threads          Number of threads used in DIAMOND alignment. Default: 1.
     - diamond_binary   Path to DIAMOND binary. Default: None -> Uses DIAMOND binary installed with gget.
+    - expand           Expand the information returned in the regex data frame to include the protein names, organisms
+                       and references that the motif was orignally validated on. Default: False.
     - verbose          True/False whether to print progress information. Default: True.
     - json             If True, returns results in json format instead of data frame. Default: False.
     - out              Path to folder to save results in. Default: Standard out, temporary files are deleted.
 
-    Returns two data frames (or JSON formatted dictionaries if json=True): 
-    The first contains information on motifs experimentally validated in orthologous proteins and 
+    Returns two data frames (or JSON formatted dictionaries if json=True):
+    The first contains information on motifs experimentally validated in orthologous proteins and
     the second contains motifs found directly based on regex matches in the provided sequence.
 
     ELM data can be downloaded & distributed for non-commercial use according to the ELM Software License Agreement (http://elm.eu.org/media/Elm_academic_license.pdf).
@@ -266,9 +276,7 @@ def elm(
 
     # Build ortholog dataframe
     if verbose:
-        logging.info(
-            f"ORTHO Compiling ortholog information..."
-        )
+        logging.info(f"ORTHO Compiling ortholog information...")
     ortho_df = pd.DataFrame()
     if uniprot:
         ortho_df = get_elm_instances(sequence)
@@ -355,13 +363,14 @@ def elm(
     # Drop duplicate rows
     ortho_df = ortho_df.drop_duplicates()
     # Remove false positives and true negatives
-    ortho_df = ortho_df[(ortho_df["InstanceLogic"] != "false positive") & (ortho_df["InstanceLogic"] != "true negative")]
+    ortho_df = ortho_df[
+        (ortho_df["InstanceLogic"] != "false positive")
+        & (ortho_df["InstanceLogic"] != "true negative")
+    ]
 
     # Build data frame containing regex motif matches
     if verbose:
-        logging.info(
-            f"REGEX Finding regex motif matches..."
-        )
+        logging.info(f"REGEX Finding regex motif matches...")
     fetch_aa_failed = False
     if uniprot:
         # use amino acid sequence associated with UniProt ID to do regex match
@@ -398,25 +407,46 @@ def elm(
         )
 
     # Reorder regex columns
-    regex_cols = [
-        "Instance_accession",
-        "ELMIdentifier",
-        "FunctionalSiteName",
-        "ELMType",
-        "Description",
-        "Regex",
-        "Instances (Matched Sequence)",
-        # "Probability",
-        "motif_start_in_query",
-        "motif_end_in_query",
-        # "Methods",
-        "ProteinName",
-        "Organism",
-        "References",
-        "InstanceLogic",
-        "#Instances",
-        "#Instances_in_PDB",
-    ]
+    if expand:
+        regex_cols = [
+            "Instance_accession",
+            "ELMIdentifier",
+            "FunctionalSiteName",
+            "ELMType",
+            "Description",
+            "Regex",
+            "Instances (Matched Sequence)",
+            # "Probability",
+            "motif_start_in_query",
+            "motif_end_in_query",
+            # "Methods",
+            "ProteinName",
+            "Organism",
+            "References",
+            "InstanceLogic",
+            "#Instances",
+            "#Instances_in_PDB",
+        ]
+    else:
+        regex_cols = [
+            "Instance_accession",
+            "ELMIdentifier",
+            "FunctionalSiteName",
+            "ELMType",
+            "Description",
+            "Regex",
+            "Instances (Matched Sequence)",
+            # "Probability",
+            "motif_start_in_query",
+            "motif_end_in_query",
+            # "Methods",
+            # "ProteinName",
+            # "Organism",
+            # "References",
+            "InstanceLogic",
+            "#Instances",
+            "#Instances_in_PDB",
+        ]
 
     for col in regex_cols:
         if col not in df_regex_matches.columns:
@@ -426,7 +456,10 @@ def elm(
     # Drop duplicates
     df_regex_matches = df_regex_matches.drop_duplicates()
     # Remove false positives and true negatives
-    df_regex_matches = df_regex_matches[(df_regex_matches["InstanceLogic"] != "false positive") & (df_regex_matches["InstanceLogic"] != "true negative")]
+    df_regex_matches = df_regex_matches[
+        (df_regex_matches["InstanceLogic"] != "false positive")
+        & (df_regex_matches["InstanceLogic"] != "true negative")
+    ]
 
     # Create out folder if it does not exist
     if out:

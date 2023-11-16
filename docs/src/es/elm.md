@@ -28,6 +28,9 @@ Ruta al archivo en el que se guardarán los resultados (str), p. ej. "ruta/al/di
 `-u` `--uniprot`  
 Use esta bandera cuando `sequence` es un ID de Uniprot en lugar de una secuencia de aminoácidos.      
 
+`-e` `--expand`  
+Amplíe la información devuelta en el marco de datos de expresiones regulares para incluir los nombres de proteínas, los organismos y las referencias en las que se validó originalmente el motivo.  
+
 `-csv` `--csv`  
 Solo para Terminal. Produce los resultados en formato CSV.    
 Para Python, usa `json=True` para producir los resultados en formato JSON.  
@@ -51,12 +54,12 @@ ortholog_df, regex_df = gget.elm("LIAQSIGQASFV")
 Encuentre ELM que proporcionen un ID de UniProt como entrada: 
 ```bash
 gget setup elm          # Descarga/actualiza la base de datos ELM local
-gget elm -o gget_elm_results --uniprot Q02410
+gget elm -o gget_elm_results --uniprot Q02410 -e
 ```
 ```python
 # Python
 gget.setup(“elm”)      # Descarga/actualiza la base de datos ELM local
-ortholog_df, regex_df = gget.elm("Q02410", uniprot=True)
+ortholog_df, regex_df = gget.elm("Q02410", uniprot=True, expand=True)
 ```
 &rarr; Produce dos resultados con información extensa sobre ELMs asociados con proteínas ortólogas y motivos encontrados en la secuencia de entrada directamente en función de sus expresiones regex:  
 
