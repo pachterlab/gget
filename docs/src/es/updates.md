@@ -3,6 +3,7 @@
 - [`gget info`](./info.md): devuelve un mensaje de error cuando el servidor NCBI falla por un motivo distinto a un error de recuperación (esto es un error en el lado del servidor en lugar de un error con `gget`)
 - Reemplace el argumento obsoleto 'texto' para los métodos de tipo find() siempre que se usen con la dependencia `BeautifulSoup`
 - [`gget elm`](elm.md): Elimina instancias de falsos positivos y verdaderos negativos de los resultados devueltos.
+- [`gget elm`](elm.md): agrega el argumento `expand`
   
 **Versión ≥ 0.28.0** (5 de noviembre de 2023):
 - Documentación actualizada de [`gget muscle`](./muscle.md) para agregar un tutorial sobre cómo visualizar secuencias con diferentes longitudes de nombres de secuencia + ligero cambio en la visualización devuelta para que sea un poco más sólida ante diferentes nombres de secuencia  
