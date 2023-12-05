@@ -405,8 +405,9 @@ def enrichr(
             )
 
         # Plot barplot
-        # ax1.barh(labels, gene_counts, color=cmap(c_values), align="center")
-        ax1.barh(labels, gene_counts, color=barcolor, align="center")
+        # ax1.barh(np.arange(len(gene_counts)), gene_counts, color=cmap(c_values), align="center")
+        ax1.barh(np.arange(len(gene_counts)), gene_counts, color=barcolor, align="center")
+        ax1.set_yticklabels(labels, linespacing=0.85, fontsize=fontsize)
         ax1.invert_yaxis()
         # Set x-limit to be gene count + 1
         ax1.set_xlim(0, ax1.get_xlim()[1] + 1)
@@ -418,7 +419,7 @@ def enrichr(
 
         # Add adj. P value secondary x-axis
         ax2 = ax1.twiny()
-        ax2.scatter(-np.log10(adj_p_values), labels, color=p_val_color, s=20)
+        ax2.scatter(-np.log10(adj_p_values), np.arange(len(gene_counts)), color=p_val_color, s=20)
         # Change label and color of p-value axis
         ax2.set_xlabel(
             "$-log_{10}$(adjusted P value)", fontsize=fontsize, color=p_val_color
