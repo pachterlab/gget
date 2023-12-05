@@ -1,4 +1,7 @@
 ## ✨ What's new  
+**Version ≥ 0.28.3** (XXX):  
+- [`gget enrichr`](./enrichr.md): Fix duplicate scatter dots in plot when pathway names are duplicated
+
 **Version ≥ 0.28.2** (November 15, 2023):  
 - [`gget info`](./info.md): Return a logging error message when the NCBI server fails for a reason other than a fetch fail (this is an error on the server side rather than an error with `gget`)
 - Replace deprecated 'text' argument to find()-type methods whenever used with dependency `BeautifulSoup`
