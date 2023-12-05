@@ -407,7 +407,7 @@ def enrichr(
         # Plot barplot
         # ax1.barh(np.arange(len(gene_counts)), gene_counts, color=cmap(c_values), align="center")
         ax1.barh(np.arange(len(gene_counts)), gene_counts, color=barcolor, align="center")
-        ax1.set_yticklabels(labels, linespacing=0.85, fontsize=fontsize)
+        ax1.set_yticks(np.arange(len(gene_counts)), labels, linespacing=0.85, fontsize=fontsize)
         ax1.invert_yaxis()
         # Set x-limit to be gene count + 1
         ax1.set_xlim(0, ax1.get_xlim()[1] + 1)
