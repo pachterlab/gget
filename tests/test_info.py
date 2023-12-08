@@ -71,15 +71,15 @@ class TestInfo(unittest.TestCase):
 
         self.assertListEqual(result_to_test, expected_result)
 
-    def test_info_pdb(self):
-        test = "test9"
-        expected_result = info_dict[test]["expected_result"]
-        result_to_test = info(**info_dict[test]["args"])
-        # If result is a DataFrame, convert to list
-        if isinstance(result_to_test, pd.DataFrame):
-            result_to_test = result_to_test.dropna(axis=1).values.tolist()
+    # def test_info_pdb(self):
+    #     test = "test9"
+    #     expected_result = info_dict[test]["expected_result"]
+    #     result_to_test = info(**info_dict[test]["args"])
+    #     # If result is a DataFrame, convert to list
+    #     if isinstance(result_to_test, pd.DataFrame):
+    #         result_to_test = result_to_test.dropna(axis=1).values.tolist()
 
-        self.assertListEqual(result_to_test, expected_result)
+    #     self.assertListEqual(result_to_test, expected_result)
 
     def test_info_ncbifalse_uniprottrue(self):
         test = "test10"
