@@ -3,11 +3,9 @@
 Obtenga enlaces FTP y sus respectivos metadatos (o use la bandera `ftp` para regresar solo los enlaces) para referenciar genomas y anotaciones de [Ensembl](https://www.ensembl.org/).  
 Regresa: Resultados en formato JSON.  
 
-```diff
-! Mientras Ensembl está en el proceso de actualizar su base de datos a una nueva versión, es posible que reciba un error 404.
-```
-> Si este es el caso, especifique una versión anterior de Ensembl usando el argumento `release`.  
-> Ejemplo: `gget ref -r 110 human` (Python: `gget.ref("human", release=110)`)
+**Mientras Ensembl está en el proceso de actualizar su base de datos a una nueva versión, es posible que reciba un ERROR 404.**   
+Si este es el caso, especifique una versión anterior de Ensembl usando el argumento `release`.  
+Ejemplo: `gget ref -r 110 human` (Python: `gget.ref("human", release=110)`)
 
 **Parámetro posicional**  
 `species`  
