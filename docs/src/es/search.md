@@ -8,7 +8,7 @@ Regresa: Resultados en formato JSON (Terminal) o Dataframe/CSV (Python).
 ! Mientras Ensembl está en el proceso de actualizar su base de datos a una nueva versión, es posible que reciba un error 404.
 ```
 > Si este es el caso, especifique una versión anterior de Ensembl usando el argumento `release`.  
-> Ejemplo: `gget search -r 110 -s human ace2` (Python: `gget.search("ace2", especie="humano", release=110)`)
+> Ejemplo: `gget search -r 110 -s human ace2` (Python: `gget.search("ace2", species="human", release=110)`)
 
 **Parámetro posicional**  
 `searchwords`   
