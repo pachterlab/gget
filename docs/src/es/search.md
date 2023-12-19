@@ -4,11 +4,9 @@ Obtenga genes y transcripciones de [Ensembl](https://www.ensembl.org/) usando t�
 Los resultados se comparan según las secciones "nombre del gen" y "descripción" en la base de datos de Ensembl. `gget` versión >= 0.27.9 también incluye resultados que coinciden con la sección "sinónimo" de Ensembl.    
 Regresa: Resultados en formato JSON (Terminal) o Dataframe/CSV (Python).  
 
-```diff
-! Mientras Ensembl está en el proceso de actualizar su base de datos a una nueva versión, es posible que reciba un error 404.
-```
-> Si este es el caso, especifique una versión anterior de Ensembl usando el argumento `release`.  
-> Ejemplo: `gget search -r 110 -s human ace2` (Python: `gget.search("ace2", species="human", release=110)`)
+**Mientras Ensembl está en el proceso de actualizar su base de datos a una nueva versión, es posible que reciba un error 404.**    
+Si este es el caso, especifique una versión anterior de Ensembl usando el argumento `release`.  
+Ejemplo: `gget search -r 110 -s human ace2` (Python: `gget.search("ace2", species="human", release=110)`)
 
 **Parámetro posicional**  
 `searchwords`   
