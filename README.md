@@ -10,6 +10,13 @@
 
 `gget` is a free, open-source command-line tool and Python package that enables efficient querying of genomic databases. `gget`  consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.  
   
+```diff
+! While Ensembl is in the process of updating its database to a new release,
+! you might receive a 404 error from the gget search and ref modules.
+```
+> If this is the case, specify an earlier Ensembl version using the `release` argument.  
+> Example: `gget ref -r 110 human` (Python: `gget.ref("human", release=110)`)
+
   
 ![alt text](https://github.com/pachterlab/gget/blob/main/figures/gget_overview.png?raw=true)
     
