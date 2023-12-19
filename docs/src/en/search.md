@@ -4,13 +4,11 @@ Fetch genes and transcripts from [Ensembl](https://www.ensembl.org/) using free-
 Results are matched based on the "gene name" and "description" sections in the Ensembl database. `gget` version >= 0.27.9 also includes results that match the Ensembl "synonym" section.  
 Return format: JSON (command-line) or data frame/CSV (Python).
 
-```diff
-! While Ensembl is in the process of updating its database to a new release, you might receive a 404 error.
-```
-> If this is the case, specify an earlier Ensembl version using the `release` argument.  
-> Example: `gget search -r 110 -s human ace2` (Python: `gget.search("ace2", species="human", release=110)`)
+**While Ensembl is in the process of updating its database to a new release, you might receive a 404 ERROR.**  
+If this is the case, specify an earlier Ensembl version using the `release` argument.  
+Example: `gget search -r 110 -s human ace2` (Python: `gget.search("ace2", species="human", release=110)`)
 
-**Positional argument**
+**Positional argument**  
 `searchwords`   
 One or more free form search words, e.g. gaba nmda. (Note: Search is not case-sensitive.)
 
