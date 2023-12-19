@@ -3,11 +3,9 @@
 Fetch FTPs and their respective metadata (or use flag `ftp` to only return the links) for reference genomes and annotations from [Ensembl](https://www.ensembl.org/) by species.  
 Return format: dictionary/JSON.
 
-```diff
-! While Ensembl is in the process of updating its database to a new release, you might receive a 404 error.
-```
-> If this is the case, specify an earlier Ensembl version using the `release` argument.  
-> Example: `gget ref -r 110 human` (Python: `gget.ref("human", release=110)`)
+**While Ensembl is in the process of updating its database to a new release, you might receive a 404 ERROR.**  
+If this is the case, specify an earlier Ensembl version using the `release` argument.  
+Example: `gget ref -r 110 human` (Python: `gget.ref("human", release=110)`)
 
 **Positional argument**  
 `species`  
