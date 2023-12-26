@@ -13,10 +13,11 @@
 ```diff
 ! While Ensembl is in the process of updating its database to a new release,
 ! you might receive a 404 error from the gget search and ref modules.
+! If this is the case, specify an earlier Ensembl release using the 'release' argument.  
+! Example: 'gget ref -r 110 human' (Python: 'gget.ref("human", release=110)')
 ```
-> If this is the case, specify an earlier Ensembl version using the `release` argument.  
-> Example: `gget ref -r 110 human` (Python: `gget.ref("human", release=110)`)
 
+<span style="color:red;">your text here > </span>
   
 ![alt text](https://github.com/pachterlab/gget/blob/main/figures/gget_overview.png?raw=true)
     
