@@ -16,8 +16,6 @@
 ! If this is the case, specify an earlier Ensembl release using the 'release' argument.  
 ! Example: 'gget ref -r 110 human' (Python: 'gget.ref("human", release=110)')
 ```
-
-<span style="color:red;">your text here > </span>
   
 ![alt text](https://github.com/pachterlab/gget/blob/main/figures/gget_overview.png?raw=true)
     
