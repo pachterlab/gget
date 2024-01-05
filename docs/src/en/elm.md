@@ -7,8 +7,8 @@ Before using `gget elm` for the first time, run `gget setup elm` / `gget.setup("
 
 **Positional argument**  
 `sequence`  
-Amino acid sequence or Uniprot ID (str).  
-When providing a Uniprot ID, use flag `--uniprot` (Python: `uniprot==True`).  
+Amino acid sequence or Uniprot Acc (str).  
+When providing a Uniprot Acc, use flag `--uniprot` (Python: `uniprot==True`).  
 
 **Optional arguments**  
 `-s` `--sensitivity`  
@@ -26,7 +26,7 @@ Path to the folder to save results in (str), e.g. "path/to/directory". Default: 
 
 **Flags**  
 `-u` `--uniprot`  
-Set to True if `sequence` is a Uniprot ID instead of an amino acid sequence.  
+Set to True if `sequence` is a Uniprot Acc instead of an amino acid sequence.  
 
 `-e` `--expand`   
 Expand the information returned in the regex data frame to include the protein names, organisms, and references that the motif was orignally validated on. 
