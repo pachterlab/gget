@@ -295,7 +295,7 @@ def main():
         help="DEPRECATED - json is now the default output format (convert to csv using flag [--csv]).",
     )
     ## gget elm subparser
-    elm_desc = "Locally predicts Eukaryotic Linear Motifs from an amino acid sequence or UniProt ID using data from the ELM database (http://elm.eu.org/media/Elm_academic_license.pdf)."
+    elm_desc = "Locally predicts Eukaryotic Linear Motifs from an amino acid sequence or UniProt Acc using data from the ELM database (http://elm.eu.org/media/Elm_academic_license.pdf)."
     parser_elm = parent_subparsers.add_parser(
         "elm", parents=[parent], description=elm_desc, help=elm_desc, add_help=True
     )
@@ -303,7 +303,7 @@ def main():
     parser_elm.add_argument(
         "sequence",
         type=str,
-        help="Amino acid sequence or Uniprot ID. If Uniprot ID, use flag '--uniprot'.",
+        help="Amino acid sequence or Uniprot Acc. If Uniprot Acc, use flag '--uniprot'.",
     )
     parser_elm.add_argument(
         "-u",
@@ -311,7 +311,7 @@ def main():
         default=False,
         action="store_true",
         required=False,
-        help="Use this flag if input is a Uniprot ID instead of an amino acid sequence.",
+        help="Use this flag if input is a Uniprot Acc instead of an amino acid sequence.",
     )
     parser_elm.add_argument(
         "-s",
