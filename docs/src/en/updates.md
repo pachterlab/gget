@@ -1,6 +1,9 @@
 ## ✨ What's new  
 **Version ≥ 0.28.3** (XXX):  
 - [`gget enrichr`](./enrichr.md): Fix duplicate scatter dots in plot when pathway names are duplicated
+- [`gget elm`](./elm.md):
+  - Changed the column name 'Ortholog_UniProt_ID' to 'Ortholog_UniProt_Acc' to correctly reflect the column contents, which are UniProt Accessions. 'UniProt ID' was changed to 'UniProt Acc' in the documentation for all `gget` modules.
+- [`gget diamond`](./diamond.md): The DIAMOND command is now run with `--ignore-warnings` flag, allowing niche sequences such as amino acid sequences that only contain nucleotide characters and repeated sequences. This is also true for DIAMOND alignments performed within [`gget elm`](./elm.md).
 
 **Version ≥ 0.28.2** (November 15, 2023):  
 - [`gget info`](./info.md): Return a logging error message when the NCBI server fails for a reason other than a fetch fail (this is an error on the server side rather than an error with `gget`)
