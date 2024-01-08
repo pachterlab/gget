@@ -120,12 +120,12 @@ def diamond(
         command = f"{DIAMOND} version \
         && {DIAMOND_w} makedb --quiet --in {reference_file_w} --db {diamond_db_w} --threads {threads} \
         && {DIAMOND_w} blastp --outfmt 6 qseqid sseqid pident qlen slen length mismatch gapopen qstart qend sstart send evalue bitscore \
-            --quiet --query {input_file_w} --db {reference_file_w} --out {output_w} --{sensitivity} --threads {threads}"
+            --quiet --query {input_file_w} --db {reference_file_w} --out {output_w} --{sensitivity} --threads {threads} --ignore-warnings"
     else:
         command = f"'{DIAMOND}' version \
         && '{DIAMOND}' makedb --quiet --in '{reference_file}' --db '{diamond_db}' --threads {threads} \
         && '{DIAMOND}' blastp --outfmt 6 qseqid sseqid pident qlen slen length mismatch gapopen qstart qend sstart send evalue bitscore \
-            --quiet --query '{input_file}' --db '{reference_file}' --out '{output}' --{sensitivity} --threads {threads}"
+            --quiet --query '{input_file}' --db '{reference_file}' --out '{output}' --{sensitivity} --threads {threads} --ignore-warnings"
 
     # Run DIAMOND
     if verbose:
