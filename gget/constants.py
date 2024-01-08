@@ -44,3 +44,7 @@ ELM_INSTANCES_TSV_DOWNLOAD = (
     "http://elm.eu.org/instances.tsv?q=*&taxon=&instance_logic="
 )
 ELM_CLASSES_TSV_DOWNLOAD = "http://elm.eu.org/elms/elms_index.tsv"
+
+
+#COSMIC API endpoinds 
+COSMIC_GET_URL='https://cancer.sanger.ac.uk/cosmic/search/'
