@@ -174,7 +174,7 @@ def regex_match(sequence):
 
     # Compare ELM regex with input sequence and return all matching elms
     for elm_id, pattern in zip(elm_ids, regex_patterns):
-        regex_matches = re.finditer(pattern, sequence)
+        regex_matches = re.finditer(f"(?=({pattern}))", sequence)
 
         for match_string in regex_matches:
             elm_row = df_elm_classes[df_elm_classes["Accession"] == elm_id]
