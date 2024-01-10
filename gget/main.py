@@ -1167,6 +1167,15 @@ def main():
         help="Does not print progress information.",
     )
 
+    parser_setup.add_argument(
+        "-o",
+        "--out",
+        type=str,
+        default=None,
+        required=False,
+        help="Path to folder where downloaded files are saved (currently only applies when module='elm'). Default: Files are saved inside the gget installation folder.",
+    )
+
     ## gget alphafold subparser
     alphafold_desc = "Predicts the structure of a protein using a simplified version of AlphaFold v2.3.0 (https://doi.org/10.1038/s41586-021-03819-2)."
     parser_alphafold = parent_subparsers.add_parser(
@@ -2379,7 +2388,7 @@ def main():
 
     ## setup return
     if args.command == "setup":
-        setup(args.module, verbose=args.quiet)
+        setup(args.module, verbose=args.quiet, out=args.out)
 
     ## alphafold return
     if args.command == "alphafold":
