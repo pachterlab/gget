@@ -38,13 +38,12 @@ PARAMS_DIR = os.path.join(PACKAGE_PATH, "bins/alphafold/")
 PARAMS_PATH = os.path.join(PARAMS_DIR, "params_temp.tar")
 
 ## Variables for elm module
-ELM_FILES = os.path.join(PACKAGE_PATH, "elm_files")
 ELM_INSTANCES_FASTA = f"{ELM_FILES}/elm_instances.fasta"
 ELM_CLASSES_TSV = f"{ELM_FILES}/elms_classes.tsv"
 ELM_INSTANCES_TSV = f"{ELM_FILES}/elm_instances.tsv"
 
 
-def setup(module, verbose=True):
+def setup(module, verbose=True, out=None):
     """
     Function to install third-party dependencies for a specified gget module.
     Some modules require pip to be installed (https://pip.pypa.io/en/stable/installation).
@@ -53,6 +52,8 @@ def setup(module, verbose=True):
     Args:
     - module    (str) gget module for which dependencies should be installed, e.g. "alphafold", "cellxgene", "elm", or "gpt".
     - verbose   True/False whether to print progress information. Default True.
+    - out       (str) Path to directory to save downloaded files in (currently only applies when module='elm'). 
+                Default None (files are saved in the gget installation directory).
     """
     supported_modules = ["alphafold", "cellxgene", "elm", "gpt"]
     if module not in supported_modules:
@@ -124,6 +125,11 @@ def setup(module, verbose=True):
             logging.info(
                 "Downloading ELM database files (requires curl to be installed)..."
             )
+
+        if out is None:
+            ELM_FILES = os.path.join(PACKAGE_PATH, "elm_files")
+        else:
+            ELM_FILES = os.path.abspath(out)
 
         # Create folder for ELM files (if it does not exist)
         if not os.path.exists(ELM_FILES):
