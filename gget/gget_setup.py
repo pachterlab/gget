@@ -54,6 +54,7 @@ def setup(module, verbose=True, out=None):
     - module    (str) gget module for which dependencies should be installed, e.g. "alphafold", "cellxgene", "elm", or "gpt".
     - verbose   True/False whether to print progress information. Default True.
     - out       (str) Path to directory to save downloaded files in (currently only applies when module='elm'). 
+                NOTE: Do not use this argument when downloading the files for use with 'gget.elm'.
                 Default None (files are saved in the gget installation directory).
     """
     supported_modules = ["alphafold", "cellxgene", "elm", "gpt"]
