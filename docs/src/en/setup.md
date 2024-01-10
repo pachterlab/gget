@@ -10,6 +10,7 @@ gget module for which dependencies should be installed.
 **Optional arguments**  
 `-o` `--out`  
 Path to the folder downloaded files will be saved in (currently only applies to module = 'elm').  
+NOTE: Do NOT use this argument when downloading the files for use with `gget.elm`.  
 Default: None (downloaded files are saved inside the `gget` package installation folder).   
 
 **Flags**  
