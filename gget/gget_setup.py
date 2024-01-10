@@ -22,6 +22,12 @@ from .constants import (
     ELM_INSTANCES_TSV_DOWNLOAD,
 )
 
+## Variables for elm module
+ELM_FILES = os.path.join(PACKAGE_PATH, "elm_files")
+ELM_INSTANCES_FASTA = f"{ELM_FILES}/elm_instances.fasta"
+ELM_CLASSES_TSV = f"{ELM_FILES}/elms_classes.tsv"
+ELM_INSTANCES_TSV = f"{ELM_FILES}/elm_instances.tsv"
+
 ## Variables for alphafold module
 ALPHAFOLD_GIT_REPO = "https://github.com/deepmind/alphafold"
 ALPHAFOLD_GIT_REPO_VERSION = "main"  # Get version currently hosted on main branch
@@ -121,18 +127,15 @@ def setup(module, verbose=True, out=None):
                 "Downloading ELM database files (requires curl to be installed)..."
             )
 
-        if out is None:
-            ELM_FILES = os.path.join(PACKAGE_PATH, "elm_files")
-        else:
+        if out:
             ELM_FILES = os.path.abspath(out)
+            ELM_INSTANCES_FASTA = f"{ELM_FILES}/elm_instances.fasta"
+            ELM_CLASSES_TSV = f"{ELM_FILES}/elms_classes.tsv"
+            ELM_INSTANCES_TSV = f"{ELM_FILES}/elm_instances.tsv"
 
         # Create folder for ELM files (if it does not exist)
         if not os.path.exists(ELM_FILES):
             os.makedirs(ELM_FILES)
-
-        ELM_INSTANCES_FASTA = f"{ELM_FILES}/elm_instances.fasta"
-        ELM_CLASSES_TSV = f"{ELM_FILES}/elms_classes.tsv"
-        ELM_INSTANCES_TSV = f"{ELM_FILES}/elm_instances.tsv"
 
         if platform.system() == "Windows":
             # The double-quotation marks allow white spaces in the path, but this does not work for Windows
