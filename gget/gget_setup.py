@@ -37,11 +37,6 @@ PARAMS_URL = (
 PARAMS_DIR = os.path.join(PACKAGE_PATH, "bins/alphafold/")
 PARAMS_PATH = os.path.join(PARAMS_DIR, "params_temp.tar")
 
-## Variables for elm module
-ELM_INSTANCES_FASTA = f"{ELM_FILES}/elm_instances.fasta"
-ELM_CLASSES_TSV = f"{ELM_FILES}/elms_classes.tsv"
-ELM_INSTANCES_TSV = f"{ELM_FILES}/elm_instances.tsv"
-
 
 def setup(module, verbose=True, out=None):
     """
@@ -134,6 +129,10 @@ def setup(module, verbose=True, out=None):
         # Create folder for ELM files (if it does not exist)
         if not os.path.exists(ELM_FILES):
             os.makedirs(ELM_FILES)
+
+        ELM_INSTANCES_FASTA = f"{ELM_FILES}/elm_instances.fasta"
+        ELM_CLASSES_TSV = f"{ELM_FILES}/elms_classes.tsv"
+        ELM_INSTANCES_TSV = f"{ELM_FILES}/elm_instances.tsv"
 
         if platform.system() == "Windows":
             # The double-quotation marks allow white spaces in the path, but this does not work for Windows
