@@ -605,13 +605,13 @@ def gget_species_options(database=ENSEMBL_FTP_URL, release=None):
 
     # If release != None, use user-defined Ensembl release
     if release != None:
-        # Do not allow user-defined release if it is higher than the latest release
-        if release > ENS_rel:
-            raise ValueError(
-                "Defined Ensembl release number cannot be greater than latest release."
-            )
-        else:
-            ENS_rel = release
+        # # Do not allow user-defined release if it is higher than the latest release
+        # if release > ENS_rel:
+        #     raise ValueError(
+        #         "Defined Ensembl release number cannot be greater than latest release."
+        #     )
+        # else:
+        ENS_rel = release
 
     # Find all available databases
     url = database + f"release-{ENS_rel}/mysql/"
@@ -650,13 +650,13 @@ def ref_species_options(which, database=ENSEMBL_FTP_URL, release=None):
 
     # If release != None, use user-defined Ensembl release
     if release != None:
-        # Do not allow user-defined release if it is higher than the latest release
-        if release > ENS_rel:
-            raise ValueError(
-                "Defined Ensembl release number cannot be greater than latest release."
-            )
-        else:
-            ENS_rel = release
+        # # Do not allow user-defined release if it is higher than the latest release
+        # if release > ENS_rel:
+        #     raise ValueError(
+        #         "Defined Ensembl release number cannot be greater than latest release."
+        #     )
+        # else:
+        ENS_rel = release
 
     # Find all available species for this release and FTP type
     if which == "gtf":
