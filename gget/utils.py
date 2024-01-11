@@ -561,24 +561,31 @@ def find_latest_ens_rel(database=ENSEMBL_FTP_URL):
     Args:
     - database    Link to Ensembl database.
     """
-    html = requests.get(database)
+    # html = requests.get(database)
 
-    # Raise error if status code not "OK" Response
+    # # Raise error if status code not "OK" Response
+    # if html.status_code != 200:
+    #     raise RuntimeError(
+    #         f"The Ensembl FTP server returned error status code {html.status_code}. Please try again."
+    #     )
+
+    # soup = BeautifulSoup(html.text, "html.parser")
+    # # Find all releases
+    # releases = soup.body.findAll(string=re.compile("release-"))
+    # # Get release numbers
+    # rels = []
+    # for rel in releases:
+    #     rels.append(rel.split("/")[0].split("-")[-1])
+
+    # # Find highest release number (= latest release)
+    # ENS_rel = np.array(rels).astype(int).max()
+
+    html = requests.get(database + "VERSION")
     if html.status_code != 200:
         raise RuntimeError(
             f"The Ensembl FTP server returned error status code {html.status_code}. Please try again."
         )
-
-    soup = BeautifulSoup(html.text, "html.parser")
-    # Find all releases
-    releases = soup.body.findAll(string=re.compile("release-"))
-    # Get release numbers
-    rels = []
-    for rel in releases:
-        rels.append(rel.split("/")[0].split("-")[-1])
-
-    # Find highest release number (= latest release)
-    ENS_rel = np.array(rels).astype(int).max()
+    ENS_rel = int(html.text)
 
     return ENS_rel
 
