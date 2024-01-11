@@ -1,14 +1,14 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
 ## gget elm 🎭
-Locally predict Eukaryotic Linear Motifs from an amino acid sequence or UniProt ID using data from the [ELM database](http://elm.eu.org/). ELM data can be downloaded & distributed for non-commercial use according to the [ELM Software License Agreement](http://elm.eu.org/media/Elm_academic_license.pdf).  
+Locally predict Eukaryotic Linear Motifs from an amino acid sequence or UniProt Acc using data from the [ELM database](http://elm.eu.org/). ELM data can be downloaded & distributed for non-commercial use according to the [ELM Software License Agreement](http://elm.eu.org/media/Elm_academic_license.pdf).  
 Return format: JSON (command-line) or data frame/CSV (Python). This module returns two data frames (or JSON formatted files) (see examples).     
 
 Before using `gget elm` for the first time, run `gget setup elm` / `gget.setup("elm")` once (also see [`gget setup`](setup.md)).   
 
 **Positional argument**  
 `sequence`  
-Amino acid sequence or Uniprot ID (str).  
-When providing a Uniprot ID, use flag `--uniprot` (Python: `uniprot==True`).  
+Amino acid sequence or Uniprot Acc (str).  
+When providing a Uniprot Acc, use flag `--uniprot` (Python: `uniprot==True`).  
 
 **Optional arguments**  
 `-s` `--sensitivity`  
@@ -26,7 +26,7 @@ Path to the folder to save results in (str), e.g. "path/to/directory". Default: 
 
 **Flags**  
 `-u` `--uniprot`  
-Set to True if `sequence` is a Uniprot ID instead of an amino acid sequence.  
+Set to True if `sequence` is a Uniprot Acc instead of an amino acid sequence.  
 
 `-e` `--expand`   
 Expand the information returned in the regex data frame to include the protein names, organisms, and references that the motif was orignally validated on. 
@@ -51,7 +51,7 @@ gget.setup(“elm”)      # Downloads/updates local ELM database
 ortholog_df, regex_df = gget.elm("LIAQSIGQASFV")
 ```
   
-Find ELMs giving a UniProt ID as input:  
+Find ELMs giving a UniProt Acc as input:  
 ```bash
 gget setup elm          # Downloads/updates local ELM database
 gget elm -o gget_elm_results --uniprot Q02410 -e
