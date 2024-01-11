@@ -1,14 +1,14 @@
 > Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
 ## gget elm 🎭
-Prediga localmente motivos lineales eucarióticos (ELMs) a partir de una secuencia de aminoácidos o UniProt ID utilizando datos de la [base de datos ELM](http://elm.eu.org/). Los datos de ELM se pueden descargar y distribuir para uso no comercial de acuerdo con el [Acuerdo de licencia de software de ELM](http://elm.eu.org/media/Elm_academic_license.pdf).    
+Prediga localmente motivos lineales eucarióticos (ELMs) a partir de una secuencia de aminoácidos o UniProt Acc utilizando datos de la [base de datos ELM](http://elm.eu.org/). Los datos de ELM se pueden descargar y distribuir para uso no comercial de acuerdo con el [Acuerdo de licencia de software de ELM](http://elm.eu.org/media/Elm_academic_license.pdf).    
 Produce: Resultados en formato JSON (Terminal) o Dataframe/CSV (Python). Este módulo devuelve dos tipos de resultados (ver ejemplos).   
 
 Antes de usar `gget elm` por primera vez, ejecute `gget setup elm` / `gget.setup("elm")` una vez (consulte también [`gget setup`](setup.md)).   
 
 **Parámetro posicional**  
 `sequence`  
-Secuencia de aminoácidos o ID de Uniprot (str).  
-Al proporcionar una ID de Uniprot, use la bandera `--uniprot` (Python: `uniprot==True`).  
+Secuencia de aminoácidos o Uniprot Acc (str).  
+Al proporcionar una Uniprot Acc, use la bandera `--uniprot` (Python: `uniprot==True`).  
 
 **Parámetros optionales**  
 `-s` `sensitivity`  
@@ -26,7 +26,7 @@ Ruta al archivo en el que se guardarán los resultados (str), p. ej. "ruta/al/di
 
 **Banderas**  
 `-u` `--uniprot`  
-Use esta bandera cuando `sequence` es un ID de Uniprot en lugar de una secuencia de aminoácidos.      
+Use esta bandera cuando `sequence` es una Uniprot Acc en lugar de una secuencia de aminoácidos.      
 
 `-e` `--expand`  
 Amplíe la información devuelta en el marco de datos de expresiones regulares para incluir los nombres de proteínas, los organismos y las referencias en las que se validó originalmente el motivo.  
@@ -51,7 +51,7 @@ gget.setup(“elm”)      # Descarga/actualiza la base de datos ELM local
 ortholog_df, regex_df = gget.elm("LIAQSIGQASFV")
 ```
   
-Encuentre ELM que proporcionen un ID de UniProt como entrada: 
+Encuentre ELM que proporcionen a una UniProt Acc: 
 ```bash
 gget setup elm          # Descarga/actualiza la base de datos ELM local
 gget elm -o gget_elm_results --uniprot Q02410 -e
@@ -65,7 +65,7 @@ ortholog_df, regex_df = gget.elm("Q02410", uniprot=True, expand=True)
 
 ortholog_df:  
   
-|Ortholog_UniProt_ID|ProteinName|class_accession|ELMIdentifier  |FunctionalSiteName                   |Description                                                                                                                              |Organism    |…  |
+|Ortholog_UniProt_Acc|ProteinName|class_accession|ELMIdentifier  |FunctionalSiteName                   |Description                                                                                                                              |Organism    |…  |
 |:-----------------:|:---------:|:-------------:|:-------------:|:-----------------------------------:|:---------------------------------------------------------------------------------------------------------------------------------------:|:----------:|:-:|
 |Q02410             |APBA1_HUMAN|ELME000357     |LIG_CaMK_CASK_1|CASK CaMK domain binding ligand motif|Motif that mediates binding to the calmodulin-dependent protein kinase (CaMK) domain of the peripheral plasma membrane protein CASK/Lin2.|Homo sapiens|…  |
 |Q02410             |APBA1_HUMAN|ELME000091     |LIG_PDZ_Class_2|PDZ domain ligands                   |The C-terminal class 2 PDZ-binding motif is classically represented by a pattern such as                                                 |Homo sapiens|…  |
