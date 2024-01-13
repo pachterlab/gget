@@ -129,10 +129,14 @@ def setup(module, verbose=True, out=None):
             )
 
         if out:
-            ELM_FILES = os.path.abspath(out)
-            ELM_INSTANCES_FASTA = f"{ELM_FILES}/elm_instances.fasta"
-            ELM_CLASSES_TSV = f"{ELM_FILES}/elms_classes.tsv"
-            ELM_INSTANCES_TSV = f"{ELM_FILES}/elm_instances.tsv"
+            elm_files_out = os.path.abspath(out)
+            elm_instances_fasta = f"{elm_files_out}/elm_instances.fasta"
+            elm_classes_tsv = f"{elm_files_out}/elms_classes.tsv"
+            elm_instances_tsv = f"{elm_files_out}/elm_instances.tsv"
+        else:
+            elm_instances_fasta = ELM_INSTANCES_FASTA
+            elm_classes_tsv = ELM_CLASSES_TSV
+            elm_instances_tsv = ELM_INSTANCES_TSV
 
         # Create folder for ELM files (if it does not exist)
         if not os.path.exists(ELM_FILES):
@@ -141,15 +145,15 @@ def setup(module, verbose=True, out=None):
         if platform.system() == "Windows":
             # The double-quotation marks allow white spaces in the path, but this does not work for Windows
             command = f"""
-                curl -o {ELM_INSTANCES_FASTA} {ELM_INSTANCES_FASTA_DOWNLOAD} \
-                &&  curl -o {ELM_CLASSES_TSV} {ELM_CLASSES_TSV_DOWNLOAD} \
-                &&  curl -o {ELM_INSTANCES_TSV} {ELM_INSTANCES_TSV_DOWNLOAD}
+                curl -o {elm_instances_fasta} {ELM_INSTANCES_FASTA_DOWNLOAD} \
+                &&  curl -o {elm_classes_tsv} {ELM_CLASSES_TSV_DOWNLOAD} \
+                &&  curl -o {elm_instances_tsv} {ELM_INSTANCES_TSV_DOWNLOAD}
                 """
         else:
             command = f"""
-                curl -o '{ELM_INSTANCES_FASTA}' {ELM_INSTANCES_FASTA_DOWNLOAD} \
-                &&  curl -o '{ELM_CLASSES_TSV}' {ELM_CLASSES_TSV_DOWNLOAD} \
-                &&  curl -o '{ELM_INSTANCES_TSV}' {ELM_INSTANCES_TSV_DOWNLOAD}
+                curl -o '{elm_instances_fasta}' {ELM_INSTANCES_FASTA_DOWNLOAD} \
+                &&  curl -o '{elm_classes_tsv}' {ELM_CLASSES_TSV_DOWNLOAD} \
+                &&  curl -o '{elm_instances_tsv}' {ELM_INSTANCES_TSV_DOWNLOAD}
                 """
 
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
@@ -164,19 +168,19 @@ def setup(module, verbose=True, out=None):
             return
 
         # Check if files are present
-        if os.path.exists(ELM_INSTANCES_FASTA):
+        if os.path.exists(elm_instances_fasta):
             if verbose:
                 logging.info(f"ELM sequences downloaded succesfully.")
         else:
             logging.error("ELM FASTA file download failed.")
 
-        if os.path.exists(ELM_CLASSES_TSV):
+        if os.path.exists(elm_classes_tsv):
             if verbose:
                 logging.info("ELM classes downloaded successfully.")
         else:
             logging.error("ELM classes download failed.")
 
-        if os.path.exists(ELM_INSTANCES_TSV):
+        if os.path.exists(elm_instances_tsv):
             if verbose:
                 logging.info("ELM instances downloaded successfully.")
         else:
