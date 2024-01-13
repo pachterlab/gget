@@ -53,7 +53,7 @@ def setup(module, verbose=True, out=None):
     Args:
     - module    (str) gget module for which dependencies should be installed, e.g. "alphafold", "cellxgene", "elm", or "gpt".
     - verbose   True/False whether to print progress information. Default True.
-    - out       (str) Path to directory to save downloaded files in (currently only applies when module='elm'). 
+    - out       (str) Path to directory to save downloaded files in (currently only applies when module='elm').
                 NOTE: Do not use this argument when downloading the files for use with 'gget.elm'.
                 Default None (files are saved in the gget installation directory).
     """
@@ -128,7 +128,7 @@ def setup(module, verbose=True, out=None):
                 "Downloading ELM database files (requires curl to be installed)..."
             )
 
-        if out:
+        if out is not None:
             elm_files_out = os.path.abspath(out)
             elm_instances_fasta = f"{elm_files_out}/elm_instances.fasta"
             elm_classes_tsv = f"{elm_files_out}/elms_classes.tsv"
@@ -170,21 +170,21 @@ def setup(module, verbose=True, out=None):
         # Check if files are present
         if os.path.exists(elm_instances_fasta):
             if verbose:
-                logging.info(f"ELM sequences downloaded succesfully.")
+                logging.info(f"ELM sequences file present.")
         else:
-            logging.error("ELM FASTA file download failed.")
+            logging.error("ELM FASTA file missing.")
 
         if os.path.exists(elm_classes_tsv):
             if verbose:
-                logging.info("ELM classes downloaded successfully.")
+                logging.info("ELM classes file present.")
         else:
-            logging.error("ELM classes download failed.")
+            logging.error("ELM classes file missing.")
 
         if os.path.exists(elm_instances_tsv):
             if verbose:
-                logging.info("ELM instances downloaded successfully.")
+                logging.info("ELM instances file present.")
         else:
-            logging.error("ELM instances download failed.")
+            logging.error("ELM instances file missing.")
 
     if module == "alphafold":
         if platform.system() == "Windows":
