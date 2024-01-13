@@ -133,10 +133,17 @@ def setup(module, verbose=True, out=None):
             elm_instances_fasta = f"{elm_files_out}/elm_instances.fasta"
             elm_classes_tsv = f"{elm_files_out}/elms_classes.tsv"
             elm_instances_tsv = f"{elm_files_out}/elm_instances.tsv"
+            print(elm_files_out)
+            print(elm_instances_fasta)
+            print(elm_classes_tsv)
+            print(elm_instances_tsv)
         else:
             elm_instances_fasta = ELM_INSTANCES_FASTA
             elm_classes_tsv = ELM_CLASSES_TSV
             elm_instances_tsv = ELM_INSTANCES_TSV
+            print(elm_instances_fasta)
+            print(elm_classes_tsv)
+            print(elm_instances_tsv)
 
         # Create folder for ELM files (if it does not exist)
         if not os.path.exists(ELM_FILES):
