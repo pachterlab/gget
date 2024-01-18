@@ -143,7 +143,7 @@ def seq_workflow(
                 df_elm["query_end"] = int(df_diamond["query_end"].values[i])
                 df_elm["subject_start"] = int(df_diamond["subject_start"].values[i])
                 df_elm["subject_end"] = int(df_diamond["subject_end"].values[i])
-                df_elm["motif_in_query"] = df_elm.apply(motif_in_query, axis=1)
+                df_elm["motif_inside_subject_query_overlap"] = df_elm.apply(motif_in_query, axis=1)
 
                 df = pd.concat([df, df_elm])
 
@@ -342,7 +342,7 @@ def elm(
         "subject_seq_length",
         "alignment_length",
         "identity_percentage",
-        "motif_in_query",
+        "motif_inside_subject_query_overlap",
         "query_start",
         "query_end",
         "subject_start",
