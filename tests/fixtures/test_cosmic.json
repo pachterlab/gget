@@ -1,0 +1,207 @@
+{
+    "test1": {
+        "type": "assert_equal_mutations",
+        "args": {
+            "name": "v600e"
+        },
+        "expected_result": [
+            [
+                "BRAF",
+                "c.1799T>A",
+                "\"BRAF c.1799T>A, BRAF p.V600E, BRAF 1799T>A, BRAF V600E, BRAF COSV56056643, BRAF COSM476\"",
+                "y"
+            ],
+            [
+                "BRAF",
+                "c.1799_1800del",
+                "\"BRAF c.1799_1800del, BRAF p.V600Efs*11, BRAF 1799_1800del, BRAF V600Efs*11, BRAF COSV56085831, BRAF COSM1168053\"",
+                "y"
+            ],
+            [
+                "BRAF",
+                "c.1799_1800delinsAA",
+                "\"BRAF c.1799_1800delinsAA, BRAF p.V600E, BRAF 1799_1800delinsAA, BRAF V600E, BRAF COSV56059110, BRAF COSM475\"",
+                "y"
+            ],
+            [
+                "BRAF",
+                "c.?",
+                "\"BRAF c.?, BRAF p.V600E, BRAF ?, BRAF V600E, BRAF COSV, BRAF COSM1131\"",
+                "y"
+            ],
+            [
+                "DUSP27",
+                "c.1799T>A",
+                "\"DUSP27 c.1799T>A, DUSP27 p.V600E, DUSP27 1799T>A, DUSP27 V600E, DUSP27 COSV54807118, DUSP27 COSM358260\"",
+                "y"
+            ],
+            [
+                "BAZ2A_ENST00000549884",
+                "c.1799T>A",
+                "\"BAZ2A_ENST00000549884 c.1799T>A, BAZ2A_ENST00000549884 p.V600E, BAZ2A_ENST00000549884 1799T>A, BAZ2A_ENST00000549884 V600E, BAZ2A_ENST00000549884 COSV51631953, BAZ2A_ENST00000549884 COSM6073024\"",
+                "n"
+            ],
+            [
+                "BRAF_ENST00000496384",
+                "c.1799T>A",
+                "\"BRAF_ENST00000496384 c.1799T>A, BRAF_ENST00000496384 p.V600E, BRAF_ENST00000496384 1799T>A, BRAF_ENST00000496384 V600E, BRAF_ENST00000496384 COSV56056643, BRAF_ENST00000496384 COSM476\"",
+                "n"
+            ],
+            [
+                "BRAF_ENST00000496384",
+                "c.1799_1800del",
+                "\"BRAF_ENST00000496384 c.1799_1800del, BRAF_ENST00000496384 p.V600Efs*11, BRAF_ENST00000496384 1799_1800del, BRAF_ENST00000496384 V600Efs*11, BRAF_ENST00000496384 COSV56085831, BRAF_ENST00000496384 COSM1168053\"",
+                "n"
+            ],
+            [
+                "BRAF_ENST00000496384",
+                "c.1799_1800delinsAA",
+                "\"BRAF_ENST00000496384 c.1799_1800delinsAA, BRAF_ENST00000496384 p.V600E, BRAF_ENST00000496384 1799_1800delinsAA, BRAF_ENST00000496384 V600E, BRAF_ENST00000496384 COSV56059110, BRAF_ENST00000496384 COSM475\"",
+                "n"
+            ],
+            [
+                "DUSP27_ENST00000271385",
+                "c.1799T>A",
+                "\"DUSP27_ENST00000271385 c.1799T>A, DUSP27_ENST00000271385 p.V600E, DUSP27_ENST00000271385 1799T>A, DUSP27_ENST00000271385 V600E, DUSP27_ENST00000271385 COSV54807118, DUSP27_ENST00000271385 COSM358260\"",
+                "n"
+            ],
+            [
+                "DUSP27_ENST00000443333",
+                "c.1799T>A",
+                "\"DUSP27_ENST00000443333 c.1799T>A, DUSP27_ENST00000443333 p.V600E, DUSP27_ENST00000443333 1799T>A, DUSP27_ENST00000443333 V600E, DUSP27_ENST00000443333 COSV54807118, DUSP27_ENST00000443333 COSM358260\"",
+                "n"
+            ],
+            [
+                "FMR1_ENST00000218200",
+                "c.1799T>A",
+                "\"FMR1_ENST00000218200 c.1799T>A, FMR1_ENST00000218200 p.V600E, FMR1_ENST00000218200 1799T>A, FMR1_ENST00000218200 V600E, FMR1_ENST00000218200 COSV54427979, FMR1_ENST00000218200 COSM756011\"",
+                "n"
+            ]
+        ]
+    },
+    "test2": {
+        "type": "assert_equal_pubmed",
+        "args": {
+            "name": "v600e",
+            "types": "pubmed",
+            "limit": 2
+        },
+        "expected_result": [
+            [
+                "21882184",
+                "\" association of the braf v600e mutation with prognostic factors and poor clinical outcome in papillary thyroid cancer a meta analysis, the\"",
+                "\"Kim TH,Park YJ,Lim JA,Ahn HY,Lee EK,Lee YJ,Kim KW,Hahn SK,Youn YK,Kim KH,Cho BY and Park do J\""
+            ],
+            [
+                "25323687",
+                "\" braf v600e mutation in circulating cell free dna is a promising biomarker of high risk adult langerhans cell histiocytosis, the\"",
+                "Kobayashi M and Tojo A"
+            ]
+        ]
+    },
+    "test3": {
+        "type": "assert_equal_genes_and_json",
+        "args": {
+            "name": "EGFR",
+            "types": "genes",
+            "json": true
+        },
+        "expected_result": [
+            {
+                "Gene": "EGFR",
+                "Alternate IDs": "\"EGFR,ENST00000275493.6,EGFR,ENSP00000275493.2,Erlotinib,HKI-272,BIBW2992,Gefitinib,EGFR.html,NP_005219,NM_005228.3,ENSG00000146648.17,3236,131550,P00533,CCDS5514.1,1956,ERBB1,ERBB,COSG150\"",
+                "Tested samples": "210280",
+                "Simple Mutations": "31900",
+                "Fusions": "0",
+                "Coding": "31900"
+            },
+            {
+                "Gene": "EGFR_ENST00000454757",
+                "Alternate IDs": "\"EGFR_ENST00000454757,ENST00000454757.6,EGFR,ENSP00000395243.3,EGFR.html,NP_001333828.1,ENSG00000146648.17,3236,131550,1956,ERBB1,ERBB,COSG454757\"",
+                "Tested samples": "210280",
+                "Simple Mutations": "10220",
+                "Fusions": "0",
+                "Coding": "10220"
+            },
+            {
+                "Gene": "EGFR_ENST00000455089",
+                "Alternate IDs": "\"EGFR_ENST00000455089,ENST00000455089.5,EGFR,ENSP00000415559.1,EGFR.html,NP_001333826.1,NM_001346897.1,ENSG00000146648.17,3236,131550,1956,ERBB1,ERBB,COSG455089\"",
+                "Tested samples": "210280",
+                "Simple Mutations": "9965",
+                "Fusions": "0",
+                "Coding": "9965"
+            },
+            {
+                "Gene": "EGFR_ENST00000638463",
+                "Alternate IDs": "\"EGFR_ENST00000638463,ENST00000638463.1,EGFR,ENSP00000492462.1,EGFR.html,ENSG00000146648.17,3236,131550,1956,ERBB1,ERBB,COSG638463\"",
+                "Tested samples": "210279",
+                "Simple Mutations": "9407",
+                "Fusions": "0",
+                "Coding": "9407"
+            },
+            {
+                "Gene": "EGFR_ENST00000344576",
+                "Alternate IDs": "\"EGFR_ENST00000344576,ENST00000344576.6,EGFR,ENSP00000345973.2,EGFR.html,NP_958441,NM_201284.1,ENSG00000146648.17,3236,131550,P00533,CCDS5515.1,1956,ERBB1,ERBB,COSG90589\"",
+                "Tested samples": "210277",
+                "Simple Mutations": "2341",
+                "Fusions": "0",
+                "Coding": "2341"
+            },
+            {
+                "Gene": "EGFR_ENST00000342916",
+                "Alternate IDs": "\"EGFR_ENST00000342916,ENST00000342916.7,EGFR,ENSP00000342376.3,EGFR.html,NP_958439,NM_201282.1,ENSG00000146648.17,3236,131550,P00533,CCDS5516.1,1956,ERBB1,ERBB,COSG107618\"",
+                "Tested samples": "210277",
+                "Simple Mutations": "2207",
+                "Fusions": "0",
+                "Coding": "2207"
+            },
+            {
+                "Gene": "EGFR_ENST00000420316",
+                "Alternate IDs": "\"EGFR_ENST00000420316,ENST00000420316.6,EGFR,ENSP00000413843.2,EGFR.html,NP_958440,NM_201283.1,ENSG00000146648.17,3236,131550,P00533,CCDS47587.1,1956,ERBB1,ERBB,COSG420316\"",
+                "Tested samples": "210274",
+                "Simple Mutations": "1712",
+                "Fusions": "0",
+                "Coding": "1712"
+            },
+            {
+                "Gene": "RHBDF1",
+                "Alternate IDs": "\"RHBDF1,ENST00000262316.10,RHBDF1,ENSP00000262316.5,NP_071895,NM_022450.3,ENSG00000007384.15,20561,614403,Q96CC6,CCDS32344.1,64285,iRhom1,FLJ2235,EGFR-RS,Dist1,C16orf8,COSG67901\"",
+                "Tested samples": "44658",
+                "Simple Mutations": "568",
+                "Fusions": "0",
+                "Coding": "568"
+            }
+        ]
+    },
+    "test4": {
+        "type": "assert_equal_samples",
+        "args": {
+            "name": "EGFR",
+            "types": "samples"
+        },
+        "expected_result": [
+            [
+                "P1_Pre-RAFi_EGFRi",
+                "Large intestine:carcinoma:adenocarcinoma",
+                "1224",
+                "1179",
+                "0",
+                "0"
+            ]
+        ]
+    },
+    "test5": {
+        "type": "assert_equal_studies",
+        "args": {
+            "name": "THCA-SA",
+            "types": "studies"
+        },
+        "expected_result": [
+            [
+                "589",
+                "THCA-SA",
+                "ICGC(THCA-SA) : Thyroid Cancer - SA"
+            ]
+        ]
+    }
+}
