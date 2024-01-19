@@ -12,6 +12,7 @@ from .gget_setup import (
     ELM_INSTANCES_FASTA,
     ELM_CLASSES_TSV,
     ELM_INSTANCES_TSV,
+    ELM_INTDOMAINS_TSV
 )
 
 
@@ -56,12 +57,24 @@ def get_elm_instances(UniProtID):
         }
     )
 
-    # Get matching class descriptions from elm_classes.tsv
+    # Get class descriptions
     df_classes = tsv_to_df(ELM_CLASSES_TSV, skiprows=5)
-    df_classes.rename(columns={"Accession": "class_accession"}, inplace=True)
+    df_classes = df_classes.rename(columns={"Accession": "class_accession"})
 
-    # Merge dataframes using ELM Identifier
+    # Get interaction domains
+    df_intdomains = tsv_to_df(ELM_INTDOMAINS_TSV)
+    df_intdomains = df_intdomains.rename(
+        columns={
+            "ELM identifier": "ELMIdentifier",
+            "Interaction Domain Id": "InteractionDomainId",
+            "Interaction Domain Description": "InteractionDomainDescription",
+            "Interaction Domain Name": "InteractionDomainName"
+        }
+    )
+
+    # Merge data frames using ELM Identifier
     df_final = df_instances_matching.merge(df_classes, how="left", on="ELMIdentifier")
+    df_final = df_final.merge(df_intdomains, how="left", on="ELMIdentifier")
 
     return df_final
 
@@ -166,6 +179,15 @@ def regex_match(sequence):
     # Get all motif regex patterns from elm db local file
     df_elm_classes = tsv_to_df(ELM_CLASSES_TSV, skiprows=5)
     df_full_instances = tsv_to_df(ELM_INSTANCES_TSV, skiprows=5)
+    df_full_intdomains = tsv_to_df(ELM_INTDOMAINS_TSV)
+    df_full_intdomains = df_intdomains.rename(
+        columns={
+            "ELM identifier": "ELMIdentifier",
+            "Interaction Domain Id": "InteractionDomainId",
+            "Interaction Domain Description": "InteractionDomainDescription",
+            "Interaction Domain Name": "InteractionDomainName"
+        }
+    )
 
     elm_ids = df_elm_classes["Accession"]
     regex_patterns = df_elm_classes["Regex"]
@@ -196,6 +218,7 @@ def regex_match(sequence):
 
             # merge two dataframes using ELM Identifier, since some Accessions are missing from elm_instances.tsv
             elm_row = elm_row.merge(df_full_instances, how="left", on="ELMIdentifier")
+            elm_row = elm_row.merge(df_full_intdomains, how="left", on="ELMIdentifier")
 
             df_final = pd.concat([df_final, elm_row])
 
@@ -246,6 +269,7 @@ def elm(
         not os.path.exists(ELM_INSTANCES_FASTA)
         or not os.path.exists(ELM_CLASSES_TSV)
         or not os.path.exists(ELM_INSTANCES_TSV)
+        or not os.path.exists(ELM_INTDOMAINS_TSV)
     ):
         raise FileNotFoundError(
             f"Some or all ELM database files are missing. Please run 'gget setup elm' (Python: gget.setup('elm')) once to download the necessary files."
