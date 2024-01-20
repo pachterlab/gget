@@ -7,6 +7,15 @@ import pandas as pd
 import uuid
 import json as json_package
 
+# Add and format time stamp in logging messages
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(message)s",
+    level=logging.INFO,
+    datefmt="%c",
+)
+# Mute numexpr threads info
+logging.getLogger("numexpr").setLevel(logging.WARNING)
+
 from .compile import PACKAGE_PATH
 from .utils import tsv_to_df, create_tmp_fasta, remove_temp_files
 
@@ -70,7 +79,7 @@ def diamond(
         query = query[0]
     if isinstance(reference, list) and len(reference) == 1:
         reference = reference[0]
-        
+
     # Define paths to query/reference/db/output files
     files_to_delete = []
     if "." in query:
@@ -115,7 +124,7 @@ def diamond(
         input_file_w = input_file.replace("/", "\\")
         reference_file_w = reference_file.replace("/", "\\")
         output_w = output.replace("/", "\\")
-        
+
     if platform.system() == "Windows":
         command = f"{DIAMOND} version \
         && {DIAMOND_w} makedb --quiet --in {reference_file_w} --db {diamond_db_w} --threads {threads} \

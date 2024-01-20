@@ -5,6 +5,15 @@ import logging
 import json as json_package
 import re
 
+# Add and format time stamp in logging messages
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(message)s",
+    level=logging.INFO,
+    datefmt="%c",
+)
+# Mute numexpr threads info
+logging.getLogger("numexpr").setLevel(logging.WARNING)
+
 from .utils import get_uniprot_seqs, tsv_to_df
 from .constants import UNIPROT_REST_API
 from .gget_diamond import diamond
@@ -12,7 +21,7 @@ from .gget_setup import (
     ELM_INSTANCES_FASTA,
     ELM_CLASSES_TSV,
     ELM_INSTANCES_TSV,
-    ELM_INTDOMAINS_TSV
+    ELM_INTDOMAINS_TSV,
 )
 
 
@@ -68,7 +77,7 @@ def get_elm_instances(UniProtID):
             "ELM identifier": "ELMIdentifier",
             "Interaction Domain Id": "InteractionDomainId",
             "Interaction Domain Description": "InteractionDomainDescription",
-            "Interaction Domain Name": "InteractionDomainName"
+            "Interaction Domain Name": "InteractionDomainName",
         }
     )
 
@@ -156,7 +165,9 @@ def seq_workflow(
                 df_elm["query_end"] = int(df_diamond["query_end"].values[i])
                 df_elm["subject_start"] = int(df_diamond["subject_start"].values[i])
                 df_elm["subject_end"] = int(df_diamond["subject_end"].values[i])
-                df_elm["motif_inside_subject_query_overlap"] = df_elm.apply(motif_in_query, axis=1)
+                df_elm["motif_inside_subject_query_overlap"] = df_elm.apply(
+                    motif_in_query, axis=1
+                )
 
                 df = pd.concat([df, df_elm])
 
@@ -185,7 +196,7 @@ def regex_match(sequence):
             "ELM identifier": "ELMIdentifier",
             "Interaction Domain Id": "InteractionDomainId",
             "Interaction Domain Description": "InteractionDomainDescription",
-            "Interaction Domain Name": "InteractionDomainName"
+            "Interaction Domain Name": "InteractionDomainName",
         }
     )
 
