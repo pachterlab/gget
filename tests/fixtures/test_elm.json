@@ -113,7 +113,7 @@
                 3418,
                 3417,
                 56.6,
-        True,
+                true,
                 1,
                 3303,
                 1,
@@ -143,7 +143,7 @@
                 3418,
                 3417,
                 56.6,
-        True,
+                true,
                 1,
                 3303,
                 1,
@@ -173,7 +173,7 @@
                 3418,
                 3417,
                 56.6,
-        True,
+                true,
                 1,
                 3303,
                 1,
@@ -250,7 +250,7 @@
     "test3": {
         "type": "assert_equal",
         "args": {
-            "sequence": "GGETISAWESQMEELVISISALIVELQVEFRANKLINPACHTERLABRQCKSFKIEPPGLFRGRG",
+            "sequence": "GGETISAWESQMEELVISISALIVELQVEFRANKLINPACHTERLABRQCKSFKIEPPGLFRGRG"
         },
         "expected_result": [
             [
@@ -268,7 +268,7 @@
                 765,
                 25,
                 68.0,
-        False,
+                false,
                 41,
                 65,
                 346,
