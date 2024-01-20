@@ -2,7 +2,7 @@
     "test1": {
         "type": "assert_equal_mutations",
         "args": {
-            "name": "v600e"
+            "searchterm": "v600e"
         },
         "expected_result": [
             [
@@ -82,8 +82,8 @@
     "test2": {
         "type": "assert_equal_pubmed",
         "args": {
-            "name": "v600e",
-            "types": "pubmed",
+            "searchterm": "v600e",
+            "entity": "pubmed",
             "limit": 2
         },
         "expected_result": [
@@ -102,8 +102,8 @@
     "test3": {
         "type": "assert_equal_genes_and_json",
         "args": {
-            "name": "EGFR",
-            "types": "genes",
+            "searchterm": "EGFR",
+            "entity": "genes",
             "json": true
         },
         "expected_result": [
@@ -176,8 +176,8 @@
     "test4": {
         "type": "assert_equal_samples",
         "args": {
-            "name": "EGFR",
-            "types": "samples"
+            "searchterm": "EGFR",
+            "entity": "samples"
         },
         "expected_result": [
             [
@@ -193,8 +193,8 @@
     "test5": {
         "type": "assert_equal_studies",
         "args": {
-            "name": "THCA-SA",
-            "types": "studies"
+            "searchterm": "THCA-SA",
+            "entity": "studies"
         },
         "expected_result": [
             [
