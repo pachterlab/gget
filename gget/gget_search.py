@@ -24,6 +24,7 @@ from gget.utils import search_species_options, find_latest_ens_rel, wrap_cols_fu
 
 from gget.constants import ENSEMBL_FTP_URL, ENSEMBL_FTP_URL_NV
 
+
 def clean_cols(x):
     if isinstance(x, list):
         unique_list = list(set(x))
@@ -69,8 +70,8 @@ def search(
                       (e.g.searchwords = ["GABA", "gamma-aminobutyric"]).
     - species         Species can be passed in the format "genus_species", e.g. "homo_sapiens" or "arabidopsis_thaliana".
                       To pass a specific database, enter the name of the core database, e.g. "mus_musculus_dba2j_core_105_1".
-                      All available core databases can be found here:  
-                      Vertebrates: http://ftp.ensembl.org/pub/current/mysql/  
+                      All available core databases can be found here:
+                      Vertebrates: http://ftp.ensembl.org/pub/current/mysql/
                       Invertebrates: http://ftp.ensemblgenomes.org/pub/current/ + kingdom + mysql/
     - release         Defines the Ensembl release number from which the files are fetched, e.g. 104.
                       Note: This argument does not apply to invertebrate species (you can pass a specific core database (which includes release number) to the species argument instead).
@@ -136,7 +137,9 @@ def search(
     if "core" in species:
         db = species
         if release:
-            logging.warning("Specified release overwritten because database name was provided.")
+            logging.warning(
+                "Specified release overwritten because database name was provided."
+            )
     else:
         if release:
             ens_rel = release
@@ -145,20 +148,16 @@ def search(
             ens_rel = find_latest_ens_rel()
 
         # Fetch ensembl databases
-        databases = search_species_options(
-            database=ENSEMBL_FTP_URL, release=ens_rel
-        )
-    
+        databases = search_species_options(database=ENSEMBL_FTP_URL, release=ens_rel)
+
         # Add ensembl invertebrate databases
-        databases += search_species_options(
-            database=ENSEMBL_FTP_URL_NV, release=None
-        )
-    
+        databases += search_species_options(database=ENSEMBL_FTP_URL_NV, release=None)
+
         db = []
         for datab in databases:
             if species in datab:
                 db.append(datab)
-    
+
         # Unless an unambigious mouse database is specified,
         # the standard core database will be used
         if len(db) > 1 and "mus_musculus" in species:
@@ -168,14 +167,14 @@ def search(
                 "All available vertebrate databases can be found here:\n"
                 f"http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
             )
-    
+
         # Check for ambigious species matches in species other than mouse
         elif len(db) > 1 and "mus_musculus" not in species:
             logging.warning(
                 f"Species matches more than one database. Defaulting to first database: {db[0]}.\n"
                 "All available databases can be found here:\n"
-                f"Vertebrate: http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
-                f"Invertebrate: http://ftp.ensemblgenomes.org/pub/release-{ens_rel} + kingdom + mysql/"
+                f"Vertebrates: http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
+                f"Invertebrates: http://ftp.ensemblgenomes.org/pub/release-{ens_rel} + kingdom + mysql/"
             )
             db = db[0]
 
@@ -184,10 +183,10 @@ def search(
             raise ValueError(
                 "Species not found. Please double-check spelling or pass a specific CORE database.\n"
                 "All available CORE databases can be found here:\n"
-                f"Vertebrate: http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
-                f"Invertebrate: http://ftp.ensemblgenomes.org/pub/release-{ens_rel} + kingdom + mysql/"
+                f"Vertebrates: http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
+                f"Invertebrates: http://ftp.ensemblgenomes.org/pub/release-{ens_rel} + kingdom + mysql/"
             )
-    
+
         else:
             db = db[0]
 
@@ -197,7 +196,10 @@ def search(
     ## Connect to data base
     try:
         db_connection = sql.connect(
-            host="mysql-eg-publicsql.ebi.ac.uk", database=db, user="anonymous", password=""
+            host="mysql-eg-publicsql.ebi.ac.uk",
+            database=db,
+            user="anonymous",
+            password="",
         )
     except:
         try:
@@ -299,7 +301,6 @@ def search(
                 else:
                     val = np.intersect1d(df["ensembl_id"], df_temp["ensembl_id"])
                     df = df[df.ensembl_id.isin(val)]
-                    
 
     # Remove any duplicate search results from the master data frame and reset the index
     df = df.drop_duplicates().reset_index(drop=True)
