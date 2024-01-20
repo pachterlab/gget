@@ -18,9 +18,6 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 import textwrap
 
-# Custom functions
-from .gget_info import info
-
 from .constants import (
     POST_ENRICHR_URL,
     GET_ENRICHR_URL,
@@ -28,40 +25,14 @@ from .constants import (
     GET_BACKGROUND_ENRICHR_URL,
 )
 from .compile import PACKAGE_PATH
-
-
-def ensembl_to_gene_names(ensembl_ids):
-    genes_v2 = []
-
-    for gene_id in ensembl_ids:
-        # Remove version number if passed
-        gene_id = gene_id.split(".")[0]
-
-        info_df = info(gene_id, pdb=False, ncbi=False, uniprot=False, verbose=False)
-
-        # Check if Ensembl ID was found
-        if isinstance(info_df, type(None)):
-            logging.warning(
-                f"ID '{gene_id}' not found. Please double-check spelling/arguments."
-            )
-            continue
-
-        gene_symbol = info_df.loc[gene_id]["ensembl_gene_name"]
-
-        # If more than one gene symbol was returned, use first entry
-        if isinstance(gene_symbol, list):
-            genes_v2.append(str(gene_symbol[0]))
-        else:
-            genes_v2.append(str(gene_symbol))
-
-    return genes_v2
+from .utils import ensembl_to_gene_names
 
 
 def clean_genes_list(genes_list):
     # Remove any NaNs/Nones from the gene list
     genes_clean = []
     for gene in genes_list:
-        if not isinstance(gene, float) and not gene is None and not gene=="nan":
+        if not isinstance(gene, float) and not gene is None and not gene == "nan":
             genes_clean.append(gene)
     return genes_clean
 
@@ -98,7 +69,7 @@ def enrichr(
                         'kinase_interactions' (KEA_2015)
                         or any database listed under Gene-set Library at: https://maayanlab.cloud/Enrichr/#libraries
     - background_list   List of gene names/Ensembl IDs to be used as background genes. (Default: None)
-    - background        If True, use set of > 20,000 default background genes listed here: https://github.com/pachterlab/gget/blob/main/gget/constants/enrichr_bkg_genes.txt. 
+    - background        If True, use set of > 20,000 default background genes listed here: https://github.com/pachterlab/gget/blob/main/gget/constants/enrichr_bkg_genes.txt.
                         (Default: False)
     - ensembl           Define as 'True' if 'genes' is a list of Ensembl gene IDs. (Default: False)
     - ensembl_bkg       Define as 'True' if 'background_list' is a list of Ensembl gene IDs. (Default: False)
@@ -121,7 +92,9 @@ def enrichr(
     Go to https://maayanlab.cloud/Enrichr/#libraries for a full list of supported databases.
     """
     if not (type(background) == bool):
-        raise ValueError(f"Argument`background` must be a boolean True/False. If you are adding a background list, use the argument `background_list` instead.")
+        raise ValueError(
+            f"Argument`background` must be a boolean True/False. If you are adding a background list, use the argument `background_list` instead."
+        )
 
     # Handle database shortcuts
     if database == "pathway":
@@ -174,12 +147,16 @@ def enrichr(
     # To generate a KEGG pathway image, confirm that the database is a KEGG database and pykegg is installed
     if kegg_out:
         if not database.startswith("KEGG"):
-            logging.error("Please specify a KEGG database when generating a KEGG pathway image.")
+            logging.error(
+                "Please specify a KEGG database when generating a KEGG pathway image."
+            )
             return
         try:
             import pykegg
         except ImportError:
-            logging.error("Please install `pykegg` to generate a KEGG pathway image. Pykegg can be installed using pip: 'pip install pykegg'")
+            logging.error(
+                "Please install `pykegg` to generate a KEGG pathway image. Pykegg can be installed using pip: 'pip install pykegg'"
+            )
             return
 
     # If single gene passed as string, convert to list
@@ -216,7 +193,7 @@ def enrichr(
             logging.info(
                 f"Performing Enichr analysis on the following gene symbols: {', '.join(genes_clean)}"
             )
- 
+
     # Join genes from list
     genes_clean_final = "\n".join(genes_clean)
 
@@ -248,7 +225,9 @@ def enrichr(
     # If user gives a background list, use the user input instead of the default
     if background_list:
         if verbose:
-            logging.info(f"Performing Enichr analysis using user-defined background gene list.")
+            logging.info(
+                f"Performing Enichr analysis using user-defined background gene list."
+            )
 
         if background:
             logging.warning(
@@ -406,8 +385,12 @@ def enrichr(
 
         # Plot barplot
         # ax1.barh(np.arange(len(gene_counts)), gene_counts, color=cmap(c_values), align="center")
-        ax1.barh(np.arange(len(gene_counts)), gene_counts, color=barcolor, align="center")
-        ax1.set_yticks(np.arange(len(gene_counts)), labels, linespacing=0.85, fontsize=fontsize)
+        ax1.barh(
+            np.arange(len(gene_counts)), gene_counts, color=barcolor, align="center"
+        )
+        ax1.set_yticks(
+            np.arange(len(gene_counts)), labels, linespacing=0.85, fontsize=fontsize
+        )
         ax1.invert_yaxis()
         # Set x-limit to be gene count + 1
         ax1.set_xlim(0, ax1.get_xlim()[1] + 1)
@@ -419,7 +402,12 @@ def enrichr(
 
         # Add adj. P value secondary x-axis
         ax2 = ax1.twiny()
-        ax2.scatter(-np.log10(adj_p_values), np.arange(len(gene_counts)), color=p_val_color, s=20)
+        ax2.scatter(
+            -np.log10(adj_p_values),
+            np.arange(len(gene_counts)),
+            color=p_val_color,
+            s=20,
+        )
         # Change label and color of p-value axis
         ax2.set_xlabel(
             "$-log_{10}$(adjusted P value)", fontsize=fontsize, color=p_val_color
