@@ -686,7 +686,8 @@ def ref_species_options(which, database=ENSEMBL_FTP_URL, release=None):
     Function to find all available species for gget ref.
 
     Args:
-    - which     Which type of FTP. Possible entries: 'dna', 'cdna', 'gtf'.
+    - which     Which type of file to check for.
+                Possible entries: 'dna', 'cdna', 'gtf'.
     - database  Link to Ensembl database.
     - release   Ensembl release for which available species should be fetched.
 
