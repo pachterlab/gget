@@ -20,16 +20,14 @@ def cosmic(
     searchterm, entity="mutations", limit=100, save=False, verbose=True, json=False
 ):
     """
-    COSMIC, the Catalogue Of Somatic Mutations In Cancer,
-    is the world's largest and most comprehensive resource
-    for exploring the impact of somatic mutations in human cancer.
-    Start using COSMIC by searching for a genes, cancers, mutations, etc.
+    Search for genes, mutations, etc associated with cancers using the COSMIC
+    (Catalogue Of Somatic Mutations In Cancer) database
     (https://cancer.sanger.ac.uk/cosmic).
 
     Args:
     - searchterm    (str) Search term, which can be a mutation, or gene, or sample, etc.
                     as defined using the 'entity' argument. Example: 'EGFR'.
-    - entity        (str) Type of search term. One of the following:
+    - entity        (str) Defines the type of the supplied search term. One of the following:
                     'mutations' (default), 'genes', 'cancer', 'tumour site', 'studies', 'pubmed', or 'samples'.
     - limit         (int) Number of hits to return. Default: 100
     - json          True/False If True, returns results in json format instead of data frame. Default: False
@@ -41,7 +39,7 @@ def cosmic(
 
     if verbose:
         logging.info(
-            "NOTE: Licence fees are applicable for the commercial use of COSMIC."
+            "NOTE: Licence fees apply for the commercial use of COSMIC."
         )
 
     # Check if 'entity' argument is valid
