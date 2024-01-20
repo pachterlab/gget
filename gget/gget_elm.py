@@ -180,7 +180,7 @@ def regex_match(sequence):
     df_elm_classes = tsv_to_df(ELM_CLASSES_TSV, skiprows=5)
     df_full_instances = tsv_to_df(ELM_INSTANCES_TSV, skiprows=5)
     df_full_intdomains = tsv_to_df(ELM_INTDOMAINS_TSV)
-    df_full_intdomains = df_intdomains.rename(
+    df_full_intdomains = df_full_intdomains.rename(
         columns={
             "ELM identifier": "ELMIdentifier",
             "Interaction Domain Id": "InteractionDomainId",
