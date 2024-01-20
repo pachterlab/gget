@@ -28,7 +28,7 @@ def cosmic(name, types="mutations", limit=100, save=False, verbose=True, json=Fa
     (https://cancer.sanger.ac.uk/cosmic).
 
     Args:
-    - name      (str) Search term for a mutation, or gene, or sample, etc. as defined using the 'types' 
+    - name      (str) Search term for a mutation, or gene, or sample, etc. as defined using the 'types'
                 argument, e.g. 'v600e'.
     - types     (str) 'mutations' (default), 'genes', 'studies', 'pubmed', or 'samples'.
     - limit     (int) Number of rows to return. Default: 100
@@ -44,11 +44,11 @@ def cosmic(name, types="mutations", limit=100, save=False, verbose=True, json=Fa
             "NOTE: Licence fees are applicable for the commercial use of COSMIC."
         )
 
-    # Check if 'species' argument is valid
+    # Check if 'types' argument is valid
     sps = ["mutations", "pubmed", "genes", "studies", "samples"]
     if types not in sps:
         raise ValueError(
-            f"'type' argument specified as {types}. Expected one of: {', '.join(sps)}"
+            f"'types' argument specified as {types}. Expected one of: {', '.join(sps)}"
         )
 
     if verbose:
@@ -84,6 +84,7 @@ def cosmic(name, types="mutations", limit=100, save=False, verbose=True, json=Fa
                 counter = counter + 1
                 if limit < counter:
                     break
+
     elif types == "pubmed":
         dicts = {"Pubmed": [], "Paper title": [], "Author": []}
         counter = 0
@@ -96,6 +97,7 @@ def cosmic(name, types="mutations", limit=100, save=False, verbose=True, json=Fa
                 counter = counter + 1
                 if limit <= counter:
                     break
+
     elif types == "genes":
         dicts = {
             "Gene": [],
@@ -118,6 +120,7 @@ def cosmic(name, types="mutations", limit=100, save=False, verbose=True, json=Fa
                 counter = counter + 1
                 if limit < counter:
                     break
+
     elif types == "samples":
         dicts = {
             "Sample Name": [],
@@ -140,6 +143,7 @@ def cosmic(name, types="mutations", limit=100, save=False, verbose=True, json=Fa
                 counter = counter + 1
                 if limit < counter:
                     break
+
     elif types == "studies":
         dicts = {
             "Study Id": [],
@@ -157,18 +161,17 @@ def cosmic(name, types="mutations", limit=100, save=False, verbose=True, json=Fa
                 if limit < counter:
                     break
 
-    return dicts
-    # Build data frame from returned results
-    corr_df = pd.DataFrame(dicts)
     if json:
-        results_dict = json_package.loads(corr_df.to_json(orient="records"))
         if save:
             with open(f"gget_cosmic_{types}_{name}.json", "w", encoding="utf-8") as f:
-                json_package.dump(results_dict, f, ensure_ascii=False, indent=4)
+                json_package.dump(dicts, f, ensure_ascii=False, indent=4)
 
-        return results_dict
+        return dicts
 
+    # Build data frame
     else:
+        corr_df = pd.DataFrame(dicts)
         if save:
             corr_df.to_csv(f"gget_cosmic_{types}_{name}.csv", index=False)
+
         return corr_df
