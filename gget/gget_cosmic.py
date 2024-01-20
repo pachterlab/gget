@@ -28,7 +28,8 @@ def cosmic(name, types="mutations", limit=100, save=False, verbose=True, json=Fa
     (https://cancer.sanger.ac.uk/cosmic).
 
     Args:
-    - name      (str) Search term for a mutation, or gene, or sample, etc. as defined using the 'types' argument.
+    - name      (str) Search term for a mutation, or gene, or sample, etc. as defined using the 'types' 
+                argument, e.g. 'v600e'.
     - types     (str) 'mutations' (default), 'genes', 'studies', 'pubmed', or 'samples'.
     - limit     (int) Number of rows to return. Default: 100
     - json      True/False If True, returns results in json format instead of data frame. Default: False
@@ -156,6 +157,7 @@ def cosmic(name, types="mutations", limit=100, save=False, verbose=True, json=Fa
                 if limit < counter:
                     break
 
+    return dicts
     # Build data frame from returned results
     corr_df = pd.DataFrame(dicts)
     if json:
