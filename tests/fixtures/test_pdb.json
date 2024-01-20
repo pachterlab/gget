@@ -342,6 +342,16 @@
                         "value": "Hydroxycinnamoyl-CoA shikimate/quinate hydroxycinnamoyltransferase",
                         "provenance_code": "up:Protein.up:submittedName.up:fullName"
                     },
+                    "gene": [
+                        {
+                            "name": [
+                                {
+                                    "type": "PRIMARY",
+                                    "value": "HCT"
+                                }
+                            ]
+                        }
+                    ],
                     "source_organism": {
                         "scientific_name": "Coffea canephora",
                         "taxonomy_id": 49390,

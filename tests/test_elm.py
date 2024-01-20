@@ -15,9 +15,9 @@ class TestELM(unittest.TestCase):
         test = "test1"
         expected_result = elm_dict[test]["expected_result"]
 
-        restul1, result2 = elm(**elm_dict[test]["args"])
+        result1, result2 = elm(**elm_dict[test]["args"])
         result_to_test = (
-            restul1.dropna(axis=1).values.tolist()
+            result1.dropna(axis=1).values.tolist()
             + result2.dropna(axis=1).values.tolist()[15:20]
         )
 
@@ -27,9 +27,9 @@ class TestELM(unittest.TestCase):
         test = "test2"
         expected_result = elm_dict[test]["expected_result"]
 
-        restul1, result2 = elm(**elm_dict[test]["args"])
+        result1, result2 = elm(**elm_dict[test]["args"])
         result_to_test = (
-            restul1.dropna(axis=1).values.tolist()
+            result1.dropna(axis=1).values.tolist()
             + result2.dropna(axis=1).values.tolist()[15:20]
         )
 
@@ -39,9 +39,9 @@ class TestELM(unittest.TestCase):
         test = "test3"
         expected_result = elm_dict[test]["expected_result"]
 
-        restul1, result2 = elm(**elm_dict[test]["args"])
+        result1, result2 = elm(**elm_dict[test]["args"])
         result_to_test = (
-            restul1.dropna(axis=1).values.tolist()
+            result1.dropna(axis=1).values.tolist()
             + result2.dropna(axis=1).values.tolist()[15:20]
         )
 
