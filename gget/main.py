@@ -2131,8 +2131,8 @@ def main():
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
                     os.makedirs(directory, exist_ok=True)
-                with open(args.out, "w", encoding="utf-8") as f:
-                    json.dump(species_list, f, ensure_ascii=False, indent=4)
+                with open(args.out, 'w') as tfile:
+                    tfile.write('\n'.join(species_list))
             else:
                 for species in species_list:
                     print(species)
@@ -2147,8 +2147,8 @@ def main():
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
                     os.makedirs(directory, exist_ok=True)
-                with open(args.out, "w", encoding="utf-8") as f:
-                    json.dump(species_list, f, ensure_ascii=False, indent=4)
+                with open(args.out, 'w') as tfile:
+                    tfile.write('\n'.join(species_list))
             else:
                 for species in species_list:
                     print(species)
@@ -2198,8 +2198,8 @@ def main():
                     directory = "/".join(args.out.split("/")[:-1])
                     if directory != "":
                         os.makedirs(directory, exist_ok=True)
-                    with open(args.out, "w", encoding="utf-8") as f:
-                        json.dump(ref_results, f, ensure_ascii=False, indent=4)
+                    with open(args.out, 'w') as tfile:
+                        tfile.write('\n'.join(ref_results))
 
                     if args.download == True:
                         # Download list of URLs

@@ -116,8 +116,8 @@ def ref(
         species_list = list(set(species_list_gtf) & set(species_list_dna))
 
         if save:
-            with open("ensembl_species.json", "w", encoding="utf-8") as f:
-                json.dump(sorted(species_list), f, ensure_ascii=False, indent=4)
+            with open("ensembl_species.txt", 'w') as tfile:
+                tfile.write('\n'.join(species_list))
 
         return sorted(species_list)
 
@@ -148,8 +148,8 @@ def ref(
         species_list = list(set(species_list_gtf) & set(species_list_dna))
 
         if save:
-            with open("ensembl_iv_species.json", "w", encoding="utf-8") as f:
-                json.dump(sorted(species_list), f, ensure_ascii=False, indent=4)
+            with open("ensembl_iv_species.txt", 'w') as tfile:
+                tfile.write('\n'.join(species_list))
 
         return sorted(species_list)
 
@@ -490,7 +490,7 @@ def ref(
                 )
 
         if save:
-            with open("ref_results.json", "w", encoding="utf-8") as file:
+            with open("gget_ref_results.json", "w", encoding="utf-8") as file:
                 json.dump(ref_dict, file, ensure_ascii=False, indent=4)
         if verbose:
             logging.info(
@@ -531,7 +531,7 @@ def ref(
                 )
 
         if save:
-            with open("ref_results.json", "w", encoding="utf-8") as f:
-                json.dump(results, f, ensure_ascii=False, indent=4)
+            with open('gget_ref_results.txt', 'w') as tfile:
+                tfile.write('\n'.join(results))
 
         return results
