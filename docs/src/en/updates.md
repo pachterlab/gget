@@ -9,6 +9,7 @@
 - [`gget setup`](./setup.md): Use the `out` argument to specify a directory the ELM database will be downloaded into.
 - [`gget diamond`](./diamond.md): The DIAMOND command is now run with `--ignore-warnings` flag, allowing niche sequences such as amino acid sequences that only contain nucleotide characters and repeated sequences. This is also true for DIAMOND alignments performed within [`gget elm`](./elm.md).
 - [`gget ref`](./ref.md) and [`gget search`](./search.md): Get the current Ensembl release using the new [release file](https://ftp.ensembl.org/pub/VERSION) on the Ensembl FTP site to avoid errors during uploads of new releases.
+- New module: [`gget cosmic`](./cosmic.md)
 
 **Version ≥ 0.28.2** (November 15, 2023):  
 - [`gget info`](./info.md): Return a logging error message when the NCBI server fails for a reason other than a fetch fail (this is an error on the server side rather than an error with `gget`)
