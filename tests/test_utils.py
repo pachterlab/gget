@@ -7,7 +7,7 @@ from gget.utils import (
     get_uniprot_info,
     rest_query,
     find_latest_ens_rel,
-    gget_species_options,
+    search_species_options,
     ref_species_options,
 )
 
@@ -132,15 +132,15 @@ class TestUtils(unittest.TestCase):
 
         self.assertEqual(result_to_test, expected_result)
 
-    def test_gget_species_options(self):
-        result_to_test = gget_species_options(release=106)
+    def test_search_species_options(self):
+        result_to_test = search_species_options(release=106)
         expected_result = SPECIES_OPTIONS
 
         self.assertEqual(result_to_test, expected_result)
 
-    def test_gget_species_options_bad_type(self):
+    def test_search_species_options_bad_type(self):
         with self.assertRaises(ValueError):
-            result = gget_species_options(release=2000)
+            result = search_species_options(release=2000)
 
     def test_ref_species_options(self):
         result_to_test = ref_species_options("gtf", release=105)
