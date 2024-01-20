@@ -71,9 +71,9 @@ def cosmic(name, types="mutations", limit=100, save=False, verbose=True, json=Fa
 
     data = r.text.split("\n")
     dicts = {}
+    counter = 1
     if types == "mutations":
         dicts = {"Gene": [], "Syntax": [], "Alternate IDs": [], "Canonical": []}
-        counter = 0
         for i in data:
             if len(i) > 2:
                 parsing_mutations = i.split("\t")
@@ -87,7 +87,6 @@ def cosmic(name, types="mutations", limit=100, save=False, verbose=True, json=Fa
 
     elif types == "pubmed":
         dicts = {"Pubmed": [], "Paper title": [], "Author": []}
-        counter = 0
         for i in data:
             if len(i) > 2:
                 parsing_mutations = i.split("\t")
@@ -107,7 +106,6 @@ def cosmic(name, types="mutations", limit=100, save=False, verbose=True, json=Fa
             "Fusions": [],
             "Coding": [],
         }
-        counter = 0
         for i in data:
             if len(i) > 2:
                 parsing_mutations = i.split("\t")
@@ -130,7 +128,6 @@ def cosmic(name, types="mutations", limit=100, save=False, verbose=True, json=Fa
             "Fusions": [],
             "Structual variants": [],
         }
-        counter = 0
         for i in data:
             if len(i) > 2:
                 parsing_mutations = i.split("\t")
@@ -150,7 +147,6 @@ def cosmic(name, types="mutations", limit=100, save=False, verbose=True, json=Fa
             "Project Code": [],
             "Description": [],
         }
-        counter = 0
         for i in data:
             if len(i) > 2:
                 parsing_mutations = i.split("\t")
