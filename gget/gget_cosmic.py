@@ -25,14 +25,14 @@ def cosmic(
     (https://cancer.sanger.ac.uk/cosmic).
 
     Args:
-    - searchterm    (str) Search term, which can be a mutation, or gene, or sample, etc.
+    - searchterm    (str) Search term, which can be a mutation, or gene name (or Ensembl ID), or sample, etc.
                     as defined using the 'entity' argument. Example: 'EGFR'.
     - entity        (str) Defines the type of the supplied search term. One of the following:
                     'mutations' (default), 'genes', 'cancer', 'tumour site', 'studies', 'pubmed', or 'samples'.
     - limit         (int) Number of hits to return. Default: 100
-    - json          True/False If True, returns results in json format instead of data frame. Default: False
-    - save          True/False whether to save the results in the local directory. Default: False
-    - verbose       True/False whether to print progress information. Default: True
+    - json          (True/False) If True, returns results in json format instead of data frame. Default: False
+    - save          (True/False) whether to save the results in the local directory. Default: False
+    - verbose       (True/False) whether to print progress information. Default: True
 
     Returns a data frame with the requested results.
     """

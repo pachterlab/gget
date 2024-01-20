@@ -5,7 +5,7 @@ Return format: JSON (command-line) or data frame/CSV (Python).
 
 **Positional argument**  
 `searchterm`   
-Search term, which can be a mutation, or gene, or sample, etc. as defined using the `entity` argument. Example: 'EGFR'  
+Search term, which can be a mutation, or gene (or Ensembl ID), or sample, etc. as defined using the `entity` argument. Example: 'EGFR'  
 
 **Optional arguments**  
 `-e` `--entity`  

@@ -1690,7 +1690,7 @@ def main():
     parser_cosmic.add_argument(
         "searchterm",
         type=str,
-        help="Search term, which can be a mutation, or gene, or sample, etc. as defined using the 'entity' argument. Example: 'EGFR'",
+        help="Search term, which can be a mutation, or gene (or Ensembl ID), or sample, etc. as defined using the 'entity' argument. Example: 'EGFR'",
     )
     parser_cosmic.add_argument(
         "-e",
