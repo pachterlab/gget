@@ -13,14 +13,15 @@ One or more free form search words, e.g. gaba nmda. (Note: Search is not case-se
 Species or database to be searched.  
 A species can be passed in the format 'genus_species', e.g. 'homo_sapiens' or 'arabidopsis_thaliana'.  
 To pass a specific database, pass the name of the CORE database, e.g. 'mus_musculus_dba2j_core_105_1'.  
-All available databases for each Ensembl release can be found [here](http://ftp.ensembl.org/pub/).  
-  
-Supported shortcuts: 'human', 'mouse'. 
+All available core databases can be found here:  
+Vertebrates: [http://ftp.ensembl.org/pub/current/mysql/](http://ftp.ensembl.org/pub/current/mysql/)  
+Invertebrates: [http://ftp.ensemblgenomes.org/pub/current/](http://ftp.ensemblgenomes.org/pub/current/) + select kingdom + go to mysql/  
+Supported shortcuts: 'human', 'mouse'.  
 
 **Optional arguments**  
 `-r` `--release`   
 Defines the Ensembl release number from which the files are fetched, e.g. 104. Default: None -> latest Ensembl release is used.  
-Note: *Does not apply to plant species* (you can pass a specific plant core database (which includes a release number) to the `species` argument instead).  
+Note: *Does not apply to invertebrate species* (you can pass a specific core database (which includes a release number) to the `species` argument instead).  
 This argument is overwritten if a specific database (which includes a release number) is passed to the species argument.   
 
 `-t` `--id_type`  

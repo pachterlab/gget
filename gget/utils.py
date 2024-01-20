@@ -595,9 +595,9 @@ def find_latest_ens_rel(database=ENSEMBL_FTP_URL):
     return ENS_rel
 
 
-def gget_species_options(database=ENSEMBL_FTP_URL, release=None):
+def search_species_options(database=ENSEMBL_FTP_URL, release=None):
     """
-    Function to find all available species core databases for gget.
+    Function to find all available species core databases for gget search.
 
     Args:
     - release   Ensembl release for which the databases are fetched.
@@ -616,23 +616,45 @@ def gget_species_options(database=ENSEMBL_FTP_URL, release=None):
             )
         ENS_rel = release
 
-    # Find all available databases
-    url = database + f"release-{ENS_rel}/mysql/"
-    html = requests.get(url)
+    ## Find all available databases
+    # Handle structure of invertebrate database
+    if "ensemblgenomes" in database:
+        databases = []
+        kds = ["plants", "protists", "metazoa", "fungi"]
+        for kingdom in kds:
+            url = database + f"release-{ENS_rel}/{kingdom}/mysql/"
+            html = requests.get(url)
 
-    # Raise error if status code not "OK" Response
-    if html.status_code != 200:
-        raise RuntimeError(
-            f"The Ensembl server returned error status code {html.status_code}. Please try again."
-        )
+            # Raise error if status code not "OK" Response
+            if html.status_code != 200:
+                raise RuntimeError(
+                    f"The Ensembl server returned error status code {html.status_code}. Please try again."
+                )
 
-    soup = BeautifulSoup(html.text, "html.parser")
+            soup = BeautifulSoup(html.text, "html.parser")
 
-    # Return list of all available databases
-    databases = []
-    for subsoup in soup.body.findAll("a"):
-        if "core" in subsoup["href"]:
-            databases.append(subsoup["href"].split("/")[0])
+            # Find all available databases
+            for subsoup in soup.body.findAll("a"):
+                if "core" in subsoup["href"]:
+                    databases.append(subsoup["href"].split("/")[0])
+
+    else:
+        url = database + f"release-{ENS_rel}/mysql/"
+        html = requests.get(url)
+
+        # Raise error if status code not "OK" Response
+        if html.status_code != 200:
+            raise RuntimeError(
+                f"The Ensembl server returned error status code {html.status_code}. Please try again."
+            )
+
+        soup = BeautifulSoup(html.text, "html.parser")
+
+        # Return list of all available databases
+        databases = []
+        for subsoup in soup.body.findAll("a"):
+            if "core" in subsoup["href"]:
+                databases.append(subsoup["href"].split("/")[0])
 
     return databases
 

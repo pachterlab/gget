@@ -20,9 +20,9 @@ import pandas as pd
 
 
 # Custom functions
-from gget.utils import gget_species_options, find_latest_ens_rel, wrap_cols_func
+from gget.utils import search_species_options, find_latest_ens_rel, wrap_cols_func
 
-from gget.constants import ENSEMBL_FTP_URL, ENSEMBL_FTP_URL_PLANT
+from gget.constants import ENSEMBL_FTP_URL, ENSEMBL_FTP_URL_NV
 
 def clean_cols(x):
     if isinstance(x, list):
@@ -69,9 +69,11 @@ def search(
                       (e.g.searchwords = ["GABA", "gamma-aminobutyric"]).
     - species         Species can be passed in the format "genus_species", e.g. "homo_sapiens" or "arabidopsis_thaliana".
                       To pass a specific database, enter the name of the core database, e.g. "mus_musculus_dba2j_core_105_1".
-                      All available species databases can be found here: http://ftp.ensembl.org/pub
+                      All available core databases can be found here:  
+                      Vertebrates: http://ftp.ensembl.org/pub/current/mysql/  
+                      Invertebrates: http://ftp.ensemblgenomes.org/pub/current/ + kingdom + mysql/
     - release         Defines the Ensembl release number from which the files are fetched, e.g. 104.
-                      Note: Does not apply to plant species (you can pass a specific plant core database (which include a release number) to the species argument instead). 
+                      Note: This argument does not apply to invertebrate species (you can pass a specific core database (which includes release number) to the species argument instead).
                       This argument is overwritten if a specific database (which includes a release number) is passed to the species argument.
                       Default: None -> latest Ensembl release is used
     - id_type         "gene" (default) or "transcript"
@@ -143,13 +145,13 @@ def search(
             ens_rel = find_latest_ens_rel()
 
         # Fetch ensembl databases
-        databases = gget_species_options(
+        databases = search_species_options(
             database=ENSEMBL_FTP_URL, release=ens_rel
         )
     
-        # Add ensembl plant databases
-        databases += gget_species_options(
-            database=ENSEMBL_FTP_URL_PLANT, release=None
+        # Add ensembl invertebrate databases
+        databases += search_species_options(
+            database=ENSEMBL_FTP_URL_NV, release=None
         )
     
         db = []
@@ -167,7 +169,7 @@ def search(
             raise ValueError(
                 "Species matches more than one database.\n"
                 "Please double-check spelling or pass specific CORE database.\n"
-                "All available databases can be found here:\n"
+                "All available vertebrate databases can be found here:\n"
                 f"http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/"
             )
         # Raise error if no matching database was found
@@ -175,8 +177,9 @@ def search(
             raise ValueError(
                 "Species not found in database.\n"
                 "Please double-check spelling or pass specific CORE database.\n"
-                "All available databases can be found here:\n"
-                f"http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/"
+                "All available vertebrate databases can be found here:\n"
+                f"http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
+                f"Invertebrate databases: http://ftp.ensemblgenomes.org/pub/release-{ens_rel} + kingdom + mysql/"
             )
     
         else:
