@@ -38,9 +38,7 @@ def cosmic(
     """
 
     if verbose:
-        logging.info(
-            "NOTE: Licence fees apply for the commercial use of COSMIC."
-        )
+        logging.info("NOTE: Licence fees apply for the commercial use of COSMIC.")
 
     # Check if 'entity' argument is valid
     sps = [
@@ -227,18 +225,19 @@ def cosmic(
                 if limit < counter:
                     break
 
+    corr_df = pd.DataFrame(dicts)
+
     if json:
+        results_dict = json_package.loads(corr_df.to_json(orient="records"))
         if save:
             with open(
                 f"gget_cosmic_{entity}_{searchterm}.json", "w", encoding="utf-8"
             ) as f:
-                json_package.dump(dicts, f, ensure_ascii=False, indent=4)
+                json_package.dump(results_dict, f, ensure_ascii=False, indent=4)
 
-        return dicts
+        return results_dict
 
-    # Build data frame
     else:
-        corr_df = pd.DataFrame(dicts)
         if save:
             corr_df.to_csv(f"gget_cosmic_{entity}_{searchterm}.csv", index=False)
 
