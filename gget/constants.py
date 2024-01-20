@@ -3,7 +3,8 @@ import uuid
 # Ensembl REST API server for gget seq and info
 ENSEMBL_REST_API = "http://rest.ensembl.org/"
 ENSEMBL_FTP_URL = "http://ftp.ensembl.org/pub/"
-ENSEMBL_FTP_URL_PLANT = "http://ftp.ensemblgenomes.org/pub/plants/"
+# Non-vertebrate server
+ENSEMBL_FTP_URL_NV = "http://ftp.ensemblgenomes.org/pub/"
 
 # NCBI URL for gget info
 NCBI_URL = "https://www.ncbi.nlm.nih.gov"

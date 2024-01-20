@@ -89,7 +89,20 @@ def main():
         required=False,
         help=(
             """
-            List all available species from the Ensembl database for large genomes (not including plants/bacteria). 
+            List all available vertebrate species from the Ensembl database. 
+            (Combine with `--release` to get the available species from a specific Ensembl release.)
+            """
+        ),
+    )
+    parser_ref.add_argument(
+        "-liv",
+        "--list_iv_species",
+        default=False,
+        action="store_true",
+        required=False,
+        help=(
+            """
+            List all available invertebrate species from the Ensembl database. 
             (Combine with `--release` to get the available species from a specific Ensembl release.)
             """
         ),
@@ -2106,13 +2119,37 @@ def main():
 
     ## ref return
     if args.command == "ref":
-        # Return all available species
+        # Return all vertebrate available species
         if args.list_species:
             species_list = ref(
                 species=None, release=args.release, list_species=args.list_species
             )
-            for species in species_list:
-                print(species)
+            # Save in specified directory if -o specified
+            if args.out:
+                directory = "/".join(args.out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+                with open(args.out, "w", encoding="utf-8") as f:
+                    json.dump(species_list, f, ensure_ascii=False, indent=4)
+            else:
+                for species in species_list:
+                    print(species)
+
+        # Return all invertebrate available species
+        elif args.list_iv_species:
+            species_list = ref(
+                species=None, release=args.release, list_iv_species=args.list_iv_species
+            )
+            # Save in specified directory if -o specified
+            if args.out:
+                directory = "/".join(args.out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+                with open(args.out, "w", encoding="utf-8") as f:
+                    json.dump(species_list, f, ensure_ascii=False, indent=4)
+            else:
+                for species in species_list:
+                    print(species)
 
         # Handle deprecated flags for backwards compatibility
         if args.species_deprecated and args.species:
@@ -2126,10 +2163,15 @@ def main():
             )
 
         # Raise error if neither species nor list flag passed
-        if args.species is None and args.list_species is False:
+        if (
+            args.species is None
+            and args.list_species is False
+            and args.list_iv_species is False
+        ):
             parser_ref.error(
                 "the following arguments are required: species \n"
-                "'gget ref --list_species' -> lists out all available species. \n"
+                "'gget ref --list_species' -> lists out all available vertebrate species. \n"
+                "'gget ref --list_iv_species' -> lists out all available invertebrate species. \n"
                 "Combine with '-r [int]' to define a specific Ensembl release (default: latest release). "
             )
 

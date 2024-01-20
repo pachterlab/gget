@@ -9,6 +9,10 @@
 - [`gget setup`](./setup.md): Use the `out` argument to specify a directory the ELM database will be downloaded into.
 - [`gget diamond`](./diamond.md): The DIAMOND command is now run with `--ignore-warnings` flag, allowing niche sequences such as amino acid sequences that only contain nucleotide characters and repeated sequences. This is also true for DIAMOND alignments performed within [`gget elm`](./elm.md).
 - [`gget ref`](./ref.md) and [`gget search`](./search.md): Get the current Ensembl release using the new [release file](https://ftp.ensembl.org/pub/VERSION) on the Ensembl FTP site to avoid errors during uploads of new releases.
+- [`gget ref`](./ref.md):
+  - Back-end changes which to increase speed
+  - **[`gget ref`](./ref.md) now also supports fungi 🍄, protists 🌝, and invertebrate metazoa 🐝 🐜 🐌 🐙 (in addition to vertebrates and plants)**
+  - New argument: `list_iv_species` to list all available invertebrate species (can be combined with the `release` argument to fetch all species availbale from a specific Ensembl release)
 - New module: [`gget cosmic`](./cosmic.md)
 
 **Version ≥ 0.28.2** (November 15, 2023):  

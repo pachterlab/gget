@@ -20,7 +20,13 @@ logging.basicConfig(
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
 
-from .constants import ENSEMBL_FTP_URL, UNIPROT_IDMAPPING_API, ENS_TO_PDB_API
+from .constants import ENSEMBL_FTP_URL, ENSEMBL_FTP_URL_NV, ENS_TO_PDB_API
+
+def flatten(xss):
+    """
+    Function to flatten a list of lists.
+    """
+    return [x for xs in xss for x in xs]
 
 def n_colors(nucleotide):
     """
@@ -604,12 +610,10 @@ def gget_species_options(database=ENSEMBL_FTP_URL, release=None):
 
     # If release != None, use user-defined Ensembl release
     if release != None:
-        # # Do not allow user-defined release if it is higher than the latest release
-        # if release > ENS_rel:
-        #     raise ValueError(
-        #         "Defined Ensembl release number cannot be greater than latest release."
-        #     )
-        # else:
+        if release > ENS_rel:
+            logging.warning(
+                f"Provided Ensembl release number {release} is greater than the latest release ({ENS_rel})."
+            )
         ENS_rel = release
 
     # Find all available databases
@@ -632,6 +636,28 @@ def gget_species_options(database=ENSEMBL_FTP_URL, release=None):
 
     return databases
 
+def find_nv_kingdom(species, release):
+    kds = ["plants", "protists", "metazoa", "fungi"]
+    for kingdom in kds:
+        url = ENSEMBL_FTP_URL_NV + f"release-{release}/{kingdom}/fasta/"
+        html = requests.get(url)
+
+        # Raise error if status code not "OK" Response
+        if html.status_code != 200:
+            raise RuntimeError(
+                f"The Ensembl server returned error status code {html.status_code}. Please try again."
+            )
+
+        # Parse the html and generate a clean list of the available genomes
+        soup = BeautifulSoup(html.text, "html.parser")
+
+        sps = []
+        for subsoup in soup.body.findAll("a"):
+            sps.append(subsoup["href"].split("/")[0])
+
+        # Return kingdom if species was found
+        if species in sps[5:]:
+            return kingdom
 
 def ref_species_options(which, database=ENSEMBL_FTP_URL, release=None):
     """
@@ -649,35 +675,64 @@ def ref_species_options(which, database=ENSEMBL_FTP_URL, release=None):
 
     # If release != None, use user-defined Ensembl release
     if release != None:
-        # # Do not allow user-defined release if it is higher than the latest release
-        # if release > ENS_rel:
-        #     raise ValueError(
-        #         "Defined Ensembl release number cannot be greater than latest release."
-        #     )
-        # else:
+        # Warn user if user-defined release is higher than the latest release
+        if release > ENS_rel:
+            logging.warning(
+                f"Provided Ensembl release number {release} is greater than the latest release ({ENS_rel})."
+            )
         ENS_rel = release
 
-    # Find all available species for this release and FTP type
-    if which == "gtf":
-        url = database + f"release-{ENS_rel}/gtf/"
-    if which == "dna" or which == "cdna":
-        url = database + f"release-{ENS_rel}/fasta/"
-    html = requests.get(url)
+    # Handle structure of non-vertebrate database
+    if "ensemblgenomes" in database:
+        species_list = []
+        kds = ["plants", "protists", "metazoa", "fungi"]
+        for kingdom in kds:
+            # Find all available species for this release and FTP type
+            if which == "gtf":
+                url = database + f"release-{ENS_rel}/{kingdom}/gtf/"
+            if which == "dna" or which == "cdna":
+                url = database + f"release-{ENS_rel}/{kingdom}/fasta/"
+            html = requests.get(url)
 
-    # Raise error if status code not "OK" Response
-    if html.status_code != 200:
-        raise RuntimeError(
-            f"The Ensembl server returned error status code {html.status_code}. Please try again."
-        )
+            # Raise error if status code not "OK" Response
+            if html.status_code != 200:
+                raise RuntimeError(
+                    f"The Ensembl server returned error status code {html.status_code}. Please try again."
+                )
 
-    # Parse the html and generate a clean list of the available genomes
-    soup = BeautifulSoup(html.text, "html.parser")
+            # Parse the html and generate a clean list of the available genomes
+            soup = BeautifulSoup(html.text, "html.parser")
 
-    sps = []
-    for subsoup in soup.body.findAll("a"):
-        sps.append(subsoup["href"].split("/")[0])
+            sps = []
+            for subsoup in soup.body.findAll("a"):
+                sps.append(subsoup["href"].split("/")[0])
 
-    species_list = sps[5:]
+            species_list.append(sps[5:])
+
+        species_list = flatten(species_list)
+
+    else:
+        # Find all available species for this release and FTP type
+        if which == "gtf":
+            url = database + f"release-{ENS_rel}/gtf/"
+        if which == "dna" or which == "cdna":
+            url = database + f"release-{ENS_rel}/fasta/"
+        html = requests.get(url)
+
+        # Raise error if status code not "OK" Response
+        if html.status_code != 200:
+            raise RuntimeError(
+                f"The Ensembl server returned error status code {html.status_code}. Please try again."
+            )
+
+        # Parse the html and generate a clean list of the available genomes
+        soup = BeautifulSoup(html.text, "html.parser")
+
+        sps = []
+        for subsoup in soup.body.findAll("a"):
+            sps.append(subsoup["href"].split("/")[0])
+
+        species_list = sps[5:]
 
     # Return list of all available species
     return species_list
