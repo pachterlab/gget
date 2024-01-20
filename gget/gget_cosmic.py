@@ -19,7 +19,9 @@ from .gget_info import info
 from .constants import COSMIC_GET_URL
 
 
-def cosmic(name, types="mutations", limit=100, save=False, verbose=True, json=False):
+def cosmic(
+    searchterm, category="mutations", limit=100, save=False, verbose=True, json=False
+):
     """
     COSMIC, the Catalogue Of Somatic Mutations In Cancer,
     is the world's largest and most comprehensive resource
@@ -28,13 +30,13 @@ def cosmic(name, types="mutations", limit=100, save=False, verbose=True, json=Fa
     (https://cancer.sanger.ac.uk/cosmic).
 
     Args:
-    - name      (str) Search term for a mutation, or gene, or sample, etc. as defined using the 'types'
-                argument, e.g. 'v600e'.
-    - types     (str) 'mutations' (default), 'genes', 'studies', 'pubmed', or 'samples'.
-    - limit     (int) Number of rows to return. Default: 100
-    - json      True/False If True, returns results in json format instead of data frame. Default: False
-    - save      True/False whether to save the results in the local directory. Default: False
-    - verbose   True/False whether to print progress information. Default: True
+    - searchterm   (str) Search term for a mutation, or gene, or sample, etc.
+                    as defined using the 'category' argument. Example: 'EGFR'.
+    - category      (str) 'mutations' (default), 'genes', 'cancer', 'tumour site', 'studies', 'pubmed', or 'samples'.
+    - limit         (int) Number of rows to return. Default: 100
+    - json          True/False If True, returns results in json format instead of data frame. Default: False
+    - save          True/False whether to save the results in the local directory. Default: False
+    - verbose       True/False whether to print progress information. Default: True
 
     Returns a data frame with the requested results.
     """
@@ -44,17 +46,36 @@ def cosmic(name, types="mutations", limit=100, save=False, verbose=True, json=Fa
             "NOTE: Licence fees are applicable for the commercial use of COSMIC."
         )
 
-    # Check if 'types' argument is valid
-    sps = ["mutations", "pubmed", "genes", "studies", "samples"]
-    if types not in sps:
+    # Check if 'category' argument is valid
+    sps = [
+        "mutations",
+        "pubmed",
+        "genes",
+        "studies",
+        "samples",
+        "cancer",
+        "tumour site",
+    ]
+    if category not in sps:
         raise ValueError(
-            f"'types' argument specified as {types}. Expected one of: {', '.join(sps)}"
+            f"'category' argument specified as {category}. Expected one of: {', '.join(sps)}"
         )
 
-    if verbose:
-        logging.info(f"Fetching the {limit} most correlated to {name} from COSMIC.")
+    # Translate categories to match COSMIC data table IDs
+    if category == "cancer":
+        category = "disease"
 
-    r = requests.get(url=COSMIC_GET_URL + types + "?q=" + name + "&export=json")
+    if category == "tumour site":
+        category = "tumour"
+
+    if verbose:
+        logging.info(
+            f"Fetching the {limit} most correlated to {searchterm} from COSMIC."
+        )
+
+    r = requests.get(
+        url=COSMIC_GET_URL + category + "?q=" + searchterm + "&export=json"
+    )
 
     # Check if the request returned an error (e.g. gene not found)
     if not r.ok:
@@ -64,65 +85,74 @@ def cosmic(name, types="mutations", limit=100, save=False, verbose=True, json=Fa
         )
 
     if r.text == "\n":
-        raise RuntimeError(
-            f"Search term name='{name}' did not return any results with types='{types}'. "
+        logging.warning(
+            f"searchterm = '{searchterm}' did not return any results with category = '{category}'. "
             "Please double-check the arguments and try again.\n"
         )
+        return
 
     data = r.text.split("\n")
     dicts = {}
     counter = 1
-    if types == "mutations":
+    if category == "mutations":
         dicts = {"Gene": [], "Syntax": [], "Alternate IDs": [], "Canonical": []}
         for i in data:
             if len(i) > 2:
                 parsing_mutations = i.split("\t")
                 dicts["Gene"].append(parsing_mutations[0])
                 dicts["Syntax"].append(parsing_mutations[1])
-                dicts["Alternate IDs"].append(parsing_mutations[2])
+                dicts["Alternate IDs"].append(parsing_mutations[2]).replace(
+                    '" ', ""
+                ).replace('"', "")
                 dicts["Canonical"].append(parsing_mutations[3])
                 counter = counter + 1
                 if limit < counter:
                     break
 
-    elif types == "pubmed":
+    elif category == "pubmed":
         dicts = {"Pubmed": [], "Paper title": [], "Author": []}
         for i in data:
             if len(i) > 2:
                 parsing_mutations = i.split("\t")
                 dicts["Pubmed"].append(parsing_mutations[0])
-                dicts["Paper title"].append(parsing_mutations[1])
-                dicts["Author"].append(parsing_mutations[2])
+                dicts["Paper title"].append(parsing_mutations[1]).replace(
+                    '" ', ""
+                ).replace('"', "").capitalize()
+                dicts["Author"].append(parsing_mutations[2]).replace('" ', "").replace(
+                    '"', ""
+                )
                 counter = counter + 1
-                if limit <= counter:
+                if limit < counter:
                     break
 
-    elif types == "genes":
+    elif category == "genes":
         dicts = {
             "Gene": [],
             "Alternate IDs": [],
             "Tested samples": [],
             "Simple Mutations": [],
             "Fusions": [],
-            "Coding": [],
+            "Coding Mutations": [],
         }
         for i in data:
             if len(i) > 2:
                 parsing_mutations = i.split("\t")
                 dicts["Gene"].append(parsing_mutations[0])
-                dicts["Alternate IDs"].append(parsing_mutations[1])
+                dicts["Alternate IDs"].append(parsing_mutations[1]).replace(
+                    '" ', ""
+                ).replace('"', "")
                 dicts["Tested samples"].append(parsing_mutations[2])
                 dicts["Simple Mutations"].append(parsing_mutations[3])
                 dicts["Fusions"].append(parsing_mutations[4])
-                dicts["Coding"].append(parsing_mutations[5])
+                dicts["Coding Mutations"].append(parsing_mutations[5])
                 counter = counter + 1
                 if limit < counter:
                     break
 
-    elif types == "samples":
+    elif category == "samples":
         dicts = {
             "Sample Name": [],
-            "Sites &amp; Histologies": [],
+            "Sites & Histologies": [],
             "Analysed Genes": [],
             "Mutations": [],
             "Fusions": [],
@@ -132,7 +162,9 @@ def cosmic(name, types="mutations", limit=100, save=False, verbose=True, json=Fa
             if len(i) > 2:
                 parsing_mutations = i.split("\t")
                 dicts["Sample Name"].append(parsing_mutations[0])
-                dicts["Sites &amp; Histologies"].append(parsing_mutations[1])
+                dicts["Sites & Histologies"].append(parsing_mutations[1]).replace(
+                    ":", ", "
+                )
                 dicts["Analysed Genes"].append(parsing_mutations[2])
                 dicts["Mutations"].append(parsing_mutations[3])
                 dicts["Fusions"].append(parsing_mutations[4])
@@ -141,7 +173,7 @@ def cosmic(name, types="mutations", limit=100, save=False, verbose=True, json=Fa
                 if limit < counter:
                     break
 
-    elif types == "studies":
+    elif category == "studies":
         dicts = {
             "Study Id": [],
             "Project Code": [],
@@ -157,9 +189,55 @@ def cosmic(name, types="mutations", limit=100, save=False, verbose=True, json=Fa
                 if limit < counter:
                     break
 
+    elif category == "disease":
+        dicts = {
+            "COSMIC classification": [],
+            "Paper description": [],
+            "Tested samples": [],
+            "Mutations": [],
+        }
+        for i in data:
+            if len(i) > 2:
+                parsing_mutations = i.split("\t")
+                dicts["COSMIC classification"].append(parsing_mutations[0]).replace(
+                    '" ', ""
+                ).replace('"', "")
+                dicts["Paper description"].append(parsing_mutations[1]).replace(
+                    '" ', ""
+                ).replace('"', "")
+                dicts["Tested samples"].append(parsing_mutations[2])
+                dicts["Mutations"].append(parsing_mutations[3])
+                counter = counter + 1
+                if limit < counter:
+                    break
+
+    elif category == "tumour":
+        dicts = {
+            "Primary Site": [],
+            "Tested sample": [],
+            "Analyzed genes": [],
+            "Mutations": [],
+            "Fusions": [],
+            "Structural variants": [],
+        }
+        for i in data:
+            if len(i) > 2:
+                parsing_mutations = i.split("\t")
+                dicts["Primary Site"].append(parsing_mutations[0])
+                dicts["Tested sample"].append(parsing_mutations[1])
+                dicts["Analyzed genes"].append(parsing_mutations[2])
+                dicts["Mutations"].append(parsing_mutations[3])
+                dicts["Fusions"].append(parsing_mutations[4])
+                dicts["Structural variants"].append(parsing_mutations[5])
+                counter = counter + 1
+                if limit < counter:
+                    break
+
     if json:
         if save:
-            with open(f"gget_cosmic_{types}_{name}.json", "w", encoding="utf-8") as f:
+            with open(
+                f"gget_cosmic_{category}_{searchterm}.json", "w", encoding="utf-8"
+            ) as f:
                 json_package.dump(dicts, f, ensure_ascii=False, indent=4)
 
         return dicts
@@ -168,6 +246,6 @@ def cosmic(name, types="mutations", limit=100, save=False, verbose=True, json=Fa
     else:
         corr_df = pd.DataFrame(dicts)
         if save:
-            corr_df.to_csv(f"gget_cosmic_{types}_{name}.csv", index=False)
+            corr_df.to_csv(f"gget_cosmic_{category}_{searchterm}.csv", index=False)
 
         return corr_df
