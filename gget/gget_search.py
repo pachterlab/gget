@@ -163,23 +163,29 @@ def search(
         # the standard core database will be used
         if len(db) > 1 and "mus_musculus" in species:
             db = f"mus_musculus_core_{ens_rel}_39"
+            logging.warning(
+                f"Defaulting to mus musculus core database: {db}.\n"
+                "All available vertebrate databases can be found here:\n"
+                f"http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
+            )
     
         # Check for ambigious species matches in species other than mouse
         elif len(db) > 1 and "mus_musculus" not in species:
-            raise ValueError(
-                "Species matches more than one database.\n"
-                "Please double-check spelling or pass specific CORE database.\n"
-                "All available vertebrate databases can be found here:\n"
-                f"http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/"
+            logging.warning(
+                f"Species matches more than one database. Defaulting to first database: {db[0]}.\n"
+                "All available databases can be found here:\n"
+                f"Vertebrate: http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
+                f"Invertebrate: http://ftp.ensemblgenomes.org/pub/release-{ens_rel} + kingdom + mysql/"
             )
+            db = db[0]
+
         # Raise error if no matching database was found
         elif len(db) == 0:
             raise ValueError(
-                "Species not found in database.\n"
-                "Please double-check spelling or pass specific CORE database.\n"
-                "All available vertebrate databases can be found here:\n"
-                f"http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
-                f"Invertebrate databases: http://ftp.ensemblgenomes.org/pub/release-{ens_rel} + kingdom + mysql/"
+                "Species not found. Please double-check spelling or pass a specific CORE database.\n"
+                "All available CORE databases can be found here:\n"
+                f"Vertebrate: http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
+                f"Invertebrate: http://ftp.ensemblgenomes.org/pub/release-{ens_rel} + kingdom + mysql/"
             )
     
         else:
