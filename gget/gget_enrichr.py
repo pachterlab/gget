@@ -25,8 +25,36 @@ from .constants import (
     GET_BACKGROUND_ENRICHR_URL,
 )
 from .compile import PACKAGE_PATH
-from .utils import ensembl_to_gene_names
+from .gget_info import info
 
+def ensembl_to_gene_names(ensembl_ids):
+    """
+    Function to fetch gene names from a list of Ensembl IDs using gget info.
+    """
+    genes_v2 = []
+
+    for gene_id in ensembl_ids:
+        # Remove version number if passed
+        gene_id = gene_id.split(".")[0]
+
+        info_df = info(gene_id, pdb=False, ncbi=False, uniprot=False, verbose=False)
+
+        # Check if Ensembl ID was found
+        if isinstance(info_df, type(None)):
+            logging.warning(
+                f"ID '{gene_id}' not found. Please double-check spelling/arguments."
+            )
+            continue
+
+        gene_symbol = info_df.loc[gene_id]["ensembl_gene_name"]
+
+        # If more than one gene symbol was returned, use first entry
+        if isinstance(gene_symbol, list):
+            genes_v2.append(str(gene_symbol[0]))
+        else:
+            genes_v2.append(str(gene_symbol))
+
+    return genes_v2
 
 def clean_genes_list(genes_list):
     # Remove any NaNs/Nones from the gene list
