@@ -8,6 +8,7 @@ from gget.gget_cosmic import cosmic
 with open("./tests/fixtures/test_cosmic.json") as json_file:
     cosmic_dict = json.load(json_file)
 
+
 class TestCosmic(unittest.TestCase):
     def test_cosmic_defaults(self):
         test = "test1"
@@ -17,6 +18,7 @@ class TestCosmic(unittest.TestCase):
         if isinstance(result_to_test, pd.DataFrame):
             result_to_test = result_to_test.values.tolist()
         self.assertListEqual(result_to_test, expected_result)
+
     def test_cosmic_limit_and_pubmet(self):
         test = "test2"
         expected_result = cosmic_dict[test]["expected_result"]
@@ -25,6 +27,7 @@ class TestCosmic(unittest.TestCase):
         if isinstance(result_to_test, pd.DataFrame):
             result_to_test = result_to_test.values.tolist()
         self.assertListEqual(result_to_test, expected_result)
+
     def test_cosmic_json_and_genes(self):
         test = "test3"
         expected_result = cosmic_dict[test]["expected_result"]
@@ -33,6 +36,7 @@ class TestCosmic(unittest.TestCase):
         if isinstance(result_to_test, pd.DataFrame):
             result_to_test = result_to_test.values.tolist()
         self.assertListEqual(result_to_test, expected_result)
+
     def test_cosmic_samples(self):
         test = "test4"
         expected_result = cosmic_dict[test]["expected_result"]
@@ -41,6 +45,7 @@ class TestCosmic(unittest.TestCase):
         if isinstance(result_to_test, pd.DataFrame):
             result_to_test = result_to_test.values.tolist()
         self.assertListEqual(result_to_test, expected_result)
+
     def test_cosmic_studies(self):
         test = "test5"
         expected_result = cosmic_dict[test]["expected_result"]
