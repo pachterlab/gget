@@ -37,6 +37,7 @@ from .gget_gpt import gpt
 from .gget_cellxgene import cellxgene
 from .gget_elm import elm
 from .gget_diamond import diamond
+from .gget_cosmic import cosmic
 
 
 def main():
@@ -1677,6 +1678,72 @@ def main():
         help="Do not print progress information.",
     )
 
+    # cosmic parser arguments
+    cosmic_desc = "Query information about genes, mutations, etc. associated with cancers from the COSMIC database."
+    parser_cosmic = parent_subparsers.add_parser(
+        "cosmic",
+        parents=[parent],
+        description=cosmic_desc,
+        help=cosmic_desc,
+        add_help=True,
+    )
+    parser_cosmic.add_argument(
+        "searchterm",
+        type=str,
+        help="Search term, which can be a mutation, or gene, or sample, etc. as defined using the 'entity' argument. Example: 'EGFR'",
+    )
+    parser_cosmic.add_argument(
+        "-e",
+        "--entity",
+        choices=[
+            "mutations",
+            "genes",
+            "cancer",
+            "tumour site",
+            "studies",
+            "pubmed",
+            "samples",
+        ],
+        default="mutations",
+        type=str,
+        required=False,
+        help="Type of search term.",
+    )
+    parser_cosmic.add_argument(
+        "-l",
+        "--limit",
+        default=100,
+        type=int,
+        required=False,
+        help="Number of hits to return.",
+    )
+    parser_cosmic.add_argument(
+        "-csv",
+        "--csv",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Returns results in csv format instead of json.",
+    )
+    parser_cosmic.add_argument(
+        "-o",
+        "--out",
+        type=str,
+        required=False,
+        help=(
+            "Path to the file the results will be saved in, e.g. path/to/directory/results.json.\n"
+            "Default: Standard out."
+        ),
+    )
+    parser_cosmic.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Do not print progress information.",
+    )
+
     ### Define return values
     args = parent_parser.parse_args()
 
@@ -1723,6 +1790,7 @@ def main():
         "cellxgene": parser_cellxgene,
         "elm": parser_elm,
         "diamond": parser_diamond,
+        "cosmic": parser_cosmic,
     }
 
     if len(sys.argv) == 2:
@@ -1888,6 +1956,43 @@ def main():
                 blast_results.to_csv(sys.stdout, index=False)
             if not args.out and args.csv:
                 print(json.dumps(blast_results, ensure_ascii=False, indent=4))
+
+    ## cosmic return
+    if args.command == "cosmic":
+        # Run gget cosmic function
+        cosmic_results = cosmic(
+            searchterm=args.searchterm,
+            entity=args.entity,
+            limit=args.limit,
+            verbose=args.quiet,
+            json=args.csv,
+        )
+
+        # Check if the function returned something
+        if not isinstance(cosmic_results, type(None)):
+            # Save blast results if args.out specified
+            if args.out and not args.csv:
+                # Create saving directory
+                directory = "/".join(args.out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+                # Save to csv
+                cosmic_results.to_csv(args.out, index=False)
+
+            if args.out and args.csv:
+                # Create saving directory
+                directory = "/".join(args.out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+                # Save json
+                with open(args.out, "w", encoding="utf-8") as f:
+                    json.dump(cosmic_results, f, ensure_ascii=False, indent=4)
+
+            # Print results if no directory specified
+            if not args.out and not args.csv:
+                cosmic_results.to_csv(sys.stdout, index=False)
+            if not args.out and args.csv:
+                print(json.dumps(cosmic_results, ensure_ascii=False, indent=4))
 
     ## archs4 return
     if args.command == "archs4":

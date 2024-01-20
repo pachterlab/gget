@@ -12,9 +12,6 @@ logging.basicConfig(
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
 
-# Custom functions
-from .gget_info import info
-
 # Constants
 from .constants import COSMIC_GET_URL
 
@@ -26,14 +23,15 @@ def cosmic(
     COSMIC, the Catalogue Of Somatic Mutations In Cancer,
     is the world's largest and most comprehensive resource
     for exploring the impact of somatic mutations in human cancer.
-    Start using COSMIC by searching for a gene, cancer type, mutation, etc. below.
+    Start using COSMIC by searching for a genes, cancers, mutations, etc.
     (https://cancer.sanger.ac.uk/cosmic).
 
     Args:
-    - searchterm   (str) Search term for a mutation, or gene, or sample, etc.
+    - searchterm    (str) Search term, which can be a mutation, or gene, or sample, etc.
                     as defined using the 'entity' argument. Example: 'EGFR'.
-    - entity      (str) 'mutations' (default), 'genes', 'cancer', 'tumour site', 'studies', 'pubmed', or 'samples'.
-    - limit         (int) Number of rows to return. Default: 100
+    - entity        (str) Type of search term. One of the following:
+                    'mutations' (default), 'genes', 'cancer', 'tumour site', 'studies', 'pubmed', or 'samples'.
+    - limit         (int) Number of hits to return. Default: 100
     - json          True/False If True, returns results in json format instead of data frame. Default: False
     - save          True/False whether to save the results in the local directory. Default: False
     - verbose       True/False whether to print progress information. Default: True
@@ -87,7 +85,7 @@ def cosmic(
             f"searchterm = '{searchterm}' did not return any results with entity = '{entity}'. "
             "Please double-check the arguments and try again.\n"
         )
-        return
+        return None
 
     data = r.text.split("\n")
     dicts = {}
