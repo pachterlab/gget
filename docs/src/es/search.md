@@ -13,14 +13,16 @@ Una o más palabras de búsqueda de forma libre, p. ej. gaba nmda. (Nota: la bú
 Especies o base de datos a buscar.   
 Una especie se puede pasar en el formato 'género_especie', p. ej. 'homo_sapiens' o 'arabidopsis_thaliana'.  
 Para pasar una base de datos específica, pase el nombre de la base de datos CORE, p. ej. 'mus_musculus_dba2j_core_105_1'.  
-Todas las bases de datos disponibles para cada versión de Ensembl se pueden encontrar [aquí](http://ftp.ensembl.org/pub/).  
+Todas las bases de datos disponibles para cada versión de Ensembl se pueden encontrar aquí:  
+Vertebrados: [http://ftp.ensembl.org/pub/current/mysql/](http://ftp.ensembl.org/pub/current/mysql/)  
+Invertebrados: [http://ftp.ensemblgenomes.org/pub/current/](http://ftp.ensemblgenomes.org/pub/current/) + selecciona reino animal + selecciona mysql/  
 Accesos directos: 'human', 'mouse'. 
 
 **Parámetros optionales**  
 `-r` `--release`   
 Define el número de versión de Ensembl desde el que se obtienen los archivos, p. ej. 104. Por defecto: None -> se usa la última versión de Ensembl.  
-Nota: *No se aplica a las especies de plantas* (en su lugar, puede pasar una base de datos de una planta específica (incluyen un número de versión) al argumento "especie").    
-Este argumento se sobrescribe si se pasa una base de datos específica (que incluye un número de publicación) al argumento de especie.  
+Nota: *No se aplica a las especies invertebrados* (en su lugar, puede pasar una base de datos de una especies específica (incluyen un número de versión) al argumento `species`).    
+Este argumento se sobrescribe si se pasa una base de datos específica (que incluye un número de publicación) al argumento `species`.  
 
 `-t` `--id_type`  
 'gene' (esto se use por defecto) o 'transcript'   
