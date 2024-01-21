@@ -11,9 +11,15 @@ from gget.utils import (
     ref_species_options,
 )
 
-from gget.constants import UNIPROT_REST_API, ENSEMBL_REST_API
+from gget.constants import UNIPROT_REST_API, ENSEMBL_REST_API, ENSEMBL_FTP_URL_NV
 
-from .fixtures import LATEST_ENS_RELEASE, SPECIES_OPTIONS, REF_SPECIES_OPTIONS
+from .fixtures import (
+    LATEST_ENS_RELEASE,
+    SPECIES_OPTIONS,
+    IV_SPECIES_OPTIONS,
+    REF_SPECIES_OPTIONS,
+    REF_IV_SPECIES_OPTIONS,
+)
 
 
 class TestUtils(unittest.TestCase):
@@ -138,9 +144,15 @@ class TestUtils(unittest.TestCase):
 
         self.assertEqual(result_to_test, expected_result)
 
+    def test_search_iv_species_options(self):
+        result_to_test = search_species_options(database=ENSEMBL_FTP_URL_NV, release=57)
+        expected_result = IV_SPECIES_OPTIONS
+
+        self.assertEqual(result_to_test, expected_result)
+
     def test_search_species_options_bad_type(self):
-        with self.assertRaises(ValueError):
-            result = search_species_options(release=2000)
+        with self.assertRaises(RuntimeError):
+            search_species_options(release=2000)
 
     def test_ref_species_options(self):
         result_to_test = ref_species_options("gtf", release=105)
@@ -148,6 +160,14 @@ class TestUtils(unittest.TestCase):
 
         self.assertEqual(result_to_test, expected_result)
 
+    def test_ref_iv_species_options(self):
+        result_to_test = ref_species_options(
+            database=ENSEMBL_FTP_URL_NV, which="dna", release=55
+        )
+        expected_result = REF_IV_SPECIES_OPTIONS
+
+        self.assertEqual(result_to_test, expected_result)
+
     def test_ref_species_options_bad_type(self):
-        with self.assertRaises(ValueError):
-            result = ref_species_options("gtf", release=2000)
+        with self.assertRaises(RuntimeError):
+            ref_species_options("gtf", release=2000)
