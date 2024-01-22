@@ -8,7 +8,7 @@ Antes de usar `gget elm` por primera vez, ejecute `gget setup elm` / `gget.setup
 **Parámetro posicional**  
 `sequence`  
 Secuencia de aminoácidos o Uniprot Acc (str).  
-Al proporcionar una Uniprot Acc, use la bandera `--uniprot` (Python: `uniprot==True`).  
+Al proporcionar una Uniprot Acc, use la bandera `--uniprot` (Python: `uniprot=True`).  
 
 **Parámetros optionales**  
 `-s` `sensitivity`  
