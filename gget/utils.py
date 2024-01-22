@@ -713,7 +713,7 @@ def ref_species_options(which, database=ENSEMBL_FTP_URL, release=None):
             # Find all available species for this release and FTP type
             if which == "gtf":
                 url = database + f"release-{ENS_rel}/{kingdom}/gtf/"
-            if which == "dna" or which == "cdna":
+            elif which in ("dna", "cdna"):
                 url = database + f"release-{ENS_rel}/{kingdom}/fasta/"
             html = requests.get(url)
 
@@ -738,7 +738,7 @@ def ref_species_options(which, database=ENSEMBL_FTP_URL, release=None):
         # Find all available species for this release and FTP type
         if which == "gtf":
             url = database + f"release-{ENS_rel}/gtf/"
-        if which == "dna" or which == "cdna":
+        elif which in ("dna", "cdna"):
             url = database + f"release-{ENS_rel}/fasta/"
         html = requests.get(url)
 
@@ -758,7 +758,7 @@ def ref_species_options(which, database=ENSEMBL_FTP_URL, release=None):
         species_list = sps[5:]
 
     # Return list of all available species
-    return species_list
+    return sorted(species_list)
 
 
 def parse_blast_ref_page(handle):
