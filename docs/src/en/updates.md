@@ -1,5 +1,5 @@
 ## ✨ What's new  
-**Version ≥ 0.28.3** (XXX):  
+**Version ≥ 0.28.3** (January 22, 2024):  
 - **[`gget search`](./search.md) and [`gget ref`](./ref.md) now also support fungi 🍄, protists 🌝, and invertebrate metazoa 🐝 🐜 🐌 🐙 (in addition to vertebrates and plants)**
 - **New module: [`gget cosmic`](./cosmic.md)**
 - [`gget enrichr`](./enrichr.md): Fix duplicate scatter dots in plot when pathway names are duplicated
