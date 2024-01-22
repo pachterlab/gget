@@ -17,7 +17,7 @@
                 [
                     "sws"
                 ],
-                "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
+                "https://metazoa.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
             ]
         ]
     },
@@ -39,7 +39,7 @@
                 "synonym": [
                     "sws"
                 ],
-                "url": "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
+                "url": "https://metazoa.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
             }
         ]
     },
@@ -65,7 +65,7 @@
                 [
                     "sws"
                 ],
-                "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
+                "https://metazoa.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
             ],
             [
                 "FBgn0043362",
@@ -76,7 +76,7 @@
                 [
                     "bchs"
                 ],
-                "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0043362"
+                "https://metazoa.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0043362"
             ]
         ]
     },
@@ -145,7 +145,7 @@
                 [
                     "Nep3-RA"
                 ],
-                "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBtr0070000"
+                "https://metazoa.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBtr0070000"
             ],
             [
                 "FBtr0307554",
@@ -156,7 +156,7 @@
                 [
                     "Nep3-RB"
                 ],
-                "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBtr0307554"
+                "https://metazoa.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBtr0307554"
             ],
             [
                 "FBtr0307555",
@@ -167,7 +167,7 @@
                 [
                     "Nep3-RC"
                 ],
-                "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBtr0307555"
+                "https://metazoa.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBtr0307555"
             ]
         ]
     },
@@ -181,7 +181,8 @@
             "species": "accipiter",
             "id_type": "transcript",
             "andor": "or",
-            "limit": 5
+            "limit": 5,
+            "release": 110
         },
         "expected_result": [
             [
@@ -348,7 +349,7 @@
                 [
                     "sws"
                 ],
-                "https://useast.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
+                "https://metazoa.ensembl.org/drosophila_melanogaster/Gene/Summary?g=FBgn0003656"
             ]
         ]
     },
@@ -432,7 +433,7 @@
                 [
                     "Gm16067"
                 ],
-                "https://useast.ensembl.org/mus_musculus/Gene/Summary?g=MGP_DBA2J_G0002730"
+                "https://useast.ensembl.org/mus_musculus_dba2j/Gene/Summary?g=MGP_DBA2J_G0002730"
             ],
             [
                 "MGP_DBA2J_G0002983",
@@ -443,7 +444,7 @@
                 [
                     "Gm11547"
                 ],
-                "https://useast.ensembl.org/mus_musculus/Gene/Summary?g=MGP_DBA2J_G0002983"
+                "https://useast.ensembl.org/mus_musculus_dba2j/Gene/Summary?g=MGP_DBA2J_G0002983"
             ],
             [
                 "MGP_DBA2J_G0003041",
@@ -454,7 +455,7 @@
                 [
                     "4732444A12Rik"
                 ],
-                "https://useast.ensembl.org/mus_musculus/Gene/Summary?g=MGP_DBA2J_G0003041"
+                "https://useast.ensembl.org/mus_musculus_dba2j/Gene/Summary?g=MGP_DBA2J_G0003041"
             ]
         ]
     },
@@ -539,7 +540,7 @@
     "test14": {
         "type": "assert_equal",
         "args": {
-            "searchwords": "cadherin",
+            "searchwords": "hammerhead",
             "species": "octopus_bimaculoides",
             "limit": 1
         },
