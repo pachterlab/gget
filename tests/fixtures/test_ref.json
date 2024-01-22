@@ -236,21 +236,21 @@
         "expected_result": {
             "aegilops_tauschii": {
                 "annotation_gtf": {
-                    "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-53/gtf/aegilops_tauschii/Aegilops_tauschii.Aet_v4.0.53.gtf.gz",
+                    "ftp": "http://ftp.ensemblgenomes.org/pub/release-53/plants/gtf/aegilops_tauschii/Aegilops_tauschii.Aet_v4.0.53.gtf.gz",
                     "ensembl_release": 53,
                     "release_date": "2022-02-27",
                     "release_time": "00:58",
                     "bytes": "40M"
                 },
                 "genome_dna": {
-                    "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-53/fasta/aegilops_tauschii/dna/Aegilops_tauschii.Aet_v4.0.dna.toplevel.fa.gz",
+                    "ftp": "http://ftp.ensemblgenomes.org/pub/release-53/plants/fasta/aegilops_tauschii/dna/Aegilops_tauschii.Aet_v4.0.dna.toplevel.fa.gz",
                     "ensembl_release": 53,
                     "release_date": "2022-02-21",
                     "release_time": "12:17",
                     "bytes": "1.1G"
                 },
                 "protein_translation_pep": {
-                    "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-53/fasta/aegilops_tauschii/pep/Aegilops_tauschii.Aet_v4.0.pep.all.fa.gz",
+                    "ftp": "http://ftp.ensemblgenomes.org/pub/release-53/plants/fasta/aegilops_tauschii/pep/Aegilops_tauschii.Aet_v4.0.pep.all.fa.gz",
                     "ensembl_release": 53,
                     "release_date": "2022-02-17",
                     "release_time": "06:03",
