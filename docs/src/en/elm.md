@@ -8,7 +8,7 @@ Before using `gget elm` for the first time, run `gget setup elm` / `gget.setup("
 **Positional argument**  
 `sequence`  
 Amino acid sequence or Uniprot Acc (str).  
-When providing a Uniprot Acc, use flag `--uniprot` (Python: `uniprot==True`).  
+When providing a Uniprot Acc, use flag `--uniprot` (Python: `uniprot=True`).  
 
 **Optional arguments**  
 `-s` `--sensitivity`  
