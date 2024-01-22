@@ -126,12 +126,12 @@ def ref(
         if release is None:
             if verbose:
                 logging.info(
-                    f"Fetching available invertebrate genomes (GTF and FASTAs present) from Ensembl release {find_latest_ens_rel(database=ENSEMBL_FTP_URL_NV)} (latest)."
+                    f"Fetching available invertebrate genomes (GTF and FASTA present) from Ensembl release {find_latest_ens_rel(database=ENSEMBL_FTP_URL_NV)} (latest)."
                 )
         else:
             if verbose:
                 logging.info(
-                    f"Fetching available invertebrate genomes (GTF and FASTAs present) from Ensembl release {release}."
+                    f"Fetching available invertebrate genomes (GTF and FASTA present) from Ensembl release {release}."
                 )
 
         # Find all available species for GTFs for this Ensembl release
