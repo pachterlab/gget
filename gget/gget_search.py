@@ -20,7 +20,12 @@ import pandas as pd
 
 
 # Custom functions
-from gget.utils import search_species_options, find_latest_ens_rel, wrap_cols_func
+from gget.utils import (
+    search_species_options,
+    find_latest_ens_rel,
+    wrap_cols_func,
+    find_nv_kingdom,
+)
 
 from gget.constants import ENSEMBL_FTP_URL, ENSEMBL_FTP_URL_NV
 
@@ -174,7 +179,7 @@ def search(
                 f"Species matches more than one database. Defaulting to first database: {db[0]}.\n"
                 "All available databases can be found here:\n"
                 f"Vertebrates: http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
-                f"Invertebrates: http://ftp.ensemblgenomes.org/pub/release-{ens_rel} + kingdom + mysql/"
+                f"Invertebrates: http://ftp.ensemblgenomes.org/pub/release-{find_latest_ens_rel(database=ENSEMBL_FTP_URL_NV)} + kingdom + mysql/"
             )
             db = db[0]
 
@@ -184,7 +189,7 @@ def search(
                 "Species not found. Please double-check spelling or pass a specific CORE database.\n"
                 "All available CORE databases can be found here:\n"
                 f"Vertebrates: http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
-                f"Invertebrates: http://ftp.ensemblgenomes.org/pub/release-{ens_rel} + kingdom + mysql/"
+                f"Invertebrates: http://ftp.ensemblgenomes.org/pub/release-{find_latest_ens_rel(database=ENSEMBL_FTP_URL_NV)} + kingdom + mysql/"
             )
 
         else:
@@ -291,7 +296,6 @@ def search(
                 # Add new search results to master data frame
                 else:
                     df = pd.concat([df, df_temp])
-
             # If andor="and", only keep overlap between results
             if andor == "and":
                 # In the first iteration, make the search results equal to the master data frame
@@ -342,13 +346,31 @@ def search(
     if verbose:
         logging.info(f"Query time: {round(time.time() - start_time, 2)} seconds.")
 
-    # Add URL to gene summary on Ensembl
-    df["url"] = (
-        "https://useast.ensembl.org/"
-        + "_".join(db.split("_")[:2])
-        + "/Gene/Summary?g="
-        + df["ensembl_id"]
+    # Remove database numbers to retain only species name
+    clean_db = "_".join(db.split("_")[:3]).replace("_core", "")
+
+    ## Find kingdom for non-vertebrate species
+    kingdom = find_nv_kingdom(
+        clean_db, release=find_latest_ens_rel(database=ENSEMBL_FTP_URL_NV)
     )
+
+    if kingdom:
+        # Add URL to gene summary on Ensembl for invertebrates
+        df["url"] = (
+            f"https://{kingdom}.ensembl.org/"
+            + clean_db
+            + "/Gene/Summary?g="
+            + df["ensembl_id"]
+        )
+
+    else:
+        # Add URL to gene summary on Ensembl for vertebrates
+        df["url"] = (
+            "https://useast.ensembl.org/"
+            + clean_db
+            + "/Gene/Summary?g="
+            + df["ensembl_id"]
+        )
 
     if wrap_text:
         df_wrapped = df.copy()

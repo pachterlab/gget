@@ -10,7 +10,9 @@
 - [`gget diamond`](./diamond.md): The DIAMOND command is now run with `--ignore-warnings` flag, allowing niche sequences such as amino acid sequences that only contain nucleotide characters and repeated sequences. This is also true for DIAMOND alignments performed within [`gget elm`](./elm.md).
 - **[`gget search`](./search.md) and [`gget ref`](./ref.md) now also support fungi 🍄, protists 🌝, and invertebrate metazoa 🐝 🐜 🐌 🐙 (in addition to vertebrates and plants)**
 - [`gget ref`](./ref.md) and [`gget search`](./search.md) back-end change: the current Ensembl release is fetched from the new [release file](https://ftp.ensembl.org/pub/VERSION) on the Ensembl FTP site to avoid errors during uploads of new releases.
-- [`gget search`](./search.md): FTP link results (`--ftp`) are saved in txt file format instead of json.
+- [`gget search`](./search.md): 
+  - FTP link results (`--ftp`) are saved in txt file format instead of json.
+  - Fix URL links to Ensembl gene summary for species with a subspecies name and invertebrates.
 - [`gget ref`](./ref.md):
   - Back-end changes to increase speed
   - New argument: `list_iv_species` to list all available invertebrate species (can be combined with the `release` argument to fetch all species available from a specific Ensembl release)

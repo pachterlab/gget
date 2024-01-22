@@ -140,6 +140,16 @@ class TestSearch(unittest.TestCase):
 
         self.assertListEqual(result_to_test, expected_result)
 
+    def test_search_octopus(self):
+        test = "test14"
+        expected_result = search_dict[test]["expected_result"]
+        result_to_test = search(**search_dict[test]["args"])
+        # If result is a DataFrame, convert to list
+        if isinstance(result_to_test, pd.DataFrame):
+            result_to_test = result_to_test.values.tolist()
+
+        self.assertListEqual(result_to_test, expected_result)
+
     ## Test bad input errors
     def test_search_gene_bad_species(self):
         test = "error_test1"

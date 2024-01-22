@@ -536,6 +536,27 @@
             ]
         ]
     },
+    "test14": {
+        "type": "assert_equal",
+        "args": {
+            "searchwords": "cadherin",
+            "species": "octopus_bimaculoides",
+            "limit": 1
+        },
+        "expected_result": [
+            [
+                "ENSRNA022761340",
+                "Hammerhead_1",
+                "Hammerhead ribozyme (type I)",
+                "Hammerhead ribozyme (type I)",
+                "ribozyme",
+                [
+                    null
+                ],
+                "https://useast.ensembl.org/octopus_bimaculoides/Gene/Summary?g=ENSRNA022761340"
+            ]
+        ]
+    },
     "error_test1": {
         "type": "error",
         "args": {
