@@ -1,5 +1,24 @@
 ## ✨ ¡Lo más reciente!  
-**Versión ≥ 0.28.1** (14 de noviembre de 2023):
+**Versión ≥ 0.28.3** (22 de enero de 2024):
+- **[`gget search`](./search.md) y [`gget ref`](./ref.md) ahora también admiten hongos 🍄, protistas 🌝 y metazoos de invertebrados 🐝 🐜 🐌 🐙 (además de vertebrados y plantas)**
+- **Nuevo módulo: [`gget cosmic`](./cosmic.md)**
+- [`gget enrichr`](./enrichr.md): corrige puntos de dispersión duplicados en el gráfico cuando los nombres de las rutas están duplicados
+- [`gget elm`](./elm.md):
+  - Se cambió el nombre de la columna de resultados orto 'Ortholog_UniProt_ID' a 'Ortholog_UniProt_Acc' para reflejar correctamente el contenido de la columna, que son accesos de UniProt. 'UniProt ID' se cambió a 'UniProt Acc' en la documentación para todos los módulos `gget`.
+  - Se cambió el nombre de la columna de resultados ortogonales 'motif_in_query' a 'motif_inside_subject_query_overlap'.
+  - Se agregó información del dominio de interacción a los resultados (nuevas columnas: "InteractionDomainId", "InteractionDomainDescription", "InteractionDomainName").
+  - La cadena de expresiones regulares para coincidencias de expresiones regulares se encapsuló de la siguiente manera: "(?=(regex))" (en lugar de pasar directamente la cadena de expresiones regulares "regex") para permitir capturar todas las apariciones de un motivo cuando la longitud del motivo es variable y hay son repeticiones en la secuencia ([https://regex101.com/r/HUWLlZ/1](https://regex101.com/r/HUWLlZ/1)).
+- [`gget setup`](./setup.md): utilice el argumento `out` para especificar un directorio en el que se descargará la base de datos ELM. Completa [esta solicitud de función](https://github.com/pachterlab/gget/issues/119).
+- [`gget Diamond`](./diamond.md): El comando DIAMOND ahora se ejecuta con el indicador `--ignore-warnings`, lo que permite secuencias de nicho, como secuencias de aminoácidos que solo contienen caracteres de nucleótidos y secuencias repetidas. Esto también es válido para las alineaciones DIAMOND realizadas dentro de [`gget elm`](./elm.md).
+- Cambio de back-end de [`gget ref`](./ref.md) y [`gget search`](./search.md): la versión actual de Ensembl se obtiene del nuevo [archivo de versión](https://ftp.ensembl.org/pub/VERSION) en el sitio FTP de Ensembl para evitar errores durante la carga de nuevos lanzamientos.
+- [`gget search`](./search.md):
+  - Los resultados del enlace FTP (`--ftp`) se guardan en formato de archivo txt en lugar de json.
+  - Se corrigieron enlaces URL al resumen de genes de Ensembl para especies con un nombre de subespecie e invertebrados.
+- [`gget ref`](./ref.md):
+  - Cambios de back-end para aumentar la velocidad.
+  - Nuevo argumento: `list_iv_species` para enumerar todas las especies de invertebrados disponibles (se puede combinar con el argumento `release` para obtener todas las especies disponibles de una liberación específica de Ensembl)
+    
+**Versión ≥ 0.28.2** (15 de noviembre de 2023):
 - [`gget info`](./info.md): devuelve un mensaje de error cuando el servidor NCBI falla por un motivo distinto a un error de recuperación (esto es un error en el lado del servidor en lugar de un error con `gget`)
 - Reemplace el argumento obsoleto 'texto' para los métodos de tipo find() siempre que se usen con la dependencia `BeautifulSoup`
 - [`gget elm`](elm.md): Elimina instancias de falsos positivos y verdaderos negativos de los resultados devueltos.
