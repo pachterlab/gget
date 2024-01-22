@@ -37,6 +37,7 @@ from .gget_gpt import gpt
 from .gget_cellxgene import cellxgene
 from .gget_elm import elm
 from .gget_diamond import diamond
+from .gget_cosmic import cosmic
 
 
 def main():
@@ -88,7 +89,20 @@ def main():
         required=False,
         help=(
             """
-            List all available species from the Ensembl database for large genomes (not including plants/bacteria). 
+            List all available vertebrate species from the Ensembl database. 
+            (Combine with `--release` to get the available species from a specific Ensembl release.)
+            """
+        ),
+    )
+    parser_ref.add_argument(
+        "-liv",
+        "--list_iv_species",
+        default=False,
+        action="store_true",
+        required=False,
+        help=(
+            """
+            List all available invertebrate species from the Ensembl database. 
             (Combine with `--release` to get the available species from a specific Ensembl release.)
             """
         ),
@@ -192,7 +206,9 @@ def main():
             """
             Species or database to be queried, e.g. 'homo_sapiens' or 'arabidopsis_thaliana'.  
             To pass a specific database, pass the name of the CORE database, e.g. 'mus_musculus_dba2j_core_105_1'.  
-            All availabale databases can be found here: http://ftp.ensembl.org/pub.  
+            All available core databases can be found here:  
+            Vertebrates: http://ftp.ensembl.org/pub/current/mysql/  
+            Invertebrates: http://ftp.ensemblgenomes.org/pub/current/ + kingdom + mysql/  
             Supported shortcuts: 'human', 'mouse'. 
             """
         ),
@@ -206,7 +222,7 @@ def main():
         help=(
             """
             Defines the Ensembl release number from which the files are fetched, e.g. 104.
-            Note: Does not apply to plant species (you can pass a specific plant core database (which include a release number) to the species argument instead). 
+            Note: Does not apply to invertebrate species (you can pass a specific core database (which include a release number) to the species argument instead). 
             This argument is overwritten if a specific database (which includes a release number) is passed to the species argument.
             Default: None -> latest Ensembl release is used.
             """
@@ -295,7 +311,7 @@ def main():
         help="DEPRECATED - json is now the default output format (convert to csv using flag [--csv]).",
     )
     ## gget elm subparser
-    elm_desc = "Locally predicts Eukaryotic Linear Motifs from an amino acid sequence or UniProt ID using data from the ELM database (http://elm.eu.org/media/Elm_academic_license.pdf)."
+    elm_desc = "Locally predicts Eukaryotic Linear Motifs from an amino acid sequence or UniProt Acc using data from the ELM database (http://elm.eu.org/media/Elm_academic_license.pdf)."
     parser_elm = parent_subparsers.add_parser(
         "elm", parents=[parent], description=elm_desc, help=elm_desc, add_help=True
     )
@@ -303,7 +319,7 @@ def main():
     parser_elm.add_argument(
         "sequence",
         type=str,
-        help="Amino acid sequence or Uniprot ID. If Uniprot ID, use flag '--uniprot'.",
+        help="Amino acid sequence or Uniprot Acc. If Uniprot Acc, use flag '--uniprot'.",
     )
     parser_elm.add_argument(
         "-u",
@@ -311,7 +327,7 @@ def main():
         default=False,
         action="store_true",
         required=False,
-        help="Use this flag if input is a Uniprot ID instead of an amino acid sequence.",
+        help="Use this flag if input is a Uniprot Acc instead of an amino acid sequence.",
     )
     parser_elm.add_argument(
         "-s",
@@ -1167,6 +1183,15 @@ def main():
         help="Does not print progress information.",
     )
 
+    parser_setup.add_argument(
+        "-o",
+        "--out",
+        type=str,
+        default=None,
+        required=False,
+        help="Path to folder where downloaded files are saved (currently only applies when module='elm'). Default: Files are saved inside the gget installation folder.",
+    )
+
     ## gget alphafold subparser
     alphafold_desc = "Predicts the structure of a protein using a simplified version of AlphaFold v2.3.0 (https://doi.org/10.1038/s41586-021-03819-2)."
     parser_alphafold = parent_subparsers.add_parser(
@@ -1668,6 +1693,72 @@ def main():
         help="Do not print progress information.",
     )
 
+    # cosmic parser arguments
+    cosmic_desc = "Query information about genes, mutations, etc. associated with cancers from the COSMIC database."
+    parser_cosmic = parent_subparsers.add_parser(
+        "cosmic",
+        parents=[parent],
+        description=cosmic_desc,
+        help=cosmic_desc,
+        add_help=True,
+    )
+    parser_cosmic.add_argument(
+        "searchterm",
+        type=str,
+        help="Search term, which can be a mutation, or gene (or Ensembl ID), or sample, etc. as defined using the 'entity' argument. Example: 'EGFR'",
+    )
+    parser_cosmic.add_argument(
+        "-e",
+        "--entity",
+        choices=[
+            "mutations",
+            "genes",
+            "cancer",
+            "tumour site",
+            "studies",
+            "pubmed",
+            "samples",
+        ],
+        default="mutations",
+        type=str,
+        required=False,
+        help="Type of search term.",
+    )
+    parser_cosmic.add_argument(
+        "-l",
+        "--limit",
+        default=100,
+        type=int,
+        required=False,
+        help="Number of hits to return.",
+    )
+    parser_cosmic.add_argument(
+        "-csv",
+        "--csv",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Returns results in csv format instead of json.",
+    )
+    parser_cosmic.add_argument(
+        "-o",
+        "--out",
+        type=str,
+        required=False,
+        help=(
+            "Path to the file the results will be saved in, e.g. path/to/directory/results.json.\n"
+            "Default: Standard out."
+        ),
+    )
+    parser_cosmic.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Do not print progress information.",
+    )
+
     ### Define return values
     args = parent_parser.parse_args()
 
@@ -1714,6 +1805,7 @@ def main():
         "cellxgene": parser_cellxgene,
         "elm": parser_elm,
         "diamond": parser_diamond,
+        "cosmic": parser_cosmic,
     }
 
     if len(sys.argv) == 2:
@@ -1880,6 +1972,43 @@ def main():
             if not args.out and args.csv:
                 print(json.dumps(blast_results, ensure_ascii=False, indent=4))
 
+    ## cosmic return
+    if args.command == "cosmic":
+        # Run gget cosmic function
+        cosmic_results = cosmic(
+            searchterm=args.searchterm,
+            entity=args.entity,
+            limit=args.limit,
+            verbose=args.quiet,
+            json=args.csv,
+        )
+
+        # Check if the function returned something
+        if not isinstance(cosmic_results, type(None)):
+            # Save blast results if args.out specified
+            if args.out and not args.csv:
+                # Create saving directory
+                directory = "/".join(args.out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+                # Save to csv
+                cosmic_results.to_csv(args.out, index=False)
+
+            if args.out and args.csv:
+                # Create saving directory
+                directory = "/".join(args.out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+                # Save json
+                with open(args.out, "w", encoding="utf-8") as f:
+                    json.dump(cosmic_results, f, ensure_ascii=False, indent=4)
+
+            # Print results if no directory specified
+            if not args.out and not args.csv:
+                cosmic_results.to_csv(sys.stdout, index=False)
+            if not args.out and args.csv:
+                print(json.dumps(cosmic_results, ensure_ascii=False, indent=4))
+
     ## archs4 return
     if args.command == "archs4":
         # Handle deprecated flags for backwards compatibility
@@ -1992,13 +2121,37 @@ def main():
 
     ## ref return
     if args.command == "ref":
-        # Return all available species
+        # Return all vertebrate available species
         if args.list_species:
             species_list = ref(
                 species=None, release=args.release, list_species=args.list_species
             )
-            for species in species_list:
-                print(species)
+            # Save in specified directory if -o specified
+            if args.out:
+                directory = "/".join(args.out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+                with open(args.out, 'w') as tfile:
+                    tfile.write('\n'.join(species_list))
+            else:
+                for species in species_list:
+                    print(species)
+
+        # Return all invertebrate available species
+        elif args.list_iv_species:
+            species_list = ref(
+                species=None, release=args.release, list_iv_species=args.list_iv_species
+            )
+            # Save in specified directory if -o specified
+            if args.out:
+                directory = "/".join(args.out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+                with open(args.out, 'w') as tfile:
+                    tfile.write('\n'.join(species_list))
+            else:
+                for species in species_list:
+                    print(species)
 
         # Handle deprecated flags for backwards compatibility
         if args.species_deprecated and args.species:
@@ -2012,10 +2165,15 @@ def main():
             )
 
         # Raise error if neither species nor list flag passed
-        if args.species is None and args.list_species is False:
+        if (
+            args.species is None
+            and args.list_species is False
+            and args.list_iv_species is False
+        ):
             parser_ref.error(
                 "the following arguments are required: species \n"
-                "'gget ref --list_species' -> lists out all available species. \n"
+                "'gget ref --list_species' -> lists out all available vertebrate species. \n"
+                "'gget ref --list_iv_species' -> lists out all available invertebrate species. \n"
                 "Combine with '-r [int]' to define a specific Ensembl release (default: latest release). "
             )
 
@@ -2040,8 +2198,8 @@ def main():
                     directory = "/".join(args.out.split("/")[:-1])
                     if directory != "":
                         os.makedirs(directory, exist_ok=True)
-                    with open(args.out, "w", encoding="utf-8") as f:
-                        json.dump(ref_results, f, ensure_ascii=False, indent=4)
+                    with open(args.out, 'w') as tfile:
+                        tfile.write('\n'.join(ref_results))
 
                     if args.download == True:
                         # Download list of URLs
@@ -2379,7 +2537,7 @@ def main():
 
     ## setup return
     if args.command == "setup":
-        setup(args.module, verbose=args.quiet)
+        setup(args.module, verbose=args.quiet, out=args.out)
 
     ## alphafold return
     if args.command == "alphafold":

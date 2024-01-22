@@ -57,14 +57,14 @@ class TestRef(unittest.TestCase):
 
         self.assertEqual(result_to_test, expected_result)
 
-    def test_ref_rel_plant(self):
+    def test_ref_rel_protist(self):
         test = "test8"
         expected_result = ref_dict[test]["expected_result"]
         result_to_test = ref(**ref_dict[test]["args"])
 
         self.assertEqual(result_to_test, expected_result)
 
-    def test_ref_rel_ftp_plant(self):
+    def test_ref_rel_ftp_octopus(self):
         test = "test9"
         expected_result = ref_dict[test]["expected_result"]
         result_to_test = ref(**ref_dict[test]["args"])
@@ -81,7 +81,7 @@ class TestRef(unittest.TestCase):
     ## Test bad input errors
     def test_ref_bad_species(self):
         test = "error_test1"
-        with self.assertRaises(ValueError):
+        with self.assertRaises(RuntimeError):
             ref(**ref_dict[test]["args"])
 
     def test_ref_bad_which(self):
@@ -91,5 +91,5 @@ class TestRef(unittest.TestCase):
 
     def test_ref_bad_rel(self):
         test = "error_test3"
-        with self.assertRaises(ValueError):
+        with self.assertRaises(RuntimeError):
             ref(**ref_dict[test]["args"])

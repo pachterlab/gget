@@ -3,14 +3,11 @@
 Fetch FTPs and their respective metadata (or use flag `ftp` to only return the links) for reference genomes and annotations from [Ensembl](https://www.ensembl.org/) by species.  
 Return format: dictionary/JSON.
 
-**While Ensembl is in the process of updating its database to a new release, you might receive a 404 ERROR.**  
-If this is the case, specify an earlier Ensembl version using the `release` argument.  
-Example: `gget ref -r 110 human` (Python: `gget.ref("human", release=110)`)
-
 **Positional argument**  
 `species`  
 Species for which the FTPs will be fetched in the format genus_species, e.g. homo_sapiens.  
-Note: Not required when calling flag `--list_species`.   
+Supports all available vertebrate and invertebrate (plants, fungi, protists, and invertebrate metazoa) genomes from Ensembl, except bacteria.  
+Note: Not required when using flags `--list_species` or `--list_iv_species`.   
 Supported shortcuts: 'human', 'mouse'
 
 **Optional arguments**  
@@ -33,7 +30,10 @@ Python: `save=True` will save the output in the current working directory.
 
 **Flags**  
 `-l` `--list_species`   
-Lists all available species. (Python: combine with `species=None`.)  
+Lists all available vertebrate species. (Python: combine with `species=None`.)  
+
+`-liv` `--list_iv_species`   
+Lists all available invertebrate species. (Python: combine with `species=None`.)  
 
 `-ftp` `--ftp`   
 Returns only the requested FTP links.  

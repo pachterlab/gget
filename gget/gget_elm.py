@@ -5,6 +5,15 @@ import logging
 import json as json_package
 import re
 
+# Add and format time stamp in logging messages
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(message)s",
+    level=logging.INFO,
+    datefmt="%c",
+)
+# Mute numexpr threads info
+logging.getLogger("numexpr").setLevel(logging.WARNING)
+
 from .utils import get_uniprot_seqs, tsv_to_df
 from .constants import UNIPROT_REST_API
 from .gget_diamond import diamond
@@ -12,6 +21,7 @@ from .gget_setup import (
     ELM_INSTANCES_FASTA,
     ELM_CLASSES_TSV,
     ELM_INSTANCES_TSV,
+    ELM_INTDOMAINS_TSV,
 )
 
 
@@ -37,7 +47,7 @@ def get_elm_instances(UniProtID):
     Get ELM instances and their information from local ELM tsv files.
 
     Args:
-    - UniProtID   UniProt ID to search for in the accession column of ELM tsv files.
+    - UniProtID   UniProt Acc to search for in the accession column of ELM tsv files.
 
     Returns: dataframe combining ELM instances and information (description, functional site...)
     """
@@ -50,18 +60,30 @@ def get_elm_instances(UniProtID):
     # Rename columns
     df_instances_matching = df_instances_matching.rename(
         columns={
-            "Primary_Acc": "Ortholog_UniProt_ID",
+            "Primary_Acc": "Ortholog_UniProt_Acc",
             "Start": "motif_start_in_subject",
             "End": "motif_end_in_subject",
         }
     )
 
-    # Get matching class descriptions from elm_classes.tsv
+    # Get class descriptions
     df_classes = tsv_to_df(ELM_CLASSES_TSV, skiprows=5)
-    df_classes.rename(columns={"Accession": "class_accession"}, inplace=True)
+    df_classes = df_classes.rename(columns={"Accession": "class_accession"})
 
-    # Merge dataframes using ELM Identifier
+    # Get interaction domains
+    df_intdomains = tsv_to_df(ELM_INTDOMAINS_TSV)
+    df_intdomains = df_intdomains.rename(
+        columns={
+            "ELM identifier": "ELMIdentifier",
+            "Interaction Domain Id": "InteractionDomainId",
+            "Interaction Domain Description": "InteractionDomainDescription",
+            "Interaction Domain Name": "InteractionDomainName",
+        }
+    )
+
+    # Merge data frames using ELM Identifier
     df_final = df_instances_matching.merge(df_classes, how="left", on="ELMIdentifier")
+    df_final = df_final.merge(df_intdomains, how="left", on="ELMIdentifier")
 
     return df_final
 
@@ -76,7 +98,7 @@ def seq_workflow(
     diamond_binary,
 ):
     """
-    Alignment of sequence using DIAMOND to get UniProt ID. Use the UniProt ID to construct an ortholog dataframe similar to the UniProt workflow
+    Alignment of sequence using DIAMOND to get UniProt Acc. Use the UniProt Acc to construct an ortholog dataframe similar to the UniProt workflow
     except for additional columns for start, end and whether the motif overlaps the subject sequence.
 
     Args:
@@ -115,19 +137,19 @@ def seq_workflow(
             )
 
         else:
-            # Construct df with elm instances from UniProt ID returned from diamond
-            # TODO double check that this gets info if more than one UniProt ID matched
+            # Construct df with elm instances from UniProt Acc returned from diamond
+            # TODO double check that this gets info if more than one UniProt Acc matched
             if verbose:
                 uniprot_ids = [
                     str(id).split("|")[1]
                     for id in df_diamond["subject_accession"].values
                 ]
                 logging.info(
-                    f"ORTHO Sequence {seq_number}/{len(sequences)}: DIAMOND found the following orthologous proteins: {', '.join(uniprot_ids)}. Retrieving ELMs for each UniProt ID..."
+                    f"ORTHO Sequence {seq_number}/{len(sequences)}: DIAMOND found the following orthologous proteins: {', '.join(uniprot_ids)}. Retrieving ELMs for each UniProt Acc..."
                 )
 
             for i, uniprot_id in enumerate(df_diamond["subject_accession"].values):
-                # print(f"UniProt ID {uniprot_id}")
+                # print(f"UniProt Acc {uniprot_id}")
                 df_elm = get_elm_instances(str(uniprot_id).split("|")[1])
                 # missing motifs other than the first one
                 # df_elm["query_cover"] = df_diamond["length"].values[i] / seq_len * 100
@@ -143,7 +165,9 @@ def seq_workflow(
                 df_elm["query_end"] = int(df_diamond["query_end"].values[i])
                 df_elm["subject_start"] = int(df_diamond["subject_start"].values[i])
                 df_elm["subject_end"] = int(df_diamond["subject_end"].values[i])
-                df_elm["motif_in_query"] = df_elm.apply(motif_in_query, axis=1)
+                df_elm["motif_inside_subject_query_overlap"] = df_elm.apply(
+                    motif_in_query, axis=1
+                )
 
                 df = pd.concat([df, df_elm])
 
@@ -157,7 +181,7 @@ def regex_match(sequence):
     Compare ELM regex with input sequence and return all matching elms
 
     Args:
-    sequence - user input sequence (can be either amino acid seq or UniProt ID)
+    sequence - user input sequence (can be either amino acid seq or UniProt Acc)
 
     Returns:
     df_final - dataframe containing regex matches
@@ -166,6 +190,15 @@ def regex_match(sequence):
     # Get all motif regex patterns from elm db local file
     df_elm_classes = tsv_to_df(ELM_CLASSES_TSV, skiprows=5)
     df_full_instances = tsv_to_df(ELM_INSTANCES_TSV, skiprows=5)
+    df_full_intdomains = tsv_to_df(ELM_INTDOMAINS_TSV)
+    df_full_intdomains = df_full_intdomains.rename(
+        columns={
+            "ELM identifier": "ELMIdentifier",
+            "Interaction Domain Id": "InteractionDomainId",
+            "Interaction Domain Description": "InteractionDomainDescription",
+            "Interaction Domain Name": "InteractionDomainName",
+        }
+    )
 
     elm_ids = df_elm_classes["Accession"]
     regex_patterns = df_elm_classes["Regex"]
@@ -174,19 +207,19 @@ def regex_match(sequence):
 
     # Compare ELM regex with input sequence and return all matching elms
     for elm_id, pattern in zip(elm_ids, regex_patterns):
-        regex_matches = re.finditer(pattern, sequence)
+        regex_matches = re.finditer(f"(?=({pattern}))", sequence)
 
         for match_string in regex_matches:
             elm_row = df_elm_classes[df_elm_classes["Accession"] == elm_id]
             elm_row.insert(
                 loc=1,
                 column="Instances (Matched Sequence)",
-                value=match_string.group(0),
+                value=match_string.group(1),
             )
 
-            (start, end) = match_string.span()
-            elm_row.insert(loc=2, column="motif_start_in_query", value=str(start))
-            elm_row.insert(loc=3, column="motif_end_in_query", value=str(end))
+            (start, end) = match_string.span(1)
+            elm_row.insert(loc=2, column="motif_start_in_query", value=int(start + 1))
+            elm_row.insert(loc=3, column="motif_end_in_query", value=int(end))
 
             elm_identifier = [str(x) for x in elm_row["ELMIdentifier"]][0]
 
@@ -196,6 +229,7 @@ def regex_match(sequence):
 
             # merge two dataframes using ELM Identifier, since some Accessions are missing from elm_instances.tsv
             elm_row = elm_row.merge(df_full_instances, how="left", on="ELMIdentifier")
+            elm_row = elm_row.merge(df_full_intdomains, how="left", on="ELMIdentifier")
 
             df_final = pd.concat([df_final, elm_row])
 
@@ -217,13 +251,13 @@ def elm(
     out=None,
 ):
     """
-    Locally predicts Eukaryotic Linear Motifs from an amino acid sequence or UniProt ID using
+    Locally predicts Eukaryotic Linear Motifs from an amino acid sequence or UniProt Acc using
     data from the ELM database (http://elm.eu.org/).
 
     Args:
-    - sequence         Amino acid sequence or Uniprot ID (str).
-                       If Uniprot ID, set 'uniprot==True'.
-    - uniprot          Set to True if the input is a Uniprot ID instead of an amino acid sequence. Default: False.
+    - sequence         Amino acid sequence or Uniprot Acc (str).
+                       If Uniprot Acc, set 'uniprot==True'.
+    - uniprot          Set to True if the input is a Uniprot Acc instead of an amino acid sequence. Default: False.
     - sensitivity      Sensitivity of DIAMOND alignment.
                        One of the following: fast, mid-sensitive, sensitive, more-sensitive, very-sensitive, or ultra-sensitive.
                        Default: "very-sensitive"
@@ -246,6 +280,7 @@ def elm(
         not os.path.exists(ELM_INSTANCES_FASTA)
         or not os.path.exists(ELM_CLASSES_TSV)
         or not os.path.exists(ELM_INSTANCES_TSV)
+        or not os.path.exists(ELM_INTDOMAINS_TSV)
     ):
         raise FileNotFoundError(
             f"Some or all ELM database files are missing. Please run 'gget setup elm' (Python: gget.setup('elm')) once to download the necessary files."
@@ -271,7 +306,7 @@ def elm(
         # If sequence is not a valid amino sequence, raise error
         if not set(sequence) <= amino_acids:
             logging.warning(
-                f"Input amino acid sequence contains invalid characters. If the input is a UniProt ID, please use flag --uniprot (Python: uniprot=True)."
+                f"Input amino acid sequence contains invalid characters. If the input is a UniProt Acc, please use flag --uniprot (Python: uniprot=True)."
             )
 
     # Build ortholog dataframe
@@ -283,7 +318,7 @@ def elm(
 
         if len(ortho_df) == 0:
             logging.warning(
-                "ORTHO UniProt ID does not match UniProt IDs in the ELM database. Fetching amino acid sequence from UniProt..."
+                "ORTHO The provided UniProt Accession does not match UniProt Accessions in the ELM database. Fetching amino acid sequence from UniProt..."
             )
             df_uniprot = get_uniprot_seqs(server=UNIPROT_REST_API, ensembl_ids=sequence)
 
@@ -295,14 +330,14 @@ def elm(
 
                 if len(aa_seqs) == 0:
                     raise ValueError(
-                        f"No amino acid sequences found for UniProt ID {sequence} from the UniProt server. Please double-check your UniProt ID and try again."
+                        f"No amino acid sequences found for UniProt Acc {sequence} from the UniProt server. Please double-check your UniProt Acc and try again."
                     )
 
                 # seq_lens = [len(seq) for seq in aa_seqs]
 
             else:
                 raise ValueError(
-                    f"No amino acid sequences found for UniProt ID {sequence} from the UniProt server. Please double-check your UniProt ID and try again."
+                    f"No amino acid sequences found for UniProt Acc {sequence} from the UniProt server. Please double-check your UniProt Acc and try again."
                 )
 
     if len(ortho_df) == 0:
@@ -323,17 +358,20 @@ def elm(
 
         if len(ortho_df) == 0:
             logging.warning(
-                "ORTHO No ELM database orthologs found for input sequence or UniProt ID."
+                "ORTHO No ELM database orthologs found for input sequence or UniProt Acc."
             )
 
     # Reorder columns of ortholog data frame
     ortho_cols = [
-        "Ortholog_UniProt_ID",
+        "Ortholog_UniProt_Acc",
         "ProteinName",
         "class_accession",
         "ELMIdentifier",
         "FunctionalSiteName",
         "Description",
+        "InteractionDomainId",
+        "InteractionDomainDescription",
+        "InteractionDomainName",
         "Regex",
         "Probability",
         "Methods",
@@ -342,7 +380,7 @@ def elm(
         "subject_seq_length",
         "alignment_length",
         "identity_percentage",
-        "motif_in_query",
+        "motif_inside_subject_query_overlap",
         "query_start",
         "query_end",
         "subject_start",
@@ -373,7 +411,7 @@ def elm(
         logging.info(f"REGEX Finding regex motif matches...")
     fetch_aa_failed = False
     if uniprot:
-        # use amino acid sequence associated with UniProt ID to do regex match
+        # use amino acid sequence associated with UniProt Acc to do regex match
 
         # do not fetch sequence again if already done above
         if not "df_uniprot" in locals():
@@ -387,13 +425,13 @@ def elm(
 
             if len(sequences) == 0:
                 logging.warning(
-                    "REGEX No amino acid sequences found for UniProt ID {sequence} from the UniProt server."
+                    f"REGEX No amino acid sequences found for UniProt Acc {sequence} from the UniProt server."
                 )
                 fetch_aa_failed = True
             else:
                 if len(sequences) > 1:
                     logging.warning(
-                        f"REGEX More than one amino acid sequence found for UniProt ID {sequence}. Using best match to find regex motifs."
+                        f"REGEX More than one amino acid sequence found for UniProt Acc {sequence}. Using best match to find regex motifs."
                     )
                 sequence = sequences[0]
 
@@ -403,7 +441,7 @@ def elm(
 
     if len(df_regex_matches) == 0:
         logging.warning(
-            "REGEX No regex matches found for input sequence or UniProt ID."
+            "REGEX No regex matches found for input sequence or UniProt Acc."
         )
 
     # Reorder regex columns
@@ -414,6 +452,9 @@ def elm(
             "FunctionalSiteName",
             "ELMType",
             "Description",
+            "InteractionDomainId",
+            "InteractionDomainDescription",
+            "InteractionDomainName",
             "Regex",
             "Instances (Matched Sequence)",
             # "Probability",
@@ -434,6 +475,9 @@ def elm(
             "FunctionalSiteName",
             "ELMType",
             "Description",
+            "InteractionDomainId",
+            "InteractionDomainDescription",
+            "InteractionDomainName",
             "Regex",
             "Instances (Matched Sequence)",
             # "Probability",

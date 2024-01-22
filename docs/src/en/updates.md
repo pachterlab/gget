@@ -1,4 +1,23 @@
 ## ✨ What's new  
+**Version ≥ 0.28.3** (XXX):  
+- [`gget enrichr`](./enrichr.md): Fix duplicate scatter dots in plot when pathway names are duplicated
+- [`gget elm`](./elm.md):
+  - Changed ortho results column name 'Ortholog_UniProt_ID' to 'Ortholog_UniProt_Acc' to correctly reflect the column contents, which are UniProt Accessions. 'UniProt ID' was changed to 'UniProt Acc' in the documentation for all `gget` modules.
+  - Changed ortho results column name 'motif_in_query' to 'motif_inside_subject_query_overlap'.
+  - Added interaction domain information to results (new columns: "InteractionDomainId", "InteractionDomainDescription", "InteractionDomainName").
+  - The regex string for regular expression matches was encapsulated as follows: "(?=(regex))" (instead of directly passing the regex string "regex") to enable capturing all occurrences of a motif when the motif length is variable and there are repeats in the sequence ([https://regex101.com/r/HUWLlZ/1](https://regex101.com/r/HUWLlZ/1)).
+- [`gget setup`](./setup.md): Use the `out` argument to specify a directory the ELM database will be downloaded into.
+- [`gget diamond`](./diamond.md): The DIAMOND command is now run with `--ignore-warnings` flag, allowing niche sequences such as amino acid sequences that only contain nucleotide characters and repeated sequences. This is also true for DIAMOND alignments performed within [`gget elm`](./elm.md).
+- **[`gget search`](./search.md) and [`gget ref`](./ref.md) now also support fungi 🍄, protists 🌝, and invertebrate metazoa 🐝 🐜 🐌 🐙 (in addition to vertebrates and plants)**
+- [`gget ref`](./ref.md) and [`gget search`](./search.md) back-end change: the current Ensembl release is fetched from the new [release file](https://ftp.ensembl.org/pub/VERSION) on the Ensembl FTP site to avoid errors during uploads of new releases.
+- [`gget search`](./search.md): 
+  - FTP link results (`--ftp`) are saved in txt file format instead of json.
+  - Fix URL links to Ensembl gene summary for species with a subspecies name and invertebrates.
+- [`gget ref`](./ref.md):
+  - Back-end changes to increase speed
+  - New argument: `list_iv_species` to list all available invertebrate species (can be combined with the `release` argument to fetch all species available from a specific Ensembl release)
+- **New module: [`gget cosmic`](./cosmic.md)**
+
 **Version ≥ 0.28.2** (November 15, 2023):  
 - [`gget info`](./info.md): Return a logging error message when the NCBI server fails for a reason other than a fetch fail (this is an error on the server side rather than an error with `gget`)
 - Replace deprecated 'text' argument to find()-type methods whenever used with dependency `BeautifulSoup`

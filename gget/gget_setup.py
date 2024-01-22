@@ -20,7 +20,15 @@ from .constants import (
     ELM_INSTANCES_FASTA_DOWNLOAD,
     ELM_CLASSES_TSV_DOWNLOAD,
     ELM_INSTANCES_TSV_DOWNLOAD,
+    ELM_INTDOMAINS_TSV_DOWNLOAD
 )
+
+## Variables for elm module
+ELM_FILES = os.path.join(PACKAGE_PATH, "elm_files")
+ELM_INSTANCES_FASTA = f"{ELM_FILES}/elm_instances.fasta"
+ELM_CLASSES_TSV = f"{ELM_FILES}/elms_classes.tsv"
+ELM_INSTANCES_TSV = f"{ELM_FILES}/elm_instances.tsv"
+ELM_INTDOMAINS_TSV = f"{ELM_FILES}/elm_interaction_domains.tsv"
 
 ## Variables for alphafold module
 ALPHAFOLD_GIT_REPO = "https://github.com/deepmind/alphafold"
@@ -37,14 +45,8 @@ PARAMS_URL = (
 PARAMS_DIR = os.path.join(PACKAGE_PATH, "bins/alphafold/")
 PARAMS_PATH = os.path.join(PARAMS_DIR, "params_temp.tar")
 
-## Variables for elm module
-ELM_FILES = os.path.join(PACKAGE_PATH, "elm_files")
-ELM_INSTANCES_FASTA = f"{ELM_FILES}/elm_instances.fasta"
-ELM_CLASSES_TSV = f"{ELM_FILES}/elms_classes.tsv"
-ELM_INSTANCES_TSV = f"{ELM_FILES}/elm_instances.tsv"
 
-
-def setup(module, verbose=True):
+def setup(module, verbose=True, out=None):
     """
     Function to install third-party dependencies for a specified gget module.
     Some modules require pip to be installed (https://pip.pypa.io/en/stable/installation).
@@ -53,6 +55,9 @@ def setup(module, verbose=True):
     Args:
     - module    (str) gget module for which dependencies should be installed, e.g. "alphafold", "cellxgene", "elm", or "gpt".
     - verbose   True/False whether to print progress information. Default True.
+    - out       (str) Path to directory to save downloaded files in (currently only applies when module='elm').
+                NOTE: Do not use this argument when downloading the files for use with 'gget.elm'.
+                Default None (files are saved in the gget installation directory).
     """
     supported_modules = ["alphafold", "cellxgene", "elm", "gpt"]
     if module not in supported_modules:
@@ -125,22 +130,41 @@ def setup(module, verbose=True):
                 "Downloading ELM database files (requires curl to be installed)..."
             )
 
-        # Create folder for ELM files (if it does not exist)
-        if not os.path.exists(ELM_FILES):
-            os.makedirs(ELM_FILES)
+        if out is not None:
+            elm_files_out = os.path.abspath(out)
+            elm_instances_fasta = f"{elm_files_out}/elm_instances.fasta"
+            elm_classes_tsv = f"{elm_files_out}/elms_classes.tsv"
+            elm_instances_tsv = f"{elm_files_out}/elm_instances.tsv"
+            elm_intdomains_tsv = f"{elm_files_out}/elm_interaction_domains.tsv"
+
+            # Create folder for ELM files (if it does not exist)
+            if not os.path.exists(elm_files_out):
+                os.makedirs(elm_files_out)
+
+        else:
+            elm_instances_fasta = ELM_INSTANCES_FASTA
+            elm_classes_tsv = ELM_CLASSES_TSV
+            elm_instances_tsv = ELM_INSTANCES_TSV
+            elm_intdomains_tsv = ELM_INTDOMAINS_TSV
+
+            # Create folder for ELM files (if it does not exist)
+            if not os.path.exists(ELM_FILES):
+                os.makedirs(ELM_FILES)
 
         if platform.system() == "Windows":
             # The double-quotation marks allow white spaces in the path, but this does not work for Windows
             command = f"""
-                curl -o {ELM_INSTANCES_FASTA} {ELM_INSTANCES_FASTA_DOWNLOAD} \
-                &&  curl -o {ELM_CLASSES_TSV} {ELM_CLASSES_TSV_DOWNLOAD} \
-                &&  curl -o {ELM_INSTANCES_TSV} {ELM_INSTANCES_TSV_DOWNLOAD}
+                curl -o {elm_instances_fasta} {ELM_INSTANCES_FASTA_DOWNLOAD} \
+                &&  curl -o {elm_classes_tsv} {ELM_CLASSES_TSV_DOWNLOAD} \
+                &&  curl -o {elm_instances_tsv} {ELM_INSTANCES_TSV_DOWNLOAD} \
+                &&  curl -o {elm_intdomains_tsv} {ELM_INTDOMAINS_TSV_DOWNLOAD}
                 """
         else:
             command = f"""
-                curl -o '{ELM_INSTANCES_FASTA}' {ELM_INSTANCES_FASTA_DOWNLOAD} \
-                &&  curl -o '{ELM_CLASSES_TSV}' {ELM_CLASSES_TSV_DOWNLOAD} \
-                &&  curl -o '{ELM_INSTANCES_TSV}' {ELM_INSTANCES_TSV_DOWNLOAD}
+                curl -o '{elm_instances_fasta}' {ELM_INSTANCES_FASTA_DOWNLOAD} \
+                &&  curl -o '{elm_classes_tsv}' {ELM_CLASSES_TSV_DOWNLOAD} \
+                &&  curl -o '{elm_instances_tsv}' {ELM_INSTANCES_TSV_DOWNLOAD} \
+                &&  curl -o '{elm_intdomains_tsv}' '{ELM_INTDOMAINS_TSV_DOWNLOAD}'
                 """
 
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
@@ -155,23 +179,29 @@ def setup(module, verbose=True):
             return
 
         # Check if files are present
-        if os.path.exists(ELM_INSTANCES_FASTA):
+        if os.path.exists(elm_instances_fasta):
             if verbose:
-                logging.info(f"ELM sequences downloaded succesfully.")
+                logging.info(f"ELM sequences file present.")
         else:
-            logging.error("ELM FASTA file download failed.")
+            logging.error("ELM FASTA file missing.")
 
-        if os.path.exists(ELM_CLASSES_TSV):
+        if os.path.exists(elm_classes_tsv):
             if verbose:
-                logging.info("ELM classes downloaded successfully.")
+                logging.info("ELM classes file present.")
         else:
-            logging.error("ELM classes download failed.")
+            logging.error("ELM classes file missing.")
 
-        if os.path.exists(ELM_INSTANCES_TSV):
+        if os.path.exists(elm_instances_tsv):
             if verbose:
-                logging.info("ELM instances downloaded successfully.")
+                logging.info("ELM instances file present.")
         else:
-            logging.error("ELM instances download failed.")
+            logging.error("ELM instances file missing.")
+
+        if os.path.exists(elm_intdomains_tsv):
+            if verbose:
+                logging.info("ELM interactions domains file present.")
+        else:
+            logging.error("ELM interactions domains file missing.")
 
     if module == "alphafold":
         if platform.system() == "Windows":

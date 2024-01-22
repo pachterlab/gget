@@ -4,7 +4,7 @@
         "args": {
             "species": "taeniopygia_guttata",
             "which": "all",
-            "release": null,
+            "release": 110,
             "ftp": false
         },
         "expected_result": {
@@ -157,7 +157,7 @@
                 "ncrna",
                 "gtf"
             ],
-            "release": null,
+            "release": 110,
             "ftp": true
         },
         "expected_result": [
@@ -177,28 +177,28 @@
         "expected_result": {
             "actinidia_chinensis": {
                 "transcriptome_cdna": {
-                    "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-53/fasta/actinidia_chinensis/cdna/Actinidia_chinensis.Red5_PS1_1.69.0.cdna.all.fa.gz",
+                    "ftp": "http://ftp.ensemblgenomes.org/pub/release-53/plants/fasta/actinidia_chinensis/cdna/Actinidia_chinensis.Red5_PS1_1.69.0.cdna.all.fa.gz",
                     "ensembl_release": 53,
                     "release_date": "2022-02-15",
                     "release_time": "12:53",
                     "bytes": "24M"
                 },
                 "genome_dna": {
-                    "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-53/fasta/actinidia_chinensis/dna/Actinidia_chinensis.Red5_PS1_1.69.0.dna.toplevel.fa.gz",
+                    "ftp": "http://ftp.ensemblgenomes.org/pub/release-53/plants/fasta/actinidia_chinensis/dna/Actinidia_chinensis.Red5_PS1_1.69.0.dna.toplevel.fa.gz",
                     "ensembl_release": 53,
                     "release_date": "2022-02-21",
                     "release_time": "10:52",
                     "bytes": "155M"
                 },
                 "annotation_gtf": {
-                    "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-53/gtf/actinidia_chinensis/Actinidia_chinensis.Red5_PS1_1.69.0.53.gtf.gz",
+                    "ftp": "http://ftp.ensemblgenomes.org/pub/release-53/plants/gtf/actinidia_chinensis/Actinidia_chinensis.Red5_PS1_1.69.0.53.gtf.gz",
                     "ensembl_release": 53,
                     "release_date": "2022-02-17",
                     "release_time": "09:13",
                     "bytes": "6.7M"
                 },
                 "coding_seq_cds": {
-                    "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-53/fasta/actinidia_chinensis/cds/Actinidia_chinensis.Red5_PS1_1.69.0.cds.all.fa.gz",
+                    "ftp": "http://ftp.ensemblgenomes.org/pub/release-53/plants/fasta/actinidia_chinensis/cds/Actinidia_chinensis.Red5_PS1_1.69.0.cds.all.fa.gz",
                     "ensembl_release": 53,
                     "release_date": "2022-02-15",
                     "release_time": "12:53",
@@ -212,7 +212,7 @@
                     "bytes": ""
                 },
                 "protein_translation_pep": {
-                    "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-53/fasta/actinidia_chinensis/pep/Actinidia_chinensis.Red5_PS1_1.69.0.pep.all.fa.gz",
+                    "ftp": "http://ftp.ensemblgenomes.org/pub/release-53/plants/fasta/actinidia_chinensis/pep/Actinidia_chinensis.Red5_PS1_1.69.0.pep.all.fa.gz",
                     "ensembl_release": 53,
                     "release_date": "2022-02-15",
                     "release_time": "12:53",
@@ -236,21 +236,21 @@
         "expected_result": {
             "aegilops_tauschii": {
                 "annotation_gtf": {
-                    "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-53/gtf/aegilops_tauschii/Aegilops_tauschii.Aet_v4.0.53.gtf.gz",
+                    "ftp": "http://ftp.ensemblgenomes.org/pub/release-53/plants/gtf/aegilops_tauschii/Aegilops_tauschii.Aet_v4.0.53.gtf.gz",
                     "ensembl_release": 53,
                     "release_date": "2022-02-27",
                     "release_time": "00:58",
                     "bytes": "40M"
                 },
                 "genome_dna": {
-                    "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-53/fasta/aegilops_tauschii/dna/Aegilops_tauschii.Aet_v4.0.dna.toplevel.fa.gz",
+                    "ftp": "http://ftp.ensemblgenomes.org/pub/release-53/plants/fasta/aegilops_tauschii/dna/Aegilops_tauschii.Aet_v4.0.dna.toplevel.fa.gz",
                     "ensembl_release": 53,
                     "release_date": "2022-02-21",
                     "release_time": "12:17",
                     "bytes": "1.1G"
                 },
                 "protein_translation_pep": {
-                    "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-53/fasta/aegilops_tauschii/pep/Aegilops_tauschii.Aet_v4.0.pep.all.fa.gz",
+                    "ftp": "http://ftp.ensemblgenomes.org/pub/release-53/plants/fasta/aegilops_tauschii/pep/Aegilops_tauschii.Aet_v4.0.pep.all.fa.gz",
                     "ensembl_release": 53,
                     "release_date": "2022-02-17",
                     "release_time": "06:03",
@@ -262,7 +262,7 @@
     "test8": {
         "type": "assert_equal",
         "args": {
-            "species": "zea_mays",
+            "species": "entamoeba_histolytica",
             "which": [
                 "cdna",
                 "dna",
@@ -272,27 +272,27 @@
             "ftp": false
         },
         "expected_result": {
-            "zea_mays": {
+            "entamoeba_histolytica": {
                 "transcriptome_cdna": {
-                    "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-48/fasta/zea_mays/cdna/Zea_mays.B73_RefGen_v4.cdna.all.fa.gz",
+                    "ftp": "http://ftp.ensemblgenomes.org/pub/release-48/protists/fasta/entamoeba_histolytica/cdna/Entamoeba_histolytica.JCVI-ESG2-1.0.cdna.all.fa.gz",
                     "ensembl_release": 48,
-                    "release_date": "2020-07-10",
-                    "release_time": "22:24",
-                    "bytes": "53M"
+                    "release_date": "2020-07-11",
+                    "release_time": "00:52",
+                    "bytes": "3.2M"
                 },
                 "genome_dna": {
-                    "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-48/fasta/zea_mays/dna/Zea_mays.B73_RefGen_v4.dna.toplevel.fa.gz",
+                    "ftp": "http://ftp.ensemblgenomes.org/pub/release-48/protists/fasta/entamoeba_histolytica/dna/Entamoeba_histolytica.JCVI-ESG2-1.0.dna.toplevel.fa.gz",
                     "ensembl_release": 48,
                     "release_date": "2020-07-10",
-                    "release_time": "17:48",
-                    "bytes": "602M"
+                    "release_time": "17:55",
+                    "bytes": "5.8M"
                 },
                 "coding_seq_cds": {
-                    "ftp": "http://ftp.ensemblgenomes.org/pub/plants/release-48/fasta/zea_mays/cds/Zea_mays.B73_RefGen_v4.cds.all.fa.gz",
+                    "ftp": "http://ftp.ensemblgenomes.org/pub/release-48/protists/fasta/entamoeba_histolytica/cds/Entamoeba_histolytica.JCVI-ESG2-1.0.cds.all.fa.gz",
                     "ensembl_release": 48,
-                    "release_date": "2020-07-10",
-                    "release_time": "22:24",
-                    "bytes": "25M"
+                    "release_date": "2020-07-11",
+                    "release_time": "00:52",
+                    "bytes": "3.1M"
                 }
             }
         }
@@ -300,7 +300,7 @@
     "test9": {
         "type": "assert_equal",
         "args": {
-            "species": "brassica_rapa",
+            "species": "octopus_bimaculoides",
             "which": [
                 "gtf",
                 "dna",
@@ -310,9 +310,9 @@
             "ftp": true
         },
         "expected_result": [
-            "http://ftp.ensemblgenomes.org/pub/plants/release-51/gtf/brassica_rapa/Brassica_rapa.Brapa_1.0.51.gtf.gz",
-            "http://ftp.ensemblgenomes.org/pub/plants/release-51/fasta/brassica_rapa/dna/Brassica_rapa.Brapa_1.0.dna.toplevel.fa.gz",
-            "http://ftp.ensemblgenomes.org/pub/plants/release-51/fasta/brassica_rapa/pep/Brassica_rapa.Brapa_1.0.pep.all.fa.gz"
+            "http://ftp.ensemblgenomes.org/pub/release-51/metazoa/gtf/octopus_bimaculoides/Octopus_bimaculoides.PRJNA270931.51.gtf.gz",
+            "http://ftp.ensemblgenomes.org/pub/release-51/metazoa/fasta/octopus_bimaculoides/dna/Octopus_bimaculoides.PRJNA270931.dna.toplevel.fa.gz",
+            "http://ftp.ensemblgenomes.org/pub/release-51/metazoa/fasta/octopus_bimaculoides/pep/Octopus_bimaculoides.PRJNA270931.pep.all.fa.gz"
         ]
     },
     "test10": {
@@ -623,7 +623,7 @@
             "release": 76,
             "ftp": false
         },
-        "expected_result": "ValueError"
+        "expected_result": "RuntimeError"
     },
     "error_test2": {
         "type": "error",
@@ -647,6 +647,6 @@
             "release": 2000,
             "ftp": false
         },
-        "expected_result": "ValueError"
+        "expected_result": "RuntimeError"
     }
 }
