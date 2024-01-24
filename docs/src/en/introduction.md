@@ -22,6 +22,10 @@
 
 [<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_blat.png?raw=true" width="32%" height="32%" />](/gget/en/blat.md)
 [<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_cellxgene.png?raw=true" width="32%" height="32%" />](/gget/en/cellxgene.md)
+[<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_cosmic.png?raw=true" width="32%" height="32%" />](/gget/en/cosmic.md)  
+
+[<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_diamond.png?raw=true" width="32%" height="32%" />](/gget/en/diamond.md)
+[<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_elm.png?raw=true" width="32%" height="32%" />](/gget/en/elm.md)
 [<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_enrichr.png?raw=true" width="32%" height="32%" />](/gget/en/enrichr.md)  
 
 [<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_info.png?raw=true" width="32%" height="32%" />](/gget/en/info.md)
