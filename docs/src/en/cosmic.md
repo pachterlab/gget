@@ -2,7 +2,7 @@
 ## gget cosmic 🪐
 Search for genes, mutations, etc associated with cancers using the [COSMIC](https://cancer.sanger.ac.uk/cosmic) (Catalogue Of Somatic Mutations In Cancer) database.  
 Return format: JSON (command-line) or data frame/CSV (Python).  
-This module was contributed by [@AubakirovArman](https://github.com/AubakirovArman).
+This module was written by [@AubakirovArman](https://github.com/AubakirovArman).
 
 **Positional argument**  
 `searchterm`   
