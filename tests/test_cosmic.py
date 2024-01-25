@@ -71,7 +71,7 @@ class TestCosmic(unittest.TestCase):
             result_to_test = result_to_test.values.tolist()
         self.assertListEqual(result_to_test, expected_result)
 
-    time.sleep(60)
+    time.sleep(120)
     def test_cosmic_tumour(self):
         test = "test7"
         expected_result = cosmic_dict[test]["expected_result"]
