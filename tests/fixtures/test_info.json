@@ -552,7 +552,7 @@
                 "FUNDC1",
                 "FUNDC1-202",
                 [],
-                "",
+                "Acts as an activator of hypoxia-induced mitophagy, an important mechanism for mitochondrial quality control",
                 [
                     "Mitochondrion outer membrane"
                 ],
@@ -973,6 +973,7 @@
                 "Ids",
                 "Ids",
                 [],
+                "Iduronate 2-sulfatase",
                 "Lysosomal enzyme involved in the degradation pathway of dermatan sulfate and heparan sulfate",
                 [
                     "Lysosome"
@@ -992,9 +993,11 @@
                 "tyr",
                 "tyr-204",
                 [],
+                "Tyrosinase",
                 "",
                 [
-                    "Melanosome membrane"
+                    "Melanosome membrane", 
+                    "Membrane"
                 ],
                 "Transcript",
                 "protein_coding",
