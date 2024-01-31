@@ -386,6 +386,26 @@
                         "type": "GO",
                         "annotation_lineage": [
                             {
+                                "id": "GO:0050734",
+                                "name": "hydroxycinnamoyltransferase activity"
+                            },
+                            {
+                                "id": "GO:0050737",
+                                "name": "O-hydroxycinnamoyltransferase activity"
+                            },
+                            {
+                                "id": "GO:0008374",
+                                "name": "O-acyltransferase activity"
+                            },
+                            {
+                                "id": "GO:0016746",
+                                "name": "acyltransferase activity"
+                            },
+                            {
+                                "id": "GO:0016747",
+                                "name": "acyltransferase activity, transferring groups other than amino-acyl groups"
+                            },
+                            {
                                 "id": "GO:0016740",
                                 "name": "transferase activity"
                             },
@@ -396,6 +416,10 @@
                             {
                                 "id": "GO:0003674",
                                 "name": "molecular_function"
+                            },
+                            {
+                                "id": "GO:0047172",
+                                "name": "shikimate O-hydroxycinnamoyltransferase activity"
                             }
                         ]
                     }
