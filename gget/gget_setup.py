@@ -25,10 +25,10 @@ from .constants import (
 
 ## Variables for elm module
 ELM_FILES = os.path.join(PACKAGE_PATH, "elm_files")
-ELM_INSTANCES_FASTA = f"{ELM_FILES}/elm_instances.fasta"
-ELM_CLASSES_TSV = f"{ELM_FILES}/elms_classes.tsv"
-ELM_INSTANCES_TSV = f"{ELM_FILES}/elm_instances.tsv"
-ELM_INTDOMAINS_TSV = f"{ELM_FILES}/elm_interaction_domains.tsv"
+ELM_INSTANCES_FASTA = os.path.join(ELM_FILES, "elm_instances.fasta")
+ELM_CLASSES_TSV = os.path.join(ELM_FILES, "elms_classes.tsv")
+ELM_INSTANCES_TSV = os.path.join(ELM_FILES, "elm_instances.tsv")
+ELM_INTDOMAINS_TSV = os.path.join(ELM_FILES, "elm_interaction_domains.tsv")
 
 ## Variables for alphafold module
 ALPHAFOLD_GIT_REPO = "https://github.com/deepmind/alphafold"
@@ -132,10 +132,10 @@ def setup(module, verbose=True, out=None):
 
         if out is not None:
             elm_files_out = os.path.abspath(out)
-            elm_instances_fasta = f"{elm_files_out}/elm_instances.fasta"
-            elm_classes_tsv = f"{elm_files_out}/elms_classes.tsv"
-            elm_instances_tsv = f"{elm_files_out}/elm_instances.tsv"
-            elm_intdomains_tsv = f"{elm_files_out}/elm_interaction_domains.tsv"
+            elm_instances_fasta = os.path.join(elm_files_out, "elm_instances.fasta")
+            elm_classes_tsv = os.path.join(elm_files_out, "elms_classes.tsv")
+            elm_instances_tsv = os.path.join(elm_files_out, "elm_instances.tsv")
+            elm_intdomains_tsv = os.path.join(elm_files_out, "elm_interaction_domains.tsv")
 
             # Create folder for ELM files (if it does not exist)
             if not os.path.exists(elm_files_out):
