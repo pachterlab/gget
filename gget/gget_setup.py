@@ -155,10 +155,10 @@ def setup(module, verbose=True, out=None):
         if platform.system() == "Windows":
             # The double-quotation marks allow white spaces in the path, but this does not work for Windows
             command = f"""
-                curl -o {elm_instances_fasta} {ELM_INSTANCES_FASTA_DOWNLOAD} \
-                &&  curl -o {elm_classes_tsv} {ELM_CLASSES_TSV_DOWNLOAD} \
-                &&  curl -o {elm_instances_tsv} {ELM_INSTANCES_TSV_DOWNLOAD} \
-                &&  curl -o {elm_intdomains_tsv} {ELM_INTDOMAINS_TSV_DOWNLOAD}
+                curl -o {elm_instances_fasta} \"{ELM_INSTANCES_FASTA_DOWNLOAD}\" \
+                &&  curl -o {elm_classes_tsv} \"{ELM_CLASSES_TSV_DOWNLOAD}\" \
+                &&  curl -o {elm_instances_tsv} \"{ELM_INSTANCES_TSV_DOWNLOAD}\" \
+                &&  curl -o {elm_intdomains_tsv} \"{ELM_INTDOMAINS_TSV_DOWNLOAD}\"
                 """
             print(command)
         
