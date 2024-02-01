@@ -151,7 +151,6 @@ def setup(module, verbose=True, out=None):
             if not os.path.exists(ELM_FILES):
                 os.makedirs(ELM_FILES)
 
-        print(platform.system())
         if platform.system() == "Windows":
             # The double-quotation marks allow white spaces in the path, but this does not work for Windows
             command = f"""
@@ -160,7 +159,6 @@ def setup(module, verbose=True, out=None):
                 &&  curl -o {elm_instances_tsv} \"{ELM_INSTANCES_TSV_DOWNLOAD}\" \
                 &&  curl -o {elm_intdomains_tsv} \"{ELM_INTDOMAINS_TSV_DOWNLOAD}\"
                 """
-            print(command)
         
         else:
             command = f"""
