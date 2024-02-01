@@ -1,4 +1,7 @@
 ## ✨ ¡Lo más reciente!  
+**Versión ≥ 0.28.4** (31 de enero de 2024):  
+- [`gget setup`](./setup.md): soluciona el error con la ruta del archivo al ejecutar `gget.setup("elm")` en el sistema operativo Windows.  
+
 **Versión ≥ 0.28.3** (22 de enero de 2024):
 - **[`gget search`](./search.md) y [`gget ref`](./ref.md) ahora también admiten hongos 🍄, protistas 🌝 y metazoos de invertebrados 🐝 🐜 🐌 🐙 (además de vertebrados y plantas)**
 - **Nuevo módulo: [`gget cosmic`](./cosmic.md)**
