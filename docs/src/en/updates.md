@@ -1,4 +1,7 @@
 ## ✨ What's new  
+**Version ≥ 0.28.4** (January 31, 2024):  
+- [`gget setup`](./setup.md): Fix bug with filepath when running `gget.setup("elm")` on Windows OS.  
+  
 **Version ≥ 0.28.3** (January 22, 2024):  
 - **[`gget search`](./search.md) and [`gget ref`](./ref.md) now also support fungi 🍄, protists 🌝, and invertebrate metazoa 🐝 🐜 🐌 🐙 (in addition to vertebrates and plants)**
 - **New module: [`gget cosmic`](./cosmic.md)**
