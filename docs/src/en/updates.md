@@ -28,19 +28,19 @@
 - [`gget elm`](elm.md): Add `expand` argument
   
 **Version ≥ 0.28.0** (November 5, 2023):  
-- Updated documentation of [`gget muscle`](./muscle.md) to add a tutorial on how to visualize sequences with sequence name lengths + slight change to returned visualization so it's a bit more robust to varying sequence names
+- Updated documentation of [`gget muscle`](./muscle.md) to add a tutorial on how to visualize sequences with varying sequence name lengths + slight change to returned visualization so it's a bit more robust to varying sequence names
 - [`gget muscle`](./muscle.md) now also allows a list of sequences as input (as an alternative to providing the path to a FASTA file)
 - Allow missing gene filter for [`gget cellxgene`](cellxgene.md)  (fixes [bug](https://github.com/pachterlab/gget/issues/110))
 - [`gget seq`](./seq.md): Allow missing gene names (fixes [https://github.com/pachterlab/gget/issues/107](https://github.com/pachterlab/gget/issues/107))
-- New arguments for [`gget enrichr`](enrichr.md): Use arguments `kegg_out` and `kegg_rank` to create an image of the KEGG pathway with the genes from the enrichment analysis highlighted (thanks to [this PR](https://github.com/pachterlab/gget/pull/106) by [Noriaki Sato](https://github.com/noriakis))  
+- **[`gget enrichr`](enrichr.md): Use new arguments `kegg_out` and `kegg_rank` to create an image of the KEGG pathway with the genes from the enrichment analysis highlighted (thanks to [this PR](https://github.com/pachterlab/gget/pull/106) by [Noriaki Sato](https://github.com/noriakis))**  
 - New modules: [`gget elm`](elm.md) and [`gget diamond`](diamond.md)  
   
 **Version ≥ 0.27.9** (August 7, 2023):  
-- New arguments for [`gget enrichr`](enrichr.md): Use argument `background_list` to provide a list of background genes
+- **[`gget enrichr`](enrichr.md): Use new argument `background_list` to provide a list of background genes**  
 - [`gget search`](search.md) now also searches [Ensembl](https://ensembl.org/) synonyms (in addition to gene descriptions and names) to return more comprehensive search results (thanks to [Samuel Klein](https://github.com/KleinSamuel) for the [suggestion](https://github.com/pachterlab/gget/issues/90))
 
 **Version ≥ 0.27.8** (July 12, 2023):  
-- New argument for [`gget search`](search.md): Specify the Ensembl release from which information is fetched with `-r` `--release`
+- **[`gget search`](search.md): Specify the Ensembl release from which information is fetched with new argument `-r` `--release`**  
 - Fixed [bug](https://github.com/pachterlab/gget/issues/91) in [`gget pdb`](pdb.md) (this bug was introduced in version 0.27.5)
 
 **Version ≥ 0.27.7** (May 15, 2023):  
@@ -49,7 +49,7 @@
 - Added `census_version` argument to [`gget cellxgene`](cellxgene.md).
 
 **Version ≥ 0.27.6** (May 1, 2023) (YANKED due to problems with dependencies -> replaced with version 0.27.7):  
-- Thanks to PR by [Tomás Di Domenico](https://github.com/tdido): [`gget search`](search.md) can now also query plant 🌱 Ensembl IDs.  
+**- Thanks to PR by [Tomás Di Domenico](https://github.com/tdido): [`gget search`](search.md) can now also query plant 🌱 Ensembl IDs.  **
 - New module: [`gget cellxgene`](cellxgene.md)  
 
 **Version ≥ 0.27.5** (April 6, 2023):  
