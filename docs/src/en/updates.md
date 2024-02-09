@@ -33,7 +33,7 @@
 - Allow missing gene filter for [`gget cellxgene`](cellxgene.md)  (fixes [bug](https://github.com/pachterlab/gget/issues/110))
 - [`gget seq`](./seq.md): Allow missing gene names (fixes [https://github.com/pachterlab/gget/issues/107](https://github.com/pachterlab/gget/issues/107))
 - **[`gget enrichr`](enrichr.md): Use new arguments `kegg_out` and `kegg_rank` to create an image of the KEGG pathway with the genes from the enrichment analysis highlighted (thanks to [this PR](https://github.com/pachterlab/gget/pull/106) by [Noriaki Sato](https://github.com/noriakis))**  
-- New modules: [`gget elm`](elm.md) and [`gget diamond`](diamond.md)  
+- **New modules: [`gget elm`](elm.md) and [`gget diamond`](diamond.md)**
   
 **Version ≥ 0.27.9** (August 7, 2023):  
 - **[`gget enrichr`](enrichr.md): Use new argument `background_list` to provide a list of background genes**  
@@ -49,8 +49,8 @@
 - Added `census_version` argument to [`gget cellxgene`](cellxgene.md).
 
 **Version ≥ 0.27.6** (May 1, 2023) (YANKED due to problems with dependencies -> replaced with version 0.27.7):  
-**- Thanks to PR by [Tomás Di Domenico](https://github.com/tdido): [`gget search`](search.md) can now also query plant 🌱 Ensembl IDs.  **
-- New module: [`gget cellxgene`](cellxgene.md)  
+- **Thanks to PR by [Tomás Di Domenico](https://github.com/tdido): [`gget search`](search.md) can now also query plant 🌱 Ensembl IDs.**
+- **New module: [`gget cellxgene`](cellxgene.md)**
 
 **Version ≥ 0.27.5** (April 6, 2023):  
 - Updated [`gget search`](search.md) to function correctly with new [Pandas](https://pypi.org/project/pandas/2.0.0/) version 2.0.0 (released on April 3rd, 2023) as well as older versions of Pandas
@@ -58,8 +58,8 @@
 - All gget modules now feature a `-q / --quiet` (Python: `verbose=False`) flag to turn off progress information
 
 **Version ≥ 0.27.4** (March 19, 2023):  
-- New module: [`gget gpt`](gpt.md)  
-
+- **New module: [`gget gpt`](gpt.md)**
+ 
 **Version ≥ 0.27.3** (March 11, 2023):  
 - [`gget info`](info.md) excludes PDB IDs by default to increase speed (PDB results can be included using flag `--pdb` / `pdb=True`).  
 
@@ -79,7 +79,7 @@
 - Reduced runtime for [`gget info`](info.md) and [`gget seq`](seq.md)
 
 **Version ≥ 0.3.11** (September 7, 2022):  
-- New module: [`gget pdb`](pdb.md)  
+- **New module: [`gget pdb`](pdb.md)**
 
 **Version ≥ 0.3.10** (September 2, 2022):  
 - [`gget alphafold`](alphafold.md) now also returns pLDDT values for generating plots from output without rerunning the program (also see the [gget alphafold FAQ](https://github.com/pachterlab/gget/discussions/39))
@@ -94,10 +94,10 @@
 - **NOTE:** The [Ensembl FTP site](http://ftp.ensembl.org/pub/) changed its structure on August 8, 2022. Please upgrade to `gget` version ≥ 0.3.7 if you use [`gget ref`](ref.md)  
 
 **Version ≥ 0.3.5** (August 6, 2022):  
-- New module: [`gget alphafold`](alphafold.md)  
+- **New module: [`gget alphafold`](alphafold.md)**
 
 **Version ≥ 0.2.6** (July 7, 2022):  
-- [`gget ref`](ref.md) now supports plant genomes! 🌱  
+- **[`gget ref`](ref.md) now supports plant genomes! 🌱**
 
 **Version ≥ 0.2.5** (June 30, 2022):  
 - **NOTE:** [UniProt](https://www.uniprot.org/) changed the structure of their API on June 28, 2022. Please upgrade to `gget` version ≥ 0.2.5 if you use any of the modules querying data from UniProt ([`gget info`](info.md) and [`gget seq`](seq.md)).
