@@ -1,9 +1,11 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
 ## gget elm 🎭
-Locally predict Eukaryotic Linear Motifs from an amino acid sequence or UniProt Acc using data from the [ELM database](http://elm.eu.org/). ELM data can be downloaded & distributed for non-commercial use according to the [ELM Software License Agreement](http://elm.eu.org/media/Elm_academic_license.pdf).  
-Return format: JSON (command-line) or data frame/CSV (Python). This module returns two data frames (or JSON formatted files) (see examples).     
+Locally predict Eukaryotic Linear Motifs from an amino acid sequence or UniProt Acc using data from the [ELM database](http://elm.eu.org/).   
+Return format: JSON (command-line) or data frame/CSV (Python). This module returns two data frames (or JSON formatted files) (see examples).  
 
-Before using `gget elm` for the first time, run `gget setup elm` / `gget.setup("elm")` once (also see [`gget setup`](setup.md)).   
+**ELM data can be downloaded & distributed for non-commercial use according to the [ELM Software License Agreement](http://elm.eu.org/media/Elm_academic_license.pdf).** 
+
+Before using `gget elm` for the first time, run `gget setup elm` (bash) / `gget.setup("elm")` (Python) once (also see [`gget setup`](setup.md)).   
 
 **Positional argument**  
 `sequence`  
