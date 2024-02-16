@@ -72,6 +72,7 @@
                 "branched_atom_count": 0,
                 "branched_entity_count": 0,
                 "branched_entity_instance_count": 0,
+                "deuterated_water_count": 0,
                 "entry_id": "1RH7",
                 "hydrogen_atom_count": 0,
                 "modeled_polymer_monomer_count": 243,
