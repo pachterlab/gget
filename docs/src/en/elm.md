@@ -7,6 +7,10 @@ Return format: JSON (command-line) or data frame/CSV (Python). This module retur
 
 Before using `gget elm` for the first time, run `gget setup elm` (bash) / `gget.setup("elm")` (Python) once (also see [`gget setup`](setup.md)).   
 
+If you use `gget elm` in a publication, please cite:
+- Laura Luebbert, Chi Hoang, Manjeet Kumar, Lior Pachter, Fast and scalable querying of eukaryotic linear motifs with gget elm, _Bioinformatics_, 2024, btae095, [https://doi.org/10.1093/bioinformatics/btae095](https://doi.org/10.1093/bioinformatics/btae095)
+- Manjeet Kumar, _et al._, The Eukaryotic Linear Motif resource: 2022 release, _Nucleic Acids Research_, Volume 50, Issue D1, 7 January 2022, Pages D497–D508, [https://doi.org/10.1093/nar/gkab975](https://doi.org/10.1093/nar/gkab975)
+
 **Positional argument**  
 `sequence`  
 Amino acid sequence or Uniprot Acc (str).  
