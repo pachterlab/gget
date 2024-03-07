@@ -4,8 +4,11 @@ Predice la estructura en 3D de cualquier proteína derivada de su secuencia de a
 Resultado: Predicción de la estructura (en formato PDB) y el errór de alineación (en formato json).  
 
 Antes de usar `gget alphafold` por primera vez:
-1. Instale openmm v7.5.1 (o v7.7.0 para Python >= 3.10) ejecutando el siguiente comando desde la línea de comando: `conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1` (o `openmm=7.7.0` para Python >= 3.10). (Recomendación: siga con `conda update -qy conda` para actualizar _conda_ a la última versión posteriormente.)  
-2. Corre `gget setup alphafold` / `gget.setup("alphafold")` (ver también [`gget setup`](setup.md)). Al ejecutar `gget setup alphafold` / `gget.setup("alphafold")` se descargará e instalará la última versión de AlphaFold2 alojada en el [AlphaFold GitHub Repo](https://github.com/deepmind/alphafold). Puede volver a ejecutar este comando en cualquier momento para actualizar el software cuando hay una nueva versión de AlphaFold.    
+1. Instale openmm v7.5.1 (o v7.7.0 para Python >= 3.10) ejecutando el siguiente comando desde la línea de comando:  
+   `conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1`  
+   (reemplazar con `openmm=7.7.0` para Python >= 3.10)  
+   Recomendación: siga con `conda update -qy conda` para actualizar _conda_ a la última versión.  
+3. Corre `gget setup alphafold` / `gget.setup("alphafold")` (ver también [`gget setup`](setup.md)). Al ejecutar `gget setup alphafold` / `gget.setup("alphafold")` se descargará e instalará la última versión de AlphaFold2 alojada en el [AlphaFold GitHub Repo](https://github.com/deepmind/alphafold). Puede volver a ejecutar este comando en cualquier momento para actualizar el software cuando hay una nueva versión de AlphaFold.    
 
 **Parámetro posicional**  
 `sequence`  
