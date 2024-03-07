@@ -5,6 +5,10 @@ Produce: Resultados en formato JSON (Terminal) o Dataframe/CSV (Python). Este m�
 
 **Los datos de ELM se pueden descargar y distribuir para uso no comercial de acuerdo con el [acuerdo de licencia de software de ELM](http://elm.eu.org/media/Elm_academic_license.pdf).**  
 
+Si utiliza `gget elm` en una publicación, favor de citar:  
+- Laura Luebbert, Chi Hoang, Manjeet Kumar, Lior Pachter, Fast and scalable querying of eukaryotic linear motifs with gget elm, _Bioinformatics_, 2024, btae095, [https://doi.org/10.1093/bioinformatics/btae095](https://doi.org/10.1093/bioinformatics/btae095)
+- Manjeet Kumar, _et al._, The Eukaryotic Linear Motif resource: 2022 release, _Nucleic Acids Research_, Volume 50, Issue D1, 7 January 2022, Pages D497–D508, [https://doi.org/10.1093/nar/gkab975](https://doi.org/10.1093/nar/gkab975)
+
 Antes de usar `gget elm` por primera vez, ejecute `gget setup elm` / `gget.setup("elm")` una vez (consulte también [`gget setup`](setup.md)).   
 
 **Parámetro posicional**  
