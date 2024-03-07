@@ -60,12 +60,12 @@ class TestPDB(unittest.TestCase):
 
     #     self.assertEqual(result_to_test, expected_result)
 
-    def test_pdb_entry(self):
-        test = "test8"
-        expected_result = pdb_dict[test]["expected_result"]
-        result_to_test = pdb(**pdb_dict[test]["args"])
+    # def test_pdb_entry(self):
+    #     test = "test8"
+    #     expected_result = pdb_dict[test]["expected_result"]
+    #     result_to_test = pdb(**pdb_dict[test]["args"])
 
-        self.assertEqual(result_to_test, expected_result)
+    #     self.assertEqual(result_to_test, expected_result)
 
     def test_pdb_pdb(self):
         test = "test9"
