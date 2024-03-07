@@ -30,6 +30,7 @@ Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference data
 
 - Si utiliza `gget elm`, favor de citar:  
   - Laura Luebbert, Chi Hoang, Manjeet Kumar, Lior Pachter, Fast and scalable querying of eukaryotic linear motifs with gget elm, Bioinformatics, 2024, btae095, [https://doi.org/10.1093/bioinformatics/btae095](https://doi.org/10.1093/bioinformatics/btae095)
+    
   - Manjeet Kumar, Sushama Michael, Jesús Alvarado-Valverde, Bálint Mészáros, Hugo Sámano‐Sánchez, András Zeke, Laszlo Dobson, Tamas Lazar, Mihkel Örd, Anurag Nagpal, Nazanin Farahi, Melanie Käser, Ramya Kraleti, Norman E Davey, Rita Pancsa, Lucía B Chemes, Toby J Gibson, The Eukaryotic Linear Motif resource: 2022 release, Nucleic Acids Research, Volume 50, Issue D1, 7 January 2022, Pages D497–D508, [https://doi.org/10.1093/nar/gkab975](https://doi.org/10.1093/nar/gkab975)
     
     
