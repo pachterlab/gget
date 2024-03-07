@@ -4,7 +4,7 @@ Predict the 3D structure of a protein from its amino acid sequence using a simpl
 Returns: Predicted structure (PDB) and alignment error (json).  
 
 Before using `gget alphafold` for the first time:  
-1. Install the third-party dependency openmm v7.5.1 (or v7.7.0 for Python >= 3.10) by running the following command from the command line: `conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1` (or `openmm=7.7.0` for Python >= 3.10). (Recommendation: Follow with 'conda update -qy conda' to update conda to the latest version afterwards.)  
+1. Install the third-party dependency openmm v7.5.1 (or v7.7.0 for Python >= 3.10) by running the following command from the command line: `conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1` (or `openmm=7.7.0` for Python >= 3.10). (Recommendation: Follow with `conda update -qy conda` to update conda to the latest version afterwards.)  
 2. Run `gget setup alphafold` / `gget.setup("alphafold")` once (also see [`gget setup`](setup.md)). Running `gget setup alphafold` / `gget.setup("alphafold")` will download and install the latest version of AlphaFold2 hosted on the [AlphaFold GitHub Repo](https://github.com/deepmind/alphafold). You can rerun this command any time to update the software after a new AlphaFold release.    
 
 **Positional argument**  
