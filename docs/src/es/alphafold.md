@@ -3,7 +3,7 @@
 Predice la estructura en 3D de cualquier proteína derivada de su secuencia de aminoácidos usando una versión simplificada del algoritmo [AlphaFold2](https://github.com/deepmind/alphafold) de [DeepMind](https://www.deepmind.com/), originalmente producido y publicado para [AlphaFold Colab](https://colab.research.google.com/github/deepmind/alphafold/blob/main/notebooks/AlphaFold.ipynb).  
 Resultado: Predicción de la estructura (en formato PDB) y el errór de alineación (en formato json).  
 
-Antes de usar `gget alphafold` por primera vez, corre `gget setup alphafold` / `gget.setup("alphafold")` (ver también [`gget setup`](setup.md)).  
+Antes de usar `gget alphafold` por primera vez, corre `gget setup alphafold` / `gget.setup("alphafold")` (ver también [`gget setup`](setup.md)). Al ejecutar `gget setup alphafold` / `gget.setup("alphafold")` se descargará e instalará la última versión de AlphaFold2 alojada en el [AlphaFold GitHub Repo](https://github.com/deepmind/alphafold). Puede volver a ejecutar este comando en cualquier momento para actualizar el software cuando hay una nueva versión de AlphaFold.    
 
 **Parámetro posicional**  
 `sequence`  
