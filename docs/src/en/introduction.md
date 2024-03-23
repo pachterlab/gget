@@ -16,6 +16,10 @@
 `gget` consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.   
 <br>
 
+[<kbd> <br> Request a new feature <br> </kbd>](https://github.com/pachterlab/gget/issues/new/choose)
+<br>
+
+
 [<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_alphafold.png?raw=true" width="32%" height="32%" />](/gget/en/alphafold.md)
 [<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_archs4.png?raw=true" width="32%" height="32%" />](/gget/en/archs4.md)
 [<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_blast.png?raw=true" width="32%" height="32%" />](/gget/en/blast.md)  
