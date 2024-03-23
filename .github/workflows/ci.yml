@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  schedule:
+    - cron: "0 16 * * 1,4"
+  push:
+    paths:
+    - 'gget/**'
+    - 'tests/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.9', '3.10']
+        os: ['ubuntu-22.04']
+    name: Test on Python ${{ matrix.python }}
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@main
+      - name: Setup python
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python }}
+          architecture: x64
+      - name: Install dependencies
+        run: pip install -r requirements.txt && pip install -r dev-requirements.txt
+      - name: Run tests
+        run: coverage run -m pytest -ra -v tests && coverage report --omit=main.py,tests*
