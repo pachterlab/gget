@@ -15,9 +15,10 @@
 <br>
 `gget` consiste en un conjunto de módulos separados pero interoperables, cada uno diseñado para facilitar un tipo de consulta de base de datos en una sola línea de código.
 <br>
+
+[<kbd> <br> Solicitar una nueva función <br> </kbd>](https://github.com/pachterlab/gget/issues/new/choose)
 <br>
-<br>
-<br>
+
 
 [<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_alphafold_es.png?raw=true" width="32%" height="32%" />](alphafold.md)
 [<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_archs4_es.png?raw=true" width="32%" height="32%" />](archs4.md)
