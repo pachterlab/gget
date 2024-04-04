@@ -7,7 +7,7 @@
         },
         "expected_result": [
             [
-                "PREDICTED: Homo sapiens uncharacterized LOC105373836 (LOC105373836), transcript variant X2, ncRNA",
+                "Homo sapiens ATAC-STARR-seq lymphoblastoid active region 16974 (LOC129935398) on chromosome 2",
                 "Homo sapiens",
                 "human",
                 9606,
@@ -16,8 +16,8 @@
                 "100%",
                 1e-53,
                 "100.00%",
-                2137,
-                "XR_923785.3"
+                460,
+                "NG_168413.1"
             ]
         ]
     },
@@ -30,7 +30,7 @@
         },
         "expected_result": [
             {
-                "Description": "PREDICTED: Homo sapiens uncharacterized LOC105373836 (LOC105373836), transcript variant X2, ncRNA",
+                "Description": "Homo sapiens ATAC-STARR-seq lymphoblastoid active region 16974 (LOC129935398) on chromosome 2",
                 "Scientific Name": "Homo sapiens",
                 "Common Name": "human",
                 "Taxid": 9606,
@@ -39,8 +39,8 @@
                 "Query Cover": "100%",
                 "E value": 1e-53,
                 "Per. Ident": "100.00%",
-                "Acc. Len": 2137,
-                "Accession": "XR_923785.3"
+                "Acc. Len": 460,
+                "Accession": "NG_168413.1"
             }
         ]
     },
