@@ -4,6 +4,7 @@ import requests
 # from requests.adapters import HTTPAdapter, Retry
 # import time
 import re
+import sys
 import os
 import uuid
 import pandas as pd
@@ -21,6 +22,15 @@ logging.basicConfig(
 logging.getLogger("numexpr").setLevel(logging.WARNING)
 
 from .constants import ENSEMBL_FTP_URL, ENSEMBL_FTP_URL_NV, ENS_TO_PDB_API
+
+def print_sys(s):
+    """system print
+
+    Args:
+        s (str): the string to print
+    """
+    print(s, flush = True, file = sys.stderr)
+
 
 def flatten(xss):
     """
