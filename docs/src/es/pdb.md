@@ -1,5 +1,5 @@
 > Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
-## gget pdb 🔮
+# gget pdb 🔮
 Obtenga la estructura o los metadatos de una proteína usando data de [RCSB Protein Data Bank (PDB)](https://www.rcsb.org/).  
 Regresa: El archivo 'pdb' se regresa en formato PDB. Todos los demás datos se regresan en formato JSON. 
 
@@ -77,3 +77,10 @@ gget.pdb("7CT5", save=True)
 &rarr; Este caso de uso ejemplifica cómo encontrar archivos PDB para un análisis comparativo de la estructura de las proteínas asociado con IDs de Ensembl o secuencias de aminoácidos. Los archivos PDB obtenidos también se pueden comparar con las estructuras predichas generadas por [`gget alphafold`](alphafold.md). Los archivos PDB se pueden ver de forma interactiva en 3D [aquí](https://rcsb.org/3d-view), o usando programas como [PyMOL](https://pymol.org/) o [Blender](https://www.blender.org/). Múltiple archivos PDB se pueden visualizar para comparación [aquí](https://rcsb.org/alignment).
   
 #### [Más ejemplos](https://github.com/pachterlab/gget_examples)
+
+# Citar    
+Si utiliza `gget pdb` en una publicación, favor de citar los siguientes artículos:
+
+- Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
+
+- Berman HM, Westbrook J, Feng Z, Gilliland G, Bhat TN, Weissig H, Shindyalov IN, Bourne PE. The Protein Data Bank. Nucleic Acids Res. 2000 Jan 1;28(1):235-42. doi: [10.1093/nar/28.1.235](https://doi.org/10.1093/nar/28.1.235). PMID: 10592235; PMCID: PMC102472.

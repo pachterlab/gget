@@ -1,4 +1,23 @@
 ## ✨ ¡Lo más reciente!  
+**Versión ≥ 0.29.0** (25 de septiembre de 2024):  
+- **Nuevos módulos:**
+    - [`gget cbio`](cbio.md)
+    - [`gget opentargets`](opentargets.md)
+    - [`gget bgee`](bgee.md)
+- **[`gget enrichr`](./enrichr.md) ahora también soporta especies además de humano y ratón (mosca, levadura, gusano y pez) a través de [modEnrichR](https://maayanlab.cloud/modEnrichr/)**
+- [`gget mutate`](./mutate.md):  
+  `gget mutate` ahora fusionará secuencias idénticas en el archivo final por defecto. La creación de mutaciones fue vectorizada para disminuir el tiempo de ejecución. Se mejoró la verificación de la secuencia flanqueante para mutaciones no sustitutivas para asegurarse de que no se retenga ningún kmer silvestre en la secuencia que contiene la mutación. Se agregó varios nuevos argumentos para personalizar la generación de secuencias y la salida.
+- [`gget cosmic`](./cosmic.md):  
+  Se agregó soporte para pantallas de genes así como dirigidas. El archivo CSV creado para gget mutate ahora también contiene información sobre mutaciones de proteínas.
+- [`gget ref`](./ref.md):  
+  Se agregó opción de archivo de salida.
+- [`gget info`](./info.md) y [`gget seq`](./seq.md):  
+  Se cambió a la API POST de Ensembl para aumentar la velocidad (nada cambia en el front end).
+- Otros cambios "detrás de escena":
+    - Pruebas unitarias reorganizadas para aumentar la velocidad y disminuir el código
+    - Requisitos actualizados para [permitir versiones más nuevas de mysql-connector](https://github.com/pachterlab/gget/pull/159)
+    - [Soporte para Numpy>= 2.0](https://github.com/pachterlab/gget/issues/157)
+  
 **Versión ≥ 0.28.6 (2 de junio de 2024):**
 - **Nuevo módulo: [`gget mutate`](./mutate.md)**
 - [`gget cosmic`](./cosmic.md): Ahora puedes descargar bases de datos completas de COSMIC utilizando el argumento `download_cosmic`

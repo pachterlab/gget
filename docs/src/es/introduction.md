@@ -20,24 +20,41 @@ Las bases de datos consultadas por `gget` se actualizan continuamente, lo que a 
 [<kbd> <br> Solicitar una nueva función <br> </kbd>](https://github.com/pachterlab/gget/issues/new/choose)
 <br>
 
+# Módulos gget
 
-[<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_alphafold_es.png?raw=true" width="32%" height="32%" />](alphafold.md)
-[<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_archs4_es.png?raw=true" width="32%" height="32%" />](archs4.md)
-[<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_blast_es.png?raw=true" width="32%" height="32%" />](blast.md)  
+Estos son los módulos principales de `gget`. Haga clic en cualquier módulo para acceder a la documentación detallada.
 
-[<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_blat_es.png?raw=true" width="32%" height="32%" />](blat.md)
-[<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_cellxgene_es.png?raw=true" width="32%" height="32%" />](cellxgene.md)
-[<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_enrichr_es.png?raw=true" width="32%" height="32%" />](enrichr.md)  
-
-[<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_info_es.png?raw=true" width="32%" height="32%" />](info.md)
-[<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_muscle_es.png?raw=true" width="32%" height="32%" />](muscle.md)
-[<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_pdb_es.png?raw=true" width="32%" height="32%" />](pdb.md)  
-
-[<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_ref_es.png?raw=true" width="32%" height="32%" />](ref.md)
-[<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_search_es.png?raw=true" width="32%" height="32%" />](search.md)
-[<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_seq_es.png?raw=true" width="32%" height="32%" />](seq.md) 
-
-### [Más tutoriales](https://github.com/pachterlab/gget_examples)
+<table style="width:100%; table-layout:fixed;">
+  <tr>
+    <td style="width:25%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/es/alphafold.md"><strong>gget alphafold</strong></a><br>Predecir la estructura 3D de una proteína a partir de una secuencia de aminoácidos.</td>
+    <td style="width:25%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/es/archs4.md"><strong>gget archs4</strong></a><br>¿Cuál es la expresión de mi gen en el tejido X?</td>
+    <td style="width:25%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/es/bgee.md"><strong>gget bgee</strong></a><br>Encontrar todos los ortólogos de un gen.</td>
+    <td style="width:25%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/es/blast.md"><strong>gget blast</strong></a><br>Realizar un BLAST de una secuencia de nucleótidos o aminoácidos.</td>
+  </tr>
+  <tr>
+    <td style="width:25%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/es/blat.md"><strong>gget blat</strong></a><br>Encontrar la ubicación genómica de una secuencia de nucleótidos o aminoácidos.</td>
+    <td style="width:25%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/es/cbio.md"><strong>gget cbio</strong></a><br>Explorar la expresión de un gen en los cánceres especificados.</td>
+    <td style="width:25%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/es/cellxgene.md"><strong>gget cellxgene</strong></a><br>Obtener matrices de conteo de ARN de células individuales listas para usar para ciertos tejidos/enfermedades/etc.</td>
+    <td style="width:25%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/es/cosmic.md"><strong>gget cosmic</strong></a><br>Buscar genes, mutaciones y otros factores asociados con ciertos cánceres.</td>
+  </tr>
+  <tr>
+    <td style="width:25%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/es/diamond.md"><strong>gget diamond</strong></a><br>Alinear secuencias de aminoácidos a una referencia.</td>
+    <td style="width:25%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/es/elm.md"><strong>gget elm</strong></a><br>Encontrar dominios y funciones de interacción de proteínas en una secuencia de aminoácidos.</td>
+    <td style="width:25%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/es/enrichr.md"><strong>gget enrichr</strong></a><br>Verificar si una lista de genes está asociada con un tipo celular específico/ vía/ enfermedad/ etc.</td>
+    <td style="width:25%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/es/info.md"><strong>gget info</strong></a><br>Recuperar toda la información asociada con un ID de Ensembl.</td>
+  </tr>
+  <tr>
+    <td style="width:25%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/es/muscle.md"><strong>gget muscle</strong></a><br>Alinear múltiples secuencias de nucleótidos o aminoácidos entre sí.</td>
+    <td style="width:25%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/es/mutate.md"><strong>gget mutate</strong></a><br>Mutar secuencias de nucleótidos según mutaciones específicas.</td>
+    <td style="width:25%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/es/opentargets.md"><strong>gget opentargets</strong></a><br>Explorar qué enfermedades y medicamentos están asociados con un gen.</td>
+    <td style="width:25%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/es/pdb.md"><strong>gget pdb</strong></a><br>Recuperar datos de la Base de Datos de Proteínas (PDB) según un ID de PDB.</td>
+  </tr>
+  <tr>
+    <td style="width:25%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/es/ref.md"><strong>gget ref</strong></a><br>Obtener genomas de referencia de Ensembl.</td>
+    <td style="width:25%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/es/search.md"><strong>gget search</strong></a><br>Encontrar IDs de Ensembl asociados con la palabra de búsqueda especificada.</td>
+    <td style="width:25%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/es/seq.md"><strong>gget seq</strong></a><br>Recuperar la secuencia de nucleótidos o aminoácidos de un gen.</td>
+  </tr>
+</table>
 
 <br>  
 
@@ -51,3 +68,6 @@ Gracias a [Victor Garcia-Ruiz](https://github.com/victorg775) y [Anna Karen Orta
 
 <br>  
 <iframe width="560" height="315" src="https://www.youtube.com/embed/cVR0k6Mt97o?si=BJwRyaymmxF9w65f" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+![logo-bmbf](https://github.com/user-attachments/assets/68449ba0-09d1-4f1e-b747-5ae2fec08a21)
+![logo-okfn](https://github.com/user-attachments/assets/452ae8d8-69f0-4d0d-848c-ddfb40357eb2)

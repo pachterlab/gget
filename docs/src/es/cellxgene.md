@@ -1,5 +1,5 @@
 > Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Las banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
-## gget cellxgene 🍱  
+# gget cellxgene 🍱  
 Query data de la base de datos [CZ CELLxGENE Discover](https://cellxgene.cziscience.com/) usando [CZ CELLxGENE Discover Census](https://github.com/chanzuckerberg/cellxgene-census).  
 Produce: Un objeto AnnData que contiene la matriz de recuentos de genes y los metadatos de resultados de single cell RNA-seq de los tejidos/genes/etcetera previamente definidos.  
 
@@ -135,3 +135,10 @@ df
 &rarr; Produce solo los metadatos de los conjuntos de datos de ENSMUSG00000015405 (ACE2), los cuales corresponden a células pulmonares murinas.  
 
 Ver también: [https://chanzuckerberg.github.io/cellxgene-census/notebooks/api_demo/census_gget_demo.html](https://chanzuckerberg.github.io/cellxgene-census/notebooks/api_demo/census_gget_demo.html)
+
+# Citar    
+Si utiliza `gget cellxgene` en una publicación, favor de citar los siguientes artículos:
+
+- Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
+
+- Chanzuckerberg Initiative. (n.d.). CZ CELLxGENE Discover. Retrieved [insert date here], from [https://cellxgene.cziscience.com/](https://cellxgene.cziscience.com/)

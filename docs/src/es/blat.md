@@ -1,5 +1,5 @@
 > Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
-## gget blat 🎯
+# gget blat 🎯
 Encuentra la ubicación genómica de una secuencia de nucleótidos o aminoácidos usando [BLAT](https://genome.ucsc.edu/cgi-bin/hgBlat).   
 Produce: Resultados en formato JSON (Terminal) o Dataframe/CSV (Python).  
 
@@ -45,3 +45,10 @@ gget.blat("MKWMFKEDHSLEHRCVESAKIRAKYPDRVPVIVEKVSGSQIVDIDKRKYLVPSDITVAQFMWIIRKRIQ
 | taeGut2| 88 | 	12 | 88 | 77 | 0 | 87.5 | ... |
 
 #### [Màs ejemplos](https://github.com/pachterlab/gget_examples)
+
+# Citar    
+Si utiliza `gget blat` en una publicación, favor de citar los siguientes artículos:
+
+- Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
+
+- Kent WJ. BLAT--the BLAST-like alignment tool. Genome Res. 2002 Apr;12(4):656-64. doi: 10.1101/gr.229202. PMID: 11932250; PMCID: PMC187518.

@@ -2,6 +2,7 @@
 
 [Introduction](en/introduction.md)  
 [What's New?](en/updates.md)  
+[Dependents & News](en/dependents.md)  
 
 # User Guide
 * [Installation](en/installation.md)  
@@ -41,6 +42,7 @@
 # Español
 * [Introdución](es/introduction.md)  
 * [¡Lo más reciente!](es/updates.md)
+* [Dependientes y Noticias](es/dependents.md)   
 
 # Guía del usario
 * [Instalación](es/installation.md)  
@@ -49,8 +51,10 @@
 # Manuál
 * [gget alphafold](es/alphafold.md)  
 * [gget archs4](es/archs4.md)  
+* [gget bgee](es/bgee.md)  
 * [gget blast](es/blast.md)  
 * [gget blat](es/blat.md)  
+* [gget cbio](es/cbio.md)  
 * [gget cellxgene](es/cellxgene.md)
 * [gget cosmic](es/cosmic.md)  
 * [gget diamond](es/diamond.md)  
@@ -60,6 +64,7 @@
 * [gget info](es/info.md)  
 * [gget muscle](es/muscle.md)
 * [gget mutate](es/mutate.md)  
+* [gget opentargets](es/opentargets.md)   
 * [gget pdb](es/pdb.md)  
 * [gget ref](es/ref.md)  
 * [gget search](es/search.md)  

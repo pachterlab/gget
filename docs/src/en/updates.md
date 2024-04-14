@@ -1,42 +1,4 @@
 ## ✨ What's new  
-**Version ≥ 0.29.1** (XXX):  
-- [`gget mutate`](mutate.md):  
-  gget mutate has been simplified to focus on taking as input a list of mutations and associated reference genome with corresponding annotation information, and produce as output the sequences with the mutation incorporated and a short region of surrounding context. For the full functionality of the previous version and how it integrates in the context of a novel variant screening pipeline, visit the varseek repository being developed by members of the gget team at https://github.com/pachterlab/varseek.git.
-- [`gget cosmic`](cosmic.md):  
-  new arguments `email` and `password` were added to allow the user to manually enter their login credentials without required input for data download.
-- [`gget bgee`](bgee.md):  
-  `type="orthologs"` is now the default, removing the need to specify the `type` argument when calling orthologs
-- [`gget diamond`](diamond.md):  
-  Now supports translated alignment of nucleotide sequences to amino acid reference sequences using the `--translated` flag.
-
-**Version ≥ 0.29.0** (Sep 25, 2024):  
-- **New modules:**
-    - [`gget cbio`](cbio.md)
-    - [`gget opentargets`](opentargets.md)
-    - [`gget bgee`](bgee.md)
-- **[`gget enrichr`](./enrichr.md) now also supports species other than human (fly, yeast, worm, and fish) via [modEnrichR](https://maayanlab.cloud/modEnrichr/)**
-- [`gget mutate`](./mutate.md):  
-  `gget mutate` will now merge identical sequences in the final file by default. Mutation creation was vectorized to decrease runtime. Improved flanking sequence check for non-substitution mutations to make sure no wildtype kmer is retained in the mutation-containing sequence. Addition of several new arguments to customize sequence generation and output.
-- [`gget cosmic`](./cosmic.md):  
-  Added support for targeted as well as gene screens. The CSV file created for gget mutate now also contains protein mutation info.
-- [`gget ref`](./ref.md):  
-  Added out file option.
-- [`gget info`](./info.md) and [`gget seq`](./seq.md):  
-  Switched to Ensembl POST API to increase speed (nothing changes in front end).
-- Other "behind the scenes" changes:
-    - Unit tests reorganized to increase speed and decrease code
-    - Requirements updated to [allow newer mysql-connector versions](https://github.com/pachterlab/gget/pull/159)
-    - [Support Numpy>= 2.0](https://github.com/pachterlab/gget/issues/157)
-
-**Version ≥ 0.28.6** (Jun 2, 2024):  
-- **New module: [`gget mutate`](./mutate.md)**
-- [`gget cosmic`](./cosmic.md): You can now download entire COSMIC databases using the argument `download_cosmic` argument
-- [`gget ref`](./ref.md): Can now fetch the GRCh37 genome assembly using `species='human_grch37'`
-- [`gget search`](./search.md): Adjust access of human data to the structure of Ensembl release 112 (fixes [issue 129](https://github.com/pachterlab/gget/issues/129))
-
-~~**Version ≥ 0.28.5** (May 29, 2024):~~ 
-- Yanked due to logging bug in `gget.setup("alphafold")` + inversion mutations in `gget mutate` only reverse the string instead of also computing the complementary strand
-  
 **Version ≥ 0.28.4** (January 31, 2024):  
 - [`gget setup`](./setup.md): Fix bug with filepath when running `gget.setup("elm")` on Windows OS.  
   
@@ -51,7 +13,7 @@
   - The regex string for regular expression matches was encapsulated as follows: "(?=(regex))" (instead of directly passing the regex string "regex") to enable capturing all occurrences of a motif when the motif length is variable and there are repeats in the sequence ([https://regex101.com/r/HUWLlZ/1](https://regex101.com/r/HUWLlZ/1)).
 - [`gget setup`](./setup.md): Use the `out` argument to specify a directory the ELM database will be downloaded into. Completes [this feature request](https://github.com/pachterlab/gget/issues/119).
 - [`gget diamond`](./diamond.md): The DIAMOND command is now run with `--ignore-warnings` flag, allowing niche sequences such as amino acid sequences that only contain nucleotide characters and repeated sequences. This is also true for DIAMOND alignments performed within [`gget elm`](./elm.md).
-- **[`gget ref`](./ref.md) and [`gget search`](./search.md) back-end change: the current Ensembl release is fetched from the new [release file](https://ftp.ensembl.org/pub/VERSION) on the Ensembl FTP site to avoid errors during uploads of new releases.**
+- [`gget ref`](./ref.md) and [`gget search`](./search.md) back-end change: the current Ensembl release is fetched from the new [release file](https://ftp.ensembl.org/pub/VERSION) on the Ensembl FTP site to avoid errors during uploads of new releases.
 - [`gget search`](./search.md): 
   - FTP link results (`--ftp`) are saved in txt file format instead of json.
   - Fix URL links to Ensembl gene summary for species with a subspecies name and invertebrates.

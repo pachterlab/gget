@@ -1,4 +1,4 @@
-## 🪄 Guía de inicio rápido
+# 🪄 Guía de inicio rápido
 Terminal:
 ```bash
 # Obtenga todos los FTP de anotaciones y referencias de Homo sapiens de la última versión de Ensembl

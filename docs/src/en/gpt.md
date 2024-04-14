@@ -1,5 +1,5 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
-## gget gpt 💬
+# gget gpt 💬
 Generates natural language text based on a given prompt using the [OpenAI](https://openai.com/) API's 'openai.ChatCompletion.create' endpoint. 
 This module, including its source code, documentation and unit tests, were partly written by OpenAI's Chat-GTP3.  
 
