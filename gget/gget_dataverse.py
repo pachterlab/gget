@@ -4,7 +4,7 @@ from tqdm import tqdm
 import urllib.request
 import json
 from .utils import print_sys
-from constants import DATAVERSE_GET_URL
+from .constants import DATAVERSE_GET_URL
 
 def dataverse_downloader(url, path, file_name):
     """dataverse download helper with progress bar
