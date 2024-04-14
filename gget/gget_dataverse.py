@@ -59,17 +59,24 @@ def download_wrapper(entry, path, return_type=None):
         return url, filename
 
 
-def process_remote_json(url):
-    """process a remote json file
+def process_remote_json(url, save=False):
+    """Process a remote JSON file.
 
     Args:
-        url (str): the url of the remote json file
+        url (str): The URL of the remote JSON file.
+        save (bool, optional): Whether to save the JSON file locally. Defaults to False.
 
     Returns:
-        dict: the remote json file information as a dictionary
+        dict: The remote JSON file information as a dictionary.
     """
     response = urllib.request.urlopen(url)
     data = json.loads(response.read())
+
+    # Save JSON
+    if save:
+        with open(save, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False)
+
     return data
 
 
