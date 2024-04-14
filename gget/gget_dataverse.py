@@ -59,6 +59,22 @@ def download_wrapper(entry, path, return_type=None):
         return url, filename
 
 
+def process_local_json(filename):
+    """Process a local JSON file.
+
+    Args:
+        filename (str): The path to the local JSON file.
+    
+    Returns:
+        dict: The local JSON file information as a dictionary.
+    """
+    
+    f = open(filename, 'r')
+    data = json.load(f)
+
+    return data
+
+
 def process_remote_json(url, save=False):
     """Process a remote JSON file.
 
@@ -84,18 +100,21 @@ def dataverse(data, path=None, run_download=False, save_json=None):
     """process a json file including the dataverse datasets information and download the datasets
 
     Args:
-        data (str or dict): the remote json file or a local dictionary containing the datasets information.
+        data (str or dict): list of datasets to download in JSON format. URL, path to a local file, or a python dictionary.
         path (str, optional): the path to save the datasets. Defaults to None.
         run_download (bool, optional): whether to download the datasets. Defaults to True.
         save_json (str): path to save JSON file. Defaults to None.
     """
     if "https" in data or "http" in data:
         data = process_remote_json(data, save=save_json)
+    elif type(data) == str and '.json' in data:
+        data = process_local_json(data)
     elif type(data) == dict:
-        if "datasets" not in data:
-            raise ValueError("The json file must include proper 'datasets' key")
-        else:
-            pass
+        pass
+
+    if "datasets" not in data:
+        # TODO: Add more error handling
+        raise ValueError("The json file must include proper 'datasets' key")
 
     if not path and not run_download:
         pass
