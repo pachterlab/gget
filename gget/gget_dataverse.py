@@ -80,16 +80,17 @@ def process_remote_json(url, save=False):
     return data
 
 
-def dataverse(data, path=None, run_download=False):
+def dataverse(data, path=None, run_download=False, save_json=None):
     """process a json file including the dataverse datasets information and download the datasets
 
     Args:
         data (str or dict): the remote json file or a local dictionary containing the datasets information.
         path (str, optional): the path to save the datasets. Defaults to None.
         run_download (bool, optional): whether to download the datasets. Defaults to True.
+        save_json (str): path to save JSON file. Defaults to None.
     """
     if "https" in data or "http" in data:
-        data = process_remote_json(data)
+        data = process_remote_json(data, save=save_json)
     elif type(data) == dict:
         if "datasets" not in data:
             raise ValueError("The json file must include proper 'datasets' key")
