@@ -38,6 +38,7 @@ from .gget_cellxgene import cellxgene
 from .gget_elm import elm
 from .gget_diamond import diamond
 from .gget_cosmic import cosmic
+from .gget_dataverse import dataverse
 
 
 def main():
@@ -1759,6 +1760,36 @@ def main():
         help="Do not print progress information.",
     )
 
+    # dataverse parser arguments
+    dataverse_desc = "Collect datasets from Harvard Dataverse container using a defined JSON file"
+    parser_dataverse = parent_subparsers.add_parser(
+        "dataverse",
+        parents=[parent],
+        description=dataverse_desc,
+        help=dataverse_desc,
+        add_help=True,
+    )
+
+    parser_dataverse.add_argument(
+        "-j",
+        "--json",
+        default=None,
+        required=False,
+        help='URL link to JSON file including predefined list of datasets.'
+    )
+    
+    parser_dataverse.add_argument(
+        "-o",
+        "--out",
+        type=str,
+        required=False,
+        help=(
+            "Path to the file the results will be saved in, e.g. path/to/directory/\n"
+            "Default: Standard out."
+        ),
+    )
+
+
     ### Define return values
     args = parent_parser.parse_args()
 
@@ -1806,6 +1837,7 @@ def main():
         "elm": parser_elm,
         "diamond": parser_diamond,
         "cosmic": parser_cosmic,
+        "dataverse": parser_dataverse,
     }
 
     if len(sys.argv) == 2:
@@ -2594,3 +2626,12 @@ def main():
                         json.dump(pdb_results, f, ensure_ascii=False, indent=4)
                 else:
                     print(json.dumps(pdb_results, ensure_ascii=False, indent=4))
+
+    ## dataverse return
+    if args.command == "dataverse":
+        dataverse(
+            data = args.json,
+            path = args.out,
+            run_download=True,
+            save_json=args.out + 'dataverse.json'
+        )
