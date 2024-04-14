@@ -1,19 +1,20 @@
 import os
 import requests
 from tqdm import tqdm
-from utils import print_sys
+import urllib.request
+import json
+from .utils import print_sys
+from constants import DATAVERSE_GET_URL
 
-
-def dataverse_download(url, path, name, types):
+def dataverse_downloader(url, path, file_name):
     """dataverse download helper with progress bar
 
     Args:
-        url (str): the url of the dataset
-        path (str): the path to save the dataset
-        name (str): the dataset name
-        types (dict): a dictionary mapping from the dataset name to the file format
+        url (str): the url of the dataset to download
+        path (str): the path to save the dataset locally
+        file_name (str): the name of the file to save locally
     """
-    save_path = os.path.join(path, f"{name}.{types[name]}")
+    save_path = os.path.join(path, file_name)
     response = requests.get(url, stream=True)
     total_size_in_bytes = int(response.headers.get("content-length", 0))
     block_size = 1024
@@ -25,36 +26,73 @@ def dataverse_download(url, path, name, types):
     progress_bar.close()
 
 
-def download_wrapper(name, path, return_type=None):
+def download_wrapper(entry, path, return_type=None):
     """wrapper for downloading a dataset given the name and path, for csv,pkl,tsv or similar files
 
     Args:
-        name (str): the rough dataset query name
-        path (str): the path to save the dataset
-        return_type (str, optional): the return type. Defaults to None. Can be "url", "name", or ["url", "name"]
+        entry (dict): the entry of the dataset to download. Must include 'id', 'name', 'type' keys
+        path (str): the path to save the dataset locally
+        return_type (str, optional): the return type. Defaults to None. Can be "url", "filename", or ["url", "filename"]
 
     Returns:
         str: the exact dataset query name
     """
-    server_path = "https://dataverse.harvard.edu/api/access/datafile/"
-
-    url = server_path + str(name2id[name])
+    url = DATAVERSE_GET_URL + str(entry['id'])
 
     if not os.path.exists(path):
         os.mkdir(path)
 
-    file_name = f"{name}.{name2type[name]}"
+    filename = f"{entry['name']}.{entry['type']}"
 
-    if os.path.exists(os.path.join(path, file_name)):
-        print_sys("Found local copy...")
-        os.path.join(path, file_name)
+    if os.path.exists(os.path.join(path, filename)):
+        print_sys(f"Found local copy for {entry['id']} datafile as {filename} ...")
+        os.path.join(path, filename)
     else:
-        print_sys("Downloading...")
-        dataverse_download(url, path, name, name2type)
+        print_sys(f"Downloading {entry['id']} datafile as {filename} ...")
+        dataverse_downloader(url, path, filename)
     
     if return_type == "url":
         return url
-    elif return_type == "name":
-        return file_name
-    elif return_type == ["url", "name"]:
-        return url, file_name
+    elif return_type == "filename":
+        return filename
+    elif return_type == ["url", "filename"]:
+        return url, filename
+
+
+def process_remote_json(url):
+    """process a remote json file
+
+    Args:
+        url (str): the url of the remote json file
+
+    Returns:
+        dict: the remote json file information as a dictionary
+    """
+    response = urllib.request.urlopen(url)
+    data = json.loads(response.read())
+    return data
+
+
+def dataverse(data, path=None, run_download=False):
+    """process a json file including the dataverse datasets information and download the datasets
+
+    Args:
+        data (str or dict): the remote json file or a local dictionary containing the datasets information.
+        path (str, optional): the path to save the datasets. Defaults to None.
+        run_download (bool, optional): whether to download the datasets. Defaults to True.
+    """
+    if "https" in data or "http" in data:
+        data = process_remote_json(data)
+    elif type(data) == dict:
+        if "datasets" not in data:
+            raise ValueError("The json file must include proper 'datasets' key")
+        else:
+            pass
+
+    if not path and not run_download:
+        pass
+    elif not path and run_download:
+        raise ValueError("Please provide a path to save the datasets and set run_download=True")
+    elif run_download:
+        for entry in data['datasets']:
+            download_wrapper(entry, path)

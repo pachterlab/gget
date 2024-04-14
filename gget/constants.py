@@ -45,3 +45,6 @@ ELM_INTDOMAINS_TSV_DOWNLOAD = "http://elm.eu.org/interactiondomains.tsv"
 
 # COSMIC API endpoint
 COSMIC_GET_URL = "https://cancer.sanger.ac.uk/cosmic/search/"
+
+# Harvard dataverse API server
+DATAVERSE_GET_URL = "https://dataverse.harvard.edu/api/access/datafile/"
