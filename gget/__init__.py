@@ -16,6 +16,7 @@ from .gget_elm import elm
 from .gget_diamond import diamond
 from .gget_cosmic import cosmic
 from .gget_mutate import mutate
+from .gget_dataverse import dataverse
 from .gget_opentargets import opentargets
 from .gget_cbio import cbio_plot, cbio_search
 from .gget_bgee import bgee
@@ -24,6 +25,6 @@ import logging
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
 
-__version__ = "0.29.0"
+__version__ = "0.29.1"
 __author__ = "Laura Luebbert"
 __email__ = "lauralubbert@gmail.com"

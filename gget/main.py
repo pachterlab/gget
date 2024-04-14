@@ -3290,6 +3290,20 @@ def main():
                 else:
                     print(json.dumps(pdb_results, ensure_ascii=False, indent=4))
 
+    ## dataverse return
+    if args.command == "dataverse":
+        # Define separator based on file extension
+        if '.csv' in args.table:
+            sep = ','
+        elif '.tsv' in args.table:
+            sep = '\t'
+        # Run gget dataverse function
+        dataverse(
+            df = args.table,
+            path = args.out,
+            sep = sep,
+        )
+    
     ## opentargets return
     if args.command == "opentargets":
         flag_to_filter_id = {
