@@ -13,9 +13,10 @@
   
 `gget` es un programa gratuito de código fuente abierta de Terminal y Python que permite la consulta eficiente de bases de datos genómicas.  
 <br>
-`gget` consiste en un conjunto de módulos separados pero interoperables, cada uno diseñado para facilitar un tipo de consulta de base de datos en una sola línea de código.
+`gget` consiste en un conjunto de módulos separados pero interoperables, cada uno diseñado para facilitar un tipo de consulta de base de datos en una sola línea de código.  
 <br>
-
+Las bases de datos consultadas por `gget` se actualizan continuamente, lo que a veces cambia su estructura. Los módulos `gget` se prueban automáticamente cada dos semanas y se actualizan para que coincidan con las nuevas estructuras de la base de datos cuando es necesario. Si encuentra algún problema, actualice a la última versión de `gget` usando `pip install --upgrade gget`. Si el problema persiste, [informa el problema](https://github.com/pachterlab/gget/issues/new/choose).  
+<br>
 [<kbd> <br> Solicitar una nueva función <br> </kbd>](https://github.com/pachterlab/gget/issues/new/choose)
 <br>
 
