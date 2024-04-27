@@ -1,12 +1,12 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python.  The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
 ## gget cosmic 🪐
-Search for genes, mutations, etc associated with cancers using the [COSMIC](https://cancer.sanger.ac.uk/cosmic) (Catalogue Of Somatic Mutations In Cancer) database.  
+Search for genes, mutations, and other factors associated with cancer using the [COSMIC](https://cancer.sanger.ac.uk/cosmic) (Catalogue Of Somatic Mutations In Cancer) database.  
 Return format: JSON (command-line) or data frame/CSV (Python).  
 This module was written by [@AubakirovArman](https://github.com/AubakirovArman).
 
 **Positional argument**  
 `searchterm`   
-Search term, which can be a mutation, or gene (or Ensembl ID), or sample, etc. as defined using the `entity` argument. Example: 'EGFR'  
+Search term, which can be a mutation, gene name (or Ensembl ID), cancer type, tumor site, study ID, PubMed ID, or sample ID, as defined using the `entity` argument. Example: 'EGFR'  
 
 **Optional arguments**  
 `-e` `--entity`  
