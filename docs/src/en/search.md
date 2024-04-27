@@ -13,10 +13,12 @@ One or more free form search words, e.g. gaba nmda. (Note: Search is not case-se
 Species or database to be searched.  
 A species can be passed in the format 'genus_species', e.g. 'homo_sapiens' or 'arabidopsis_thaliana'.  
 To pass a specific database, pass the name of the CORE database, e.g. 'mus_musculus_dba2j_core_105_1'.  
+  
 All available core databases can be found here:  
 Vertebrates: [http://ftp.ensembl.org/pub/current/mysql/](http://ftp.ensembl.org/pub/current/mysql/)  
 Invertebrates: [http://ftp.ensemblgenomes.org/pub/current/](http://ftp.ensemblgenomes.org/pub/current/) + select kingdom + go to mysql/  
-Supported shortcuts: 'human', 'mouse'.  
+  
+Supported shortcuts: 'human', 'mouse'  
 
 **Optional arguments**  
 `-r` `--release`   

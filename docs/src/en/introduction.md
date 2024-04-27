@@ -15,7 +15,8 @@
 <br>
 `gget` consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.   
 <br>
-
+The databases queried by `gget` are continuously being updated which sometimes changes their structure. `gget` modules are tested automatically on a biweekly basis and updated to match new database structures when necessary. If you encounter a problem, please upgrade to the latest `gget` version using `pip install --upgrade gget`. If the problem persists, please [report the issue](https://github.com/pachterlab/gget/issues/new/choose).  
+<br>
 [<kbd> <br> Request a new feature <br> </kbd>](https://github.com/pachterlab/gget/issues/new/choose)
 <br>
 
