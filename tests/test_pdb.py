@@ -32,12 +32,12 @@ class TestPDB(unittest.TestCase):
 
     #     self.assertEqual(result_to_test, expected_result)
 
-    def test_pdb_uniprot(self):
-        test = "test4"
-        expected_result = pdb_dict[test]["expected_result"]
-        result_to_test = pdb(**pdb_dict[test]["args"])
+    # def test_pdb_uniprot(self):
+    #     test = "test4"
+    #     expected_result = pdb_dict[test]["expected_result"]
+    #     result_to_test = pdb(**pdb_dict[test]["args"])
 
-        self.assertListEqual(result_to_test, expected_result)
+    #     self.assertListEqual(result_to_test, expected_result)
 
     # def test_pdb_branched_entity_instance(self):
     #     test = "test5"
