@@ -6,12 +6,12 @@ Produce: Resultados en formato JSON (Terminal) o Dataframe/CSV (Python).
 
 **Parámetro posicional**  
 `searchterm`   
-Término de búsqueda. Puede ser una mutación, un gen (o ID de Ensembl), una muestra, etc., tal como se define con el argumento `entity`. Ejemplo: 'EGFR'  
+Término de búsqueda. Puede ser una mutación, un nombre de gen (o ID de Ensembl), tipo de cáncer, sitio del tumor, ID de estudio, ID de PubMed o ID de muestra, tal como se define con el argumento `entity`. Ejemplo: 'EGFR'  
 
 **Parámetros optionales**  
 `-e` `--entity`  
-'mutations', 'genes', 'cancer', 'tumour site', 'studies', 'pubmed', o 'samples'. Por defecto: 'mutations'.  
-Define el tipo de término de búsqueda (`searchterm`).
+'mutations' (mutación), 'genes' (nombre de gen / ID de Ensembl), 'cancer' (tipo de cáncer), 'tumour site' (sitio del tumor), 'studies' (ID de estudio), 'pubmed' (ID de PubMed), o 'samples' (ID de muestra). Por defecto: 'mutations'.  
+Define el tipo de término de búsqueda (`searchterm`).  
 
 `-l` `--limit`  
 Limita el número de resultados producidos. Por defecto: 100.  
