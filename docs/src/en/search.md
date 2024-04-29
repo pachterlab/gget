@@ -23,7 +23,7 @@ Supported shortcuts: 'human', 'mouse'
 **Optional arguments**  
 `-r` `--release`   
 Defines the Ensembl release number from which the files are fetched, e.g. 104. Default: None -> latest Ensembl release is used.  
-Note: *Does not apply to invertebrate species* (you can pass a specific core database (which includes a release number) to the `species` argument instead).  
+Note: *Does not apply to invertebrate species* (you can pass a specific core database (which includes a release number) to the `species` argument instead). For invertebrate species, Ensembl only stores databases from 10 releases prior to the current release.    
 This argument is overwritten if a specific database (which includes a release number) is passed to the species argument.   
 
 `-t` `--id_type`  
