@@ -23,7 +23,9 @@ Accesos directos: 'human', 'mouse'
 **Parámetros optionales**  
 `-r` `--release`   
 Define el número de versión de Ensembl desde el que se obtienen los archivos, p. ej. 104. Por defecto: None -> se usa la última versión de Ensembl.  
-Nota: *No se aplica a las especies invertebrados* (en su lugar, puede pasar una base de datos de una especies específica (incluyen un número de versión) al argumento `species`).    
+  
+Nota: *No se aplica a las especies invertebrados* (en su lugar, puede pasar una base de datos de una especies específica (incluyen un número de versión) al argumento `species`). Para especies de invertebrados, Ensembl solo almacena bases de datos de 10 versiones anteriores a la versión actual.    
+  
 Este argumento se sobrescribe si se pasa una base de datos específica (que incluye un número de publicación) al argumento `species`.  
 
 `-t` `--id_type`  

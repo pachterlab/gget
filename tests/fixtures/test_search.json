@@ -515,23 +515,25 @@
             "searchwords": [
                 "CLF"
             ],
-            "species": "arabidopsis_thaliana_core_49_102_11"
+            "species": "arabidopsis_thaliana_core_58_111_11"
         },
         "expected_result": [
             [
                 "AT2G23380",
                 "CLF",
-                "Histone-lysine N-methyltransferase CLF [Source:UniProtKB/Swiss-Prot;Acc:P93831]",
-                "",
+                "SET domain-containing protein [Source:NCBI gene (formerly Entrezgene);Acc:816870]",
+                "SET domain-containing protein",
                 "protein_coding",
                 [
-                    "At2g23380",
+                    "CURLY LEAF",
                     "F26B6.3",
+                    "F26B6_3",
                     "ICU1",
-                    "PIF1",
-                    "PIF2",
+                    "INCURVATA 1",
                     "SDG1",
-                    "SET1"
+                    "SET1",
+                    "SETDOMAIN 1",
+                    "SETDOMAIN GROUP 1"
                 ],
                 "https://plants.ensembl.org/arabidopsis_thaliana/Gene/Summary?g=AT2G23380"
             ]

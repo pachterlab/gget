@@ -130,6 +130,7 @@ class TestSearch(unittest.TestCase):
 
         self.assertListEqual(result_to_test, expected_result)
 
+    # Make sure invertebrate databases are no more than 10 releases older than current release
     def test_search_plant_db(self):
         test = "test13"
         expected_result = search_dict[test]["expected_result"]
