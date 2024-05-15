@@ -20,7 +20,7 @@ jupyter-console==6.4.4
 jupyter-core==5.1.0
 kiwisolver==1.4.4
 MarkupSafe==2.1.1
-matplotlib==3.8.4
+matplotlib==3.7.1
 mistune==2.0.4
 nbconvert==7.2.6
 nbformat==5.7.0
