@@ -163,8 +163,6 @@ def search(
             if species in datab:
                 db.append(datab)
 
-        print(db)
-
         # Unless an unambigious mouse database is specified,
         # the standard core database will be used
         if len(db) > 1 and "mus_musculus" in species:
