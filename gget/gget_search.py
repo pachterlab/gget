@@ -163,6 +163,8 @@ def search(
             if species in datab:
                 db.append(datab)
 
+        print(db)
+
         # Unless an unambigious mouse database is specified,
         # the standard core database will be used
         if len(db) > 1 and "mus_musculus" in species:
@@ -172,9 +174,12 @@ def search(
                 "All available vertebrate databases can be found here:\n"
                 f"http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
             )
+        
+        elif len(db) > 1 and "homo_sapiens" in species:
+            db = f"homo_sapiens_core_{ens_rel}_38"
 
-        # Check for ambigious species matches in species other than mouse
-        elif len(db) > 1 and "mus_musculus" not in species:
+        # Check for ambiguous species matches in species other than mouse
+        elif len(db) > 1 and "mus_musculus" not in species and "homo_sapiens" not in species:
             logging.warning(
                 f"Species matches more than one database. Defaulting to first database: {db[0]}.\n"
                 "All available databases can be found here:\n"
