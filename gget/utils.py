@@ -40,6 +40,7 @@ def read_fasta(fasta):
     titles = []
     seqs = []
     title_last = False
+    new_seq = False
     with open(fasta) as fasta_file:
         for i, line in enumerate(fasta_file):
             if i == 0 and line[0] != ">":
