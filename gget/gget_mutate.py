@@ -1,8 +1,9 @@
 import os
 import pandas as pd
-from Bio import SeqIO
 import re
 import logging
+
+from .utils import read_fasta
 
 # Add and format time stamp in logging messages
 logging.basicConfig(
@@ -24,16 +25,9 @@ cosmic_incorrect_wt_base = 0
 mutation_pattern = r"c\.([0-9_\-\+\*]+)([a-zA-Z>]+)"  # more complex: r'c\.([0-9_\-\+\*\(\)\?]+)([a-zA-Z>\(\)0-9]+)'
 
 
-def raise_pytest_error():
-    if os.getenv("TEST_MODE"):
-        raise ValueError()
-
-
-def find_sequence(fasta_path, accession_number):
-    for record in SeqIO.parse(fasta_path, "fasta"):
-        if accession_number in record.description:
-            return record.seq
-    return "No sequence found"  # Return None if no match is found
+# def raise_pytest_error():
+#     if os.getenv("TEST_MODE"):
+#         raise ValueError()
 
 
 def extract_mutation_type(mutation):
@@ -76,14 +70,6 @@ def extract_mutation_type(mutation):
         logging.debug(f"mutation {mutation} does not match re")
         # raise_pytest_error()
         return "unknown"
-
-
-def load_sequences(fasta_path):
-    sequences = {}
-    for record in SeqIO.parse(fasta_path, "fasta"):
-        key = record.description.split()[1]
-        sequences[key] = str(record.seq)
-    return sequences
 
 
 def create_mutant_sequence(row, mutation_function, kmer_flanking_length):
@@ -139,7 +125,7 @@ def create_mutant_sequence(row, mutation_function, kmer_flanking_length):
         except:
             logging.debug(f"Error with {row['mut_ID']} - row['Mutation CDS']")
             unknown_mutations += 1
-            raise_pytest_error()
+            # raise_pytest_error()
             return ""
 
         mutant_sequence, adjusted_end_position = mutation_function(
@@ -160,7 +146,7 @@ def create_mutant_sequence(row, mutation_function, kmer_flanking_length):
     else:
         logging.debug(f"Error with {row['mut_ID']} - {row['Mutation CDS']}")
         unknown_mutations += 1
-        raise_pytest_error()
+        # raise_pytest_error()
         return ""
 
 
@@ -342,7 +328,7 @@ def mutate(
     )
 
     # Load input sequences and link sequences to their mutations using the sequence identifier
-    sequences = load_sequences(input_fasta)
+    _, sequences = read_fasta(input_fasta)
     mutation_df["full_sequence"] = mutation_df[seq_id_column].map(sequences)
 
     # Split data frame by mutation type

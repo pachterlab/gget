@@ -19,7 +19,7 @@ from urllib.request import urlopen, Request
 from urllib.parse import urlencode
 
 # Custom functions
-from .utils import parse_blast_ref_page, wrap_cols_func
+from .utils import parse_blast_ref_page, wrap_cols_func, read_fasta
 
 # Constants
 from .constants import (
@@ -107,28 +107,8 @@ def blast(
                         seqs.append(line.strip())
 
         elif ".fa" in sequence:
-            # Read the FASTA
-            titles = []
-            seqs = []
-            with open(sequence) as fasta_file:
-                for i, line in enumerate(fasta_file):
-                    # Each second line will be a title line
-                    if i % 2 == 0:
-                        if line[0] != ">":
-                            raise ValueError(
-                                "Expected FASTA to start with a '>' character. "
-                            )
-                        else:
-                            # Append title line to titles list
-                            titles.append(line.strip())
-                    else:
-                        if line[0] == ">":
-                            raise ValueError(
-                                "FASTA contains two lines starting with '>' in a row -> missing sequence line. "
-                            )
-                        # Append sequences line to seqs list
-                        else:
-                            seqs.append(line.strip())
+            titles, seqs = read_fasta(sequence)
+
         else:
             raise ValueError(
                 "File format not recognized. gget BLAST currently only supports '.txt' or '.fa' files. "

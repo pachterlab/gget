@@ -22,11 +22,56 @@ logging.getLogger("numexpr").setLevel(logging.WARNING)
 
 from .constants import ENSEMBL_FTP_URL, ENSEMBL_FTP_URL_NV, ENS_TO_PDB_API
 
+
 def flatten(xss):
     """
     Function to flatten a list of lists.
     """
     return [x for xs in xss for x in xs]
+
+
+def read_fasta(fasta):
+    """
+    Args:
+    - fasta     (str) Path to fasta file.
+
+    Returns titles and seqs from fasta file as two list objects.
+    """
+    titles = []
+    seqs = []
+    title_last = False
+    with open(fasta) as fasta_file:
+        for i, line in enumerate(fasta_file):
+            if i == 0 and line[0] != ">":
+                raise ValueError("Expected FASTA to start with a '>' character. ")
+            elif line[0] == ">":
+                if title_last:
+                    raise ValueError(
+                        "FASTA contains two lines starting with '>' in a row -> missing sequence line. "
+                    )
+
+                if new_seq:
+                    # Append last recorded sequence
+                    seqs.append(flatten(new_seq))
+
+                # Append title line to titles list
+                titles.append(line.strip())
+                title_last = True
+
+            else:
+                if title_last:
+                    # Start recording new sequence if title was last
+                    new_seq = []
+                    new_seq.append(line.strip())
+                else:
+                    new_seq.append(line.strip())
+                title_last = False
+
+        # Append last sequence
+        seqs.append(flatten(new_seq))
+
+    return titles, seqs
+
 
 def n_colors(nucleotide):
     """
@@ -658,6 +703,7 @@ def search_species_options(database=ENSEMBL_FTP_URL, release=None):
 
     return databases
 
+
 def find_nv_kingdom(species, release):
     kds = ["plants", "protists", "metazoa", "fungi"]
     for kingdom in kds:
@@ -680,6 +726,7 @@ def find_nv_kingdom(species, release):
         # Return kingdom if species was found
         if species in sps[5:]:
             return kingdom
+
 
 def ref_species_options(which, database=ENSEMBL_FTP_URL, release=None):
     """
