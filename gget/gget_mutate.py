@@ -2,8 +2,9 @@ import os
 import pandas as pd
 import re
 import logging
+from tqdm import tqdm
 
-from .utils import read_fasta
+tqdm.pandas()
 
 # Add and format time stamp in logging messages
 logging.basicConfig(
@@ -13,6 +14,8 @@ logging.basicConfig(
 )
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
+
+from .utils import read_fasta
 
 # Define global variables to count occurences of weird mutations
 intronic_mutations = 0
@@ -320,8 +323,6 @@ def mutate(
     # Read in mutation_df if passed as filepath instead of df
     if isinstance(mutation_df, str):
         mutation_df = pd.read_csv(mutation_df)
-
-    print(mutation_df)
 
     logging.info("Extracting mutation types...")
     # Get all mutation types
