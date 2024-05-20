@@ -321,6 +321,8 @@ def mutate(
     if isinstance(mutation_df, str):
         mutation_df = pd.read_csv(mutation_df)
 
+    print(mutation_df)
+
     logging.info("Extracting mutation types...")
     # Get all mutation types
     mutation_df["mutation_type"] = mutation_df[mut_column].progress_apply(
