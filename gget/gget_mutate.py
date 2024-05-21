@@ -136,6 +136,7 @@ def create_mutant_sequence(row, mutation_function, kmer_flanking_length, mut_col
             letters,
             starting_nucleotide_position_index_0,
             ending_nucleotide_position_index_0,
+            mut_column,
         )
 
         if not mutant_sequence:
@@ -158,12 +159,13 @@ def substitution_mutation(
     letters,
     starting_nucleotide_position_index_0,
     ending_nucleotide_position_index_0,
+    mut_column,
 ):  # yields 61-mer
     # assert letters[0] == row['full_sequence'][starting_nucleotide_position_index_0], f"Transcript has {row['full_sequence'][starting_nucleotide_position_index_0]} at position {starting_nucleotide_position_index_0} but mutation is {letters[-1]} at position {starting_nucleotide_position_index_0} in {row[mut_column]}"
     global cosmic_incorrect_wt_base
     if letters[0] != row["full_sequence"][starting_nucleotide_position_index_0]:
         logging.warning(
-            f"Sequence has nucleotide '{row['full_sequence'][starting_nucleotide_position_index_0]}' at position {starting_nucleotide_position_index_0}, but mutation expected '{letters[-1]}'."
+            f"Sequence has nucleotide '{row['full_sequence'][starting_nucleotide_position_index_0]}' at position {starting_nucleotide_position_index_0}, but mutation {row[mut_column]} expected '{letters[-1]}'."
         )
         cosmic_incorrect_wt_base += 1
     mutant_sequence = (
@@ -180,6 +182,7 @@ def deletion_mutation(
     letters,
     starting_nucleotide_position_index_0,
     ending_nucleotide_position_index_0,
+    mut_column,
 ):  # yields 60-mer
     mutant_sequence = (
         row["full_sequence"][:starting_nucleotide_position_index_0]
@@ -194,6 +197,7 @@ def delins_mutation(
     letters,
     starting_nucleotide_position_index_0,
     ending_nucleotide_position_index_0,
+    mut_column,
 ):  # yields 60+(length of insertion)-mer
     insertion_string = "".join(re.findall(r"[A-Z]+", letters))
     mutant_sequence = (
@@ -212,6 +216,7 @@ def insertion_mutation(
     letters,
     starting_nucleotide_position_index_0,
     ending_nucleotide_position_index_0,
+    mut_column,
 ):  # yields 61+(length of insertion)-mer  - k before, length of insertion, k-1 after (k before and k-1 after is a little unconventional, but if I want to make it k-1 before then I have to return an adjusted start as well as an adjusted end)
     insertion_string = "".join(re.findall(r"[A-Z]+", letters))
     mutant_sequence = (
@@ -230,6 +235,7 @@ def duplication_mutation(
     letters,
     starting_nucleotide_position_index_0,
     ending_nucleotide_position_index_0,
+    mut_column,
 ):
     insertion_string = row["full_sequence"][
         starting_nucleotide_position_index_0 : ending_nucleotide_position_index_0 + 1
@@ -248,6 +254,7 @@ def inversion_mutation(
     letters,
     starting_nucleotide_position_index_0,
     ending_nucleotide_position_index_0,
+    mut_column,
 ):
     insertion_string = row["full_sequence"][
         starting_nucleotide_position_index_0 : ending_nucleotide_position_index_0 + 1
@@ -266,6 +273,7 @@ def unknown_mutation(
     letters,
     starting_nucleotide_position_index_0,
     ending_nucleotide_position_index_0,
+    mut_column,
 ):
     return "", ""
 
@@ -421,7 +429,7 @@ def mutate(
             axis=1,
         )
     if not mutation_dict["unknown"].empty:
-        tqdm.pandas(desc="Performing unknown mutations")
+        tqdm.pandas(desc="Unknown mutations")
         mutation_dict["unknown"]["mutant_sequence_kmer"] = mutation_dict[
             "unknown"
         ].progress_apply(
