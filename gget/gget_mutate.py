@@ -75,24 +75,24 @@ def extract_mutation_type(mutation):
         return "unknown"
 
 
-def create_mutant_sequence(row, mutation_function, kmer_flanking_length):
+def create_mutant_sequence(row, mutation_function, kmer_flanking_length, mut_column):
     global intronic_mutations, posttranslational_region_mutations, unknown_mutations, uncertain_mutations, ambiguous_position_mutations
 
-    if "?" in row["Mutation CDS"]:
+    if "?" in row[mut_column]:
         logging.debug(
             f"Uncertain mutation found in {row['mut_ID']} - mutation is ignored"
         )
         uncertain_mutations += 1
         return ""
 
-    if "(" in row["Mutation CDS"]:
+    if "(" in row[mut_column]:
         logging.debug(
             f"Ambiguous mutational position found in {row['mut_ID']} - mutation is ignored"
         )
         ambiguous_position_mutations += 1
         return ""
 
-    match = re.match(mutation_pattern, row["Mutation CDS"])
+    match = re.match(mutation_pattern, row[mut_column])
     if match:
         nucleotide_position = match.group(1)  # The number sequence
         letters = match.group(2)  # The letter sequence
@@ -126,7 +126,7 @@ def create_mutant_sequence(row, mutation_function, kmer_flanking_length):
                         starting_nucleotide_position_index_0
                     )
         except:
-            logging.debug(f"Error with {row['mut_ID']} - row['Mutation CDS']")
+            logging.debug(f"Error with mutation {row['mut_ID']}]")
             unknown_mutations += 1
             # raise_pytest_error()
             return ""
@@ -147,7 +147,7 @@ def create_mutant_sequence(row, mutation_function, kmer_flanking_length):
         )
         return str(mutant_sequence[kmer_start:kmer_end])
     else:
-        logging.debug(f"Error with {row['mut_ID']} - {row['Mutation CDS']}")
+        logging.debug(f"Error with mutation {row[mut_column]}")
         unknown_mutations += 1
         # raise_pytest_error()
         return ""
@@ -372,10 +372,7 @@ def mutate(
             "substitution"
         ].progress_apply(
             create_mutant_sequence,
-            args=(
-                substitution_mutation,
-                k,
-            ),
+            args=(substitution_mutation, k, mut_column),
             axis=1,
         )
     if not mutation_dict["deletion"].empty:
@@ -384,10 +381,7 @@ def mutate(
             "deletion"
         ].progress_apply(
             create_mutant_sequence,
-            args=(
-                deletion_mutation,
-                k,
-            ),
+            args=(deletion_mutation, k, mut_column),
             axis=1,
         )
     if not mutation_dict["delins"].empty:
@@ -396,10 +390,7 @@ def mutate(
             "delins"
         ].progress_apply(
             create_mutant_sequence,
-            args=(
-                delins_mutation,
-                k,
-            ),
+            args=(delins_mutation, k, mut_column),
             axis=1,
         )
     if not mutation_dict["insertion"].empty:
@@ -408,10 +399,7 @@ def mutate(
             "insertion"
         ].progress_apply(
             create_mutant_sequence,
-            args=(
-                insertion_mutation,
-                k,
-            ),
+            args=(insertion_mutation, k, mut_column),
             axis=1,
         )
     if not mutation_dict["duplication"].empty:
@@ -420,10 +408,7 @@ def mutate(
             "duplication"
         ].progress_apply(
             create_mutant_sequence,
-            args=(
-                duplication_mutation,
-                k,
-            ),
+            args=(duplication_mutation, k, mut_column),
             axis=1,
         )
     if not mutation_dict["inversion"].empty:
@@ -432,10 +417,7 @@ def mutate(
             "inversion"
         ].progress_apply(
             create_mutant_sequence,
-            args=(
-                inversion_mutation,
-                k,
-            ),
+            args=(inversion_mutation, k, mut_column),
             axis=1,
         )
     if not mutation_dict["unknown"].empty:
@@ -444,10 +426,7 @@ def mutate(
             "unknown"
         ].progress_apply(
             create_mutant_sequence,
-            args=(
-                unknown_mutation,
-                k,
-            ),
+            args=(unknown_mutation, k, mut_column),
             axis=1,
         )
 
