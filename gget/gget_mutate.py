@@ -80,14 +80,14 @@ def create_mutant_sequence(row, mutation_function, kmer_flanking_length, mut_col
 
     if "?" in row[mut_column]:
         logging.debug(
-            f"Uncertain mutation found in {row['mut_ID']} - mutation is ignored"
+            f"Uncertain mutation found in mutation {row[mut_column]} - mutation is ignored"
         )
         uncertain_mutations += 1
         return ""
 
     if "(" in row[mut_column]:
         logging.debug(
-            f"Ambiguous mutational position found in {row['mut_ID']} - mutation is ignored"
+            f"Ambiguous mutational position found in mutation {row[mut_column]} - mutation is ignored"
         )
         ambiguous_position_mutations += 1
         return ""
@@ -100,14 +100,14 @@ def create_mutant_sequence(row, mutation_function, kmer_flanking_length, mut_col
         try:
             if "-" in nucleotide_position or "+" in nucleotide_position:
                 logging.debug(
-                    f"Intronic nucleotide position found in {row['mut_ID']} - {nucleotide_position}{letters} - mutation is ignored"
+                    f"Intronic nucleotide position found in mutation {row[mut_column]} - {nucleotide_position}{letters} - mutation is ignored"
                 )
                 intronic_mutations += 1
                 return ""
 
             elif "*" in nucleotide_position:
                 logging.debug(
-                    f"Posttranslational region nucleotide position found in {row['mut_ID']} - {nucleotide_position}{letters} - mutation is ignored"
+                    f"Posttranslational region nucleotide position found in mutation {row[mut_column]} - {nucleotide_position}{letters} - mutation is ignored"
                 )
                 posttranslational_region_mutations += 1
                 return ""
@@ -126,7 +126,7 @@ def create_mutant_sequence(row, mutation_function, kmer_flanking_length, mut_col
                         starting_nucleotide_position_index_0
                     )
         except:
-            logging.debug(f"Error with mutation {row['mut_ID']}]")
+            logging.debug(f"Error with mutation {row[mut_column]}]")
             unknown_mutations += 1
             # raise_pytest_error()
             return ""
@@ -159,11 +159,11 @@ def substitution_mutation(
     starting_nucleotide_position_index_0,
     ending_nucleotide_position_index_0,
 ):  # yields 61-mer
-    # assert letters[0] == row['full_sequence'][starting_nucleotide_position_index_0], f"Transcript has {row['full_sequence'][starting_nucleotide_position_index_0]} at position {starting_nucleotide_position_index_0} but mutation is {letters[-1]} at position {starting_nucleotide_position_index_0} in {row['mut_ID']}"
+    # assert letters[0] == row['full_sequence'][starting_nucleotide_position_index_0], f"Transcript has {row['full_sequence'][starting_nucleotide_position_index_0]} at position {starting_nucleotide_position_index_0} but mutation is {letters[-1]} at position {starting_nucleotide_position_index_0} in {row[mut_column]}"
     global cosmic_incorrect_wt_base
     if letters[0] != row["full_sequence"][starting_nucleotide_position_index_0]:
-        logging.debug(
-            f"Transcript has {row['full_sequence'][starting_nucleotide_position_index_0]} at position {starting_nucleotide_position_index_0} but mutation is {letters[-1]} at position {starting_nucleotide_position_index_0} in {row['mut_ID']}"
+        logging.warning(
+            f"Sequence has nucleotide '{row['full_sequence'][starting_nucleotide_position_index_0]}' at position {starting_nucleotide_position_index_0}, but mutation expected '{letters[-1]}'."
         )
         cosmic_incorrect_wt_base += 1
     mutant_sequence = (
