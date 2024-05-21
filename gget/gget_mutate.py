@@ -330,9 +330,15 @@ def mutate(
         extract_mutation_type
     )
 
-    # Load input sequences and link sequences to their mutations using the sequence identifier
-    _, sequences = read_fasta(input_fasta)
-    mutation_df["full_sequence"] = mutation_df[seq_id_column].map(sequences)
+    # Load input sequences and their identifiers
+    titles, sequences = read_fasta(input_fasta)
+    seq_dict = {}
+    for title, seq in zip(titles, sequences):
+        # Keep text following the > until the first space as the sequence identifier
+        seq_dict[title.split(" ")[0]] = seq
+
+    # Link sequences to their mutations using the sequence identifiers
+    mutation_df["full_sequence"] = mutation_df[seq_id_column].map(seq_dict)
 
     # Split data frame by mutation type
     mutation_types = [
@@ -452,14 +458,14 @@ def mutate(
 
     logging.warning(
         f"""
-    {good_mutations} mutations correctly recorded ({good_mutations/total_mutations*100:.2f}%)
-    {intronic_mutations} intronic mutations found ({intronic_mutations/total_mutations*100:.2f}%)
-    {posttranslational_region_mutations} posttranslational region mutations found ({posttranslational_region_mutations/total_mutations*100:.2f}%)
-    {unknown_mutations} unknown mutations found ({unknown_mutations/total_mutations*100:.2f}%)
-    {uncertain_mutations} mutations with uncertain mutation found ({uncertain_mutations/total_mutations*100:.2f}%)
-    {ambiguous_position_mutations} mutations with ambiguous position found ({ambiguous_position_mutations/total_mutations*100:.2f}%)
-    {cosmic_incorrect_wt_base} mutations with incorrect wildtype base found ({cosmic_incorrect_wt_base/total_mutations*100:.2f}%)
-    """
+        {good_mutations} mutations correctly recorded ({good_mutations/total_mutations*100:.2f}%)
+        {intronic_mutations} intronic mutations found ({intronic_mutations/total_mutations*100:.2f}%)
+        {posttranslational_region_mutations} posttranslational region mutations found ({posttranslational_region_mutations/total_mutations*100:.2f}%)
+        {unknown_mutations} unknown mutations found ({unknown_mutations/total_mutations*100:.2f}%)
+        {uncertain_mutations} mutations with uncertain mutation found ({uncertain_mutations/total_mutations*100:.2f}%)
+        {ambiguous_position_mutations} mutations with ambiguous position found ({ambiguous_position_mutations/total_mutations*100:.2f}%)
+        {cosmic_incorrect_wt_base} mutations with incorrect wildtype base found ({cosmic_incorrect_wt_base/total_mutations*100:.2f}%)
+        """
     )
 
     # Save mutated sequences in new fasta file
