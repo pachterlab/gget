@@ -324,8 +324,8 @@ def mutate(
     if isinstance(mutation_df, str):
         mutation_df = pd.read_csv(mutation_df)
 
-    logging.info("Extracting mutation types...")
     # Get all mutation types
+    tqdm.pandas(desc="Extracting mutation types")
     mutation_df["mutation_type"] = mutation_df[mut_column].progress_apply(
         extract_mutation_type
     )
@@ -367,6 +367,7 @@ def mutate(
     # Create mutated sequences
     logging.info("Mutating sequences...")
     if not mutation_dict["substitution"].empty:
+        tqdm.pandas(desc="Performing substitutions")
         mutation_dict["substitution"]["mutant_sequence_kmer"] = mutation_dict[
             "substitution"
         ].progress_apply(
@@ -378,6 +379,7 @@ def mutate(
             axis=1,
         )
     if not mutation_dict["deletion"].empty:
+        tqdm.pandas(desc="Performing deletions")
         mutation_dict["deletion"]["mutant_sequence_kmer"] = mutation_dict[
             "deletion"
         ].progress_apply(
@@ -389,6 +391,7 @@ def mutate(
             axis=1,
         )
     if not mutation_dict["delins"].empty:
+        tqdm.pandas(desc="Performing delins")
         mutation_dict["delins"]["mutant_sequence_kmer"] = mutation_dict[
             "delins"
         ].progress_apply(
@@ -400,6 +403,7 @@ def mutate(
             axis=1,
         )
     if not mutation_dict["insertion"].empty:
+        tqdm.pandas(desc="Performing insertions")
         mutation_dict["insertion"]["mutant_sequence_kmer"] = mutation_dict[
             "insertion"
         ].progress_apply(
@@ -411,6 +415,7 @@ def mutate(
             axis=1,
         )
     if not mutation_dict["duplication"].empty:
+        tqdm.pandas(desc="Performing duplications")
         mutation_dict["duplication"]["mutant_sequence_kmer"] = mutation_dict[
             "duplication"
         ].progress_apply(
@@ -422,6 +427,7 @@ def mutate(
             axis=1,
         )
     if not mutation_dict["inversion"].empty:
+        tqdm.pandas(desc="Performing inversions")
         mutation_dict["inversion"]["mutant_sequence_kmer"] = mutation_dict[
             "inversion"
         ].progress_apply(
@@ -433,6 +439,7 @@ def mutate(
             axis=1,
         )
     if not mutation_dict["unknown"].empty:
+        tqdm.pandas(desc="Performing unknown mutations")
         mutation_dict["unknown"]["mutant_sequence_kmer"] = mutation_dict[
             "unknown"
         ].progress_apply(
