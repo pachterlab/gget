@@ -38,6 +38,7 @@ from .gget_cellxgene import cellxgene
 from .gget_elm import elm
 from .gget_diamond import diamond
 from .gget_cosmic import cosmic
+from .gget_mutate import mutate
 
 
 def main():
@@ -1759,6 +1760,102 @@ def main():
         help="Do not print progress information.",
     )
 
+    # mutate parser arguments
+    mutate_desc = "Mutate nucleotide sequences according to defined mutations."
+    parser_mutate = parent_subparsers.add_parser(
+        "mutate",
+        parents=[parent],
+        description=mutate_desc,
+        help=mutate_desc,
+        add_help=True,
+    )
+    parser_mutate.add_argument(
+        "input_fasta",
+        type=str,
+        help=(
+            """
+            Path to the fasta file containing the sequences to be mutated.
+            Sequence identifiers following the '>' character must correspond to the 
+            identifiers in the seq_ID column of 'mutations' (do not include spaces). 
+            Alternatively: input a single sequence as a string, e.g. 'ACTGCTAGCT'
+            """
+        ),
+    )
+    parser_mutate.add_argument(
+        "-md",
+        "--mutations",
+        type=str,
+        required=True,
+        help=(
+            """
+            Path to comma-separated csv file (str) or data frame (DataFrame object) 
+            containing information about the mutations in the following format:
+
+            | mutation             | mut_ID | seq_ID |
+            | c.1252C>T            | mut1   | seq1   |
+            | c.2239_2253inv       | mut2   | seq2   |
+            | c.2239_2253inv       | mut2   | seq3   |
+            | c.2239_2253delinsAAT | mut3   | seq3   |
+            | ...                  | ...    | ...    |
+
+            'mutation' = Column containing the mutations to be performed written in standard mutation annotation (see below)
+            'mut_ID' = Column containing an identifier for each mutation
+            'seq_ID' = Column containing the identifiers of the sequences to be mutated (must correspond to the string following 
+            the > character in the input_fasta; do not include spaces)
+
+            Alternatively: input a single mutation as a string, e.g. 'c.2C>T'
+            """
+        ),
+    )
+    parser_mutate.add_argument(
+        "-k",
+        "--k",
+        default=31,
+        type=int,
+        required=False,
+        help="Length of sequences flanking the mutation. If k > total length of the sequence, the entire sequence will be kept.",
+    )
+    parser_mutate.add_argument(
+        "-mc",
+        "--mut_column",
+        default="mutation",
+        type=str,
+        required=False,
+        help="Name of the column containing the mutations to be performed in 'mutations'.",
+    )
+    parser_mutate.add_argument(
+        "-mic",
+        "--mut_id_column",
+        default="mut_ID",
+        type=str,
+        required=False,
+        help="Name of the column containing the IDs of each mutation in 'mutations'.",
+    )
+    parser_mutate.add_argument(
+        "-sic",
+        "--seq_id_column",
+        default="seq_ID",
+        type=str,
+        required=False,
+        help="Name of the column containing the IDs of the sequences to be mutated in 'mutations'.",
+    )
+    parser_mutate.add_argument(
+        "-o",
+        "--out",
+        default="gget_mutate_out.fa",
+        type=str,
+        required=False,
+        help=("Path to output fasta file containing the mutated sequences. The identifiers (following the '>') of the mutated sequences in the output fasta will be '>[seq_ID]_[mut_ID]'."),
+    )
+    parser_mutate.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Do not print progress information.",
+    )
+
     ### Define return values
     args = parent_parser.parse_args()
 
@@ -1806,6 +1903,7 @@ def main():
         "elm": parser_elm,
         "diamond": parser_diamond,
         "cosmic": parser_cosmic,
+        "mutate": parser_mutate,
     }
 
     if len(sys.argv) == 2:
@@ -1972,6 +2070,20 @@ def main():
             if not args.out and args.csv:
                 print(json.dumps(blast_results, ensure_ascii=False, indent=4))
 
+    ## mutate return
+    if args.command == "mutate":
+        # Run mutate function (automatically saves output)
+        mutate(
+            input_fasta=args.input_fasta,
+            mutations=args.mutations,
+            k=args.k,
+            mut_column=args.mut_column,
+            mut_id_column=args.mut_id_column,
+            seq_id_column=args.seq_id_column,
+            output=args.output,
+            verbose=args.quiet,
+        )
+
     ## cosmic return
     if args.command == "cosmic":
         # Run gget cosmic function
@@ -2131,8 +2243,8 @@ def main():
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
                     os.makedirs(directory, exist_ok=True)
-                with open(args.out, 'w') as tfile:
-                    tfile.write('\n'.join(species_list))
+                with open(args.out, "w") as tfile:
+                    tfile.write("\n".join(species_list))
             else:
                 for species in species_list:
                     print(species)
@@ -2147,8 +2259,8 @@ def main():
                 directory = "/".join(args.out.split("/")[:-1])
                 if directory != "":
                     os.makedirs(directory, exist_ok=True)
-                with open(args.out, 'w') as tfile:
-                    tfile.write('\n'.join(species_list))
+                with open(args.out, "w") as tfile:
+                    tfile.write("\n".join(species_list))
             else:
                 for species in species_list:
                     print(species)
@@ -2198,8 +2310,8 @@ def main():
                     directory = "/".join(args.out.split("/")[:-1])
                     if directory != "":
                         os.makedirs(directory, exist_ok=True)
-                    with open(args.out, 'w') as tfile:
-                        tfile.write('\n'.join(ref_results))
+                    with open(args.out, "w") as tfile:
+                        tfile.write("\n".join(ref_results))
 
                     if args.download == True:
                         # Download list of URLs

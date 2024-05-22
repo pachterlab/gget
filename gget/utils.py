@@ -44,16 +44,16 @@ def read_fasta(fasta):
     with open(fasta) as fasta_file:
         for i, line in enumerate(fasta_file):
             if i == 0 and line[0] != ">":
-                raise ValueError("Expected FASTA to start with a '>' character. ")
+                raise ValueError("Expected FASTA file to start with a '>' character. ")
             elif line[0] == ">":
                 if title_last:
                     raise ValueError(
-                        "FASTA contains two lines starting with '>' in a row -> missing sequence line. "
+                        "FASTA file contains two lines starting with '>' in a row -> missing sequence line. "
                     )
 
                 if new_seq:
                     # Append last recorded sequence
-                    seqs.append(flatten(new_seq))
+                    seqs.append(new_seq)
 
                 # Append title line to titles list
                 titles.append(line.strip())
@@ -62,14 +62,13 @@ def read_fasta(fasta):
             else:
                 if title_last:
                     # Start recording new sequence if title was last
-                    new_seq = []
-                    new_seq.append(line.strip())
+                    new_seq = line.strip()
                 else:
-                    new_seq.append(line.strip())
+                    new_seq = new_seq + line.strip()
                 title_last = False
 
         # Append last sequence
-        seqs.append(flatten(new_seq))
+        seqs.append(new_seq)
 
     return titles, seqs
 

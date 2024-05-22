@@ -1,4 +1,3 @@
-import os
 import pandas as pd
 import re
 import logging
@@ -279,20 +278,26 @@ def unknown_mutation(
 
 
 def mutate(
-    mutation_df,
     input_fasta,
+    mutations,
     k=31,
     mut_column="mutation",
     mut_id_column="mut_ID",
     seq_id_column="seq_ID",
-    output_fasta="gget_mutate_out.fa",
+    output="gget_mutate_out.fa",
+    verbose=True,
 ):
     """
-    Takes in a list of nucleotide mutations and sequences and returns mutated versions of the input sequences
-    according to the provided mutations.
+    Takes in nucleotide sequences and mutations (in standard mutation annotation - see below)
+    and returns mutated versions of the input sequences according to the provided mutations.
 
     Args:
-    - mutation_df   Path to csv file (str) or data frame (DataFrame object) in the following format:
+    - input_fasta   (str) Path to the fasta file containing the sequences to be mutated, e.g. 'seqs.fa'.
+                    Sequence identifiers following the '>' character must correspond to the
+                    identifiers in the seq_ID column of 'mutations' (do not include spaces).
+                    Alternatively: input a single sequence as a string, e.g. 'ACTGCTAGCT'
+    - mutations     Path to comma-separated csv file (str) (e.g. 'mutations.csv') or data frame (DataFrame object),
+                    containing information about the mutations in the following format:
 
                     | mutation             | mut_ID | seq_ID |
                     | c.1252C>T            | mut1   | seq1   |
@@ -302,21 +307,23 @@ def mutate(
                     | ...                  | ...    | ...    |
 
                     'mutation' = Column containing the mutations to be performed written in standard mutation annotation (see below)
-                    'mut_ID' = Column containing the IDs of each mutation
-                    'seq_ID' = Column containing the IDs of the sequences to be mutated (must correspond to the string following the > character in the input_fasta;
-                    do not include spaces)
+                    'mut_ID' = Column containing an identifier for each mutation
+                    'seq_ID' = Column containing the identifiers of the sequences to be mutated (must correspond to the string following
+                    the > character in the input_fasta; do not include spaces)
 
-    - input_fasta   (str) Path to fasta file containing the sequences to be mutated.
-    - k             (int) Length of sequences flanking the mutated base/amino acid. Default: 31.
+                    Alternatively: input a single mutation as a string, e.g. 'c.2C>T'
+    - k             (int) Length of sequences flanking the mutation. Default: 31.
                     If k > total length of the sequence, the entire sequence will be kept.
-    - mut_column    (str) Name of the column containing the mutations to be performed in mutation_df. Default: 'mutation'.
-    - mut_id_column (str) Name of the column containing the IDs of each mutation in mutation_df. Default: 'mut_ID'.
-    - seq_id_column (str) Name of the column containing the IDs of the sequences to be mutated in mutation_df. Default: 'seq_ID'.
-    - output_fasta  (str) Path to output fasta file containing the mutated sequences. Default: 'gget_mutate_out.fa'.
+    - mut_column    (str) Name of the column containing the mutations to be performed in 'mutations'. Default: 'mutation'.
+    - mut_id_column (str) Name of the column containing the IDs of each mutation in 'mutations'. Default: 'mut_ID'.
+    - seq_id_column (str) Name of the column containing the IDs of the sequences to be mutated in 'mutations'. Default: 'seq_ID'.
+    - output        (str) Path to output fasta file containing the mutated sequences. Default: 'gget_mutate_out.fa'.
+                    The identifiers (following the '>') of the mutated sequences in the output fasta will be '>[seq_ID]_[mut_ID]'.
+    - verbose       (True/False) whether to print progress information. Default: True
 
-    For more on the standard mutation annotation, also see https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1867422/.
+    For more information on the standard mutation annotation, see https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1867422/.
 
-    Saves mutated sequences in a fasta file as specified in the output_fasta argument.
+    Saves mutated sequences in a fasta file as specified in the output argument.
     """
 
     global intronic_mutations, posttranslational_region_mutations, unknown_mutations, uncertain_mutations, ambiguous_position_mutations, cosmic_incorrect_wt_base
@@ -328,25 +335,43 @@ def mutate(
     ambiguous_position_mutations = 0
     cosmic_incorrect_wt_base = 0
 
-    # Read in mutation_df if passed as filepath instead of df
-    if isinstance(mutation_df, str):
-        mutation_df = pd.read_csv(mutation_df)
+    # Read in 'mutations' if passed as filepath to comma-separated csv
+    if isinstance(mutations, str) and "." in mutations:
+        mutations = pd.read_csv(mutations)
 
-    # Get all mutation types
-    tqdm.pandas(desc="Extracting mutation types")
-    mutation_df["mutation_type"] = mutation_df[mut_column].progress_apply(
-        extract_mutation_type
-    )
-
+    # Handle single mutation passed as a string
+    elif isinstance(mutations, str):
+        temp = pd.DataFrame()
+        temp["mutation"] = mutations
+        temp["mut_ID"] = "mut1"
+        temp["seq_ID"] = "seq1"
+        mutations = temp
+    
     # Load input sequences and their identifiers
-    titles, sequences = read_fasta(input_fasta)
+    if "." in input_fasta:
+        titles, sequences = read_fasta(input_fasta)
+    # Handle single sequence passed as a string
+    else:
+        titles = ["seq1"]
+        sequences = [input_fasta]
+
     seq_dict = {}
     for title, seq in zip(titles, sequences):
         # Keep text following the > until the first space as the sequence identifier
         seq_dict[title.split(" ")[0]] = seq
 
+
+    # Get all mutation types
+    if verbose:
+        tqdm.pandas(desc="Extracting mutation types")
+        mutations["mutation_type"] = mutations[mut_column].progress_apply(
+            extract_mutation_type
+        )
+    else:
+        mutations["mutation_type"] = mutations[mut_column].apply(extract_mutation_type)
+
     # Link sequences to their mutations using the sequence identifiers
-    mutation_df["full_sequence"] = mutation_df[seq_id_column].map(seq_dict)
+    mutations["full_sequence"] = mutations[seq_id_column].map(seq_dict)
 
     # Split data frame by mutation type
     mutation_types = [
@@ -360,9 +385,7 @@ def mutate(
     ]
     mutation_dict = {mutation_type: [] for mutation_type in mutation_types}
     for mutation_type in mutation_types:
-        df_mutation_type = mutation_df[
-            mutation_df["mutation_type"] == mutation_type
-        ].copy()
+        df_mutation_type = mutations[mutations["mutation_type"] == mutation_type].copy()
         df_mutation_type["mutant_sequence_kmer"] = ""
         df_mutation_type["header"] = (
             ">"
@@ -373,52 +396,98 @@ def mutate(
         mutation_dict[mutation_type] = df_mutation_type
 
     # Create mutated sequences
-    logging.info("Mutating sequences...")
+    if verbose:
+        logging.info("Mutating sequences...")
     if not mutation_dict["substitution"].empty:
-        tqdm.pandas(desc="Performing substitutions")
-        mutation_dict["substitution"]["mutant_sequence_kmer"] = mutation_dict[
-            "substitution"
-        ].progress_apply(
-            create_mutant_sequence,
-            args=(substitution_mutation, k, mut_column),
-            axis=1,
-        )
+        if verbose:
+            tqdm.pandas(desc="Performing substitutions")
+            mutation_dict["substitution"]["mutant_sequence_kmer"] = mutation_dict[
+                "substitution"
+            ].progress_apply(
+                create_mutant_sequence,
+                args=(substitution_mutation, k, mut_column),
+                axis=1,
+            )
+        else:
+            mutation_dict["substitution"]["mutant_sequence_kmer"] = mutation_dict[
+                "substitution"
+            ].apply(
+                create_mutant_sequence,
+                args=(substitution_mutation, k, mut_column),
+                axis=1,
+            )
     if not mutation_dict["deletion"].empty:
-        tqdm.pandas(desc="Performing deletions")
-        mutation_dict["deletion"]["mutant_sequence_kmer"] = mutation_dict[
-            "deletion"
-        ].progress_apply(
-            create_mutant_sequence,
-            args=(deletion_mutation, k, mut_column),
-            axis=1,
-        )
+        if verbose:
+            tqdm.pandas(desc="Performing deletions")
+            mutation_dict["deletion"]["mutant_sequence_kmer"] = mutation_dict[
+                "deletion"
+            ].progress_apply(
+                create_mutant_sequence,
+                args=(deletion_mutation, k, mut_column),
+                axis=1,
+            )
+        else:
+            mutation_dict["deletion"]["mutant_sequence_kmer"] = mutation_dict[
+                "deletion"
+            ].apply(
+                create_mutant_sequence,
+                args=(deletion_mutation, k, mut_column),
+                axis=1,
+            )
     if not mutation_dict["delins"].empty:
-        tqdm.pandas(desc="Performing delins")
-        mutation_dict["delins"]["mutant_sequence_kmer"] = mutation_dict[
-            "delins"
-        ].progress_apply(
-            create_mutant_sequence,
-            args=(delins_mutation, k, mut_column),
-            axis=1,
-        )
+        if verbose:
+            tqdm.pandas(desc="Performing delins")
+            mutation_dict["delins"]["mutant_sequence_kmer"] = mutation_dict[
+                "delins"
+            ].progress_apply(
+                create_mutant_sequence,
+                args=(delins_mutation, k, mut_column),
+                axis=1,
+            )
+        else:
+            mutation_dict["delins"]["mutant_sequence_kmer"] = mutation_dict[
+                "delins"
+            ].apply(
+                create_mutant_sequence,
+                args=(delins_mutation, k, mut_column),
+                axis=1,
+            )
     if not mutation_dict["insertion"].empty:
-        tqdm.pandas(desc="Performing insertions")
-        mutation_dict["insertion"]["mutant_sequence_kmer"] = mutation_dict[
-            "insertion"
-        ].progress_apply(
-            create_mutant_sequence,
-            args=(insertion_mutation, k, mut_column),
-            axis=1,
-        )
+        if verbose:
+            tqdm.pandas(desc="Performing insertions")
+            mutation_dict["insertion"]["mutant_sequence_kmer"] = mutation_dict[
+                "insertion"
+            ].progress_apply(
+                create_mutant_sequence,
+                args=(insertion_mutation, k, mut_column),
+                axis=1,
+            )
+        else:
+            mutation_dict["insertion"]["mutant_sequence_kmer"] = mutation_dict[
+                "insertion"
+            ].apply(
+                create_mutant_sequence,
+                args=(insertion_mutation, k, mut_column),
+                axis=1,
+            )
     if not mutation_dict["duplication"].empty:
-        tqdm.pandas(desc="Performing duplications")
-        mutation_dict["duplication"]["mutant_sequence_kmer"] = mutation_dict[
-            "duplication"
-        ].progress_apply(
-            create_mutant_sequence,
-            args=(duplication_mutation, k, mut_column),
-            axis=1,
-        )
+        if verbose:
+            tqdm.pandas(desc="Performing duplications")
+            mutation_dict["duplication"]["mutant_sequence_kmer"] = mutation_dict[
+                "duplication"
+            ].progress_apply(
+                create_mutant_sequence,
+                args=(duplication_mutation, k, mut_column),
+                axis=1,
+            )
+        else:
+            mutation_dict["duplication"]["mutant_sequence_kmer"] = mutation_dict[
+                "duplication"
+            ].apply(
+                create_mutant_sequence,
+                args=(duplication_mutation, k, mut_column),
+                axis=1,
+            )
     if not mutation_dict["inversion"].empty:
         tqdm.pandas(desc="Performing inversions")
         mutation_dict["inversion"]["mutant_sequence_kmer"] = mutation_dict[
@@ -429,14 +498,23 @@ def mutate(
             axis=1,
         )
     if not mutation_dict["unknown"].empty:
-        tqdm.pandas(desc="Unknown mutations")
-        mutation_dict["unknown"]["mutant_sequence_kmer"] = mutation_dict[
-            "unknown"
-        ].progress_apply(
-            create_mutant_sequence,
-            args=(unknown_mutation, k, mut_column),
-            axis=1,
-        )
+        if verbose:
+            tqdm.pandas(desc="Unknown mutations")
+            mutation_dict["unknown"]["mutant_sequence_kmer"] = mutation_dict[
+                "unknown"
+            ].progress_apply(
+                create_mutant_sequence,
+                args=(unknown_mutation, k, mut_column),
+                axis=1,
+            )
+        else:
+            mutation_dict["unknown"]["mutant_sequence_kmer"] = mutation_dict[
+                "unknown"
+            ].apply(
+                create_mutant_sequence,
+                args=(unknown_mutation, k, mut_column),
+                axis=1,
+            )
 
     # Report status of mutations back to user
     total_mutations = df.shape[0]
@@ -463,8 +541,9 @@ def mutate(
     )
 
     # Save mutated sequences in new fasta file
-    logging.info("Creating FASTA file containing mutated sequences...")
-    with open(output_fasta, "w") as fasta_file:
+    if verbose:
+        logging.info("Creating FASTA file containing mutated sequences...")
+    with open(output, "w") as fasta_file:
         for mutation in mutation_dict:
             if not mutation_dict[mutation].empty:
                 df = mutation_dict[mutation]
@@ -474,10 +553,11 @@ def mutate(
                 # df = df.dropna(subset=['GENOMIC_MUTATION_ID', 'fasta_format'])
                 fasta_file.write("\n".join(df["fasta_format"]))
 
-    with open(output_fasta, "r") as fasta_file:
+    with open(output, "r") as fasta_file:
         lines = [line for line in fasta_file if line.strip()]
 
-    with open(output_fasta, "w") as fasta_file:
+    with open(output, "w") as fasta_file:
         fasta_file.writelines(lines)
 
-    logging.info(f"FASTA file containing mutated sequences created at {output_fasta}.")
+    if verbose:
+        logging.info(f"FASTA file containing mutated sequences created at {output}.")
