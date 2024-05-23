@@ -1783,7 +1783,7 @@ def main():
         ),
     )
     parser_mutate.add_argument(
-        "-md",
+        "-m",
         "--mutations",
         type=str,
         nargs="+",
@@ -2085,11 +2085,11 @@ def main():
             mut_column=args.mut_column,
             mut_id_column=args.mut_id_column,
             seq_id_column=args.seq_id_column,
-            output=args.output,
+            out=args.out,
             verbose=args.quiet,
         )
 
-        # Print list of mutated sequences if any are returned (this should only happen when output=None)
+        # Print list of mutated sequences if any are returned (this should only happen when out=None)
         if mutate_results:
             for mut_seq in mutate_results:
                 print(mut_seq)
