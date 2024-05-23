@@ -1,4 +1,5 @@
 import argparse
+from argparse import RawTextHelpFormatter
 import sys
 import logging
 
@@ -1768,6 +1769,7 @@ def main():
         description=mutate_desc,
         help=mutate_desc,
         add_help=True,
+        formatter_class=RawTextHelpFormatter,
     )
     parser_mutate.add_argument(
         "sequences",
