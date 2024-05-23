@@ -28,11 +28,6 @@ cosmic_incorrect_wt_base = 0
 mutation_pattern = r"c\.([0-9_\-\+\*]+)([a-zA-Z>]+)"  # more complex: r'c\.([0-9_\-\+\*\(\)\?]+)([a-zA-Z>\(\)0-9]+)'
 
 
-# def raise_pytest_error():
-#     if os.getenv("TEST_MODE"):
-#         raise ValueError()
-
-
 def extract_mutation_type(mutation):
     match = re.match(mutation_pattern, mutation)
 
@@ -295,7 +290,7 @@ def mutate(
     mut_column="mutation",
     mut_id_column="mut_ID",
     seq_id_column="seq_ID",
-    out=None,
+    out="gget_mutate_out.fa",
     verbose=True,
 ):
     """
@@ -303,40 +298,46 @@ def mutate(
     and returns mutated versions of the input sequences according to the provided mutations.
 
     Args:
-    - sequences     (str) Path to the fasta file containing the sequences to be mutated, e.g. 'seqs.fa'.
+    - sequences     (str) Path to the fasta file containing the sequences to be mutated, e.g., 'seqs.fa'.
                     Sequence identifiers following the '>' character must correspond to the
-                    identifiers in the seq_ID column of 'mutations' (do not include spaces).
+                    identifiers in the seq_ID column of 'mutations' (do not include spaces), e.g.:
+                    
+                    >seq1
+                    ACTGCGATAGACT
+                    >seq2
+                    AGATCGCTAG
+                    
                     Alternatively: Input sequence(s) as a string or list, e.g. 'AGCTAGCT' or ['ACTGCTAGCT', 'AGCTAGCT'].
-    - mutations     Path to comma-separated csv file (str) (e.g. 'mutations.csv') or data frame (DataFrame object),
+    - mutations     Path to csv or tsv file (str) (e.g., 'mutations.csv') or data frame (DataFrame object),
                     containing information about the mutations in the following format:
 
-                    | mutation             | mut_ID | seq_ID |
-                    | c.1252C>T            | mut1   | seq1   |
-                    | c.2239_2253inv       | mut2   | seq2   |
-                    | c.2239_2253inv       | mut2   | seq4   |
-                    | c.2239_2253delinsAAT | mut3   | seq4   |
-                    | ...                  | ...    | ...    |
+                    | mutation         | mut_ID | seq_ID |
+                    | c.2C>T           | mut1   | seq1   |
+                    | c.9_13inv        | mut2   | seq2   |
+                    | c.9_13inv        | mut2   | seq4   |
+                    | c.9_13delinsAAT  | mut3   | seq4   |
+                    | ...              | ...    | ...    |
 
                     'mutation' = Column containing the mutations to be performed written in standard mutation annotation (see below)
                     'mut_ID' = Column containing an identifier for each mutation
                     'seq_ID' = Column containing the identifiers of the sequences to be mutated (must correspond to the string following
                     the > character in the 'sequences' fasta file; do not include spaces)
 
-                    Alternatively: Input mutation(s) as a string or list, e.g. 'c.2C>T' or ['c.2C>T', 'c.1A>C'].
+                    Alternatively: Input mutation(s) as a string or list, e.g., 'c.2C>T' or ['c.2C>T', 'c.1A>C'].
                     If a list is passed, the number of mutations must equal the number of input sequences.
     - k             (int) Length of sequences flanking the mutation. Default: 31.
                     If k > total length of the sequence, the entire sequence will be kept.
     - mut_column    (str) Name of the column containing the mutations to be performed in 'mutations'. Default: 'mutation'.
     - mut_id_column (str) Name of the column containing the IDs of each mutation in 'mutations'. Default: 'mut_ID'.
     - seq_id_column (str) Name of the column containing the IDs of the sequences to be mutated in 'mutations'. Default: 'seq_ID'.
-    - out           (str) Path to output fasta file containing the mutated sequences.
-                    Default: None -> Returns list of mutated sequences.
+    - out           (str) Path to output fasta file containing the mutated sequences. Default: 'gget_mutate_out.fa'.
+                    Set out=None to return a list of the mutated sequences to standard out.
                     The identifiers (following the '>') of the mutated sequences in the output fasta will be '>[seq_ID]_[mut_ID]'.
     - verbose       (True/False) whether to print progress information. Default: True
 
     For more information on the standard mutation annotation, see https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1867422/.
 
-    Returns a list containing the mutated sequences or, if 'out' is specified, saves mutated sequences in fasta format.
+    Saves mutated sequences in fasta format ( or returns a list containing the mutated sequences if out=None).
     """
 
     global intronic_mutations, posttranslational_region_mutations, unknown_mutations, uncertain_mutations, ambiguous_position_mutations, cosmic_incorrect_wt_base
@@ -376,6 +377,9 @@ def mutate(
     # Read in 'mutations' if passed as filepath to comma-separated csv
     if isinstance(mutations, str) and ".csv" in mutations:
         mutations = pd.read_csv(mutations)
+
+    elif isinstance(mutations, str) and ".tsv" in mutations:
+        mutations = pd.read_csv(mutations, sep="\t")
 
     # Handle mutations passed as a list
     elif isinstance(mutations, list):
