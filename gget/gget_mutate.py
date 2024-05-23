@@ -419,13 +419,15 @@ def mutate(
 
     # Link sequences to their mutations using the sequence identifiers
     mutations["full_sequence"] = mutations[seq_id_column].map(seq_dict)
+    print(seq_dict)
+    print(mutations)
 
     # Handle sequences that were not found based on their sequence IDs
     seqs_not_found = mutations[mutations["full_sequence"].isnull()]
     if len(seqs_not_found) > 0:
         logging.warning(
             f"""
-            The sequences with the following sequence IDs were not found: {seqs_not_found["seq_ID"].values}
+            The sequences with the following sequence IDs were not found: {", ".join(seqs_not_found["seq_ID"].values)}
             These sequences and their corresponding mutations will not be included in the output.
             Ensure that the sequence IDs correspond to the string following the > character in the 'sequences' fasta file (do not include spaces).
             """
