@@ -354,7 +354,7 @@ def mutate(
 
     # Handle input sequences passed as a list
     elif isinstance(sequences, list):
-        titles = [f"seq{i+1}" for i in range(sequences)]
+        titles = [f"seq{i+1}" for i in range(len(sequences))]
         seqs = sequences
 
     # Handle a single sequence passed as a string
@@ -386,8 +386,8 @@ def mutate(
 
         temp = pd.DataFrame()
         temp["mutation"] = mutations
-        temp["mut_ID"] = [f"mut{i+1}" for i in range(mutations)]
-        temp["seq_ID"] = [f"seq{i+1}" for i in range(mutations)]
+        temp["mut_ID"] = [f"mut{i+1}" for i in range(len(mutations))]
+        temp["seq_ID"] = [f"seq{i+1}" for i in range(len(mutations))]
         mutations = temp
 
     # Handle single mutation passed as a string
@@ -395,8 +395,8 @@ def mutate(
         # This will work for one mutation for one sequence as well as one mutation for multiple sequences
         temp = pd.DataFrame()
         temp["mutation"] = [mutations] * len(seqs)
-        temp["mut_ID"] = [f"mut{i+1}" for i in range(seqs)]
-        temp["seq_ID"] = [f"seq{i+1}" for i in range(seqs)]
+        temp["mut_ID"] = [f"mut{i+1}" for i in range(len(seqs))]
+        temp["seq_ID"] = [f"seq{i+1}" for i in range(len(seqs))]
         mutations = temp
 
     elif isinstance(mutations, pd.DataFrame):
