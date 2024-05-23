@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import re
 import logging
 from tqdm import tqdm
@@ -278,7 +279,7 @@ def unknown_mutation(
 
 
 def mutate(
-    input_fasta,
+    sequences,
     mutations,
     k=31,
     mut_column="mutation",
@@ -292,10 +293,10 @@ def mutate(
     and returns mutated versions of the input sequences according to the provided mutations.
 
     Args:
-    - input_fasta   (str) Path to the fasta file containing the sequences to be mutated, e.g. 'seqs.fa'.
+    - sequences     (str) Path to the fasta file containing the sequences to be mutated, e.g. 'seqs.fa'.
                     Sequence identifiers following the '>' character must correspond to the
                     identifiers in the seq_ID column of 'mutations' (do not include spaces).
-                    Alternatively: input a single sequence as a string, e.g. 'ACTGCTAGCT'
+                    Alternatively: Input sequence(s) as a string or list, e.g. 'AGCTAGCT' or ['ACTGCTAGCT', 'AGCTAGCT'].
     - mutations     Path to comma-separated csv file (str) (e.g. 'mutations.csv') or data frame (DataFrame object),
                     containing information about the mutations in the following format:
 
@@ -309,9 +310,10 @@ def mutate(
                     'mutation' = Column containing the mutations to be performed written in standard mutation annotation (see below)
                     'mut_ID' = Column containing an identifier for each mutation
                     'seq_ID' = Column containing the identifiers of the sequences to be mutated (must correspond to the string following
-                    the > character in the input_fasta; do not include spaces)
+                    the > character in the 'sequences' fasta file; do not include spaces)
 
-                    Alternatively: input a single mutation as a string, e.g. 'c.2C>T'
+                    Alternatively: Input mutation(s) as a string or list, e.g. 'c.2C>T' or ['c.2C>T', 'c.1A>C'].
+                    If a list is passed, the number of mutations must equal the number of input sequences.
     - k             (int) Length of sequences flanking the mutation. Default: 31.
                     If k > total length of the sequence, the entire sequence will be kept.
     - mut_column    (str) Name of the column containing the mutations to be performed in 'mutations'. Default: 'mutation'.
@@ -335,28 +337,76 @@ def mutate(
     ambiguous_position_mutations = 0
     cosmic_incorrect_wt_base = 0
 
+    # Load input sequences and their identifiers from fasta file
+    if "." in sequences:
+        titles, seqs = read_fasta(sequences)
+
+    # Handle input sequences passed as a list
+    elif isinstance(sequences, list):
+        titles = np.arange(len(sequences))
+        seqs = sequences
+
+    # Handle a single sequence passed as a string
+    elif isinstance(sequences, str):
+        titles = [1]
+        seqs = [sequences]
+    
+    else:
+        raise ValueError(
+            """
+            Format of the input to the 'sequences' argument not recognized. 
+            'sequences' be one of the following:
+            - Path to the fasta file containing the sequences to be mutated (e.g. 'seqs.fa')
+            - A list of sequences to be mutated (e.g. ['ACTGCTAGCT', 'AGCTAGCT'])
+            - A single sequence to be mutated passed as a string (e.g. 'AGCTAGCT')
+            """
+            )
+
     # Read in 'mutations' if passed as filepath to comma-separated csv
     if isinstance(mutations, str) and "." in mutations:
         mutations = pd.read_csv(mutations)
 
-    # Handle single mutation passed as a string
-    elif isinstance(mutations, str):
+    # Handle mutations passed as a list
+    elif isinstance(mutations, list):
         temp = pd.DataFrame()
         temp["mutation"] = mutations
-        temp["mut_ID"] = "mut1"
-        temp["seq_ID"] = "seq1"
+        temp["mut_ID"] = np.arange(len(mutations))
+        temp["seq_ID"] = np.arange(len(mutations))
         mutations = temp
+
+    # Handle single mutation passed as a string
+    elif isinstance(mutations, str):
+        # One mutation for one sequence 
+        if len(seqs) == 1:
+            temp = pd.DataFrame()
+            temp["mutation"] = mutations
+            temp["mut_ID"] = 1
+            temp["seq_ID"] = 1
+            mutations = temp
+        # One mutation and for multiple sequences
+        else:
+            temp = pd.DataFrame()
+            temp["mutation"] = mutations * len(seqs)
+            temp["mut_ID"] = np.arange(len(seqs))
+            temp["seq_ID"] = np.arange(len(seqs))
+            mutations = temp
+
+    elif isinstance(mutations, pd.DataFrame):
+        pass
     
-    # Load input sequences and their identifiers
-    if "." in input_fasta:
-        titles, sequences = read_fasta(input_fasta)
-    # Handle single sequence passed as a string
     else:
-        titles = ["seq1"]
-        sequences = [input_fasta]
+        raise ValueError(
+            """
+            Format of the input to the 'mutations' argument not recognized. 
+            'mutations' be one of the following:
+            - Path to comma-separated csv file (e.g. 'mutations.csv')
+            - A pandas DataFrame object
+            - A single sequence to be mutated passed as a string (e.g. 'AGCTAGCT')
+            """
+            )
 
     seq_dict = {}
-    for title, seq in zip(titles, sequences):
+    for title, seq in zip(titles, seqs):
         # Keep text following the > until the first space as the sequence identifier
         seq_dict[title.split(" ")[0]] = seq
 
@@ -387,6 +437,7 @@ def mutate(
     for mutation_type in mutation_types:
         df_mutation_type = mutations[mutations["mutation_type"] == mutation_type].copy()
         df_mutation_type["mutant_sequence_kmer"] = ""
+        # Define header for mutated sequences in output fasta
         df_mutation_type["header"] = (
             ">"
             + df_mutation_type[seq_id_column]
@@ -395,6 +446,8 @@ def mutate(
         )
         mutation_dict[mutation_type] = df_mutation_type
 
+    print(mutation_dict)
+    
     # Create mutated sequences
     if verbose:
         logging.info("Mutating sequences...")

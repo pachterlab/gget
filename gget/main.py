@@ -1770,14 +1770,15 @@ def main():
         add_help=True,
     )
     parser_mutate.add_argument(
-        "input_fasta",
+        "sequences",
         type=str,
+        nargs="+",
         help=(
             """
             Path to the fasta file containing the sequences to be mutated.
             Sequence identifiers following the '>' character must correspond to the 
             identifiers in the seq_ID column of 'mutations' (do not include spaces). 
-            Alternatively: input a single sequence as a string, e.g. 'ACTGCTAGCT'
+            Alternatively: Input sequence(s) as a string or list, e.g. 'AGCTAGCT' or ['ACTGCTAGCT', 'AGCTAGCT'].
             """
         ),
     )
@@ -2074,7 +2075,7 @@ def main():
     if args.command == "mutate":
         # Run mutate function (automatically saves output)
         mutate(
-            input_fasta=args.input_fasta,
+            sequences=args.sequences,
             mutations=args.mutations,
             k=args.k,
             mut_column=args.mut_column,
