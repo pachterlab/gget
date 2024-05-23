@@ -1845,10 +1845,12 @@ def main():
     parser_mutate.add_argument(
         "-o",
         "--out",
-        default="gget_mutate_out.fa",
+        default=None,
         type=str,
         required=False,
-        help=("Path to output fasta file containing the mutated sequences. The identifiers (following the '>') of the mutated sequences in the output fasta will be '>[seq_ID]_[mut_ID]'."),
+        help=(
+            "Path to output fasta file containing the mutated sequences. The identifiers (following the '>') of the mutated sequences in the output fasta will be '>[seq_ID]_[mut_ID]'."
+        ),
     )
     parser_mutate.add_argument(
         "-q",
@@ -2076,7 +2078,7 @@ def main():
     ## mutate return
     if args.command == "mutate":
         # Run mutate function (automatically saves output)
-        mutate(
+        mutate_results = mutate(
             sequences=args.sequences,
             mutations=args.mutations,
             k=args.k,
@@ -2086,6 +2088,11 @@ def main():
             output=args.output,
             verbose=args.quiet,
         )
+
+        # Print list of mutated sequences if any are returned (this should only happen when output=None)
+        if mutate_results:
+            for mut_seq in mutate_results:
+                print(mut_seq)
 
     ## cosmic return
     if args.command == "cosmic":

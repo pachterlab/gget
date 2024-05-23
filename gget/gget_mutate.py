@@ -285,7 +285,7 @@ def mutate(
     mut_column="mutation",
     mut_id_column="mut_ID",
     seq_id_column="seq_ID",
-    output="gget_mutate_out.fa",
+    output=None,
     verbose=True,
 ):
     """
@@ -319,13 +319,14 @@ def mutate(
     - mut_column    (str) Name of the column containing the mutations to be performed in 'mutations'. Default: 'mutation'.
     - mut_id_column (str) Name of the column containing the IDs of each mutation in 'mutations'. Default: 'mut_ID'.
     - seq_id_column (str) Name of the column containing the IDs of the sequences to be mutated in 'mutations'. Default: 'seq_ID'.
-    - output        (str) Path to output fasta file containing the mutated sequences. Default: 'gget_mutate_out.fa'.
+    - output        (str) Path to output fasta file containing the mutated sequences.
+                    Default: None -> Returns list of mutated sequences.
                     The identifiers (following the '>') of the mutated sequences in the output fasta will be '>[seq_ID]_[mut_ID]'.
     - verbose       (True/False) whether to print progress information. Default: True
 
     For more information on the standard mutation annotation, see https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1867422/.
 
-    Saves mutated sequences in a fasta file as specified in the output argument.
+    Returns a list containing the mutated sequences or, if output is specified, saves mutated sequences in fasta format.
     """
 
     global intronic_mutations, posttranslational_region_mutations, unknown_mutations, uncertain_mutations, ambiguous_position_mutations, cosmic_incorrect_wt_base
@@ -348,7 +349,7 @@ def mutate(
 
     # Handle a single sequence passed as a string
     elif isinstance(sequences, str):
-        titles = ['0']
+        titles = ["0"]
         seqs = [sequences]
 
     else:
@@ -621,21 +622,31 @@ def mutate(
     # Save mutated sequences in new fasta file
     if verbose:
         logging.info("Creating FASTA file containing mutated sequences...")
-    with open(output, "w") as fasta_file:
+
+    if output:
+        with open(output, "w") as fasta_file:
+            for mutation in mutation_dict:
+                if not mutation_dict[mutation].empty:
+                    df = mutation_dict[mutation]
+                    df["fasta_format"] = (
+                        df["header"] + "\n" + df["mutant_sequence_kmer"] + "\n"
+                    )
+                    fasta_file.write("\n".join(df["fasta_format"]))
+
+        with open(output, "r") as fasta_file:
+            lines = [line for line in fasta_file if line.strip()]
+
+        with open(output, "w") as fasta_file:
+            fasta_file.writelines(lines)
+
+        if verbose:
+            logging.info(
+                f"FASTA file containing mutated sequences created at {output}."
+            )
+
+    else:
+        all_mut_seqs = []
         for mutation in mutation_dict:
-            if not mutation_dict[mutation].empty:
-                df = mutation_dict[mutation]
-                df["fasta_format"] = (
-                    df["header"] + "\n" + df["mutant_sequence_kmer"] + "\n"
-                )
-                # df = df.dropna(subset=['GENOMIC_MUTATION_ID', 'fasta_format'])
-                fasta_file.write("\n".join(df["fasta_format"]))
-
-    with open(output, "r") as fasta_file:
-        lines = [line for line in fasta_file if line.strip()]
-
-    with open(output, "w") as fasta_file:
-        fasta_file.writelines(lines)
-
-    if verbose:
-        logging.info(f"FASTA file containing mutated sequences created at {output}.")
+            df = mutation_dict[mutation]
+            all_mut_seqs.extend(df["mutant_sequence_kmer"].values)
+        return all_mut_seqs
