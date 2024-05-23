@@ -355,7 +355,7 @@ def mutate(
         raise ValueError(
             """
             Format of the input to the 'sequences' argument not recognized. 
-            'sequences' be one of the following:
+            'sequences' must be one of the following:
             - Path to the fasta file containing the sequences to be mutated (e.g. 'seqs.fa')
             - A list of sequences to be mutated (e.g. ['ACTGCTAGCT', 'AGCTAGCT'])
             - A single sequence to be mutated passed as a string (e.g. 'AGCTAGCT')
@@ -369,7 +369,9 @@ def mutate(
     # Handle mutations passed as a list
     elif isinstance(mutations, list):
         if len(mutations) != len(seqs):
-            raise ValueError("If a list is passed, the number of mutations must equal the number of input sequences.")
+            raise ValueError(
+                "If a list is passed, the number of mutations must equal the number of input sequences."
+            )
 
         temp = pd.DataFrame()
         temp["mutation"] = mutations
@@ -393,10 +395,11 @@ def mutate(
         raise ValueError(
             """
             Format of the input to the 'mutations' argument not recognized. 
-            'mutations' be one of the following:
+            'mutations' must be one of the following:
             - Path to comma-separated csv file (e.g. 'mutations.csv')
             - A pandas DataFrame object
-            - A single sequence to be mutated passed as a string (e.g. 'AGCTAGCT')
+            - A single mutation to be applied to all input sequences (e.g. 'c.2C>T')
+            - A list of mutations (the number of mutations must equal the number of input sequences) (e.g. ['c.2C>T', 'c.1A>C'])
             """
         )
 
@@ -416,6 +419,20 @@ def mutate(
 
     # Link sequences to their mutations using the sequence identifiers
     mutations["full_sequence"] = mutations[seq_id_column].map(seq_dict)
+
+    # Handle sequences that were not found based on their sequence IDs
+    seqs_not_found = mutations[mutations["full_sequence"].isnull()]
+    if len(seqs_not_found) > 0:
+        logging.warning(
+            f"""
+            The sequences with the following sequence IDs were not found: {seqs_not_found["seq_ID"].values}
+            These sequences and their corresponding mutations will not be included in the output.
+            Ensure that the sequence IDs correspond to the string following the > character in the 'sequences' fasta file (do not include spaces).
+            """
+        )
+
+    # Drop inputs for sequences that were not found
+    mutations = mutations.dropna()
 
     # Split data frame by mutation type
     mutation_types = [
@@ -439,8 +456,6 @@ def mutate(
             + df_mutation_type[mut_id_column]
         )
         mutation_dict[mutation_type] = df_mutation_type
-
-    print(mutation_dict)
 
     # Create mutated sequences
     if verbose:
