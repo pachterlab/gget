@@ -56,7 +56,7 @@ def read_fasta(fasta):
                     seqs.append(new_seq)
 
                 # Append title line to titles list
-                titles.append(line.strip())
+                titles.append(line.strip().replace(">", ""))
                 title_last = True
 
             else:
