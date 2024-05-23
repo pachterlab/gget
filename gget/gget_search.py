@@ -201,38 +201,42 @@ def search(
     if verbose:
         logging.info(f"Fetching results from database: {db}")
 
-    ## Connect to data base
-    try:
-        db_connection = sql.connect(
-            host="mysql-eg-publicsql.ebi.ac.uk",
-            database=db,
-            user="anonymous",
-            password="",
-        )
-    except:
+    ## Connect to Ensembl SQL server
+    # Ports to try (some databases are stored in different ports)
+    ports = [1433, 4157, 3337]
+
+    connection_successful = False
+    last_exception = None
+    for port in ports:
         try:
-            # Try different port
             db_connection = sql.connect(
                 host="mysql-eg-publicsql.ebi.ac.uk",
                 database=db,
                 user="anonymous",
                 password="",
-                port=4157,
+                port=port
             )
-
+            connection_successful = True
+            break
         except Exception as e:
-            if "Access denied" in e:
-                raise RuntimeError(
-                    f"""
-                    The Ensembl server returned the following error: {e}.
-                    This might be caused by the Ensembl release number being too low. 
-                    Please try again with a more recent release.
-                    """
-                )
-            else:
-                raise RuntimeError(
-                    f"The Ensembl server returned the following error: {e}"
-                )
+            last_exception = e
+            # Continue to the next port if the connection is unsuccessful
+            continue
+    
+    # If none of the ports work, raise an error with the last exception encountered
+    if not connection_successful:
+        if "Access denied" in str(last_exception):
+            raise RuntimeError(
+                f"""
+                The Ensembl server returned the following error: {str(last_exception)}.
+                This might be caused by the Ensembl release number being too low. 
+                Please try again with a more recent release.
+                """
+            )
+        else:
+            raise RuntimeError(
+                f"The Ensembl server returned the following error: {str(last_exception)}"
+            )
 
     ## Clean up list of searchwords
     # If single searchword passed as string, convert to list
