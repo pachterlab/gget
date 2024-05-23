@@ -378,7 +378,7 @@ def mutate(
         mutations = pd.read_csv(mutations)
 
     # Handle mutations passed as a list
-    elif isinstance(mutations, list):
+    elif isinstance(mutations, list) and len(mutations) > 1:
         if len(mutations) != len(seqs):
             raise ValueError(
                 "If a list is passed, the number of mutations must equal the number of input sequences."
@@ -391,7 +391,7 @@ def mutate(
         mutations = temp
 
     # Handle single mutation passed as a string
-    elif isinstance(mutations, str):
+    elif isinstance(mutations, str) or (isinstance(mutations, list) and len(mutations) == 1):
         # This will work for one mutation for one sequence as well as one mutation for multiple sequences
         temp = pd.DataFrame()
         temp["mutation"] = [mutations] * len(seqs)
