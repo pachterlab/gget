@@ -645,12 +645,17 @@ def mutate(
         # Save mutated sequences in new fasta file
         with open(out, "w") as fasta_file:
             for mutation in mutation_dict:
-                if not mutation_dict[mutation].empty and df["mutant_sequence_kmer"] != "":
+                if not mutation_dict[mutation].empty:
                     df = mutation_dict[mutation]
                     df["fasta_format"] = (
                         df["header"] + "\n" + df["mutant_sequence_kmer"] + "\n"
                     )
-                    fasta_file.write("".join(df["fasta_format"]))
+
+                    # Do not include an empty string as a mutated sequence
+                    # (these are introduced when unknown mutations are encountered)
+                    df = df[df["mutant_sequence_kmer"] != ""]
+
+                    fasta_file.write("".join(df["fasta_format"].values))
 
         # with open(out, "r") as fasta_file:
         #     lines = [line for line in fasta_file if line.strip()]
@@ -659,9 +664,7 @@ def mutate(
         #     fasta_file.writelines(lines)
 
         if verbose:
-            logging.info(
-                f"FASTA file containing mutated sequences created at {out}."
-            )
+            logging.info(f"FASTA file containing mutated sequences created at {out}.")
 
     # When out=None, return list of mutated seqs
     else:
@@ -669,9 +672,11 @@ def mutate(
         for mutation in mutation_dict:
             df = mutation_dict[mutation]
             all_mut_seqs.extend(df["mutant_sequence_kmer"].values)
+
         # Remove empty strings from final list of mutated sequences
         # (these are introduced when unknown mutations are encountered)
         while "" in all_mut_seqs:
             all_mut_seqs.remove("")
+
         if len(all_mut_seqs) > 0:
             return all_mut_seqs
