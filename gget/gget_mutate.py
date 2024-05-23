@@ -350,7 +350,7 @@ def mutate(
     elif isinstance(sequences, str):
         titles = [1]
         seqs = [sequences]
-    
+
     else:
         raise ValueError(
             """
@@ -360,7 +360,7 @@ def mutate(
             - A list of sequences to be mutated (e.g. ['ACTGCTAGCT', 'AGCTAGCT'])
             - A single sequence to be mutated passed as a string (e.g. 'AGCTAGCT')
             """
-            )
+        )
 
     # Read in 'mutations' if passed as filepath to comma-separated csv
     if isinstance(mutations, str) and "." in mutations:
@@ -368,6 +368,9 @@ def mutate(
 
     # Handle mutations passed as a list
     elif isinstance(mutations, list):
+        if len(mutations) != len(seqs):
+            raise ValueError("If a list is passed, the number of mutations must equal the number of input sequences.")
+
         temp = pd.DataFrame()
         temp["mutation"] = mutations
         temp["mut_ID"] = np.arange(len(mutations))
@@ -376,24 +379,16 @@ def mutate(
 
     # Handle single mutation passed as a string
     elif isinstance(mutations, str):
-        # One mutation for one sequence 
-        if len(seqs) == 1:
-            temp = pd.DataFrame()
-            temp["mutation"] = mutations
-            temp["mut_ID"] = 1
-            temp["seq_ID"] = 1
-            mutations = temp
-        # One mutation and for multiple sequences
-        else:
-            temp = pd.DataFrame()
-            temp["mutation"] = mutations * len(seqs)
-            temp["mut_ID"] = np.arange(len(seqs))
-            temp["seq_ID"] = np.arange(len(seqs))
-            mutations = temp
+        # This will work for one mutation for one sequence as well as one mutation for multiple sequences
+        temp = pd.DataFrame()
+        temp["mutation"] = [mutations] * len(seqs)
+        temp["mut_ID"] = np.arange(len(seqs))
+        temp["seq_ID"] = np.arange(len(seqs))
+        mutations = temp
 
     elif isinstance(mutations, pd.DataFrame):
         pass
-    
+
     else:
         raise ValueError(
             """
@@ -403,13 +398,12 @@ def mutate(
             - A pandas DataFrame object
             - A single sequence to be mutated passed as a string (e.g. 'AGCTAGCT')
             """
-            )
+        )
 
     seq_dict = {}
     for title, seq in zip(titles, seqs):
         # Keep text following the > until the first space as the sequence identifier
         seq_dict[title.split(" ")[0]] = seq
-
 
     # Get all mutation types
     if verbose:
@@ -447,7 +441,7 @@ def mutate(
         mutation_dict[mutation_type] = df_mutation_type
 
     print(mutation_dict)
-    
+
     # Create mutated sequences
     if verbose:
         logging.info("Mutating sequences...")

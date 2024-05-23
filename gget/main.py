@@ -1786,6 +1786,7 @@ def main():
         "-md",
         "--mutations",
         type=str,
+        nargs="+",
         required=True,
         help=(
             """
@@ -1804,7 +1805,8 @@ def main():
             'seq_ID' = Column containing the identifiers of the sequences to be mutated (must correspond to the string following 
             the > character in the input_fasta; do not include spaces)
 
-            Alternatively: input a single mutation as a string, e.g. 'c.2C>T'
+            Alternatively: Input mutation(s) as a string or list, e.g. 'c.2C>T' or ['c.2C>T', 'c.1A>C'].
+            If a list is passed, the number of mutations must equal the number of input sequences.
             """
         ),
     )
