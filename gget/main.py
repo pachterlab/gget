@@ -1777,10 +1777,16 @@ def main():
         nargs="+",
         help=(
             """
-            Path to the fasta file containing the sequences to be mutated.   
-            Sequence identifiers following the '>' character must correspond to the 
-            identifiers in the seq_ID column of 'mutations' (do not include spaces). 
-            Alternatively: Input sequence(s) as a string or list, e.g. 'AGCTAGCT' or 'ACTGCTAGCT' 'AGCTAGCT'
+            (str) Path to the fasta file containing the sequences to be mutated, e.g., 'seqs.fa'.
+            Sequence identifiers following the '>' character must correspond to the
+            identifiers in the seq_ID column of 'mutations' (do not include spaces), e.g.:
+            
+            >seq1
+            ACTGCGATAGACT
+            >seq2
+            AGATCGCTAG
+                    
+            Alternatively: Input sequence(s) as a string or list, e.g. 'AGCTAGCT' or 'ACTGCTAGCT' 'AGCTAGCT'.
             """
         ),
     )
@@ -1804,6 +1810,7 @@ def main():
             "'mut_ID' = Column containing an identifier for each mutation\n"
             "'seq_ID' = Column containing the identifiers of the sequences to be mutated (must correspond to the string following the > character in the input_fasta; do not include spaces)\n"
             "Alternatively: Input mutation(s) as a string or list, e.g. 'c.2C>T' or 'c.2C>T' 'c.1A>C'\n"
+            "Note: Enclose individual mutation annotations in quotation marks to prevent terminal parsing errors."
             "If a list is passed, the number of mutations must equal the number of input sequences."
         ),
     )
@@ -1842,11 +1849,12 @@ def main():
     parser_mutate.add_argument(
         "-o",
         "--out",
-        default=None,
+        default="gget_mutate_out.fa",
         type=str,
         required=False,
         help=(
             "Path to output fasta file containing the mutated sequences. The identifiers (following the '>') of the mutated sequences in the output fasta will be '>[seq_ID]_[mut_ID]'."
+            "Set to None to return a list of the mutated sequences to standard out."
         ),
     )
     parser_mutate.add_argument(
