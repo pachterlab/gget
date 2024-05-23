@@ -433,6 +433,13 @@ def mutate(
 
     # Drop inputs for sequences that were not found
     mutations = mutations.dropna()
+    if len(mutations) < 1:
+        raise ValueError(
+            """
+            None of the input sequences match the sequence IDs provided in 'mutations'. 
+            Ensure that the sequence IDs correspond to the string following the > character in the 'sequences' fasta file (do not include spaces).
+            """
+        )
 
     # Split data frame by mutation type
     mutation_types = [
