@@ -1775,10 +1775,10 @@ def main():
         nargs="+",
         help=(
             """
-            Path to the fasta file containing the sequences to be mutated.\n  
+            Path to the fasta file containing the sequences to be mutated.   
             Sequence identifiers following the '>' character must correspond to the 
-            identifiers in the seq_ID column of 'mutations' (do not include spaces).\n  
-            Alternatively: Input sequence(s) as a string or list, e.g. 'AGCTAGCT' or ['ACTGCTAGCT', 'AGCTAGCT'].
+            identifiers in the seq_ID column of 'mutations' (do not include spaces). 
+            Alternatively: Input sequence(s) as a string or list, e.g. 'AGCTAGCT' or 'ACTGCTAGCT' 'AGCTAGCT'
             """
         ),
     )
@@ -1789,25 +1789,18 @@ def main():
         nargs="+",
         required=True,
         help=(
-            """
-            Path to comma-separated csv file (str) or data frame (DataFrame object)  
-            containing information about the mutations in the following format:\n  
-
-            | mutation             | mut_ID | seq_ID |\n  
-            | c.1252C>T            | mut1   | seq1   |\n  
-            | c.2239_2253inv       | mut2   | seq2   |\n  
-            | c.2239_2253inv       | mut2   | seq3   |\n  
-            | c.2239_2253delinsAAT | mut3   | seq3   |\n  
-            | ...                  | ...    | ...    |\n  
-
-            'mutation' = Column containing the mutations to be performed written in standard mutation annotation (see below)  
-            'mut_ID' = Column containing an identifier for each mutation\n  
-            'seq_ID' = Column containing the identifiers of the sequences to be mutated (must correspond to the string following  
-            the > character in the input_fasta; do not include spaces)\n  
-
-            Alternatively: Input mutation(s) as a string or list, e.g. 'c.2C>T' or ['c.2C>T', 'c.1A>C'].  
-            If a list is passed, the number of mutations must equal the number of input sequences.  
-            """
+            "Path to comma-separated csv file (str) or data frame (DataFrame object) containing information about the mutations in the following format: "
+            "| mutation             | mut_ID | seq_ID |"
+            "| c.1252C>T            | mut1   | seq1   |"
+            "| c.2239_2253inv       | mut2   | seq2   |"
+            "| c.2239_2253inv       | mut2   | seq3   |"
+            "| c.2239_2253delinsAAT | mut3   | seq3   |"
+            "| ...                  | ...    | ...    |"
+            "'mutation' = Column containing the mutations to be performed written in standard mutation annotation (see below) "
+            "'mut_ID' = Column containing an identifier for each mutation "
+            "'seq_ID' = Column containing the identifiers of the sequences to be mutated (must correspond to the string following the > character in the input_fasta; do not include spaces) "
+            "Alternatively: Input mutation(s) as a string or list, e.g. 'c.2C>T' or 'c.2C>T' 'c.1A>C' "
+            "If a list is passed, the number of mutations must equal the number of input sequences. "
         ),
     )
     parser_mutate.add_argument(
