@@ -343,12 +343,12 @@ def mutate(
 
     # Handle input sequences passed as a list
     elif isinstance(sequences, list):
-        titles = np.arange(len(sequences))
+        titles = np.arange(len(sequences)).astype(str)
         seqs = sequences
 
     # Handle a single sequence passed as a string
     elif isinstance(sequences, str):
-        titles = [1]
+        titles = ['1']
         seqs = [sequences]
 
     else:
@@ -363,7 +363,7 @@ def mutate(
         )
 
     # Read in 'mutations' if passed as filepath to comma-separated csv
-    if isinstance(mutations, str) and "." in mutations:
+    if isinstance(mutations, str) and ".csv" in mutations:
         mutations = pd.read_csv(mutations)
 
     # Handle mutations passed as a list
@@ -375,8 +375,8 @@ def mutate(
 
         temp = pd.DataFrame()
         temp["mutation"] = mutations
-        temp["mut_ID"] = np.arange(len(mutations))
-        temp["seq_ID"] = np.arange(len(mutations))
+        temp["mut_ID"] = np.arange(len(mutations)).astype(str)
+        temp["seq_ID"] = np.arange(len(mutations)).astype(str)
         mutations = temp
 
     # Handle single mutation passed as a string
@@ -384,8 +384,8 @@ def mutate(
         # This will work for one mutation for one sequence as well as one mutation for multiple sequences
         temp = pd.DataFrame()
         temp["mutation"] = [mutations] * len(seqs)
-        temp["mut_ID"] = np.arange(len(seqs))
-        temp["seq_ID"] = np.arange(len(seqs))
+        temp["mut_ID"] = np.arange(len(seqs)).astype(str)
+        temp["seq_ID"] = np.arange(len(seqs)).astype(str)
         mutations = temp
 
     elif isinstance(mutations, pd.DataFrame):
@@ -419,15 +419,13 @@ def mutate(
 
     # Link sequences to their mutations using the sequence identifiers
     mutations["full_sequence"] = mutations[seq_id_column].map(seq_dict)
-    print(seq_dict)
-    print(mutations)
 
     # Handle sequences that were not found based on their sequence IDs
     seqs_not_found = mutations[mutations["full_sequence"].isnull()]
     if 0 < len(seqs_not_found) < 20:
         logging.warning(
             f"""
-            The sequences with the following {len(seqs_not_found)} sequence IDs were not found: {", ".join(seqs_not_found["seq_ID"].values)}  
+            The sequences with the following {len(seqs_not_found)} sequence ID(s) were not found: {", ".join(seqs_not_found["seq_ID"].values)}  
             These sequences and their corresponding mutations will not be included in the output.  
             Ensure that the sequence IDs correspond to the string following the > character in the 'sequences' fasta file (do not include spaces).
             """
@@ -607,17 +605,18 @@ def mutate(
         - cosmic_incorrect_wt_base
     )
 
-    logging.warning(
-        f"""
-        {good_mutations} mutations correctly recorded ({good_mutations/total_mutations*100:.2f}%)
-        {intronic_mutations} intronic mutations found ({intronic_mutations/total_mutations*100:.2f}%)
-        {posttranslational_region_mutations} posttranslational region mutations found ({posttranslational_region_mutations/total_mutations*100:.2f}%)
-        {unknown_mutations} unknown mutations found ({unknown_mutations/total_mutations*100:.2f}%)
-        {uncertain_mutations} mutations with uncertain mutation found ({uncertain_mutations/total_mutations*100:.2f}%)
-        {ambiguous_position_mutations} mutations with ambiguous position found ({ambiguous_position_mutations/total_mutations*100:.2f}%)
-        {cosmic_incorrect_wt_base} mutations with incorrect wildtype base found ({cosmic_incorrect_wt_base/total_mutations*100:.2f}%)
-        """
-    )
+    if verbose:
+        logging.info(
+            f"""
+            {good_mutations} mutations correctly recorded ({good_mutations/total_mutations*100:.2f}%)
+            {intronic_mutations} intronic mutations found ({intronic_mutations/total_mutations*100:.2f}%)
+            {posttranslational_region_mutations} posttranslational region mutations found ({posttranslational_region_mutations/total_mutations*100:.2f}%)
+            {unknown_mutations} unknown mutations found ({unknown_mutations/total_mutations*100:.2f}%)
+            {uncertain_mutations} mutations with uncertain mutation found ({uncertain_mutations/total_mutations*100:.2f}%)
+            {ambiguous_position_mutations} mutations with ambiguous position found ({ambiguous_position_mutations/total_mutations*100:.2f}%)
+            {cosmic_incorrect_wt_base} mutations with incorrect wildtype base found ({cosmic_incorrect_wt_base/total_mutations*100:.2f}%)
+            """
+        )
 
     # Save mutated sequences in new fasta file
     if verbose:
