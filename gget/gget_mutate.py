@@ -588,7 +588,7 @@ def mutate(
             )
 
     # Report status of mutations back to user
-    total_mutations = df.shape[0]
+    total_mutations = mutations.shape[0]
     good_mutations = (
         total_mutations
         - intronic_mutations
