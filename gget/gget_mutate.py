@@ -673,5 +673,5 @@ def mutate(
         # (these are introduced when unknown mutations are encountered)
         while "" in all_mut_seqs:
             all_mut_seqs.remove("")
-        if all_mut_seqs > 0:
+        if len(all_mut_seqs) > 0:
             return all_mut_seqs
