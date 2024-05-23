@@ -348,7 +348,7 @@ def mutate(
 
     # Handle a single sequence passed as a string
     elif isinstance(sequences, str):
-        titles = ['1']
+        titles = ['0']
         seqs = [sequences]
 
     else:
@@ -606,7 +606,7 @@ def mutate(
     )
 
     if verbose:
-        logging.info(
+        logging.warning(
             f"""
             {good_mutations} mutations correctly recorded ({good_mutations/total_mutations*100:.2f}%)
             {intronic_mutations} intronic mutations found ({intronic_mutations/total_mutations*100:.2f}%)
