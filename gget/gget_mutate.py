@@ -378,20 +378,27 @@ def mutate(
         mutations = pd.read_csv(mutations)
 
     # Handle mutations passed as a list
-    elif isinstance(mutations, list) and len(mutations) > 1:
-        if len(mutations) != len(seqs):
-            raise ValueError(
-                "If a list is passed, the number of mutations must equal the number of input sequences."
-            )
+    elif isinstance(mutations, list):
+        if len(mutations) > 1:
+            if len(mutations) != len(seqs):
+                raise ValueError(
+                    "If a list is passed, the number of mutations must equal the number of input sequences."
+                )
 
-        temp = pd.DataFrame()
-        temp["mutation"] = mutations
-        temp["mut_ID"] = [f"mut{i+1}" for i in range(len(mutations))]
-        temp["seq_ID"] = [f"seq{i+1}" for i in range(len(mutations))]
-        mutations = temp
+            temp = pd.DataFrame()
+            temp["mutation"] = mutations
+            temp["mut_ID"] = [f"mut{i+1}" for i in range(len(mutations))]
+            temp["seq_ID"] = [f"seq{i+1}" for i in range(len(mutations))]
+            mutations = temp
+        else:
+            temp = pd.DataFrame()
+            temp["mutation"] = [mutations[0]] * len(seqs)
+            temp["mut_ID"] = [f"mut{i+1}" for i in range(len(seqs))]
+            temp["seq_ID"] = [f"seq{i+1}" for i in range(len(seqs))]
+            mutations = temp
 
     # Handle single mutation passed as a string
-    elif isinstance(mutations, str) or (isinstance(mutations, list) and len(mutations) == 1):
+    elif isinstance(mutations, str):
         # This will work for one mutation for one sequence as well as one mutation for multiple sequences
         temp = pd.DataFrame()
         temp["mutation"] = [mutations] * len(seqs)
