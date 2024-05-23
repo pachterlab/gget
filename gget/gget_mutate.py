@@ -567,32 +567,41 @@ def mutate(
                 axis=1,
             )
     if not mutation_dict["inversion"].empty:
-        tqdm.pandas(desc="Performing inversions")
-        mutation_dict["inversion"]["mutant_sequence_kmer"] = mutation_dict[
-            "inversion"
-        ].progress_apply(
-            create_mutant_sequence,
-            args=(inversion_mutation, k, mut_column),
-            axis=1,
-        )
-    if not mutation_dict["unknown"].empty:
         if verbose:
-            tqdm.pandas(desc="Unknown mutations")
-            mutation_dict["unknown"]["mutant_sequence_kmer"] = mutation_dict[
-                "unknown"
+            tqdm.pandas(desc="Performing inversions")
+            mutation_dict["inversion"]["mutant_sequence_kmer"] = mutation_dict[
+                "inversion"
             ].progress_apply(
                 create_mutant_sequence,
-                args=(unknown_mutation, k, mut_column),
+                args=(inversion_mutation, k, mut_column),
                 axis=1,
             )
         else:
-            mutation_dict["unknown"]["mutant_sequence_kmer"] = mutation_dict[
-                "unknown"
+            mutation_dict["inversion"]["mutant_sequence_kmer"] = mutation_dict[
+                "inversion"
             ].apply(
                 create_mutant_sequence,
-                args=(unknown_mutation, k, mut_column),
+                args=(inversion_mutation, k, mut_column),
                 axis=1,
             )
+    # if not mutation_dict["unknown"].empty:
+    #     if verbose:
+    #         tqdm.pandas(desc="Unknown mutations")
+    #         mutation_dict["unknown"]["mutant_sequence_kmer"] = mutation_dict[
+    #             "unknown"
+    #         ].progress_apply(
+    #             create_mutant_sequence,
+    #             args=(unknown_mutation, k, mut_column),
+    #             axis=1,
+    #         )
+    #     else:
+    #         mutation_dict["unknown"]["mutant_sequence_kmer"] = mutation_dict[
+    #             "unknown"
+    #         ].apply(
+    #             create_mutant_sequence,
+    #             args=(unknown_mutation, k, mut_column),
+    #             axis=1,
+    #         )
 
     # Report status of mutations back to user
     total_mutations = mutations.shape[0]
@@ -606,7 +615,7 @@ def mutate(
         - cosmic_incorrect_wt_base
     )
 
-    if verbose:
+    if good_mutations != total_mutations:
         logging.warning(
             f"""
             {good_mutations} mutations correctly recorded ({good_mutations/total_mutations*100:.2f}%)
@@ -618,12 +627,22 @@ def mutate(
             {cosmic_incorrect_wt_base} mutations with incorrect wildtype base found ({cosmic_incorrect_wt_base/total_mutations*100:.2f}%)
             """
         )
-
-    # Save mutated sequences in new fasta file
-    if verbose:
-        logging.info("Creating FASTA file containing mutated sequences...")
+    else:
+        if verbose:
+            logging.info(
+                f"""
+                {good_mutations} mutations correctly recorded ({good_mutations/total_mutations*100:.2f}%)
+                {intronic_mutations} intronic mutations found ({intronic_mutations/total_mutations*100:.2f}%)
+                {posttranslational_region_mutations} posttranslational region mutations found ({posttranslational_region_mutations/total_mutations*100:.2f}%)
+                {unknown_mutations} unknown mutations found ({unknown_mutations/total_mutations*100:.2f}%)
+                {uncertain_mutations} mutations with uncertain mutation found ({uncertain_mutations/total_mutations*100:.2f}%)
+                {ambiguous_position_mutations} mutations with ambiguous position found ({ambiguous_position_mutations/total_mutations*100:.2f}%)
+                {cosmic_incorrect_wt_base} mutations with incorrect wildtype base found ({cosmic_incorrect_wt_base/total_mutations*100:.2f}%)
+                """
+            )
 
     if output:
+        # Save mutated sequences in new fasta file
         with open(output, "w") as fasta_file:
             for mutation in mutation_dict:
                 if not mutation_dict[mutation].empty:
@@ -644,6 +663,7 @@ def mutate(
                 f"FASTA file containing mutated sequences created at {output}."
             )
 
+    # When output=None, return list of mutated seqs
     else:
         all_mut_seqs = []
         for mutation in mutation_dict:
