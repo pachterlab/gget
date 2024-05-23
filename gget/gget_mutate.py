@@ -584,24 +584,24 @@ def mutate(
                 args=(inversion_mutation, k, mut_column),
                 axis=1,
             )
-    # if not mutation_dict["unknown"].empty:
-    #     if verbose:
-    #         tqdm.pandas(desc="Unknown mutations")
-    #         mutation_dict["unknown"]["mutant_sequence_kmer"] = mutation_dict[
-    #             "unknown"
-    #         ].progress_apply(
-    #             create_mutant_sequence,
-    #             args=(unknown_mutation, k, mut_column),
-    #             axis=1,
-    #         )
-    #     else:
-    #         mutation_dict["unknown"]["mutant_sequence_kmer"] = mutation_dict[
-    #             "unknown"
-    #         ].apply(
-    #             create_mutant_sequence,
-    #             args=(unknown_mutation, k, mut_column),
-    #             axis=1,
-    #         )
+    if not mutation_dict["unknown"].empty:
+        if verbose:
+            tqdm.pandas(desc="Unknown mutations")
+            mutation_dict["unknown"]["mutant_sequence_kmer"] = mutation_dict[
+                "unknown"
+            ].progress_apply(
+                create_mutant_sequence,
+                args=(unknown_mutation, k, mut_column),
+                axis=1,
+            )
+        else:
+            mutation_dict["unknown"]["mutant_sequence_kmer"] = mutation_dict[
+                "unknown"
+            ].apply(
+                create_mutant_sequence,
+                args=(unknown_mutation, k, mut_column),
+                axis=1,
+            )
 
     # Report status of mutations back to user
     total_mutations = mutations.shape[0]
