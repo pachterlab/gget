@@ -1797,7 +1797,7 @@ def main():
         nargs="+",
         required=True,
         help=(
-            "Path to comma-separated csv file (str) or data frame (DataFrame object) containing information about the mutations in the following format:\n"
+            "Path to csv or tsv file (e.g., 'mutations.csv') containing information about the mutations in the following format:\n"
             "\n"
             "| mutation             | mut_ID | seq_ID |\n"
             "| c.1252C>T            | mut1   | seq1   |\n"
