@@ -1,7 +1,13 @@
 import requests
 import pandas as pd
+import subprocess
+import os
 import json as json_package
+import base64
+import shutil
+import tarfile
 import logging
+from datetime import datetime
 
 # Add and format time stamp in logging messages
 logging.basicConfig(
@@ -16,229 +22,499 @@ logging.getLogger("numexpr").setLevel(logging.WARNING)
 from .constants import COSMIC_GET_URL
 
 
+# Handle logging for database downloads
+logging_level = logging.INFO
+logger = logging.getLogger(__name__)
+logger.setLevel(logging_level)
+formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s", "%H:%M:%S")
+
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(formatter)
+logger.addHandler(console_handler)
+
+log_dir = "logs"
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
+
+log_file = os.path.join(
+    log_dir, f"log_file_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+)
+
+file_handler = logging.FileHandler(log_file)
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
+
+
+def download_reference(download_link, tar_folder_path, file_path, verbose):
+    email = input("Please enter your COSMIC email: ")
+    password = input("Please enter your COSMIC password: ")
+
+    # Concatenate the email and password with a colon
+    input_string = f"{email}:{password}\n"
+
+    encoded_bytes = base64.b64encode(input_string.encode("utf-8"))
+    encoded_string = encoded_bytes.decode("utf-8")
+    curl_command = [
+        "curl",
+        "-H",
+        f"Authorization: Basic {encoded_string}",
+        download_link,
+    ]
+    result = subprocess.run(curl_command, capture_output=True, text=True)
+
+    response_data = json_package.loads(result.stdout)
+    try:
+        true_download_url = response_data.get("url")
+    except AttributeError:
+        raise AttributeError("Invalid username or password.")
+
+    curl_command2 = ["curl", true_download_url, "--output", f"{tar_folder_path}.tar"]
+    result2 = subprocess.run(curl_command2, capture_output=True, text=True)
+
+    if result2.returncode != 0:
+        raise RuntimeError(
+            f"Failed to download file. Return code: {result.returncode}\n{result.stderr}"
+        )
+
+    with tarfile.open(f"{tar_folder_path}.tar", "r") as tar:
+        tar.extractall(path=tar_folder_path)
+        if verbose:
+            logging.info(f"Extracted tar file to {tar_folder_path}")
+
+    with gzip.open(f"{file_path}.gz", "rb") as f_in:
+        with open(file_path, "wb") as f_out:
+            shutil.copyfileobj(f_in, f_out)
+        if verbose:
+            logging.info(f"Unzipped file to {file_path}")
+
+
+def select_reference(
+    mutation_class, reference_dir, GRCh_version, cosmic_version, verbose
+):
+    # if mutation_class == "transcriptome":
+    #     download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{GRCh_version}/cosmic/v{cosmic_version}/Cosmic_Genes_Fasta_v{cosmic_version}_GRCh{GRCh_version}.tar&bucket=downloads"
+    #     tarred_folder = f"Cosmic_Genes_Fasta_v{cosmic_version}_GRCh{GRCh_version}"
+    #     contained_file = f"Cosmic_Genes_v{cosmic_version}_GRCh{GRCh_version}.fasta"
+
+    if mutation_class == "cancer":
+        assert (
+            GRCh_version == "37"
+        ), "CancerMutationCensus data is only available for GRCh37 (set GRCh_version=37)"
+        download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=GRCh{GRCh_version}/cmc/v{cosmic_version}/CancerMutationCensus_AllData_Tsv_v{cosmic_version}_GRCh{GRCh_version}.tar&bucket=downloads"
+        tarred_folder = (
+            f"CancerMutationCensus_AllData_Tsv_v{cosmic_version}_GRCh{GRCh_version}"
+        )
+        contained_file = (
+            f"CancerMutationCensus_AllData_v{cosmic_version}_GRCh{GRCh_version}.tsv"
+        )
+
+    elif mutation_class == "cell_line":
+        download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{GRCh_version}/cell_lines/v{cosmic_version}/CellLinesProject_GenomeScreensMutant_Tsv_v{cosmic_version}_GRCh{GRCh_version}.tar&bucket=downloads"
+        tarred_folder = f"CellLinesProject_GenomeScreensMutant_Tsv_v{cosmic_version}_GRCh{GRCh_version}"
+        contained_file = f"CellLinesProject_GenomeScreensMutant_v{cosmic_version}_GRCh{GRCh_version}.tsv"
+
+    elif mutation_class == "census":
+        download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{GRCh_version}/cosmic/v{cosmic_version}/Cosmic_MutantCensus_Tsv_v{cosmic_version}_GRCh{GRCh_version}.tar&bucket=downloads"
+        tarred_folder = f"Cosmic_MutantCensus_Tsv_v{cosmic_version}_GRCh{GRCh_version}"
+        contained_file = f"Cosmic_MutantCensus_v{cosmic_version}_GRCh{GRCh_version}.tsv"
+
+    elif mutation_class == "resistance":
+        download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{GRCh_version}/cosmic/v{cosmic_version}/Cosmic_ResistanceMutations_Tsv_v{cosmic_version}_GRCh{GRCh_version}.tar&bucket=downloads"
+        tarred_folder = (
+            f"Cosmic_ResistanceMutations_Tsv_v{cosmic_version}_GRCh{GRCh_version}"
+        )
+        contained_file = (
+            f"Cosmic_ResistanceMutations_v{cosmic_version}_GRCh{GRCh_version}.tsv"
+        )
+
+    elif mutation_class == "screen":
+        download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{GRCh_version}/cosmic/v{cosmic_version}/Cosmic_GenomeScreensMutant_Tsv_v{cosmic_version}_GRCh{GRCh_version}.tar&bucket=downloads"
+        tarred_folder = (
+            f"Cosmic_GenomeScreensMutant_Tsv_v{cosmic_version}_GRCh{GRCh_version}"
+        )
+        contained_file = (
+            f"Cosmic_GenomeScreensMutant_v{cosmic_version}_GRCh{GRCh_version}.tsv"
+        )
+
+    elif mutation_class == "cancer_example":
+        download_link = f"https://cog.sanger.ac.uk/cosmic-downloads-production/taster/example_grch{GRCh_version}.tar"
+        tarred_folder = f"example_GRCh{GRCh_version}"
+        contained_file = (
+            f"CancerMutationCensus_AllData_v{cosmic_version}_GRCh{GRCh_version}.tsv"
+        )
+
+    tar_folder_path = os.path.join(reference_dir, tarred_folder)
+    file_path = os.path.join(tar_folder_path, contained_file)
+
+    if not os.path.exists(file_path):
+        # Only the example database can be downloaded directly (without an account)
+        if mutation_class == "cancer_example":
+            curl_command = [
+                "curl",
+                "-L",
+                "--output",
+                f"{tar_folder_path}.tar",
+                download_link,
+            ]
+            result = subprocess.run(curl_command, capture_output=True, text=True)
+
+            with tarfile.open(f"{tar_folder_path}.tar", "r") as tar:
+                tar.extractall(path=tar_folder_path)
+                if verbose:
+                    logging.info(f"Extracted tar file to {tar_folder_path}")
+
+        # Download full databases
+        else:
+            proceed = (
+                input(
+                    "Downloading complete databases from COSMIC requires an account (https://cancer.sanger.ac.uk/cosmic/register; free for academic use, license for commercial use). Would you like to proceed? "
+                )
+                .strip()
+                .lower()
+            )
+            if proceed in ["yes", "y"]:
+                download_reference(download_link, tar_folder_path, file_path, verbose)
+            else:
+                raise KeyboardInterrupt(
+                    f"Database download canceled. Learn more about COSMIC at https://cancer.sanger.ac.uk/cosmic/download/cosmic."
+                )
+
+    return file_path
+
+
 def cosmic(
-    searchterm, entity="mutations", limit=100, save=False, verbose=True, json=False
+    searchterm,
+    entity="mutations",
+    limit=100,
+    json=False,
+    save=False,
+    download_cosmic=False,
+    cosmic_version=99,
+    GRCh_version=38,
+    mutation_class="cancer",
+    gget_mutate=True,
+    out=None,
+    verbose=True,
 ):
     """
     Search for genes, mutations, etc associated with cancers using the COSMIC
     (Catalogue Of Somatic Mutations In Cancer) database
     (https://cancer.sanger.ac.uk/cosmic).
+    NOTE: Licence fees apply for the commercial use of COSMIC.
 
-    Args:
-    - searchterm    (str) Search term, which can be a mutation, or gene name (or Ensembl ID), or sample, etc.
-                    as defined using the 'entity' argument. Example: 'EGFR'.
-    - entity        (str) Defines the type of the supplied search term. One of the following:
-                    'mutations' (default), 'genes', 'cancer', 'tumour site', 'studies', 'pubmed', or 'samples'.
-    - limit         (int) Number of hits to return. Default: 100
-    - json          (True/False) If True, returns results in json format instead of data frame. Default: False
-    - save          (True/False) whether to save the results in the local directory. Default: False
-    - verbose       (True/False) whether to print progress information. Default: True
+    Args for querying information about specific cancers/genes/etc:
+    - searchterm      (str) Search term, which can be a mutation, or gene name (or Ensembl ID), or sample, etc.
+                      as defined using the 'entity' argument. Example: 'EGFR'.
+    - entity          (str) Defines the type of the supplied search term. One of the following:
+                      'mutations' (default), 'genes', 'cancer', 'tumour site', 'studies', 'pubmed', or 'samples'.
+    - limit           (int) Number of hits to return. Default: 100
+    - json            (True/False) If True, returns results in json format instead of data frame. Default: False
+    - save            (True/False) whether to save the results in the local directory. Default: False
 
     Returns a data frame with the requested results.
+
+    Args for downloading COSMIC databases:
+    NOTE: Downloading complete databases from COSMIC requires an account (https://cancer.sanger.ac.uk/cosmic/register; free for academic use, license for commercial use)
+    - download_cosmic (True/False) whether to switch into database download mode. Default: False
+    - cosmic_version  (int) Version of the COSMIC database. Default: 99
+    - GRCh_version    (int) Version of the human GRCh reference genome. Default: 38
+    - mutation_class  (str) Type of database to download. One of the following:
+                      'cancer' (default), 'cell_line', 'census', 'resistance', 'screen', 'cancer_example'
+    - gget_mutate     (True/False) whether to create a modified version of the database for use with gget mutate. Default: True
+    - out             (str) Path to folder the database will be downloaded into. Default: None -> Database will be downloaded into current working directory
+
+    General args:
+    - verbose         (True/False) whether to print progress information. Default: True
+
+    Saves the requested database into the specified folder (or current working directory if out=None).
     """
 
     if verbose:
         logging.info("NOTE: Licence fees apply for the commercial use of COSMIC.")
 
-    # Check if 'entity' argument is valid
-    sps = [
-        "mutations",
-        "pubmed",
-        "genes",
-        "studies",
-        "samples",
-        "cancer",
-        "tumour site",
-    ]
-    if entity not in sps:
-        raise ValueError(
-            f"'entity' argument specified as {entity}. Expected one of: {', '.join(sps)}"
+    ## Database download
+    if download_cosmic:
+        mut_class_allowed = [
+            "cancer",
+            "cell_line",
+            "census",
+            "resistance",
+            "screen",
+            "cancer_example",
+        ]
+        if mutation_class not in mut_class_allowed:
+            raise ValueError(
+                f"Parameter 'mutation_class' must be one of the following: {', '.join(mut_class_allowed)}.\n"
+            )
+
+        if not out:
+            out = os.path.dirname(os.getcwd())
+
+        if not os.path.exists(out):
+            os.makedirs(out)
+
+        ## Download requested database
+        mutation_tsv_file = select_reference(
+            mutation_class, out, GRCh_version, cosmic_version, verbose
         )
 
-    # Translate categories to match COSMIC data table IDs
-    if entity == "cancer":
-        entity = "disease"
-
-    if entity == "tumour site":
-        entity = "tumour"
-
-    if verbose:
-        logging.info(
-            f"Fetching the {limit} most correlated to {searchterm} from COSMIC."
-        )
-
-    r = requests.get(url=COSMIC_GET_URL + entity + "?q=" + searchterm + "&export=json")
-
-    # Check if the request returned an error (e.g. gene not found)
-    if not r.ok:
-        raise RuntimeError(
-            f"COSMIC API request returned error {r.status_code}. "
-            "Please double-check the arguments and try again.\n"
-        )
-
-    if r.text == "\n":
-        logging.warning(
-            f"searchterm = '{searchterm}' did not return any results with entity = '{entity}'. "
-            "Please double-check the arguments and try again.\n"
-        )
-        return None
-
-    data = r.text.split("\n")
-    dicts = {}
-    counter = 1
-    if entity == "mutations":
-        dicts = {"Gene": [], "Syntax": [], "Alternate IDs": [], "Canonical": []}
-        for i in data:
-            if len(i) > 2:
-                parsing_mutations = i.split("\t")
-                dicts["Gene"].append(parsing_mutations[0])
-                dicts["Syntax"].append(parsing_mutations[1])
-                dicts["Alternate IDs"].append(
-                    parsing_mutations[2].replace('" ', "").replace('"', "")
+        if gget_mutate:
+            ## Create copy of results formatted for further use by gget mutate
+            if verbose:
+                logging.info(
+                    "Creating modified database file for use with gget mutate..."
                 )
-                dicts["Canonical"].append(parsing_mutations[3])
-                counter = counter + 1
-                if limit < counter:
-                    break
 
-    elif entity == "pubmed":
-        dicts = {"Pubmed": [], "Paper title": [], "Author": []}
-        for i in data:
-            if len(i) > 2:
-                parsing_mutations = i.split("\t")
-                dicts["Pubmed"].append(parsing_mutations[0])
-                dicts["Paper title"].append(
-                    parsing_mutations[1].replace('" ', "").replace('"', "").capitalize()
+            if mutation_class == "cancer" or mutation_class == "cancer_example":
+                relevant_cols = [
+                    "ACCESSION_NUMBER",
+                    "GENOMIC_MUTATION_ID",
+                    "MUTATION_URL",
+                    "Mutation CDS",
+                ]
+            else:
+                relevant_cols = [
+                    "TRANSCRIPT_ACCESSION",
+                    "GENOMIC_MUTATION_ID",
+                    "MUTATION_ID",
+                    "MUTATION_CDS",
+                ]
+
+            df = pd.read_csv(mutation_tsv_file, usecols=relevant_cols, sep="\t")
+
+            # Get seq_ID and mutation columns
+            if mutation_class == "cancer" or mutation_class == "cancer_example":
+                df["MUTATION_ID"] = df["MUTATION_URL"].str.extract(r"id=(\d+)")
+                df = df.rename(
+                    columns={
+                        "ACCESSION_NUMBER": "seq_ID",
+                        "Mutation CDS": "mutation",
+                        "MUTATION_URL": "MUTATION_ID",
+                    }
                 )
-                dicts["Author"].append(
-                    parsing_mutations[2].replace('" ', "").replace('"', "")
+            else:
+                df = df.rename(
+                    columns={
+                        "TRANSCRIPT_ACCESSION": "seq_ID",
+                        "MUTATION_CDS": "mutation",
+                    }
                 )
-                counter = counter + 1
-                if limit < counter:
-                    break
 
-    elif entity == "genes":
-        dicts = {
-            "Gene": [],
-            "Alternate IDs": [],
-            "Tested samples": [],
-            "Simple Mutations": [],
-            "Fusions": [],
-            "Coding Mutations": [],
-        }
-        for i in data:
-            if len(i) > 2:
-                parsing_mutations = i.split("\t")
-                dicts["Gene"].append(parsing_mutations[0])
-                dicts["Alternate IDs"].append(
-                    parsing_mutations[1].replace('" ', "").replace('"', "")
-                )
-                dicts["Tested samples"].append(parsing_mutations[2])
-                dicts["Simple Mutations"].append(parsing_mutations[3])
-                dicts["Fusions"].append(parsing_mutations[4])
-                dicts["Coding Mutations"].append(parsing_mutations[5])
-                counter = counter + 1
-                if limit < counter:
-                    break
+            # Get mut_ID column (by combining GENOMIC_MUTATION_ID and MUTATION_URL/MUTATION_ID)
+            df["GENOMIC_MUTATION_ID"] = df["GENOMIC_MUTATION_ID"].fillna("NA")
+            df["mut_ID"] = df["GENOMIC_MUTATION_ID"] + "_" + df["MUTATION_ID"]
+            df = df.drop(columns=["GENOMIC_MUTATION_ID", "MUTATION_ID"])
 
-    elif entity == "samples":
-        dicts = {
-            "Sample Name": [],
-            "Sites & Histologies": [],
-            "Analysed Genes": [],
-            "Mutations": [],
-            "Fusions": [],
-            "Structual variants": [],
-        }
-        for i in data:
-            if len(i) > 2:
-                parsing_mutations = i.split("\t")
-                dicts["Sample Name"].append(parsing_mutations[0])
-                dicts["Sites & Histologies"].append(
-                    parsing_mutations[1].replace(":", ", ")
-                )
-                dicts["Analysed Genes"].append(parsing_mutations[2])
-                dicts["Mutations"].append(parsing_mutations[3])
-                dicts["Fusions"].append(parsing_mutations[4])
-                dicts["Structual variants"].append(parsing_mutations[5])
-                counter = counter + 1
-                if limit < counter:
-                    break
-
-    elif entity == "studies":
-        dicts = {
-            "Study Id": [],
-            "Project Code": [],
-            "Description": [],
-        }
-        for i in data:
-            if len(i) > 2:
-                parsing_mutations = i.split("\t")
-                dicts["Study Id"].append(parsing_mutations[0])
-                dicts["Project Code"].append(parsing_mutations[1])
-                dicts["Description"].append(parsing_mutations[2])
-                counter = counter + 1
-                if limit < counter:
-                    break
-
-    elif entity == "disease":
-        dicts = {
-            "COSMIC classification": [],
-            "Paper description": [],
-            "Tested samples": [],
-            "Mutations": [],
-        }
-        for i in data:
-            if len(i) > 2:
-                parsing_mutations = i.split("\t")
-                dicts["COSMIC classification"].append(
-                    parsing_mutations[0].replace('" ', "").replace('"', "")
-                )
-                dicts["Paper description"].append(
-                    parsing_mutations[1].replace('" ', "").replace('"', "")
-                )
-                dicts["Tested samples"].append(parsing_mutations[2])
-                dicts["Mutations"].append(parsing_mutations[3])
-                counter = counter + 1
-                if limit < counter:
-                    break
-
-    elif entity == "tumour":
-        dicts = {
-            "Primary Site": [],
-            "Tested sample": [],
-            "Analyzed genes": [],
-            "Mutations": [],
-            "Fusions": [],
-            "Structural variants": [],
-        }
-        for i in data:
-            if len(i) > 2:
-                parsing_mutations = i.split("\t")
-                dicts["Primary Site"].append(parsing_mutations[0])
-                dicts["Tested sample"].append(parsing_mutations[1])
-                dicts["Analyzed genes"].append(parsing_mutations[2])
-                dicts["Mutations"].append(parsing_mutations[3])
-                dicts["Fusions"].append(parsing_mutations[4])
-                dicts["Structural variants"].append(parsing_mutations[5])
-                counter = counter + 1
-                if limit < counter:
-                    break
-
-    corr_df = pd.DataFrame(dicts)
-
-    if json:
-        results_dict = json_package.loads(corr_df.to_json(orient="records"))
-        if save:
-            with open(
-                f"gget_cosmic_{entity}_{searchterm}.json", "w", encoding="utf-8"
-            ) as f:
-                json_package.dump(results_dict, f, ensure_ascii=False, indent=4)
-
-        return results_dict
+            mutate_csv_out = os.path.join(
+                out, f"Cosmic_v{cosmic_version}_GRCh{GRCh_version}_clean.csv"
+            )
+            df.to_csv(mutate_csv_out, index=False)
 
     else:
-        if save:
-            corr_df.to_csv(f"gget_cosmic_{entity}_{searchterm}.csv", index=False)
+        # Check if 'entity' argument is valid
+        sps = [
+            "mutations",
+            "pubmed",
+            "genes",
+            "studies",
+            "samples",
+            "cancer",
+            "tumour site",
+        ]
+        if entity not in sps:
+            raise ValueError(
+                f"'entity' argument specified as {entity}. Expected one of: {', '.join(sps)}"
+            )
 
-        return corr_df
+        # Translate categories to match COSMIC data table IDs
+        if entity == "cancer":
+            entity = "disease"
+
+        if entity == "tumour site":
+            entity = "tumour"
+
+        if verbose:
+            logging.info(
+                f"Fetching the {limit} most correlated to {searchterm} from COSMIC."
+            )
+
+        r = requests.get(
+            url=COSMIC_GET_URL + entity + "?q=" + searchterm + "&export=json"
+        )
+
+        # Check if the request returned an error (e.g. gene not found)
+        if not r.ok:
+            raise RuntimeError(
+                f"COSMIC API request returned error {r.status_code}. "
+                "Please double-check the arguments and try again.\n"
+            )
+
+        if r.text == "\n":
+            logging.warning(
+                f"searchterm = '{searchterm}' did not return any results with entity = '{entity}'. "
+                "Please double-check the arguments and try again.\n"
+            )
+            return None
+
+        data = r.text.split("\n")
+        dicts = {}
+        counter = 1
+        if entity == "mutations":
+            dicts = {"Gene": [], "Syntax": [], "Alternate IDs": [], "Canonical": []}
+            for i in data:
+                if len(i) > 2:
+                    parsing_mutations = i.split("\t")
+                    dicts["Gene"].append(parsing_mutations[0])
+                    dicts["Syntax"].append(parsing_mutations[1])
+                    dicts["Alternate IDs"].append(
+                        parsing_mutations[2].replace('" ', "").replace('"', "")
+                    )
+                    dicts["Canonical"].append(parsing_mutations[3])
+                    counter = counter + 1
+                    if limit < counter:
+                        break
+
+        elif entity == "pubmed":
+            dicts = {"Pubmed": [], "Paper title": [], "Author": []}
+            for i in data:
+                if len(i) > 2:
+                    parsing_mutations = i.split("\t")
+                    dicts["Pubmed"].append(parsing_mutations[0])
+                    dicts["Paper title"].append(
+                        parsing_mutations[1]
+                        .replace('" ', "")
+                        .replace('"', "")
+                        .capitalize()
+                    )
+                    dicts["Author"].append(
+                        parsing_mutations[2].replace('" ', "").replace('"', "")
+                    )
+                    counter = counter + 1
+                    if limit < counter:
+                        break
+
+        elif entity == "genes":
+            dicts = {
+                "Gene": [],
+                "Alternate IDs": [],
+                "Tested samples": [],
+                "Simple Mutations": [],
+                "Fusions": [],
+                "Coding Mutations": [],
+            }
+            for i in data:
+                if len(i) > 2:
+                    parsing_mutations = i.split("\t")
+                    dicts["Gene"].append(parsing_mutations[0])
+                    dicts["Alternate IDs"].append(
+                        parsing_mutations[1].replace('" ', "").replace('"', "")
+                    )
+                    dicts["Tested samples"].append(parsing_mutations[2])
+                    dicts["Simple Mutations"].append(parsing_mutations[3])
+                    dicts["Fusions"].append(parsing_mutations[4])
+                    dicts["Coding Mutations"].append(parsing_mutations[5])
+                    counter = counter + 1
+                    if limit < counter:
+                        break
+
+        elif entity == "samples":
+            dicts = {
+                "Sample Name": [],
+                "Sites & Histologies": [],
+                "Analysed Genes": [],
+                "Mutations": [],
+                "Fusions": [],
+                "Structual variants": [],
+            }
+            for i in data:
+                if len(i) > 2:
+                    parsing_mutations = i.split("\t")
+                    dicts["Sample Name"].append(parsing_mutations[0])
+                    dicts["Sites & Histologies"].append(
+                        parsing_mutations[1].replace(":", ", ")
+                    )
+                    dicts["Analysed Genes"].append(parsing_mutations[2])
+                    dicts["Mutations"].append(parsing_mutations[3])
+                    dicts["Fusions"].append(parsing_mutations[4])
+                    dicts["Structual variants"].append(parsing_mutations[5])
+                    counter = counter + 1
+                    if limit < counter:
+                        break
+
+        elif entity == "studies":
+            dicts = {
+                "Study Id": [],
+                "Project Code": [],
+                "Description": [],
+            }
+            for i in data:
+                if len(i) > 2:
+                    parsing_mutations = i.split("\t")
+                    dicts["Study Id"].append(parsing_mutations[0])
+                    dicts["Project Code"].append(parsing_mutations[1])
+                    dicts["Description"].append(parsing_mutations[2])
+                    counter = counter + 1
+                    if limit < counter:
+                        break
+
+        elif entity == "disease":
+            dicts = {
+                "COSMIC classification": [],
+                "Paper description": [],
+                "Tested samples": [],
+                "Mutations": [],
+            }
+            for i in data:
+                if len(i) > 2:
+                    parsing_mutations = i.split("\t")
+                    dicts["COSMIC classification"].append(
+                        parsing_mutations[0].replace('" ', "").replace('"', "")
+                    )
+                    dicts["Paper description"].append(
+                        parsing_mutations[1].replace('" ', "").replace('"', "")
+                    )
+                    dicts["Tested samples"].append(parsing_mutations[2])
+                    dicts["Mutations"].append(parsing_mutations[3])
+                    counter = counter + 1
+                    if limit < counter:
+                        break
+
+        elif entity == "tumour":
+            dicts = {
+                "Primary Site": [],
+                "Tested sample": [],
+                "Analyzed genes": [],
+                "Mutations": [],
+                "Fusions": [],
+                "Structural variants": [],
+            }
+            for i in data:
+                if len(i) > 2:
+                    parsing_mutations = i.split("\t")
+                    dicts["Primary Site"].append(parsing_mutations[0])
+                    dicts["Tested sample"].append(parsing_mutations[1])
+                    dicts["Analyzed genes"].append(parsing_mutations[2])
+                    dicts["Mutations"].append(parsing_mutations[3])
+                    dicts["Fusions"].append(parsing_mutations[4])
+                    dicts["Structural variants"].append(parsing_mutations[5])
+                    counter = counter + 1
+                    if limit < counter:
+                        break
+
+        corr_df = pd.DataFrame(dicts)
+
+        if json:
+            results_dict = json_package.loads(corr_df.to_json(orient="records"))
+            if save:
+                with open(
+                    f"gget_cosmic_{entity}_{searchterm}.json", "w", encoding="utf-8"
+                ) as f:
+                    json_package.dump(results_dict, f, ensure_ascii=False, indent=4)
+
+            return results_dict
+
+        else:
+            if save:
+                corr_df.to_csv(f"gget_cosmic_{entity}_{searchterm}.csv", index=False)
+
+            return corr_df
