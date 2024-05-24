@@ -10,6 +10,7 @@ import pandas as pd
 import numpy as np
 from IPython.display import display, HTML
 import logging
+from datetime import datetime
 
 # Add and format time stamp in logging messages
 logging.basicConfig(
@@ -22,6 +23,29 @@ logging.getLogger("numexpr").setLevel(logging.WARNING)
 
 from .constants import ENSEMBL_FTP_URL, ENSEMBL_FTP_URL_NV, ENS_TO_PDB_API
 
+def set_up_logger():
+    logging_level = logging.INFO
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging_level)
+    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s", "%H:%M:%S")
+
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+
+    # log_dir = "logs"
+    # if not os.path.exists(log_dir):
+    #     os.makedirs(log_dir)
+
+    # log_file = os.path.join(
+    #     log_dir, f"log_file_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+    # )
+
+    # file_handler = logging.FileHandler(log_file)
+    # file_handler.setFormatter(formatter)
+    # logger.addHandler(file_handler)
+
+    return logger
 
 def flatten(xss):
     """

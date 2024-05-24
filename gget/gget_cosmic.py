@@ -7,42 +7,23 @@ import base64
 import shutil
 import tarfile
 import logging
-from datetime import datetime
 
-# Add and format time stamp in logging messages
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    datefmt="%c",
-)
-# Mute numexpr threads info
-logging.getLogger("numexpr").setLevel(logging.WARNING)
+# # Add and format time stamp in logging messages
+# logging.basicConfig(
+#     format="%(asctime)s %(levelname)s %(message)s",
+#     level=logging.INFO,
+#     datefmt="%c",
+# )
+# # Mute numexpr threads info
+# logging.getLogger("numexpr").setLevel(logging.WARNING)
 
 # Constants
 from .constants import COSMIC_GET_URL
+from .utils import set_up_logger
 
+logger = set_up_logger()
 
-# Handle logging for database downloads
-logging_level = logging.INFO
-logger = logging.getLogger(__name__)
-logger.setLevel(logging_level)
-formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s", "%H:%M:%S")
-
-console_handler = logging.StreamHandler()
-console_handler.setFormatter(formatter)
-logger.addHandler(console_handler)
-
-log_dir = "logs"
-if not os.path.exists(log_dir):
-    os.makedirs(log_dir)
-
-log_file = os.path.join(
-    log_dir, f"log_file_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
-)
-
-file_handler = logging.FileHandler(log_file)
-file_handler.setFormatter(formatter)
-logger.addHandler(file_handler)
+email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
 
 
 def download_reference(download_link, tar_folder_path, file_path, verbose):
@@ -314,7 +295,7 @@ def cosmic(
             df = df.drop(columns=["GENOMIC_MUTATION_ID", "MUTATION_ID"])
 
             mutate_csv_out = os.path.join(
-                out, f"Cosmic_v{cosmic_version}_GRCh{grch_version}_clean.csv"
+                out, f"Cosmic_{mutation_class}_v{cosmic_version}_GRCh{grch_version}_clean.csv"
             )
             df.to_csv(mutate_csv_out, index=False)
 
