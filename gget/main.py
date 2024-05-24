@@ -1746,7 +1746,7 @@ def main():
     parser_cosmic.add_argument(
         "-cv",
         "--cosmic_version",
-        default=100,
+        default=99,
         type=int,
         required=False,
         help="Version of the COSMIC database (only for use with --download_cosmic).",

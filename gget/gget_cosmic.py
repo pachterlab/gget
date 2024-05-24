@@ -6,6 +6,7 @@ import json as json_package
 import base64
 import shutil
 import tarfile
+import gzip
 
 # Constants
 from .constants import COSMIC_GET_URL
@@ -22,7 +23,6 @@ def download_reference(download_link, tar_folder_path, file_path, verbose) :
 
     # Concatenate the email and password with a colon
     input_string = f"{email}:{password}\n"
-    print(input_string)
 
     encoded_bytes = base64.b64encode(input_string.encode("utf-8"))
     encoded_string = encoded_bytes.decode("utf-8")
@@ -32,11 +32,8 @@ def download_reference(download_link, tar_folder_path, file_path, verbose) :
         f"Authorization: Basic {encoded_string}",
         download_link,
     ]
-    print(curl_command)
 
     result = subprocess.run(curl_command, capture_output=True, text=True)
-
-    print(result.stdout)
 
     response_data = json_package.loads(result.stdout)
     try:
