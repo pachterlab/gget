@@ -97,9 +97,9 @@ def select_reference(
     #     contained_file = f"Cosmic_Genes_v{cosmic_version}_GRCh{GRCh_version}.fasta"
 
     if mutation_class == "cancer":
-        assert (
-            GRCh_version == "37"
-        ), "CancerMutationCensus data is only available for GRCh37 (set GRCh_version=37)"
+        # assert (
+        #     GRCh_version == 37
+        # ), "CancerMutationCensus data is only available for GRCh37 (set GRCh_version=37)"
         download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=GRCh{GRCh_version}/cmc/v{cosmic_version}/CancerMutationCensus_AllData_Tsv_v{cosmic_version}_GRCh{GRCh_version}.tar&bucket=downloads"
         tarred_folder = (
             f"CancerMutationCensus_AllData_Tsv_v{cosmic_version}_GRCh{GRCh_version}"
@@ -217,7 +217,7 @@ def cosmic(
     NOTE: Downloading complete databases from COSMIC requires an account (https://cancer.sanger.ac.uk/cosmic/register; free for academic use, license for commercial use)
     - download_cosmic (True/False) whether to switch into database download mode. Default: False
     - cosmic_version  (int) Version of the COSMIC database. Default: 99
-    - GRCh_version    (int) Version of the human GRCh reference genome. Default: 38
+    - GRCh_version    (int) Version of the human GRCh reference genome the COSMIC database was based on (37 or 38). Default: 38
     - mutation_class  (str) Type of database to download. One of the following:
                       'cancer' (default), 'cell_line', 'census', 'resistance', 'screen', 'cancer_example'
     - gget_mutate     (True/False) whether to create a modified version of the database for use with gget mutate. Default: True
@@ -245,6 +245,12 @@ def cosmic(
         if mutation_class not in mut_class_allowed:
             raise ValueError(
                 f"Parameter 'mutation_class' must be one of the following: {', '.join(mut_class_allowed)}.\n"
+            )
+
+        grch_allowed = [37, 38]
+        if GRCh_version not in grch_allowed:
+            raise ValueError(
+                f"Parameter 'GRCh_version' must be one of the following: {', '.join(grch_allowed)}.\n"
             )
 
         if not out:
