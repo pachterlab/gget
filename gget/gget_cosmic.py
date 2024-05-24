@@ -16,12 +16,13 @@ logger = set_up_logger()
 email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
 
 
-def download_reference(download_link, tar_folder_path, file_path, verbose):
+def download_reference(download_link, tar_folder_path, file_path, verbose) :
     email = input("Please enter your COSMIC email: ")
     password = input("Please enter your COSMIC password: ")
 
     # Concatenate the email and password with a colon
     input_string = f"{email}:{password}\n"
+    print(input_string)
 
     encoded_bytes = base64.b64encode(input_string.encode("utf-8"))
     encoded_string = encoded_bytes.decode("utf-8")
@@ -31,6 +32,8 @@ def download_reference(download_link, tar_folder_path, file_path, verbose):
         f"Authorization: Basic {encoded_string}",
         download_link,
     ]
+    print(curl_command)
+
     result = subprocess.run(curl_command, capture_output=True, text=True)
 
     print(result.stdout)
