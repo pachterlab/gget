@@ -258,7 +258,7 @@ def cosmic(
             ## Create copy of results formatted for further use by gget mutate
             if verbose:
                 logger.info(
-                    "Creating modified database file for use with gget mutate..."
+                    "Creating modified mutations file for use with gget mutate..."
                 )
 
             if mutation_class == "cancer" or mutation_class == "cancer_example":
@@ -280,7 +280,7 @@ def cosmic(
 
             # Get seq_ID and mutation columns
             if mutation_class == "cancer" or mutation_class == "cancer_example":
-                df["MUTATION_ID"] = df["MUTATION_URL"].str.extract(r"id=(\d+)")
+                df["MUTATION_URL"] = df["MUTATION_URL"].str.extract(r"id=(\d+)")
                 df = df.rename(
                     columns={
                         "ACCESSION_NUMBER": "seq_ID",
@@ -305,6 +305,11 @@ def cosmic(
 
             mutate_csv_out = mutation_tsv_file.replace(".tsv", "_gget_mutate.csv")
             df.to_csv(mutate_csv_out, index=False)
+
+            if verbose:
+                logger.info(
+                    f"Modified mutations file for use with gget mutate created at {mutate_csv_out}"
+                )
 
     else:
         # Check if 'entity' argument is valid
