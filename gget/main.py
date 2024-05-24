@@ -1,5 +1,4 @@
 import argparse
-from argparse import RawTextHelpFormatter
 import sys
 import logging
 
@@ -1802,10 +1801,10 @@ def main():
         default=None,
         help=(
             """
-            Path to the file (or folder when downloading databases with the download_cosmic flag) the results will be saved in, e.g. path/to/results.json.\n
-            Default: None\n
-            -> When download_cosmic=False: Results will be returned to standard out\n
-            -> When download_cosmic=True: Database will be downloaded into current working directory\n
+            Path to the file (or folder when downloading databases with the download_cosmic flag) the results will be saved in, e.g. path/to/results.json.
+            Default: None
+            -> When download_cosmic=False: Results will be returned to standard out
+            -> When download_cosmic=True: Database will be downloaded into current working directory
             """
         ),
     )
@@ -1826,7 +1825,7 @@ def main():
         description=mutate_desc,
         help=mutate_desc,
         add_help=True,
-        formatter_class=RawTextHelpFormatter,
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser_mutate.add_argument(
         "sequences",
@@ -1835,10 +1834,13 @@ def main():
         help=(
             """
             (str) Path to the fasta file containing the sequences to be mutated, e.g., 'seqs.fa'.
-            Sequence identifiers following the '>' character must correspond to the
-            identifiers in the seq_ID column of 'mutations' (do not include spaces), e.g.:
-            
-            >seq1
+            Sequence identifiers following the '>' character must correspond to the identifiers 
+            in the seq_ID column of 'mutations'.
+            NOTE: Only string until first space or dot will be used as sequence identifier 
+            - Version numbers of Ensembl IDs will be ignored.
+
+            Example:
+            >seq1 (or ENSG00000106443)
             ACTGCGATAGACT
             >seq2
             AGATCGCTAG
@@ -1854,21 +1856,26 @@ def main():
         nargs="+",
         required=True,
         help=(
-            "Path to csv or tsv file (e.g., 'mutations.csv') containing information about the mutations in the following format:\n"
-            "\n"
-            "| mutation             | mut_ID | seq_ID |\n"
-            "| c.1252C>T            | mut1   | seq1   |\n"
-            "| c.2239_2253inv       | mut2   | seq2   |\n"
-            "| c.2239_2253inv       | mut2   | seq3   |\n"
-            "| c.2239_2253delinsAAT | mut3   | seq3   |\n"
-            "| ...                  | ...    | ...    |\n"
-            "\n"
-            "'mutation' = Column containing the mutations to be performed written in standard mutation annotation (see below)\n"
-            "'mut_ID' = Column containing an identifier for each mutation\n"
-            "'seq_ID' = Column containing the identifiers of the sequences to be mutated (must correspond to the string following the > character in the input_fasta; do not include spaces)\n"
-            "Alternatively: Input mutation(s) as a string or list, e.g. 'c.2C>T' or 'c.2C>T' 'c.1A>C'\n"
-            "Note: Enclose individual mutation annotations in quotation marks to prevent terminal parsing errors."
-            "If a list is passed, the number of mutations must equal the number of input sequences."
+            """
+            Path to csv or tsv file (e.g., 'mutations.csv') containing information about the mutations in the following format:
+
+            | mutation             | mut_ID | seq_ID |
+            | c.1252C>T            | mut1   | seq1   |
+            | c.2239_2253inv       | mut2   | seq2   |
+            | c.2239_2253inv       | mut2   | seq3   |
+            | c.2239_2253delinsAAT | mut3   | seq3   |
+            | ...                  | ...    | ...    |
+
+            'mutation' = Column containing the mutations to be performed written in standard mutation annotation (see below)
+            'mut_ID' = Column containing an identifier for each mutation
+            'seq_ID' = Column containing the identifiers of the sequences to be mutated
+            (sequence IDs must correspond to the string following the > character in the input fasta; do NOT include spaces or dots)
+
+            Alternatively: Input mutation(s) as a string or list, e.g. 'c.2C>T' or 'c.2C>T' 'c.1A>C'
+
+            NOTE: Enclose individual mutation annotations in quotation marks to prevent terminal parsing errors.
+            If a list is passed, the number of mutations must equal the number of input sequences.
+            """
         ),
     )
     parser_mutate.add_argument(
