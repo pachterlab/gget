@@ -73,7 +73,7 @@ def main():
     ## gget ref subparser
     ref_desc = "Fetch FTPs for reference genomes and annotations by species."
     parser_ref = parent_subparsers.add_parser(
-        "ref", parents=[parent], description=ref_desc, help=ref_desc, add_help=True
+        "ref", parents=[parent], description=ref_desc, help=ref_desc, add_help=True, formatter_class=CustomHelpFormatter,
     )
     # ref parser arguments
     parser_ref.add_argument(
@@ -86,7 +86,6 @@ def main():
             "To pass a specific database, enter the name of the core database and release number, e.g. 'mus_musculus_dba2j_core_105_1'.\n"
             "All available databases for each Ensembl release can be found here: http://ftp.ensembl.org/pub/"
         ),
-        formatter_class=CustomHelpFormatter,
     )
     parser_ref.add_argument(
         "-l",
@@ -1900,7 +1899,7 @@ def main():
         required=False,
         help="Do not print progress information.",
     )
-    
+
     ### Define return values
     args = parent_parser.parse_args()
 
