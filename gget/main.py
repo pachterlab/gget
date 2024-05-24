@@ -1702,7 +1702,7 @@ def main():
         description=cosmic_desc,
         help=cosmic_desc,
         add_help=True,
-        formatter_class=RawTextHelpFormatter,
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser_cosmic.add_argument(
         "searchterm",
