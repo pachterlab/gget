@@ -2,6 +2,7 @@ import requests
 import pandas as pd
 import subprocess
 import os
+import re
 import json as json_package
 import base64
 import shutil
@@ -128,7 +129,6 @@ def select_reference(
 
 
     tar_folder_path = os.path.join(reference_dir, tarred_folder)
-    print(tar_folder_path)
     file_path = os.path.join(tar_folder_path, contained_file)
 
     if not os.path.exists(file_path):
@@ -242,8 +242,6 @@ def cosmic(
 
         if not out:
             out = os.path.dirname(os.getcwd())
-
-        print(out)
 
         if not os.path.exists(out):
             os.makedirs(out)
