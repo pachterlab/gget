@@ -1703,10 +1703,13 @@ def main():
         description=cosmic_desc,
         help=cosmic_desc,
         add_help=True,
+        formatter_class=RawTextHelpFormatter,
     )
     parser_cosmic.add_argument(
         "searchterm",
         type=str,
+        nargs="?",
+        default=None,
         help="Search term, which can be a mutation, or gene (or Ensembl ID), or sample, etc. as defined using the 'entity' argument. Example: 'EGFR'",
     )
     parser_cosmic.add_argument(
@@ -1716,7 +1719,7 @@ def main():
             "mutations",
             "genes",
             "cancer",
-            "tumour site",
+            "tumour_site",
             "studies",
             "pubmed",
             "samples",
@@ -1743,13 +1746,67 @@ def main():
         help="Returns results in csv format instead of json.",
     )
     parser_cosmic.add_argument(
+        "-d",
+        "--download_cosmic",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Switch into database download mode.",
+    )
+    parser_cosmic.add_argument(
+        "-mc",
+        "--mutation_class",
+        choices=[
+            "cancer",
+            "cell_line",
+            "census",
+            "resistance",
+            "screen",
+            "cancer_example",
+        ],
+        default="cancer",
+        type=str,
+        required=False,
+        help="Type of COSMIC database to download (only for use with --download_cosmic).",
+    )
+    parser_cosmic.add_argument(
+        "-cv",
+        "--cosmic_version",
+        default=100,
+        type=int,
+        required=False,
+        help="Version of the COSMIC database (only for use with --download_cosmic).",
+    )
+    parser_cosmic.add_argument(
+        "-gv",
+        "--grch_version",
+        default=38,
+        type=int,
+        choices=[37, 38],
+        required=False,
+        help="Version of the human GRCh reference genome (only for use with --download_cosmic).",
+    )
+    parser_cosmic.add_argument(
+        "-gm",
+        "--gget_mutate",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Do NOT create a modified version of the database for use with gget mutate (only for use with --download_cosmic).",
+    )
+    parser_cosmic.add_argument(
         "-o",
         "--out",
         type=str,
         required=False,
+        default=None,
         help=(
-            "Path to the file the results will be saved in, e.g. path/to/directory/results.json.\n"
-            "Default: Standard out."
+            """
+            Path to the file (or folder when downloading databases with the download_cosmic flag) the results will be saved in, e.g. path/to/results.json.\n
+            Default: None\n
+            -> When download_cosmic=False: Results will be returned to standard out\n
+            -> When download_cosmic=True: Database will be downloaded into current working directory\n
+            """
         ),
     )
     parser_cosmic.add_argument(
@@ -2106,35 +2163,41 @@ def main():
             searchterm=args.searchterm,
             entity=args.entity,
             limit=args.limit,
-            verbose=args.quiet,
             json=args.csv,
+            download_cosmic=args.download_cosmic,
+            mutation_class=args.mutation_class,
+            cosmic_version=args.cosmic_version,
+            grch_version=args.grch_version,
+            gget_mutate=args.gget_mutate,
+            out=args.out,
+            verbose=args.quiet,
         )
 
-        # Check if the function returned something
-        if not isinstance(cosmic_results, type(None)):
-            # Save blast results if args.out specified
-            if args.out and not args.csv:
-                # Create saving directory
-                directory = "/".join(args.out.split("/")[:-1])
-                if directory != "":
-                    os.makedirs(directory, exist_ok=True)
-                # Save to csv
-                cosmic_results.to_csv(args.out, index=False)
+        # # Check if the function returned something
+        # if not isinstance(cosmic_results, type(None)):
+        #     # Save cosmic results if args.out specified
+        #     if args.out and not args.csv:
+        #         # Create saving directory
+        #         directory = "/".join(args.out.split("/")[:-1])
+        #         if directory != "":
+        #             os.makedirs(directory, exist_ok=True)
+        #         # Save to csv
+        #         cosmic_results.to_csv(args.out, index=False)
 
-            if args.out and args.csv:
-                # Create saving directory
-                directory = "/".join(args.out.split("/")[:-1])
-                if directory != "":
-                    os.makedirs(directory, exist_ok=True)
-                # Save json
-                with open(args.out, "w", encoding="utf-8") as f:
-                    json.dump(cosmic_results, f, ensure_ascii=False, indent=4)
+        #     if args.out and args.csv:
+        #         # Create saving directory
+        #         directory = "/".join(args.out.split("/")[:-1])
+        #         if directory != "":
+        #             os.makedirs(directory, exist_ok=True)
+        #         # Save json
+        #         with open(args.out, "w", encoding="utf-8") as f:
+        #             json.dump(cosmic_results, f, ensure_ascii=False, indent=4)
 
-            # Print results if no directory specified
-            if not args.out and not args.csv:
-                cosmic_results.to_csv(sys.stdout, index=False)
-            if not args.out and args.csv:
-                print(json.dumps(cosmic_results, ensure_ascii=False, indent=4))
+        #     # Print results if no directory specified
+        #     if not args.out and not args.csv:
+        #         cosmic_results.to_csv(sys.stdout, index=False)
+        #     if not args.out and args.csv:
+        #         print(json.dumps(cosmic_results, ensure_ascii=False, indent=4))
 
     ## archs4 return
     if args.command == "archs4":

@@ -89,58 +89,58 @@ def download_reference(download_link, tar_folder_path, file_path, verbose):
 
 
 def select_reference(
-    mutation_class, reference_dir, GRCh_version, cosmic_version, verbose
+    mutation_class, reference_dir, grch_version, cosmic_version, verbose
 ):
     # if mutation_class == "transcriptome":
-    #     download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{GRCh_version}/cosmic/v{cosmic_version}/Cosmic_Genes_Fasta_v{cosmic_version}_GRCh{GRCh_version}.tar&bucket=downloads"
-    #     tarred_folder = f"Cosmic_Genes_Fasta_v{cosmic_version}_GRCh{GRCh_version}"
-    #     contained_file = f"Cosmic_Genes_v{cosmic_version}_GRCh{GRCh_version}.fasta"
+    #     download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{grch_version}/cosmic/v{cosmic_version}/Cosmic_Genes_Fasta_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
+    #     tarred_folder = f"Cosmic_Genes_Fasta_v{cosmic_version}_GRCh{grch_version}"
+    #     contained_file = f"Cosmic_Genes_v{cosmic_version}_GRCh{grch_version}.fasta"
 
     if mutation_class == "cancer":
         # assert (
-        #     GRCh_version == 37
-        # ), "CancerMutationCensus data is only available for GRCh37 (set GRCh_version=37)"
-        download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=GRCh{GRCh_version}/cmc/v{cosmic_version}/CancerMutationCensus_AllData_Tsv_v{cosmic_version}_GRCh{GRCh_version}.tar&bucket=downloads"
+        #     grch_version == 37
+        # ), "CancerMutationCensus data is only available for GRCh37 (set grch_version=37)"
+        download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=GRCh{grch_version}/cmc/v{cosmic_version}/CancerMutationCensus_AllData_Tsv_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
         tarred_folder = (
-            f"CancerMutationCensus_AllData_Tsv_v{cosmic_version}_GRCh{GRCh_version}"
+            f"CancerMutationCensus_AllData_Tsv_v{cosmic_version}_GRCh{grch_version}"
         )
         contained_file = (
-            f"CancerMutationCensus_AllData_v{cosmic_version}_GRCh{GRCh_version}.tsv"
+            f"CancerMutationCensus_AllData_v{cosmic_version}_GRCh{grch_version}.tsv"
         )
 
     elif mutation_class == "cell_line":
-        download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{GRCh_version}/cell_lines/v{cosmic_version}/CellLinesProject_GenomeScreensMutant_Tsv_v{cosmic_version}_GRCh{GRCh_version}.tar&bucket=downloads"
-        tarred_folder = f"CellLinesProject_GenomeScreensMutant_Tsv_v{cosmic_version}_GRCh{GRCh_version}"
-        contained_file = f"CellLinesProject_GenomeScreensMutant_v{cosmic_version}_GRCh{GRCh_version}.tsv"
+        download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{grch_version}/cell_lines/v{cosmic_version}/CellLinesProject_GenomeScreensMutant_Tsv_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
+        tarred_folder = f"CellLinesProject_GenomeScreensMutant_Tsv_v{cosmic_version}_GRCh{grch_version}"
+        contained_file = f"CellLinesProject_GenomeScreensMutant_v{cosmic_version}_GRCh{grch_version}.tsv"
 
     elif mutation_class == "census":
-        download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{GRCh_version}/cosmic/v{cosmic_version}/Cosmic_MutantCensus_Tsv_v{cosmic_version}_GRCh{GRCh_version}.tar&bucket=downloads"
-        tarred_folder = f"Cosmic_MutantCensus_Tsv_v{cosmic_version}_GRCh{GRCh_version}"
-        contained_file = f"Cosmic_MutantCensus_v{cosmic_version}_GRCh{GRCh_version}.tsv"
+        download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{grch_version}/cosmic/v{cosmic_version}/Cosmic_MutantCensus_Tsv_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
+        tarred_folder = f"Cosmic_MutantCensus_Tsv_v{cosmic_version}_GRCh{grch_version}"
+        contained_file = f"Cosmic_MutantCensus_v{cosmic_version}_GRCh{grch_version}.tsv"
 
     elif mutation_class == "resistance":
-        download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{GRCh_version}/cosmic/v{cosmic_version}/Cosmic_ResistanceMutations_Tsv_v{cosmic_version}_GRCh{GRCh_version}.tar&bucket=downloads"
+        download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{grch_version}/cosmic/v{cosmic_version}/Cosmic_ResistanceMutations_Tsv_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
         tarred_folder = (
-            f"Cosmic_ResistanceMutations_Tsv_v{cosmic_version}_GRCh{GRCh_version}"
+            f"Cosmic_ResistanceMutations_Tsv_v{cosmic_version}_GRCh{grch_version}"
         )
         contained_file = (
-            f"Cosmic_ResistanceMutations_v{cosmic_version}_GRCh{GRCh_version}.tsv"
+            f"Cosmic_ResistanceMutations_v{cosmic_version}_GRCh{grch_version}.tsv"
         )
 
     elif mutation_class == "screen":
-        download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{GRCh_version}/cosmic/v{cosmic_version}/Cosmic_GenomeScreensMutant_Tsv_v{cosmic_version}_GRCh{GRCh_version}.tar&bucket=downloads"
+        download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{grch_version}/cosmic/v{cosmic_version}/Cosmic_GenomeScreensMutant_Tsv_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
         tarred_folder = (
-            f"Cosmic_GenomeScreensMutant_Tsv_v{cosmic_version}_GRCh{GRCh_version}"
+            f"Cosmic_GenomeScreensMutant_Tsv_v{cosmic_version}_GRCh{grch_version}"
         )
         contained_file = (
-            f"Cosmic_GenomeScreensMutant_v{cosmic_version}_GRCh{GRCh_version}.tsv"
+            f"Cosmic_GenomeScreensMutant_v{cosmic_version}_GRCh{grch_version}.tsv"
         )
 
     elif mutation_class == "cancer_example":
-        download_link = f"https://cog.sanger.ac.uk/cosmic-downloads-production/taster/example_grch{GRCh_version}.tar"
-        tarred_folder = f"example_GRCh{GRCh_version}"
+        download_link = f"https://cog.sanger.ac.uk/cosmic-downloads-production/taster/example_grch{grch_version}.tar"
+        tarred_folder = f"example_GRCh{grch_version}"
         contained_file = (
-            f"CancerMutationCensus_AllData_v{cosmic_version}_GRCh{GRCh_version}.tsv"
+            f"CancerMutationCensus_AllData_v{cosmic_version}_GRCh{grch_version}.tsv"
         )
 
     tar_folder_path = os.path.join(reference_dir, tarred_folder)
@@ -187,11 +187,10 @@ def cosmic(
     entity="mutations",
     limit=100,
     json=False,
-    save=False,
     download_cosmic=False,
-    cosmic_version=99,
-    GRCh_version=38,
     mutation_class="cancer",
+    cosmic_version=99,
+    grch_version=38,
     gget_mutate=True,
     out=None,
     verbose=True,
@@ -205,25 +204,28 @@ def cosmic(
     Args for querying information about specific cancers/genes/etc:
     - searchterm      (str) Search term, which can be a mutation, or gene name (or Ensembl ID), or sample, etc.
                       as defined using the 'entity' argument. Example: 'EGFR'.
+                      Set to None when downloading COSMIC databases with download_cosmic=True.
     - entity          (str) Defines the type of the supplied search term. One of the following:
-                      'mutations' (default), 'genes', 'cancer', 'tumour site', 'studies', 'pubmed', or 'samples'.
+                      'mutations' (default), 'genes', 'cancer', 'tumour_site', 'studies', 'pubmed', or 'samples'.
     - limit           (int) Number of hits to return. Default: 100
     - json            (True/False) If True, returns results in json format instead of data frame. Default: False
-    - save            (True/False) whether to save the results in the local directory. Default: False
 
     Returns a data frame with the requested results.
 
     Args for downloading COSMIC databases:
     NOTE: Downloading complete databases from COSMIC requires an account (https://cancer.sanger.ac.uk/cosmic/register; free for academic use, license for commercial use)
     - download_cosmic (True/False) whether to switch into database download mode. Default: False
-    - cosmic_version  (int) Version of the COSMIC database. Default: 99
-    - GRCh_version    (int) Version of the human GRCh reference genome the COSMIC database was based on (37 or 38). Default: 38
-    - mutation_class  (str) Type of database to download. One of the following:
+    - mutation_class  (str) Type of COSMIC database to download. One of the following:
                       'cancer' (default), 'cell_line', 'census', 'resistance', 'screen', 'cancer_example'
+    - cosmic_version  (int) Version of the COSMIC database. Default: 99
+    - grch_version    (int) Version of the human GRCh reference genome the COSMIC database was based on (37 or 38). Default: 38
     - gget_mutate     (True/False) whether to create a modified version of the database for use with gget mutate. Default: True
-    - out             (str) Path to folder the database will be downloaded into. Default: None -> Database will be downloaded into current working directory
 
     General args:
+    - out             (str) Path to folder the database will be downloaded into. 
+                      Default: None 
+                      -> When download_cosmic=False: Results will be returned to standard out
+                      -> When download_cosmic=True: Database will be downloaded into current working directory
     - verbose         (True/False) whether to print progress information. Default: True
 
     Saves the requested database into the specified folder (or current working directory if out=None).
@@ -248,9 +250,9 @@ def cosmic(
             )
 
         grch_allowed = [37, 38]
-        if GRCh_version not in grch_allowed:
+        if grch_version not in grch_allowed:
             raise ValueError(
-                f"Parameter 'GRCh_version' must be one of the following: {', '.join(grch_allowed)}.\n"
+                f"Parameter 'grch_version' must be one of the following: {', '.join(grch_allowed)}.\n"
             )
 
         if not out:
@@ -261,7 +263,7 @@ def cosmic(
 
         ## Download requested database
         mutation_tsv_file = select_reference(
-            mutation_class, out, GRCh_version, cosmic_version, verbose
+            mutation_class, out, grch_version, cosmic_version, verbose
         )
 
         if gget_mutate:
@@ -312,7 +314,7 @@ def cosmic(
             df = df.drop(columns=["GENOMIC_MUTATION_ID", "MUTATION_ID"])
 
             mutate_csv_out = os.path.join(
-                out, f"Cosmic_v{cosmic_version}_GRCh{GRCh_version}_clean.csv"
+                out, f"Cosmic_v{cosmic_version}_GRCh{grch_version}_clean.csv"
             )
             df.to_csv(mutate_csv_out, index=False)
 
@@ -325,7 +327,7 @@ def cosmic(
             "studies",
             "samples",
             "cancer",
-            "tumour site",
+            "tumour_site",
         ]
         if entity not in sps:
             raise ValueError(
@@ -336,7 +338,7 @@ def cosmic(
         if entity == "cancer":
             entity = "disease"
 
-        if entity == "tumour site":
+        if entity == "tumour_site":
             entity = "tumour"
 
         if verbose:
@@ -509,18 +511,34 @@ def cosmic(
 
         corr_df = pd.DataFrame(dicts)
 
+        json_out = os.path.join(
+            out, f"Cosmic_v{cosmic_version}_GRCh{grch_version}_clean.csv"
+        )
+
         if json:
             results_dict = json_package.loads(corr_df.to_json(orient="records"))
-            if save:
-                with open(
-                    f"gget_cosmic_{entity}_{searchterm}.json", "w", encoding="utf-8"
-                ) as f:
+            if out:
+                # Create saving directory
+                directory = "/".join(out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+
+                json_out = os.path.join(out, f"gget_cosmic_{entity}_{searchterm}.json")
+                with open(json_out, "w", encoding="utf-8") as f:
                     json_package.dump(results_dict, f, ensure_ascii=False, indent=4)
 
-            return results_dict
+            else:
+                return results_dict
 
         else:
-            if save:
-                corr_df.to_csv(f"gget_cosmic_{entity}_{searchterm}.csv", index=False)
+            if out:
+                # Create saving directory
+                directory = "/".join(out.split("/")[:-1])
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
 
-            return corr_df
+                df_out = os.path.join(out, f"gget_cosmic_{entity}_{searchterm}.csv")
+                corr_df.to_csv(df_out, index=False)
+
+            else:
+                return corr_df
