@@ -126,9 +126,9 @@ def select_reference(
             f"CancerMutationCensus_AllData_v{cosmic_version}_GRCh{grch_version}.tsv"
         )
 
-    print(tar_folder_path)
 
     tar_folder_path = os.path.join(reference_dir, tarred_folder)
+    print(tar_folder_path)
     file_path = os.path.join(tar_folder_path, contained_file)
 
     if not os.path.exists(file_path):
