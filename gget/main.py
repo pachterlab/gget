@@ -40,6 +40,16 @@ from .gget_diamond import diamond
 from .gget_cosmic import cosmic
 from .gget_mutate import mutate
 
+# Custom formatter for help messages that preserved the text formatting and adds the default value to the end of the help message
+class CustomHelpFormatter(argparse.HelpFormatter):
+    def __init__(self, prog):
+        super().__init__(prog)
+
+    def _get_help_string(self, action):
+        help_str = action.help if action.help else ''
+        if '%(default)' not in help_str and action.default is not argparse.SUPPRESS and action.default is not None:
+            help_str += ' (default: %(default)s)'
+        return help_str
 
 def main():
     """
@@ -1702,7 +1712,7 @@ def main():
         description=cosmic_desc,
         help=cosmic_desc,
         add_help=True,
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        formatter_class=CustomHelpFormatter,
     )
     parser_cosmic.add_argument(
         "searchterm",
@@ -1825,7 +1835,7 @@ def main():
         description=mutate_desc,
         help=mutate_desc,
         add_help=True,
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        formatter_class=CustomHelpFormatter,
     )
     parser_mutate.add_argument(
         "sequences",
