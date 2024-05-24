@@ -1,21 +1,11 @@
 import pandas as pd
-import numpy as np
 import re
-import logging
 from tqdm import tqdm
 
 tqdm.pandas()
 
-# Add and format time stamp in logging messages
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    datefmt="%c",
-)
-# Mute numexpr threads info
-logging.getLogger("numexpr").setLevel(logging.WARNING)
-
-from .utils import read_fasta
+from .utils import read_fasta, set_up_logger
+logger = set_up_logger()
 
 # Define global variables to count occurences of weird mutations
 intronic_mutations = 0
@@ -59,13 +49,13 @@ def extract_mutation_type(mutation):
             return "inversion"
 
         else:
-            logging.debug(
+            logger.debug(
                 f"mutation {mutation} matches re but is not a known mutation type"
             )
             # raise_pytest_error()
             return "unknown"
     else:
-        logging.debug(f"mutation {mutation} does not match re")
+        logger.debug(f"mutation {mutation} does not match re")
         # raise_pytest_error()
         return "unknown"
 
@@ -76,14 +66,14 @@ def create_mutant_sequence(
     global intronic_mutations, posttranslational_region_mutations, unknown_mutations, uncertain_mutations, ambiguous_position_mutations
 
     if "?" in row[mut_column]:
-        logging.debug(
+        logger.debug(
             f"Uncertain mutation found in mutation {row[mut_column]} - mutation is ignored"
         )
         uncertain_mutations += 1
         return ""
 
     if "(" in row[mut_column]:
-        logging.debug(
+        logger.debug(
             f"Ambiguous mutational position found in mutation {row[mut_column]} - mutation is ignored"
         )
         ambiguous_position_mutations += 1
@@ -96,14 +86,14 @@ def create_mutant_sequence(
 
         try:
             if "-" in nucleotide_position or "+" in nucleotide_position:
-                logging.debug(
+                logger.debug(
                     f"Intronic nucleotide position found in mutation {row[mut_column]} - {nucleotide_position}{letters} - mutation is ignored"
                 )
                 intronic_mutations += 1
                 return ""
 
             elif "*" in nucleotide_position:
-                logging.debug(
+                logger.debug(
                     f"Posttranslational region nucleotide position found in mutation {row[mut_column]} - {nucleotide_position}{letters} - mutation is ignored"
                 )
                 posttranslational_region_mutations += 1
@@ -123,7 +113,7 @@ def create_mutant_sequence(
                         starting_nucleotide_position_index_0
                     )
         except:
-            logging.debug(f"Error with mutation {row[mut_column]}]")
+            logger.debug(f"Error with mutation {row[mut_column]}]")
             unknown_mutations += 1
             # raise_pytest_error()
             return ""
@@ -146,7 +136,7 @@ def create_mutant_sequence(
         )
         return str(mutant_sequence[kmer_start:kmer_end])
     else:
-        logging.debug(f"Error with mutation {row[mut_column]}")
+        logger.debug(f"Error with mutation {row[mut_column]}")
         unknown_mutations += 1
         # raise_pytest_error()
         return ""
@@ -163,7 +153,7 @@ def substitution_mutation(
     # assert letters[0] == row['full_sequence'][starting_nucleotide_position_index_0], f"Transcript has {row['full_sequence'][starting_nucleotide_position_index_0]} at position {starting_nucleotide_position_index_0} but mutation is {letters[-1]} at position {starting_nucleotide_position_index_0} in {row[mut_column]}"
     global cosmic_incorrect_wt_base
     if letters[0] != row["full_sequence"][starting_nucleotide_position_index_0]:
-        logging.warning(
+        logger.warning(
             f"Sequence {row[seq_id_column]} has nucleotide '{row['full_sequence'][starting_nucleotide_position_index_0]}' at position {starting_nucleotide_position_index_0}, but mutation {row[mut_column]} expected '{letters[0]}'."
         )
         cosmic_incorrect_wt_base += 1
@@ -449,7 +439,7 @@ def mutate(
     # Handle sequences that were not found based on their sequence IDs
     seqs_not_found = mutations[mutations["full_sequence"].isnull()]
     if 0 < len(seqs_not_found) < 20:
-        logging.warning(
+        logger.warning(
             f"""
             The sequences with the following {len(seqs_not_found)} sequence ID(s) were not found: {", ".join(seqs_not_found["seq_ID"].values)}  
             These sequences and their corresponding mutations will not be included in the output.  
@@ -457,7 +447,7 @@ def mutate(
             """
         )
     elif len(seqs_not_found) > 0:
-        logging.warning(
+        logger.warning(
             f"""
             The sequences corresponding to {len(seqs_not_found)} sequence IDs were not found.  
             These sequences and their corresponding mutations will not be included in the output.  
@@ -500,7 +490,7 @@ def mutate(
 
     # Create mutated sequences
     if verbose:
-        logging.info("Mutating sequences...")
+        logger.info("Mutating sequences...")
     if not mutation_dict["substitution"].empty:
         if verbose:
             tqdm.pandas(desc="Performing substitutions")
@@ -641,7 +631,7 @@ def mutate(
     )
 
     if good_mutations != total_mutations:
-        logging.warning(
+        logger.warning(
             f"""
             {good_mutations} mutations correctly recorded ({good_mutations/total_mutations*100:.2f}%)
             {intronic_mutations} intronic mutations found ({intronic_mutations/total_mutations*100:.2f}%)
@@ -654,7 +644,7 @@ def mutate(
         )
     else:
         if verbose:
-            logging.info(
+            logger.info(
                 f"""
                 {good_mutations} mutations correctly recorded ({good_mutations/total_mutations*100:.2f}%)
                 {intronic_mutations} intronic mutations found ({intronic_mutations/total_mutations*100:.2f}%)
@@ -689,7 +679,7 @@ def mutate(
         #     fasta_file.writelines(lines)
 
         if verbose:
-            logging.info(f"FASTA file containing mutated sequences created at {out}.")
+            logger.info(f"FASTA file containing mutated sequences created at {out}.")
 
     # When out=None, return list of mutated seqs
     else:

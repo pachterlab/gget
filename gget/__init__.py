@@ -18,11 +18,6 @@ from .gget_cosmic import cosmic
 from .gget_mutate import mutate
 
 import logging
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    datefmt="%c",
-)
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
 

@@ -12,12 +12,6 @@ from IPython.display import display, HTML
 import logging
 from datetime import datetime
 
-# Add and format time stamp in logging messages
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    datefmt="%c",
-)
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
 
@@ -46,6 +40,8 @@ def set_up_logger():
     # logger.addHandler(file_handler)
 
     return logger
+
+logger = set_up_logger()
 
 def flatten(xss):
     """
@@ -234,7 +230,7 @@ def get_uniprot_seqs(server, ensembl_ids):
         # Submit server request
         r = requests.get(server + id_ + "+AND+reviewed:true")
         if not r.ok:
-            logging.error(
+            logger.error(
                 f"UniProt server request returned with error status code: {r.status_code}. Please double-check arguments or try again later."
             )
         # Convert to json
@@ -245,7 +241,7 @@ def get_uniprot_seqs(server, ensembl_ids):
             # Submit server request
             r = requests.get(server + id_)
             if not r.ok:
-                logging.error(
+                logger.error(
                     f"UniProt server request returned with error status code: {r.status_code}. Please double-check arguments or try again later."
                 )
             # Convert to json
@@ -253,7 +249,7 @@ def get_uniprot_seqs(server, ensembl_ids):
 
             # Warn user if unreviewed results were found
             if len(json["results"]) > 0:
-                logging.warning(
+                logger.warning(
                     f"No reviewed UniProt results were found for ID {id_}. Returning all unreviewed results."
                 )
 
@@ -296,7 +292,7 @@ def get_uniprot_seqs(server, ensembl_ids):
 
         else:
             # If no results were found, warn user and do nothing -> returns empty df
-            logging.warning(f"No UniProt sequences were found for ID {id_}.")
+            logger.warning(f"No UniProt sequences were found for ID {id_}.")
 
     return master_df
 
@@ -316,7 +312,7 @@ def get_uniprot_info(server, ensembl_id, verbose=True):
     # Submit server request for reviewed entries
     r = requests.get(server + ensembl_id + "+AND+reviewed:true")
     if not r.ok:
-        logging.error(
+        logger.error(
             f"UniProt server request returned with error status code: {r.status_code}. Please double-check arguments or try again later."
         )
     # Convert to json
@@ -327,7 +323,7 @@ def get_uniprot_info(server, ensembl_id, verbose=True):
         # Submit server request
         r = requests.get(server + ensembl_id)
         if not r.ok:
-            logging.error(
+            logger.error(
                 f"UniProt server request returned with error status code: {r.status_code}. Please double-check arguments or try again later."
             )
         # Convert to json
@@ -336,7 +332,7 @@ def get_uniprot_info(server, ensembl_id, verbose=True):
         # Warn user if unreviewed results were found
         if len(json["results"]) > 0:
             if verbose is True:
-                logging.warning(
+                logger.warning(
                     f"No reviewed UniProt results were found for ID {ensembl_id}. Returning all unreviewed results."
                 )
 
@@ -492,7 +488,7 @@ def get_uniprot_info(server, ensembl_id, verbose=True):
 #         try:
 #             response.raise_for_status()
 #         except requests.HTTPError:
-#             logging.error(
+#             logger.error(
 #                 f"UniProt ID mapping to fetch PDB IDs returned HTTP Error:\n{response.json()}"
 #             )
 #             return
@@ -523,7 +519,7 @@ def get_uniprot_info(server, ensembl_id, verbose=True):
 #             if "jobStatus" in j:
 #                 # Sleep for POLLING_INTERVAL seconds if job status if "RUNNING"
 #                 if j["jobStatus"] == "RUNNING":
-#                     logging.info("Checking if PDB IDs are available...")
+#                     logger.info("Checking if PDB IDs are available...")
 #                     time.sleep(POLLING_INTERVAL)
 #                 else:
 #                     # Raise error if job status is other than "RUNNING"
@@ -680,7 +676,7 @@ def search_species_options(database=ENSEMBL_FTP_URL, release=None):
     # If release != None, use user-defined Ensembl release
     if release != None:
         if release > ENS_rel:
-            logging.warning(
+            logger.warning(
                 f"Provided Ensembl release number {release} is greater than the latest release ({ENS_rel})."
             )
         ENS_rel = release
@@ -771,7 +767,7 @@ def ref_species_options(which, database=ENSEMBL_FTP_URL, release=None):
     if release != None:
         # Warn user if user-defined release is higher than the latest release
         if release > ENS_rel:
-            logging.warning(
+            logger.warning(
                 f"Provided Ensembl release number {release} is greater than the latest release ({ENS_rel})."
             )
         ENS_rel = release

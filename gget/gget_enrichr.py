@@ -2,16 +2,6 @@ import requests
 import pandas as pd
 import json as json_package
 import numpy as np
-import logging
-
-# Add and format time stamp in logging messages
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    datefmt="%c",
-)
-# Mute numexpr threads info
-logging.getLogger("numexpr").setLevel(logging.WARNING)
 
 # Plotting packages
 import matplotlib.pyplot as plt
@@ -27,6 +17,9 @@ from .constants import (
 from .compile import PACKAGE_PATH
 from .gget_info import info
 
+from .utils import set_up_logger
+logger = set_up_logger()
+
 def ensembl_to_gene_names(ensembl_ids):
     """
     Function to fetch gene names from a list of Ensembl IDs using gget info.
@@ -41,7 +34,7 @@ def ensembl_to_gene_names(ensembl_ids):
 
         # Check if Ensembl ID was found
         if isinstance(info_df, type(None)):
-            logging.warning(
+            logger.warning(
                 f"ID '{gene_id}' not found. Please double-check spelling/arguments."
             )
             continue
@@ -128,61 +121,61 @@ def enrichr(
     if database == "pathway":
         database = "KEGG_2021_Human"
         if verbose:
-            logging.info(
+            logger.info(
                 f"Performing Enichr analysis using database {database}. " + db_message
             )
 
     elif database == "transcription":
         database = "ChEA_2016"
         if verbose:
-            logging.info(
+            logger.info(
                 f"Performing Enichr analysis using database {database}. " + db_message
             )
 
     elif database == "ontology":
         database = "GO_Biological_Process_2021"
         if verbose:
-            logging.info(
+            logger.info(
                 f"Performing Enichr analysis using database {database}. " + db_message
             )
 
     elif database == "diseases_drugs":
         database = "GWAS_Catalog_2019"
         if verbose:
-            logging.info(
+            logger.info(
                 f"Performing Enichr analysis using database {database}. " + db_message
             )
 
     elif database == "celltypes":
         database = "PanglaoDB_Augmented_2021"
         if verbose:
-            logging.info(
+            logger.info(
                 f"Performing Enichr analysis using database {database}. " + db_message
             )
 
     elif database == "kinase_interactions":
         database = "KEA_2015"
         if verbose:
-            logging.info(
+            logger.info(
                 f"Performing Enichr analysis using database {database}. " + db_message
             )
 
     else:
         database = database
         if verbose:
-            logging.info(f"Performing Enichr analysis using database {database}.")
+            logger.info(f"Performing Enichr analysis using database {database}.")
 
     # To generate a KEGG pathway image, confirm that the database is a KEGG database and pykegg is installed
     if kegg_out:
         if not database.startswith("KEGG"):
-            logging.error(
+            logger.error(
                 "Please specify a KEGG database when generating a KEGG pathway image."
             )
             return
         try:
             import pykegg
         except ImportError:
-            logging.error(
+            logger.error(
                 "Please install `pykegg` to generate a KEGG pathway image. Pykegg can be installed using pip: 'pip install pykegg'"
             )
             return
@@ -194,7 +187,7 @@ def enrichr(
     ## Transform Ensembl IDs to gene symbols
     if ensembl:
         if verbose:
-            logging.info("Getting gene symbols from Ensembl IDs.")
+            logger.info("Getting gene symbols from Ensembl IDs.")
 
         genes_v2 = ensembl_to_gene_names(genes)
 
@@ -202,7 +195,7 @@ def enrichr(
         genes_v2 = genes
 
     if len(genes_v2) == 0 and ensembl:
-        logging.error("No gene symbols found for given Ensembl IDs.")
+        logger.error("No gene symbols found for given Ensembl IDs.")
         return
 
     # Transform Ensembl IDs to gene symbols for background genes
@@ -211,14 +204,14 @@ def enrichr(
 
     if not isinstance(background_list, type(None)):
         if len(background_list) == 0 and ensembl:
-            logging.error("No background gene symbols found for given Ensembl IDs.")
+            logger.error("No background gene symbols found for given Ensembl IDs.")
             return
 
     genes_clean = clean_genes_list(genes_v2)
 
     if ensembl:
         if verbose:
-            logging.info(
+            logger.info(
                 f"Performing Enichr analysis on the following gene symbols: {', '.join(genes_clean)}"
             )
 
@@ -253,19 +246,19 @@ def enrichr(
     # If user gives a background list, use the user input instead of the default
     if background_list:
         if verbose:
-            logging.info(
+            logger.info(
                 f"Performing Enichr analysis using user-defined background gene list."
             )
 
         if background:
-            logging.warning(
+            logger.warning(
                 "Since you provided a list of background genes, the 'background==True' argument to use the default background gene list is being ignored."
             )
         background_final = "\n".join(background_list)
 
     elif background:
         if verbose:
-            logging.info(
+            logger.info(
                 "Background genes set to > 20,000 default background genes listed here: https://github.com/pachterlab/gget/blob/main/gget/constants/enrichr_bkg_genes.txt."
             )
         with open(f"{PACKAGE_PATH}/constants/enrichr_bkg_genes.txt") as f:
@@ -342,7 +335,7 @@ def enrichr(
         df = pd.DataFrame(enrichr_results[database], columns=columns)
 
     except KeyError:
-        logging.error(
+        logger.error(
             f"""
             Database {database} not found. Go to https://maayanlab.cloud/Enrichr/#libraries 
             for a full list of supported databases.
@@ -357,7 +350,7 @@ def enrichr(
     df["database"] = database
 
     if len(df) == 0:
-        logging.error(
+        logger.error(
             f"""
             No Enrichr results were found for genes {genes_clean} and database {database}. \n
             If the genes are Ensembl IDs, please set argument 'ensembl=True' (for terminal, add flag: [--ensembl]).

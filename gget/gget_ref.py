@@ -1,19 +1,10 @@
 from bs4 import BeautifulSoup
 import requests
 import json
-import logging
-
-# Add and format time stamp in logging messages
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    datefmt="%c",
-)
-# Mute numexpr threads info
-logging.getLogger("numexpr").setLevel(logging.WARNING)
 
 # Custom functions
-from .utils import ref_species_options, find_latest_ens_rel, find_nv_kingdom
+from .utils import ref_species_options, find_latest_ens_rel, find_nv_kingdom, set_up_logger
+logger = set_up_logger()
 
 from .constants import ENSEMBL_FTP_URL, ENSEMBL_FTP_URL_NV
 
@@ -97,12 +88,12 @@ def ref(
     if list_species:
         if release is None:
             if verbose:
-                logging.info(
+                logger.info(
                     f"Fetching available vertebrate genomes (GTF and FASTA available) from Ensembl release {find_latest_ens_rel()} (latest)."
                 )
         else:
             if verbose:
-                logging.info(
+                logger.info(
                     f"Fetching available vertebrate genomes (GTF and FASTA available) from Ensembl release {release}."
                 )
 
@@ -125,12 +116,12 @@ def ref(
     elif list_iv_species:
         if release is None:
             if verbose:
-                logging.info(
+                logger.info(
                     f"Fetching available invertebrate genomes (GTF and FASTA present) from Ensembl release {find_latest_ens_rel(database=ENSEMBL_FTP_URL_NV)} (latest)."
                 )
         else:
             if verbose:
-                logging.info(
+                logger.info(
                     f"Fetching available invertebrate genomes (GTF and FASTA present) from Ensembl release {release}."
                 )
 
@@ -193,7 +184,7 @@ def ref(
     if release != None:
         # Warn user when release is higher than the latest release
         if release > ENS_rel:
-            logging.warning(
+            logger.warning(
                 f"Provided Ensembl release number {release} is greater than the latest release ({ENS_rel})."
             )
         ENS_rel = release
@@ -493,7 +484,7 @@ def ref(
             with open("gget_ref_results.json", "w", encoding="utf-8") as file:
                 json.dump(ref_dict, file, ensure_ascii=False, indent=4)
         if verbose:
-            logging.info(
+            logger.info(
                 f"Fetching reference information for {species} from Ensembl release: {ENS_rel}."
             )
         return ref_dict
@@ -501,7 +492,7 @@ def ref(
     # If FTP==True, return only the specified URLs as a list
     if ftp:
         if verbose:
-            logging.info(
+            logger.info(
                 f"Fetching reference information for {species} from Ensembl release: {ENS_rel}."
             )
         results = []

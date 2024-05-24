@@ -1,16 +1,5 @@
 import argparse
 import sys
-import logging
-
-# Add and format time stamp in logging messages
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    datefmt="%c",
-)
-# Mute numexpr threads info
-logging.getLogger("numexpr").setLevel(logging.WARNING)
-
 from datetime import datetime
 
 # Get current date and time for alphafold default foldername
@@ -19,8 +8,12 @@ dt_string = datetime.now().strftime("%Y_%m_%d-%H_%M")
 import os
 import json
 
-# Custom functions
+from .utils import set_up_logger
+logger = set_up_logger()
+
 from .__init__ import __version__
+
+# Module functions
 from .gget_ref import ref
 from .gget_search import search
 from .gget_info import info
@@ -2014,12 +2007,12 @@ def main():
     if args.command == "blat":
         # Handle deprecated flags for backwards compatibility
         if args.seq_deprecated and args.sequence:
-            logging.warning(
+            logger.warning(
                 "The [-seq][--sequence] argument is deprecated, using positional argument [sequence] instead."
             )
         if args.seq_deprecated and not args.sequence:
             args.sequence = args.seq_deprecated
-            logging.warning(
+            logger.warning(
                 "The [-seq][--sequence] argument is deprecated, please use positional argument [sequence] instead."
             )
         if not args.seq_deprecated and not args.sequence:
@@ -2064,12 +2057,12 @@ def main():
     if args.command == "blast":
         # Handle deprecated flags for backwards compatibility
         if args.seq_deprecated and args.sequence:
-            logging.warning(
+            logger.warning(
                 "The [-seq][--sequence] argument is deprecated, using positional argument [sequence] instead."
             )
         if args.seq_deprecated and not args.sequence:
             args.sequence = args.seq_deprecated
-            logging.warning(
+            logger.warning(
                 "The [-seq][--sequence] argument is deprecated, please use positional argument [sequence] instead."
             )
         if not args.seq_deprecated and not args.sequence:
@@ -2180,12 +2173,12 @@ def main():
     if args.command == "archs4":
         # Handle deprecated flags for backwards compatibility
         if args.gene_deprecated and args.gene:
-            logging.warning(
+            logger.warning(
                 "The [-g][--gene] argument is deprecated, using positional argument [gene] instead."
             )
         if args.gene_deprecated and not args.gene:
             args.gene = args.gene_deprecated
-            logging.warning(
+            logger.warning(
                 "The [-g][--gene] argument is deprecated, please use positional argument [gene] instead."
             )
         if not args.gene_deprecated and not args.gene:
@@ -2232,12 +2225,12 @@ def main():
     if args.command == "muscle":
         # Handle deprecated flags for backwards compatibility
         if args.fasta_deprecated and args.fasta:
-            logging.warning(
+            logger.warning(
                 "The [-fa][--fasta] argument is deprecated, using positional argument [fasta] instead."
             )
         if args.fasta_deprecated and not args.fasta:
             args.fasta = args.fasta_deprecated
-            logging.warning(
+            logger.warning(
                 "The [-fa][--fasta] argument is deprecated, please use positional argument [fasta] instead."
             )
         if not args.fasta_deprecated and not args.fasta:
@@ -2322,12 +2315,12 @@ def main():
 
         # Handle deprecated flags for backwards compatibility
         if args.species_deprecated and args.species:
-            logging.warning(
+            logger.warning(
                 "The [-s][--species] argument is deprecated, using positional argument [species] instead."
             )
         if args.species_deprecated and not args.species:
             args.species = args.species_deprecated
-            logging.warning(
+            logger.warning(
                 "The [-s][--species] argument is deprecated, please use positional argument [species] instead."
             )
 
@@ -2375,7 +2368,7 @@ def main():
                             command = "curl -O " + link
                             os.system(command)
                 #                     else:
-                #                         logging.info(
+                #                         logger.info(
                 #                             "To download the FTPs to the current directory, add flag [-d]."
                 #                         )
 
@@ -2392,7 +2385,7 @@ def main():
                             command = "curl -O " + link
                             os.system(command)
             #                     else:
-            #                         logging.info(
+            #                         logger.info(
             #                             "To download the FTPs to the current directory, add flag [-d]."
             #                         )
 
@@ -2416,7 +2409,7 @@ def main():
                                     command = "curl -O " + link
                                     os.system(command)
                 #                     else:
-                #                         logging.info(
+                #                         logger.info(
                 #                             "To download the FTPs to the current directory, add flag [-d]."
                 #                         )
 
@@ -2434,7 +2427,7 @@ def main():
                                     command = "curl -O " + link
                                     os.system(command)
     #                     else:
-    #                         logging.info(
+    #                         logger.info(
     #                             "To download the FTPs to the current directory, add flag [-d]."
     #                         )
 
@@ -2442,12 +2435,12 @@ def main():
     if args.command == "search":
         # Handle deprecated flags for backwards compatibility
         if args.sw_deprecated and args.searchwords:
-            logging.warning(
+            logger.warning(
                 "The [-sw][--searchwords] argument is deprecated, using positional argument [searchwords] instead."
             )
         if args.sw_deprecated and not args.searchwords:
             args.searchwords = args.sw_deprecated
-            logging.warning(
+            logger.warning(
                 "The [-sw][--searchwords] argument is deprecated, please use positional argument [searchwords] instead."
             )
         if not args.sw_deprecated and not args.searchwords:
@@ -2505,12 +2498,12 @@ def main():
     if args.command == "enrichr":
         # Handle deprecated flags for backwards compatibility
         if args.genes_deprecated and args.genes:
-            logging.warning(
+            logger.warning(
                 "The [-g][--genes] argument is deprecated, using positional argument [genes] instead."
             )
         if args.genes_deprecated and not args.genes:
             args.genes = args.genes_deprecated
-            logging.warning(
+            logger.warning(
                 "The [-g][--genes] argument is deprecated, please use positional argument [genes] instead."
             )
         if not args.genes_deprecated and not args.genes:
@@ -2586,16 +2579,16 @@ def main():
     if args.command == "info":
         # Handle deprecated flags for backwards compatibility
         if args.id_deprecated and args.ens_ids:
-            logging.warning(
+            logger.warning(
                 "The [-id][--ens_ids] argument is deprecated, using positional argument [ens_ids] instead."
             )
         if args.id_deprecated and not args.ens_ids:
             args.ens_ids = args.id_deprecated
-            logging.warning(
+            logger.warning(
                 "The [-id][--genes] argument is deprecated, please use arguments [ens_ids] instead."
             )
         if args.ensembl_only:
-            logging.warning(
+            logger.warning(
                 "The [-eo][--ensembl_only] argument is deprecated, please use arguments [ncbi] and [uniprot] instead."
             )
         if not args.id_deprecated and not args.ens_ids:
@@ -2654,12 +2647,12 @@ def main():
     if args.command == "seq":
         # Handle deprecated flags for backwards compatibility
         if args.id_deprecated and args.ens_ids:
-            logging.warning(
+            logger.warning(
                 "The [-id][--ens_ids] argument is deprecated, using positional argument [ens_ids] instead."
             )
         if args.id_deprecated and not args.ens_ids:
             args.ens_ids = args.id_deprecated
-            logging.warning(
+            logger.warning(
                 "The [-id][--ens_ids] argument is deprecated, please use positional argument [ens_ids] instead."
             )
         if not args.id_deprecated and not args.ens_ids:

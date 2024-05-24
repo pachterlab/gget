@@ -1,16 +1,9 @@
 from urllib.request import urlopen
 from urllib.error import HTTPError
 import json
-import logging
 
-# Add and format time stamp in logging messages
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    datefmt="%c",
-)
-# Mute numexpr threads info
-logging.getLogger("numexpr").setLevel(logging.WARNING)
+from .utils import set_up_logger
+logger = set_up_logger()
 
 from .constants import RCSB_PDB_API
 
@@ -97,19 +90,19 @@ def pdb(pdb_id, resource="pdb", identifier=None, save=False):
         r = urlopen(url)
     except HTTPError:
         if resource == "assembly":
-            logging.error(
+            logger.error(
                 f"{resource} for {pdb_id} assembly {identifier} was not found. Please double-check arguments and try again."
             )
         elif resource in need_entitiy_id:
-            logging.error(
+            logger.error(
                 f"{resource} for {pdb_id} entity {identifier} was not found. Please double-check arguments and try again."
             )
         elif resource in need_chain_id:
-            logging.error(
+            logger.error(
                 f"{resource} for {pdb_id} chain {identifier} was not found. Please double-check arguments and try again."
             )
         else:
-            logging.error(
+            logger.error(
                 f"{resource} for {pdb_id} was not found. Please double-check arguments and try again."
             )
         return

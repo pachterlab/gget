@@ -5,15 +5,9 @@ import subprocess
 import platform
 import uuid
 from platform import python_version
-import logging
 
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    datefmt="%c",
-)
-# Mute numexpr threads info
-logging.getLogger("numexpr").setLevel(logging.WARNING)
+from .utils import set_up_logger
+logger = set_up_logger()
 
 from .compile import PACKAGE_PATH
 from .constants import (
@@ -67,7 +61,7 @@ def setup(module, verbose=True, out=None):
 
     if module == "gpt":
         if verbose:
-            logging.info("Installing openai version <=0.28.1 (requires pip).")
+            logger.info("Installing openai version <=0.28.1 (requires pip).")
         command = "pip install -q -U 'openai<=0.28.1'"
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
             stderr = process.stderr.read().decode("utf-8")
@@ -76,7 +70,7 @@ def setup(module, verbose=True, out=None):
             if stderr:
                 # Log the standard error if it is not empty
                 sys.stderr.write(stderr)
-            logging.error(
+            logger.error(
                 "Installation of openai version <=0.28.1 with pip (https://pypi.org/project/openai) failed."
             )
             return
@@ -86,16 +80,16 @@ def setup(module, verbose=True, out=None):
             import openai
 
             if verbose:
-                logging.info(f"openai installed succesfully.")
+                logger.info(f"openai installed succesfully.")
         except ImportError as e:
-            logging.error(
+            logger.error(
                 f"openai installation with pip (https://pypi.org/project/openai) failed. Import error:\n{e}"
             )
             return
 
     if module == "cellxgene":
         if verbose:
-            logging.info("Installing cellxgene-census package (requires pip).")
+            logger.info("Installing cellxgene-census package (requires pip).")
         command = "pip install -q -U cellxgene-census"
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
             stderr = process.stderr.read().decode("utf-8")
@@ -104,7 +98,7 @@ def setup(module, verbose=True, out=None):
             if stderr:
                 # Log the standard error if it is not empty
                 sys.stderr.write(stderr)
-            logging.error(
+            logger.error(
                 "cellxgene-census installation with pip (https://pypi.org/project/cellxgene-census) failed."
             )
             return
@@ -114,19 +108,19 @@ def setup(module, verbose=True, out=None):
             import cellxgene_census
 
             if verbose:
-                logging.info(f"cellxgene_census installed succesfully.")
+                logger.info(f"cellxgene_census installed succesfully.")
         except ImportError as e:
-            logging.error(
+            logger.error(
                 f"cellxgene-census installation with pip (https://pypi.org/project/cellxgene-census) failed. Import error:\n{e}"
             )
             return
 
     if module == "elm":
         if verbose:
-            logging.info(
+            logger.info(
                 "ELM data can be downloaded & distributed for non-commercial use according to the following license: http://elm.eu.org/media/Elm_academic_license.pdf"
             )
-            logging.info(
+            logger.info(
                 "Downloading ELM database files (requires curl to be installed)..."
             )
 
@@ -176,37 +170,37 @@ def setup(module, verbose=True, out=None):
 
         # Exit system if the subprocess returned with an error
         if process.wait() != 0:
-            logging.error("ELM database files download failed.")
+            logger.error("ELM database files download failed.")
             return
 
         # Check if files are present
         if os.path.exists(elm_instances_fasta):
             if verbose:
-                logging.info(f"ELM sequences file present.")
+                logger.info(f"ELM sequences file present.")
         else:
-            logging.error("ELM FASTA file missing.")
+            logger.error("ELM FASTA file missing.")
 
         if os.path.exists(elm_classes_tsv):
             if verbose:
-                logging.info("ELM classes file present.")
+                logger.info("ELM classes file present.")
         else:
-            logging.error("ELM classes file missing.")
+            logger.error("ELM classes file missing.")
 
         if os.path.exists(elm_instances_tsv):
             if verbose:
-                logging.info("ELM instances file present.")
+                logger.info("ELM instances file present.")
         else:
-            logging.error("ELM instances file missing.")
+            logger.error("ELM instances file missing.")
 
         if os.path.exists(elm_intdomains_tsv):
             if verbose:
-                logging.info("ELM interactions domains file present.")
+                logger.info("ELM interactions domains file present.")
         else:
-            logging.error("ELM interactions domains file missing.")
+            logger.error("ELM interactions domains file missing.")
 
     if module == "alphafold":
         if platform.system() == "Windows":
-            logging.error(
+            logger.error(
                 "gget setup alphafold and gget alphafold are not supported on Windows OS."
             )
 
@@ -215,7 +209,7 @@ def setup(module, verbose=True, out=None):
             import simtk.openmm as openmm
 
             # Silence openmm logger
-            logging.getLogger("openmm").setLevel(logging.WARNING)
+            logger.getLogger("openmm").setLevel(logger.WARNING)
 
             # Commenting the following out because openmm v7.7.0 does not support __version__
             # # Check if correct version was installed
@@ -223,7 +217,7 @@ def setup(module, verbose=True, out=None):
             #     raise ImportError()
 
             # if verbose:
-            #   logging.info(f"openmm v{openmm.__version__} already installed.")
+            #   logger.info(f"openmm v{openmm.__version__} already installed.")
 
         except ImportError as e:
             raise ImportError(
@@ -239,7 +233,7 @@ def setup(module, verbose=True, out=None):
 
         ## Install py3Dmol
         if verbose:
-            logging.info("Installing py3Dmol (requires pip).")
+            logger.info("Installing py3Dmol (requires pip).")
         command = "pip install -q py3Dmol"
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
             stderr = process.stderr.read().decode("utf-8")
@@ -248,7 +242,7 @@ def setup(module, verbose=True, out=None):
             if stderr:
                 # Log the standard error if it is not empty
                 sys.stderr.write(stderr)
-            logging.error(
+            logger.error(
                 "py3Dmol installation with pip (https://pypi.org/project/py3Dmol) failed."
             )
             return
@@ -258,16 +252,16 @@ def setup(module, verbose=True, out=None):
             import py3Dmol
 
             if verbose:
-                logging.info(f"py3Dmol installed succesfully.")
+                logger.info(f"py3Dmol installed succesfully.")
         except ImportError as e:
-            logging.error(
+            logger.error(
                 f"py3Dmol installation with pip (https://pypi.org/project/py3Dmol/) failed. Import error:\n{e}"
             )
             return
 
         ## Install Alphafold if not already installed
         if verbose:
-            logging.info("Installing AlphaFold from source (requires pip and git).")
+            logger.info("Installing AlphaFold from source (requires pip and git).")
 
         ## Install AlphaFold and change jackhmmer directory where database chunks are saved in
         # Define AlphaFold folder name and location
@@ -283,7 +277,7 @@ def setup(module, verbose=True, out=None):
             command = """
                 git clone --branch main -q --branch {} {} {} \
                 && sed -i '' 's/\/tmp\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \
-                && sed -i '' 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' {}/alphafold/data/tools/jackhmmer.py \
+                && sed -i '' 's/from absl import logging/from absl import logging\\\logging.set_verbosity(logging.WARNING)/g' {}/alphafold/data/tools/jackhmmer.py \
                 && pip install -q -r {}/requirements.txt \
                 && pip install -q --no-dependencies {}
                 """.format(
@@ -325,7 +319,7 @@ def setup(module, verbose=True, out=None):
             if stderr:
                 # Log the standard error if it is not empty
                 sys.stderr.write(stderr)
-            logging.error("AlphaFold installation failed.")
+            logger.error("AlphaFold installation failed.")
             return
 
         # Remove cloned directory
@@ -335,9 +329,9 @@ def setup(module, verbose=True, out=None):
             import alphafold as AlphaFold
 
             if verbose:
-                logging.info(f"AlphaFold installed succesfully.")
+                logger.info(f"AlphaFold installed succesfully.")
         except ImportError as e:
-            logging.error(f"AlphaFold installation failed. Import error:\n{e}")
+            logger.error(f"AlphaFold installation failed. Import error:\n{e}")
             return
 
         ## Append AlphaFold to path
@@ -347,7 +341,7 @@ def setup(module, verbose=True, out=None):
 
         ## Install pdbfixer
         if verbose:
-            logging.info("Installing pdbfixer from source (requires pip and git).")
+            logger.info("Installing pdbfixer from source (requires pip and git).")
 
         pdbfixer_folder = os.path.join(
             PACKAGE_PATH, "tmp_pdbfixer_" + str(uuid.uuid4())
@@ -374,7 +368,7 @@ def setup(module, verbose=True, out=None):
             if stderr:
                 # Log the standard error if it is not empty
                 sys.stderr.write(stderr)
-            logging.error("pdbfixer installation failed.")
+            logger.error("pdbfixer installation failed.")
             return
 
         # Remove cloned directory
@@ -386,9 +380,9 @@ def setup(module, verbose=True, out=None):
         pdb_out, err = process.communicate()
 
         if pdb_out.decode() != "":
-            logging.info(f"pdbfixer installed succesfully.")
+            logger.info(f"pdbfixer installed succesfully.")
         else:
-            logging.error("pdbfixer installation failed.")
+            logger.error("pdbfixer installation failed.")
             return
 
         ## Download model parameters
@@ -399,7 +393,7 @@ def setup(module, verbose=True, out=None):
 
         if len(os.listdir(os.path.join(PARAMS_DIR, "params/"))) < 12:
             if verbose:
-                logging.info(
+                logger.info(
                     "Downloading AlphaFold model parameters (requires 4.1 GB of storage). This might take a few minutes."
                 )
             if platform.system() == "Windows":
@@ -425,11 +419,11 @@ def setup(module, verbose=True, out=None):
                     sys.stderr.write(stderr)
             # Exit system if the subprocess returned with an error
             if process.wait() != 0:
-                logging.error("Model parameter download failed.")
+                logger.error("Model parameter download failed.")
                 return
             else:
                 if verbose:
-                    logging.info("Model parameter download complete.")
+                    logger.info("Model parameter download complete.")
         else:
             if verbose:
-                logging.info("AlphaFold model parameters already downloaded.")
+                logger.info("AlphaFold model parameters already downloaded.")

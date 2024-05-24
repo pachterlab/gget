@@ -2,16 +2,6 @@ import pandas as pd
 import json as json_package
 import time
 from bs4 import BeautifulSoup
-import logging
-
-# Add and format time stamp in logging messages
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    datefmt="%c",
-)
-# Mute numexpr threads info
-logging.getLogger("numexpr").setLevel(logging.WARNING)
 
 # Using urllib instead of requests here because requests does not
 # support long queries (queries very long here due to input sequence)
@@ -19,7 +9,8 @@ from urllib.request import urlopen, Request
 from urllib.parse import urlencode
 
 # Custom functions
-from .utils import parse_blast_ref_page, wrap_cols_func, read_fasta
+from .utils import parse_blast_ref_page, wrap_cols_func, read_fasta, set_up_logger
+logger = set_up_logger()
 
 # Constants
 from .constants import (
@@ -117,7 +108,7 @@ def blast(
         # Set the first sequence from the fasta file as 'sequence'
         sequence = seqs[0]
         if len(seqs) > 1:
-            logging.warning(
+            logger.warning(
                 "File contains more than one sequence. Only the first sequence will be submitted to BLAST."
             )
 
@@ -148,8 +139,8 @@ def blast(
             if database == "default":
                 database = "nt"
                 if verbose:
-                    logging.info("Sequence recognized as nucleotide sequence.")
-                    logging.info("BLAST will use program 'blastn' with database 'nt'.")
+                    logger.info("Sequence recognized as nucleotide sequence.")
+                    logger.info("BLAST will use program 'blastn' with database 'nt'.")
             else:
                 # Check if the user specified database is valid
                 if database not in dbs:
@@ -159,8 +150,8 @@ def blast(
 
                 else:
                     if verbose:
-                        logging.info("Sequence recognized as nucleotide sequence.")
-                        logging.info(
+                        logger.info("Sequence recognized as nucleotide sequence.")
+                        logger.info(
                             "BLAST will use program 'blastn' with user-specified database."
                         )
         # If sequence is an amino acid sequence, set program to blastp
@@ -171,8 +162,8 @@ def blast(
             if database == "default":
                 database = "nr"
                 if verbose:
-                    logging.info("Sequence recognized as amino acid sequence.")
-                    logging.info("BLAST will use program 'blastp' with database 'nr'.")
+                    logger.info("Sequence recognized as amino acid sequence.")
+                    logger.info("BLAST will use program 'blastp' with database 'nr'.")
             else:
                 # Check if the user specified database is valid
                 if database not in dbs:
@@ -182,8 +173,8 @@ def blast(
 
                 else:
                     if verbose:
-                        logging.info("Sequence recognized as amino acid sequence.")
-                        logging.info(
+                        logger.info("Sequence recognized as amino acid sequence.")
+                        logger.info(
                             "BLAST will use program 'blastp' with user-specified database."
                         )
         else:
@@ -265,12 +256,12 @@ def blast(
     if RTOE < 11:
         # Communicate RTOE
         if verbose:
-            logging.info(f"BLAST initiated. Estimated time to completion: 11 seconds.")
+            logger.info(f"BLAST initiated. Estimated time to completion: 11 seconds.")
         time.sleep(11)
     else:
         # Communicate RTOE
         if verbose:
-            logging.info(
+            logger.info(
                 f"BLAST initiated with search ID {RID}. Estimated time to completion: {RTOE} seconds."
             )
         time.sleep(int(RTOE))
@@ -309,23 +300,23 @@ def blast(
 
         if status == "WAITING":
             if verbose:
-                logging.info("BLASTING...")
+                logger.info("BLASTING...")
             i += 1
             continue
 
         elif status == "FAILED":
-            logging.error(
+            logger.error(
                 f"Search {RID} failed; please try again and/or report to blast-help@ncbi.nlm.nih.gov."
             )
             return
 
         elif status == "UNKNOWN":
-            logging.error(f"NCBI status {status}. Search {RID} expired.")
+            logger.error(f"NCBI status {status}. Search {RID} expired.")
             return
 
         elif status == "READY":
             if verbose:
-                logging.info("Retrieving results...")
+                logger.info("Retrieving results...")
             # Stop search
             searching = False
 
@@ -340,7 +331,7 @@ def blast(
             )
 
             if dsc_table is None:
-                logging.error(
+                logger.error(
                     f"No significant similarity found for search {RID}. If your sequence is very short, try increasing the 'expect' argument."
                 )
                 return
@@ -369,7 +360,7 @@ def blast(
                 return results_df
 
         else:
-            logging.error(
+            logger.error(
                 f"Something unexpected happened. Search {RID} possibly failed; please try again and/or report to blast-help@ncbi.nlm.nih.gov"
             )
             return
