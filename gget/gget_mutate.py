@@ -299,15 +299,18 @@ def mutate(
 
     Args:
     - sequences     (str) Path to the fasta file containing the sequences to be mutated, e.g., 'seqs.fa'.
-                    Sequence identifiers following the '>' character must correspond to the
-                    identifiers in the seq_ID column of 'mutations' (do not include spaces), e.g.:
-                    
-                    >seq1
+                    Sequence identifiers following the '>' character must correspond to the identifiers 
+                    in the seq_ID column of 'mutations'.
+                    NOTE: Only string until first space or dot will be used as sequence identifier 
+                    - Version numbers of Ensembl IDs will be ignored.
+
+                    Example:
+                    >seq1 (or ENSG00000106443)
                     ACTGCGATAGACT
                     >seq2
                     AGATCGCTAG
-                    
-                    Alternatively: Input sequence(s) as a string or list, e.g. 'AGCTAGCT' or ['ACTGCTAGCT', 'AGCTAGCT'].
+                            
+                    Alternatively: Input sequence(s) as a string or list, e.g. 'AGCTAGCT' or 'ACTGCTAGCT' 'AGCTAGCT'.
     - mutations     Path to csv or tsv file (str) (e.g., 'mutations.csv') or data frame (DataFrame object),
                     containing information about the mutations in the following format:
 
@@ -321,7 +324,7 @@ def mutate(
                     'mutation' = Column containing the mutations to be performed written in standard mutation annotation (see below)
                     'mut_ID' = Column containing an identifier for each mutation
                     'seq_ID' = Column containing the identifiers of the sequences to be mutated (must correspond to the string following
-                    the > character in the 'sequences' fasta file; do not include spaces)
+                    the > character in the 'sequences' fasta file; do NOT include spaces or dots)
 
                     Alternatively: Input mutation(s) as a string or list, e.g., 'c.2C>T' or ['c.2C>T', 'c.1A>C'].
                     If a list is passed, the number of mutations must equal the number of input sequences.
@@ -427,8 +430,9 @@ def mutate(
 
     seq_dict = {}
     for title, seq in zip(titles, seqs):
-        # Keep text following the > until the first space as the sequence identifier
-        seq_dict[title.split(" ")[0]] = seq
+        # Keep text following the > until the first space/dot as the sequence identifier
+        # Dots are removed so Ensembl version numbers are removed
+        seq_dict[title.split(" ")[0].split(".")[0]] = seq
 
     # Get all mutation types
     if verbose:
@@ -449,7 +453,7 @@ def mutate(
             f"""
             The sequences with the following {len(seqs_not_found)} sequence ID(s) were not found: {", ".join(seqs_not_found["seq_ID"].values)}  
             These sequences and their corresponding mutations will not be included in the output.  
-            Ensure that the sequence IDs correspond to the string following the > character in the 'sequences' fasta file (do not include spaces).
+            Ensure that the sequence IDs correspond to the string following the > character in the 'sequences' fasta file (do NOT include spaces or dots).
             """
         )
     elif len(seqs_not_found) > 0:
@@ -457,7 +461,7 @@ def mutate(
             f"""
             The sequences corresponding to {len(seqs_not_found)} sequence IDs were not found.  
             These sequences and their corresponding mutations will not be included in the output.  
-            Ensure that the sequence IDs correspond to the string following the > character in the 'sequences' fasta file (do not include spaces).
+            Ensure that the sequence IDs correspond to the string following the > character in the 'sequences' fasta file (do NOT include spaces or dots).
             """
         )
 
@@ -467,7 +471,7 @@ def mutate(
         raise ValueError(
             """
             None of the input sequences match the sequence IDs provided in 'mutations'. 
-            Ensure that the sequence IDs correspond to the string following the > character in the 'sequences' fasta file (do not include spaces).
+            Ensure that the sequence IDs correspond to the string following the > character in the 'sequences' fasta file (do NOT include spaces or dots).
             """
         )
 
