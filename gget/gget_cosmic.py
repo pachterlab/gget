@@ -28,7 +28,7 @@ def is_valid_email(email):
 
 def download_reference(download_link, tar_folder_path, file_path, verbose) :
     email = input("Please enter your COSMIC email: ")
-    if is_valid_email(email):
+    if not is_valid_email(email):
         raise ValueError("The email address is not valid.")
     password = getpass.getpass("Please enter your COSMIC password: ")
 
