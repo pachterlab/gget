@@ -41,10 +41,7 @@ from .gget_cosmic import cosmic
 from .gget_mutate import mutate
 
 # Custom formatter for help messages that preserved the text formatting and adds the default value to the end of the help message
-class CustomHelpFormatter(argparse.HelpFormatter):
-    def __init__(self, prog):
-        super().__init__(prog)
-
+class CustomHelpFormatter(argparse.RawTextHelpFormatter):
     def _get_help_string(self, action):
         help_str = action.help if action.help else ''
         if '%(default)' not in help_str and action.default is not argparse.SUPPRESS and action.default is not None:
