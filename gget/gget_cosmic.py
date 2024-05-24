@@ -44,6 +44,9 @@ def download_reference(download_link, tar_folder_path, file_path, verbose) :
         download_link,
     ]
 
+    if verbose:
+        logger.info("Downloading data...")
+
     result = subprocess.run(curl_command, capture_output=True, text=True)
 
     response_data = json_package.loads(result.stdout)
@@ -295,12 +298,12 @@ def cosmic(
 
             # Get mut_ID column (by combining GENOMIC_MUTATION_ID and MUTATION_URL/MUTATION_ID)
             df["GENOMIC_MUTATION_ID"] = df["GENOMIC_MUTATION_ID"].fillna("NA")
-            df["mut_ID"] = df["GENOMIC_MUTATION_ID"].astype(str) + "_" + df["MUTATION_ID"].astype(str)
+            df['GENOMIC_MUTATION_ID'] = df['GENOMIC_MUTATION_ID'].astype(str)
+            df['MUTATION_ID'] = df['MUTATION_ID'].astype(str)
+            df["mut_ID"] = df["GENOMIC_MUTATION_ID"] + "_" + df["MUTATION_ID"]
             df = df.drop(columns=["GENOMIC_MUTATION_ID", "MUTATION_ID"])
 
-            mutate_csv_out = os.path.join(
-                out, f"Cosmic_{mutation_class}_v{cosmic_version}_GRCh{grch_version}_clean.csv"
-            )
+            mutate_csv_out = mutation_tsv_file.replace(".tsv", "_gget_mutate.csv")
             df.to_csv(mutate_csv_out, index=False)
 
     else:
