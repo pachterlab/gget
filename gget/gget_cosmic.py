@@ -6,16 +6,6 @@ import json as json_package
 import base64
 import shutil
 import tarfile
-import logging
-
-# # Add and format time stamp in logging messages
-# logging.basicConfig(
-#     format="%(asctime)s %(levelname)s %(message)s",
-#     level=logging.INFO,
-#     datefmt="%c",
-# )
-# # Mute numexpr threads info
-# logging.getLogger("numexpr").setLevel(logging.WARNING)
 
 # Constants
 from .constants import COSMIC_GET_URL
@@ -43,6 +33,8 @@ def download_reference(download_link, tar_folder_path, file_path, verbose):
     ]
     result = subprocess.run(curl_command, capture_output=True, text=True)
 
+    print(result.stdout)
+
     response_data = json_package.loads(result.stdout)
     try:
         true_download_url = response_data.get("url")
@@ -60,13 +52,13 @@ def download_reference(download_link, tar_folder_path, file_path, verbose):
     with tarfile.open(f"{tar_folder_path}.tar", "r") as tar:
         tar.extractall(path=tar_folder_path)
         if verbose:
-            logging.info(f"Extracted tar file to {tar_folder_path}")
+            logger.info(f"Extracted tar file to {tar_folder_path}")
 
     with gzip.open(f"{file_path}.gz", "rb") as f_in:
         with open(file_path, "wb") as f_out:
             shutil.copyfileobj(f_in, f_out)
         if verbose:
-            logging.info(f"Unzipped file to {file_path}")
+            logger.info(f"Unzipped file to {file_path}")
 
 
 def select_reference(
@@ -142,7 +134,7 @@ def select_reference(
             with tarfile.open(f"{tar_folder_path}.tar", "r") as tar:
                 tar.extractall(path=tar_folder_path)
                 if verbose:
-                    logging.info(f"Extracted tar file to {tar_folder_path}")
+                    logger.info(f"Extracted tar file to {tar_folder_path}")
 
         # Download full databases
         else:
@@ -213,7 +205,7 @@ def cosmic(
     """
 
     if verbose:
-        logging.info("NOTE: Licence fees apply for the commercial use of COSMIC.")
+        logger.info("NOTE: Licence fees apply for the commercial use of COSMIC.")
 
     ## Database download
     if download_cosmic:
@@ -250,7 +242,7 @@ def cosmic(
         if gget_mutate:
             ## Create copy of results formatted for further use by gget mutate
             if verbose:
-                logging.info(
+                logger.info(
                     "Creating modified database file for use with gget mutate..."
                 )
 
@@ -323,7 +315,7 @@ def cosmic(
             entity = "tumour"
 
         if verbose:
-            logging.info(
+            logger.info(
                 f"Fetching the {limit} most correlated to {searchterm} from COSMIC."
             )
 
@@ -339,7 +331,7 @@ def cosmic(
             )
 
         if r.text == "\n":
-            logging.warning(
+            logger.warning(
                 f"searchterm = '{searchterm}' did not return any results with entity = '{entity}'. "
                 "Please double-check the arguments and try again.\n"
             )
