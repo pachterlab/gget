@@ -201,9 +201,10 @@ def search(
     if verbose:
         logging.info(f"Fetching results from database: {db}")
 
-    ## Connect to Ensembl SQL server
+    ## Connect to Ensembl SQL server data for specified species
     # Ports to try (some databases are stored in different ports)
-    ports = [1433, 4157, 3337]
+    # 3306 (and 5306) for the Ensembl instances, 3337 for GRCh37, 4157 for Ensembl Genomes, and 5316 for mart
+    ports = [3306, 5306, 4157, 3337, 5316]
 
     connection_successful = False
     last_exception = None
