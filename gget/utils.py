@@ -21,23 +21,25 @@ def set_up_logger():
     logging_level = logging.INFO
     logger = logging.getLogger(__name__)
     logger.setLevel(logging_level)
-    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s", "%H:%M:%S")
 
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
+    if not logger.hasHandlers():
+        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s", "%H:%M:%S")
 
-    # log_dir = "logs"
-    # if not os.path.exists(log_dir):
-    #     os.makedirs(log_dir)
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(formatter)
+        logger.addHandler(console_handler)
 
-    # log_file = os.path.join(
-    #     log_dir, f"log_file_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
-    # )
+        # log_dir = "logs"
+        # if not os.path.exists(log_dir):
+        #     os.makedirs(log_dir)
 
-    # file_handler = logging.FileHandler(log_file)
-    # file_handler.setFormatter(formatter)
-    # logger.addHandler(file_handler)
+        # log_file = os.path.join(
+        #     log_dir, f"log_file_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+        # )
+
+        # file_handler = logging.FileHandler(log_file)
+        # file_handler.setFormatter(formatter)
+        # logger.addHandler(file_handler)
 
     return logger
 

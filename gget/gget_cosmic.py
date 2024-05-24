@@ -7,6 +7,7 @@ import base64
 import shutil
 import tarfile
 import gzip
+import getpass
 
 # Constants
 from .constants import COSMIC_GET_URL
@@ -14,12 +15,21 @@ from .utils import set_up_logger
 
 logger = set_up_logger()
 
-email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+def is_valid_email(email):
+    """
+    Check if an e-mail address is valid.
+    """
+    email_pattern = re.compile(
+        r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
+    )
 
+    return re.match(email_pattern, email) is not None
 
 def download_reference(download_link, tar_folder_path, file_path, verbose) :
     email = input("Please enter your COSMIC email: ")
-    password = input("Please enter your COSMIC password: ")
+    if is_valid_email(email):
+        raise ValueError("The email address is not valid.")
+    password = getpass.getpass("Please enter your COSMIC password: ")
 
     # Concatenate the email and password with a colon
     input_string = f"{email}:{password}\n"
@@ -115,6 +125,8 @@ def select_reference(
         contained_file = (
             f"CancerMutationCensus_AllData_v{cosmic_version}_GRCh{grch_version}.tsv"
         )
+
+    print(tar_folder_path)
 
     tar_folder_path = os.path.join(reference_dir, tarred_folder)
     file_path = os.path.join(tar_folder_path, contained_file)
@@ -231,6 +243,8 @@ def cosmic(
         if not out:
             out = os.path.dirname(os.getcwd())
 
+        print(out)
+
         if not os.path.exists(out):
             os.makedirs(out)
 
@@ -283,7 +297,7 @@ def cosmic(
 
             # Get mut_ID column (by combining GENOMIC_MUTATION_ID and MUTATION_URL/MUTATION_ID)
             df["GENOMIC_MUTATION_ID"] = df["GENOMIC_MUTATION_ID"].fillna("NA")
-            df["mut_ID"] = df["GENOMIC_MUTATION_ID"] + "_" + df["MUTATION_ID"]
+            df["mut_ID"] = df["GENOMIC_MUTATION_ID"].astype(str) + "_" + df["MUTATION_ID"].astype(str)
             df = df.drop(columns=["GENOMIC_MUTATION_ID", "MUTATION_ID"])
 
             mutate_csv_out = os.path.join(
