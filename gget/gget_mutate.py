@@ -184,6 +184,7 @@ def deletion_mutation(
     mut_column,
     seq_id_column,
 ):
+    global mut_idx_outside_seq
     try:
         # Accessing the sequence to trigger IndexError if out of bounds
         _ = row["full_sequence"][starting_nucleotide_position_index_0]
@@ -209,6 +210,7 @@ def delins_mutation(
     mut_column,
     seq_id_column,
 ):
+    global mut_idx_outside_seq
     try:
         # Accessing the sequence to trigger IndexError if out of bounds
         _ = row["full_sequence"][starting_nucleotide_position_index_0]
@@ -239,6 +241,7 @@ def insertion_mutation(
     mut_column,
     seq_id_column,
 ):
+    global mut_idx_outside_seq
     try:
         # Accessing the sequence to trigger IndexError if out of bounds
         _ = row["full_sequence"][starting_nucleotide_position_index_0]
@@ -269,6 +272,7 @@ def duplication_mutation(
     mut_column,
     seq_id_column,
 ):
+    global mut_idx_outside_seq
     try:
         # Accessing the sequence to trigger IndexError if out of bounds
         _ = row["full_sequence"][starting_nucleotide_position_index_0]
@@ -300,6 +304,7 @@ def inversion_mutation(
     mut_column,
     seq_id_column,
 ):
+    global mut_idx_outside_seq
     try:
         # Accessing the sequence to trigger IndexError if out of bounds
         _ = row["full_sequence"][starting_nucleotide_position_index_0]
