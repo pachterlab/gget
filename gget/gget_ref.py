@@ -169,16 +169,20 @@ def ref(
         )
 
     # Species shortcuts
-    if species == "human" or species == "human_grch37":
+    grch37 = False
+    if species == "human":
         species = "homo_sapiens"
     if species == "mouse":
         species = "mus_musculus"
+    if species == "human_grch37":
+        species = "homo_sapiens"
+        grch37 = True
 
     # In case species was passed with upper case letters
     species = species.lower()
 
     # GRCh37 database (releases same as standard database)
-    if species == "human_grch37":
+    if grch37:
         database = ENSEMBL_FTP_URL_GRCH37
         ENS_rel = find_latest_ens_rel(ENSEMBL_FTP_URL)
     # Standard database
@@ -230,8 +234,6 @@ def ref(
             gtf_search_url = database + f"release-{ENS_rel}/{kingdom}/gtf/{species}/"
         else:
             gtf_search_url = database + f"release-{ENS_rel}/gtf/{species}/"
-
-        print(gtf_search_url)
 
         # Get link, release date and dataset size
         gtf_str, gtf_date, gtf_size = find_FTP_link(
