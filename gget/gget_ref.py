@@ -207,21 +207,22 @@ def ref(
             )
         ENS_rel = release
 
-    ## Raise error if species not found (both FASTA and GTF have to be available)
-    # Find all available species for genome FASTAs for this Ensembl release
-    species_list_dna = ref_species_options("dna", database=database, release=ENS_rel)
-    # Find all available species for GTFs for this Ensembl release
-    species_list_gtf = ref_species_options("gtf", database=database, release=ENS_rel)
-    # Find intersection of the two lists
-    # (Only species which have GTF and FASTAs available can continue)
-    species_list = list(set(species_list_gtf) & set(species_list_dna))
+    if not grch37:
+        ## Raise error if species not found (both FASTA and GTF have to be available)
+        # Find all available species for genome FASTAs for this Ensembl release
+        species_list_dna = ref_species_options("dna", database=database, release=ENS_rel)
+        # Find all available species for GTFs for this Ensembl release
+        species_list_gtf = ref_species_options("gtf", database=database, release=ENS_rel)
+        # Find intersection of the two lists
+        # (Only species which have GTF and FASTAs available can continue)
+        species_list = list(set(species_list_gtf) & set(species_list_dna))
 
-    if species not in species_list:
-        raise ValueError(
-            f"Species does not match any available species for Ensembl release {ENS_rel}. Please double-check spelling.\n"
-            "'gget ref --list_species' -> lists out all available species (Python: 'gget.ref(None, list_species=True)').\n"
-            "Combine with `release` argument to define specific Ensembl release (default: latest).\n"
-        )
+        if species not in species_list:
+            raise ValueError(
+                f"Species does not match any available species for Ensembl release {ENS_rel}. Please double-check spelling.\n"
+                "'gget ref --list_species' -> lists out all available species (Python: 'gget.ref(None, list_species=True)').\n"
+                "Combine with `release` argument to define specific Ensembl release (default: latest).\n"
+            )
 
     ## Find kingdom for non-vertebrate species
     if database == ENSEMBL_FTP_URL_NV:
