@@ -343,9 +343,6 @@ def mutate(
     ambiguous_position_mutations = 0
     cosmic_incorrect_wt_base = 0
 
-    print(sequences)
-    print(mutations)
-
     # Load input sequences and their identifiers from fasta file
     if "." in sequences:
         titles, seqs = read_fasta(sequences)

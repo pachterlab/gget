@@ -9,6 +9,7 @@ import os
 import json
 
 from .utils import set_up_logger
+
 logger = set_up_logger()
 
 from .__init__ import __version__
@@ -33,13 +34,19 @@ from .gget_diamond import diamond
 from .gget_cosmic import cosmic
 from .gget_mutate import mutate
 
+
 # Custom formatter for help messages that preserved the text formatting and adds the default value to the end of the help message
 class CustomHelpFormatter(argparse.RawTextHelpFormatter):
     def _get_help_string(self, action):
-        help_str = action.help if action.help else ''
-        if '%(default)' not in help_str and action.default is not argparse.SUPPRESS and action.default is not None:
-            help_str += ' (default: %(default)s)'
+        help_str = action.help if action.help else ""
+        if (
+            "%(default)" not in help_str
+            and action.default is not argparse.SUPPRESS
+            and action.default is not None
+        ):
+            help_str += " (default: %(default)s)"
         return help_str
+
 
 def main():
     """
@@ -66,7 +73,12 @@ def main():
     ## gget ref subparser
     ref_desc = "Fetch FTPs for reference genomes and annotations by species."
     parser_ref = parent_subparsers.add_parser(
-        "ref", parents=[parent], description=ref_desc, help=ref_desc, add_help=True, formatter_class=CustomHelpFormatter,
+        "ref",
+        parents=[parent],
+        description=ref_desc,
+        help=ref_desc,
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
     )
     # ref parser arguments
     parser_ref.add_argument(
@@ -197,12 +209,12 @@ def main():
         type=str,
         required=True,
         help=(
-            "Species or database to be queried, e.g. 'homo_sapiens' or 'arabidopsis_thaliana'.\n"  
-            "To pass a specific database, pass the name of the CORE database, e.g. 'mus_musculus_dba2j_core_105_1'.\n"  
-            "All available core databases can be found here:\n"  
-            "Vertebrates: http://ftp.ensembl.org/pub/current/mysql/\n"  
-            "Invertebrates: http://ftp.ensemblgenomes.org/pub/current/ + kingdom + mysql/\n"  
-            "Supported shortcuts: 'human', 'mouse'." 
+            "Species or database to be queried, e.g. 'homo_sapiens' or 'arabidopsis_thaliana'.\n"
+            "To pass a specific database, pass the name of the CORE database, e.g. 'mus_musculus_dba2j_core_105_1'.\n"
+            "All available core databases can be found here:\n"
+            "Vertebrates: http://ftp.ensembl.org/pub/current/mysql/\n"
+            "Invertebrates: http://ftp.ensemblgenomes.org/pub/current/ + kingdom + mysql/\n"
+            "Supported shortcuts: 'human', 'mouse'."
         ),
     )
     parser_gget.add_argument(
@@ -213,7 +225,7 @@ def main():
         required=False,
         help=(
             "Defines the Ensembl release number from which the files are fetched, e.g. 104.\n"
-            "Note: Does not apply to invertebrate species (you can pass a specific core database (which include a release number) to the species argument instead).\n" 
+            "Note: Does not apply to invertebrate species (you can pass a specific core database (which include a release number) to the species argument instead).\n"
             "This argument is overwritten if a specific database (which includes a release number) is passed to the species argument.\n"
             "Default: None -> latest Ensembl release is used."
         ),
@@ -303,7 +315,12 @@ def main():
     ## gget elm subparser
     elm_desc = "Locally predicts Eukaryotic Linear Motifs from an amino acid sequence or UniProt Acc using data from the ELM database (http://elm.eu.org/media/Elm_academic_license.pdf)."
     parser_elm = parent_subparsers.add_parser(
-        "elm", parents=[parent], description=elm_desc, help=elm_desc, add_help=True, formatter_class=CustomHelpFormatter,
+        "elm",
+        parents=[parent],
+        description=elm_desc,
+        help=elm_desc,
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
     )
     # elm parser arguments
     parser_elm.add_argument(
@@ -435,8 +452,8 @@ def main():
         type=str,
         required=False,
         help=(
-            "One of the following:'fast', 'mid-sensitive', 'sensitive', 'more-sensitive', 'very-sensitive' or 'ultra-sensitive'.\n" 
-            "Sensitivity of DIAMOND alignment. Default: 'very-sensitive'." 
+            "One of the following:'fast', 'mid-sensitive', 'sensitive', 'more-sensitive', 'very-sensitive' or 'ultra-sensitive'.\n"
+            "Sensitivity of DIAMOND alignment. Default: 'very-sensitive'."
         ),
     )
     parser_diamond.add_argument(
@@ -480,7 +497,7 @@ def main():
         type=str,
         required=False,
         help=(
-            "Path to folder to save DIAMOND results in, e.g. path/to/directory/results.json.\n" 
+            "Path to folder to save DIAMOND results in, e.g. path/to/directory/results.json.\n"
             "Default: Standard out, temporary files are deleted."
         ),
     )
@@ -488,7 +505,12 @@ def main():
     ## gget info subparser
     info_desc = "Fetch gene and transcript metadata using Ensembl IDs."
     parser_info = parent_subparsers.add_parser(
-        "info", parents=[parent], description=info_desc, help=info_desc, add_help=True, formatter_class=CustomHelpFormatter,
+        "info",
+        parents=[parent],
+        description=info_desc,
+        help=info_desc,
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
     )
     # info parser arguments
     parser_info.add_argument(
@@ -584,7 +606,12 @@ def main():
     ## gget seq subparser
     seq_desc = "Fetch nucleotide or amino acid sequence (FASTA) of a gene (and all isoforms) or transcript by Ensembl, WormBase or FlyBase ID. "
     parser_seq = parent_subparsers.add_parser(
-        "seq", parents=[parent], description=seq_desc, help=seq_desc, add_help=True, formatter_class=CustomHelpFormatter,
+        "seq",
+        parents=[parent],
+        description=seq_desc,
+        help=seq_desc,
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
     )
     # seq parser arguments
     parser_seq.add_argument(
@@ -835,7 +862,12 @@ def main():
         "BLAT a nucleotide or amino acid sequence against any BLAT UCSC assembly."
     )
     parser_blat = parent_subparsers.add_parser(
-        "blat", parents=[parent], description=blat_desc, help=blat_desc, add_help=True, formatter_class=CustomHelpFormatter,
+        "blat",
+        parents=[parent],
+        description=blat_desc,
+        help=blat_desc,
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
     )
     # blat parser arguments
     parser_blat.add_argument(
@@ -1273,17 +1305,17 @@ def main():
         required=False,
         help=(
             "Defines type of information to be returned.\n\n"
-            "\"pdb\": Returns the protein structure in PDB format.\n"
-            "\"entry\": Information about PDB structures at the top level of PDB structure hierarchical data organization.\n"
-            "\"pubmed\": Get PubMed annotations (data integrated from PubMed) for a given entry's primary citation.\n"
-            "\"assembly\": Information about PDB structures at the quaternary structure level.\n"
-            "\"branched_entity\": Get branched entity description (define entity ID as \"identifier\").\n"
-            "\"nonpolymer_entity\": Get non-polymer entity data (define entity ID as \"identifier\").\n"
-            "\"polymer_entity\": Get polymer entity data (define entity ID as \"identifier\").\n"
-            "\"uniprot\": Get UniProt annotations for a given macromolecular entity (define entity ID as \"identifier\").\n"
-            "\"branched_entity_instance\": Get branched entity instance description (define chain ID as \"identifier\").\n"
-            "\"polymer_entity_instance\": Get polymer entity instance (a.k.a chain) data (define chain ID as \"identifier\").\n"
-            "\"nonpolymer_entity_instance\": Get non-polymer entity instance description (define chain ID as \"identifier\")."
+            '"pdb": Returns the protein structure in PDB format.\n'
+            '"entry": Information about PDB structures at the top level of PDB structure hierarchical data organization.\n'
+            '"pubmed": Get PubMed annotations (data integrated from PubMed) for a given entry\'s primary citation.\n'
+            '"assembly": Information about PDB structures at the quaternary structure level.\n'
+            '"branched_entity": Get branched entity description (define entity ID as "identifier").\n'
+            '"nonpolymer_entity": Get non-polymer entity data (define entity ID as "identifier").\n'
+            '"polymer_entity": Get polymer entity data (define entity ID as "identifier").\n'
+            '"uniprot": Get UniProt annotations for a given macromolecular entity (define entity ID as "identifier").\n'
+            '"branched_entity_instance": Get branched entity instance description (define chain ID as "identifier").\n'
+            '"polymer_entity_instance": Get polymer entity instance (a.k.a chain) data (define chain ID as "identifier").\n'
+            '"nonpolymer_entity_instance": Get non-polymer entity instance description (define chain ID as "identifier").'
         ),
     )
     parser_pdb.add_argument(
@@ -2109,10 +2141,20 @@ def main():
 
     ## mutate return
     if args.command == "mutate":
+        if isinstance(args.sequences, list) and len(args.sequences) == 1:
+            seqs = args.sequences[0]
+        else:
+            seqs = args.sequences
+
+        if isinstance(args.mutations, list) and len(args.mutations) == 1:
+            muts = args.mutations[0]
+        else:
+            muts = args.mutations
+
         # Run mutate function (automatically saves output)
         mutate_results = mutate(
-            sequences=args.sequences,
-            mutations=args.mutations,
+            sequences=seqs,
+            mutations=muts,
             k=args.k,
             mut_column=args.mut_column,
             mut_id_column=args.mut_id_column,
