@@ -370,8 +370,7 @@ def mutate(
     # Read in 'mutations' if passed as filepath to comma-separated csv
     if isinstance(mutations, str) and ".csv" in mutations:
         mutations = pd.read_csv(mutations)
-
-    print(mutations)
+        print(mutations)
 
     elif isinstance(mutations, str) and ".tsv" in mutations:
         mutations = pd.read_csv(mutations, sep="\t")
@@ -419,6 +418,8 @@ def mutate(
             - A list of mutations (the number of mutations must equal the number of input sequences) (e.g. ['c.2C>T', 'c.1A>C'])
             """
         )
+    
+    print(mutations)
 
     seq_dict = {}
     for title, seq in zip(titles, seqs):
