@@ -371,6 +371,8 @@ def mutate(
     if isinstance(mutations, str) and ".csv" in mutations:
         mutations = pd.read_csv(mutations)
 
+    print(mutations)
+
     elif isinstance(mutations, str) and ".tsv" in mutations:
         mutations = pd.read_csv(mutations, sep="\t")
 
