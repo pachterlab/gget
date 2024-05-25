@@ -39,8 +39,12 @@ GENECORR_URL = "https://maayanlab.cloud/matrixapi/coltop"
 EXPRESSION_URL = "https://maayanlab.cloud/archs4/search/loadExpressionTissue.php?"
 
 # Download links for ELM database
-ELM_INSTANCES_FASTA_DOWNLOAD = "http://elm.eu.org/instances.fasta?q=*&taxon=&instance_logic="
-ELM_INSTANCES_TSV_DOWNLOAD = "http://elm.eu.org/instances.tsv?q=*&taxon=&instance_logic="
+ELM_INSTANCES_FASTA_DOWNLOAD = (
+    "http://elm.eu.org/instances.fasta?q=*&taxon=&instance_logic="
+)
+ELM_INSTANCES_TSV_DOWNLOAD = (
+    "http://elm.eu.org/instances.tsv?q=*&taxon=&instance_logic="
+)
 ELM_CLASSES_TSV_DOWNLOAD = "http://elm.eu.org/elms/elms_index.tsv"
 ELM_INTDOMAINS_TSV_DOWNLOAD = "http://elm.eu.org/interactiondomains.tsv"
 

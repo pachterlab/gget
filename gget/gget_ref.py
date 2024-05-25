@@ -3,7 +3,13 @@ import requests
 import json
 
 # Custom functions
-from .utils import ref_species_options, find_latest_ens_rel, find_nv_kingdom, set_up_logger
+from .utils import (
+    ref_species_options,
+    find_latest_ens_rel,
+    find_nv_kingdom,
+    set_up_logger,
+)
+
 logger = set_up_logger()
 
 from .constants import ENSEMBL_FTP_URL, ENSEMBL_FTP_URL_NV, ENSEMBL_FTP_URL_GRCH37
@@ -108,8 +114,8 @@ def ref(
         species_list = list(set(species_list_gtf) & set(species_list_dna))
 
         if save:
-            with open("ensembl_species.txt", 'w') as tfile:
-                tfile.write('\n'.join(species_list))
+            with open("ensembl_species.txt", "w") as tfile:
+                tfile.write("\n".join(species_list))
 
         return sorted(species_list)
 
@@ -140,8 +146,8 @@ def ref(
         species_list = list(set(species_list_gtf) & set(species_list_dna))
 
         if save:
-            with open("ensembl_iv_species.txt", 'w') as tfile:
-                tfile.write('\n'.join(species_list))
+            with open("ensembl_iv_species.txt", "w") as tfile:
+                tfile.write("\n".join(species_list))
 
         return sorted(species_list)
 
@@ -176,7 +182,9 @@ def ref(
         database = ENSEMBL_FTP_URL_GRCH37
         ENS_rel = find_latest_ens_rel(ENSEMBL_FTP_URL)
     # Standard database
-    elif species in ref_species_options("dna", database=ENSEMBL_FTP_URL, release=release):
+    elif species in ref_species_options(
+        "dna", database=ENSEMBL_FTP_URL, release=release
+    ):
         database = ENSEMBL_FTP_URL
         # Find latest vertebrate Ensembl release
         ENS_rel = find_latest_ens_rel(database)
@@ -528,7 +536,7 @@ def ref(
                 )
 
         if save:
-            with open('gget_ref_results.txt', 'w') as tfile:
-                tfile.write('\n'.join(results))
+            with open("gget_ref_results.txt", "w") as tfile:
+                tfile.write("\n".join(results))
 
         return results
