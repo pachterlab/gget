@@ -15,6 +15,7 @@ unknown_mutations = 0
 uncertain_mutations = 0
 ambiguous_position_mutations = 0
 cosmic_incorrect_wt_base = 0
+mut_idx_outside_seq = 0
 
 mutation_pattern = r"c\.([0-9_\-\+\*]+)([a-zA-Z>]+)"  # more complex: r'c\.([0-9_\-\+\*\(\)\?]+)([a-zA-Z>\(\)0-9]+)'
 
@@ -153,18 +154,27 @@ def substitution_mutation(
 ):  # yields 61-mer
     # assert letters[0] == row['full_sequence'][starting_nucleotide_position_index_0], f"Transcript has {row['full_sequence'][starting_nucleotide_position_index_0]} at position {starting_nucleotide_position_index_0} but mutation is {letters[-1]} at position {starting_nucleotide_position_index_0} in {row[mut_column]}"
     global cosmic_incorrect_wt_base
-    if letters[0] != row["full_sequence"][starting_nucleotide_position_index_0]:
-        logger.debug(
-            f"Sequence {row[seq_id_column]} has nucleotide '{row['full_sequence'][starting_nucleotide_position_index_0]}' at position {starting_nucleotide_position_index_0}, but mutation {row[mut_column]} expected '{letters[0]}'."
+    global mut_idx_outside_seq
+    try:
+        if letters[0] != row["full_sequence"][starting_nucleotide_position_index_0]:
+            logger.debug(
+                f"Sequence {row[seq_id_column]} has nucleotide '{row['full_sequence'][starting_nucleotide_position_index_0]}' at position {starting_nucleotide_position_index_0}, but mutation {row[mut_column]} expected '{letters[0]}'."
+            )
+            cosmic_incorrect_wt_base += 1
+        mutant_sequence = (
+            row["full_sequence"][:starting_nucleotide_position_index_0]
+            + letters[-1]
+            + row["full_sequence"][ending_nucleotide_position_index_0 + 1 :]
         )
-        cosmic_incorrect_wt_base += 1
-    mutant_sequence = (
-        row["full_sequence"][:starting_nucleotide_position_index_0]
-        + letters[-1]
-        + row["full_sequence"][ending_nucleotide_position_index_0 + 1 :]
-    )
-    adjusted_end_position = ending_nucleotide_position_index_0
-    return mutant_sequence, adjusted_end_position
+        adjusted_end_position = ending_nucleotide_position_index_0
+
+        return mutant_sequence, adjusted_end_position
+
+    # Mutation index is outside sequence length
+    except IndexError:
+        mut_idx_outside_seq += 1
+
+        return "", ""
 
 
 def deletion_mutation(
@@ -334,14 +344,7 @@ def mutate(
     Saves mutated sequences in fasta format ( or returns a list containing the mutated sequences if out=None).
     """
 
-    global intronic_mutations, posttranslational_region_mutations, unknown_mutations, uncertain_mutations, ambiguous_position_mutations, cosmic_incorrect_wt_base
-
-    intronic_mutations = 0
-    posttranslational_region_mutations = 0
-    unknown_mutations = 0
-    uncertain_mutations = 0
-    ambiguous_position_mutations = 0
-    cosmic_incorrect_wt_base = 0
+    global intronic_mutations, posttranslational_region_mutations, unknown_mutations, uncertain_mutations, ambiguous_position_mutations, cosmic_incorrect_wt_base, mut_idx_outside_seq
 
     # Load input sequences and their identifiers from fasta file
     if "." in sequences:
@@ -629,6 +632,7 @@ def mutate(
         - uncertain_mutations
         - ambiguous_position_mutations
         - cosmic_incorrect_wt_base
+        - mut_idx_outside_seq
     )
 
     if good_mutations != total_mutations:
@@ -641,6 +645,7 @@ def mutate(
             {uncertain_mutations} mutations with uncertain mutation found ({uncertain_mutations/total_mutations*100:.2f}%)
             {ambiguous_position_mutations} mutations with ambiguous position found ({ambiguous_position_mutations/total_mutations*100:.2f}%)
             {cosmic_incorrect_wt_base} mutations with incorrect wildtype base found ({cosmic_incorrect_wt_base/total_mutations*100:.2f}%)
+            {mut_idx_outside_seq} mutations with indeces outside of the sequence length found ({mut_idx_outside_seq/total_mutations*100:.2f}%)
             """
         )
     else:
@@ -654,6 +659,7 @@ def mutate(
                 {uncertain_mutations} mutations with uncertain mutation found ({uncertain_mutations/total_mutations*100:.2f}%)
                 {ambiguous_position_mutations} mutations with ambiguous position found ({ambiguous_position_mutations/total_mutations*100:.2f}%)
                 {cosmic_incorrect_wt_base} mutations with incorrect wildtype base found ({cosmic_incorrect_wt_base/total_mutations*100:.2f}%)
+                {mut_idx_outside_seq} mutations with indeces outside of the sequence length found ({mut_idx_outside_seq/total_mutations*100:.2f}%)
                 """
             )
 
