@@ -154,7 +154,7 @@ def select_reference(
         else:
             proceed = (
                 input(
-                    "Downloading complete databases from COSMIC requires an account (https://cancer.sanger.ac.uk/cosmic/register; free for academic use, license for commercial use).\nWould you like to proceed? "
+                    "Downloading complete databases from COSMIC requires an account (https://cancer.sanger.ac.uk/cosmic/register; free for academic use, license for commercial use).\nWould you like to proceed (y/n)? "
                 )
                 .strip()
                 .lower()
