@@ -16,17 +16,17 @@ from .utils import set_up_logger
 
 logger = set_up_logger()
 
+
 def is_valid_email(email):
     """
     Check if an e-mail address is valid.
     """
-    email_pattern = re.compile(
-        r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)"
-    )
+    email_pattern = re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
 
     return re.match(email_pattern, email) is not None
 
-def download_reference(download_link, tar_folder_path, file_path, verbose) :
+
+def download_reference(download_link, tar_folder_path, file_path, verbose):
     email = input("Please enter your COSMIC email: ")
     if not is_valid_email(email):
         raise ValueError("The email address is not valid.")
@@ -130,7 +130,6 @@ def select_reference(
             f"CancerMutationCensus_AllData_v{cosmic_version}_GRCh{grch_version}.tsv"
         )
 
-
     tar_folder_path = os.path.join(reference_dir, tarred_folder)
     file_path = os.path.join(tar_folder_path, contained_file)
 
@@ -155,7 +154,7 @@ def select_reference(
         else:
             proceed = (
                 input(
-                    "Downloading complete databases from COSMIC requires an account (https://cancer.sanger.ac.uk/cosmic/register; free for academic use, license for commercial use). Would you like to proceed? "
+                    "Downloading complete databases from COSMIC requires an account (https://cancer.sanger.ac.uk/cosmic/register; free for academic use, license for commercial use).\nWould you like to proceed? "
                 )
                 .strip()
                 .lower()
@@ -210,8 +209,8 @@ def cosmic(
     - gget_mutate     (True/False) whether to create a modified version of the database for use with gget mutate. Default: True
 
     General args:
-    - out             (str) Path to folder the database will be downloaded into. 
-                      Default: None 
+    - out             (str) Path to folder the database will be downloaded into.
+                      Default: None
                       -> When download_cosmic=False: Results will be returned to standard out
                       -> When download_cosmic=True: Database will be downloaded into current working directory
     - verbose         (True/False) whether to print progress information. Default: True
@@ -296,10 +295,13 @@ def cosmic(
                     }
                 )
 
+            # Remove version numbers from Ensembl IDs
+            df["seq_ID"] = df["seq_ID"].str.split(".")[0]
+
             # Get mut_ID column (by combining GENOMIC_MUTATION_ID and MUTATION_URL/MUTATION_ID)
             df["GENOMIC_MUTATION_ID"] = df["GENOMIC_MUTATION_ID"].fillna("NA")
-            df['GENOMIC_MUTATION_ID'] = df['GENOMIC_MUTATION_ID'].astype(str)
-            df['MUTATION_ID'] = df['MUTATION_ID'].astype(str)
+            df["GENOMIC_MUTATION_ID"] = df["GENOMIC_MUTATION_ID"].astype(str)
+            df["MUTATION_ID"] = df["MUTATION_ID"].astype(str)
             df["mut_ID"] = df["GENOMIC_MUTATION_ID"] + "_" + df["MUTATION_ID"]
             df = df.drop(columns=["GENOMIC_MUTATION_ID", "MUTATION_ID"])
 

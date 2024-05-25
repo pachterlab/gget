@@ -5,6 +5,7 @@ from tqdm import tqdm
 tqdm.pandas()
 
 from .utils import read_fasta, set_up_logger
+
 logger = set_up_logger()
 
 # Define global variables to count occurences of weird mutations
@@ -289,9 +290,9 @@ def mutate(
 
     Args:
     - sequences     (str) Path to the fasta file containing the sequences to be mutated, e.g., 'seqs.fa'.
-                    Sequence identifiers following the '>' character must correspond to the identifiers 
+                    Sequence identifiers following the '>' character must correspond to the identifiers
                     in the seq_ID column of 'mutations'.
-                    NOTE: Only string until first space or dot will be used as sequence identifier 
+                    NOTE: Only string until first space or dot will be used as sequence identifier
                     - Version numbers of Ensembl IDs will be ignored.
 
                     Example:
@@ -299,7 +300,7 @@ def mutate(
                     ACTGCGATAGACT
                     >seq2
                     AGATCGCTAG
-                            
+
                     Alternatively: Input sequence(s) as a string or list, e.g. 'AGCTAGCT' or 'ACTGCTAGCT' 'AGCTAGCT'.
     - mutations     Path to csv or tsv file (str) (e.g., 'mutations.csv') or data frame (DataFrame object),
                     containing information about the mutations in the following format:
@@ -342,6 +343,9 @@ def mutate(
     ambiguous_position_mutations = 0
     cosmic_incorrect_wt_base = 0
 
+    print(sequences)
+    print(mutations)
+
     # Load input sequences and their identifiers from fasta file
     if "." in sequences:
         titles, seqs = read_fasta(sequences)
@@ -370,7 +374,6 @@ def mutate(
     # Read in 'mutations' if passed as filepath to comma-separated csv
     if isinstance(mutations, str) and ".csv" in mutations:
         mutations = pd.read_csv(mutations)
-        print(mutations)
 
     elif isinstance(mutations, str) and ".tsv" in mutations:
         mutations = pd.read_csv(mutations, sep="\t")
@@ -418,8 +421,6 @@ def mutate(
             - A list of mutations (the number of mutations must equal the number of input sequences) (e.g. ['c.2C>T', 'c.1A>C'])
             """
         )
-    
-    print(mutations)
 
     seq_dict = {}
     for title, seq in zip(titles, seqs):
