@@ -68,7 +68,7 @@ def ref(
     Args:
     - species         Defines the species for which the reference should be fetched in the format "<genus>_<species>",
                       e.g. species = "homo_sapiens".
-                      Supported shortcuts: human, mouse, human_grch37
+                      Supported shortcuts: "human", "mouse", "human_grch37" (accesses the GRCh37 genome assembly)
     - which           Defines which results to return.
                       Default: 'all' -> Returns all available results.
                       Possible entries are one or a combination (as a list of strings) of the following:

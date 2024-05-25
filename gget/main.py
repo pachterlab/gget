@@ -88,8 +88,7 @@ def main():
         default=None,
         help=(
             "Species or database to be searched. Species should be passed in the format 'genus_species', e.g. 'homo_sapiens'.\n"
-            "To pass a specific database, enter the name of the core database and release number, e.g. 'mus_musculus_dba2j_core_105_1'.\n"
-            "All available databases for each Ensembl release can be found here: http://ftp.ensembl.org/pub/"
+            "Supported shortcuts: 'human', 'mouse', 'human_grch37' (accesses the GRCh37 genome assembly)"
         ),
     )
     parser_ref.add_argument(
