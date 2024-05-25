@@ -236,9 +236,14 @@ def ref(
         else:
             gtf_search_url = database + f"release-{ENS_rel}/gtf/{species}/"
 
+        if grch37:
+            link_substring="GRCh37.87.gtf.gz"
+        else:
+            link_substring=f"{ENS_rel}.gtf.gz"
+
         # Get link, release date and dataset size
         gtf_str, gtf_date, gtf_size = find_FTP_link(
-            url=gtf_search_url, link_substring=f"{ENS_rel}.gtf.gz"
+            url=gtf_search_url, link_substring=link_substring
         )
         # Build the final download link
         if not isinstance(gtf_str, type(None)):
