@@ -151,7 +151,7 @@ def substitution_mutation(
     ending_nucleotide_position_index_0,
     mut_column,
     seq_id_column,
-):  # yields 61-mer
+):
     # assert letters[0] == row['full_sequence'][starting_nucleotide_position_index_0], f"Transcript has {row['full_sequence'][starting_nucleotide_position_index_0]} at position {starting_nucleotide_position_index_0} but mutation is {letters[-1]} at position {starting_nucleotide_position_index_0} in {row[mut_column]}"
     global cosmic_incorrect_wt_base
     global mut_idx_outside_seq
@@ -173,7 +173,6 @@ def substitution_mutation(
     # Mutation index is outside sequence length
     except IndexError:
         mut_idx_outside_seq += 1
-
         return "", ""
 
 
@@ -184,13 +183,22 @@ def deletion_mutation(
     ending_nucleotide_position_index_0,
     mut_column,
     seq_id_column,
-):  # yields 60-mer
-    mutant_sequence = (
-        row["full_sequence"][:starting_nucleotide_position_index_0]
-        + row["full_sequence"][ending_nucleotide_position_index_0 + 1 :]
-    )
-    adjusted_end_position = starting_nucleotide_position_index_0 - 1
-    return mutant_sequence, adjusted_end_position
+):
+    try:
+        # Accessing the sequence to trigger IndexError if out of bounds
+        _ = row["full_sequence"][starting_nucleotide_position_index_0]
+
+        mutant_sequence = (
+            row["full_sequence"][:starting_nucleotide_position_index_0]
+            + row["full_sequence"][ending_nucleotide_position_index_0 + 1 :]
+        )
+        adjusted_end_position = starting_nucleotide_position_index_0 - 1
+        return mutant_sequence, adjusted_end_position
+
+    # Mutation index is outside sequence length
+    except IndexError:
+        mut_idx_outside_seq += 1
+        return "", ""
 
 
 def delins_mutation(
@@ -200,17 +208,27 @@ def delins_mutation(
     ending_nucleotide_position_index_0,
     mut_column,
     seq_id_column,
-):  # yields 60+(length of insertion)-mer
-    insertion_string = "".join(re.findall(r"[A-Z]+", letters))
-    mutant_sequence = (
-        row["full_sequence"][:starting_nucleotide_position_index_0]
-        + insertion_string
-        + row["full_sequence"][ending_nucleotide_position_index_0 + 1 :]
-    )
-    adjusted_end_position = (
-        starting_nucleotide_position_index_0 + len(insertion_string) - 1
-    )
-    return mutant_sequence, adjusted_end_position
+):
+    try:
+        # Accessing the sequence to trigger IndexError if out of bounds
+        _ = row["full_sequence"][starting_nucleotide_position_index_0]
+
+        # yields 60+(length of insertion)-mer
+        insertion_string = "".join(re.findall(r"[A-Z]+", letters))
+        mutant_sequence = (
+            row["full_sequence"][:starting_nucleotide_position_index_0]
+            + insertion_string
+            + row["full_sequence"][ending_nucleotide_position_index_0 + 1 :]
+        )
+        adjusted_end_position = (
+            starting_nucleotide_position_index_0 + len(insertion_string) - 1
+        )
+        return mutant_sequence, adjusted_end_position
+
+    # Mutation index is outside sequence length
+    except IndexError:
+        mut_idx_outside_seq += 1
+        return "", ""
 
 
 def insertion_mutation(
@@ -220,17 +238,27 @@ def insertion_mutation(
     ending_nucleotide_position_index_0,
     mut_column,
     seq_id_column,
-):  # yields 61+(length of insertion)-mer  - k before, length of insertion, k-1 after (k before and k-1 after is a little unconventional, but if I want to make it k-1 before then I have to return an adjusted start as well as an adjusted end)
-    insertion_string = "".join(re.findall(r"[A-Z]+", letters))
-    mutant_sequence = (
-        row["full_sequence"][: starting_nucleotide_position_index_0 + 1]
-        + insertion_string
-        + row["full_sequence"][starting_nucleotide_position_index_0 + 1 :]
-    )
-    adjusted_end_position = (
-        ending_nucleotide_position_index_0 + len(insertion_string) - 1
-    )
-    return mutant_sequence, adjusted_end_position
+):
+    try:
+        # Accessing the sequence to trigger IndexError if out of bounds
+        _ = row["full_sequence"][starting_nucleotide_position_index_0]
+
+        # yields 61+(length of insertion)-mer  - k before, length of insertion, k-1 after (k before and k-1 after is a little unconventional, but if I want to make it k-1 before then I have to return an adjusted start as well as an adjusted end)
+        insertion_string = "".join(re.findall(r"[A-Z]+", letters))
+        mutant_sequence = (
+            row["full_sequence"][: starting_nucleotide_position_index_0 + 1]
+            + insertion_string
+            + row["full_sequence"][starting_nucleotide_position_index_0 + 1 :]
+        )
+        adjusted_end_position = (
+            ending_nucleotide_position_index_0 + len(insertion_string) - 1
+        )
+        return mutant_sequence, adjusted_end_position
+
+    # Mutation index is outside sequence length
+    except IndexError:
+        mut_idx_outside_seq += 1
+        return "", ""
 
 
 def duplication_mutation(
@@ -241,16 +269,27 @@ def duplication_mutation(
     mut_column,
     seq_id_column,
 ):
-    insertion_string = row["full_sequence"][
-        starting_nucleotide_position_index_0 : ending_nucleotide_position_index_0 + 1
-    ]
-    mutant_sequence = (
-        row["full_sequence"][:starting_nucleotide_position_index_0]
-        + insertion_string * 2
-        + row["full_sequence"][ending_nucleotide_position_index_0 + 1 :]
-    )
-    adjusted_end_position = ending_nucleotide_position_index_0 + len(insertion_string)
-    return mutant_sequence, adjusted_end_position
+    try:
+        # Accessing the sequence to trigger IndexError if out of bounds
+        _ = row["full_sequence"][starting_nucleotide_position_index_0]
+        insertion_string = row["full_sequence"][
+            starting_nucleotide_position_index_0 : ending_nucleotide_position_index_0
+            + 1
+        ]
+        mutant_sequence = (
+            row["full_sequence"][:starting_nucleotide_position_index_0]
+            + insertion_string * 2
+            + row["full_sequence"][ending_nucleotide_position_index_0 + 1 :]
+        )
+        adjusted_end_position = ending_nucleotide_position_index_0 + len(
+            insertion_string
+        )
+        return mutant_sequence, adjusted_end_position
+
+    # Mutation index is outside sequence length
+    except IndexError:
+        mut_idx_outside_seq += 1
+        return "", ""
 
 
 def inversion_mutation(
@@ -261,16 +300,25 @@ def inversion_mutation(
     mut_column,
     seq_id_column,
 ):
-    insertion_string = row["full_sequence"][
-        starting_nucleotide_position_index_0 : ending_nucleotide_position_index_0 + 1
-    ]
-    mutant_sequence = (
-        row["full_sequence"][:starting_nucleotide_position_index_0]
-        + insertion_string[::-1]
-        + row["full_sequence"][ending_nucleotide_position_index_0 + 1 :]
-    )
-    adjusted_end_position = ending_nucleotide_position_index_0
-    return mutant_sequence, adjusted_end_position
+    try:
+        # Accessing the sequence to trigger IndexError if out of bounds
+        _ = row["full_sequence"][starting_nucleotide_position_index_0]
+        insertion_string = row["full_sequence"][
+            starting_nucleotide_position_index_0 : ending_nucleotide_position_index_0
+            + 1
+        ]
+        mutant_sequence = (
+            row["full_sequence"][:starting_nucleotide_position_index_0]
+            + insertion_string[::-1]
+            + row["full_sequence"][ending_nucleotide_position_index_0 + 1 :]
+        )
+        adjusted_end_position = ending_nucleotide_position_index_0
+        return mutant_sequence, adjusted_end_position
+
+    # Mutation index is outside sequence length
+    except IndexError:
+        mut_idx_outside_seq += 1
+        return "", ""
 
 
 def unknown_mutation(
