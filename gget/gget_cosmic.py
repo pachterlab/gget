@@ -296,7 +296,7 @@ def cosmic(
                 )
 
             # Remove version numbers from Ensembl IDs
-            df["seq_ID"] = df["seq_ID"].str.split(".")[0]
+            df["seq_ID"] = df["seq_ID"].str.split(".").str[0]
 
             # Get mut_ID column (by combining GENOMIC_MUTATION_ID and MUTATION_URL/MUTATION_ID)
             df["GENOMIC_MUTATION_ID"] = df["GENOMIC_MUTATION_ID"].fillna("NA")
