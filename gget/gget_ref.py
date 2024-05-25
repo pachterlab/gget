@@ -231,6 +231,8 @@ def ref(
         else:
             gtf_search_url = database + f"release-{ENS_rel}/gtf/{species}/"
 
+        print(gtf_search_url)
+
         # Get link, release date and dataset size
         gtf_str, gtf_date, gtf_size = find_FTP_link(
             url=gtf_search_url, link_substring=f"{ENS_rel}.gtf.gz"
