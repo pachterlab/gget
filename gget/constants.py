@@ -3,6 +3,7 @@ import uuid
 # Ensembl REST API server for gget seq and info
 ENSEMBL_REST_API = "http://rest.ensembl.org/"
 ENSEMBL_FTP_URL = "http://ftp.ensembl.org/pub/"
+ENSEMBL_FTP_URL_GRCH37 = "http://ftp.ensembl.org/pub/grch37/"
 # Non-vertebrate server
 ENSEMBL_FTP_URL_NV = "http://ftp.ensemblgenomes.org/pub/"
 

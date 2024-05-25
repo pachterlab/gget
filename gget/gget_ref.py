@@ -6,7 +6,7 @@ import json
 from .utils import ref_species_options, find_latest_ens_rel, find_nv_kingdom, set_up_logger
 logger = set_up_logger()
 
-from .constants import ENSEMBL_FTP_URL, ENSEMBL_FTP_URL_NV
+from .constants import ENSEMBL_FTP_URL, ENSEMBL_FTP_URL_NV, ENSEMBL_FTP_URL_GRCH37
 
 
 def find_FTP_link(url, link_substring):
@@ -62,6 +62,7 @@ def ref(
     Args:
     - species         Defines the species for which the reference should be fetched in the format "<genus>_<species>",
                       e.g. species = "homo_sapiens".
+                      Supported shortcuts: human, mouse, human_grch37
     - which           Defines which results to return.
                       Default: 'all' -> Returns all available results.
                       Possible entries are one or a combination (as a list of strings) of the following:
@@ -162,7 +163,7 @@ def ref(
         )
 
     # Species shortcuts
-    if species == "human":
+    if species == "human" or species == "human_grch37":
         species = "homo_sapiens"
     if species == "mouse":
         species = "mus_musculus"
@@ -170,11 +171,16 @@ def ref(
     # In case species was passed with upper case letters
     species = species.lower()
 
-    ## For non-vertebrates, switch to non-vertebrate databases
-    if species in ref_species_options("dna", database=ENSEMBL_FTP_URL, release=release):
+    # GRCh37 database (releases same as standard database)
+    if species == "human_grch37":
+        database = ENSEMBL_FTP_URL_GRCH37
+        ENS_rel = find_latest_ens_rel(ENSEMBL_FTP_URL)
+    # Standard database
+    elif species in ref_species_options("dna", database=ENSEMBL_FTP_URL, release=release):
         database = ENSEMBL_FTP_URL
         # Find latest vertebrate Ensembl release
-        ENS_rel = find_latest_ens_rel(ENSEMBL_FTP_URL)
+        ENS_rel = find_latest_ens_rel(database)
+    # For non-vertebrates, switch to non-vertebrate databases
     else:
         database = ENSEMBL_FTP_URL_NV
         # Find latest NV Ensembl release
