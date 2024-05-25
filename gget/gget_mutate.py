@@ -154,7 +154,7 @@ def substitution_mutation(
     # assert letters[0] == row['full_sequence'][starting_nucleotide_position_index_0], f"Transcript has {row['full_sequence'][starting_nucleotide_position_index_0]} at position {starting_nucleotide_position_index_0} but mutation is {letters[-1]} at position {starting_nucleotide_position_index_0} in {row[mut_column]}"
     global cosmic_incorrect_wt_base
     if letters[0] != row["full_sequence"][starting_nucleotide_position_index_0]:
-        logger.warning(
+        logger.debug(
             f"Sequence {row[seq_id_column]} has nucleotide '{row['full_sequence'][starting_nucleotide_position_index_0]}' at position {starting_nucleotide_position_index_0}, but mutation {row[mut_column]} expected '{letters[0]}'."
         )
         cosmic_incorrect_wt_base += 1
