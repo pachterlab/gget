@@ -210,9 +210,13 @@ def ref(
     if not grch37:
         ## Raise error if species not found (both FASTA and GTF have to be available)
         # Find all available species for genome FASTAs for this Ensembl release
-        species_list_dna = ref_species_options("dna", database=database, release=ENS_rel)
+        species_list_dna = ref_species_options(
+            "dna", database=database, release=ENS_rel
+        )
         # Find all available species for GTFs for this Ensembl release
-        species_list_gtf = ref_species_options("gtf", database=database, release=ENS_rel)
+        species_list_gtf = ref_species_options(
+            "gtf", database=database, release=ENS_rel
+        )
         # Find intersection of the two lists
         # (Only species which have GTF and FASTAs available can continue)
         species_list = list(set(species_list_gtf) & set(species_list_dna))
@@ -237,9 +241,9 @@ def ref(
             gtf_search_url = database + f"release-{ENS_rel}/gtf/{species}/"
 
         if grch37:
-            link_substring="GRCh37.87.gtf.gz"
+            link_substring = "GRCh37.87.gtf.gz"
         else:
-            link_substring=f"{ENS_rel}.gtf.gz"
+            link_substring = f"{ENS_rel}.gtf.gz"
 
         # Get link, release date and dataset size
         gtf_str, gtf_date, gtf_size = find_FTP_link(
