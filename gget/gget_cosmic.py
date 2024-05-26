@@ -52,7 +52,7 @@ def download_reference(download_link, tar_folder_path, file_path, verbose):
 
     try:
         response_data = json_package.loads(result.stdout)
-    except JSONDecodeError:
+    except ValueError:
         raise RuntimeError(
             "Failed to download file. Please double-check arguments (especially cosmic_version) and try again."
         )
