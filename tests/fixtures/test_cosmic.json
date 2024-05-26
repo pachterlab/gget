@@ -215,13 +215,13 @@
             [
                 "haematopoietic and lymphoid tissue,lymphoid neoplasm",
                 "haematopoietic and lymphoid tissue,lymphoid neoplasm (prostate,lymphoma)",
-                "116125",
-                "883371"
+                "117534",
+                "1027628"
             ],
             [
                 "prostate,carcinoma",
                 "prostate,carcinoma (prostate,carcinoma)",
-                "24180",
+                "24201",
                 "793069"
             ]
         ]
@@ -230,7 +230,7 @@
         "type": "assert_equal_tumour",
         "args": {
             "searchterm": "prostate",
-            "entity": "tumour site",
+            "entity": "tumour_site",
             "limit": 2
         },
         "expected_result": [

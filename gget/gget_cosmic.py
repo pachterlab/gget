@@ -210,8 +210,18 @@ def cosmic(
 
     Args for querying information about specific cancers/genes/etc:
     - searchterm      (str) Search term, which can be a mutation, or gene name (or Ensembl ID), or sample, etc.
-                      as defined using the 'entity' argument. Example: 'EGFR'.
-                      Set to None when downloading COSMIC databases with download_cosmic=True.
+                      as defined using the 'entity' argument. Examples: 
+
+                      | searchterm  | entitity    |
+                      | v600e       | mutations   | -> Find genes for which v600e mutations are associated with cancer
+                      | EGFR        | genes       | -> Get number of mutations in the EGFR gene and its transcripts associated with cancer
+                      | prostate    | cancer      |
+                      | prostate    | tumour_site | -> Get number of cancers reported at this site
+                      | THCA-SA     | studies     |
+                      | v600e       | pubmed      | -> Find publications associated with v600e mutations
+                      | EGFR        | samples     | -> Get 
+
+                      NOTE: Set to None when downloading COSMIC databases with download_cosmic=True.
     - entity          (str) Defines the type of the supplied search term. One of the following:
                       'mutations' (default), 'genes', 'cancer', 'tumour_site', 'studies', 'pubmed', or 'samples'.
     - limit           (int) Number of hits to return. Default: 100

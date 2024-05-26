@@ -63,7 +63,11 @@ def extract_mutation_type(mutation):
 
 
 def create_mutant_sequence(
-    row, mutation_function, kmer_flanking_length, mut_column, seq_id_column
+    row,
+    mutation_function,
+    kmer_flanking_length=31,
+    mut_column="mutation",
+    seq_id_column="seq_ID",
 ):
     global intronic_mutations, posttranslational_region_mutations, unknown_mutations, uncertain_mutations, ambiguous_position_mutations
 

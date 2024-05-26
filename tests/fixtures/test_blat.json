@@ -5,20 +5,76 @@
             "sequence": "ATGCTGAATTTATGCTGAATTTATGCTGAATTTATGCTGAATTT"
         },
         "expected_result": [
-            [
-                "hg38",
-                44,
-                17,
-                44,
-                28,
-                0,
-                63.64,
-                100.0,
-                "chr18",
-                "+",
-                1952614,
-                1952647
-            ]
+            {
+                "genome": "hg38",
+                "query_size": 44,
+                "aligned_start": 17,
+                "aligned_end": 44,
+                "matches": 28,
+                "mismatches": 0,
+                "%_aligned": 63.64,
+                "%_matched": 100.0,
+                "chromosome": "chr18",
+                "strand": "+",
+                "start": 1952614,
+                "end": 1952647
+            },
+            {
+                "genome": "hg38",
+                "query_size": 44,
+                "aligned_start": 5,
+                "aligned_end": 28,
+                "matches": 22,
+                "mismatches": 0,
+                "%_aligned": 54.55,
+                "%_matched": 91.67,
+                "chromosome": "chr7",
+                "strand": "-",
+                "start": 5498990,
+                "end": 5499012
+            },
+            {
+                "genome": "hg38",
+                "query_size": 44,
+                "aligned_start": 5,
+                "aligned_end": 22,
+                "matches": 18,
+                "mismatches": 0,
+                "%_aligned": 40.91,
+                "%_matched": 100.0,
+                "chromosome": "chr6",
+                "strand": "-",
+                "start": 145955424,
+                "end": 145955441
+            },
+            {
+                "genome": "hg38",
+                "query_size": 44,
+                "aligned_start": 5,
+                "aligned_end": 22,
+                "matches": 18,
+                "mismatches": 0,
+                "%_aligned": 40.91,
+                "%_matched": 100.0,
+                "chromosome": "chr13",
+                "strand": "-",
+                "start": 70756716,
+                "end": 70756733
+            },
+            {
+                "genome": "hg38",
+                "query_size": 44,
+                "aligned_start": 21,
+                "aligned_end": 38,
+                "matches": 18,
+                "mismatches": 0,
+                "%_aligned": 40.91,
+                "%_matched": 100.0,
+                "chromosome": "chr10",
+                "strand": "-",
+                "start": 88317014,
+                "end": 88317031
+            }
         ]
     },
     "test2": {
@@ -52,20 +108,76 @@
             "seqtype": "DNA"
         },
         "expected_result": [
-            [
-                "hg38",
-                44,
-                17,
-                44,
-                28,
-                0,
-                63.64,
-                100.0,
-                "chr18",
-                "+",
-                1952614,
-                1952647
-            ]
+            {
+                "genome": "hg38",
+                "query_size": 44,
+                "aligned_start": 17,
+                "aligned_end": 44,
+                "matches": 28,
+                "mismatches": 0,
+                "%_aligned": 63.64,
+                "%_matched": 100.0,
+                "chromosome": "chr18",
+                "strand": "+",
+                "start": 1952614,
+                "end": 1952647
+            },
+            {
+                "genome": "hg38",
+                "query_size": 44,
+                "aligned_start": 5,
+                "aligned_end": 28,
+                "matches": 22,
+                "mismatches": 0,
+                "%_aligned": 54.55,
+                "%_matched": 91.67,
+                "chromosome": "chr7",
+                "strand": "-",
+                "start": 5498990,
+                "end": 5499012
+            },
+            {
+                "genome": "hg38",
+                "query_size": 44,
+                "aligned_start": 5,
+                "aligned_end": 22,
+                "matches": 18,
+                "mismatches": 0,
+                "%_aligned": 40.91,
+                "%_matched": 100.0,
+                "chromosome": "chr6",
+                "strand": "-",
+                "start": 145955424,
+                "end": 145955441
+            },
+            {
+                "genome": "hg38",
+                "query_size": 44,
+                "aligned_start": 5,
+                "aligned_end": 22,
+                "matches": 18,
+                "mismatches": 0,
+                "%_aligned": 40.91,
+                "%_matched": 100.0,
+                "chromosome": "chr13",
+                "strand": "-",
+                "start": 70756716,
+                "end": 70756733
+            },
+            {
+                "genome": "hg38",
+                "query_size": 44,
+                "aligned_start": 21,
+                "aligned_end": 38,
+                "matches": 18,
+                "mismatches": 0,
+                "%_aligned": 40.91,
+                "%_matched": 100.0,
+                "chromosome": "chr10",
+                "strand": "-",
+                "start": 88317014,
+                "end": 88317031
+            }
         ]
     },
     "test4": {
