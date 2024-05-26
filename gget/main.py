@@ -1715,7 +1715,22 @@ def main():
         type=str,
         nargs="?",
         default=None,
-        help="Search term, which can be a mutation, or gene (or Ensembl ID), or sample, etc. as defined using the 'entity' argument. Example: 'EGFR'",
+        help=(
+            "Search term, which can be a mutation, gene name (or Ensembl ID), sample, etc.\n"
+            "Examples for the searchterm and entitity arguments:\n\n"
+            "| searchterm   | entity       |\n"
+            "|--------------|--------------|\n"
+            "| EGFR         | mutations    | -> Find mutations in the EGFR gene that are associated with cancer\n"
+            "| v600e        | mutations    | -> Find genes for which a v600e mutation is associated with cancer\n"
+            "| COSV57014428 | mutations    | -> Find mutations associated with this COSMIC mutations ID\n"
+            "| EGFR         | genes        | -> Get the number of samples, coding/simple mutations, and fusions observed in COSMIC for EGFR\n"
+            "| prostate     | cancer       | -> Get number of tested samples and mutations for prostate cancer\n"
+            "| prostate     | tumour_site  | -> Get number of tested samples, genes, mutations, fusions, etc. with 'prostate' as primary tissue site\n"
+            "| ICGC         | studies      | -> Get project code and descriptions for all studies from the ICGC (International Cancer Genome Consortium)\n"
+            "| EGFR         | pubmed       | -> Find PubMed publications on EGFR and cancer\n"
+            "| ICGC         | samples      | -> Get metadata on all samples from the ICGC (International Cancer Genome Consortium)\n"
+            "| COSS2907494  | samples      | -> Get metadata on this COSMIC sample ID (cancer type, tissue, # analyzed genes, # mutations, etc.)"
+        )
     )
     parser_cosmic.add_argument(
         "-e",
@@ -1732,7 +1747,7 @@ def main():
         default="mutations",
         type=str,
         required=False,
-        help="Type of search term.",
+        help="Defines the type of the results to return.",
     )
     parser_cosmic.add_argument(
         "-l",

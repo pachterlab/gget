@@ -8,12 +8,28 @@ NOTE: License fees apply for the commercial use of COSMIC. You can read more abo
 
 **Positional argument**  
 `searchterm`   
-Search term, which can be a mutation, gene name (or Ensembl ID), cancer type, tumor site, study ID, PubMed ID, or sample ID, as defined using the `entity` argument. Example: 'EGFR'  
+Search term, which can be a mutation, or gene name (or Ensembl ID), or sample, etc.  
+Examples for the searchterm and entitity arguments:   
+
+| searchterm   | entitity    |
+|--------------|-------------|
+| EGFR         | mutations   | -> Find mutations in the EGFR gene that are associated with cancer
+| v600e        | mutations   | -> Find genes for which a v600e mutation is associated with cancer
+| COSV57014428 | mutations   | -> Find mutations associated with this COSMIC mutations ID
+| EGFR         | genes       | -> Get the number of samples, coding/simple mutations, and fusions observed in COSMIC for EGFR
+| prostate     | cancer      | -> Get number of tested samples and mutations for prostate cancer
+| prostate     | tumour_site | -> Get number of tested samples, genes, mutations, fusions, etc. with 'prostate' as primary tissue site
+| ICGC         | studies     | -> Get project code and descriptions for all studies from the ICGC (International Cancer Genome Consortium)
+| EGFR         | pubmed      | -> Find PubMed publications on EGFR and cancer
+| ICGC         | samples     | -> Get metadata on all samples from the ICGC (International Cancer Genome Consortium)
+| COSS2907494  | samples     | -> Get metadata on this COSMIC sample ID (cancer type, tissue, # analyzed genes, # mutations, etc.)
+
+NOTE: (Python only) Set to `None` when downloading COSMIC databases with `download_cosmic=True`.
 
 **Optional arguments**  
 `-e` `--entity`  
 'mutations' (default), 'genes', 'cancer', 'tumour site', 'studies', 'pubmed', or 'samples'.  
-Defines the type of the supplied search term.  
+Defines the type of the results to return. 
 
 `-l` `--limit`  
 Limits number of hits to return. Default: 100.  
