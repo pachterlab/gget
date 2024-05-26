@@ -1777,10 +1777,10 @@ def main():
     parser_cosmic.add_argument(
         "-cv",
         "--cosmic_version",
-        default=99,
+        default=None,
         type=int,
         required=False,
-        help="Version of the COSMIC database (only for use with --download_cosmic).",
+        help="Version of the COSMIC database (only for use with --download_cosmic). Default: None -> Defaults to latest version.",
     )
     parser_cosmic.add_argument(
         "-gv",

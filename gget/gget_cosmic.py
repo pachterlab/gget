@@ -1,4 +1,5 @@
 import requests
+from bs4 import BeautifulSoup
 import pandas as pd
 import subprocess
 import os
@@ -11,7 +12,7 @@ import gzip
 import getpass
 
 # Constants
-from .constants import COSMIC_GET_URL
+from .constants import COSMIC_GET_URL, COSMIC_RELEASE_URL
 from .utils import set_up_logger
 
 logger = set_up_logger()
@@ -24,6 +25,17 @@ def is_valid_email(email):
     email_pattern = re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
 
     return re.match(email_pattern, email) is not None
+
+
+def get_latest_cosmic():
+    html = requests.get(COSMIC_RELEASE_URL)
+    if html.status_code != 200:
+        raise RuntimeError(
+            f"The COSMIC server returned error status code {html.status_code}. Please try again."
+        )
+    soup = BeautifulSoup(html.text, "html.parser")
+
+    return int(soup.find("div", class_="news").get("id").split("v")[-1])
 
 
 def download_reference(download_link, tar_folder_path, file_path, verbose):
@@ -195,7 +207,7 @@ def cosmic(
     json=False,
     download_cosmic=False,
     mutation_class="cancer",
-    cosmic_version=99,
+    cosmic_version=None,
     grch_version=37,
     gget_mutate=True,
     out=None,
@@ -223,7 +235,7 @@ def cosmic(
     - download_cosmic (True/False) whether to switch into database download mode. Default: False
     - mutation_class  (str) Type of COSMIC database to download. One of the following:
                       'cancer' (default), 'cell_line', 'census', 'resistance', 'screen', 'cancer_example'
-    - cosmic_version  (int) Version of the COSMIC database. Default: 99
+    - cosmic_version  (int) Version of the COSMIC database. Default: None -> Defaults to latest version.
     - grch_version    (int) Version of the human GRCh reference genome the COSMIC database was based on (37 or 38). Default: 37
     - gget_mutate     (True/False) whether to create a modified version of the database for use with gget mutate. Default: True
 
@@ -266,6 +278,9 @@ def cosmic(
 
         if not os.path.exists(out):
             os.makedirs(out)
+
+        if not cosmic_version:
+            cosmic_version = get_latest_cosmic()
 
         ## Download requested database
         mutation_tsv_file, overwrite = select_reference(
