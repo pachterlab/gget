@@ -4,6 +4,8 @@ Search for genes, mutations, and other factors associated with cancer using the 
 Return format: JSON (command-line) or data frame/CSV (Python).  
 This module was written by [@AubakirovArman](https://github.com/AubakirovArman).
 
+NOTE: License fees apply for the commercial use of COSMIC. You can read more about licensing COSMIC data [here](https://cancer.sanger.ac.uk/cosmic/license).
+
 **Positional argument**  
 `searchterm`   
 Search term, which can be a mutation, gene name (or Ensembl ID), cancer type, tumor site, study ID, PubMed ID, or sample ID, as defined using the `entity` argument. Example: 'EGFR'  

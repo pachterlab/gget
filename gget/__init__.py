@@ -15,13 +15,9 @@ from .gget_cellxgene import cellxgene
 from .gget_elm import elm
 from .gget_diamond import diamond
 from .gget_cosmic import cosmic
+from .gget_mutate import mutate
 
 import logging
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    datefmt="%c",
-)
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
 

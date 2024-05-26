@@ -4,21 +4,12 @@ import subprocess
 import itertools
 import sys
 import time
-import logging
 import uuid
-
-# Add and format time stamp in logging messages
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    datefmt="%c",
-)
-# Mute numexpr threads info
-logging.getLogger("numexpr").setLevel(logging.WARNING)
 
 # Custom functions
 from .compile import compile_muscle, MUSCLE_PATH, PACKAGE_PATH
-from .utils import aa_colors, n_colors, create_tmp_fasta
+from .utils import aa_colors, n_colors, create_tmp_fasta, set_up_logger
+logger = set_up_logger()
 
 # Path to precompiled muscle binary
 if platform.system() == "Windows":
@@ -78,7 +69,7 @@ def muscle(fasta, super5=False, out=None, verbose=True):
 
     else:
         if verbose:
-            logging.info("MUSCLE compiled. ")
+            logger.info("MUSCLE compiled. ")
         muscle_path = PRECOMPILED_MUSCLE_PATH
 
     # Replace slashes in path for Windows compatibility
@@ -118,7 +109,7 @@ def muscle(fasta, super5=False, out=None, verbose=True):
     # Record MUSCLE align start
     start_time = time.time()
     if verbose:
-        logging.info("MUSCLE aligning... ")
+        logger.info("MUSCLE aligning... ")
 
     # Run muscle command and write command output
     with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process_2:
@@ -131,7 +122,7 @@ def muscle(fasta, super5=False, out=None, verbose=True):
         return
     else:
         if verbose:
-            logging.info(
+            logger.info(
                 f"MUSCLE alignment complete. Alignment time: {round(time.time() - start_time, 2)} seconds"
             )
 

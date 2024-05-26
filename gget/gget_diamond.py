@@ -1,4 +1,3 @@
-import logging
 import subprocess
 import sys
 import platform
@@ -7,17 +6,9 @@ import pandas as pd
 import uuid
 import json as json_package
 
-# Add and format time stamp in logging messages
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    datefmt="%c",
-)
-# Mute numexpr threads info
-logging.getLogger("numexpr").setLevel(logging.WARNING)
-
 from .compile import PACKAGE_PATH
-from .utils import tsv_to_df, create_tmp_fasta, remove_temp_files
+from .utils import tsv_to_df, create_tmp_fasta, remove_temp_files, set_up_logger
+logger = set_up_logger()
 
 # Path to precompiled diamond binary
 if platform.system() == "Windows":
@@ -138,7 +129,7 @@ def diamond(
 
     # Run DIAMOND
     if verbose:
-        logging.info(f"Creating DIAMOND database and initiating alignment...")
+        logger.info(f"Creating DIAMOND database and initiating alignment...")
 
     with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
         stderr = process.stderr.read().decode("utf-8")
@@ -151,7 +142,7 @@ def diamond(
         raise RuntimeError("DIAMOND alignment failed.")
     else:
         if verbose:
-            logging.info(f"DIAMOND alignment complete.")
+            logger.info(f"DIAMOND alignment complete.")
 
     df_diamond = tsv_to_df(
         output,

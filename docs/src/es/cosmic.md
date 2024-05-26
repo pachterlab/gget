@@ -4,6 +4,8 @@ Busque genes, mutaciones, etc. asociados con cánceres utilizando la base de dat
 Produce: Resultados en formato JSON (Terminal) o Dataframe/CSV (Python).  
 `gget cosmic` fue escrito por [@AubakirovArman](https://github.com/AubakirovArman).
 
+Se aplican tarifas de licencia para el uso comercial de COSMIC. Puede leer más sobre la concesión de licencias de datos COSMIC [aquí](https://cancer.sanger.ac.uk/cosmic/license).
+
 **Parámetro posicional**  
 `searchterm`   
 Término de búsqueda. Puede ser una mutación, un nombre de gen (o ID de Ensembl), tipo de cáncer, sitio del tumor, ID de estudio, ID de PubMed o ID de muestra, tal como se define con el argumento `entity`. Ejemplo: 'EGFR'  

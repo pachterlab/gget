@@ -1,14 +1,5 @@
-import logging
-
-# Add and format time stamp in logging messages
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    datefmt="%c",
-)
-# Mute numexpr threads info
-logging.getLogger("numexpr").setLevel(logging.WARNING)
-
+from .utils import set_up_logger
+logger = set_up_logger()
 
 def convert_to_list(lst):
     """
@@ -117,7 +108,7 @@ def cellxgene(
     try:
         import cellxgene_census
     except ImportError:
-        logging.error(
+        logger.error(
             """
             Some third-party dependencies are missing. Please run the following command: 
             >>> gget.setup('cellxgene') or $ gget setup cellxgene
@@ -151,7 +142,7 @@ def cellxgene(
     ]
 
     if all(el is None for el in args):
-        logging.warning(
+        logger.warning(
             """
             You are attempting to query the entire Census dataset which requires a large amount of RAM (100's of GBs) and high network bandwidth. 
             Use the cell metadata arguments (e.g. 'tissue', 'cell_type', 'disease', etc...) to define the (sub)dataset of interest.
@@ -181,7 +172,7 @@ def cellxgene(
     # Fetch AnnData object
     if not meta_only:
         if verbose:
-            logging.info(
+            logger.info(
                 "Fetching AnnData object from CZ CELLxGENE Discover. This might take a few minutes..."
             )
 
@@ -207,7 +198,7 @@ def cellxgene(
     # Fetch metadata
     else:
         if verbose:
-            logging.info("Fetching metadata from CZ CELLxGENE Discover...")
+            logger.info("Fetching metadata from CZ CELLxGENE Discover...")
         with cellxgene_census.open_soma(census_version=census_version) as census:
             # Reads SOMADataFrame as a slice
             cell_metadata = census["census_data"][species].obs.read(

@@ -1,31 +1,21 @@
 import numpy as np
+import pandas as pd
 import json as json_package
 import mysql.connector as sql
 import time
-import logging
-
-# Add and format time stamp in logging messages
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    datefmt="%c",
-)
-# Mute numexpr threads info
-logging.getLogger("numexpr").setLevel(logging.WARNING)
-
 import warnings
 
 warnings.simplefilter(action="ignore", category=UserWarning)
-import pandas as pd
-
 
 # Custom functions
-from gget.utils import (
+from .utils import (
     search_species_options,
     find_latest_ens_rel,
     wrap_cols_func,
     find_nv_kingdom,
+    set_up_logger,
 )
+logger = set_up_logger()
 
 from gget.constants import ENSEMBL_FTP_URL, ENSEMBL_FTP_URL_NV
 
@@ -101,7 +91,7 @@ def search(
     """
     # Handle deprecated arguments
     if seqtype:
-        logging.error(
+        logger.error(
             "'seqtype' argument deprecated! Please use argument 'id_type' instead."
         )
         return
@@ -142,7 +132,7 @@ def search(
     if "core" in species:
         db = species
         if release:
-            logging.warning(
+            logger.warning(
                 "Specified release overwritten because database name was provided."
             )
     else:
@@ -167,7 +157,7 @@ def search(
         # the standard core database will be used
         if len(db) > 1 and "mus_musculus" in species:
             db = f"mus_musculus_core_{ens_rel}_39"
-            logging.warning(
+            logger.warning(
                 f"Defaulting to mus musculus core database: {db}.\n"
                 "All available vertebrate databases can be found here:\n"
                 f"http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
@@ -176,7 +166,7 @@ def search(
         elif len(db) > 1 and "homo_sapiens" in species:
             db = f"homo_sapiens_core_{ens_rel}_38"
 
-        # Check for ambiguous species matches in species other than mouse
+        # Check for ambiguous species matches in species other than mouse and human
         elif len(db) > 1 and "mus_musculus" not in species and "homo_sapiens" not in species:
             logging.warning(
                 f"Species matches more than one database. Defaulting to first database: {db[0]}.\n"
@@ -199,7 +189,7 @@ def search(
             db = db[0]
 
     if verbose:
-        logging.info(f"Fetching results from database: {db}")
+        logger.info(f"Fetching results from database: {db}")
 
     ## Connect to Ensembl SQL server data for specified species
     # Ports to try (some databases are stored in different ports)
@@ -341,18 +331,18 @@ def search(
     if limit != None:
         # Print number of genes/transcripts found versus fetched
         if verbose:
-            logging.info(f"Returning {limit} matches of {len(df)} total matches found.")
+            logger.info(f"Returning {limit} matches of {len(df)} total matches found.")
         # Remove all but limit rows
         df = df.head(limit)
 
     else:
         # Print number of genes/transcripts fetched
         if verbose:
-            logging.info(f"Total matches found: {len(df)}.")
+            logger.info(f"Total matches found: {len(df)}.")
 
     # Print query time
     if verbose:
-        logging.info(f"Query time: {round(time.time() - start_time, 2)} seconds.")
+        logger.info(f"Query time: {round(time.time() - start_time, 2)} seconds.")
 
     # Remove database numbers to retain only species name
     clean_db = "_".join(db.split("_")[:3]).replace("_core", "")

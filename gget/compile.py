@@ -2,19 +2,10 @@ import os
 import subprocess
 import sys
 import platform
-import logging
 
-# Add and format time stamp in logging messages
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    datefmt="%c",
-)
-# Mute numexpr threads info
-logging.getLogger("numexpr").setLevel(logging.WARNING)
-
-# Constants
 from .constants import MUSCLE_GITHUB_LINK
+from .utils import set_up_logger
+logger = set_up_logger()
 
 # Get absolute package path
 PACKAGE_PATH = os.path.abspath(os.path.dirname(__file__))
@@ -35,7 +26,7 @@ def compile_muscle():
             f"Muscle compiler currently only supports Linux and Darwin, not {platform.system()}.\n"
         )
 
-    logging.info("Compiling MUSCLE binary from source... ")
+    logger.info("Compiling MUSCLE binary from source... ")
 
     # Record current working directory
     cwd = os.getcwd()
@@ -64,14 +55,14 @@ def compile_muscle():
 
     # Run make command
     if platform.system() == "Linux":
-        logging.warning(
+        logger.warning(
             "Compiling MUSCLE requires that g++, make, sed and git are installed."
         )
     if platform.system() == "Darwin":
-        logging.warning(
+        logger.warning(
             "Compiling MUSCLE requires that gcc v11, make, sed and git are installed."
         )
-        logging.warning(
+        logger.warning(
             "Please run 'brew install gcc' to install gcc v11 if the compile fails."
         )
 
@@ -86,7 +77,7 @@ def compile_muscle():
     if process_2.wait() != 0:
         sys.exit(f"'{command2}' command returned with error {process_2.wait()}.")
 
-    logging.info("MUSCLE compiled.")
+    logger.info("MUSCLE compiled.")
 
     # Change path back to cwd
     os.chdir(cwd)
