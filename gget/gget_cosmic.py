@@ -12,8 +12,8 @@ import gzip
 import getpass
 
 # Constants
-from .constants import COSMIC_GET_URL, COSMIC_RELEASE_URL
-from .utils import set_up_logger
+from .constants import COSMIC_GET_URL
+from .utils import set_up_logger, get_latest_cosmic
 
 logger = set_up_logger()
 
@@ -25,17 +25,6 @@ def is_valid_email(email):
     email_pattern = re.compile(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
 
     return re.match(email_pattern, email) is not None
-
-
-def get_latest_cosmic():
-    html = requests.get(COSMIC_RELEASE_URL)
-    if html.status_code != 200:
-        raise RuntimeError(
-            f"The COSMIC server returned error status code {html.status_code}. Please try again."
-        )
-    soup = BeautifulSoup(html.text, "html.parser")
-
-    return int(soup.find("div", class_="news").get("id").split("v")[-1])
 
 
 def download_reference(download_link, tar_folder_path, file_path, verbose):
@@ -281,6 +270,8 @@ def cosmic(
 
         if not cosmic_version:
             cosmic_version = get_latest_cosmic()
+            if verbose:
+                logger.info(f"Downloading data from COSMIC version {cosmic_version}")
 
         ## Download requested database
         mutation_tsv_file, overwrite = select_reference(
