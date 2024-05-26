@@ -90,9 +90,8 @@ def select_reference(
     #     contained_file = f"Cosmic_Genes_v{cosmic_version}_GRCh{grch_version}.fasta"
 
     if mutation_class == "cancer":
-        # assert (
-        #     grch_version == 37
-        # ), "CancerMutationCensus data is only available for GRCh37 (set grch_version=37)"
+        if grch_version == 38:
+            logger.warning("CancerMutationCensus data is only available for GRCh37.")
         download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=GRCh{grch_version}/cmc/v{cosmic_version}/CancerMutationCensus_AllData_Tsv_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
         tarred_folder = (
             f"CancerMutationCensus_AllData_Tsv_v{cosmic_version}_GRCh{grch_version}"
