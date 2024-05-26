@@ -185,7 +185,7 @@ def select_reference(
                     f"Database download canceled. Learn more about COSMIC at https://cancer.sanger.ac.uk/cosmic/download/cosmic."
                 )
 
-    return file_path
+    return file_path, overwrite
 
 
 def cosmic(
@@ -268,11 +268,11 @@ def cosmic(
             os.makedirs(out)
 
         ## Download requested database
-        mutation_tsv_file = select_reference(
+        mutation_tsv_file, overwrite = select_reference(
             mutation_class, out, grch_version, cosmic_version, verbose
         )
 
-        if gget_mutate:
+        if gget_mutate and overwrite:
             ## Create copy of results formatted for further use by gget mutate
             if verbose:
                 logger.info(
