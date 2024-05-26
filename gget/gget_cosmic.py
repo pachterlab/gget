@@ -49,7 +49,12 @@ def download_reference(download_link, tar_folder_path, file_path, verbose):
 
     result = subprocess.run(curl_command, capture_output=True, text=True)
 
-    response_data = json_package.loads(result.stdout)
+    try:
+        response_data = json_package.loads(result.stdout)
+    except JSONDecodeError:
+        raise RuntimeError(
+            "Failed to download file. Please double-check arguments (especially cosmic_version) and try again."
+        )
     try:
         true_download_url = response_data.get("url")
     except AttributeError:
@@ -133,7 +138,21 @@ def select_reference(
     tar_folder_path = os.path.join(reference_dir, tarred_folder)
     file_path = os.path.join(tar_folder_path, contained_file)
 
-    if not os.path.exists(file_path):
+    overwrite = True
+    if os.path.exists(file_path):
+        proceed = (
+            input(
+                "The requested COSMIC database already exists at the destination. Would you like to overwrite the existing files (y/n)? "
+            )
+            .strip()
+            .lower()
+        )
+        if proceed in ["yes", "y"]:
+            overwrite = True
+        else:
+            overwrite = False
+
+    if overwrite:
         # Only the example database can be downloaded directly (without an account)
         if mutation_class == "cancer_example":
             curl_command = [
@@ -177,7 +196,7 @@ def cosmic(
     download_cosmic=False,
     mutation_class="cancer",
     cosmic_version=99,
-    grch_version=38,
+    grch_version=37,
     gget_mutate=True,
     out=None,
     verbose=True,
@@ -205,7 +224,7 @@ def cosmic(
     - mutation_class  (str) Type of COSMIC database to download. One of the following:
                       'cancer' (default), 'cell_line', 'census', 'resistance', 'screen', 'cancer_example'
     - cosmic_version  (int) Version of the COSMIC database. Default: 99
-    - grch_version    (int) Version of the human GRCh reference genome the COSMIC database was based on (37 or 38). Default: 38
+    - grch_version    (int) Version of the human GRCh reference genome the COSMIC database was based on (37 or 38). Default: 37
     - gget_mutate     (True/False) whether to create a modified version of the database for use with gget mutate. Default: True
 
     General args:

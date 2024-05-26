@@ -1785,7 +1785,7 @@ def main():
     parser_cosmic.add_argument(
         "-gv",
         "--grch_version",
-        default=38,
+        default=37,
         type=int,
         choices=[37, 38],
         required=False,
