@@ -1,21 +1,18 @@
 from bs4 import BeautifulSoup
 import requests
 import json
-import logging
-
-# Add and format time stamp in logging messages
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    datefmt="%c",
-)
-# Mute numexpr threads info
-logging.getLogger("numexpr").setLevel(logging.WARNING)
 
 # Custom functions
-from .utils import ref_species_options, find_latest_ens_rel, find_nv_kingdom
+from .utils import (
+    ref_species_options,
+    find_latest_ens_rel,
+    find_nv_kingdom,
+    set_up_logger,
+)
 
-from .constants import ENSEMBL_FTP_URL, ENSEMBL_FTP_URL_NV
+logger = set_up_logger()
+
+from .constants import ENSEMBL_FTP_URL, ENSEMBL_FTP_URL_NV, ENSEMBL_FTP_URL_GRCH37
 
 
 def find_FTP_link(url, link_substring):
@@ -71,6 +68,7 @@ def ref(
     Args:
     - species         Defines the species for which the reference should be fetched in the format "<genus>_<species>",
                       e.g. species = "homo_sapiens".
+                      Supported shortcuts: "human", "mouse", "human_grch37" (accesses the GRCh37 genome assembly)
     - which           Defines which results to return.
                       Default: 'all' -> Returns all available results.
                       Possible entries are one or a combination (as a list of strings) of the following:
@@ -97,12 +95,12 @@ def ref(
     if list_species:
         if release is None:
             if verbose:
-                logging.info(
+                logger.info(
                     f"Fetching available vertebrate genomes (GTF and FASTA available) from Ensembl release {find_latest_ens_rel()} (latest)."
                 )
         else:
             if verbose:
-                logging.info(
+                logger.info(
                     f"Fetching available vertebrate genomes (GTF and FASTA available) from Ensembl release {release}."
                 )
 
@@ -116,8 +114,8 @@ def ref(
         species_list = list(set(species_list_gtf) & set(species_list_dna))
 
         if save:
-            with open("ensembl_species.txt", 'w') as tfile:
-                tfile.write('\n'.join(species_list))
+            with open("ensembl_species.txt", "w") as tfile:
+                tfile.write("\n".join(species_list))
 
         return sorted(species_list)
 
@@ -125,12 +123,12 @@ def ref(
     elif list_iv_species:
         if release is None:
             if verbose:
-                logging.info(
+                logger.info(
                     f"Fetching available invertebrate genomes (GTF and FASTA present) from Ensembl release {find_latest_ens_rel(database=ENSEMBL_FTP_URL_NV)} (latest)."
                 )
         else:
             if verbose:
-                logging.info(
+                logger.info(
                     f"Fetching available invertebrate genomes (GTF and FASTA present) from Ensembl release {release}."
                 )
 
@@ -148,8 +146,8 @@ def ref(
         species_list = list(set(species_list_gtf) & set(species_list_dna))
 
         if save:
-            with open("ensembl_iv_species.txt", 'w') as tfile:
-                tfile.write('\n'.join(species_list))
+            with open("ensembl_iv_species.txt", "w") as tfile:
+                tfile.write("\n".join(species_list))
 
         return sorted(species_list)
 
@@ -171,19 +169,30 @@ def ref(
         )
 
     # Species shortcuts
+    grch37 = False
     if species == "human":
         species = "homo_sapiens"
     if species == "mouse":
         species = "mus_musculus"
+    if species == "human_grch37":
+        species = "homo_sapiens"
+        grch37 = True
 
     # In case species was passed with upper case letters
     species = species.lower()
 
-    ## For non-vertebrates, switch to non-vertebrate databases
-    if species in ref_species_options("dna", database=ENSEMBL_FTP_URL, release=release):
+    # GRCh37 database (releases same as standard database)
+    if grch37:
+        database = ENSEMBL_FTP_URL_GRCH37
+        ENS_rel = find_latest_ens_rel(ENSEMBL_FTP_URL)
+    # Standard database
+    elif species in ref_species_options(
+        "dna", database=ENSEMBL_FTP_URL, release=release
+    ):
         database = ENSEMBL_FTP_URL
         # Find latest vertebrate Ensembl release
-        ENS_rel = find_latest_ens_rel(ENSEMBL_FTP_URL)
+        ENS_rel = find_latest_ens_rel(database)
+    # For non-vertebrates, switch to non-vertebrate databases
     else:
         database = ENSEMBL_FTP_URL_NV
         # Find latest NV Ensembl release
@@ -193,26 +202,31 @@ def ref(
     if release != None:
         # Warn user when release is higher than the latest release
         if release > ENS_rel:
-            logging.warning(
+            logger.warning(
                 f"Provided Ensembl release number {release} is greater than the latest release ({ENS_rel})."
             )
         ENS_rel = release
 
-    ## Raise error if species not found (both FASTA and GTF have to be available)
-    # Find all available species for genome FASTAs for this Ensembl release
-    species_list_dna = ref_species_options("dna", database=database, release=ENS_rel)
-    # Find all available species for GTFs for this Ensembl release
-    species_list_gtf = ref_species_options("gtf", database=database, release=ENS_rel)
-    # Find intersection of the two lists
-    # (Only species which have GTF and FASTAs available can continue)
-    species_list = list(set(species_list_gtf) & set(species_list_dna))
-
-    if species not in species_list:
-        raise ValueError(
-            f"Species does not match any available species for Ensembl release {ENS_rel}. Please double-check spelling.\n"
-            "'gget ref --list_species' -> lists out all available species (Python: 'gget.ref(None, list_species=True)').\n"
-            "Combine with `release` argument to define specific Ensembl release (default: latest).\n"
+    if not grch37:
+        ## Raise error if species not found (both FASTA and GTF have to be available)
+        # Find all available species for genome FASTAs for this Ensembl release
+        species_list_dna = ref_species_options(
+            "dna", database=database, release=ENS_rel
         )
+        # Find all available species for GTFs for this Ensembl release
+        species_list_gtf = ref_species_options(
+            "gtf", database=database, release=ENS_rel
+        )
+        # Find intersection of the two lists
+        # (Only species which have GTF and FASTAs available can continue)
+        species_list = list(set(species_list_gtf) & set(species_list_dna))
+
+        if species not in species_list:
+            raise ValueError(
+                f"Species does not match any available species for Ensembl release {ENS_rel}. Please double-check spelling.\n"
+                "'gget ref --list_species' -> lists out all available species (Python: 'gget.ref(None, list_species=True)').\n"
+                "Combine with `release` argument to define specific Ensembl release (default: latest).\n"
+            )
 
     ## Find kingdom for non-vertebrate species
     if database == ENSEMBL_FTP_URL_NV:
@@ -226,9 +240,14 @@ def ref(
         else:
             gtf_search_url = database + f"release-{ENS_rel}/gtf/{species}/"
 
+        if grch37:
+            link_substring = "GRCh37.87.gtf.gz"
+        else:
+            link_substring = f"{ENS_rel}.gtf.gz"
+
         # Get link, release date and dataset size
         gtf_str, gtf_date, gtf_size = find_FTP_link(
-            url=gtf_search_url, link_substring=f"{ENS_rel}.gtf.gz"
+            url=gtf_search_url, link_substring=link_substring
         )
         # Build the final download link
         if not isinstance(gtf_str, type(None)):
@@ -493,7 +512,7 @@ def ref(
             with open("gget_ref_results.json", "w", encoding="utf-8") as file:
                 json.dump(ref_dict, file, ensure_ascii=False, indent=4)
         if verbose:
-            logging.info(
+            logger.info(
                 f"Fetching reference information for {species} from Ensembl release: {ENS_rel}."
             )
         return ref_dict
@@ -501,7 +520,7 @@ def ref(
     # If FTP==True, return only the specified URLs as a list
     if ftp:
         if verbose:
-            logging.info(
+            logger.info(
                 f"Fetching reference information for {species} from Ensembl release: {ENS_rel}."
             )
         results = []
@@ -531,7 +550,7 @@ def ref(
                 )
 
         if save:
-            with open('gget_ref_results.txt', 'w') as tfile:
-                tfile.write('\n'.join(results))
+            with open("gget_ref_results.txt", "w") as tfile:
+                tfile.write("\n".join(results))
 
         return results

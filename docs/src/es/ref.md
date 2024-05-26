@@ -7,7 +7,7 @@ Regresa: Resultados en formato JSON.
 `species`  
 La especie por la cual que se buscará los FTP en el formato género_especies, p. ej. homo_sapiens.  
 Nota: No se requiere cuando se llama a la bandera `--list_species`.    
-Accesos directos: 'human', 'mouse'  
+Accesos directos: 'human', 'mouse', 'human_grch37' (accede al ensamblaje del genoma GRCh37)  
 
 **Parámetros optionales**  
 `-w` `--which`  

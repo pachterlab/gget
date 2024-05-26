@@ -10,23 +10,90 @@ import pandas as pd
 import numpy as np
 from IPython.display import display, HTML
 import logging
+from datetime import datetime
 
-# Add and format time stamp in logging messages
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    datefmt="%c",
-)
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
 
 from .constants import ENSEMBL_FTP_URL, ENSEMBL_FTP_URL_NV, ENS_TO_PDB_API
+
+def set_up_logger():
+    logging_level = logging.INFO
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging_level)
+
+    if not logger.hasHandlers():
+        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s", "%H:%M:%S")
+
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(formatter)
+        logger.addHandler(console_handler)
+
+        # log_dir = "logs"
+        # if not os.path.exists(log_dir):
+        #     os.makedirs(log_dir)
+
+        # log_file = os.path.join(
+        #     log_dir, f"log_file_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+        # )
+
+        # file_handler = logging.FileHandler(log_file)
+        # file_handler.setFormatter(formatter)
+        # logger.addHandler(file_handler)
+
+    return logger
+
+logger = set_up_logger()
 
 def flatten(xss):
     """
     Function to flatten a list of lists.
     """
     return [x for xs in xss for x in xs]
+
+
+def read_fasta(fasta):
+    """
+    Args:
+    - fasta     (str) Path to fasta file.
+
+    Returns titles and seqs from fasta file as two list objects.
+    """
+    titles = []
+    seqs = []
+    title_last = False
+    new_seq = False
+    with open(fasta) as fasta_file:
+        for i, line in enumerate(fasta_file):
+            if i == 0 and line[0] != ">":
+                raise ValueError("Expected FASTA file to start with a '>' character. ")
+            elif line[0] == ">":
+                if title_last:
+                    raise ValueError(
+                        "FASTA file contains two lines starting with '>' in a row -> missing sequence line. "
+                    )
+
+                if new_seq:
+                    # Append last recorded sequence
+                    seqs.append(new_seq)
+
+                # Append title line to titles list
+                titles.append(line.strip().replace(">", ""))
+                title_last = True
+
+            else:
+                if title_last:
+                    # Start recording new sequence if title was last
+                    new_seq = line.strip()
+                else:
+                    new_seq = new_seq + line.strip()
+                title_last = False
+
+        # Append last sequence
+        seqs.append(new_seq)
+
+    return titles, seqs
+
 
 def n_colors(nucleotide):
     """
@@ -165,7 +232,7 @@ def get_uniprot_seqs(server, ensembl_ids):
         # Submit server request
         r = requests.get(server + id_ + "+AND+reviewed:true")
         if not r.ok:
-            logging.error(
+            logger.error(
                 f"UniProt server request returned with error status code: {r.status_code}. Please double-check arguments or try again later."
             )
         # Convert to json
@@ -176,7 +243,7 @@ def get_uniprot_seqs(server, ensembl_ids):
             # Submit server request
             r = requests.get(server + id_)
             if not r.ok:
-                logging.error(
+                logger.error(
                     f"UniProt server request returned with error status code: {r.status_code}. Please double-check arguments or try again later."
                 )
             # Convert to json
@@ -184,7 +251,7 @@ def get_uniprot_seqs(server, ensembl_ids):
 
             # Warn user if unreviewed results were found
             if len(json["results"]) > 0:
-                logging.warning(
+                logger.warning(
                     f"No reviewed UniProt results were found for ID {id_}. Returning all unreviewed results."
                 )
 
@@ -227,7 +294,7 @@ def get_uniprot_seqs(server, ensembl_ids):
 
         else:
             # If no results were found, warn user and do nothing -> returns empty df
-            logging.warning(f"No UniProt sequences were found for ID {id_}.")
+            logger.warning(f"No UniProt sequences were found for ID {id_}.")
 
     return master_df
 
@@ -247,7 +314,7 @@ def get_uniprot_info(server, ensembl_id, verbose=True):
     # Submit server request for reviewed entries
     r = requests.get(server + ensembl_id + "+AND+reviewed:true")
     if not r.ok:
-        logging.error(
+        logger.error(
             f"UniProt server request returned with error status code: {r.status_code}. Please double-check arguments or try again later."
         )
     # Convert to json
@@ -258,7 +325,7 @@ def get_uniprot_info(server, ensembl_id, verbose=True):
         # Submit server request
         r = requests.get(server + ensembl_id)
         if not r.ok:
-            logging.error(
+            logger.error(
                 f"UniProt server request returned with error status code: {r.status_code}. Please double-check arguments or try again later."
             )
         # Convert to json
@@ -267,7 +334,7 @@ def get_uniprot_info(server, ensembl_id, verbose=True):
         # Warn user if unreviewed results were found
         if len(json["results"]) > 0:
             if verbose is True:
-                logging.warning(
+                logger.warning(
                     f"No reviewed UniProt results were found for ID {ensembl_id}. Returning all unreviewed results."
                 )
 
@@ -423,7 +490,7 @@ def get_uniprot_info(server, ensembl_id, verbose=True):
 #         try:
 #             response.raise_for_status()
 #         except requests.HTTPError:
-#             logging.error(
+#             logger.error(
 #                 f"UniProt ID mapping to fetch PDB IDs returned HTTP Error:\n{response.json()}"
 #             )
 #             return
@@ -454,7 +521,7 @@ def get_uniprot_info(server, ensembl_id, verbose=True):
 #             if "jobStatus" in j:
 #                 # Sleep for POLLING_INTERVAL seconds if job status if "RUNNING"
 #                 if j["jobStatus"] == "RUNNING":
-#                     logging.info("Checking if PDB IDs are available...")
+#                     logger.info("Checking if PDB IDs are available...")
 #                     time.sleep(POLLING_INTERVAL)
 #                 else:
 #                     # Raise error if job status is other than "RUNNING"
@@ -611,7 +678,7 @@ def search_species_options(database=ENSEMBL_FTP_URL, release=None):
     # If release != None, use user-defined Ensembl release
     if release != None:
         if release > ENS_rel:
-            logging.warning(
+            logger.warning(
                 f"Provided Ensembl release number {release} is greater than the latest release ({ENS_rel})."
             )
         ENS_rel = release
@@ -658,6 +725,7 @@ def search_species_options(database=ENSEMBL_FTP_URL, release=None):
 
     return databases
 
+
 def find_nv_kingdom(species, release):
     kds = ["plants", "protists", "metazoa", "fungi"]
     for kingdom in kds:
@@ -681,6 +749,7 @@ def find_nv_kingdom(species, release):
         if species in sps[5:]:
             return kingdom
 
+
 def ref_species_options(which, database=ENSEMBL_FTP_URL, release=None):
     """
     Function to find all available species for gget ref.
@@ -700,7 +769,7 @@ def ref_species_options(which, database=ENSEMBL_FTP_URL, release=None):
     if release != None:
         # Warn user if user-defined release is higher than the latest release
         if release > ENS_rel:
-            logging.warning(
+            logger.warning(
                 f"Provided Ensembl release number {release} is greater than the latest release ({ENS_rel})."
             )
         ENS_rel = release

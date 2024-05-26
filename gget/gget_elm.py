@@ -1,20 +1,12 @@
 import pandas as pd
 import numpy as np
 import os
-import logging
 import json as json_package
 import re
 
-# Add and format time stamp in logging messages
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    datefmt="%c",
-)
-# Mute numexpr threads info
-logging.getLogger("numexpr").setLevel(logging.WARNING)
+from .utils import get_uniprot_seqs, tsv_to_df, set_up_logger
+logger = set_up_logger()
 
-from .utils import get_uniprot_seqs, tsv_to_df
 from .constants import UNIPROT_REST_API
 from .gget_diamond import diamond
 from .gget_setup import (
@@ -114,7 +106,7 @@ def seq_workflow(
     Returns: data frame consisting of ELM instances, class information, start, end in query, and if motif overlaps with subject sequence
     """
     if verbose:
-        logging.info(
+        logger.info(
             f"ORTHO Performing pairwise sequence alignment against ELM database using DIAMOND for {len(sequences)} sequence(s)..."
         )
 
@@ -132,7 +124,7 @@ def seq_workflow(
         )
 
         if len(df_diamond) == 0:
-            logging.warning(
+            logger.warning(
                 f"ORTHO Sequence {seq_number}/{len(sequences)}: No orthologous proteins found in ELM database."
             )
 
@@ -144,7 +136,7 @@ def seq_workflow(
                     str(id).split("|")[1]
                     for id in df_diamond["subject_accession"].values
                 ]
-                logging.info(
+                logger.info(
                     f"ORTHO Sequence {seq_number}/{len(sequences)}: DIAMOND found the following orthologous proteins: {', '.join(uniprot_ids)}. Retrieving ELMs for each UniProt Acc..."
                 )
 
@@ -291,11 +283,11 @@ def elm(
     with open(ELM_CLASSES_TSV) as input_file:
         head = [next(input_file) for _ in range(lines_number)]
     if verbose:
-        logging.info(", ".join(head).replace("#", "").replace("\n", ""))
+        logger.info(", ".join(head).replace("#", "").replace("\n", ""))
     with open(ELM_INSTANCES_TSV) as input_file:
         head = [next(input_file) for _ in range(lines_number)]
     if verbose:
-        logging.info(", ".join(head).replace("#", "").replace("\n", ""))
+        logger.info(", ".join(head).replace("#", "").replace("\n", ""))
 
     # Check validity of amino acid seq
     if not uniprot:
@@ -305,19 +297,19 @@ def elm(
 
         # If sequence is not a valid amino sequence, raise error
         if not set(sequence) <= amino_acids:
-            logging.warning(
+            logger.warning(
                 f"Input amino acid sequence contains invalid characters. If the input is a UniProt Acc, please use flag --uniprot (Python: uniprot=True)."
             )
 
     # Build ortholog dataframe
     if verbose:
-        logging.info(f"ORTHO Compiling ortholog information...")
+        logger.info(f"ORTHO Compiling ortholog information...")
     ortho_df = pd.DataFrame()
     if uniprot:
         ortho_df = get_elm_instances(sequence)
 
         if len(ortho_df) == 0:
-            logging.warning(
+            logger.warning(
                 "ORTHO The provided UniProt Accession does not match UniProt Accessions in the ELM database. Fetching amino acid sequence from UniProt..."
             )
             df_uniprot = get_uniprot_seqs(server=UNIPROT_REST_API, ensembl_ids=sequence)
@@ -357,7 +349,7 @@ def elm(
         )
 
         if len(ortho_df) == 0:
-            logging.warning(
+            logger.warning(
                 "ORTHO No ELM database orthologs found for input sequence or UniProt Acc."
             )
 
@@ -408,7 +400,7 @@ def elm(
 
     # Build data frame containing regex motif matches
     if verbose:
-        logging.info(f"REGEX Finding regex motif matches...")
+        logger.info(f"REGEX Finding regex motif matches...")
     fetch_aa_failed = False
     if uniprot:
         # use amino acid sequence associated with UniProt Acc to do regex match
@@ -424,13 +416,13 @@ def elm(
             ].values
 
             if len(sequences) == 0:
-                logging.warning(
+                logger.warning(
                     f"REGEX No amino acid sequences found for UniProt Acc {sequence} from the UniProt server."
                 )
                 fetch_aa_failed = True
             else:
                 if len(sequences) > 1:
-                    logging.warning(
+                    logger.warning(
                         f"REGEX More than one amino acid sequence found for UniProt Acc {sequence}. Using best match to find regex motifs."
                     )
                 sequence = sequences[0]
@@ -440,7 +432,7 @@ def elm(
         df_regex_matches = regex_match(sequence)
 
     if len(df_regex_matches) == 0:
-        logging.warning(
+        logger.warning(
             "REGEX No regex matches found for input sequence or UniProt Acc."
         )
 
