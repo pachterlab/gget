@@ -242,7 +242,7 @@ def cosmic(
     - gget_mutate     (True/False) whether to create a modified version of the database for use with gget mutate. Default: True
 
     General args:
-    - out             (str) Path to folder the database will be downloaded into.
+    - out             (str) Path to the file (or folder when downloading databases with the download_cosmic flag) the results will be saved in, e.g. 'path/to/results.json'.
                       Default: None
                       -> When download_cosmic=False: Results will be returned to standard out
                       -> When download_cosmic=True: Database will be downloaded into current working directory
@@ -373,11 +373,6 @@ def cosmic(
 
         if entity == "tumour_site":
             entity = "tumour"
-
-        if verbose:
-            logger.info(
-                f"Fetching the {limit} most correlated to {searchterm} from COSMIC."
-            )
 
         r = requests.get(
             url=COSMIC_GET_URL + entity + "?q=" + searchterm + "&export=json"
