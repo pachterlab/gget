@@ -302,6 +302,7 @@ def cosmic(
 
             if mutation_class == "cancer" or mutation_class == "cancer_example":
                 relevant_cols = [
+                    "GENE_NAME",
                     "ACCESSION_NUMBER",
                     "GENOMIC_MUTATION_ID",
                     "MUTATION_URL",
@@ -309,6 +310,7 @@ def cosmic(
                 ]
             else:
                 relevant_cols = [
+                    "GENE_SYMBOL",
                     "TRANSCRIPT_ACCESSION",
                     "GENOMIC_MUTATION_ID",
                     "MUTATION_ID",
@@ -330,6 +332,7 @@ def cosmic(
             else:
                 df = df.rename(
                     columns={
+                        "GENE_SYMBOL": "GENE_NAME",
                         "TRANSCRIPT_ACCESSION": "seq_ID",
                         "MUTATION_CDS": "mutation",
                     }
@@ -338,12 +341,21 @@ def cosmic(
             # Remove version numbers from Ensembl IDs
             df["seq_ID"] = df["seq_ID"].str.split(".").str[0]
 
-            # Get mut_ID column (by combining GENOMIC_MUTATION_ID and MUTATION_URL/MUTATION_ID)
+            # Get mut_ID column (by combining GENE_NAME, GENOMIC_MUTATION_ID and MUTATION_URL/MUTATION_ID)
+            df["GENE_NAME"] = df["GENE_NAME"].astype(str)
             df["GENOMIC_MUTATION_ID"] = df["GENOMIC_MUTATION_ID"].fillna("NA")
             df["GENOMIC_MUTATION_ID"] = df["GENOMIC_MUTATION_ID"].astype(str)
             df["MUTATION_ID"] = df["MUTATION_ID"].astype(str)
-            df["mut_ID"] = df["GENOMIC_MUTATION_ID"] + "_" + df["MUTATION_ID"]
-            df = df.drop(columns=["GENOMIC_MUTATION_ID", "MUTATION_ID"])
+
+            df["mut_ID"] = (
+                df["GENE_NAME"]
+                + "_"
+                + df["GENOMIC_MUTATION_ID"]
+                + "_"
+                + df["MUTATION_ID"]
+            )
+
+            df = df.drop(columns=["GENE_NAME", "GENOMIC_MUTATION_ID", "MUTATION_ID"])
 
             mutate_csv_out = mutation_tsv_file.replace(".tsv", "_gget_mutate.csv")
             df.to_csv(mutate_csv_out, index=False)
