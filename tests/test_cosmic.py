@@ -115,6 +115,8 @@ class TestCaseBase(unittest.TestCase):
 class TestCosmicDownload(TestCaseBase):
     @parameterized.expand(arg_combinations)
     def test_cosmic_download(self, mut_class, grch_version, file_name, cosmic_version):
+        time.sleep(60)
+
         cosmic(
             searchterm=None,
             download_cosmic=True,
@@ -123,6 +125,7 @@ class TestCosmicDownload(TestCaseBase):
             grch_version=grch_version,
             gget_mutate=True,
         )
+
         tarred_folder = f"{file_name}_Tsv_v{cosmic_version}_GRCh{grch_version}"
         contained_file = f"{file_name}_v{cosmic_version}_GRCh{grch_version}.tsv"
         gm_file = f"{file_name}_v{cosmic_version}_GRCh{grch_version}_gget_mutate.csv"
@@ -154,7 +157,10 @@ class TestCosmicDownload(TestCaseBase):
             else:
                 tarred_folder = f"{file_name}_Tsv_v{cosmic_version}_GRCh{grch_version}"
 
-            # Delete COSMIC database folder and all files within
+            # Remove tarred COSMIC database folder
+            os.remove(tarred_folder + ".tar")
+
+            # Delete untarred COSMIC database folder and all files within
             if os.path.exists(tarred_folder):
                 for root, dirs, files in os.walk(tarred_folder, topdown=False):
                     for name in files:
