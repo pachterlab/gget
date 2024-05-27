@@ -276,7 +276,7 @@ def cosmic(
             )
 
         if not out:
-            out = os.path.dirname(os.getcwd())
+            out = os.getcwd()
 
         if not os.path.exists(out):
             os.makedirs(out)
