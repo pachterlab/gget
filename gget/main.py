@@ -1730,7 +1730,7 @@ def main():
             "| EGFR         | pubmed       | -> Find PubMed publications on EGFR and cancer\n"
             "| ICGC         | samples      | -> Get metadata on all samples from the ICGC (International Cancer Genome Consortium)\n"
             "| COSS2907494  | samples      | -> Get metadata on this COSMIC sample ID (cancer type, tissue, # analyzed genes, # mutations, etc.)"
-        )
+        ),
     )
     parser_cosmic.add_argument(
         "-e",
@@ -1922,12 +1922,13 @@ def main():
     parser_mutate.add_argument(
         "-o",
         "--out",
-        default="gget_mutate_out.fa",
+        default=None,
         type=str,
         required=False,
         help=(
-            "Path to output fasta file containing the mutated sequences. The identifiers (following the '>') of the mutated sequences in the output fasta will be '>[seq_ID]_[mut_ID]'."
-            "Set to None to return a list of the mutated sequences to standard out."
+            "Path to output fasta file containing the mutated sequences, e.g., 'path/to/output_fasta.fa'.\n"
+            "Default: None -> returns a list of the mutated sequences to standard out.\n"
+            "The identifiers (following the '>') of the mutated sequences in the output fasta will be '>[seq_ID]_[mut_ID]'."
         ),
     )
     parser_mutate.add_argument(

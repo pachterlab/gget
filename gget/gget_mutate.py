@@ -348,7 +348,7 @@ def mutate(
     mut_column="mutation",
     mut_id_column="mut_ID",
     seq_id_column="seq_ID",
-    out="gget_mutate_out.fa",
+    out=None,
     verbose=True,
 ):
     """
@@ -391,8 +391,8 @@ def mutate(
     - mut_column    (str) Name of the column containing the mutations to be performed in 'mutations'. Default: 'mutation'.
     - mut_id_column (str) Name of the column containing the IDs of each mutation in 'mutations'. Default: 'mut_ID'.
     - seq_id_column (str) Name of the column containing the IDs of the sequences to be mutated in 'mutations'. Default: 'seq_ID'.
-    - out           (str) Path to output fasta file containing the mutated sequences. Default: 'gget_mutate_out.fa'.
-                    Set out=None to return a list of the mutated sequences to standard out.
+    - out           (str) Path to output fasta file containing the mutated sequences, e.g., 'path/to/output_fasta.fa'. 
+                    Default: None -> returns a list of the mutated sequences to standard out.    
                     The identifiers (following the '>') of the mutated sequences in the output fasta will be '>[seq_ID]_[mut_ID]'.
     - verbose       (True/False) whether to print progress information. Default: True
 
