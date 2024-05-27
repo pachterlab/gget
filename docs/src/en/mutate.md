@@ -45,13 +45,13 @@ Length of sequences flanking the mutation. Default: 31.
 If k > total length of the sequence, the entire sequence will be kept.  
 
 `-mc` `--mut_column`  
-Name of the column containing the mutations to be performed in 'mutations'. Default: 'mutation'.  
+Name of the column containing the mutations to be performed in `mutations`. Default: 'mutation'.  
 
 `-mic` `--mut_id_column`  
-Name of the column containing the IDs of each mutation in 'mutations'. Default: 'mut_ID'.  
+Name of the column containing the IDs of each mutation in `mutations`. Default: 'mut_ID'.  
 
 `-sic` `--seq_id_column`  
-Name of the column containing the IDs of the sequences to be mutated in 'mutations'. Default: 'seq_ID'.  
+Name of the column containing the IDs of the sequences to be mutated in `mutations`. Default: 'seq_ID'.  
 
 `-o` `--out`   
 Path to output FASTA file containing the mutated sequences, e.g., 'path/to/output_fasta.fa'.  
@@ -102,5 +102,3 @@ gget mutate ATCGCTAAGCT TAGCTA -m 'c.1_3inv' -k 3
 gget.mutate(["ATCGCTAAGCT", "TAGCTA"], "c.1_3inv", k=3)
 ```
 &rarr; Returns ['CTAGCT', 'GATCTA'].  
-
-<br/><br/>
