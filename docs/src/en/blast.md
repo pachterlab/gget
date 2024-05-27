@@ -60,7 +60,7 @@ gget.blast("MKWMFKEDHSLEHRCVESAKIRAKYPDRVPVIVEKVSGSQIVDIDKRKYLVPSDITVAQFMWIIRKRI
 | PREDICTED: gamma-aminobutyric acid receptor-as...| Colobus angolensis palliatus	 | 	NaN | 336983 | 180	 | 180 | 100% | ... |
 | . . . | . . . | . . . | . . . | . . . | . . . | . . . | ... | 
 
-
+<br/><br/>
 **BLAST from .fa or .txt file:**  
 ```bash
 gget blast fasta.fa
