@@ -3,11 +3,19 @@ from json.decoder import JSONDecodeError
 import pandas as pd
 from urllib.request import urlopen
 
-from .utils import set_up_logger
+from .utils import set_up_logger, read_fasta
+
 logger = set_up_logger()
 
 
-def blat(sequence, seqtype="default", assembly="human", json=False, save=False, verbose=True,):
+def blat(
+    sequence,
+    seqtype="default",
+    assembly="human",
+    json=False,
+    save=False,
+    verbose=True,
+):
     """
     BLAT a nucleotide or amino acid sequence against any BLAT UCSC assembly.
 
@@ -29,42 +37,9 @@ def blat(sequence, seqtype="default", assembly="human", json=False, save=False, 
     # If the path to a fasta file was provided instead of a nucleotide sequence,
     # read the file and extract the first sequence
     if "." in sequence:
-        if ".txt" in sequence:
-            # Read the text file
-            titles = []
-            seqs = []
-            with open(sequence) as text_file:
-                for i, line in enumerate(text_file):
-                    # Recognize a title line by the '>' character
-                    if line[0] == ">":
-                        # Append title line to titles list
-                        titles.append(line.strip())
-                    else:
-                        seqs.append(line.strip())
+        if ".txt" in sequence or ".fa" in sequence:
+            _, seqs = read_fasta(sequence)
 
-        elif ".fa" in sequence:
-            # Read the FASTA
-            titles = []
-            seqs = []
-            with open(sequence) as fasta_file:
-                for i, line in enumerate(fasta_file):
-                    # Each second line will be a title line
-                    if i % 2 == 0:
-                        if line[0] != ">":
-                            raise ValueError(
-                                "Expected FASTA to start with a '>' character. "
-                            )
-                        else:
-                            # Append title line to titles list
-                            titles.append(line.strip())
-                    else:
-                        if line[0] == ">":
-                            raise ValueError(
-                                "FASTA contains two lines starting with '>' in a row -> missing sequence line. "
-                            )
-                        # Append sequences line to seqs list
-                        else:
-                            seqs.append(line.strip())
         else:
             raise ValueError(
                 "File format not recognized. gget BLAT currently only supports '.txt' or '.fa' files. "

@@ -1715,7 +1715,22 @@ def main():
         type=str,
         nargs="?",
         default=None,
-        help="Search term, which can be a mutation, or gene (or Ensembl ID), or sample, etc. as defined using the 'entity' argument. Example: 'EGFR'",
+        help=(
+            "Search term, which can be a mutation, gene name (or Ensembl ID), sample, etc.\n"
+            "Examples for the searchterm and entitity arguments:\n\n"
+            "| searchterm   | entity       |\n"
+            "|--------------|--------------|\n"
+            "| EGFR         | mutations    | -> Find mutations in the EGFR gene that are associated with cancer\n"
+            "| v600e        | mutations    | -> Find genes for which a v600e mutation is associated with cancer\n"
+            "| COSV57014428 | mutations    | -> Find mutations associated with this COSMIC mutations ID\n"
+            "| EGFR         | genes        | -> Get the number of samples, coding/simple mutations, and fusions observed in COSMIC for EGFR\n"
+            "| prostate     | cancer       | -> Get number of tested samples and mutations for prostate cancer\n"
+            "| prostate     | tumour_site  | -> Get number of tested samples, genes, mutations, fusions, etc. with 'prostate' as primary tissue site\n"
+            "| ICGC         | studies      | -> Get project code and descriptions for all studies from the ICGC (International Cancer Genome Consortium)\n"
+            "| EGFR         | pubmed       | -> Find PubMed publications on EGFR and cancer\n"
+            "| ICGC         | samples      | -> Get metadata on all samples from the ICGC (International Cancer Genome Consortium)\n"
+            "| COSS2907494  | samples      | -> Get metadata on this COSMIC sample ID (cancer type, tissue, # analyzed genes, # mutations, etc.)"
+        ),
     )
     parser_cosmic.add_argument(
         "-e",
@@ -1732,7 +1747,7 @@ def main():
         default="mutations",
         type=str,
         required=False,
-        help="Type of search term.",
+        help="Defines the type of the results to return.",
     )
     parser_cosmic.add_argument(
         "-l",
@@ -1777,10 +1792,10 @@ def main():
     parser_cosmic.add_argument(
         "-cv",
         "--cosmic_version",
-        default=99,
+        default=None,
         type=int,
         required=False,
-        help="Version of the COSMIC database (only for use with --download_cosmic).",
+        help="Version of the COSMIC database (only for use with --download_cosmic). Default: None -> Defaults to latest version.",
     )
     parser_cosmic.add_argument(
         "-gv",
@@ -1907,12 +1922,13 @@ def main():
     parser_mutate.add_argument(
         "-o",
         "--out",
-        default="gget_mutate_out.fa",
+        default=None,
         type=str,
         required=False,
         help=(
-            "Path to output fasta file containing the mutated sequences. The identifiers (following the '>') of the mutated sequences in the output fasta will be '>[seq_ID]_[mut_ID]'."
-            "Set to None to return a list of the mutated sequences to standard out."
+            "Path to output fasta file containing the mutated sequences, e.g., 'path/to/output_fasta.fa'.\n"
+            "Default: None -> returns a list of the mutated sequences to standard out.\n"
+            "The identifiers (following the '>') of the mutated sequences in the output fasta will be '>[seq_ID]_[mut_ID]'."
         ),
     )
     parser_mutate.add_argument(
@@ -2184,31 +2200,31 @@ def main():
             verbose=args.quiet,
         )
 
-        # # Check if the function returned something
-        # if not isinstance(cosmic_results, type(None)):
-        #     # Save cosmic results if args.out specified
-        #     if args.out and not args.csv:
-        #         # Create saving directory
-        #         directory = "/".join(args.out.split("/")[:-1])
-        #         if directory != "":
-        #             os.makedirs(directory, exist_ok=True)
-        #         # Save to csv
-        #         cosmic_results.to_csv(args.out, index=False)
+        # Check if the function returned something
+        if not isinstance(cosmic_results, type(None)):
+            # # Save cosmic results if args.out specified
+            # if args.out and not args.csv:
+            #     # Create saving directory
+            #     directory = "/".join(args.out.split("/")[:-1])
+            #     if directory != "":
+            #         os.makedirs(directory, exist_ok=True)
+            #     # Save to csv
+            #     cosmic_results.to_csv(args.out, index=False)
 
-        #     if args.out and args.csv:
-        #         # Create saving directory
-        #         directory = "/".join(args.out.split("/")[:-1])
-        #         if directory != "":
-        #             os.makedirs(directory, exist_ok=True)
-        #         # Save json
-        #         with open(args.out, "w", encoding="utf-8") as f:
-        #             json.dump(cosmic_results, f, ensure_ascii=False, indent=4)
+            # if args.out and args.csv:
+            #     # Create saving directory
+            #     directory = "/".join(args.out.split("/")[:-1])
+            #     if directory != "":
+            #         os.makedirs(directory, exist_ok=True)
+            #     # Save json
+            #     with open(args.out, "w", encoding="utf-8") as f:
+            #         json.dump(cosmic_results, f, ensure_ascii=False, indent=4)
 
-        #     # Print results if no directory specified
-        #     if not args.out and not args.csv:
-        #         cosmic_results.to_csv(sys.stdout, index=False)
-        #     if not args.out and args.csv:
-        #         print(json.dumps(cosmic_results, ensure_ascii=False, indent=4))
+            # Print results if no directory specified
+            if not args.out and not args.csv:
+                cosmic_results.to_csv(sys.stdout, index=False)
+            if not args.out and args.csv:
+                print(json.dumps(cosmic_results, ensure_ascii=False, indent=4))
 
     ## archs4 return
     if args.command == "archs4":

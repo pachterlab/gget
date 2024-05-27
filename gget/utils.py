@@ -10,12 +10,19 @@ import pandas as pd
 import numpy as np
 from IPython.display import display, HTML
 import logging
-from datetime import datetime
+
+# from datetime import datetime
 
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
 
-from .constants import ENSEMBL_FTP_URL, ENSEMBL_FTP_URL_NV, ENS_TO_PDB_API
+from .constants import (
+    ENSEMBL_FTP_URL,
+    ENSEMBL_FTP_URL_NV,
+    ENS_TO_PDB_API,
+    COSMIC_RELEASE_URL,
+)
+
 
 def set_up_logger():
     logging_level = logging.INFO
@@ -23,7 +30,9 @@ def set_up_logger():
     logger.setLevel(logging_level)
 
     if not logger.hasHandlers():
-        formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s", "%H:%M:%S")
+        formatter = logging.Formatter(
+            "%(asctime)s - %(levelname)s - %(message)s", "%H:%M:%S"
+        )
 
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(formatter)
@@ -43,13 +52,26 @@ def set_up_logger():
 
     return logger
 
+
 logger = set_up_logger()
+
 
 def flatten(xss):
     """
     Function to flatten a list of lists.
     """
     return [x for xs in xss for x in xs]
+
+
+def get_latest_cosmic():
+    html = requests.get(COSMIC_RELEASE_URL)
+    if html.status_code != 200:
+        raise RuntimeError(
+            f"The COSMIC server returned error status code {html.status_code}. Please try again."
+        )
+    soup = BeautifulSoup(html.text, "html.parser")
+
+    return int(soup.find("div", class_="news").get("id").split("v")[-1])
 
 
 def read_fasta(fasta):

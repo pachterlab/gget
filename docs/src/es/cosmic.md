@@ -1,28 +1,67 @@
 > Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Las banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.   
 ## gget cosmic 🪐
 Busque genes, mutaciones, etc. asociados con cánceres utilizando la base de datos [COSMIC](https://cancer.sanger.ac.uk/cosmic) (Catálogo de mutaciones somáticas en cáncer).  
-Produce: Resultados en formato JSON (Terminal) o Dataframe/CSV (Python).  
-`gget cosmic` fue escrito por [@AubakirovArman](https://github.com/AubakirovArman).
+Produce: JSON (línea de comandos) o marco de datos/CSV (Python) cuando `download_cosmic=False`. Cuando `download_cosmic=True`, descarga la base de datos solicitada en la carpeta especificada.  
 
-Se aplican tarifas de licencia para el uso comercial de COSMIC. Puede leer más sobre la concesión de licencias de datos COSMIC [aquí](https://cancer.sanger.ac.uk/cosmic/license).
+Este módulo fue escrito en parte por [@AubakirovArman](https://github.com/AubakirovArman) (consulta de información) y [@josephrich98](https://github.com/josephrich98) (descarga de base de datos).  
 
-**Parámetro posicional**  
+NOTA: Se aplican tarifas de licencia para el uso comercial de COSMIC. Puede leer más sobre la concesión de licencias de datos COSMIC [aquí](https://cancer.sanger.ac.uk/cosmic/license).  
+
+**Parámetro posicional (para consultar información)**  
 `searchterm`   
-Término de búsqueda. Puede ser una mutación, un nombre de gen (o ID de Ensembl), tipo de cáncer, sitio del tumor, ID de estudio, ID de PubMed o ID de muestra, tal como se define con el argumento `entity`. Ejemplo: 'EGFR'  
+Término de búsqueda, que puede ser una mutación, un nombre de gen (o ID de Ensembl), una muestra, etc.  
+Ejemplos para los argumentos de searchterm y entidad:   
 
-**Parámetros optionales**  
+| searchterm   | entidad    | |
+|--------------|------------|-|
+| EGFR         | mutaciones | -> Encuentra mutaciones en el gen EGFR asociadas con el cáncer |
+| v600e        | mutaciones | -> Encuentra genes para los cuales una mutación v600e está asociada con el cáncer |
+| COSV57014428 | mutaciones | -> Encuentra mutaciones asociadas con esta ID de mutaciones COSMIC |
+| EGFR         | genes      | -> Obtiene el número de muestras, mutaciones simples/codificantes y fusiones observadas en COSMIC para EGFR |
+| prostate     | cáncer     | -> Obtiene el número de muestras probadas y mutaciones para el cáncer de próstata |
+| prostate     | sitio_tumoral | -> Obtiene el número de muestras probadas, genes, mutaciones, fusiones, etc. con 'próstata' como sitio de tejido primario |
+| ICGC         | estudios   | -> Obtiene el código de proyecto y descripciones de todos los estudios de ICGC (Consortio Internacional del Genoma del Cáncer) |
+| EGFR         | pubmed     | -> Encuentra publicaciones de PubMed sobre EGFR y cáncer |
+| ICGC         | muestras   | -> Obtiene metadatos sobre todas las muestras de ICGC (Consortio Internacional del Genoma del Cáncer) |
+| COSS2907494  | muestras   | -> Obtiene metadatos sobre esta ID de muestra COSMIC (tipo de cáncer, tejido, # genes analizados, # mutaciones, etc.) |
+
+NOTA: (Solo Python) Establezca en `None` cuando se descarguen bases de datos COSMIC con `download_cosmic=True`.  
+
+**Parámetros opcionales (para consultar información)**  
 `-e` `--entity`  
-'mutations' (mutación), 'genes' (nombre de gen / ID de Ensembl), 'cancer' (tipo de cáncer), 'tumour site' (sitio del tumor), 'studies' (ID de estudio), 'pubmed' (ID de PubMed), o 'samples' (ID de muestra). Por defecto: 'mutations'.  
-Define el tipo de término de búsqueda (`searchterm`).  
+'mutations' (predeterminado), 'genes', 'cáncer', 'sitio_tumoral', 'estudios', 'pubmed' o 'muestras'.
+Define el tipo de resultados a devolver.
 
 `-l` `--limit`  
-Limita el número de resultados producidos. Por defecto: 100.  
+Limita el número de resultados a devolver. Predeterminado: 100.
 
+**Banderas (para descargar bases de datos COSMIC)**  
+`-d` `--download_cosmic`  
+Conmuta al modo de descarga de base de datos.
+
+`-gm` `--gget_mutate`  
+DESACTIVA la creación de una versión modificada de la base de datos para usar con gget mutate.
+Python: `gget_mutate` es Verdadero por defecto. Establezca `gget_mutate=False` para deshabilitar.
+
+**Parámetros opcionales (para descargar bases de datos COSMIC)**  
+`-mc` `--mutation_class`
+'cáncer' (predeterminado), 'línea_celular', 'censo', 'resistencia', 'pantalla' o 'ejemplo_cáncer'  
+Tipo de base de datos COSMIC para descargar.
+
+`-cv` `--cosmic_version`  
+Versión de la base de datos COSMIC. Predeterminado: Ninguno -> Se establece en la última versión por defecto.
+
+`-gv` `--grch_version`  
+Versión del genoma de referencia humano GRCh en el que se basó la base de datos COSMIC (37 o 38). Predeterminado: 37
+
+**Parámetros opcionales (generales)**  
 `-o` `--out`   
-Ruta al archivo en el que se guardarán los resultados, p. ej. ruta/al/directorio/resultados.csv (o .json). Por defecto: salida estándar (STDOUT).  
-Para Python, usa `save=True` para guardar los resultados en el directorio de trabajo actual.  
+Ruta al archivo (o carpeta cuando se descargan bases de datos con el flag `download_cosmic`) donde se guardarán los resultados, p. ej. 'ruta/a/resultados.json'.  
+Predeterminado: None  
+-> Cuando download_cosmic=False: Los resultados se devolverán a la salida estándar  
+-> Cuando download_cosmic=True: La base de datos se descargará en el directorio de trabajo actual  
 
-**Banderas**  
+**Banderas (generales)**  
 `-csv` `--csv`
 Solo para Terminal. Produce los resultados en formato CSV.  
 Para Python, usa json=True para producir los resultados en formato JSON.
@@ -33,6 +72,7 @@ Para Python, usa `verbose=False` para imipidir la informacion de progreso de ser
 
   
 ### Por ejemplo    
+#### Consultar información
 ```bash
 gget cosmic -e genes EGFR
 ```
@@ -40,9 +80,20 @@ gget cosmic -e genes EGFR
 # Python
 gget.cosmic("EGFR", entity="genes")
 ```
-&rarr; Produce los resultados COSMIC para el gen 'EGFR':  
+&rarr; Devuelve mutaciones en el gen EGFR asociadas con el cáncer en el formato:
 
-| Gene     | Alternate IDs     | Tested samples     | Simple Mutations        | Fusions | Coding Mutations | ... |
-| -------------- |-------------------------| ------------------------| -------------- | ----------|-----|---|
-| EGFR| EGFR,ENST00000275493.6,... | 210280 | 31900 | 0 | 31900 | ... |
-| . . . | . . . | . . . | . . . | . . . | . . . | . . . | ... | 
+| Gene     | Syntax     | Alternate IDs                  | Canonical  |
+| -------- |------------| -------------------------------| ---------- |
+| EGFR     | c.*2446A>G | EGFR c.*2446A>G, EGFR p.?, ... | y          |
+| EGFR     | c.(2185_2283)ins(18) | EGFR c.(2185_2283)ins(18), EGFR p.?, ... | y          |
+| . . .    | . . .      | . . .                          | . . .      | 
+
+### Descargar bases de datos COSMIC
+```bash
+gget cosmic --download_cosmic
+```
+```python
+# Python
+gget.cosmic(searchterm=None, download_cosmic=True)  
+```
+&rarr; Descargue la base de datos sobre cáncer de COSMIC de la última versión de COSMIC.  

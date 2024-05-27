@@ -10,6 +10,7 @@ from urllib.parse import urlencode
 
 # Custom functions
 from .utils import parse_blast_ref_page, wrap_cols_func, read_fasta, set_up_logger
+
 logger = set_up_logger()
 
 # Constants
@@ -84,21 +85,8 @@ def blast(
     # If the path to a fasta file was provided instead of a nucleotide sequence,
     # read the file and extract the first sequence
     if "." in sequence:
-        if ".txt" in sequence:
-            # Read the text file
-            titles = []
-            seqs = []
-            with open(sequence) as text_file:
-                for i, line in enumerate(text_file):
-                    # Recognize a title line by the '>' character
-                    if line[0] == ">":
-                        # Append title line to titles list
-                        titles.append(line.strip())
-                    else:
-                        seqs.append(line.strip())
-
-        elif ".fa" in sequence:
-            titles, seqs = read_fasta(sequence)
+        if ".txt" in sequence or ".fa" in sequence:
+            _, seqs = read_fasta(sequence)
 
         else:
             raise ValueError(

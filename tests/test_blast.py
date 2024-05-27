@@ -7,6 +7,7 @@ from gget.gget_blast import blast
 with open("./tests/fixtures/test_blast.json") as json_file:
     blast_dict = json.load(json_file)
 
+
 class TestBlast(unittest.TestCase):
     def test_blast_nt(self):
         test = "test1"

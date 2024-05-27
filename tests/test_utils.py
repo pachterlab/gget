@@ -31,8 +31,8 @@ class TestUtils(unittest.TestCase):
         result_to_test = result_to_test1 + result_to_test2
 
         expected_result1 = [
-            ">ENSTGUT00000006367 primary_assembly:bTaeGut1_v1.p:1:107513786:107528106:-1",
-            ">ENSTGUT00000027003 primary_assembly:bTaeGut1_v1.p:1:107513786:107526965:-1",
+            "ENSTGUT00000006367 primary_assembly:bTaeGut1_v1.p:1:107513786:107528106:-1",
+            "ENSTGUT00000027003 primary_assembly:bTaeGut1_v1.p:1:107513786:107526965:-1",
         ]
         expected_result2 = [
             "TAGTTGTGATACTGGTCAGTGTCACTGGGGCTGTTTCACCCTGTCATTTGAAGACTTCCATTT",

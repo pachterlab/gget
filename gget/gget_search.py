@@ -168,7 +168,7 @@ def search(
 
         # Check for ambiguous species matches in species other than mouse and human
         elif len(db) > 1 and "mus_musculus" not in species and "homo_sapiens" not in species:
-            logging.warning(
+            logger.warning(
                 f"Species matches more than one database. Defaulting to first database: {db[0]}.\n"
                 "All available databases can be found here:\n"
                 f"Vertebrates: http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"

@@ -1,4 +1,5 @@
 import requests
+from bs4 import BeautifulSoup
 import pandas as pd
 import subprocess
 import os
@@ -12,7 +13,7 @@ import getpass
 
 # Constants
 from .constants import COSMIC_GET_URL
-from .utils import set_up_logger
+from .utils import set_up_logger, get_latest_cosmic
 
 logger = set_up_logger()
 
@@ -51,7 +52,7 @@ def download_reference(download_link, tar_folder_path, file_path, verbose):
 
     try:
         response_data = json_package.loads(result.stdout)
-    except JSONDecodeError:
+    except ValueError:
         raise RuntimeError(
             "Failed to download file. Please double-check arguments (especially cosmic_version) and try again."
         )
@@ -89,9 +90,8 @@ def select_reference(
     #     contained_file = f"Cosmic_Genes_v{cosmic_version}_GRCh{grch_version}.fasta"
 
     if mutation_class == "cancer":
-        # assert (
-        #     grch_version == 37
-        # ), "CancerMutationCensus data is only available for GRCh37 (set grch_version=37)"
+        if grch_version == 38:
+            logger.warning("CancerMutationCensus data is only available for GRCh37.")
         download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=GRCh{grch_version}/cmc/v{cosmic_version}/CancerMutationCensus_AllData_Tsv_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
         tarred_folder = (
             f"CancerMutationCensus_AllData_Tsv_v{cosmic_version}_GRCh{grch_version}"
@@ -195,7 +195,7 @@ def cosmic(
     json=False,
     download_cosmic=False,
     mutation_class="cancer",
-    cosmic_version=99,
+    cosmic_version=None,
     grch_version=37,
     gget_mutate=True,
     out=None,
@@ -208,10 +208,24 @@ def cosmic(
     NOTE: Licence fees apply for the commercial use of COSMIC.
 
     Args for querying information about specific cancers/genes/etc:
-    - searchterm      (str) Search term, which can be a mutation, or gene name (or Ensembl ID), or sample, etc.
-                      as defined using the 'entity' argument. Example: 'EGFR'.
-                      Set to None when downloading COSMIC databases with download_cosmic=True.
-    - entity          (str) Defines the type of the supplied search term. One of the following:
+    - searchterm      (str) Search term, which can be a mutation, gene name (or Ensembl ID), sample, etc.
+                      Examples for the searchterm and entitity arguments:
+
+                      | searchterm   | entitity    |
+                      |--------------|-------------|
+                      | EGFR         | mutations   | -> Find mutations in the EGFR gene that are associated with cancer
+                      | v600e        | mutations   | -> Find genes for which a v600e mutation is associated with cancer
+                      | COSV57014428 | mutations   | -> Find mutations associated with this COSMIC mutations ID
+                      | EGFR         | genes       | -> Get the number of samples, coding/simple mutations, and fusions observed in COSMIC for EGFR
+                      | prostate     | cancer      | -> Get number of tested samples and mutations for prostate cancer
+                      | prostate     | tumour_site | -> Get number of tested samples, genes, mutations, fusions, etc. with 'prostate' as primary tissue site
+                      | ICGC         | studies     | -> Get project code and descriptions for all studies from the ICGC (International Cancer Genome Consortium)
+                      | EGFR         | pubmed      | -> Find PubMed publications on EGFR and cancer
+                      | ICGC         | samples     | -> Get metadata on all samples from the ICGC (International Cancer Genome Consortium)
+                      | COSS2907494  | samples     | -> Get metadata on this COSMIC sample ID (cancer type, tissue, # analyzed genes, # mutations, etc.)
+
+                      NOTE: Set to None when downloading COSMIC databases with download_cosmic=True.
+    - entity          (str) Defines the type of the results to return. One of the following:
                       'mutations' (default), 'genes', 'cancer', 'tumour_site', 'studies', 'pubmed', or 'samples'.
     - limit           (int) Number of hits to return. Default: 100
     - json            (True/False) If True, returns results in json format instead of data frame. Default: False
@@ -223,12 +237,12 @@ def cosmic(
     - download_cosmic (True/False) whether to switch into database download mode. Default: False
     - mutation_class  (str) Type of COSMIC database to download. One of the following:
                       'cancer' (default), 'cell_line', 'census', 'resistance', 'screen', 'cancer_example'
-    - cosmic_version  (int) Version of the COSMIC database. Default: 99
+    - cosmic_version  (int) Version of the COSMIC database. Default: None -> Defaults to latest version.
     - grch_version    (int) Version of the human GRCh reference genome the COSMIC database was based on (37 or 38). Default: 37
     - gget_mutate     (True/False) whether to create a modified version of the database for use with gget mutate. Default: True
 
     General args:
-    - out             (str) Path to folder the database will be downloaded into.
+    - out             (str) Path to the file (or folder when downloading databases with the download_cosmic flag) the results will be saved in, e.g. 'path/to/results.json'.
                       Default: None
                       -> When download_cosmic=False: Results will be returned to standard out
                       -> When download_cosmic=True: Database will be downloaded into current working directory
@@ -267,6 +281,13 @@ def cosmic(
         if not os.path.exists(out):
             os.makedirs(out)
 
+        if not cosmic_version:
+            cosmic_version = get_latest_cosmic()
+            if verbose:
+                logger.info(
+                    f"Downloading data from latest COSMIC version (v{cosmic_version})."
+                )
+
         ## Download requested database
         mutation_tsv_file, overwrite = select_reference(
             mutation_class, out, grch_version, cosmic_version, verbose
@@ -281,6 +302,7 @@ def cosmic(
 
             if mutation_class == "cancer" or mutation_class == "cancer_example":
                 relevant_cols = [
+                    "GENE_NAME",
                     "ACCESSION_NUMBER",
                     "GENOMIC_MUTATION_ID",
                     "MUTATION_URL",
@@ -288,6 +310,7 @@ def cosmic(
                 ]
             else:
                 relevant_cols = [
+                    "GENE_SYMBOL",
                     "TRANSCRIPT_ACCESSION",
                     "GENOMIC_MUTATION_ID",
                     "MUTATION_ID",
@@ -309,6 +332,7 @@ def cosmic(
             else:
                 df = df.rename(
                     columns={
+                        "GENE_SYMBOL": "GENE_NAME",
                         "TRANSCRIPT_ACCESSION": "seq_ID",
                         "MUTATION_CDS": "mutation",
                     }
@@ -317,12 +341,21 @@ def cosmic(
             # Remove version numbers from Ensembl IDs
             df["seq_ID"] = df["seq_ID"].str.split(".").str[0]
 
-            # Get mut_ID column (by combining GENOMIC_MUTATION_ID and MUTATION_URL/MUTATION_ID)
+            # Get mut_ID column (by combining GENE_NAME, GENOMIC_MUTATION_ID and MUTATION_URL/MUTATION_ID)
+            df["GENE_NAME"] = df["GENE_NAME"].astype(str)
             df["GENOMIC_MUTATION_ID"] = df["GENOMIC_MUTATION_ID"].fillna("NA")
             df["GENOMIC_MUTATION_ID"] = df["GENOMIC_MUTATION_ID"].astype(str)
             df["MUTATION_ID"] = df["MUTATION_ID"].astype(str)
-            df["mut_ID"] = df["GENOMIC_MUTATION_ID"] + "_" + df["MUTATION_ID"]
-            df = df.drop(columns=["GENOMIC_MUTATION_ID", "MUTATION_ID"])
+
+            df["mut_ID"] = (
+                df["GENE_NAME"]
+                + "_"
+                + df["GENOMIC_MUTATION_ID"]
+                + "_"
+                + df["MUTATION_ID"]
+            )
+
+            df = df.drop(columns=["GENE_NAME", "GENOMIC_MUTATION_ID", "MUTATION_ID"])
 
             mutate_csv_out = mutation_tsv_file.replace(".tsv", "_gget_mutate.csv")
             df.to_csv(mutate_csv_out, index=False)
@@ -354,11 +387,6 @@ def cosmic(
 
         if entity == "tumour_site":
             entity = "tumour"
-
-        if verbose:
-            logger.info(
-                f"Fetching the {limit} most correlated to {searchterm} from COSMIC."
-            )
 
         r = requests.get(
             url=COSMIC_GET_URL + entity + "?q=" + searchterm + "&export=json"
@@ -524,10 +552,6 @@ def cosmic(
                         break
 
         corr_df = pd.DataFrame(dicts)
-
-        json_out = os.path.join(
-            out, f"Cosmic_v{cosmic_version}_GRCh{grch_version}_clean.csv"
-        )
 
         if json:
             results_dict = json_package.loads(corr_df.to_json(orient="records"))
