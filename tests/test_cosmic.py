@@ -93,12 +93,14 @@ class TestCosmic(unittest.TestCase):
 
 # List of argument combinations to test for the COSMIC database download
 cosmic_version = get_latest_cosmic()  # Get data from the latest COSMIC release
+# Only example will work in the automatic tests since the others require COSMIC login data
 arg_combinations = [
-    ("cancer", 37, "CancerMutationCensus_AllData", cosmic_version),
-    ("cell_line", 38, "CellLinesProject_GenomeScreensMutant", cosmic_version),
-    ("census", 38, "Cosmic_MutantCensus", cosmic_version),
-    ("resistance", 38, "Cosmic_ResistanceMutations", cosmic_version),
-    ("screen", 38, "Cosmic_GenomeScreensMutant", cosmic_version),
+    ("cancer_example", 37, "CancerMutationCensus", cosmic_version),
+    # ("cancer", 37, "CancerMutationCensus_AllData", cosmic_version),
+    # ("cell_line", 38, "CellLinesProject_GenomeScreensMutant", cosmic_version),
+    # ("census", 38, "Cosmic_MutantCensus", cosmic_version),
+    # ("resistance", 38, "Cosmic_ResistanceMutations", cosmic_version),
+    # ("screen", 38, "Cosmic_GenomeScreensMutant", cosmic_version),
 ]
 
 
@@ -121,7 +123,12 @@ class TestCosmicDownload(TestCaseBase):
         )
         tarred_folder = f"{file_name}_Tsv_v{cosmic_version}_GRCh{grch_version}"
         contained_file = f"{file_name}_v{cosmic_version}_GRCh{grch_version}.tsv"
-        path = pl.Path(os.path.join(tarred_folder, contained_file))
+
+        if mut_class == "cancer_example":
+            path = pl.Path(contained_file)
+        else:
+            path = pl.Path(os.path.join(tarred_folder, contained_file))
+
         self.assertIsFile(path)
 
     def tearDown(self):

@@ -209,7 +209,7 @@ def cosmic(
 
     Args for querying information about specific cancers/genes/etc:
     - searchterm      (str) Search term, which can be a mutation, gene name (or Ensembl ID), sample, etc.
-                      Examples for the searchterm and entitity arguments: 
+                      Examples for the searchterm and entitity arguments:
 
                       | searchterm   | entitity    |
                       |--------------|-------------|
@@ -223,7 +223,7 @@ def cosmic(
                       | EGFR         | pubmed      | -> Find PubMed publications on EGFR and cancer
                       | ICGC         | samples     | -> Get metadata on all samples from the ICGC (International Cancer Genome Consortium)
                       | COSS2907494  | samples     | -> Get metadata on this COSMIC sample ID (cancer type, tissue, # analyzed genes, # mutations, etc.)
- 
+
                       NOTE: Set to None when downloading COSMIC databases with download_cosmic=True.
     - entity          (str) Defines the type of the results to return. One of the following:
                       'mutations' (default), 'genes', 'cancer', 'tumour_site', 'studies', 'pubmed', or 'samples'.
@@ -284,7 +284,9 @@ def cosmic(
         if not cosmic_version:
             cosmic_version = get_latest_cosmic()
             if verbose:
-                logger.info(f"Downloading data from latest COSMIC version (v{cosmic_version}).")
+                logger.info(
+                    f"Downloading data from latest COSMIC version (v{cosmic_version})."
+                )
 
         ## Download requested database
         mutation_tsv_file, overwrite = select_reference(
