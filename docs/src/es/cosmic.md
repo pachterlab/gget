@@ -12,18 +12,18 @@ NOTA: Se aplican tarifas de licencia para el uso comercial de COSMIC. Puede leer
 Término de búsqueda, que puede ser una mutación, un nombre de gen (o ID de Ensembl), una muestra, etc.  
 Ejemplos para los argumentos de searchterm y entidad:   
 
-| searchterm   | entidad    |
-|--------------|------------|
-| EGFR         | mutaciones | -> Encuentra mutaciones en el gen EGFR asociadas con el cáncer
-| v600e        | mutaciones | -> Encuentra genes para los cuales una mutación v600e está asociada con el cáncer
-| COSV57014428 | mutaciones | -> Encuentra mutaciones asociadas con esta ID de mutaciones COSMIC
-| EGFR         | genes      | -> Obtiene el número de muestras, mutaciones simples/codificantes y fusiones observadas en COSMIC para EGFR
-| prostate     | cáncer     | -> Obtiene el número de muestras probadas y mutaciones para el cáncer de próstata
-| prostate     | sitio_tumoral | -> Obtiene el número de muestras probadas, genes, mutaciones, fusiones, etc. con 'próstata' como sitio de tejido primario
-| ICGC         | estudios   | -> Obtiene el código de proyecto y descripciones de todos los estudios de ICGC (Consortio Internacional del Genoma del Cáncer)
-| EGFR         | pubmed     | -> Encuentra publicaciones de PubMed sobre EGFR y cáncer
-| ICGC         | muestras   | -> Obtiene metadatos sobre todas las muestras de ICGC (Consortio Internacional del Genoma del Cáncer)
-| COSS2907494  | muestras   | -> Obtiene metadatos sobre esta ID de muestra COSMIC (tipo de cáncer, tejido, # genes analizados, # mutaciones, etc.)  
+| searchterm   | entidad    | |
+|--------------|------------|-|
+| EGFR         | mutaciones | -> Encuentra mutaciones en el gen EGFR asociadas con el cáncer |
+| v600e        | mutaciones | -> Encuentra genes para los cuales una mutación v600e está asociada con el cáncer |
+| COSV57014428 | mutaciones | -> Encuentra mutaciones asociadas con esta ID de mutaciones COSMIC |
+| EGFR         | genes      | -> Obtiene el número de muestras, mutaciones simples/codificantes y fusiones observadas en COSMIC para EGFR |
+| prostate     | cáncer     | -> Obtiene el número de muestras probadas y mutaciones para el cáncer de próstata |
+| prostate     | sitio_tumoral | -> Obtiene el número de muestras probadas, genes, mutaciones, fusiones, etc. con 'próstata' como sitio de tejido primario |
+| ICGC         | estudios   | -> Obtiene el código de proyecto y descripciones de todos los estudios de ICGC (Consortio Internacional del Genoma del Cáncer) |
+| EGFR         | pubmed     | -> Encuentra publicaciones de PubMed sobre EGFR y cáncer |
+| ICGC         | muestras   | -> Obtiene metadatos sobre todas las muestras de ICGC (Consortio Internacional del Genoma del Cáncer) |
+| COSS2907494  | muestras   | -> Obtiene metadatos sobre esta ID de muestra COSMIC (tipo de cáncer, tejido, # genes analizados, # mutaciones, etc.) |
 
 NOTA: (Solo Python) Establezca en `None` cuando se descarguen bases de datos COSMIC con `download_cosmic=True`.  
 
@@ -80,7 +80,7 @@ gget cosmic -e genes EGFR
 # Python
 gget.cosmic("EGFR", entity="genes")
 ```
-&rarr; Returns mutations in the EGFR gene that are associated with cancer in the format:
+&rarr; Devuelve mutaciones en el gen EGFR asociadas con el cáncer en el formato:
 
 | Gene     | Syntax     | Alternate IDs                  | Canonical  |
 | -------- |------------| -------------------------------| ---------- |
