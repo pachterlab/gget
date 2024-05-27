@@ -2199,31 +2199,31 @@ def main():
             verbose=args.quiet,
         )
 
-        # # Check if the function returned something
-        # if not isinstance(cosmic_results, type(None)):
-        #     # Save cosmic results if args.out specified
-        #     if args.out and not args.csv:
-        #         # Create saving directory
-        #         directory = "/".join(args.out.split("/")[:-1])
-        #         if directory != "":
-        #             os.makedirs(directory, exist_ok=True)
-        #         # Save to csv
-        #         cosmic_results.to_csv(args.out, index=False)
+        # Check if the function returned something
+        if not isinstance(cosmic_results, type(None)):
+            # # Save cosmic results if args.out specified
+            # if args.out and not args.csv:
+            #     # Create saving directory
+            #     directory = "/".join(args.out.split("/")[:-1])
+            #     if directory != "":
+            #         os.makedirs(directory, exist_ok=True)
+            #     # Save to csv
+            #     cosmic_results.to_csv(args.out, index=False)
 
-        #     if args.out and args.csv:
-        #         # Create saving directory
-        #         directory = "/".join(args.out.split("/")[:-1])
-        #         if directory != "":
-        #             os.makedirs(directory, exist_ok=True)
-        #         # Save json
-        #         with open(args.out, "w", encoding="utf-8") as f:
-        #             json.dump(cosmic_results, f, ensure_ascii=False, indent=4)
+            # if args.out and args.csv:
+            #     # Create saving directory
+            #     directory = "/".join(args.out.split("/")[:-1])
+            #     if directory != "":
+            #         os.makedirs(directory, exist_ok=True)
+            #     # Save json
+            #     with open(args.out, "w", encoding="utf-8") as f:
+            #         json.dump(cosmic_results, f, ensure_ascii=False, indent=4)
 
-        #     # Print results if no directory specified
-        #     if not args.out and not args.csv:
-        #         cosmic_results.to_csv(sys.stdout, index=False)
-        #     if not args.out and args.csv:
-        #         print(json.dumps(cosmic_results, ensure_ascii=False, indent=4))
+            # Print results if no directory specified
+            if not args.out and not args.csv:
+                cosmic_results.to_csv(sys.stdout, index=False)
+            if not args.out and args.csv:
+                print(json.dumps(cosmic_results, ensure_ascii=False, indent=4))
 
     ## archs4 return
     if args.command == "archs4":

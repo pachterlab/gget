@@ -125,19 +125,26 @@ class TestCosmicDownload(TestCaseBase):
         )
         tarred_folder = f"{file_name}_Tsv_v{cosmic_version}_GRCh{grch_version}"
         contained_file = f"{file_name}_v{cosmic_version}_GRCh{grch_version}.tsv"
+        gm_file = f"{file_name}_v{cosmic_version}_GRCh{grch_version}_gget_mutate.csv"
 
         if mut_class == "cancer_example":
-            path = pl.Path(contained_file)
+            path1 = pl.Path(
+                os.path.join(f"example_GRCh{grch_version}" + contained_file)
+            )
+            path2 = pl.Path(os.path.join(f"example_GRCh{grch_version}" + gm_file))
         else:
-            path = pl.Path(os.path.join(tarred_folder, contained_file))
+            path2 = pl.Path(os.path.join(tarred_folder, contained_file))
+            path2 = pl.Path(os.path.join(tarred_folder, gm_file))
 
-        self.assertIsFile(path)
+        self.assertIsFile(path1)
+        self.assertIsFile(path2)
 
     def tearDown(self):
         # Get the folder name from the previous test's parameters
         test_case = self._testMethodName
         if "test_cosmic_download_" in test_case:
             params = test_case.replace("test_cosmic_download_", "").split("_")
+            print(params)
             grch_version = params[1]
             file_name = params[2]
             cosmic_version = params[3]

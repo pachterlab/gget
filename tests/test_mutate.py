@@ -26,89 +26,93 @@ def create_test_row(mutation, sequence):
 
 
 class TestMutate(unittest.TestCase):
-    def test_substitution(alphabet_sequence):
-        test_row = create_test_row("c.3C>X", alphabet_sequence)
+    def setUp(self):
+        self.alphabet_sequence = alphabet_sequence()
+        self.alphabet_sequence_long = alphabet_sequence_long()
+
+    def test_substitution(self):
+        test_row = create_test_row("c.3C>X", self.alphabet_sequence)
         result = create_mutant_sequence(test_row, substitution_mutation)
         assert result == "ABXDEFG", f"Expected ABXDEFG, got {result}"
 
-    def test_substitution_long(alphabet_sequence_long):
-        test_row = create_test_row("c.35I>X", alphabet_sequence_long)
+    def test_substitution_long(self):
+        test_row = create_test_row("c.35I>X", self.alphabet_sequence_long)
         result = create_mutant_sequence(test_row, substitution_mutation)
         assert (
             result == "EFGHIJKLMNOPQRSTUVWXYZABCDEFGHXJKLMNOPQRSTUVWXYZABCDEFGHIJKLM"
         ), f"Expected EFGHIJKLMNOPQRSTUVWXYZABCDEFGHXJKLMNOPQRSTUVWXYZABCDEFGHIJKLM, got {result}"
 
-    def test_multi_deletion(alphabet_sequence):
-        test_row = create_test_row("c.3_6del", alphabet_sequence)
+    def test_multi_deletion(self):
+        test_row = create_test_row("c.3_6del", self.alphabet_sequence)
         result = create_mutant_sequence(test_row, deletion_mutation)
         assert result == "ABG", f"Expected ABG, got {result}"
 
-    def test_multi_deletion_long(alphabet_sequence_long):
-        test_row = create_test_row("c.35_37del", alphabet_sequence_long)
+    def test_multi_deletion_long(self):
+        test_row = create_test_row("c.35_37del", self.alphabet_sequence_long)
         result = create_mutant_sequence(test_row, deletion_mutation)
         assert (
             result == "EFGHIJKLMNOPQRSTUVWXYZABCDEFGHLMNOPQRSTUVWXYZABCDEFGHIJKLMNO"
         ), f"Expected EFGHIJKLMNOPQRSTUVWXYZABCDEFGHLMNOPQRSTUVWXYZABCDEFGHIJKLMNO, got {result}"
 
-    def test_single_deletion(alphabet_sequence):
-        test_row = create_test_row("c.3del", alphabet_sequence)
+    def test_single_deletion(self):
+        test_row = create_test_row("c.3del", self.alphabet_sequence)
         result = create_mutant_sequence(test_row, deletion_mutation)
         assert result == "ABDEFG", f"Expected ABDEFG, got {result}"
 
-    def test_multi_delins(alphabet_sequence):
-        test_row = create_test_row("c.3_6delinsXYZ", alphabet_sequence)
+    def test_multi_delins(self):
+        test_row = create_test_row("c.3_6delinsXYZ", self.alphabet_sequence)
         result = create_mutant_sequence(test_row, delins_mutation)
         assert result == "ABXYZG", f"Expected ABXYZG, got {result}"
 
-    def test_multi_delins_long(alphabet_sequence_long):
-        test_row = create_test_row("c.35_37delinsWXYZ", alphabet_sequence_long)
+    def test_multi_delins_long(self):
+        test_row = create_test_row("c.35_37delinsWXYZ", self.alphabet_sequence_long)
         result = create_mutant_sequence(test_row, delins_mutation)
         assert (
             result == "EFGHIJKLMNOPQRSTUVWXYZABCDEFGHWXYZLMNOPQRSTUVWXYZABCDEFGHIJKLMNO"
         ), f"Expected EFGHIJKLMNOPQRSTUVWXYZABCDEFGHWXYZLMNOPQRSTUVWXYZABCDEFGHIJKLMNO, got {result}"
 
-    def test_single_delins(alphabet_sequence):
-        test_row = create_test_row("c.3delinsXYZ", alphabet_sequence)
+    def test_single_delins(self):
+        test_row = create_test_row("c.3delinsXYZ", self.alphabet_sequence)
         result = create_mutant_sequence(test_row, delins_mutation)
         assert result == "ABXYZDEFG", f"Expected ABXYZDEFG, got {result}"
 
-    def test_ins(alphabet_sequence):
-        test_row = create_test_row("c.3_4insXYZ", alphabet_sequence)
+    def test_ins(self):
+        test_row = create_test_row("c.3_4insXYZ", self.alphabet_sequence)
         result = create_mutant_sequence(test_row, insertion_mutation)
         assert result == "ABCXYZDEFG", f"Expected ABCXYZDEFG, got {result}"
 
-    def test_ins_long(alphabet_sequence_long):
-        test_row = create_test_row("c.35_36insPPP", alphabet_sequence_long)
+    def test_ins_long(self):
+        test_row = create_test_row("c.35_36insPPP", self.alphabet_sequence_long)
         result = create_mutant_sequence(test_row, insertion_mutation)
         assert (
             result == "EFGHIJKLMNOPQRSTUVWXYZABCDEFGHIPPPJKLMNOPQRSTUVWXYZABCDEFGHIJKLM"
         ), f"Expected EFGHIJKLMNOPQRSTUVWXYZABCDEFGHIPPPJKLMNOPQRSTUVWXYZABCDEFGHIJKLM, got {result}"
 
-    def test_multi_dup(alphabet_sequence):
-        test_row = create_test_row("c.3_5dup", alphabet_sequence)
+    def test_multi_dup(self):
+        test_row = create_test_row("c.3_5dup", self.alphabet_sequence)
         result = create_mutant_sequence(test_row, duplication_mutation)
         assert result == "ABCDECDEFG", f"Expected ABCDECDEFG, got {result}"
 
-    def test_multi_dup_long(alphabet_sequence_long):
-        test_row = create_test_row("c.39_42dup", alphabet_sequence_long)
+    def test_multi_dup_long(self):
+        test_row = create_test_row("c.39_42dup", self.alphabet_sequence_long)
         result = create_mutant_sequence(test_row, duplication_mutation)
         assert (
             result
             == "IJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRST"
         ), f"Expected IJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRST, got {result}"
 
-    def test_single_dup(alphabet_sequence):
-        test_row = create_test_row("c.5dup", alphabet_sequence)
+    def test_single_dup(self):
+        test_row = create_test_row("c.5dup", self.alphabet_sequence)
         result = create_mutant_sequence(test_row, duplication_mutation)
         assert result == "ABCDEEFG", f"Expected ABCDEEFG, got {result}"
 
-    def test_inv(alphabet_sequence):
-        test_row = create_test_row("c.3_4inv", alphabet_sequence)
+    def test_inv(self):
+        test_row = create_test_row("c.3_4inv", self.alphabet_sequence)
         result = create_mutant_sequence(test_row, inversion_mutation)
         assert result == "ABDCEFG", f"Expected ABDCEFG, got {result}"
 
-    def test_inv_long(alphabet_sequence_long):
-        test_row = create_test_row("c.41_42inv", alphabet_sequence_long)
+    def test_inv_long(self):
+        test_row = create_test_row("c.41_42inv", self.alphabet_sequence_long)
         result = create_mutant_sequence(test_row, inversion_mutation)
         assert (
             result == "KLMNOPQRSTUVWXYZABCDEFGHIJKLMNPOQRSTUVWXYZABCDEFGHIJKLMNOPQRST"
