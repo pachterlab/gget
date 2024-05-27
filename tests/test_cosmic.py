@@ -143,11 +143,14 @@ class TestCosmicDownload(TestCaseBase):
         # Get the folder name from the previous test's parameters
         test_case = self._testMethodName
         if "test_cosmic_download_" in test_case:
-            params = test_case.replace("test_cosmic_download_", "").split("_")
-            print(params)
-            grch_version = params[1]
-            file_name = params[2]
-            cosmic_version = params[3]
+            mc = test_case.replace("test_cosmic_download_", "").split("_")[1:]
+            mc = "_".join(mc)
+
+            for arg_tuple in arg_combinations:
+                if arg_tuple[0] == mc:
+                    grch_version = arg_tuple[1]
+                    file_name = arg_tuple[2]
+                    cosmic_version = arg_tuple[3]
 
             tarred_folder = f"{file_name}_Tsv_v{cosmic_version}_GRCh{grch_version}"
 
