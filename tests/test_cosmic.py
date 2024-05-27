@@ -14,7 +14,7 @@ cosmic_version = get_latest_cosmic()
 # List of argument combinations to test for the COSMIC database download
 # Only example will work in the automatic tests since the others require COSMIC login data
 arg_combinations = [
-    ("cancer_example", 37, "CancerMutationCensus", cosmic_version),
+    ("cancer_example", 37, "CancerMutationCensus_AllData", cosmic_version),
     # ("cancer", 37, "CancerMutationCensus_AllData", cosmic_version),
     # ("cell_line", 38, "CellLinesProject_GenomeScreensMutant", cosmic_version),
     # ("census", 38, "Cosmic_MutantCensus", cosmic_version),
