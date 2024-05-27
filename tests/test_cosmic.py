@@ -8,6 +8,21 @@ import time
 from gget.gget_cosmic import cosmic
 from gget.utils import get_latest_cosmic
 
+# Test download data from the latest COSMIC release
+cosmic_version = get_latest_cosmic()
+
+# List of argument combinations to test for the COSMIC database download
+# Only example will work in the automatic tests since the others require COSMIC login data
+arg_combinations = [
+    ("cancer_example", 37, "CancerMutationCensus", cosmic_version),
+    # ("cancer", 37, "CancerMutationCensus_AllData", cosmic_version),
+    # ("cell_line", 38, "CellLinesProject_GenomeScreensMutant", cosmic_version),
+    # ("census", 38, "Cosmic_MutantCensus", cosmic_version),
+    # ("resistance", 38, "Cosmic_ResistanceMutations", cosmic_version),
+    # ("screen", 38, "Cosmic_GenomeScreensMutant", cosmic_version),
+]
+
+
 # Load dictionary containing arguments and expected results
 with open("./tests/fixtures/test_cosmic.json") as json_file:
     cosmic_dict = json.load(json_file)
@@ -89,19 +104,6 @@ class TestCosmic(unittest.TestCase):
         if isinstance(result_to_test, pd.DataFrame):
             result_to_test = result_to_test.values.tolist()
         self.assertListEqual(result_to_test, expected_result)
-
-
-# List of argument combinations to test for the COSMIC database download
-cosmic_version = get_latest_cosmic()  # Get data from the latest COSMIC release
-# Only example will work in the automatic tests since the others require COSMIC login data
-arg_combinations = [
-    ("cancer_example", 37, "CancerMutationCensus", cosmic_version),
-    # ("cancer", 37, "CancerMutationCensus_AllData", cosmic_version),
-    # ("cell_line", 38, "CellLinesProject_GenomeScreensMutant", cosmic_version),
-    # ("census", 38, "Cosmic_MutantCensus", cosmic_version),
-    # ("resistance", 38, "Cosmic_ResistanceMutations", cosmic_version),
-    # ("screen", 38, "Cosmic_GenomeScreensMutant", cosmic_version),
-]
 
 
 class TestCaseBase(unittest.TestCase):

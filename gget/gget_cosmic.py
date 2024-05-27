@@ -541,10 +541,6 @@ def cosmic(
 
         corr_df = pd.DataFrame(dicts)
 
-        json_out = os.path.join(
-            out, f"Cosmic_v{cosmic_version}_GRCh{grch_version}_clean.csv"
-        )
-
         if json:
             results_dict = json_package.loads(corr_df.to_json(orient="records"))
             if out:
