@@ -127,16 +127,14 @@ class TestCosmicDownload(TestCaseBase):
         contained_file = f"{file_name}_v{cosmic_version}_GRCh{grch_version}.tsv"
         gm_file = f"{file_name}_v{cosmic_version}_GRCh{grch_version}_gget_mutate.csv"
 
-        root = "/home/runner/work/gget"
-
         if mut_class == "cancer_example":
             path1 = pl.Path(
-                os.path.join(root, f"example_GRCh{grch_version}", contained_file)
+                os.path.abspath(os.path.join(f"example_GRCh{grch_version}", contained_file))
             )
-            path2 = pl.Path(os.path.join(root, f"example_GRCh{grch_version}", gm_file))
+            path2 = pl.Path(os.path.abspath(os.path.join(f"example_GRCh{grch_version}", gm_file)))
         else:
-            path2 = pl.Path(os.path.join(root, tarred_folder, contained_file))
-            path2 = pl.Path(os.path.join(root, tarred_folder, gm_file))
+            path2 = pl.Path(os.path.abspath(os.path.join(tarred_folder, contained_file)))
+            path2 = pl.Path(os.path.abspath(os.path.join(tarred_folder, gm_file)))
 
         self.assertIsFile(path1)
         self.assertIsFile(path2)
