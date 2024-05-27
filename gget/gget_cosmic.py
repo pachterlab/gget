@@ -1,5 +1,4 @@
 import requests
-from bs4 import BeautifulSoup
 import pandas as pd
 import subprocess
 import os
@@ -128,11 +127,12 @@ def select_reference(
             f"Cosmic_GenomeScreensMutant_v{cosmic_version}_GRCh{grch_version}.tsv"
         )
 
+    # Only available for the latest COSMIC version
     elif mutation_class == "cancer_example":
         download_link = f"https://cog.sanger.ac.uk/cosmic-downloads-production/taster/example_grch{grch_version}.tar"
         tarred_folder = f"example_GRCh{grch_version}"
         contained_file = (
-            f"CancerMutationCensus_AllData_v{cosmic_version}_GRCh{grch_version}.tsv"
+            f"CancerMutationCensus_AllData_v{get_latest_cosmic()}_GRCh{grch_version}.tsv"
         )
 
     tar_folder_path = os.path.join(reference_dir, tarred_folder)
