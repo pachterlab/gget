@@ -127,39 +127,41 @@ class TestCosmicDownload(TestCaseBase):
         contained_file = f"{file_name}_v{cosmic_version}_GRCh{grch_version}.tsv"
         gm_file = f"{file_name}_v{cosmic_version}_GRCh{grch_version}_gget_mutate.csv"
 
+        root = "/home/runner/work/gget"
+
         if mut_class == "cancer_example":
             path1 = pl.Path(
-                os.path.join(f"example_GRCh{grch_version}", contained_file)
+                os.path.join(root, f"example_GRCh{grch_version}", contained_file)
             )
-            path2 = pl.Path(os.path.join(f"example_GRCh{grch_version}", gm_file))
+            path2 = pl.Path(os.path.join(root, f"example_GRCh{grch_version}", gm_file))
         else:
-            path2 = pl.Path(os.path.join(tarred_folder, contained_file))
-            path2 = pl.Path(os.path.join(tarred_folder, gm_file))
+            path2 = pl.Path(os.path.join(root, tarred_folder, contained_file))
+            path2 = pl.Path(os.path.join(root, tarred_folder, gm_file))
 
         self.assertIsFile(path1)
         self.assertIsFile(path2)
 
-    def tearDown(self):
-        # Get the folder name from the previous test's parameters
-        test_case = self._testMethodName
-        if "test_cosmic_download_" in test_case:
-            mc = test_case.replace("test_cosmic_download_", "").split("_")[1:]
-            mc = "_".join(mc)
+    # def tearDown(self):
+    #     # Get the folder name from the previous test's parameters
+    #     test_case = self._testMethodName
+    #     if "test_cosmic_download_" in test_case:
+    #         mc = test_case.replace("test_cosmic_download_", "").split("_")[1:]
+    #         mc = "_".join(mc)
 
-            for arg_tuple in arg_combinations:
-                if arg_tuple[0] == mc:
-                    grch_version = arg_tuple[1]
-                    file_name = arg_tuple[2]
-                    cosmic_version = arg_tuple[3]
+    #         for arg_tuple in arg_combinations:
+    #             if arg_tuple[0] == mc:
+    #                 grch_version = arg_tuple[1]
+    #                 file_name = arg_tuple[2]
+    #                 cosmic_version = arg_tuple[3]
 
-            tarred_folder = f"{file_name}_Tsv_v{cosmic_version}_GRCh{grch_version}"
+    #         tarred_folder = f"{file_name}_Tsv_v{cosmic_version}_GRCh{grch_version}"
 
-            if os.path.exists(tarred_folder):
-                for root, dirs, files in os.walk(tarred_folder, topdown=False):
-                    for name in files:
-                        os.remove(os.path.join(root, name))
-                    for name in dirs:
-                        os.rmdir(os.path.join(root, name))
-                os.rmdir(tarred_folder)
+    #         if os.path.exists(tarred_folder):
+    #             for root, dirs, files in os.walk(tarred_folder, topdown=False):
+    #                 for name in files:
+    #                     os.remove(os.path.join(root, name))
+    #                 for name in dirs:
+    #                     os.rmdir(os.path.join(root, name))
+    #             os.rmdir(tarred_folder)
 
-        super(TestCosmicDownload, self).tearDown()
+    #     super(TestCosmicDownload, self).tearDown()
