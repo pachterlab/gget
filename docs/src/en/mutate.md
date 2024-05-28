@@ -41,7 +41,7 @@ For use from the terminal (bash): Enclose individual mutation annotations in quo
 
 **Optional arguments**  
 `-k` `--k`  
-Length of sequences flanking the mutation. Default: 31.  
+Length of sequences flanking the mutation. Default: 30.  
 If k > total length of the sequence, the entire sequence will be kept.  
 
 `-mc` `--mut_column`  
