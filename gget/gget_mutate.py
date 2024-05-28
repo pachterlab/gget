@@ -65,7 +65,7 @@ def extract_mutation_type(mutation):
 def create_mutant_sequence(
     row,
     mutation_function,
-    kmer_flanking_length=31,
+    kmer_flanking_length=30,
     mut_column="mutation",
     seq_id_column="seq_ID",
 ):
@@ -344,7 +344,7 @@ def unknown_mutation(
 def mutate(
     sequences,
     mutations,
-    k=31,
+    k=30,
     mut_column="mutation",
     mut_id_column="mut_ID",
     seq_id_column="seq_ID",
@@ -386,7 +386,7 @@ def mutate(
 
                     Alternatively: Input mutation(s) as a string or list, e.g., 'c.2C>T' or ['c.2C>T', 'c.1A>C'].
                     If a list is provided, the number of mutations must equal the number of input sequences.
-    - k             (int) Length of sequences flanking the mutation. Default: 31.
+    - k             (int) Length of sequences flanking the mutation. Default: 30.
                     If k > total length of the sequence, the entire sequence will be kept.
     - mut_column    (str) Name of the column containing the mutations to be performed in 'mutations'. Default: 'mutation'.
     - mut_id_column (str) Name of the column containing the IDs of each mutation in 'mutations'. Default: 'mut_ID'.
