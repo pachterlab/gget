@@ -373,10 +373,10 @@ def mutate(
                     containing information about the mutations in the following format:
 
                     | mutation         | mut_ID | seq_ID |
-                    | c.2C>T           | mut1   | seq1   |
-                    | c.9_13inv        | mut2   | seq2   |
-                    | c.9_13inv        | mut2   | seq4   |
-                    | c.9_13delinsAAT  | mut3   | seq4   |
+                    | c.2C>T           | mut1   | seq1   | -> Apply mutation 1 to sequence 1
+                    | c.9_13inv        | mut2   | seq2   | -> Apply mutation 2 to sequence 2
+                    | c.9_13inv        | mut2   | seq3   | -> Apply mutation 2 to sequence 3
+                    | c.9_13delinsAAT  | mut3   | seq3   | -> Apply mutation 3 to sequence 3
                     | ...              | ...    | ...    |
 
                     'mutation' = Column containing the mutations to be performed written in standard mutation annotation (see below)
