@@ -3,6 +3,8 @@
 Recibe secuencias de nucleótidos y mutaciones (en [anotación de mutación estándar](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1867422/)) y devuelve versiones mutadas de las secuencias según las mutaciones proporcionadas.  
 Formato de devolución: Guarda las secuencias mutadas en formato FASTA (o devuelve una lista que contiene las secuencias mutadas si `out=None`).  
 
+Este módulo fue coescrito por [Joseph Rich](https://github.com/josephrich98).
+
 **Parámetro posicional**  
 `sequences`   
 Ruta al archivo FASTA que contiene las secuencias a mutar, por ejemplo, 'path/to/seqs.fa'.  
