@@ -21,15 +21,15 @@ Alternativamente: Proporcione secuencia(s) como una cadena o lista, por ejemplo,
 
 **Otros parámetros requeridos**  
 `-m` `--mutations`  
-Ruta al archivo csv o tsv (por ejemplo, 'path/to/mutations.csv') o marco de datos (objeto DataFrame) que contiene información sobre las mutaciones en el siguiente formato:  
+Ruta al archivo csv o tsv (por ejemplo, 'path/to/mutations.csv') o marco de datos (objeto DataFrame) que contiene información sobre las mutaciones en el siguiente formato (la columna 'notas' no es necesaria):  
 
-| mutation         | mut_ID | seq_ID |
-|------------------|--------|--------|
-| c.2C>T           | mut1   | seq1   |
-| c.9_13inv        | mut2   | seq2   |
-| c.9_13inv        | mut2   | seq4   |
-| c.9_13delinsAAT  | mut3   | seq4   |
-| ...              | ...    | ...    |
+| mutation         | mut_ID | seq_ID | notas |
+|------------------|--------|--------|-|
+| c.2C>T           | mut1   | seq1   | -> Aplicar la mutación 1 a la secuencia 1 |
+| c.9_13inv        | mut2   | seq2   | -> Aplicar la mutación 2 a la secuencia 2 |
+| c.9_13inv        | mut2   | seq4   | -> Aplicar la mutación 2 a la secuencia 4 |
+| c.9_13delinsAAT  | mut3   | seq4   | -> Aplicar la mutación 3 a la secuencia 4 |
+| ...              | ...    | ...    | |
 
 'mutation' = Columna que contiene las mutaciones a realizar, escritas en anotación de mutación estándar  
 'mut_ID' = Columna que contiene el identificador de cada mutación  
