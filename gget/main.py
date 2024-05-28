@@ -1890,7 +1890,7 @@ def main():
     parser_mutate.add_argument(
         "-k",
         "--k",
-        default=31,
+        default=30,
         type=int,
         required=False,
         help="Length of sequences flanking the mutation. If k > total length of the sequence, the entire sequence will be kept.",
