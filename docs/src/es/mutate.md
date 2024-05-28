@@ -41,7 +41,7 @@ Para uso desde el terminal (bash): Encierre las anotaciones de mutación individ
 
 **Parámetros opcionales**  
 `-k` `--k`  
-Longitud de las secuencias que flanquean la mutación. Por defecto: 31.  
+Longitud de las secuencias que flanquean la mutación. Por defecto: 30.  
 Si k > longitud total de la secuencia, se mantendrá toda la secuencia.
 
 `-mc` `--mut_column`  
