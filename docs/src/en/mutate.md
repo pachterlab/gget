@@ -3,6 +3,8 @@
 Takes in nucleotide sequences and mutations (in [standard mutation annotation](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1867422/) and returns mutated versions of the input sequences according to the provided mutations.  
 Return format: Saves mutated sequences in FASTA format (or returns a list containing the mutated sequences if `out=None`).  
 
+This module was co-written by [Joseph Rich](https://github.com/josephrich98).
+
 **Positional argument**  
 `sequences`   
 Path to the FASTA file containing the sequences to be mutated, e.g., 'path/to/seqs.fa'.  
