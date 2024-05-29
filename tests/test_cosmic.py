@@ -27,6 +27,8 @@ arg_combinations = [
 with open("./tests/fixtures/test_cosmic.json") as json_file:
     cosmic_dict = json.load(json_file)
 
+# Sleep time in seconds (wait 2 min between server requests to avoid 429 errors)
+sleep_time = 120
 
 class TestCosmic(unittest.TestCase):
     def test_cosmic_defaults(self):
@@ -39,7 +41,7 @@ class TestCosmic(unittest.TestCase):
         self.assertListEqual(result_to_test, expected_result)
 
     # Delay to avoid server overload errors
-    time.sleep(60)
+    time.sleep(sleep_time)
 
     def test_cosmic_limit_and_pubmet(self):
         test = "test2"
@@ -50,7 +52,7 @@ class TestCosmic(unittest.TestCase):
             result_to_test = result_to_test.values.tolist()
         self.assertListEqual(result_to_test, expected_result)
 
-    time.sleep(60)
+    time.sleep(sleep_time)
 
     def test_cosmic_json_and_genes(self):
         test = "test3"
@@ -61,7 +63,7 @@ class TestCosmic(unittest.TestCase):
             result_to_test = result_to_test.values.tolist()
         self.assertListEqual(result_to_test, expected_result)
 
-    time.sleep(60)
+    time.sleep(sleep_time)
 
     def test_cosmic_samples(self):
         test = "test4"
@@ -72,7 +74,7 @@ class TestCosmic(unittest.TestCase):
             result_to_test = result_to_test.values.tolist()
         self.assertListEqual(result_to_test, expected_result)
 
-    time.sleep(60)
+    time.sleep(sleep_time)
 
     def test_cosmic_studies(self):
         test = "test5"
@@ -83,7 +85,7 @@ class TestCosmic(unittest.TestCase):
             result_to_test = result_to_test.values.tolist()
         self.assertListEqual(result_to_test, expected_result)
 
-    time.sleep(60)
+    time.sleep(sleep_time)
 
     def test_cosmic_cancer(self):
         test = "test6"
@@ -94,7 +96,7 @@ class TestCosmic(unittest.TestCase):
             result_to_test = result_to_test.values.tolist()
         self.assertListEqual(result_to_test, expected_result)
 
-    time.sleep(120)
+    time.sleep(sleep_time)
 
     def test_cosmic_tumour(self):
         test = "test7"
@@ -115,7 +117,7 @@ class TestCaseBase(unittest.TestCase):
 class TestCosmicDownload(TestCaseBase):
     @parameterized.expand(arg_combinations)
     def test_cosmic_download(self, mut_class, grch_version, file_name, cosmic_version):
-        time.sleep(60)
+        time.sleep(sleep_time)
 
         cosmic(
             searchterm=None,
