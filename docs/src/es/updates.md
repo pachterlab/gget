@@ -1,4 +1,10 @@
 ## ✨ ¡Lo más reciente!  
+**Versión ≥ 0.28.5 (29 de mayo de 2024):**
+- **Nuevo módulo: [`gget mutate`](./mutate.md)**
+- [`gget cosmic`](./cosmic.md): Ahora puedes descargar bases de datos completas de COSMIC utilizando el argumento `download_cosmic`
+- [`gget ref`](./ref.md): Ahora puede obtener la ensambladura del genoma GRCh27 usando `species='human_grch37'`
+- [`gget search`](./search.md): Ajusta el acceso a los datos humanos a la estructura de la versión 112 de Ensembl (corrige [issue 129](https://github.com/pachterlab/gget/issues/129))
+
 **Versión ≥ 0.28.4** (31 de enero de 2024):  
 - [`gget setup`](./setup.md): soluciona el error con la ruta del archivo al ejecutar `gget.setup("elm")` en el sistema operativo Windows.  
 

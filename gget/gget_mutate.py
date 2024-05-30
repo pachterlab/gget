@@ -65,7 +65,7 @@ def extract_mutation_type(mutation):
 def create_mutant_sequence(
     row,
     mutation_function,
-    kmer_flanking_length=31,
+    kmer_flanking_length=30,
     mut_column="mutation",
     seq_id_column="seq_ID",
 ):
@@ -344,7 +344,7 @@ def unknown_mutation(
 def mutate(
     sequences,
     mutations,
-    k=31,
+    k=30,
     mut_column="mutation",
     mut_id_column="mut_ID",
     seq_id_column="seq_ID",
@@ -373,10 +373,10 @@ def mutate(
                     containing information about the mutations in the following format:
 
                     | mutation         | mut_ID | seq_ID |
-                    | c.2C>T           | mut1   | seq1   |
-                    | c.9_13inv        | mut2   | seq2   |
-                    | c.9_13inv        | mut2   | seq4   |
-                    | c.9_13delinsAAT  | mut3   | seq4   |
+                    | c.2C>T           | mut1   | seq1   | -> Apply mutation 1 to sequence 1
+                    | c.9_13inv        | mut2   | seq2   | -> Apply mutation 2 to sequence 2
+                    | c.9_13inv        | mut2   | seq3   | -> Apply mutation 2 to sequence 3
+                    | c.9_13delinsAAT  | mut3   | seq3   | -> Apply mutation 3 to sequence 3
                     | ...              | ...    | ...    |
 
                     'mutation' = Column containing the mutations to be performed written in standard mutation annotation (see below)
@@ -386,7 +386,7 @@ def mutate(
 
                     Alternatively: Input mutation(s) as a string or list, e.g., 'c.2C>T' or ['c.2C>T', 'c.1A>C'].
                     If a list is provided, the number of mutations must equal the number of input sequences.
-    - k             (int) Length of sequences flanking the mutation. Default: 31.
+    - k             (int) Length of sequences flanking the mutation. Default: 30.
                     If k > total length of the sequence, the entire sequence will be kept.
     - mut_column    (str) Name of the column containing the mutations to be performed in 'mutations'. Default: 'mutation'.
     - mut_id_column (str) Name of the column containing the IDs of each mutation in 'mutations'. Default: 'mut_ID'.

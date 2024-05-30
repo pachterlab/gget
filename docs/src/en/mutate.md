@@ -3,6 +3,8 @@
 Takes in nucleotide sequences and mutations (in [standard mutation annotation](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1867422/) and returns mutated versions of the input sequences according to the provided mutations.  
 Return format: Saves mutated sequences in FASTA format (or returns a list containing the mutated sequences if `out=None`).  
 
+This module was co-written by [Joseph Rich](https://github.com/josephrich98).
+
 **Positional argument**  
 `sequences`   
 Path to the FASTA file containing the sequences to be mutated, e.g., 'path/to/seqs.fa'.  
@@ -21,15 +23,15 @@ Alternatively: Input sequence(s) as a string or list, e.g. 'AGCTAGCT'.
 
 **Required arguments**  
 `-m` `--mutations`  
-Path to the csv or tsv file (e.g., 'path/to/mutations.csv') or data frame (DataFrame object) containing information about the mutations in the following format:  
+Path to the csv or tsv file (e.g., 'path/to/mutations.csv') or data frame (DataFrame object) containing information about the mutations in the following format (the 'notes' column is not necessary):  
 
-| mutation         | mut_ID | seq_ID |
-|------------------|--------|--------|
-| c.2C>T           | mut1   | seq1   |
-| c.9_13inv        | mut2   | seq2   |
-| c.9_13inv        | mut2   | seq4   |
-| c.9_13delinsAAT  | mut3   | seq4   |
-| ...              | ...    | ...    |
+| mutation         | mut_ID | seq_ID | notes |
+|------------------|--------|--------|-|
+| c.2C>T           | mut1   | seq1   | -> Apply mutation 1 to sequence 1 |
+| c.9_13inv        | mut2   | seq2   | -> Apply mutation 2 to sequence 2 |
+| c.9_13inv        | mut2   | seq4   | -> Apply mutation 2 to sequence 4 |
+| c.9_13delinsAAT  | mut3   | seq4   | -> Apply mutation 3 to sequence 4 |
+| ...              | ...    | ...    |                                   |
 
 'mutation' = Column containing the mutations to be performed written in standard mutation annotation  
 'mut_ID' = Column containing the identifier for each mutation  
@@ -41,7 +43,7 @@ For use from the terminal (bash): Enclose individual mutation annotations in quo
 
 **Optional arguments**  
 `-k` `--k`  
-Length of sequences flanking the mutation. Default: 31.  
+Length of sequences flanking the mutation. Default: 30.  
 If k > total length of the sequence, the entire sequence will be kept.  
 
 `-mc` `--mut_column`  
