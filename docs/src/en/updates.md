@@ -1,5 +1,5 @@
 ## ✨ What's new  
-**Version ≥ 0.28.5** (May 28, 2024):  
+**Version ≥ 0.28.5** (May 29, 2024):  
 - **New module: [`gget mutate`](./mutate.md)**
 - [`gget cosmic`](./cosmic.md): You can now download entire COSMIC databases using the argument `download_cosmic` argument
 - [`gget ref`](./ref.md): Can now fetch the GRCh27 genome assembly using `species='human_grch37'`
