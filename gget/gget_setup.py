@@ -210,7 +210,7 @@ def setup(module, verbose=True, out=None):
             import simtk.openmm as openmm
 
             # Silence openmm logger
-            logging.getLogger("openmm").setLevel(logger.WARNING)
+            logging.getLogger("openmm").setLevel(logging.WARNING)
 
             # Commenting the following out because openmm v7.7.0 does not support __version__
             # # Check if correct version was installed
