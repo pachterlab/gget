@@ -90,7 +90,7 @@ def select_reference(
 
     if mutation_class == "cancer":
         if grch_version == 38:
-            logger.warning("CancerMutationCensus data is only available for GRCh37.")
+            logger.error("CancerMutationCensus data is only available for GRCh37. Define grch_version=37.")
         download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=GRCh{grch_version}/cmc/v{cosmic_version}/CancerMutationCensus_AllData_Tsv_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
         tarred_folder = (
             f"CancerMutationCensus_AllData_Tsv_v{cosmic_version}_GRCh{grch_version}"
