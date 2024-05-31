@@ -316,9 +316,28 @@ def inversion_mutation(
             starting_nucleotide_position_index_0 : ending_nucleotide_position_index_0
             + 1
         ]
+
+        # Reverse
         reverse_insertion_string = insertion_string[::-1]
-        complement = {"A": "T", "T": "A", "C": "G", "G": "C"}
-        mutated_string = "".join(complement[nucleotide] for nucleotide in reverse_insertion_string)
+
+        # Get complement
+        complement = {
+            "A": "T",
+            "T": "A",
+            "C": "G",
+            "G": "C",
+            "N": "N",
+            "a": "t",
+            "t": "a",
+            "c": "g",
+            "g": "c",
+            "n": "n",
+        }
+        mutated_string = "".join(
+            complement.get(nucleotide, "N") for nucleotide in reverse_insertion_string
+        )
+
+        # Create final sequence
         mutant_sequence = (
             row["full_sequence"][:starting_nucleotide_position_index_0]
             + mutated_string
@@ -394,8 +413,8 @@ def mutate(
     - mut_column    (str) Name of the column containing the mutations to be performed in 'mutations'. Default: 'mutation'.
     - mut_id_column (str) Name of the column containing the IDs of each mutation in 'mutations'. Default: 'mut_ID'.
     - seq_id_column (str) Name of the column containing the IDs of the sequences to be mutated in 'mutations'. Default: 'seq_ID'.
-    - out           (str) Path to output fasta file containing the mutated sequences, e.g., 'path/to/output_fasta.fa'. 
-                    Default: None -> returns a list of the mutated sequences to standard out.    
+    - out           (str) Path to output fasta file containing the mutated sequences, e.g., 'path/to/output_fasta.fa'.
+                    Default: None -> returns a list of the mutated sequences to standard out.
                     The identifiers (following the '>') of the mutated sequences in the output fasta will be '>[seq_ID]_[mut_ID]'.
     - verbose       (True/False) whether to print progress information. Default: True
 
