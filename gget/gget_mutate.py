@@ -324,14 +324,18 @@ def inversion_mutation(
         complement = {
             "A": "T",
             "T": "A",
+            "U": "A",
             "C": "G",
             "G": "C",
             "N": "N",
             "a": "t",
             "t": "a",
+            "u": "a",
             "c": "g",
             "g": "c",
             "n": "n",
+            ".": ".",  # annotation for gaps
+            "-": "-",  # annotation for gaps
         }
         mutated_string = "".join(
             complement.get(nucleotide, "N") for nucleotide in reverse_insertion_string
@@ -449,6 +453,17 @@ def mutate(
             - A single sequence to be mutated passed as a string (e.g. 'AGCTAGCT')
             """
         )
+
+    # Check that sequences are nucleotide sequences
+    nucleotides = set("ATGCUNatgcun.-")
+    for seq in seqs:
+        if not set(seq) <= nucleotides:
+            logger.warning(
+                """
+                Non-nucleotide characters detected in the input sequences. gget mutate is currently only optimized for mutating nucleotide sequences.
+                Specifically inversion mutations might not be performed correctly. 
+                """
+            )
 
     # Read in 'mutations' if passed as filepath to comma-separated csv
     if isinstance(mutations, str) and ".csv" in mutations:
