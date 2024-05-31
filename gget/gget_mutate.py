@@ -316,9 +316,35 @@ def inversion_mutation(
             starting_nucleotide_position_index_0 : ending_nucleotide_position_index_0
             + 1
         ]
+
+        # Reverse
+        reverse_insertion_string = insertion_string[::-1]
+
+        # Get complement
+        complement = {
+            "A": "T",
+            "T": "A",
+            "U": "A",
+            "C": "G",
+            "G": "C",
+            "N": "N",
+            "a": "t",
+            "t": "a",
+            "u": "a",
+            "c": "g",
+            "g": "c",
+            "n": "n",
+            ".": ".",  # annotation for gaps
+            "-": "-",  # annotation for gaps
+        }
+        mutated_string = "".join(
+            complement.get(nucleotide, "N") for nucleotide in reverse_insertion_string
+        )
+
+        # Create final sequence
         mutant_sequence = (
             row["full_sequence"][:starting_nucleotide_position_index_0]
-            + insertion_string[::-1]
+            + mutated_string
             + row["full_sequence"][ending_nucleotide_position_index_0 + 1 :]
         )
         adjusted_end_position = ending_nucleotide_position_index_0
@@ -391,8 +417,8 @@ def mutate(
     - mut_column    (str) Name of the column containing the mutations to be performed in 'mutations'. Default: 'mutation'.
     - mut_id_column (str) Name of the column containing the IDs of each mutation in 'mutations'. Default: 'mut_ID'.
     - seq_id_column (str) Name of the column containing the IDs of the sequences to be mutated in 'mutations'. Default: 'seq_ID'.
-    - out           (str) Path to output fasta file containing the mutated sequences, e.g., 'path/to/output_fasta.fa'. 
-                    Default: None -> returns a list of the mutated sequences to standard out.    
+    - out           (str) Path to output fasta file containing the mutated sequences, e.g., 'path/to/output_fasta.fa'.
+                    Default: None -> returns a list of the mutated sequences to standard out.
                     The identifiers (following the '>') of the mutated sequences in the output fasta will be '>[seq_ID]_[mut_ID]'.
     - verbose       (True/False) whether to print progress information. Default: True
 
@@ -479,11 +505,27 @@ def mutate(
             """
         )
 
+    # Set of possible nucleotides (- and . are gap annotations)
+    nucleotides = set("ATGCUNatgcun.-")
+
     seq_dict = {}
+    non_nuc_seqs = 0
     for title, seq in zip(titles, seqs):
+        # Check that sequences are nucleotide sequences
+        if not set(seq) <= nucleotides:
+            non_nuc_seqs += 1
+
         # Keep text following the > until the first space/dot as the sequence identifier
         # Dots are removed so Ensembl version numbers are removed
         seq_dict[title.split(" ")[0].split(".")[0]] = seq
+
+    if non_nuc_seqs > 0:
+        logger.warning(
+            f"""
+            Non-nucleotide characters detected in {non_nuc_seqs} input sequences. gget mutate is currently only optimized for mutating nucleotide sequences.
+            Specifically inversion mutations might not be performed correctly. 
+            """
+        )
 
     # Get all mutation types
     if verbose:
