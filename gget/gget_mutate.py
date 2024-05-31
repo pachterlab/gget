@@ -454,17 +454,6 @@ def mutate(
             """
         )
 
-    # Check that sequences are nucleotide sequences
-    nucleotides = set("ATGCUNatgcun.-")
-    for seq in seqs:
-        if not set(seq) <= nucleotides:
-            logger.warning(
-                """
-                Non-nucleotide characters detected in the input sequences. gget mutate is currently only optimized for mutating nucleotide sequences.
-                Specifically inversion mutations might not be performed correctly. 
-                """
-            )
-
     # Read in 'mutations' if passed as filepath to comma-separated csv
     if isinstance(mutations, str) and ".csv" in mutations:
         mutations = pd.read_csv(mutations)
@@ -516,11 +505,27 @@ def mutate(
             """
         )
 
+    # Set of possible nucleotides (- and . are gap annotations)
+    nucleotides = set("ATGCUNatgcun.-")
+
     seq_dict = {}
+    non_nuc_seqs = 0
     for title, seq in zip(titles, seqs):
+        # Check that sequences are nucleotide sequences
+        if not set(seq) <= nucleotides:
+            non_nuc_seqs += 1
+
         # Keep text following the > until the first space/dot as the sequence identifier
         # Dots are removed so Ensembl version numbers are removed
         seq_dict[title.split(" ")[0].split(".")[0]] = seq
+
+    if non_nuc_seqs > 0:
+        logger.warning(
+            f"""
+            Non-nucleotide characters detected in {non_nuc_seqs} input sequences. gget mutate is currently only optimized for mutating nucleotide sequences.
+            Specifically inversion mutations might not be performed correctly. 
+            """
+        )
 
     # Get all mutation types
     if verbose:
