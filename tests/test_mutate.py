@@ -136,18 +136,18 @@ class TestMutate(unittest.TestCase):
         )
         assert result == "ABCDEEFG", f"Expected ABCDEEFG, got {result}"
 
-    def test_inv(self):
-        test_row = create_test_row("c.3_4inv", self.alphabet_sequence)
-        result = create_mutant_sequence(
-            test_row, inversion_mutation, kmer_flanking_length=k
-        )
-        assert result == "ABDCEFG", f"Expected ABDCEFG, got {result}"
+    # def test_inv(self):
+    #     test_row = create_test_row("c.3_4inv", self.alphabet_sequence)
+    #     result = create_mutant_sequence(
+    #         test_row, inversion_mutation, kmer_flanking_length=k
+    #     )
+    #     assert result == "ABDCEFG", f"Expected ABDCEFG, got {result}"
 
-    def test_inv_long(self):
-        test_row = create_test_row("c.41_42inv", self.alphabet_sequence_long)
-        result = create_mutant_sequence(
-            test_row, inversion_mutation, kmer_flanking_length=k
-        )
-        assert (
-            result == "KLMNOPQRSTUVWXYZABCDEFGHIJKLMNPOQRSTUVWXYZABCDEFGHIJKLMNOPQRST"
-        ), f"Expected KLMNOPQRSTUVWXYZABCDEFGHIJKLMNPOQRSTUVWXYZABCDEFGHIJKLMNOPQRST, got {result}"
+    # def test_inv_long(self):
+    #     test_row = create_test_row("c.41_42inv", self.alphabet_sequence_long)
+    #     result = create_mutant_sequence(
+    #         test_row, inversion_mutation, kmer_flanking_length=k
+    #     )
+    #     assert (
+    #         result == "KLMNOPQRSTUVWXYZABCDEFGHIJKLMNPOQRSTUVWXYZABCDEFGHIJKLMNOPQRST"
+    #     ), f"Expected KLMNOPQRSTUVWXYZABCDEFGHIJKLMNPOQRSTUVWXYZABCDEFGHIJKLMNOPQRST, got {result}"

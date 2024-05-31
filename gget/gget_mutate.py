@@ -316,9 +316,12 @@ def inversion_mutation(
             starting_nucleotide_position_index_0 : ending_nucleotide_position_index_0
             + 1
         ]
+        reverse_insertion_string = insertion_string[::-1]
+        complement = {"A": "T", "T": "A", "C": "G", "G": "C"}
+        mutated_string = "".join(complement[nucleotide] for nucleotide in reverse_insertion_string)
         mutant_sequence = (
             row["full_sequence"][:starting_nucleotide_position_index_0]
-            + insertion_string[::-1]
+            + mutated_string
             + row["full_sequence"][ending_nucleotide_position_index_0 + 1 :]
         )
         adjusted_end_position = ending_nucleotide_position_index_0
