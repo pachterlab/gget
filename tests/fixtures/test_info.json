@@ -552,7 +552,7 @@
                 "FUNDC1",
                 "FUNDC1-202",
                 [],
-                "Acts as an activator of hypoxia-induced mitophagy, an important mechanism for mitochondrial quality control",
+                "",
                 [
                     "Mitochondrion outer membrane"
                 ],
@@ -573,7 +573,7 @@
                 [
                     "NARC1"
                 ],
-                "Crucial player in the regulation of plasma cholesterol homeostasis. Binds to low-density lipid receptor family members: low density lipoprotein receptor (LDLR), very low density lipoprotein receptor (VLDLR), apolipoprotein E receptor (LRP1/APOER) and apolipoprotein receptor 2 (LRP8/APOER2), and promotes their degradation in intracellular acidic compartments (PubMed:18039658). Acts via a non-proteolytic mechanism to enhance the degradation of the hepatic LDLR through a clathrin LDLRAP1/ARH-mediated pathway. May prevent the recycling of LDLR from endosomes to the cell surface or direct it to lysosomes for degradation. Can induce ubiquitination of LDLR leading to its subsequent degradation (PubMed:18799458, PubMed:17461796, PubMed:18197702, PubMed:22074827). Inhibits intracellular degradation of APOB via the autophagosome/lysosome pathway in a LDLR-independent manner. Involved in the disposal of non-acetylated intermediates of BACE1 in the early secretory pathway (PubMed:18660751). Inhibits epithelial Na(+) channel (ENaC)-mediated Na(+) absorption by reducing ENaC surface expression primarily by increasing its proteasomal degradation. Regulates neuronal apoptosis via modulation of LRP8/APOER2 levels and related anti-apoptotic signaling pathways",
+                "Crucial player in the regulation of plasma cholesterol homeostasis. Binds to low-density lipid receptor family members: low density lipoprotein receptor (LDLR), very low density lipoprotein receptor (VLDLR), apolipoprotein E receptor (LRP1/APOER) and apolipoprotein receptor 2 (LRP8/APOER2), and promotes their degradation in intracellular acidic compartments (PubMed:18039658). Acts via a non-proteolytic mechanism to enhance the degradation of the hepatic LDLR through a clathrin LDLRAP1/ARH-mediated pathway. May prevent the recycling of LDLR from endosomes to the cell surface or direct it to lysosomes for degradation. Can induce ubiquitination of LDLR leading to its subsequent degradation (PubMed:17461796, PubMed:18197702, PubMed:18799458, PubMed:22074827). Inhibits intracellular degradation of APOB via the autophagosome/lysosome pathway in a LDLR-independent manner. Involved in the disposal of non-acetylated intermediates of BACE1 in the early secretory pathway (PubMed:18660751). Inhibits epithelial Na(+) channel (ENaC)-mediated Na(+) absorption by reducing ENaC surface expression primarily by increasing its proteasomal degradation. Regulates neuronal apoptosis via modulation of LRP8/APOER2 levels and related anti-apoptotic signaling pathways",
                 [
                     "Cytoplasm",
                     "Secreted",
