@@ -1,11 +1,12 @@
 ## ✨ What's new  
-**Version ≥ 0.28.6** (May 31, 2024):  
+**Version ≥ 0.28.6** (Jun 1, 2024):  
 - **New module: [`gget mutate`](./mutate.md)**
 - [`gget cosmic`](./cosmic.md): You can now download entire COSMIC databases using the argument `download_cosmic` argument
 - [`gget ref`](./ref.md): Can now fetch the GRCh27 genome assembly using `species='human_grch37'`
 - [`gget search`](./search.md): Adjust access of human data to the structure of Ensembl release 112 (fixes [issue 129](https://github.com/pachterlab/gget/issues/129))
 
-~~**Version ≥ 0.28.5** (May 29, 2024):~~ Yanked due to logging bug in `gget.setup("alphafold")`
+~~**Version ≥ 0.28.5** (May 29, 2024):~~ 
+- Yanked due to logging bug in `gget.setup("alphafold")` + inversion mutations in `gget mutate` only reverse the string instead of also computing the complementary strand
   
 **Version ≥ 0.28.4** (January 31, 2024):  
 - [`gget setup`](./setup.md): Fix bug with filepath when running `gget.setup("elm")` on Windows OS.  
