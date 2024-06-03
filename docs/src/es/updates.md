@@ -1,5 +1,5 @@
 ## ✨ ¡Lo más reciente!  
-**Versión ≥ 0.28.6 (1 de junio de 2024):**
+**Versión ≥ 0.28.6 (2 de junio de 2024):**
 - **Nuevo módulo: [`gget mutate`](./mutate.md)**
 - [`gget cosmic`](./cosmic.md): Ahora puedes descargar bases de datos completas de COSMIC utilizando el argumento `download_cosmic`
 - [`gget ref`](./ref.md): Ahora puede obtener la ensambladura del genoma GRCh27 usando `species='human_grch37'`
