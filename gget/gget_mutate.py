@@ -762,37 +762,28 @@ def mutate(
                 """
             )
 
+    combined_df = pd.concat(mutation_dict.values(), ignore_index=True)
+
+    combined_df = combined_df[['mutant_sequence_kmer', 'header']]
+
+    # Group by 'mutant_sequence_kmer' and concatenate 'header' values
+    combined_df = combined_df.groupby('mutant_sequence_kmer', sort=False)['header'].apply(';'.join).reset_index()
+
+    combined_df["fasta_format"] = (combined_df["header"] + "\n" + combined_df["mutant_sequence_kmer"] + "\n")
+    combined_df = combined_df[combined_df["mutant_sequence_kmer"] != ""]
+    
     if out:
         # Save mutated sequences in new fasta file
         with open(out, "w") as fasta_file:
-            for mutation in mutation_dict:
-                if not mutation_dict[mutation].empty:
-                    df = mutation_dict[mutation]
-                    df["fasta_format"] = (
-                        df["header"] + "\n" + df["mutant_sequence_kmer"] + "\n"
-                    )
-
-                    # Do not include an empty string as a mutated sequence
-                    # (these are introduced when unknown mutations are encountered)
-                    df = df[df["mutant_sequence_kmer"] != ""]
-
-                    fasta_file.write("".join(df["fasta_format"].values))
-
-        # with open(out, "r") as fasta_file:
-        #     lines = [line for line in fasta_file if line.strip()]
-
-        # with open(out, "w") as fasta_file:
-        #     fasta_file.writelines(lines)
+            fasta_file.write("".join(combined_df["fasta_format"].values))
 
         if verbose:
-            logger.info(f"FASTA file containing mutated sequences created at {out}.")
+                logger.info(f"FASTA file containing mutated sequences created at {out}.")
 
     # When out=None, return list of mutated seqs
     else:
         all_mut_seqs = []
-        for mutation in mutation_dict:
-            df = mutation_dict[mutation]
-            all_mut_seqs.extend(df["mutant_sequence_kmer"].values)
+        all_mut_seqs.extend(combined_df["mutant_sequence_kmer"].values)
 
         # Remove empty strings from final list of mutated sequences
         # (these are introduced when unknown mutations are encountered)
