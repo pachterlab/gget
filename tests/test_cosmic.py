@@ -19,7 +19,8 @@ arg_combinations = [
     # ("cell_line", 38, "CellLinesProject_GenomeScreensMutant", cosmic_version),
     # ("census", 38, "Cosmic_MutantCensus", cosmic_version),
     # ("resistance", 38, "Cosmic_ResistanceMutations", cosmic_version),
-    # ("screen", 38, "Cosmic_GenomeScreensMutant", cosmic_version),
+    # ("genome_screen", 38, "Cosmic_GenomeScreensMutant", cosmic_version),
+    # ("targeted_screen", 38, "Cosmic_CompleteTargetedScreensMutant", cosmic_version),
 ]
 
 

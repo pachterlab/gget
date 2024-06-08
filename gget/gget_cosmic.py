@@ -118,13 +118,22 @@ def select_reference(
             f"Cosmic_ResistanceMutations_v{cosmic_version}_GRCh{grch_version}.tsv"
         )
 
-    elif mutation_class == "screen":
+    elif mutation_class == "genome_screen":
         download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{grch_version}/cosmic/v{cosmic_version}/Cosmic_GenomeScreensMutant_Tsv_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
         tarred_folder = (
             f"Cosmic_GenomeScreensMutant_Tsv_v{cosmic_version}_GRCh{grch_version}"
         )
         contained_file = (
             f"Cosmic_GenomeScreensMutant_v{cosmic_version}_GRCh{grch_version}.tsv"
+        )
+
+    elif mutation_class == "targeted_screen":
+        download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{grch_version}/cosmic/v{cosmic_version}/Cosmic_CompleteTargetedScreensMutant_Tsv_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
+        tarred_folder = (
+            f"Cosmic_CompleteTargetedScreensMutant_Tsv_v{cosmic_version}_GRCh{grch_version}"
+        )
+        contained_file = (
+            f"Cosmic_CompleteTargetedScreensMutant_v{cosmic_version}_GRCh{grch_version}.tsv"
         )
 
     # Only available for the latest COSMIC version
@@ -236,7 +245,7 @@ def cosmic(
     NOTE: Downloading complete databases from COSMIC requires an account (https://cancer.sanger.ac.uk/cosmic/register; free for academic use, license for commercial use)
     - download_cosmic (True/False) whether to switch into database download mode. Default: False
     - mutation_class  (str) Type of COSMIC database to download. One of the following:
-                      'cancer' (default), 'cell_line', 'census', 'resistance', 'screen', 'cancer_example'
+                      'cancer' (default), 'cell_line', 'census', 'resistance', 'genome_screen', 'targeted_screen', 'cancer_example'
     - cosmic_version  (int) Version of the COSMIC database. Default: None -> Defaults to latest version.
     - grch_version    (int) Version of the human GRCh reference genome the COSMIC database was based on (37 or 38). Default: 37
     - gget_mutate     (True/False) whether to create a modified version of the database for use with gget mutate. Default: True
@@ -261,7 +270,8 @@ def cosmic(
             "cell_line",
             "census",
             "resistance",
-            "screen",
+            "genome_screen"
+            "targeted_screen",
             "cancer_example",
         ]
         if mutation_class not in mut_class_allowed:

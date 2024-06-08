@@ -1781,7 +1781,8 @@ def main():
             "cell_line",
             "census",
             "resistance",
-            "screen",
+            "genome_screen",
+            "targeted_screen"
             "cancer_example",
         ],
         default="cancer",
