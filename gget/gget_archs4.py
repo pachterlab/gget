@@ -2,16 +2,9 @@ import requests
 import pandas as pd
 import json as json_package
 import io
-import logging
 
-# Add and format time stamp in logging messages
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    datefmt="%c",
-)
-# Mute numexpr threads info
-logging.getLogger("numexpr").setLevel(logging.WARNING)
+from .utils import set_up_logger
+logger = set_up_logger()
 
 # Custom functions
 from .gget_info import info
@@ -78,7 +71,7 @@ def archs4(
 
         # Check if Ensembl ID was found
         if isinstance(info_df, type(None)):
-            logging.error(
+            logger.error(
                 f"ID '{gene}' not found. Please double-check spelling/arguments and try again."
             )
             return
@@ -96,7 +89,7 @@ def archs4(
 
     if which == "correlation":
         if verbose:
-            logging.info(
+            logger.info(
                 f"Fetching the {gene_count} most correlated genes to {gene} from ARCHS4."
             )
 
@@ -120,13 +113,13 @@ def archs4(
         # Check if the request returned an error (e.g. gene not found)
         if "error" in corr_data.keys():
             if corr_data["error"] == f"{gene} not in colids":
-                logging.error(
+                logger.error(
                     f"Gene '{gene}' did not return any gene correlation results. \n"
                     "If the gene is an Ensembl ID, please set argument 'ensembl=True' (for terminal, add flag: [--ensembl])."
                 )
                 return
             else:
-                logging.error(
+                logger.error(
                     f"Gene correlation request for search term '{gene}' returned error: {corr_data['error']}"
                 )
                 return
@@ -157,7 +150,7 @@ def archs4(
 
     if which == "tissue":
         if verbose:
-            logging.info(
+            logger.info(
                 f"Fetching the tissue expression atlas of {gene} from {species} ARCHS4 data."
             )
 
@@ -182,7 +175,7 @@ def archs4(
         tissue_exp_df = pd.read_csv(io.StringIO(r.content.decode("utf-8")))
         # Check if any results were returned
         if len(tissue_exp_df) < 2:
-            logging.error(
+            logger.error(
                 f"Gene '{gene}' did not return any tissue expression results. \n"
                 "If the gene is an Ensembl ID, please set argument 'ensembl=True' (for terminal, add flag: [--ensembl])."
             )

@@ -1,31 +1,21 @@
 import numpy as np
+import pandas as pd
 import json as json_package
 import mysql.connector as sql
 import time
-import logging
-
-# Add and format time stamp in logging messages
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    datefmt="%c",
-)
-# Mute numexpr threads info
-logging.getLogger("numexpr").setLevel(logging.WARNING)
-
 import warnings
 
 warnings.simplefilter(action="ignore", category=UserWarning)
-import pandas as pd
-
 
 # Custom functions
-from gget.utils import (
+from .utils import (
     search_species_options,
     find_latest_ens_rel,
     wrap_cols_func,
     find_nv_kingdom,
+    set_up_logger,
 )
+logger = set_up_logger()
 
 from gget.constants import ENSEMBL_FTP_URL, ENSEMBL_FTP_URL_NV
 
@@ -101,7 +91,7 @@ def search(
     """
     # Handle deprecated arguments
     if seqtype:
-        logging.error(
+        logger.error(
             "'seqtype' argument deprecated! Please use argument 'id_type' instead."
         )
         return
@@ -142,7 +132,7 @@ def search(
     if "core" in species:
         db = species
         if release:
-            logging.warning(
+            logger.warning(
                 "Specified release overwritten because database name was provided."
             )
     else:
@@ -167,15 +157,18 @@ def search(
         # the standard core database will be used
         if len(db) > 1 and "mus_musculus" in species:
             db = f"mus_musculus_core_{ens_rel}_39"
-            logging.warning(
+            logger.warning(
                 f"Defaulting to mus musculus core database: {db}.\n"
                 "All available vertebrate databases can be found here:\n"
                 f"http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
             )
+        
+        elif len(db) > 1 and "homo_sapiens" in species:
+            db = f"homo_sapiens_core_{ens_rel}_38"
 
-        # Check for ambigious species matches in species other than mouse
-        elif len(db) > 1 and "mus_musculus" not in species:
-            logging.warning(
+        # Check for ambiguous species matches in species other than mouse and human
+        elif len(db) > 1 and "mus_musculus" not in species and "homo_sapiens" not in species:
+            logger.warning(
                 f"Species matches more than one database. Defaulting to first database: {db[0]}.\n"
                 "All available databases can be found here:\n"
                 f"Vertebrates: http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
@@ -196,40 +189,45 @@ def search(
             db = db[0]
 
     if verbose:
-        logging.info(f"Fetching results from database: {db}")
+        logger.info(f"Fetching results from database: {db}")
 
-    ## Connect to data base
-    try:
-        db_connection = sql.connect(
-            host="mysql-eg-publicsql.ebi.ac.uk",
-            database=db,
-            user="anonymous",
-            password="",
-        )
-    except:
+    ## Connect to Ensembl SQL server data for specified species
+    # Ports to try (some databases are stored in different ports)
+    # 3306 (and 5306) for the Ensembl instances, 3337 for GRCh37, 4157 for Ensembl Genomes, and 5316 for mart
+    ports = [3306, 5306, 4157, 3337, 5316]
+
+    connection_successful = False
+    last_exception = None
+    for port in ports:
         try:
-            # Try different port
             db_connection = sql.connect(
                 host="mysql-eg-publicsql.ebi.ac.uk",
                 database=db,
                 user="anonymous",
                 password="",
-                port=4157,
+                port=port
             )
-
+            connection_successful = True
+            break
         except Exception as e:
-            if "Access denied" in e:
-                raise RuntimeError(
-                    f"""
-                    The Ensembl server returned the following error: {e}.
-                    This might be caused by the Ensembl release number being too low. 
-                    Please try again with a more recent release.
-                    """
-                )
-            else:
-                raise RuntimeError(
-                    f"The Ensembl server returned the following error: {e}"
-                )
+            last_exception = e
+            # Continue to the next port if the connection is unsuccessful
+            continue
+    
+    # If none of the ports work, raise an error with the last exception encountered
+    if not connection_successful:
+        if "Access denied" in str(last_exception):
+            raise RuntimeError(
+                f"""
+                The Ensembl server returned the following error: {str(last_exception)}.
+                This might be caused by the Ensembl release number being too low. 
+                Please try again with a more recent release.
+                """
+            )
+        else:
+            raise RuntimeError(
+                f"The Ensembl server returned the following error: {str(last_exception)}"
+            )
 
     ## Clean up list of searchwords
     # If single searchword passed as string, convert to list
@@ -333,18 +331,18 @@ def search(
     if limit != None:
         # Print number of genes/transcripts found versus fetched
         if verbose:
-            logging.info(f"Returning {limit} matches of {len(df)} total matches found.")
+            logger.info(f"Returning {limit} matches of {len(df)} total matches found.")
         # Remove all but limit rows
         df = df.head(limit)
 
     else:
         # Print number of genes/transcripts fetched
         if verbose:
-            logging.info(f"Total matches found: {len(df)}.")
+            logger.info(f"Total matches found: {len(df)}.")
 
     # Print query time
     if verbose:
-        logging.info(f"Query time: {round(time.time() - start_time, 2)} seconds.")
+        logger.info(f"Query time: {round(time.time() - start_time, 2)} seconds.")
 
     # Remove database numbers to retain only species name
     clean_db = "_".join(db.split("_")[:3]).replace("_core", "")

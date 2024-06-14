@@ -1,18 +1,8 @@
-import logging
-
-# Add and format time stamp in logging messages
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    datefmt="%c",
-)
-# Mute numexpr threads info
-logging.getLogger("numexpr").setLevel(logging.WARNING)
-
 import numpy as np
 
 # Custom functions
-from .utils import rest_query, get_uniprot_seqs
+from .utils import rest_query, get_uniprot_seqs, set_up_logger
+logger = set_up_logger()
 from .gget_info import info
 
 # Constants
@@ -50,7 +40,7 @@ def seq(
     """
     # Handle deprecated arguments
     if seqtype:
-        logging.error(
+        logger.error(
             "'seqtype' argument deprecated! Please use True/False argument 'translate' instead."
         )
         return
@@ -72,7 +62,7 @@ def seq(
 
             if "." in ensembl_ID and temp == 0:
                 if verbose:
-                    logging.info(
+                    logger.info(
                         "We noticed that you may have passed a version number with your Ensembl ID.\n"
                         "Please note that gget seq will return information linked to the latest Ensembl ID version."
                     )
@@ -119,12 +109,12 @@ def seq(
                     results_dict[ensembl_ID].update({"seq": df_temp})
 
                     if verbose:
-                        logging.info(
+                        logger.info(
                             f"Requesting nucleotide sequence of {ensembl_ID} from Ensembl."
                         )
 
                 except RuntimeError:
-                    logging.error(
+                    logger.error(
                         f"ID {ensembl_ID} not found. Please double-check spelling/arguments and try again."
                     )
 
@@ -135,7 +125,7 @@ def seq(
 
                 # Check if Ensembl ID was found
                 if isinstance(info_df, type(None)):
-                    logging.warning(
+                    logger.warning(
                         f"ID '{ensembl_ID}' not found. Please double-check spelling/arguments and try again."
                     )
                     continue
@@ -145,7 +135,7 @@ def seq(
                 # If the ID is a gene, get the IDs of all its transcripts
                 if ens_ID_type == "Gene":
                     if verbose:
-                        logging.info(
+                        logger.info(
                             f"Requesting nucleotide sequences of all transcripts of {ensembl_ID} from Ensembl."
                         )
 
@@ -173,7 +163,7 @@ def seq(
                             )
 
                         except RuntimeError:
-                            logging.error(
+                            logger.error(
                                 f"ID {transcipt_id} not found. "
                                 "Please double-check spelling/arguments and try again."
                             )
@@ -197,13 +187,13 @@ def seq(
                         # Add results to main dict
                         results_dict[ensembl_ID].update({"seq": df_temp})
 
-                        logging.info(
+                        logger.info(
                             f"Requesting nucleotide sequence of {ensembl_ID} from Ensembl."
                         )
-                        logging.warning("The isoform option only applies to gene IDs.")
+                        logger.warning("The isoform option only applies to gene IDs.")
 
                     except RuntimeError:
-                        logging.error(
+                        logger.error(
                             f"ID {ensembl_ID} not found. "
                             "Please double-check spelling/arguments and try again."
                         )
@@ -238,7 +228,7 @@ def seq(
 
                 # Check that Ensembl ID was found
                 if isinstance(info_df, type(None)):
-                    logging.warning(
+                    logger.warning(
                         f"ID '{ensembl_ID}' not found. Please double-check spelling/arguments."
                     )
                     continue
@@ -268,7 +258,7 @@ def seq(
                         trans_ids.append(temp_trans_id)
 
                     if verbose:
-                        logging.info(
+                        logger.info(
                             f"Requesting amino acid sequence of the canonical transcript {temp_trans_id} of gene {ensembl_ID} from UniProt."
                         )
 
@@ -281,12 +271,12 @@ def seq(
                     trans_ids.append(ensembl_ID)
 
                     if verbose:
-                        logging.info(
+                        logger.info(
                             f"Requesting amino acid sequence of {ensembl_ID} from UniProt."
                         )
 
                 else:
-                    logging.warning(
+                    logger.warning(
                         f"{ensembl_ID} not recognized as either a gene or transcript ID. It will not be included in the UniProt query."
                     )
 
@@ -303,7 +293,7 @@ def seq(
 
                 # Check that Ensembl ID was found
                 if isinstance(info_df, type(None)):
-                    logging.warning(
+                    logger.warning(
                         f"ID '{ensembl_ID}' not found. Please double-check spelling/arguments."
                     )
                     continue
@@ -328,7 +318,7 @@ def seq(
                             trans_ids.append(transcipt_id)
 
                     if verbose:
-                        logging.info(
+                        logger.info(
                             f"Requesting amino acid sequences of all transcripts of gene {ensembl_ID} from UniProt."
                         )
 
@@ -341,13 +331,13 @@ def seq(
                     trans_ids.append(ensembl_ID)
 
                     if verbose:
-                        logging.info(
+                        logger.info(
                             f"Requesting amino acid sequence of {ensembl_ID} from UniProt."
                         )
-                    logging.warning("The isoform option only applies to gene IDs.")
+                    logger.warning("The isoform option only applies to gene IDs.")
 
                 else:
-                    logging.warning(
+                    logger.warning(
                         f"{ensembl_ID} not recognized as either a gene or transcript ID. It will not be included in the UniProt query."
                     )
 
@@ -356,7 +346,7 @@ def seq(
 
         # Check if any results were found
         if len(df_uniprot) < 1:
-            logging.error("No UniProt amino acid sequences were found for these ID(s).")
+            logger.error("No UniProt amino acid sequences were found for these ID(s).")
 
         else:
             # Build FASTA file from UniProt results

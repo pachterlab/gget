@@ -15,17 +15,13 @@ from .gget_cellxgene import cellxgene
 from .gget_elm import elm
 from .gget_diamond import diamond
 from .gget_cosmic import cosmic
+from .gget_mutate import mutate
 from .gget_dataverse import dataverse
 
 import logging
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    datefmt="%c",
-)
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
 
-__version__ = "0.28.4"
+__version__ = "0.28.6"
 __author__ = "Laura Luebbert"
 __email__ = "lauralubbert@gmail.com"

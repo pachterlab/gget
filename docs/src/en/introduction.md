@@ -19,7 +19,9 @@ The databases queried by `gget` are continuously being updated which sometimes c
 <br>
 [<kbd> <br> Request a new feature <br> </kbd>](https://github.com/pachterlab/gget/issues/new/choose)
 <br>
-
+<br>
+> `gget info` and `gget seq` are currently unable to fetch information for WormBase and FlyBase IDs (all other IDs are functioning normally). This issue arose due to a bug in Ensembl release 112. We appreciate Ensembl's efforts in addressing this issue and expect a fix soon. Thank you for your patience.
+<br>
 
 [<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_alphafold.png?raw=true" width="32%" height="32%" />](/gget/en/alphafold.md)
 [<img src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_archs4.png?raw=true" width="32%" height="32%" />](/gget/en/archs4.md)

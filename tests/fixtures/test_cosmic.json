@@ -88,14 +88,14 @@
         },
         "expected_result": [
             [
+                "37546400",
+                "Advanced pulmonary sarcomatoid carcinoma patient harboring a braf lt sup gt v600e lt sup gt mutation responds to dabrafenib and trametinib a case report and literature review, an",
+                "Fang R,Gong J and Liao Z"
+            ],
+            [
                 "21882184",
                 "Association of the braf v600e mutation with prognostic factors and poor clinical outcome in papillary thyroid cancer a meta analysis, the",
                 "Kim TH,Park YJ,Lim JA,Ahn HY,Lee EK,Lee YJ,Kim KW,Hahn SK,Youn YK,Kim KH,Cho BY and Park do J"
-            ],
-            [
-                "25323687",
-                "Braf v600e mutation in circulating cell free dna is a promising biomarker of high risk adult langerhans cell histiocytosis, the",
-                "Kobayashi M and Tojo A"
             ]
         ]
     },
@@ -110,66 +110,66 @@
             {
                 "Gene": "EGFR",
                 "Alternate IDs": "EGFR,ENST00000275493.6,EGFR,ENSP00000275493.2,Erlotinib,HKI-272,BIBW2992,Gefitinib,EGFR.html,NP_005219,NM_005228.3,ENSG00000146648.17,3236,131550,P00533,CCDS5514.1,1956,ERBB1,ERBB,COSG150",
-                "Tested samples": "210280",
-                "Simple Mutations": "31900",
+                "Tested samples": "212170",
+                "Simple Mutations": "32070",
                 "Fusions": "0",
-                "Coding Mutations": "31900"
+                "Coding Mutations": "32070"
             },
             {
                 "Gene": "EGFR_ENST00000454757",
                 "Alternate IDs": "EGFR_ENST00000454757,ENST00000454757.6,EGFR,ENSP00000395243.3,EGFR.html,NP_001333828.1,ENSG00000146648.17,3236,131550,1956,ERBB1,ERBB,COSG454757",
-                "Tested samples": "210280",
-                "Simple Mutations": "10220",
+                "Tested samples": "212170",
+                "Simple Mutations": "10357",
                 "Fusions": "0",
-                "Coding Mutations": "10220"
+                "Coding Mutations": "10357"
             },
             {
                 "Gene": "EGFR_ENST00000455089",
                 "Alternate IDs": "EGFR_ENST00000455089,ENST00000455089.5,EGFR,ENSP00000415559.1,EGFR.html,NP_001333826.1,NM_001346897.1,ENSG00000146648.17,3236,131550,1956,ERBB1,ERBB,COSG455089",
-                "Tested samples": "210280",
-                "Simple Mutations": "9965",
+                "Tested samples": "212170",
+                "Simple Mutations": "10101",
                 "Fusions": "0",
-                "Coding Mutations": "9965"
+                "Coding Mutations": "10101"
             },
             {
                 "Gene": "EGFR_ENST00000638463",
                 "Alternate IDs": "EGFR_ENST00000638463,ENST00000638463.1,EGFR,ENSP00000492462.1,EGFR.html,ENSG00000146648.17,3236,131550,1956,ERBB1,ERBB,COSG638463",
-                "Tested samples": "210279",
-                "Simple Mutations": "9407",
+                "Tested samples": "212169",
+                "Simple Mutations": "9518",
                 "Fusions": "0",
-                "Coding Mutations": "9407"
+                "Coding Mutations": "9518"
             },
             {
                 "Gene": "EGFR_ENST00000344576",
                 "Alternate IDs": "EGFR_ENST00000344576,ENST00000344576.6,EGFR,ENSP00000345973.2,EGFR.html,NP_958441,NM_201284.1,ENSG00000146648.17,3236,131550,P00533,CCDS5515.1,1956,ERBB1,ERBB,COSG90589",
-                "Tested samples": "210277",
-                "Simple Mutations": "2341",
+                "Tested samples": "212167",
+                "Simple Mutations": "2401",
                 "Fusions": "0",
-                "Coding Mutations": "2341"
+                "Coding Mutations": "2401"
             },
             {
                 "Gene": "EGFR_ENST00000342916",
                 "Alternate IDs": "EGFR_ENST00000342916,ENST00000342916.7,EGFR,ENSP00000342376.3,EGFR.html,NP_958439,NM_201282.1,ENSG00000146648.17,3236,131550,P00533,CCDS5516.1,1956,ERBB1,ERBB,COSG107618",
-                "Tested samples": "210277",
-                "Simple Mutations": "2207",
+                "Tested samples": "212167",
+                "Simple Mutations": "2265",
                 "Fusions": "0",
-                "Coding Mutations": "2207"
+                "Coding Mutations": "2265"
             },
             {
                 "Gene": "EGFR_ENST00000420316",
                 "Alternate IDs": "EGFR_ENST00000420316,ENST00000420316.6,EGFR,ENSP00000413843.2,EGFR.html,NP_958440,NM_201283.1,ENSG00000146648.17,3236,131550,P00533,CCDS47587.1,1956,ERBB1,ERBB,COSG420316",
-                "Tested samples": "210274",
-                "Simple Mutations": "1712",
+                "Tested samples": "212164",
+                "Simple Mutations": "1754",
                 "Fusions": "0",
-                "Coding Mutations": "1712"
+                "Coding Mutations": "1754"
             },
             {
                 "Gene": "RHBDF1",
                 "Alternate IDs": "RHBDF1,ENST00000262316.10,RHBDF1,ENSP00000262316.5,NP_071895,NM_022450.3,ENSG00000007384.15,20561,614403,Q96CC6,CCDS32344.1,64285,iRhom1,FLJ2235,EGFR-RS,Dist1,C16orf8,COSG67901",
-                "Tested samples": "44658",
-                "Simple Mutations": "568",
+                "Tested samples": "46013",
+                "Simple Mutations": "580",
                 "Fusions": "0",
-                "Coding Mutations": "568"
+                "Coding Mutations": "580"
             }
         ]
     },
@@ -215,13 +215,13 @@
             [
                 "haematopoietic and lymphoid tissue,lymphoid neoplasm",
                 "haematopoietic and lymphoid tissue,lymphoid neoplasm (prostate,lymphoma)",
-                "116125",
-                "883371"
+                "117534",
+                "1027628"
             ],
             [
                 "prostate,carcinoma",
-                "prostate,carcinoma (prostate,carcinoma)",
-                "24180",
+                "prostate,carcinoma (prostate,neoplasm)",
+                "24201",
                 "793069"
             ]
         ]
@@ -230,17 +230,17 @@
         "type": "assert_equal_tumour",
         "args": {
             "searchterm": "prostate",
-            "entity": "tumour site",
+            "entity": "tumour_site",
             "limit": 2
         },
         "expected_result": [
             [
                 "prostate",
-                "24880",
+                "24901",
                 "56007",
-                "2931941",
+                "2931819",
                 "2747",
-                "87062"
+                "87043"
             ]
         ]
     }

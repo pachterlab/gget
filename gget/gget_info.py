@@ -4,20 +4,9 @@ import json as json_package
 import requests
 from bs4 import BeautifulSoup
 
-# import json
-import logging
-
-# Add and format time stamp in logging messages
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    datefmt="%c",
-)
-# Mute numexpr threads info
-logging.getLogger("numexpr").setLevel(logging.WARNING)
-
 # Custom functions
-from .utils import rest_query, get_uniprot_info, wrap_cols_func, get_pdb_ids
+from .utils import rest_query, get_uniprot_info, wrap_cols_func, get_pdb_ids, set_up_logger
+logger = set_up_logger()
 
 # Constants
 from .constants import ENSEMBL_REST_API, UNIPROT_REST_API, NCBI_URL
@@ -59,12 +48,12 @@ def info(
     # Handle deprecated arguments
     if expand:
         if verbose:
-            logging.warning(
+            logger.warning(
                 "'expand' argument deprecated! gget info now always returns all of the available information."
             )
     if ensembl_only:
         if verbose:
-            logging.warning(
+            logger.warning(
                 "'ensembl_only' argument deprecated! Please use arguments 'ncbi=False' and 'uniprot=False'."
             )
 
@@ -98,7 +87,7 @@ def info(
 
             if "." in ensembl_ID and temp == 0:
                 if verbose is True:
-                    logging.info(
+                    logger.info(
                         "We noticed that you passed a version number with your Ensembl ID.\n"
                         "Please note that gget info will always return information linked to the latest Ensembl ID version (see 'ensembl_id')."
                     )
@@ -154,7 +143,7 @@ def info(
             # Log error if this also did not work
             except RuntimeError:
                 if verbose:
-                    logging.warning(
+                    logger.warning(
                         f"ID '{ensembl_ID}' not found. Please double-check spelling/arguments and try again."
                     )
 
@@ -197,7 +186,7 @@ def info(
 
                 except Exception as e:
                     if verbose:
-                        logging.warning(
+                        logger.warning(
                             f"UniProt server request for ID '{ens_id}' return following error:\n{e}"
                         )
                     continue
@@ -210,7 +199,7 @@ def info(
                         df_uniprot = df_uniprot.iloc[[0]]
 
                         if verbose:
-                            logging.warning(
+                            logger.warning(
                                 f"More than one UniProt match was found for ID {ens_id}. Only the first match and its associated information will be returned."
                             )
 
@@ -226,7 +215,7 @@ def info(
 
                 else:
                     if verbose:
-                        logging.warning(f"No UniProt entry was found for ID {ens_id}.")
+                        logger.warning(f"No UniProt entry was found for ID {ens_id}.")
 
             if fetch_ncbi is True:
                 ## Get NCBI gene ID and description (for genes only)
@@ -236,7 +225,7 @@ def info(
                     html = requests.get(url)
                     # Raise error if status code not "OK" Response
                     if html.status_code != 200:
-                        logging.error(
+                        logger.error(
                             f"NCBI server request for {ens_id} returned error status code:\n{html.status_code}.\nPlease double-check arguments or try again later."
                         )
 
@@ -253,7 +242,7 @@ def info(
                             "li", class_="error icon"
                         ).text.strip()
 
-                        logging.error(
+                        logger.error(
                             f"The NCBI server request for Ensembl ID '{ens_id}' returned the following error:\n{error_message}"
                         )
 
@@ -295,7 +284,7 @@ def info(
                         ncbi_synonyms = None
 
                 except Exception as e:
-                    logging.error(
+                    logger.error(
                         f"The NCBI server request for Ensembl ID '{ens_id}' returned the following error:\n{e}"
                     )
 
@@ -323,7 +312,7 @@ def info(
 
                 except Exception as e:
                     if verbose:
-                        logging.warning(
+                        logger.warning(
                             f"The PDBe server request for Ensembl ID '{ens_id}' returned the following error:\n{e}"
                         )
                     continue

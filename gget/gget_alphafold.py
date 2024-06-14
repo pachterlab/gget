@@ -31,15 +31,8 @@ from IPython import display
 from ipywidgets import GridspecLayout
 from ipywidgets import Output
 
-import logging
-
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    datefmt="%c",
-)
-# Mute numexpr threads info
-logging.getLogger("numexpr").setLevel(logging.WARNING)
+from .utils import set_up_logger
+logger = set_up_logger()
 
 TQDM_BAR_FORMAT = (
     "{l_bar}{bar}| {n_fmt}/{total_fmt} [elapsed: {elapsed} remaining: {remaining}]"
@@ -237,7 +230,7 @@ def alphafold(
     """
 
     if platform.system() == "Windows":
-        logging.warning(
+        logger.warning(
             "gget setup alphafold and gget alphafold are not supported on Windows OS."
         )
 
@@ -261,7 +254,7 @@ def alphafold(
     try:
         import alphafold as AlphaFold
     except ImportError:
-        logging.error(
+        logger.error(
             """
             Some third-party dependencies are missing. Please run the following command: 
             >>> gget.setup('alphafold') or $ gget setup alphafold
@@ -275,7 +268,7 @@ def alphafold(
     pdb_out, err = process.communicate()
 
     if pdb_out.decode() == "":
-        logging.error(
+        logger.error(
             """
             Some third-party dependencies are missing. Please run the following command: 
             >>> gget.setup('alphafold') or $ gget setup alphafold
@@ -285,7 +278,7 @@ def alphafold(
 
     ## Check if model parameters were downloaded
     if not os.path.exists(os.path.join(PARAMS_DIR, "params/")):
-        logging.error(
+        logger.error(
             """
             The AlphaFold model parameters are missing. Please run the following command: 
             >>> gget.setup('alphafold') or $ gget setup alphafold
@@ -294,7 +287,7 @@ def alphafold(
         return
 
     if len(os.listdir(os.path.join(PARAMS_DIR, "params/"))) < 12:
-        logging.error(
+        logger.error(
             """
             The AlphaFold model parameters are missing. Please run the following command: 
             >>> gget.setup('alphafold') or $ gget setup alphafold
@@ -348,7 +341,7 @@ def alphafold(
                 )
 
     ## Move stereo_chemical_props.txt from gget bins to Alphafold package so it can be found
-    # logging.info("Locate files containing stereochemical properties.")
+    # logger.info("Locate files containing stereochemical properties.")
     ALPHAFOLD_PATH = os.path.abspath(os.path.dirname(AlphaFold.__file__))
     os.makedirs(os.path.join(ALPHAFOLD_PATH, "common/"), exist_ok=True)
     shutil.copyfile(
@@ -358,7 +351,7 @@ def alphafold(
 
     ## Validate input sequence(s)
     if verbose:
-        logging.info(f"Validating input sequence(s).")
+        logger.info(f"Validating input sequence(s).")
 
     # Handle command line passing path to FASTA as a list
     if isinstance(sequence, list) and len(sequence) == 1:
@@ -426,17 +419,17 @@ def alphafold(
     if len(seqs) == 1:
         if multimer_for_monomer:
             if verbose:
-                logging.info(
+                logger.info(
                     "Using the multimer model for a single chain, as requested."
                 )
             model_type_to_use = ModelType.MULTIMER
         else:
             if verbose:
-                logging.info("Using the single-chain (monomer) model.")
+                logger.info("Using the single-chain (monomer) model.")
             model_type_to_use = ModelType.MONOMER
     else:
         if verbose:
-            logging.info(f"Using the multimer model with {len(seqs)} sequences.")
+            logger.info(f"Using the multimer model with {len(seqs)} sequences.")
         model_type_to_use = ModelType.MULTIMER
 
     # Check whether total length exceeds limit
@@ -457,13 +450,13 @@ def alphafold(
             )
 
     if total_sequence_length > MAX_VALIDATED_LENGTH:
-        logging.warning(
+        logger.warning(
             f"The accuracy of this algorithm has not been fully validated above 3000 residues, and you may experience long running times or run out of memory. Total sequence length is {total_sequence_length} residues."
         )
 
     ## Find the closest source
     if verbose:
-        logging.info(f"Finding closest source for reference database.")
+        logger.info(f"Finding closest source for reference database.")
 
     ex = futures.ThreadPoolExecutor(3)
     fs = [ex.submit(fetch, source) for source in ["", "-europe", "-asia"]]
@@ -526,7 +519,7 @@ def alphafold(
     features_for_chain = {}
     raw_msa_results_for_sequence = {}
     for sequence_index, sequence in enumerate(sequences, start=1):
-        # logging.info(f"Getting MSA for sequence {sequence_index}.")
+        # logger.info(f"Getting MSA for sequence {sequence_index}.")
 
         ## Manage permissions to jackhmmer binary
         command = f"chmod 755 {JACKHMMER_BINARY_PATH}"
@@ -537,7 +530,7 @@ def alphafold(
             if stderr:
                 # Log the standard error if it is not empty
                 sys.stderr.write(stderr)
-            logging.error("Giving chmod 755 permissions to jackhmmer binary failed.")
+            logger.error("Giving chmod 755 permissions to jackhmmer binary failed.")
             return
 
         # Save the target sequence in a fasta file
@@ -568,7 +561,7 @@ def alphafold(
                 single_chain_msas.append(merged_msa)
                 msa_size = len(set(merged_msa.sequences))
                 if verbose:
-                    logging.info(
+                    logger.info(
                         f"{msa_size} unique sequences found in {db_name} for sequence {sequence_index}."
                     )
             elif merged_msa.sequences and db_name == "uniprot":
@@ -721,7 +714,7 @@ def alphafold(
                 prot=unrelaxed_proteins[best_model_name]
             )
         else:
-            logging.warning(
+            logger.warning(
                 "\nRunning model without relaxation stage. Use flag [--relax] ('relax=True') to include AMBER relaxation."
             )
             relaxed_pdb = protein.to_pdb(unrelaxed_proteins[best_model_name])
@@ -760,7 +753,7 @@ def alphafold(
     ## Plotting
     if plot:
         if verbose:
-            logging.info("Plotting prediction results.")
+            logger.info("Plotting prediction results.")
         import py3Dmol
 
         # Construct multiclass b-factors to indicate confidence bands

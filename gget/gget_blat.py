@@ -1,21 +1,21 @@
-import logging
-
-# Add and format time stamp in logging messages
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    datefmt="%c",
-)
-# Mute numexpr threads info
-logging.getLogger("numexpr").setLevel(logging.WARNING)
-
 import json as json_package
 from json.decoder import JSONDecodeError
 import pandas as pd
 from urllib.request import urlopen
 
+from .utils import set_up_logger, read_fasta
 
-def blat(sequence, seqtype="default", assembly="human", json=False, save=False, verbose=True,):
+logger = set_up_logger()
+
+
+def blat(
+    sequence,
+    seqtype="default",
+    assembly="human",
+    json=False,
+    save=False,
+    verbose=True,
+):
     """
     BLAT a nucleotide or amino acid sequence against any BLAT UCSC assembly.
 
@@ -37,42 +37,9 @@ def blat(sequence, seqtype="default", assembly="human", json=False, save=False, 
     # If the path to a fasta file was provided instead of a nucleotide sequence,
     # read the file and extract the first sequence
     if "." in sequence:
-        if ".txt" in sequence:
-            # Read the text file
-            titles = []
-            seqs = []
-            with open(sequence) as text_file:
-                for i, line in enumerate(text_file):
-                    # Recognize a title line by the '>' character
-                    if line[0] == ">":
-                        # Append title line to titles list
-                        titles.append(line.strip())
-                    else:
-                        seqs.append(line.strip())
+        if ".txt" in sequence or ".fa" in sequence:
+            _, seqs = read_fasta(sequence)
 
-        elif ".fa" in sequence:
-            # Read the FASTA
-            titles = []
-            seqs = []
-            with open(sequence) as fasta_file:
-                for i, line in enumerate(fasta_file):
-                    # Each second line will be a title line
-                    if i % 2 == 0:
-                        if line[0] != ">":
-                            raise ValueError(
-                                "Expected FASTA to start with a '>' character. "
-                            )
-                        else:
-                            # Append title line to titles list
-                            titles.append(line.strip())
-                    else:
-                        if line[0] == ">":
-                            raise ValueError(
-                                "FASTA contains two lines starting with '>' in a row -> missing sequence line. "
-                            )
-                        # Append sequences line to seqs list
-                        else:
-                            seqs.append(line.strip())
         else:
             raise ValueError(
                 "File format not recognized. gget BLAT currently only supports '.txt' or '.fa' files. "
@@ -82,14 +49,14 @@ def blat(sequence, seqtype="default", assembly="human", json=False, save=False, 
         sequence = seqs[0]
         if len(seqs) > 1:
             if verbose:
-                logging.info(
+                logger.info(
                     "File contains more than one sequence. Only the first sequence will be submitted to BLAT."
                 )
 
     # Shorten sequence to length limit if necessary
     if len(sequence) > 8000:
         if verbose:
-            logging.info(
+            logger.info(
                 "Length of sequence is > 8000. Only the fist 8000 characters will be submitted to BLAT."
             )
         sequence = sequence[:8000]
@@ -112,7 +79,7 @@ def blat(sequence, seqtype="default", assembly="human", json=False, save=False, 
         if set(sequence) <= nucleotides:
             seqtype = "DNA"
             if verbose:
-                logging.info(
+                logger.info(
                     f"Sequence recognized as nucleotide sequence. 'seqtype' will be set as {seqtype}."
                 )
 
@@ -120,7 +87,7 @@ def blat(sequence, seqtype="default", assembly="human", json=False, save=False, 
         elif set(sequence) <= amino_acids:
             seqtype = "protein"
             if verbose:
-                logging.info(
+                logger.info(
                     f"Sequence recognized as amino acid sequence. 'seqtype' will be set as {seqtype}."
                 )
 
@@ -166,7 +133,7 @@ def blat(sequence, seqtype="default", assembly="human", json=False, save=False, 
         # Read json results into a dictionary
         results = json_package.load(r)
     except JSONDecodeError:
-        logging.error(
+        logger.error(
             f"""
             BLAT of seqtype '{seqtype}' using assembly '{database}' was unsuccesful. 
             Possible causes: 
@@ -178,7 +145,7 @@ def blat(sequence, seqtype="default", assembly="human", json=False, save=False, 
 
     if len(results["blat"]) == 0:
         if verbose:
-            logging.info(
+            logger.info(
                 f"No {seqtype} BLAT matches were found for this sequence in genome {results['genome']}."
             )
         return
@@ -186,7 +153,7 @@ def blat(sequence, seqtype="default", assembly="human", json=False, save=False, 
     # Let user know if assembly was not found
     # If this is the case, BLAT automatically defaults to human (hg38)
     if results["genome"] != database:
-        logging.warning(
+        logger.warning(
             f"Assembly {database} not recognized. Defaulted to {results['genome']} instead."
         )
 

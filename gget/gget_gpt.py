@@ -1,13 +1,5 @@
-import logging
-
-# Add and format time stamp in logging messages
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.INFO,
-    datefmt="%c",
-)
-# Mute numexpr threads info
-logging.getLogger("numexpr").setLevel(logging.WARNING)
+from .utils import set_up_logger
+logger = set_up_logger()
 
 
 def gpt(
@@ -61,7 +53,7 @@ def gpt(
     try:
         import openai
     except ImportError:
-        logging.error(
+        logger.error(
             """
             Some third-party dependencies are missing. Please run the following command: 
             >>> gget.setup('gpt') or $ gget setup gpt
@@ -107,7 +99,7 @@ def gpt(
         )
 
     if verbose:
-        logging.info(
+        logger.info(
             f"Total tokens used for API call to model '{model}': {response['usage']['total_tokens']}"
         )
 

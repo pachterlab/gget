@@ -3,6 +3,7 @@ import uuid
 # Ensembl REST API server for gget seq and info
 ENSEMBL_REST_API = "http://rest.ensembl.org/"
 ENSEMBL_FTP_URL = "http://ftp.ensembl.org/pub/"
+ENSEMBL_FTP_URL_GRCH37 = "http://ftp.ensembl.org/pub/grch37/"
 # Non-vertebrate server
 ENSEMBL_FTP_URL_NV = "http://ftp.ensemblgenomes.org/pub/"
 
@@ -38,13 +39,18 @@ GENECORR_URL = "https://maayanlab.cloud/matrixapi/coltop"
 EXPRESSION_URL = "https://maayanlab.cloud/archs4/search/loadExpressionTissue.php?"
 
 # Download links for ELM database
-ELM_INSTANCES_FASTA_DOWNLOAD = "http://elm.eu.org/instances.fasta?q=*&taxon=&instance_logic="
-ELM_INSTANCES_TSV_DOWNLOAD = "http://elm.eu.org/instances.tsv?q=*&taxon=&instance_logic="
+ELM_INSTANCES_FASTA_DOWNLOAD = (
+    "http://elm.eu.org/instances.fasta?q=*&taxon=&instance_logic="
+)
+ELM_INSTANCES_TSV_DOWNLOAD = (
+    "http://elm.eu.org/instances.tsv?q=*&taxon=&instance_logic="
+)
 ELM_CLASSES_TSV_DOWNLOAD = "http://elm.eu.org/elms/elms_index.tsv"
 ELM_INTDOMAINS_TSV_DOWNLOAD = "http://elm.eu.org/interactiondomains.tsv"
 
 # COSMIC API endpoint
 COSMIC_GET_URL = "https://cancer.sanger.ac.uk/cosmic/search/"
+COSMIC_RELEASE_URL = "https://cancer.sanger.ac.uk/cosmic/release_notes"
 
 # Harvard dataverse API server
 DATAVERSE_GET_URL = "https://dataverse.harvard.edu/api/access/datafile/"

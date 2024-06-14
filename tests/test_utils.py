@@ -9,6 +9,7 @@ from gget.utils import (
     find_latest_ens_rel,
     search_species_options,
     ref_species_options,
+    read_fasta,
 )
 
 from gget.constants import UNIPROT_REST_API, ENSEMBL_REST_API, ENSEMBL_FTP_URL_NV
@@ -23,6 +24,24 @@ from .fixtures import (
 
 
 class TestUtils(unittest.TestCase):
+    def test_read_fasta(self):
+        result_to_test1, result_to_test2 = read_fasta(
+            "tests/fixtures/muscle_nt_test.fa"
+        )
+        result_to_test = result_to_test1 + result_to_test2
+
+        expected_result1 = [
+            "ENSTGUT00000006367 primary_assembly:bTaeGut1_v1.p:1:107513786:107528106:-1",
+            "ENSTGUT00000027003 primary_assembly:bTaeGut1_v1.p:1:107513786:107526965:-1",
+        ]
+        expected_result2 = [
+            "TAGTTGTGATACTGGTCAGTGTCACTGGGGCTGTTTCACCCTGTCATTTGAAGACTTCCATTT",
+            "CTTTGTTGGAGGCTTTTTGCTGGGGCTGGCGTCGTAAGGACCCGAACATCTCTTCCAGATGGGAT",
+        ]
+        expected_result = expected_result1 + expected_result2
+
+        self.assertEqual(result_to_test, expected_result)
+
     def test_n_colors(self):
         result_to_test = n_colors("A")
         expected_result = "\x1b[38;5;15m\x1b[48;5;9mA\x1b[0;0m"

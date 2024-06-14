@@ -8,7 +8,7 @@ Return format: dictionary/JSON.
 Species for which the FTPs will be fetched in the format genus_species, e.g. homo_sapiens.  
 Supports all available vertebrate and invertebrate (plants, fungi, protists, and invertebrate metazoa) genomes from Ensembl, except bacteria.  
 Note: Not required when using flags `--list_species` or `--list_iv_species`.   
-Supported shortcuts: 'human', 'mouse'
+Supported shortcuts: 'human', 'mouse', 'human_grch37' (accesses the GRCh37 genome assembly)
 
 **Optional arguments**  
 `-w` `--which`  
