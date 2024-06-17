@@ -45,7 +45,7 @@ Python: `gget_mutate` es Verdadero por defecto. Establezca `gget_mutate=False` p
 
 **Parámetros opcionales (para descargar bases de datos COSMIC)**  
 `-mc` `--mutation_class`
-'cáncer' (predeterminado), 'línea_celular', 'censo', 'resistencia', 'pantalla' o 'ejemplo_cáncer'  
+'cáncer' (predeterminado), 'línea_celular', 'censo', 'resistencia', 'pantalla_genoma', 'pantalla_dirigida', o 'ejemplo_cáncer'  
 Tipo de base de datos COSMIC para descargar.
 
 `-cv` `--cosmic_version`  
