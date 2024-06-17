@@ -45,7 +45,7 @@ Python: `gget_mutate` is True by default. Set `gget_mutate=False` to disable.
 
 **Optional arguments (for downloading COSMIC databases)**  
 `-mc` `--mutation_class`
-'cancer' (default), 'cell_line', 'census', 'resistance', 'screen', or 'cancer_example'  
+'cancer' (default), 'cell_line', 'census', 'resistance', 'genome_screen', 'targeted_screen', or 'cancer_example'  
 Type of COSMIC database to download.  
 
 `-cv` `--cosmic_version`  
