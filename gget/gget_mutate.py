@@ -366,6 +366,12 @@ def unknown_mutation(
 ):
     return "", ""
 
+def remove_all_but_first_gt(line):
+    first_gt_index = line.find('>')
+    if first_gt_index != -1:
+        return line[:first_gt_index + 1] + line[first_gt_index + 1:].replace('>', '')
+    return line
+
 
 def mutate(
     sequences,
@@ -769,7 +775,9 @@ def mutate(
     # Group by 'mutant_sequence_kmer' and concatenate 'header' values
     pre_len = len(combined_df)
     combined_df = combined_df.groupby('mutant_sequence_kmer', sort=False)['header'].apply(';'.join).reset_index()
+
     if pre_len < len(combined_df):
+        combined_df['header'] = combined_df['header'].apply(remove_all_but_first_gt)  # remove any additional > symbols for merged lines
         if verbose:
             logger.info(f"{pre_len - len(combined_df)} identical mutated sequences were merged (headers were combined and separated using a semicolon (;). Occurences of identical mutated sequences may be reduced by increasing k.")
 
