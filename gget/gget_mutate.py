@@ -767,18 +767,22 @@ def mutate(
     combined_df = combined_df[['mutant_sequence_kmer', 'header']]
 
     # Group by 'mutant_sequence_kmer' and concatenate 'header' values
+    pre_len = len(combined_df)
     combined_df = combined_df.groupby('mutant_sequence_kmer', sort=False)['header'].apply(';'.join).reset_index()
+    if pre_len < len(combined_df):
+        if verbose:
+            logger.info(f"{pre_len - len(combined_df)} identical mutated sequences were merged (headers were combined and separated using a semicolon (;). Occurences of identical mutated sequences may be reduced by increasing k.")
 
     combined_df["fasta_format"] = (combined_df["header"] + "\n" + combined_df["mutant_sequence_kmer"] + "\n")
     combined_df = combined_df[combined_df["mutant_sequence_kmer"] != ""]
-    
+
     if out:
         # Save mutated sequences in new fasta file
         with open(out, "w") as fasta_file:
             fasta_file.write("".join(combined_df["fasta_format"].values))
 
         if verbose:
-                logger.info(f"FASTA file containing mutated sequences created at {out}.")
+            logger.info(f"FASTA file containing mutated sequences created at {out}.")
 
     # When out=None, return list of mutated seqs
     else:
