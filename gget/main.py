@@ -1792,7 +1792,7 @@ def main():
             "census",
             "resistance",
             "genome_screen",
-            "targeted_screen"
+            "targeted_screen",
             "cancer_example",
         ],
         default="cancer",
@@ -2439,7 +2439,7 @@ def main():
                 if args.download:
                     output_dir_part = ""
                     if args.out_dir is not None and args.out_dir != "":
-                        output_dir_part = f"--output-dir \"{args.out_dir}\" "
+                        output_dir_part = f'--output-dir "{args.out_dir}" '
                         os.makedirs(args.out_dir, exist_ok=True)
 
                     # Download list of URLs
@@ -2465,7 +2465,7 @@ def main():
                 if args.download:
                     output_dir_part = ""
                     if args.out_dir is not None and args.out_dir != "":
-                        output_dir_part = f"--output-dir \"{args.out_dir}\" "
+                        output_dir_part = f'--output-dir "{args.out_dir}" '
                         os.makedirs(args.out_dir, exist_ok=True)
 
                     # Download the URLs from the dictionary
