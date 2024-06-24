@@ -133,3 +133,6 @@ dmypy.json
 
 # PyCharm
 /.idea/
+
+# mdbook documentation
+/docs/book/
