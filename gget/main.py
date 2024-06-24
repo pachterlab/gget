@@ -2429,23 +2429,23 @@ def main():
                     with open(args.out, "w") as tfile:
                         tfile.write("\n".join(ref_results))
 
-                    if args.download == True: # todo output dir support
-                        # Download list of URLs
-                        for link in ref_results:
-                            command = "curl -O " + link
-                            os.system(command)
-
                 # Print results if no directory specified
                 else:
                     # Print results
                     for ref_res in ref_results:
                         print(ref_res)
 
-                    if args.download == True: # todo output dir support
-                        # Download list of URLs
-                        for link in ref_results:
-                            command = "curl -O " + link
-                            os.system(command)
+                # Either way, download the files if download flag is set
+                if args.download:
+                    output_dir_part = ""
+                    if args.out_dir is not None and args.out_dir != "":
+                        output_dir_part = f"--output-dir \"{args.out_dir}\" "
+                        os.makedirs(args.out_dir, exist_ok=True)
+
+                    # Download list of URLs
+                    for link in ref_results:
+                        command = f"curl {output_dir_part}-O " + link
+                        os.system(command)
 
             # Print or save json file (ftp=False)
             else:
@@ -2457,27 +2457,23 @@ def main():
                     with open(args.out, "w", encoding="utf-8") as f:
                         json.dump(ref_results, f, ensure_ascii=False, indent=4)
 
-                    if args.download == True: # todo output dir support
-                        # Download the URLs from the dictionary
-                        for link in ref_results:
-                            for sp in ref_results:
-                                for ftp_type in ref_results[sp]:
-                                    link = ref_results[sp][ftp_type]["ftp"]
-                                    command = "curl -O " + link
-                                    os.system(command)
-
                 # Print results if no directory specified
                 else:
                     print(json.dumps(ref_results, ensure_ascii=False, indent=4))
 
-                    if args.download == True: # todo output dir support
-                        # Download the URLs from the dictionary
-                        for link in ref_results:
-                            for sp in ref_results:
-                                for ftp_type in ref_results[sp]:
-                                    link = ref_results[sp][ftp_type]["ftp"]
-                                    command = "curl -O " + link
-                                    os.system(command)
+                # Either way, download the files if download flag is set
+                if args.download:
+                    output_dir_part = ""
+                    if args.out_dir is not None and args.out_dir != "":
+                        output_dir_part = f"--output-dir \"{args.out_dir}\" "
+                        os.makedirs(args.out_dir, exist_ok=True)
+
+                    # Download the URLs from the dictionary
+                    for sp in ref_results:
+                        for ftp_type in ref_results[sp]:
+                            link = ref_results[sp][ftp_type]["ftp"]
+                            command = f"curl {output_dir_part}-O " + link
+                            os.system(command)
 
     ## search return
     if args.command == "search":

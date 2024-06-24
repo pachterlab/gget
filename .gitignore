@@ -136,3 +136,6 @@ dmypy.json
 
 # mdbook documentation
 /docs/book/
+
+# Scratch directory
+/scratch/
