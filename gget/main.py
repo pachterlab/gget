@@ -2432,13 +2432,8 @@ def main():
                     if args.download == True: # todo output dir support
                         # Download list of URLs
                         for link in ref_results:
-                            # command = "wget " + link
                             command = "curl -O " + link
                             os.system(command)
-                #                     else:
-                #                         logger.info(
-                #                             "To download the FTPs to the current directory, add flag [-d]."
-                #                         )
 
                 # Print results if no directory specified
                 else:
@@ -2449,13 +2444,8 @@ def main():
                     if args.download == True: # todo output dir support
                         # Download list of URLs
                         for link in ref_results:
-                            # command = "wget " + link
                             command = "curl -O " + link
                             os.system(command)
-            #                     else:
-            #                         logger.info(
-            #                             "To download the FTPs to the current directory, add flag [-d]."
-            #                         )
 
             # Print or save json file (ftp=False)
             else:
@@ -2473,13 +2463,8 @@ def main():
                             for sp in ref_results:
                                 for ftp_type in ref_results[sp]:
                                     link = ref_results[sp][ftp_type]["ftp"]
-                                    #                                     command = "wget " + link
                                     command = "curl -O " + link
                                     os.system(command)
-                #                     else:
-                #                         logger.info(
-                #                             "To download the FTPs to the current directory, add flag [-d]."
-                #                         )
 
                 # Print results if no directory specified
                 else:
@@ -2491,13 +2476,8 @@ def main():
                             for sp in ref_results:
                                 for ftp_type in ref_results[sp]:
                                     link = ref_results[sp][ftp_type]["ftp"]
-                                    #                                     command = "wget " + link
                                     command = "curl -O " + link
                                     os.system(command)
-    #                     else:
-    #                         logger.info(
-    #                             "To download the FTPs to the current directory, add flag [-d]."
-    #                         )
 
     ## search return
     if args.command == "search":
