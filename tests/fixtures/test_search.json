@@ -542,21 +542,20 @@
     "test14": {
         "type": "assert_equal",
         "args": {
-            "searchwords": "hammerhead",
+            "searchwords": "methi",
             "species": "octopus_bimaculoides",
             "limit": 1
         },
         "expected_result": [
             [
-                "ENSRNA022761340",
-                "Hammerhead_1",
-                "Hammerhead ribozyme (type I)",
-                "Hammerhead ribozyme (type I)",
-                "ribozyme",
+                "GeneID_128247214",
+                "Trnam-cau",
+                "transfer RNA methionine (anticodon CAU)",
+                "tRNA",
                 [
                     null
                 ],
-                "https://metazoa.ensembl.org/octopus_bimaculoides/Gene/Summary?g=ENSRNA022761340"
+                "https://metazoa.ensembl.org/octopus_bimaculoides_gca001194135v2rs/Gene/Summary?g=GeneID_128247214"
             ]
         ]
     },
