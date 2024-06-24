@@ -1,4 +1,7 @@
 ## ✨ What's new  
+**Version ≥ 0.28.7** (XXX):  
+- [`gget mutate`](./mutate.md): Merge identical sequences in final file containing mutated sequences
+
 **Version ≥ 0.28.6** (Jun 2, 2024):  
 - **New module: [`gget mutate`](./mutate.md)**
 - [`gget cosmic`](./cosmic.md): You can now download entire COSMIC databases using the argument `download_cosmic` argument
