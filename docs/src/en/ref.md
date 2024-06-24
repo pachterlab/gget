@@ -24,6 +24,9 @@ Possible entries are one or a combination (as comma-separated list) of the follo
 `-r` `--release`  
 Defines the Ensembl release number from which the files are fetched, e.g. 104. Default: latest Ensembl release.  
 
+`-od` `--out_dir`   
+Path to the directory where the FTPs will be saved, e.g. path/to/directory/. Default: Current working directory.
+
 `-o` `--out`    
 Path to the JSON file the results will be saved in, e.g. path/to/directory/results.json. Default: Standard out.  
 Python: `save=True` will save the output in the current working directory.
@@ -39,7 +42,7 @@ Lists all available invertebrate species. (Python: combine with `species=None`.)
 Returns only the requested FTP links.  
 
 `-d` `--download`   
-Command-line only. Downloads the requested FTPs to the current directory (requires [curl](https://curl.se/docs/) to be installed).
+Command-line only. Downloads the requested FTPs to the directory specified by `out_dir` (requires [curl](https://curl.se/docs/) to be installed).
 
 `-q` `--quiet`   
 Command-line only. Prevents progress information from being displayed.  

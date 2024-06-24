@@ -154,7 +154,17 @@ def main():
         default=False,
         action="store_true",
         required=False,
-        help="Download FTPs to the current directory using curl.",
+        help="Download FTPs to the directory specified by --out_dir using curl.",
+    )
+    parser_ref.add_argument(
+        "-od",
+        "--out_dir",
+        type=str,
+        required=False,
+        help=(
+            "Path to the directory the FTPs will be saved in, e.g. path/to/directory.\n"
+            "Default: Current working directory."
+        ),
     )
     parser_ref.add_argument(
         "-o",
@@ -2419,7 +2429,7 @@ def main():
                     with open(args.out, "w") as tfile:
                         tfile.write("\n".join(ref_results))
 
-                    if args.download == True:
+                    if args.download == True: # todo output dir support
                         # Download list of URLs
                         for link in ref_results:
                             # command = "wget " + link
@@ -2436,7 +2446,7 @@ def main():
                     for ref_res in ref_results:
                         print(ref_res)
 
-                    if args.download == True:
+                    if args.download == True: # todo output dir support
                         # Download list of URLs
                         for link in ref_results:
                             # command = "wget " + link
@@ -2457,7 +2467,7 @@ def main():
                     with open(args.out, "w", encoding="utf-8") as f:
                         json.dump(ref_results, f, ensure_ascii=False, indent=4)
 
-                    if args.download == True:
+                    if args.download == True: # todo output dir support
                         # Download the URLs from the dictionary
                         for link in ref_results:
                             for sp in ref_results:
@@ -2475,7 +2485,7 @@ def main():
                 else:
                     print(json.dumps(ref_results, ensure_ascii=False, indent=4))
 
-                    if args.download == True:
+                    if args.download == True: # todo output dir support
                         # Download the URLs from the dictionary
                         for link in ref_results:
                             for sp in ref_results:
