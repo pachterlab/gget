@@ -33,6 +33,7 @@ from .gget_elm import elm
 from .gget_diamond import diamond
 from .gget_cosmic import cosmic
 from .gget_mutate import mutate
+from .gget_dataverse import dataverse
 
 
 # Custom formatter for help messages that preserved the text formatting and adds the default value to the end of the help message
@@ -1847,110 +1848,6 @@ def main():
         help="Do not print progress information.",
     )
 
-    # mutate parser arguments
-    mutate_desc = "Mutate nucleotide sequences according to defined mutations."
-    parser_mutate = parent_subparsers.add_parser(
-        "mutate",
-        parents=[parent],
-        description=mutate_desc,
-        help=mutate_desc,
-        add_help=True,
-        formatter_class=CustomHelpFormatter,
-    )
-    parser_mutate.add_argument(
-        "sequences",
-        type=str,
-        nargs="+",
-        help=(
-            "(str) Path to the fasta file containing the sequences to be mutated, e.g., 'seqs.fa'.\n"
-            "Sequence identifiers following the '>' character must correspond to the identifiers\n"
-            "in the seq_ID column of 'mutations'.\n"
-            "NOTE: Only string until first space or dot will be used as sequence identifier\n"
-            "- Version numbers of Ensembl IDs will be ignored.\n\n"
-            "Example:\n"
-            ">seq1 (or ENSG00000106443)\n"
-            "ACTGCGATAGACT\n"
-            ">seq2\n"
-            "AGATCGCTAG\n\n"
-            "Alternatively: Input sequence(s) as a string or list, e.g. 'AGCTAGCT' or 'ACTGCTAGCT' 'AGCTAGCT'."
-        ),
-    )
-    parser_mutate.add_argument(
-        "-m",
-        "--mutations",
-        type=str,
-        nargs="+",
-        required=True,
-        help=(
-            "Path to csv or tsv file (e.g., 'mutations.csv') containing information about the mutations in the following format:\n\n"
-            "| mutation             | mut_ID | seq_ID |\n"
-            "| c.1252C>T            | mut1   | seq1   | -> Apply mutation 1 to sequence 1\n"
-            "| c.2239_2253inv       | mut2   | seq2   | -> Apply mutation 2 to sequence 2\n"
-            "| c.2239_2253inv       | mut2   | seq3   | -> Apply mutation 2 to sequence 3\n"
-            "| c.2239_2253delinsAAT | mut3   | seq3   | -> Apply mutation 3 to sequence 3\n"
-            "| ...                  | ...    | ...    |\n\n"
-            "'mutation' = Column containing the mutations to be performed written in standard mutation annotation (see below)\n"
-            "'mut_ID' = Column containing an identifier for each mutation\n"
-            "'seq_ID' = Column containing the identifiers of the sequences to be mutated\n"
-            "(sequence IDs must correspond to the string following the > character in the input fasta; do NOT include spaces or dots)\n\n"
-            "Alternatively: Input mutation(s) as a string or list, e.g. 'c.2C>T' or 'c.2C>T' 'c.1A>C'\n\n"
-            "NOTE: Enclose individual mutation annotations in quotation marks to prevent terminal parsing errors.\n"
-            "If a list is passed, the number of mutations must equal the number of input sequences."
-        ),
-    )
-    parser_mutate.add_argument(
-        "-k",
-        "--k",
-        default=30,
-        type=int,
-        required=False,
-        help="Length of sequences flanking the mutation. If k > total length of the sequence, the entire sequence will be kept.",
-    )
-    parser_mutate.add_argument(
-        "-mc",
-        "--mut_column",
-        default="mutation",
-        type=str,
-        required=False,
-        help="Name of the column containing the mutations to be performed in 'mutations'.",
-    )
-    parser_mutate.add_argument(
-        "-mic",
-        "--mut_id_column",
-        default="mut_ID",
-        type=str,
-        required=False,
-        help="Name of the column containing the IDs of each mutation in 'mutations'.",
-    )
-    parser_mutate.add_argument(
-        "-sic",
-        "--seq_id_column",
-        default="seq_ID",
-        type=str,
-        required=False,
-        help="Name of the column containing the IDs of the sequences to be mutated in 'mutations'.",
-    )
-    parser_mutate.add_argument(
-        "-o",
-        "--out",
-        default=None,
-        type=str,
-        required=False,
-        help=(
-            "Path to output fasta file containing the mutated sequences, e.g., 'path/to/output_fasta.fa'.\n"
-            "Default: None -> returns a list of the mutated sequences to standard out.\n"
-            "The identifiers (following the '>') of the mutated sequences in the output fasta will be '>[seq_ID]_[mut_ID]'."
-        ),
-    )
-    parser_mutate.add_argument(
-        "-q",
-        "--quiet",
-        default=True,
-        action="store_false",
-        required=False,
-        help="Do not print progress information.",
-    )
-
     ### Define return values
     args = parent_parser.parse_args()
 
@@ -1998,7 +1895,6 @@ def main():
         "elm": parser_elm,
         "diamond": parser_diamond,
         "cosmic": parser_cosmic,
-        "mutate": parser_mutate,
     }
 
     if len(sys.argv) == 2:
@@ -2798,3 +2694,12 @@ def main():
                         json.dump(pdb_results, f, ensure_ascii=False, indent=4)
                 else:
                     print(json.dumps(pdb_results, ensure_ascii=False, indent=4))
+
+    ## dataverse return
+    if args.command == "dataverse":
+        dataverse(
+            data = args.json,
+            path = args.out,
+            run_download=True,
+            save_json=args.out + 'dataverse.json'
+        )
