@@ -648,6 +648,29 @@ def rest_query(server, query, content_type):
         return r.text
 
 
+def graphql_query(server: str, query: str, variables: str) -> dict[str, ...]:
+    """
+    Function to perform a GraphQL API query.
+
+    Args:
+    - server        Server to query.
+    - query         Query that is passed to server.
+    - variables     Variables that are passed to server.
+
+    Returns server output.
+    """
+
+    r = requests.post(server, json={"query": query, "variables": variables})
+
+    if not r.ok:
+        raise RuntimeError(
+            f"{server} returned error status code {r.status_code}. "
+            "Please double-check arguments and try again.\n"
+        )
+
+    return r.json()
+
+
 def find_latest_ens_rel(database=ENSEMBL_FTP_URL):
     """
     Returns the latest Ensembl release number.
@@ -979,3 +1002,32 @@ def remove_temp_files(files_to_delete):
     for file in files_to_delete:
         if os.path.exists(file):
             os.remove(file)
+
+
+def json_list_to_df(
+    json_list: list[dict[str, ...]], columns: list[tuple[str, str]]
+) -> pd.DataFrame:
+    """
+    Convert list of JSON objects to data frame.
+
+    Args:
+
+    - json_list     List of JSON objects.
+    - columns       List of (column, key) pairs in the data frame.
+                    Format of each key is "key.subkey.etc", which corresponds to json_list[i]["key"]["subkey"]["etc"].
+
+    Returns data frame with columns as specified in keys.
+    """
+
+    tmp_columns = [[] for _ in range(len(columns))]
+
+    for json_obj in json_list:
+        for i, column_key in enumerate(columns):
+            _, key = column_key
+            keys_split = key.split(".")
+            value = json_obj
+            for k in keys_split:
+                value = value[k]
+            tmp_columns[i].append(value)
+
+    return pd.DataFrame({key[0]: value for key, value in zip(columns, tmp_columns)})

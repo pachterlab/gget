@@ -4,7 +4,7 @@ import time
 import pandas as pd
 
 from .constants import OPENTARGETS_GRAPHQL_API
-from .utils import set_up_logger, wrap_cols_func
+from .utils import set_up_logger, wrap_cols_func, graphql_query, json_list_to_df
 
 logger = set_up_logger()
 
@@ -73,16 +73,8 @@ def _opentargets_disease(
     else:
         pagination = {"index": 0, "size": limit}
     variables = {"ensemblId": ensembl_id, "pagination": pagination}
-    r = requests.post(
-        OPENTARGETS_GRAPHQL_API, json={"query": query_string, "variables": variables}
-    )
-    if r.status_code != 200:
-        raise RuntimeError(
-            f"The OpenTargets server responded with status code: {r.status_code}. "
-            "Please double-check arguments and try again.\n"
-        )
 
-    results: dict[str, ...] = json.loads(r.text)
+    results = graphql_query(OPENTARGETS_GRAPHQL_API, query_string, variables)
     target: dict[str, ...] = results["data"]["target"]
     if target is None:
         raise ValueError(
@@ -106,17 +98,7 @@ def _opentargets_disease(
         time.sleep(1)
         variables["pagination"] = {"index": 0, "size": total_count}
 
-        r = requests.post(
-            OPENTARGETS_GRAPHQL_API,
-            json={"query": query_string, "variables": variables},
-        )
-        if r.status_code != 200:
-            raise RuntimeError(
-                f"The OpenTargets server responded with status code: {r.status_code}. "
-                "Please double-check arguments and try again.\n"
-            )
-
-        new_results: dict[str, ...] = json.loads(r.text)
+        new_results = graphql_query(OPENTARGETS_GRAPHQL_API, query_string, variables)
         new_data: dict[str, ...] = new_results["data"]["target"]["associatedDiseases"]
         new_rows: list[dict[str, ...]] = new_data["rows"]
         # we re-fetched the original 1, so we need to replace them
@@ -124,21 +106,14 @@ def _opentargets_disease(
         if verbose:
             logger.info(f"Retrieved {len(rows)}/{total_count} associated diseases.")
 
-    ids: list[str] = []
-    names: list[str] = []
-    descriptions: list[str] = []
-    scores: list[float] = []
-
-    for row in rows:
-        score: float = row["score"]
-        disease: dict[str, ...] = row["disease"]
-        ids.append(disease["id"])
-        names.append(disease["name"])
-        descriptions.append(disease["description"])
-        scores.append(score)
-
-    df = pd.DataFrame(
-        data={"id": ids, "name": names, "description": descriptions, "score": scores}
+    df = json_list_to_df(
+        rows,
+        [
+            ("id", "disease.id"),
+            ("name", "disease.name"),
+            ("description", "disease.description"),
+            ("score", "score"),
+        ],
     )
 
     if wrap_text:
