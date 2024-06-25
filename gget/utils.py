@@ -648,7 +648,7 @@ def rest_query(server, query, content_type):
         return r.text
 
 
-def graphql_query(server: str, query: str, variables: str) -> dict[str, ...]:
+def graphql_query(server: str, query: str, variables: dict[str, ...]) -> dict[str, ...]:
     """
     Function to perform a GraphQL API query.
 
