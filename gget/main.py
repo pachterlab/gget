@@ -33,7 +33,7 @@ from .gget_elm import elm
 from .gget_diamond import diamond
 from .gget_cosmic import cosmic
 from .gget_mutate import mutate
-from .gget_opentargets import opentargets
+from .gget_opentargets import opentargets, OPENTARGETS_RESOURCES
 
 
 # Custom formatter for help messages that preserved the text formatting and adds the default value to the end of the help message
@@ -1958,7 +1958,7 @@ def main():
     )
 
     ## opentargets parser arguments
-    opentargets_desc = "Query the Open Targets Platform for gene-disease associations."
+    opentargets_desc = "Query the Open Targets Platform for gene-(disease/drug) associations."
     parser_opentargets = parent_subparsers.add_parser(
         "opentargets",
         parents=[parent],
@@ -1975,7 +1975,7 @@ def main():
     parser_opentargets.add_argument(
         "-r",
         "--resource",
-        choices=["diseases"],
+        choices=OPENTARGETS_RESOURCES,
         default="diseases",
         type=str,
         required=False,
@@ -2874,32 +2874,26 @@ def main():
             verbose=args.quiet,
         )
 
-        if args.resource == "diseases":
-            if args.out is not None and args.out != "":
-                # Make saving directory
-                directory = os.path.dirname(args.out)
-                if directory != "":
-                    os.makedirs(directory, exist_ok=True)
+        if args.out is not None and args.out != "":
+            # Make saving directory
+            directory = os.path.dirname(args.out)
+            if directory != "":
+                os.makedirs(directory, exist_ok=True)
 
-                # Save json
-                with open(args.out, "w", encoding="utf-8") as f:
-                    if args.csv:
-                        opentargets_results.to_csv(f, index=False)
-                    else:
-                        opentargets_results.to_json(
-                            f, orient="records", force_ascii=False, indent=4
-                        )
-            else:
+            # Save json
+            with open(args.out, "w", encoding="utf-8") as f:
                 if args.csv:
-                    opentargets_results.to_csv(sys.stdout, index=False)
+                    opentargets_results.to_csv(f, index=False)
                 else:
-                    print(
-                        opentargets_results.to_json(
-                            orient="records", force_ascii=False, indent=4
-                        )
+                    opentargets_results.to_json(
+                        f, orient="records", force_ascii=False, indent=4
                     )
         else:
-            raise ValueError(
-                f"Command line support for the specified resource '{args.resource}' is not implemented."
-                " Please file an issue at https://github.com/pachterlab/gget/issues/new/choose"
-            )
+            if args.csv:
+                opentargets_results.to_csv(sys.stdout, index=False)
+            else:
+                print(
+                    opentargets_results.to_json(
+                        orient="records", force_ascii=False, indent=4
+                    )
+                )
