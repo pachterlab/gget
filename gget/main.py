@@ -1970,18 +1970,16 @@ def main():
     parser_opentargets.add_argument(
         "ens_id",
         type=str,
-        help="Ensembl gene ID, e.g. ENSG00000169194."
+        help="Ensembl gene ID, e.g. ENSG00000169194.",
     )
     parser_opentargets.add_argument(
         "-r",
         "--resource",
-        choices=[
-            "diseases"
-        ],
+        choices=["diseases"],
         default="diseases",
         type=str,
         required=False,
-        help="Type of information to be returned."
+        help="Type of information to be returned.",
     )
     parser_opentargets.add_argument(
         "-l",
@@ -1989,7 +1987,7 @@ def main():
         default=None,
         type=int,
         required=False,
-        help="Limits the number of results, e.g. 10 (default: None)."
+        help="Limits the number of results, e.g. 10 (default: None).",
     )
     parser_opentargets.add_argument(
         "-o",
@@ -2066,7 +2064,7 @@ def main():
         "diamond": parser_diamond,
         "cosmic": parser_cosmic,
         "mutate": parser_mutate,
-        "opentargets": parser_opentargets
+        "opentargets": parser_opentargets,
     }
 
     if len(sys.argv) == 2:
@@ -2888,12 +2886,20 @@ def main():
                     if args.csv:
                         opentargets_results.to_csv(f, index=False)
                     else:
-                        opentargets_results.to_json(f, orient="records", force_ascii=False, indent=4)
+                        opentargets_results.to_json(
+                            f, orient="records", force_ascii=False, indent=4
+                        )
             else:
                 if args.csv:
                     opentargets_results.to_csv(sys.stdout, index=False)
                 else:
-                    print(opentargets_results.to_json(orient="records", force_ascii=False, indent=4))
+                    print(
+                        opentargets_results.to_json(
+                            orient="records", force_ascii=False, indent=4
+                        )
+                    )
         else:
-            raise ValueError(f"Command line support for the specified resource '{args.resource}' is not implemented."
-                             " Please file an issue at https://github.com/pachterlab/gget/issues/new/choose")
+            raise ValueError(
+                f"Command line support for the specified resource '{args.resource}' is not implemented."
+                " Please file an issue at https://github.com/pachterlab/gget/issues/new/choose"
+            )
