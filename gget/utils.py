@@ -25,7 +25,10 @@ from .constants import (
 
 
 def set_up_logger():
-    logging_level = logging.INFO
+    logging_level_name = os.getenv("GGET_LOGLEVEL", "INFO")
+    logging_level = logging.getLevelName(logging_level_name)
+    if type(logging_level) != int: # unknown log level
+        logging_level = logging.INFO
     logger = logging.getLogger(__name__)
     logger.setLevel(logging_level)
 

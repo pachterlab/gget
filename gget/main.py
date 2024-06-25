@@ -1987,7 +1987,7 @@ def main():
         default=None,
         type=int,
         required=False,
-        help="Limits the number of results, e.g. 10 (default: None).",
+        help="Limits the number of results, e.g. 10 (default: None). Note: Not compatible with the 'tractability' resource",
     )
     parser_opentargets.add_argument(
         "-o",

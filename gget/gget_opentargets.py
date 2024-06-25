@@ -1,4 +1,5 @@
 import time
+import typing
 from typing import Literal
 
 import pandas as pd
@@ -11,7 +12,7 @@ logger = set_up_logger()
 
 def opentargets(
     ensembl_id: str,
-    resource: Literal["diseases"] | Literal["drugs"] = "diseases",
+    resource: Literal["diseases", "drugs", "tractability"] = "diseases",
     limit: int | None = None,
     verbose: bool = True,
     wrap_text: bool = False,
@@ -23,8 +24,9 @@ def opentargets(
 
     - ensembl_id    Ensembl gene ID to be queried (str), e.g. "ENSG00000169194".
     - resource      Defines type of information to be returned.
-                    "diseases": Returns diseases associated with the gene (default).
-                    "drugs": Returns drugs associated with the gene.
+                    "diseases":     Returns diseases associated with the gene (default).
+                    "drugs":        Returns drugs associated with the gene.
+                    "tractability": Returns tractability data for the gene.
     - limit         Limit the number of results returned (default: No limit).
     - verbose       Print progress messages (default: True).
     - wrap_text     If True, displays data frame with wrapped text for easy reading. Default: False.
@@ -44,15 +46,38 @@ def opentargets(
 
 
 def _limit_pagination() -> tuple[str, str, callable]:
-    def f(limit: int):
+    def f(limit: int | None):
+        if limit is None:
+            limit = 1
         return {"index": 0, "size": limit}
     return "page", "Pagination", f
 
 
 def _limit_size() -> tuple[str, str, callable]:
-    def f(limit: int):
+    def f(limit: int | None):
+        if limit is None:
+            limit = 1
         return limit
     return "size", "Int", f
+
+
+def _limit_not_supported() -> tuple[None, None, callable]:
+    def f(limit: int):
+        if limit is not None:
+            raise ValueError("Limit is not supported for this resource.")
+        return 1
+
+    return None, None, f
+
+
+def _tractability_converter(row: dict[str, ...]):
+    _modality_map = {
+        "SM": "Small molecule",
+        "AB": "Antibody",
+        "PR": "PROTAC",
+        "OC": "Other",
+    }
+    row["modality"] = _modality_map.get(row["modality"], row["modality"])
 
 
 def _make_query_fun(
@@ -61,7 +86,9 @@ def _make_query_fun(
     human_readable_tlk: str,
     df_schema: list[tuple[str, str]],
     wrap_columns: list[str],
-    limit_func: callable
+    limit_func: callable,
+    filter_: typing.Callable[[dict[str, ...]], bool] = lambda x: True,
+    converter: typing.Callable[[dict[str, ...]], dict[str, ...]] = lambda x: None,
 ) -> callable:
     """
     Make a query function for OpenTargets API.
@@ -74,6 +101,11 @@ def _make_query_fun(
     - df_schema             Schema for the DataFrame, e.g. [("id", "disease.id"), ("name", "disease.name")].
     - wrap_columns          Columns to wrap text for easy reading, e.g. ["description"].
     - limit_func            Function to set the limit in the pagination object.
+    - filter_               Function to filter the raw data (return False to skip value).
+                            Note: applied after limit but before converter.
+    - converter             Function to optionally manipulate the raw data IN PLACE before it is converted to a DataFrame.
+
+    Returns a function that queries the OpenTargets API and returns the data in DataFrame format.
     """
 
     limit_key, limit_type, limit_func = limit_func()
@@ -84,33 +116,47 @@ def _make_query_fun(
         verbose: bool = True,
         wrap_text: bool = False,
     ) -> pd.DataFrame:
-        query_string = """
-        query target($ensemblId: String!, $pagination: <LIMIT_TYPE>) {
-            target(ensemblId: $ensemblId) {
-                <TOP_LEVEL_KEY>(<LIMIT_KEY>: $pagination){
-                    count
-                    rows{
+        if limit_key is None:
+            query_string = """
+            query target($ensemblId: String!) {
+                target(ensemblId: $ensemblId) {
+                    <TOP_LEVEL_KEY>{
                         <ROW_QUERY>
                     }
                 }
             }
-        }
-        """.replace(
-            "<TOP_LEVEL_KEY>", top_level_key
-        ).replace(
-            "<LIMIT_TYPE>", limit_type
-        ).replace(
-            "<LIMIT_KEY>", limit_key
-        ).replace(
-            "<ROW_QUERY>", row_query
-        )
-
-        if limit is None:
-            # when limit is None, we don't fetch any results
-            pagination = limit_func(1)
+            """.replace(
+                "<TOP_LEVEL_KEY>", top_level_key
+            ).replace(
+                "<ROW_QUERY>", row_query
+            )
         else:
-            pagination = limit_func(limit)
+            query_string = """
+            query target($ensemblId: String!, $pagination: <LIMIT_TYPE>) {
+                target(ensemblId: $ensemblId) {
+                    <TOP_LEVEL_KEY>(<LIMIT_KEY>: $pagination){
+                        count
+                        rows{
+                            <ROW_QUERY>
+                        }
+                    }
+                }
+            }
+            """.replace(
+                "<TOP_LEVEL_KEY>", top_level_key
+            ).replace(
+                "<LIMIT_TYPE>", limit_type
+            ).replace(
+                "<LIMIT_KEY>", limit_key
+            ).replace(
+                "<ROW_QUERY>", row_query
+            )
+
+        pagination = limit_func(limit)
         variables = {"ensemblId": ensembl_id, "pagination": pagination}
+
+        if limit_key is None:
+            del variables["pagination"]
 
         results = graphql_query(OPENTARGETS_GRAPHQL_API, query_string, variables)
         target: dict[str, ...] = results["data"]["target"]
@@ -120,18 +166,23 @@ def _make_query_fun(
             )
         data: dict[str, ...] = target[top_level_key]
 
-        total_count: int = data["count"]
-        rows: list[dict[str, ...]] = data["rows"]
+        if limit_key is None:
+            # noinspection PyTypeChecker
+            rows: list[dict[str, ...]] = data
+            total_count = len(data)
+        else:
+            total_count: int = data["count"]
+            rows: list[dict[str, ...]] = data["rows"]
 
         if verbose:
             explanation = ""
-            if limit is None:
+            if limit is None and limit_key is not None:
                 explanation = " (Querying count, will fetch all results next.)"
             logger.info(
                 f"Retrieved {len(rows)}/{total_count} {human_readable_tlk}.{explanation}"
             )
 
-        if limit is None:
+        if limit is None and limit_key is not None:
             # wait 1 second as a courtesy
             time.sleep(1)
             variables["pagination"] = limit_func(total_count)
@@ -147,6 +198,13 @@ def _make_query_fun(
                 logger.info(
                     f"Retrieved {len(rows)}/{total_count} {human_readable_tlk}."
                 )
+
+        if limit is not None:
+            rows = rows[:limit]
+
+        rows = [row for row in rows if filter_(row)]
+        for row in rows:
+            converter(row)
 
         df = json_list_to_df(
             rows,
@@ -226,8 +284,25 @@ _RESOURCES = {
             ("trial_ids", "ctIds"),
             ("approved", "drug.isApproved"),
         ],
-        [],
+        ["description", "synonyms", "trade_names", "trial_ids"],
         _limit_size,
+    ),
+    "tractability": _make_query_fun(
+        "tractability",
+        """
+        label
+        modality
+        value
+        """,
+        "tractability states",
+        [
+            ("label", "label"),
+            ("modality", "modality"),
+        ],
+        [],
+        _limit_not_supported,
+        filter_=lambda x: x["value"],
+        converter=_tractability_converter,
     )
 }
 

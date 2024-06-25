@@ -13,9 +13,11 @@ Defines the type of information to return in the output. Default: 'diseases'.
 Possible resources are:     
 'diseases' - Returns associated diseases.
 'drugs' - Returns associated drugs.
+'tractability' - Returns tractability data.
 
 `-l` `--limit`  
-Limit the number of results, e.g 10. Default: No limit.
+Limit the number of results, e.g 10. Default: No limit.     
+Note: Not compatible with the 'tractability' resource.
 
 `-o` `--out`    
 Path to the JSON file the results will be saved in, e.g. path/to/directory/results.json. Default: Standard out.  
@@ -37,14 +39,14 @@ Python only. `wrap_text=True` displays data frame with wrapped text for easy rea
 
 **Get associated diseases for a specific gene:**   
 ```bash
-gget opentargets ENSG00000169194 -l 5
+gget opentargets ENSG00000169194 -l 1
 ```
 ```python
 # Python
 import gget
-gget.opentargets('ENSG00000169194', limit=5)
+gget.opentargets('ENSG00000169194', limit=1)
 ```
-&rarr; Returns the top 5 diseases associated with the gene ENSG00000169194.
+&rarr; Returns the top disease associated with the gene ENSG00000169194.
 
 | id            | name          | description                                                           | score            |
 |---------------|---------------|-----------------------------------------------------------------------|------------------|
@@ -54,14 +56,14 @@ gget.opentargets('ENSG00000169194', limit=5)
 
 **Get associated drugs for a specific gene:**   
 ```bash
-gget opentargets ENSG00000169194 -r drugs -l 5
+gget opentargets ENSG00000169194 -r drugs -l 2
 ```
 ```python
 import gget
-gget.opentargets('ENSG00000169194', resource='drugs', limit=5)
+gget.opentargets('ENSG00000169194', resource='drugs', limit=2)
 ```
 
-&rarr; Returns the top 5 drugs associated with the gene ENSG00000169194.
+&rarr; Returns the top 2 drugs associated with the gene ENSG00000169194.
 
 | id            | name         | type     | action_mechanism          | description                                                  | synonyms                                           | trade_names           | disease_id  | disease_name             | trial_phase | trial_status | trial_ids     | approved |
 |---------------|--------------|----------|---------------------------|--------------------------------------------------------------|----------------------------------------------------|-----------------------|-------------|--------------------------|-------------|--------------|---------------|----------|
@@ -70,5 +72,25 @@ gget.opentargets('ENSG00000169194', resource='drugs', limit=5)
 
 *Note: Returned `trial_ids` are [ClinicalTrials.gov](https://clinicaltrials.gov) identifiers*
 
+<br/><br/>
+
+**Get tractability data for a specific gene:**   
+```bash
+gget opentargets ENSG00000169194 -r tractability
+```
+```python
+import gget
+gget.opentargets('ENSG00000169194', resource='tractability')
+```
+
+&rarr; Returns tractability data for the gene ENSG00000169194.
+
+| label                 | modality       |
+|-----------------------|----------------|
+| High-Quality Pocket   | Small molecule |
+| Approved Drug         | Antibody       |
+| GO CC high conf       | Antibody       |
+| UniProt loc med conf  | Antibody       |
+| UniProt SigP or TMHMM | Antibody       |
     
 #### [More examples](https://github.com/pachterlab/gget_examples)

@@ -67,6 +67,16 @@ class TestOpenTargets(unittest.TestCase):
 
         self.assertEqual(result_to_test, expected_result)
 
+    def test_opentargets_tractability(self):
+        test = "test6"
+        expected_result = ot_dict[test]["expected_result"]
+        result_to_test = opentargets(**ot_dict[test]["args"])
+        # If result is a DataFrame, convert to list
+        if isinstance(result_to_test, pd.DataFrame):
+            result_to_test = result_to_test.dropna(axis=1).values.tolist()
+
+        self.assertEqual(result_to_test, expected_result)
+
     ## Test bad input errors
     def test_opentargets_bad_resource(self):
         test = "error_test1"
@@ -80,5 +90,10 @@ class TestOpenTargets(unittest.TestCase):
 
     def test_opentargets_nonexistent_id(self):
         test = "error_test3"
+        with self.assertRaises(ValueError):
+            opentargets(**ot_dict[test]["args"])
+
+    def test_opentargets_tractability_limit(self):
+        test = "error_test4"
         with self.assertRaises(ValueError):
             opentargets(**ot_dict[test]["args"])

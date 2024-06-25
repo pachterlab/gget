@@ -86,6 +86,8 @@
             ]
         ]
     },
+
+
     "test4": {
         "type": "assert_equal",
         "args": {
@@ -144,6 +146,39 @@
         },
         "expected_result": "dcdd8421204bb3a273c8ca0b2de8d088"
     },
+
+
+    "test6": {
+        "type": "assert_equal",
+        "args": {
+            "ensembl_id": "ENSG00000169194",
+            "resource": "tractability"
+        },
+        "expected_result": [
+            [
+                "High-Quality Pocket",
+                "Small molecule"
+            ],
+            [
+                "Approved Drug",
+                "Antibody"
+            ],
+            [
+                "GO CC high conf",
+                "Antibody"
+            ],
+            [
+                "UniProt loc med conf",
+                "Antibody"
+            ],
+            [
+                "UniProt SigP or TMHMM",
+                "Antibody"
+            ]
+        ]
+    },
+
+
     "error_test1": {
         "type": "error",
         "args": {
@@ -168,6 +203,17 @@
             "ensembl_id": "NON EXISTENT ID",
             "resource": "diseases",
             "limit": 5
+        },
+        "expected_result": "ValueError"
+    },
+
+
+    "error_test4": {
+        "type": "error",
+        "args": {
+            "ensembl_id": "ENSG00000169194",
+            "resource": "tractability",
+            "limit": 2
         },
         "expected_result": "ValueError"
     }
