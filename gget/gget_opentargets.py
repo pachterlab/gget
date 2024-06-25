@@ -83,7 +83,12 @@ def _opentargets_disease(
         )
 
     results: dict[str, ...] = json.loads(r.text)
-    data: dict[str, ...] = results["data"]["target"]["associatedDiseases"]
+    target: dict[str, ...] = results["data"]["target"]
+    if target is None:
+        raise ValueError(
+            f"No data found for Ensembl ID: {ensembl_id}. Please double-check the ID and try again."
+        )
+    data: dict[str, ...] = target["associatedDiseases"]
 
     total_count: int = data["count"]
     rows: list[dict[str, ...]] = data["rows"]
@@ -96,62 +101,28 @@ def _opentargets_disease(
             f"Retrieved {len(rows)}/{total_count} associated diseases." + explanation
         )
 
-    if len(rows) < total_count:
-        if limit is None:
-            # wait 1 second as a courtesy
-            time.sleep(1)
-            variables["pagination"] = {"index": 0, "size": total_count}
+    if limit is None:
+        # wait 1 second as a courtesy
+        time.sleep(1)
+        variables["pagination"] = {"index": 0, "size": total_count}
 
-            r = requests.post(
-                OPENTARGETS_GRAPHQL_API,
-                json={"query": query_string, "variables": variables},
+        r = requests.post(
+            OPENTARGETS_GRAPHQL_API,
+            json={"query": query_string, "variables": variables},
+        )
+        if r.status_code != 200:
+            raise RuntimeError(
+                f"The OpenTargets server responded with status code: {r.status_code}. "
+                "Please double-check arguments and try again.\n"
             )
-            if r.status_code != 200:
-                raise RuntimeError(
-                    f"The OpenTargets server responded with status code: {r.status_code}. "
-                    "Please double-check arguments and try again.\n"
-                )
 
-            new_results: dict[str, ...] = json.loads(r.text)
-            new_data: dict[str, ...] = new_results["data"]["target"][
-                "associatedDiseases"
-            ]
-            new_rows: list[dict[str, ...]] = new_data["rows"]
-            # we re-fetched the original 1, so we need to replace them
-            rows = new_rows
-            if verbose:
-                logger.info(f"Retrieved {len(rows)}/{total_count} associated diseases.")
-        else:
-            page_length = len(rows)
-            page_index = 1
-            # While fewer rows have been returned than requested, keep requesting more
-            while len(rows) < total_count and len(rows) < limit:
-                # wait 1 second as a courtesy
-                time.sleep(1)
-                variables["pagination"] = {"index": page_index, "size": page_length}
-
-                r = requests.post(
-                    OPENTARGETS_GRAPHQL_API,
-                    json={"query": query_string, "variables": variables},
-                )
-                if r.status_code != 200:
-                    raise RuntimeError(
-                        f"The OpenTargets server responded with status code: {r.status_code}. "
-                        "Please double-check arguments and try again.\n"
-                    )
-
-                new_results: dict[str, ...] = json.loads(r.text)
-                new_data: dict[str, ...] = new_results["data"]["target"][
-                    "associatedDiseases"
-                ]
-                new_rows: list[dict[str, ...]] = new_data["rows"]
-                rows.extend(new_rows)
-
-                if verbose:
-                    logger.info(
-                        f"Retrieved {len(rows)}/{total_count} associated diseases."
-                    )
-                page_index += 1
+        new_results: dict[str, ...] = json.loads(r.text)
+        new_data: dict[str, ...] = new_results["data"]["target"]["associatedDiseases"]
+        new_rows: list[dict[str, ...]] = new_data["rows"]
+        # we re-fetched the original 1, so we need to replace them
+        rows = new_rows
+        if verbose:
+            logger.info(f"Retrieved {len(rows)}/{total_count} associated diseases.")
 
     ids: list[str] = []
     names: list[str] = []

@@ -1,0 +1,116 @@
+{
+    "test1": {
+        "type": "assert_equal",
+        "args": {
+            "ensembl_id": "ENSG00000169194",
+            "resource": "diseases",
+            "limit": 5
+        },
+        "expected_result": [
+            [
+                "EFO_0000274",
+                "atopic eczema",
+                "A chronic inflammatory genetically determined disease of the skin marked by increased ability to form reagin (IgE), with increased susceptibility to allergic rhinitis and asthma, and hereditary disposition to a lowered threshold for pruritus. It is manifested by lichenification, excoriation, and crusting, mainly on the flexural surfaces of the elbow and knee. In infants it is known as infantile eczema.",
+                0.6636434724183102
+            ],
+            [
+                "MONDO_0004979",
+                "asthma",
+                "A bronchial disease that is characterized by chronic inflammation and narrowing of the airways, which is caused by a combination of environmental and genetic factors resulting in recurring periods of wheezing (a whistling sound while breathing), chest tightness, shortness of breath, mucus production and coughing. The symptoms appear due to a variety of triggers such as allergens, irritants, respiratory infections, weather changes, exercise, stress, reflux disease, medications, foods and emotional anxiety.",
+                0.5436820890787305
+            ],
+            [
+                "HP_0000964",
+                "Eczematoid dermatitis",
+                "Eczema is a form of dermatitis that is characterized by scaly, pruritic, erythematous lesions located on flexural surfaces.",
+                0.5116116699305998
+            ],
+            [
+                "EFO_0005854",
+                "allergic rhinitis",
+                "Inflammation of the nasal mucous membranes caused by an IgE-mediated response to external allergens. The inflammation may also involve the mucous membranes of the sinuses, eyes, middle ear, and pharynx. Symptoms include sneezing, nasal congestion, rhinorrhea, and itching. It may lead to fatigue, drowsiness, and malaise thus causing impairment of the quality of life.",
+                0.48632862582122033
+            ],
+            [
+                "EFO_0000676",
+                "psoriasis",
+                "A common genetically determined, chronic, inflammatory skin disease characterized by rounded erythematous, dry, scaling patches. The lesions have a predilection for nails, scalp, genitalia, extensor surfaces, and the lumbosacral region. Accelerated epidermopoiesis is considered to be the fundamental pathologic feature in psoriasis.",
+                0.4338730716075263
+            ]
+        ]
+    },
+    "test2": {
+        "type": "assert_equal_json_hash",
+        "args": {
+            "ensembl_id": "ENSG00000169194",
+            "resource": "diseases"
+        },
+        "expected_result": "e6030c0f3da91f8176deaf29dcc08285"
+    },
+    "test3": {
+        "type": "assert_equal",
+        "args": {
+            "ensembl_id": "ENSG00000169194",
+            "limit": 5
+        },
+        "expected_result": [
+            [
+                "EFO_0000274",
+                "atopic eczema",
+                "A chronic inflammatory genetically determined disease of the skin marked by increased ability to form reagin (IgE), with increased susceptibility to allergic rhinitis and asthma, and hereditary disposition to a lowered threshold for pruritus. It is manifested by lichenification, excoriation, and crusting, mainly on the flexural surfaces of the elbow and knee. In infants it is known as infantile eczema.",
+                0.6636434724183102
+            ],
+            [
+                "MONDO_0004979",
+                "asthma",
+                "A bronchial disease that is characterized by chronic inflammation and narrowing of the airways, which is caused by a combination of environmental and genetic factors resulting in recurring periods of wheezing (a whistling sound while breathing), chest tightness, shortness of breath, mucus production and coughing. The symptoms appear due to a variety of triggers such as allergens, irritants, respiratory infections, weather changes, exercise, stress, reflux disease, medications, foods and emotional anxiety.",
+                0.5436820890787305
+            ],
+            [
+                "HP_0000964",
+                "Eczematoid dermatitis",
+                "Eczema is a form of dermatitis that is characterized by scaly, pruritic, erythematous lesions located on flexural surfaces.",
+                0.5116116699305998
+            ],
+            [
+                "EFO_0005854",
+                "allergic rhinitis",
+                "Inflammation of the nasal mucous membranes caused by an IgE-mediated response to external allergens. The inflammation may also involve the mucous membranes of the sinuses, eyes, middle ear, and pharynx. Symptoms include sneezing, nasal congestion, rhinorrhea, and itching. It may lead to fatigue, drowsiness, and malaise thus causing impairment of the quality of life.",
+                0.48632862582122033
+            ],
+            [
+                "EFO_0000676",
+                "psoriasis",
+                "A common genetically determined, chronic, inflammatory skin disease characterized by rounded erythematous, dry, scaling patches. The lesions have a predilection for nails, scalp, genitalia, extensor surfaces, and the lumbosacral region. Accelerated epidermopoiesis is considered to be the fundamental pathologic feature in psoriasis.",
+                0.4338730716075263
+            ]
+        ]
+    },
+    "error_test1": {
+        "type": "error",
+        "args": {
+            "ensembl_id": "ENSG00000169194",
+            "resource": "this resource does not exist",
+            "limit": 5
+        },
+        "expected_result": "ValueError"
+    },
+    "error_test2": {
+        "type": "error",
+        "args": {
+            "ensembl_id": "ENSG00000169194",
+            "resource": "diseases",
+            "limit": "this is not a number"
+        },
+        "expected_result": "RuntimeError"
+    },
+    "error_test3": {
+        "type": "error",
+        "args": {
+            "ensembl_id": "NON EXISTENT ID",
+            "resource": "diseases",
+            "limit": 5
+        },
+        "expected_result": "ValueError"
+    }
+}
