@@ -154,7 +154,17 @@ def main():
         default=False,
         action="store_true",
         required=False,
-        help="Download FTPs to the current directory using curl.",
+        help="Download FTPs to the directory specified by --out_dir using curl.",
+    )
+    parser_ref.add_argument(
+        "-od",
+        "--out_dir",
+        type=str,
+        required=False,
+        help=(
+            "Path to the directory the FTPs will be saved in, e.g. path/to/directory.\n"
+            "Default: Current working directory."
+        ),
     )
     parser_ref.add_argument(
         "-o",
@@ -1782,7 +1792,7 @@ def main():
             "census",
             "resistance",
             "genome_screen",
-            "targeted_screen"
+            "targeted_screen",
             "cancer_example",
         ],
         default="cancer",
@@ -2419,33 +2429,23 @@ def main():
                     with open(args.out, "w") as tfile:
                         tfile.write("\n".join(ref_results))
 
-                    if args.download == True:
-                        # Download list of URLs
-                        for link in ref_results:
-                            # command = "wget " + link
-                            command = "curl -O " + link
-                            os.system(command)
-                #                     else:
-                #                         logger.info(
-                #                             "To download the FTPs to the current directory, add flag [-d]."
-                #                         )
-
                 # Print results if no directory specified
                 else:
                     # Print results
                     for ref_res in ref_results:
                         print(ref_res)
 
-                    if args.download == True:
-                        # Download list of URLs
-                        for link in ref_results:
-                            # command = "wget " + link
-                            command = "curl -O " + link
-                            os.system(command)
-            #                     else:
-            #                         logger.info(
-            #                             "To download the FTPs to the current directory, add flag [-d]."
-            #                         )
+                # Either way, download the files if download flag is set
+                if args.download:
+                    output_dir_part = ""
+                    if args.out_dir is not None and args.out_dir != "":
+                        output_dir_part = f'--output-dir "{args.out_dir}" '
+                        os.makedirs(args.out_dir, exist_ok=True)
+
+                    # Download list of URLs
+                    for link in ref_results:
+                        command = f"curl {output_dir_part}-O " + link
+                        os.system(command)
 
             # Print or save json file (ftp=False)
             else:
@@ -2457,37 +2457,23 @@ def main():
                     with open(args.out, "w", encoding="utf-8") as f:
                         json.dump(ref_results, f, ensure_ascii=False, indent=4)
 
-                    if args.download == True:
-                        # Download the URLs from the dictionary
-                        for link in ref_results:
-                            for sp in ref_results:
-                                for ftp_type in ref_results[sp]:
-                                    link = ref_results[sp][ftp_type]["ftp"]
-                                    #                                     command = "wget " + link
-                                    command = "curl -O " + link
-                                    os.system(command)
-                #                     else:
-                #                         logger.info(
-                #                             "To download the FTPs to the current directory, add flag [-d]."
-                #                         )
-
                 # Print results if no directory specified
                 else:
                     print(json.dumps(ref_results, ensure_ascii=False, indent=4))
 
-                    if args.download == True:
-                        # Download the URLs from the dictionary
-                        for link in ref_results:
-                            for sp in ref_results:
-                                for ftp_type in ref_results[sp]:
-                                    link = ref_results[sp][ftp_type]["ftp"]
-                                    #                                     command = "wget " + link
-                                    command = "curl -O " + link
-                                    os.system(command)
-    #                     else:
-    #                         logger.info(
-    #                             "To download the FTPs to the current directory, add flag [-d]."
-    #                         )
+                # Either way, download the files if download flag is set
+                if args.download:
+                    output_dir_part = ""
+                    if args.out_dir is not None and args.out_dir != "":
+                        output_dir_part = f'--output-dir "{args.out_dir}" '
+                        os.makedirs(args.out_dir, exist_ok=True)
+
+                    # Download the URLs from the dictionary
+                    for sp in ref_results:
+                        for ftp_type in ref_results[sp]:
+                            link = ref_results[sp][ftp_type]["ftp"]
+                            command = f"curl {output_dir_part}-O " + link
+                            os.system(command)
 
     ## search return
     if args.command == "search":
