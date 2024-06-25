@@ -107,7 +107,7 @@ def _make_query_fun(
 
         if limit is None:
             # when limit is None, we don't fetch any results
-            pagination = limit_func(0)
+            pagination = limit_func(1)
         else:
             pagination = limit_func(limit)
         variables = {"ensemblId": ensembl_id, "pagination": pagination}

@@ -663,7 +663,7 @@ def graphql_query(server: str, query: str, variables: dict[str, ...]) -> dict[st
     r = requests.post(server, json={"query": query, "variables": variables})
 
     if not r.ok:
-        logger.info(f"Server: {server}, Query: {query}, Variables: {variables}, Response: {r.text}")
+        logger.debug(f"Server: {server}, Query: {query}, Variables: {variables}, Response: {r.text}")
         raise RuntimeError(
             f"{server} returned error status code {r.status_code}. "
             "Please double-check arguments and try again.\n"

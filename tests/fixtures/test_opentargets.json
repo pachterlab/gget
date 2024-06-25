@@ -86,6 +86,64 @@
             ]
         ]
     },
+    "test4": {
+        "type": "assert_equal",
+        "args": {
+            "ensembl_id": "ENSG00000169194",
+            "resource": "drugs",
+            "limit": 2
+        },
+        "expected_result": [
+            [
+                "CHEMBL1743081",
+                "TRALOKINUMAB",
+                "Antibody",
+                "Interleukin-13 inhibitor",
+                "Antibody drug with a maximum clinical trial phase of IV (across all indications) that was first approved in 2021 and is indicated for atopic eczema and eczematoid dermatitis and has 5 investigational indications.",
+                [
+                    "CAT-354",
+                    "Tralokinumab"
+                ],
+                [
+                    "Adbry",
+                    "Adtralza"
+                ],
+                "EFO_0000274",
+                "atopic eczema",
+                4,
+                [],
+                true
+            ],
+            [
+                "CHEMBL1743081",
+                "TRALOKINUMAB",
+                "Antibody",
+                "Interleukin-13 inhibitor",
+                "Antibody drug with a maximum clinical trial phase of IV (across all indications) that was first approved in 2021 and is indicated for atopic eczema and eczematoid dermatitis and has 5 investigational indications.",
+                [
+                    "CAT-354",
+                    "Tralokinumab"
+                ],
+                [
+                    "Adbry",
+                    "Adtralza"
+                ],
+                "HP_0000964",
+                "Eczematoid dermatitis",
+                4,
+                [],
+                true
+            ]
+        ]
+    },
+    "test5": {
+        "type": "assert_equal_json_hash",
+        "args": {
+            "ensembl_id": "ENSG00000169194",
+            "resource": "drugs"
+        },
+        "expected_result": "dcdd8421204bb3a273c8ca0b2de8d088"
+    },
     "error_test1": {
         "type": "error",
         "args": {
