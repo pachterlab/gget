@@ -33,6 +33,7 @@ from .gget_elm import elm
 from .gget_diamond import diamond
 from .gget_cosmic import cosmic
 from .gget_mutate import mutate
+from .gget_opentargets import opentargets
 
 
 # Custom formatter for help messages that preserved the text formatting and adds the default value to the end of the help message
@@ -43,6 +44,11 @@ class CustomHelpFormatter(argparse.RawTextHelpFormatter):
             "%(default)" not in help_str
             and action.default is not argparse.SUPPRESS
             and action.default is not None
+            # default information can be deceptive or confusing for boolean flags.
+            # For example, `--quiet` says "Does not print progress information. (default: True)" even though
+            # the default action is to NOT be quiet (to the user, the default is False).
+            and not isinstance(action, argparse._StoreTrueAction)
+            and not isinstance(action, argparse._StoreFalseAction)
         ):
             help_str += " (default: %(default)s)"
         return help_str
@@ -1951,6 +1957,67 @@ def main():
         help="Do not print progress information.",
     )
 
+    ## opentargets parser arguments
+    opentargets_desc = "Query the Open Targets Platform for gene-disease associations."
+    parser_opentargets = parent_subparsers.add_parser(
+        "opentargets",
+        parents=[parent],
+        description=opentargets_desc,
+        help=opentargets_desc,
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
+    )
+    parser_opentargets.add_argument(
+        "ens_id",
+        type=str,
+        help="Ensembl gene ID, e.g. ENSG00000169194."
+    )
+    parser_opentargets.add_argument(
+        "-r",
+        "--resource",
+        choices=[
+            "diseases"
+        ],
+        default="diseases",
+        type=str,
+        required=False,
+        help="Type of information to be returned."
+    )
+    parser_opentargets.add_argument(
+        "-l",
+        "--limit",
+        default=None,
+        type=int,
+        required=False,
+        help="Limits the number of results, e.g. 10 (default: None)."
+    )
+    parser_opentargets.add_argument(
+        "-o",
+        "--out",
+        type=str,
+        required=False,
+        help=(
+            "Path to the file the results will be saved in, e.g. path/to/directory/results.json.\n"
+            "Default: Standard out."
+        ),
+    )
+    parser_opentargets.add_argument(
+        "-csv",
+        "--csv",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Returns results in csv format instead of json.",
+    )
+    parser_opentargets.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Does not print progress information.",
+    )
+
     ### Define return values
     args = parent_parser.parse_args()
 
@@ -1999,6 +2066,7 @@ def main():
         "diamond": parser_diamond,
         "cosmic": parser_cosmic,
         "mutate": parser_mutate,
+        "opentargets": parser_opentargets
     }
 
     if len(sys.argv) == 2:
@@ -2798,3 +2866,34 @@ def main():
                         json.dump(pdb_results, f, ensure_ascii=False, indent=4)
                 else:
                     print(json.dumps(pdb_results, ensure_ascii=False, indent=4))
+
+    ## opentargets return
+    if args.command == "opentargets":
+        opentargets_results = opentargets(
+            ensembl_id=args.ens_id,
+            resource=args.resource,
+            limit=args.limit,
+            verbose=args.quiet,
+        )
+
+        if args.resource == "diseases":
+            if args.out is not None and args.out != "":
+                # Make saving directory
+                directory = os.path.dirname(args.out)
+                if directory != "":
+                    os.makedirs(directory, exist_ok=True)
+
+                # Save json
+                with open(args.out, "w", encoding="utf-8") as f:
+                    if args.csv:
+                        opentargets_results.to_csv(f, index=False)
+                    else:
+                        opentargets_results.to_json(f, orient="records", force_ascii=False, indent=4)
+            else:
+                if args.csv:
+                    opentargets_results.to_csv(sys.stdout, index=False)
+                else:
+                    print(opentargets_results.to_json(orient="records", force_ascii=False, indent=4))
+        else:
+            raise ValueError(f"Command line support for the specified resource '{args.resource}' is not implemented."
+                             " Please file an issue at https://github.com/pachterlab/gget/issues/new/choose")
