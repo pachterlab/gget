@@ -11,7 +11,9 @@ logger = set_up_logger()
 
 def opentargets(
     ensembl_id: str,
-    resource: Literal["diseases", "drugs", "tractability", "pharmacogenetics", "expression"] = "diseases",
+    resource: Literal[
+        "diseases", "drugs", "tractability", "pharmacogenetics", "expression"
+    ] = "diseases",
     limit: int | None = None,
     verbose: bool = True,
     wrap_text: bool = False,
@@ -50,6 +52,7 @@ def _limit_pagination() -> tuple[str, str, callable]:
     """
     Limit is expressed as (page: {"index": 0, "size": limit}).
     """
+
     def f(limit: int | None, is_rows_based_query: bool):
         if limit is None:
             # special case because `None` is used to probe the total count
@@ -58,6 +61,7 @@ def _limit_pagination() -> tuple[str, str, callable]:
             else:
                 return None
         return {"index": 0, "size": limit}
+
     return "page", "Pagination", f
 
 
@@ -65,11 +69,13 @@ def _limit_size() -> tuple[str, str, callable]:
     """
     Limit is expressed as (size: limit).
     """
+
     def f(limit: int | None, is_rows_based_query: bool):
         # special case because `None` is used to probe the total count
         if limit is None and is_rows_based_query:
             limit = 1
         return limit
+
     return "size", "Int", f
 
 
@@ -77,6 +83,7 @@ def _limit_not_supported() -> tuple[None, None, callable]:
     """
     Limit is not supported for this resource (it has no GraphQL-support, and it is meaningless).
     """
+
     def f(limit: int | None, _is_rows_based_query: bool):
         if limit is not None:
             raise ValueError("Limit is not supported for this resource.")
@@ -89,6 +96,7 @@ def _limit_deferred() -> tuple[None, None, callable]:
     """
     Limit is handled after fetching the data (it is not supported by the GraphQL query, but does have meaning).
     """
+
     def f(_limit: int | None, _is_rows_based_query: bool):
         return None
 
@@ -176,10 +184,13 @@ def _make_query_fun(
                 count
                 rows{
                     <INNER_QUERY>
-                }""".replace("<INNER_QUERY>", inner_query)
+                }""".replace(
+                    "<INNER_QUERY>", inner_query
+                )
             else:
                 query_tmp = inner_query
-            query_string = """
+            query_string = (
+                """
             query target($ensemblId: String!, $pagination: <LIMIT_TYPE>) {
                 target(ensemblId: $ensemblId) {
                     <TOP_LEVEL_KEY>(<LIMIT_KEY>: $pagination){
@@ -188,13 +199,11 @@ def _make_query_fun(
                 }
             }
             """.replace(
-                "<TOP_LEVEL_KEY>", top_level_key
-            ).replace(
-                "<LIMIT_TYPE>", limit_type
-            ).replace(
-                "<LIMIT_KEY>", limit_key
-            ).replace(
-                "<QUERY>", query_tmp
+                    "<TOP_LEVEL_KEY>", top_level_key
+                )
+                .replace("<LIMIT_TYPE>", limit_type)
+                .replace("<LIMIT_KEY>", limit_key)
+                .replace("<QUERY>", query_tmp)
             )
 
         pagination = limit_func(limit, is_rows_based_query)
@@ -288,7 +297,6 @@ _RESOURCES = {
         ["description"],
         _limit_pagination,
     ),
-
     "drugs": _make_query_fun(
         "knownDrugs",
         """
@@ -336,7 +344,6 @@ _RESOURCES = {
         ["description", "synonyms", "trade_names", "trial_ids"],
         _limit_size,
     ),
-
     "tractability": _make_query_fun(
         "tractability",
         """
@@ -353,7 +360,7 @@ _RESOURCES = {
         _limit_not_supported,
         filter_=lambda x: x["value"],
         converter=_tractability_converter,
-        is_rows_based_query=False
+        is_rows_based_query=False,
     ),
     "pharmacogenetics": _make_query_fun(
         "pharmacogenomics",
@@ -386,23 +393,16 @@ _RESOURCES = {
         "pharmacogenetic responses",
         [
             ("rs_id", "variantRsId"),
-
             ("genotype_id", "genotypeId"),
             ("genotype", "genotype"),
-
             ("variant_consequence_id", "variantFunctionalConsequence.id"),
             ("variant_consequence_label", "variantFunctionalConsequence.label"),
-
-            ("drugs", "drugs"), # this is processed into a DataFrame by the converter
-
+            ("drugs", "drugs"),  # this is processed into a DataFrame by the converter
             ("phenotype", "phenotypeText"),
             ("genotype_annotation", "genotypeAnnotationText"),
-
             ("response_category", "pgxCategory"),
             ("direct_target", "isDirectTarget"),
-
             ("evidence_level", "evidenceLevel"),
-
             ("source", "datasourceId"),
             ("literature", "literature"),
         ],
@@ -411,7 +411,6 @@ _RESOURCES = {
         is_rows_based_query=False,
         converter=_pharmacogenetics_converter,
     ),
-
     "expression": _make_query_fun(
         "expressions",
         """
@@ -444,7 +443,7 @@ _RESOURCES = {
         is_rows_based_query=False,
         sorter=lambda x: (x["rna"]["value"], x["rna"]["zscore"]),
         sort_reverse=True,
-    )
+    ),
 }
 
 OPENTARGETS_RESOURCES = list(_RESOURCES.keys())

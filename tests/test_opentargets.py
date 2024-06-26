@@ -83,7 +83,9 @@ class TestOpenTargets(unittest.TestCase):
         result_to_test = opentargets(**ot_dict[test]["args"])
         # If result is a DataFrame, convert to json (nested dataframes prevent easy listification)
         if isinstance(result_to_test, pd.DataFrame):
-            result_to_test = json.loads(result_to_test.to_json(orient="records", force_ascii=False))
+            result_to_test = json.loads(
+                result_to_test.to_json(orient="records", force_ascii=False)
+            )
 
         self.assertEqual(result_to_test, expected_result)
 
@@ -93,7 +95,9 @@ class TestOpenTargets(unittest.TestCase):
         result_to_test = opentargets(**ot_dict[test]["args"])
         # If result is a DataFrame, convert to json (nested dataframes prevent easy listification)
         if isinstance(result_to_test, pd.DataFrame):
-            result_to_test = json.loads(result_to_test.to_json(orient="records", force_ascii=False))
+            result_to_test = json.loads(
+                result_to_test.to_json(orient="records", force_ascii=False)
+            )
 
         result_to_test = json.dumps(result_to_test)
         result_to_test = hashlib.md5(result_to_test.encode()).hexdigest()
@@ -106,7 +110,9 @@ class TestOpenTargets(unittest.TestCase):
         result_to_test = opentargets(**ot_dict[test]["args"])
         # If result is a DataFrame, convert to json (nested dataframes prevent easy listification)
         if isinstance(result_to_test, pd.DataFrame):
-            result_to_test = json.loads(result_to_test.to_json(orient="records", force_ascii=False))
+            result_to_test = json.loads(
+                result_to_test.to_json(orient="records", force_ascii=False)
+            )
 
         self.assertEqual(result_to_test, expected_result)
 
@@ -116,7 +122,9 @@ class TestOpenTargets(unittest.TestCase):
         result_to_test = opentargets(**ot_dict[test]["args"])
         # If result is a DataFrame, convert to json (nested dataframes prevent easy listification)
         if isinstance(result_to_test, pd.DataFrame):
-            result_to_test = json.loads(result_to_test.to_json(orient="records", force_ascii=False))
+            result_to_test = json.loads(
+                result_to_test.to_json(orient="records", force_ascii=False)
+            )
 
         result_to_test = json.dumps(result_to_test)
         result_to_test = hashlib.md5(result_to_test.encode()).hexdigest()
