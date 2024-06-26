@@ -188,11 +188,14 @@ def _mk_filter_applicator(id_key: dict[str, str]) -> tuple[set[str], _FilterAppl
     ) -> bool:
         for filter_id, filter_values in filters.items():
             split_key = id_key[filter_id].split(".")
-            actual_value = row
+            actual_value: dict[str, ...] | list[dict[str, ...]] = row
             for k in split_key:
                 if actual_value is None:
                     break
-                actual_value = actual_value[k]
+                if type(actual_value) is list:
+                    actual_value = [v[k] for v in actual_value]
+                else:
+                    actual_value = actual_value[k]
 
             if mode == "and":
                 if type(actual_value) is list:
@@ -354,8 +357,6 @@ def _make_query_fun(
             )
 
         if limit is None and limit_key is not None and is_rows_based_query:
-            # wait 1 second as a courtesy
-            time.sleep(1)
             variables["pagination"] = limit_func(total_count, is_rows_based_query)
 
             new_results = graphql_query(
@@ -381,6 +382,9 @@ def _make_query_fun(
 
         rows = [row for row in rows if filter_(row)]
         converter(rows)
+
+        if actual_limit is not None: # just in case the converter changed the length
+            rows = rows[:actual_limit]
 
         df = json_list_to_df(
             rows,
