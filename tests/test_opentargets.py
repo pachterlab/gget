@@ -100,6 +100,29 @@ class TestOpenTargets(unittest.TestCase):
 
         self.assertEqual(result_to_test, expected_result)
 
+    def test_expression(self):
+        test = "test9"
+        expected_result = ot_dict[test]["expected_result"]
+        result_to_test = opentargets(**ot_dict[test]["args"])
+        # If result is a DataFrame, convert to json (nested dataframes prevent easy listification)
+        if isinstance(result_to_test, pd.DataFrame):
+            result_to_test = json.loads(result_to_test.to_json(orient="records", force_ascii=False))
+
+        self.assertEqual(result_to_test, expected_result)
+
+    def test_expression_no_limit(self):
+        test = "test10"
+        expected_result = ot_dict[test]["expected_result"]
+        result_to_test = opentargets(**ot_dict[test]["args"])
+        # If result is a DataFrame, convert to json (nested dataframes prevent easy listification)
+        if isinstance(result_to_test, pd.DataFrame):
+            result_to_test = json.loads(result_to_test.to_json(orient="records", force_ascii=False))
+
+        result_to_test = json.dumps(result_to_test)
+        result_to_test = hashlib.md5(result_to_test.encode()).hexdigest()
+
+        self.assertEqual(result_to_test, expected_result)
+
     ## Test bad input errors
     def test_opentargets_bad_resource(self):
         test = "error_test1"

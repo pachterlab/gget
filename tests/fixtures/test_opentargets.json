@@ -244,6 +244,74 @@
     },
 
 
+    "test9": {
+        "type": "assert_equal",
+        "args": {
+            "ensembl_id": "ENSG00000169194",
+            "resource": "expression",
+            "limit": 3
+        },
+        "expected_result": [
+            {
+                "anatomical_systems": [
+                    "reproductive system"
+                ],
+                "organs": [
+                    "reproductive organ",
+                    "reproductive structure"
+                ],
+                "rna_level": 3,
+                "rna_unit": "",
+                "rna_value": 1026.0,
+                "rna_zscore": 5,
+                "tissue_id": "UBERON_0000473",
+                "tissue_name": "testis"
+            },
+            {
+                "anatomical_systems": [
+                    "hemolymphoid system",
+                    "immune system",
+                    "lymphoid system"
+                ],
+                "organs": [
+                    "immune organ"
+                ],
+                "rna_level": 2,
+                "rna_unit": "",
+                "rna_value": 54.0,
+                "rna_zscore": 1,
+                "tissue_id": "CL_0000542",
+                "tissue_name": "EBV-transformed lymphocyte"
+            },
+            {
+                "anatomical_systems": [
+                    "hemolymphoid system",
+                    "musculoskeletal system",
+                    "hematopoietic system",
+                    "immune system"
+                ],
+                "organs": [
+                    "skeletal element"
+                ],
+                "rna_level": 2,
+                "rna_unit": "TPM",
+                "rna_value": 45.5,
+                "rna_zscore": 1,
+                "tissue_id": "UBERON_0002371",
+                "tissue_name": "bone marrow"
+            }
+        ]
+    },
+    "test10": {
+        "type": "assert_equal_json_hash",
+        "args": {
+            "ensembl_id": "ENSG00000169194",
+            "resource": "expression"
+        },
+        "expected_result": "a7331f21208ef719cff418ddf19d0774"
+    },
+
+
     "error_test1": {
         "type": "error",
         "args": {

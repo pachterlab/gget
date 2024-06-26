@@ -1,6 +1,5 @@
 import time
-import typing
-from typing import Literal
+from typing import Literal, Callable, Any
 
 import pandas as pd
 
@@ -12,7 +11,7 @@ logger = set_up_logger()
 
 def opentargets(
     ensembl_id: str,
-    resource: Literal["diseases", "drugs", "tractability", "pharmacogenetics"] = "diseases",
+    resource: Literal["diseases", "drugs", "tractability", "pharmacogenetics", "expression"] = "diseases",
     limit: int | None = None,
     verbose: bool = True,
     wrap_text: bool = False,
@@ -24,10 +23,11 @@ def opentargets(
 
     - ensembl_id    Ensembl gene ID to be queried (str), e.g. "ENSG00000169194".
     - resource      Defines type of information to be returned.
-                    "diseases":     Returns diseases associated with the gene (default).
-                    "drugs":        Returns drugs associated with the gene.
-                    "tractability": Returns tractability data for the gene.
+                    "diseases":         Returns diseases associated with the gene (default).
+                    "drugs":            Returns drugs associated with the gene.
+                    "tractability":     Returns tractability data for the gene.
                     "pharmacogenetics": Returns pharmacogenetics data for the gene.
+                    "expression":       Returns gene expression data (by tissues, organs, and anatomical systems).
     - limit         Limit the number of results returned (default: No limit).
     - verbose       Print progress messages (default: True).
     - wrap_text     If True, displays data frame with wrapped text for easy reading. Default: False.
@@ -47,6 +47,9 @@ def opentargets(
 
 
 def _limit_pagination() -> tuple[str, str, callable]:
+    """
+    Limit is expressed as (page: {"index": 0, "size": limit}).
+    """
     def f(limit: int | None, is_rows_based_query: bool):
         if limit is None:
             # special case because `None` is used to probe the total count
@@ -59,6 +62,9 @@ def _limit_pagination() -> tuple[str, str, callable]:
 
 
 def _limit_size() -> tuple[str, str, callable]:
+    """
+    Limit is expressed as (size: limit).
+    """
     def f(limit: int | None, is_rows_based_query: bool):
         # special case because `None` is used to probe the total count
         if limit is None and is_rows_based_query:
@@ -68,9 +74,22 @@ def _limit_size() -> tuple[str, str, callable]:
 
 
 def _limit_not_supported() -> tuple[None, None, callable]:
-    def f(limit: int, is_rows_based_query: bool):
+    """
+    Limit is not supported for this resource (it has no GraphQL-support, and it is meaningless).
+    """
+    def f(limit: int | None, _is_rows_based_query: bool):
         if limit is not None:
             raise ValueError("Limit is not supported for this resource.")
+        return None
+
+    return None, None, f
+
+
+def _limit_deferred() -> tuple[None, None, callable]:
+    """
+    Limit is handled after fetching the data (it is not supported by the GraphQL query, but does have meaning).
+    """
+    def f(_limit: int | None, _is_rows_based_query: bool):
         return None
 
     return None, None, f
@@ -101,8 +120,10 @@ def _make_query_fun(
     wrap_columns: list[str],
     limit_func: callable,
     is_rows_based_query: bool = True,
-    filter_: typing.Callable[[dict[str, ...]], bool] = lambda x: True,
-    converter: typing.Callable[[dict[str, ...]], None] = lambda x: None,
+    sorter: Callable[[dict[str, ...]], Any] | None = None,
+    sort_reverse: bool = False,
+    filter_: Callable[[dict[str, ...]], bool] = lambda x: True,
+    converter: Callable[[dict[str, ...]], None] = lambda x: None,
 ) -> callable:
     """
     Make a query function for OpenTargets API.
@@ -116,6 +137,10 @@ def _make_query_fun(
     - wrap_columns          Columns to wrap text for easy reading, e.g. ["description"].
     - limit_func            Function to convert a limit into a pagination variable.
     - is_rows_based_query   If True, the query is wrapped inside `count rows{query}`.
+    - sorter                Function to sort the raw data before it is limited, filtered, or converted.
+                            Note: you may want to use `_limit_deferred`, otherwise the limit will be
+                            applied through GraphQL before sorting.
+    - sort_reverse          If True, sort in reverse order.
     - filter_               Function to filter the raw data (return False to skip value).
                             Note: applied after limit but before converter.
     - converter             Function to optionally manipulate the raw data IN PLACE before it is converted to a DataFrame.
@@ -219,6 +244,9 @@ def _make_query_fun(
                     f"Retrieved {len(rows)}/{total_count} {human_readable_tlk}."
                 )
 
+        if sorter is not None:
+            rows.sort(key=sorter, reverse=sort_reverse)
+
         if limit is not None:
             rows = rows[:limit]
 
@@ -260,6 +288,7 @@ _RESOURCES = {
         ["description"],
         _limit_pagination,
     ),
+
     "drugs": _make_query_fun(
         "knownDrugs",
         """
@@ -307,6 +336,7 @@ _RESOURCES = {
         ["description", "synonyms", "trade_names", "trial_ids"],
         _limit_size,
     ),
+
     "tractability": _make_query_fun(
         "tractability",
         """
@@ -380,6 +410,40 @@ _RESOURCES = {
         _limit_pagination,
         is_rows_based_query=False,
         converter=_pharmacogenetics_converter,
+    ),
+
+    "expression": _make_query_fun(
+        "expressions",
+        """
+        tissue{
+            id
+            label
+            anatomicalSystems
+            organs
+        }
+        rna{
+            zscore
+            value
+            unit
+            level
+        }
+        """,
+        "baseline expressions",
+        [
+            ("tissue_id", "tissue.id"),
+            ("tissue_name", "tissue.label"),
+            ("rna_zscore", "rna.zscore"),
+            ("rna_value", "rna.value"),
+            ("rna_unit", "rna.unit"),
+            ("rna_level", "rna.level"),
+            ("anatomical_systems", "tissue.anatomicalSystems"),
+            ("organs", "tissue.organs"),
+        ],
+        ["tissue_name", "anatomical_systems", "organs"],
+        _limit_deferred,
+        is_rows_based_query=False,
+        sorter=lambda x: (x["rna"]["value"], x["rna"]["zscore"]),
+        sort_reverse=True,
     )
 }
 
