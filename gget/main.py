@@ -1958,7 +1958,8 @@ def main():
     )
 
     ## opentargets parser arguments
-    opentargets_desc = "Query the Open Targets Platform for gene-(disease/drug) associations."
+    opentargets_desc = ("Query the Open Targets Platform with a gene for associated drugs, diseases, tractability stats,"
+                        " pharmacogenetic responses, expression data, DepMap effects, and protein-protein interaction data.")
     parser_opentargets = parent_subparsers.add_parser(
         "opentargets",
         parents=[parent],
@@ -1987,7 +1988,7 @@ def main():
         default=None,
         type=int,
         required=False,
-        help="Limits the number of results, e.g. 10 (default: None). Note: Not compatible with the 'tractability' resource",
+        help="Limits the number of results, e.g. 10 (default: None). Note: Not compatible with the 'tractability' and 'depmap' resources",
     )
     parser_opentargets.add_argument(
         "-o",
@@ -1999,6 +2000,35 @@ def main():
             "Default: Standard out."
         ),
     )
+    # Filters
+    _filters = [
+        # flag, long flag,   filter name,            example,            valid resources
+        ('d',  'disease',    "disease ID",           "EFO_0000274",      ["drugs"]),
+        ('c',  'drug',       "drug ID",              "CHEMBL1743081",    ["pharmacogenetics"]),
+        ('t',  'tissue',     "tissue ID",            "UBERON_0000473",   ["expression", "depmap"]),
+        ('a',  'anat_sys',   "anatomical system",    "nervous system",   ["expression"]),
+        ('o',  'organ',      "organ",                "brain",            ["expression"]),
+        ('pa', 'protein_a',  "protein A ID",         "ENSP00000304915",  ["interactions"]),
+        ('pb', 'protein_b',  "protein B ID",         "ENSP00000379111",  ["interactions"]),
+        ('gb', 'gene_b',     "gene B ID",            "ENSG00000077238",  ["interactions"]),
+    ]
+    for flag, long_flag, filter_name, example, valid_resources in _filters:
+        help_text = f"Filter results by {filter_name}, e.g. '{example}'.\n"
+        if len(valid_resources) > 1:
+            quot = "'"
+            help_text += f"Only valid for the following resources: {', '.join([quot+vr+quot for vr in valid_resources])}."
+        else:
+            help_text += f"Only valid for the '{valid_resources[0]}' resource."
+        parser_opentargets.add_argument(
+            '-f'+flag,
+            '--filter_'+long_flag,
+            type=str,
+            required=False,
+            nargs="+",
+            default=None,
+            help=help_text
+        )
+    # End Filters
     parser_opentargets.add_argument(
         "-csv",
         "--csv",
@@ -2014,6 +2044,14 @@ def main():
         action="store_false",
         required=False,
         help="Does not print progress information.",
+    )
+    parser_opentargets.add_argument(
+        "-or",
+        "--or",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Use OR instead of AND logic for multiple filter IDs.",
     )
 
     ### Define return values
@@ -2867,11 +2905,32 @@ def main():
 
     ## opentargets return
     if args.command == "opentargets":
+        flag_to_filter_id = {
+            "filter_disease": "disease_id",
+            "filter_drug": "drug_id",
+            "filter_tissue": "tissue_id",
+            "filter_anat_sys": "anatomical_system",
+            "filter_organ": "organ",
+            "filter_protein_a": "protein_a_id",
+            "filter_protein_b": "protein_b_id",
+            "filter_gene_b": "gene_b_id",
+        }
+        filters: dict[str, list[str]] | None = {}
+
+        for flag, filter_id in flag_to_filter_id.items():
+            if getattr(args, flag) is not None:
+                filters[filter_id] = getattr(args, flag)
+
+        if len(filters) == 0:
+            filters = None
+
         opentargets_results = opentargets(
             ensembl_id=args.ens_id,
             resource=args.resource,
             limit=args.limit,
             verbose=args.quiet,
+            filters=filters,
+            filter_mode="or" if getattr(args, "or") else "and",
         )
 
         if args.out is not None and args.out != "":

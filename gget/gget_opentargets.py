@@ -1,5 +1,5 @@
 import time
-from typing import Literal, Callable, Any
+from typing import Literal, Callable, Any, TypeAlias
 
 import pandas as pd
 
@@ -23,6 +23,8 @@ def opentargets(
     limit: int | None = None,
     verbose: bool = True,
     wrap_text: bool = False,
+    filters: dict[str, list[str]] | None = None,
+    filter_mode: Literal["and", "or"] = "and",
 ) -> pd.DataFrame:
     """
     Query OpenTargets for data associated with a given Ensembl gene ID.
@@ -42,6 +44,16 @@ def opentargets(
                     Note: Not compatible with the 'tractability' and 'depmap' resources.
     - verbose       Print progress messages (default: True).
     - wrap_text     If True, displays data frame with wrapped text for easy reading. Default: False.
+    - filters       Filters to apply to the data. Supported filters by resource:
+                    "diseases": None
+                    "drugs": disease_id (e.g. "EFO_0000274")
+                    "tractability": None
+                    "pharmacogenetics": drug_id (e.g. "CHEMBL535")
+                    "expression": tissue_id (e.g. "UBERON_0002245"), anatomical_system (e.g. "nervous system"), organ (e.g. "brain")
+                    "depmap": tissue_id (e.g. "UBERON_0002245")
+                    "interactions": protein_a_id (e.g. "ENSP00000304915"), protein_b_id (e.g. "ENSP00000379111"), gene_b_id (e.g. "ENSG00000077238")
+    - filter_mode   For resources that support multiple types of filters, this argument specifies how to combine them.
+
 
     Returns requested information in DataFrame format.
     """
@@ -53,7 +65,7 @@ def opentargets(
         )
 
     return _RESOURCES[resource](
-        ensembl_id, limit=limit, verbose=verbose, wrap_text=wrap_text
+        ensembl_id, limit=limit, verbose=verbose, wrap_text=wrap_text, filters=filters, filter_mode=filter_mode
     )
 
 
@@ -151,6 +163,41 @@ def _flatten_depmap(json_entries: list[dict[str, ...]]):
             json_entries.append(new_entry)
 
 
+_FilterApplicator: TypeAlias = Callable[[dict[str, ...], Literal["and", "or"], dict[str, list[str]]], bool]
+
+
+def _mk_filter_applicator(id_key: dict[str, str]) -> tuple[set[str], _FilterApplicator]:
+    """
+    Make a filter applicator function based on the provided mapping.
+    :param id_key: Mapping of filter key to the key in the row data. (e.g. {"disease_id": "disease.id"})
+    """
+    def f(row: dict[str, ...], mode: Literal["and", "or"], filters: dict[str, list[str]]) -> bool:
+        for filter_id, filter_values in filters.items():
+            split_key = id_key[filter_id].split(".")
+            actual_value = row
+            for k in split_key:
+                if actual_value is None:
+                    break
+                actual_value = actual_value[k]
+
+            if mode == "and":
+                if type(actual_value) is list:
+                    if not any(v in filter_values for v in actual_value):  # if none match, return False
+                        return False
+                elif actual_value not in filter_values:
+                    return False
+            else:
+                if type(actual_value) is list:
+                    if any(v in filter_values for v in actual_value):  # if any match, return True
+                        return True
+                elif actual_value in filter_values:
+                    return True
+
+        return mode == "and"  # fallthrough return for "and" is True, for "or" is False
+
+    return set(id_key.keys()), f
+
+
 def _make_query_fun(
     top_level_key: str,
     inner_query: str,
@@ -163,6 +210,7 @@ def _make_query_fun(
     sort_reverse: bool = False,
     filter_: Callable[[dict[str, ...]], bool] = lambda x: True,
     converter: Callable[[list[dict[str, ...]]], None] = lambda x: None,
+    user_filter: tuple[set[str], _FilterApplicator] | None = None,
 ) -> callable:
     """
     Make a query function for OpenTargets API.
@@ -183,6 +231,8 @@ def _make_query_fun(
     - filter_               Function to filter the raw data (return False to skip value).
                             Note: applied after limit but before converter.
     - converter             Function to optionally manipulate the raw data IN PLACE before it is converted to a DataFrame.
+    - user_filter           Tuple of a set of valid filter keys and a function to apply filters to the raw data.
+                            Run before limit, `filter_`, and `converter`. Only called if filters are provided.
 
     Returns a function that queries the OpenTargets API and returns the data in DataFrame format.
     """
@@ -194,6 +244,8 @@ def _make_query_fun(
         limit: int | None = None,
         verbose: bool = True,
         wrap_text: bool = False,
+        filters: dict[str, list[str]] | None = None,
+        filter_mode: Literal["and", "or"] = "and",
     ) -> pd.DataFrame:
         if limit_key is None:
             query_string = """
@@ -236,6 +288,22 @@ def _make_query_fun(
                 .replace("<LIMIT_KEY>", limit_key)
                 .replace("<QUERY>", query_tmp)
             )
+
+        actual_limit = limit
+
+        if filters is not None and len(filters) > 0:
+            if user_filter is None:
+                raise ValueError("Filters are not supported for this resource.")
+            valid_keys, filter_func = user_filter
+            invalid_keys = set(filters.keys()) - valid_keys
+            if len(invalid_keys) > 0:
+                invalid_keys = [f"'{k}'" for k in invalid_keys]
+                valid_keys = [f"'{k}'" for k in valid_keys]
+                raise ValueError(
+                    f"The following filter keys are invalid for this resource: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys)}"
+                )
+            # we have to fetch all data to be able to apply limit in a sane way when filters are specified
+            limit = None
 
         pagination = limit_func(limit, is_rows_based_query)
         variables = {"ensemblId": ensembl_id, "pagination": pagination}
@@ -287,8 +355,11 @@ def _make_query_fun(
         if sorter is not None:
             rows.sort(key=sorter, reverse=sort_reverse)
 
-        if limit is not None:
-            rows = rows[:limit]
+        if filters is not None and len(filters) > 0:
+            rows = [row for row in rows if user_filter[1](row, filter_mode, filters)]
+
+        if actual_limit is not None:
+            rows = rows[:actual_limit]
 
         rows = [row for row in rows if filter_(row)]
         converter(rows)
@@ -373,6 +444,7 @@ _RESOURCES = {
         ],
         ["description", "synonyms", "trade_names", "trial_ids"],
         _limit_size,
+        user_filter=_mk_filter_applicator({"disease_id": "disease.id"}),
     ),
     "tractability": _make_query_fun(
         "tractability",
@@ -440,6 +512,7 @@ _RESOURCES = {
         _limit_pagination,
         is_rows_based_query=False,
         converter=_mk_list_converter(_pharmacogenetics_converter),
+        user_filter=_mk_filter_applicator({"drug_id": "drugs.drugId"})
     ),
     "expression": _make_query_fun(
         "expressions",
@@ -473,6 +546,7 @@ _RESOURCES = {
         is_rows_based_query=False,
         sorter=lambda x: (x["rna"]["value"], x["rna"]["zscore"]),
         sort_reverse=True,
+        user_filter=_mk_filter_applicator({"tissue_id": "tissue.id", "anatomical_system": "tissue.anatomicalSystems", "organ": "tissue.organs"})
     ),
     "depmap": _make_query_fun(
         "depMapEssentiality",
@@ -505,6 +579,7 @@ _RESOURCES = {
         _limit_not_supported,
         is_rows_based_query=False,
         converter=_flatten_depmap,
+        user_filter=_mk_filter_applicator({"tissue_id": "tissueId"})
     ),
     "interactions": _make_query_fun(
         "interactions",
@@ -551,6 +626,7 @@ _RESOURCES = {
         ],
         [],
         _limit_pagination,
+        user_filter=_mk_filter_applicator({"protein_a_id": "intA", "protein_b_id": "intB", "gene_b_id": "targetB.id"})
     ),
 }
 

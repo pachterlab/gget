@@ -12,15 +12,15 @@ Ensembl gene ID, e.g ENSG00000169194.
 Defines the type of information to return in the output. Default: 'diseases'.   
 Possible resources are:
 
-| Resource           | Return Value                                                      |
-|--------------------|-------------------------------------------------------------------|
-| `diseases`         | Associated diseases                                               |
-| `drugs`            | Associated drugs                                                  |
-| `tractability`     | Tractability data                                                 |
-| `pharmacogenetics` | Pharmacogenetic responses                                         |
-| `expression`       | Gene expression data (by tissues, organs, and anatomical systems) |
-| `depmap`           | DepMap gene&rarr;disease-effect data.                             |
-| `interactions`     | Protein&rlarr;protein interactions                                |
+| Resource           | Return Value                                                      | Valid Filters                                     |
+|--------------------|-------------------------------------------------------------------|---------------------------------------------------|
+| `diseases`         | Associated diseases                                               | None                                              |
+| `drugs`            | Associated drugs                                                  | `disease_id`                                      |
+| `tractability`     | Tractability data                                                 | None                                              |
+| `pharmacogenetics` | Pharmacogenetic responses                                         | `drug_id`                                         |
+| `expression`       | Gene expression data (by tissues, organs, and anatomical systems) | `tissue_id`<br/>`anatomical_system`<br/>`organ`   |
+| `depmap`           | DepMap gene&rarr;disease-effect data.                             | `tissue_id`                                       |
+| `interactions`     | Protein&rlarr;protein interactions                                | `protein_a_id`<br/>`protein_b_id`<br/>`gene_b_id` |
 
 `-l` `--limit`  
 Limit the number of results, e.g 10. Default: No limit.     
@@ -30,6 +30,42 @@ Note: Not compatible with the `tractability` and `depmap` resources.
 Path to the JSON file the results will be saved in, e.g. path/to/directory/results.json. Default: Standard out.  
 Python: `save=True` will save the output in the current working directory.
 
+**Optional filter arguments**
+
+`-fd` `--filter_disease` `disease_id`  
+Filter by disease ID, e.g. 'EFO_0000274'. *Only valid for the `drugs` resource.*
+
+`-fc` `--filter_drug` `drug_id`  
+Filter by drug ID, e.g. 'CHEMBL1743081'. *Only valid for the `pharmacogenetics` resource.*
+
+`-ft` `--filter_tissue` `tissue_id`  
+Filter by tissue ID, e.g. 'UBERON_0000473'. *Only valid for the `expression` and `depmap` resources.*
+
+`-fa` `--filter_anat_sys`  
+Filter by anatomical system, e.g. 'nervous system'. *Only valid for the `expression` resource.*
+
+`-fo` `--filter_organ` `anatomical_system`  
+Filter by organ, e.g. 'brain'. *Only valid for the `expression` resource.*
+
+`-fpa` `--filter_protein_a` `protein_a_id`  
+Filter by the protein ID of the first protein in the interaction, e.g. 'ENSP00000304915'. *Only valid for the `interactions` resource.*
+
+`-fpb` `--filter_protein_b` `protein_b_id`  
+Filter by the protein ID of the second protein in the interaction, e.g. 'ENSP00000379111'. *Only valid for the `interactions` resource.*
+
+`-fgb` `--filter_gene_b` `gene_b_id`  
+Filter by the gene ID of the second protein in the interaction, e.g. 'ENSG00000077238'. *Only valid for the `interactions` resource.*
+
+`filters`  
+Python only. A dictionary of filters, e.g.
+```python
+{'disease_id': ['EFO_0000274', 'HP_0000964']}
+```
+
+`filter_mode`  
+Python only. `filter_mode='or'` combines filters of different IDs with OR logic.
+`filter_mode='and'` combines filters of different IDs with AND logic (default).
+
 **Flags**   
 `-csv` `--csv`  
 Command-line only. Returns the output in CSV format, instead of JSON format.
@@ -37,6 +73,9 @@ Command-line only. Returns the output in CSV format, instead of JSON format.
 `-q` `--quiet`   
 Command-line only. Prevents progress information from being displayed.  
 Python: Use `verbose=False` to prevent progress information from being displayed. 
+
+`-or` `--or`  
+Command-line only. Filters are combined with OR logic. Default: AND logic.
 
 `wrap_text`  
 Python only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).  
