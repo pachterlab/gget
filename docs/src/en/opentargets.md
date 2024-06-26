@@ -14,6 +14,7 @@ Possible resources are:
 'diseases' - Returns associated diseases.
 'drugs' - Returns associated drugs.
 'tractability' - Returns tractability data.
+'pharmacogenetics' - Returns pharmacogenetic responses.
 
 `-l` `--limit`  
 Limit the number of results, e.g 10. Default: No limit.     
@@ -92,5 +93,24 @@ gget.opentargets('ENSG00000169194', resource='tractability')
 | GO CC high conf       | Antibody       |
 | UniProt loc med conf  | Antibody       |
 | UniProt SigP or TMHMM | Antibody       |
+
+<br/><br/>
+
+**Get pharmacogenetic responses for a specific gene:**
+```bash
+gget opentargets ENSG00000169194 -r pharmacogenetics -l 1
+```
+```python
+import gget
+gget.opentargets('ENSG00000169194', resource='pharmacogenetics', limit=1)
+```
+
+&rarr; Returns pharmacogenetic responses for the gene ENSG00000169194.
+
+| rs_id     | genotype_id       | genotype | variant_consequence_id | variant_consequence_label | drugs                                                                                                                                   | phenotype                                                         | genotype_annotation                                                                                          | response_category | direct_target | evidence_level | source   | literature |
+|-----------|-------------------|----------|------------------------|---------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|-------------------|---------------|----------------|----------|------------|
+| rs1295686 | 5_132660151_T_T,T | TT       | SO:0002073             | no_sequence_alteration    | &nbsp;&nbsp;&nbsp;&nbsp;id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name<br/>0&nbsp;&nbsp;None&nbsp;&nbsp;hepatitis&nbsp;vaccines | increased risk for non-immune response to the hepatitis B vaccine | Patients with the TT genotype may be at increased risk for non-immune response to the hepatitis B vaccine... | efficacy          | False         | 3              | pharmgkb | [21111021] |
+
+*Note: Returned `literature` ids are [Europe PMC](https://europepmc.org/article/med/) identifiers*
     
 #### [More examples](https://github.com/pachterlab/gget_examples)

@@ -12,7 +12,7 @@ logger = set_up_logger()
 
 def opentargets(
     ensembl_id: str,
-    resource: Literal["diseases", "drugs", "tractability"] = "diseases",
+    resource: Literal["diseases", "drugs", "tractability", "pharmacogenetics"] = "diseases",
     limit: int | None = None,
     verbose: bool = True,
     wrap_text: bool = False,
@@ -27,6 +27,7 @@ def opentargets(
                     "diseases":     Returns diseases associated with the gene (default).
                     "drugs":        Returns drugs associated with the gene.
                     "tractability": Returns tractability data for the gene.
+                    "pharmacogenetics": Returns pharmacogenetics data for the gene.
     - limit         Limit the number of results returned (default: No limit).
     - verbose       Print progress messages (default: True).
     - wrap_text     If True, displays data frame with wrapped text for easy reading. Default: False.
@@ -46,26 +47,31 @@ def opentargets(
 
 
 def _limit_pagination() -> tuple[str, str, callable]:
-    def f(limit: int | None):
+    def f(limit: int | None, is_rows_based_query: bool):
         if limit is None:
-            limit = 1
+            # special case because `None` is used to probe the total count
+            if is_rows_based_query:
+                limit = 1
+            else:
+                return None
         return {"index": 0, "size": limit}
     return "page", "Pagination", f
 
 
 def _limit_size() -> tuple[str, str, callable]:
-    def f(limit: int | None):
-        if limit is None:
+    def f(limit: int | None, is_rows_based_query: bool):
+        # special case because `None` is used to probe the total count
+        if limit is None and is_rows_based_query:
             limit = 1
         return limit
     return "size", "Int", f
 
 
 def _limit_not_supported() -> tuple[None, None, callable]:
-    def f(limit: int):
+    def f(limit: int, is_rows_based_query: bool):
         if limit is not None:
             raise ValueError("Limit is not supported for this resource.")
-        return 1
+        return None
 
     return None, None, f
 
@@ -80,15 +86,23 @@ def _tractability_converter(row: dict[str, ...]):
     row["modality"] = _modality_map.get(row["modality"], row["modality"])
 
 
+def _pharmacogenetics_converter(row: dict[str, ...]):
+    # need to modify the drugs field to parse it into a dataframe
+    drugs = row["drugs"]
+    drugs_df = json_list_to_df(drugs, [("id", "drugId"), ("name", "drugFromSource")])
+    row["drugs"] = drugs_df
+
+
 def _make_query_fun(
     top_level_key: str,
-    row_query: str,
+    inner_query: str,
     human_readable_tlk: str,
     df_schema: list[tuple[str, str]],
     wrap_columns: list[str],
     limit_func: callable,
+    is_rows_based_query: bool = True,
     filter_: typing.Callable[[dict[str, ...]], bool] = lambda x: True,
-    converter: typing.Callable[[dict[str, ...]], dict[str, ...]] = lambda x: None,
+    converter: typing.Callable[[dict[str, ...]], None] = lambda x: None,
 ) -> callable:
     """
     Make a query function for OpenTargets API.
@@ -96,11 +110,12 @@ def _make_query_fun(
     Args:
 
     - top_level_key         Top level key in the GraphQL query response, e.g. "associatedDiseases".
-    - row_query             Query string for the row data, e.g. "score disease{id name description}".
+    - inner_query           Query string for the row data, e.g. "score disease{id name description}".
     - human_readable_tlk    Human readable version of the top level key, e.g. "associated diseases".
     - df_schema             Schema for the DataFrame, e.g. [("id", "disease.id"), ("name", "disease.name")].
     - wrap_columns          Columns to wrap text for easy reading, e.g. ["description"].
-    - limit_func            Function to set the limit in the pagination object.
+    - limit_func            Function to convert a limit into a pagination variable.
+    - is_rows_based_query   If True, the query is wrapped inside `count rows{query}`.
     - filter_               Function to filter the raw data (return False to skip value).
                             Note: applied after limit but before converter.
     - converter             Function to optionally manipulate the raw data IN PLACE before it is converted to a DataFrame.
@@ -128,17 +143,22 @@ def _make_query_fun(
             """.replace(
                 "<TOP_LEVEL_KEY>", top_level_key
             ).replace(
-                "<ROW_QUERY>", row_query
+                "<ROW_QUERY>", inner_query
             )
         else:
+            if is_rows_based_query:
+                query_tmp = """
+                count
+                rows{
+                    <INNER_QUERY>
+                }""".replace("<INNER_QUERY>", inner_query)
+            else:
+                query_tmp = inner_query
             query_string = """
             query target($ensemblId: String!, $pagination: <LIMIT_TYPE>) {
                 target(ensemblId: $ensemblId) {
                     <TOP_LEVEL_KEY>(<LIMIT_KEY>: $pagination){
-                        count
-                        rows{
-                            <ROW_QUERY>
-                        }
+                        <QUERY>
                     }
                 }
             }
@@ -149,10 +169,10 @@ def _make_query_fun(
             ).replace(
                 "<LIMIT_KEY>", limit_key
             ).replace(
-                "<ROW_QUERY>", row_query
+                "<QUERY>", query_tmp
             )
 
-        pagination = limit_func(limit)
+        pagination = limit_func(limit, is_rows_based_query)
         variables = {"ensemblId": ensembl_id, "pagination": pagination}
 
         if limit_key is None:
@@ -166,26 +186,26 @@ def _make_query_fun(
             )
         data: dict[str, ...] = target[top_level_key]
 
-        if limit_key is None:
+        if is_rows_based_query:
+            total_count: int = data["count"]
+            rows: list[dict[str, ...]] = data["rows"]
+        else:
             # noinspection PyTypeChecker
             rows: list[dict[str, ...]] = data
             total_count = len(data)
-        else:
-            total_count: int = data["count"]
-            rows: list[dict[str, ...]] = data["rows"]
 
         if verbose:
             explanation = ""
-            if limit is None and limit_key is not None:
+            if limit is None and limit_key is not None and is_rows_based_query:
                 explanation = " (Querying count, will fetch all results next.)"
             logger.info(
                 f"Retrieved {len(rows)}/{total_count} {human_readable_tlk}.{explanation}"
             )
 
-        if limit is None and limit_key is not None:
+        if limit is None and limit_key is not None and is_rows_based_query:
             # wait 1 second as a courtesy
             time.sleep(1)
-            variables["pagination"] = limit_func(total_count)
+            variables["pagination"] = limit_func(total_count, is_rows_based_query)
 
             new_results = graphql_query(
                 OPENTARGETS_GRAPHQL_API, query_string, variables
@@ -303,6 +323,63 @@ _RESOURCES = {
         _limit_not_supported,
         filter_=lambda x: x["value"],
         converter=_tractability_converter,
+        is_rows_based_query=False
+    ),
+    "pharmacogenetics": _make_query_fun(
+        "pharmacogenomics",
+        """
+        variantRsId
+        
+        genotypeId
+        genotype
+        
+        variantFunctionalConsequence{
+            id
+            label
+        }
+        
+        drugs{
+            drugId
+            drugFromSource
+        }
+        phenotypeText
+        genotypeAnnotationText
+        
+        pgxCategory
+        isDirectTarget
+        
+        evidenceLevel
+        
+        datasourceId
+        literature
+        """,
+        "pharmacogenetic responses",
+        [
+            ("rs_id", "variantRsId"),
+
+            ("genotype_id", "genotypeId"),
+            ("genotype", "genotype"),
+
+            ("variant_consequence_id", "variantFunctionalConsequence.id"),
+            ("variant_consequence_label", "variantFunctionalConsequence.label"),
+
+            ("drugs", "drugs"), # this is processed into a DataFrame by the converter
+
+            ("phenotype", "phenotypeText"),
+            ("genotype_annotation", "genotypeAnnotationText"),
+
+            ("response_category", "pgxCategory"),
+            ("direct_target", "isDirectTarget"),
+
+            ("evidence_level", "evidenceLevel"),
+
+            ("source", "datasourceId"),
+            ("literature", "literature"),
+        ],
+        ["phenotype", "genotype_annotation"],
+        _limit_pagination,
+        is_rows_based_query=False,
+        converter=_pharmacogenetics_converter,
     )
 }
 
