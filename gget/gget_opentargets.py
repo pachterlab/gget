@@ -23,7 +23,7 @@ def opentargets(
     limit: int | None = None,
     verbose: bool = True,
     wrap_text: bool = False,
-    filters: dict[str, list[str]] | None = None,
+    filters: dict[str, str | list[str]] | None = None,
     filter_mode: Literal["and", "or"] = "and",
 ) -> pd.DataFrame:
     """
@@ -63,6 +63,10 @@ def opentargets(
         raise ValueError(
             f"'resource' argument specified as {resource}. Expected one of: {', '.join(_RESOURCES)}"
         )
+
+    # Wrap everything into a list
+    if filters is not None:
+        filters = {k: v if isinstance(v, list) else [v] for k, v in filters.items()}
 
     return _RESOURCES[resource](
         ensembl_id, limit=limit, verbose=verbose, wrap_text=wrap_text, filters=filters, filter_mode=filter_mode

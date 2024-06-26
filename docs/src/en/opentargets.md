@@ -211,5 +211,49 @@ gget.opentargets('ENSG00000169194', resource='interactions', limit=2)
 | 0.999          | 3              | string    | ENSP00000304915 | ENSG00000169194 | IL13          | unspecified&nbsp;role | 9606    | ENSP00000379111 | ENSG00000077238 | IL4R          | unspecified&nbsp;role | 9606    |
 | 0.999          | 3              | string    | ENSP00000304915 | ENSG00000169194 | IL13          | unspecified&nbsp;role | 9606    | ENSP00000360730 | ENSG00000131724 | IL13RA1       | unspecified&nbsp;role | 9606    |
 
+**Get protein-protein interactions for a specific gene, filtering by protein and gene IDs:**
+```bash
+gget opentargets ENSG00000169194 -r interactions -fpa P35225 --filter_gene_b ENSG00000077238
+```
+```python
+import gget
+gget.opentargets('ENSG00000169194', resource='interactions', filters={'protein_a_id': 'P35225', 'gene_b_id': 'ENSG00000077238'})
+```
+
+&rarr; Returns protein-protein interactions for the gene ENSG00000169194, where the first protein is P35225 **and** the second gene is ENSG00000077238.
+
+| evidence_score | evidence_count | source_db | protein_a_id | gene_a_id       | gene_a_symbol | role_a                | taxon_a | protein_b_id | gene_b_id       | gene_b_symbol | role_b                | taxon_b |
+|----------------|----------------|-----------|--------------|-----------------|---------------|-----------------------|---------|--------------|-----------------|---------------|-----------------------|---------|
+| None           | 3              | reactome  | P35225       | ENSG00000169194 | IL13          | unspecified&nbsp;role | 9606    | P24394       | ENSG00000077238 | IL4R          | unspecified&nbsp;role | 9606    |
+| None           | 2              | signor    | P35225       | ENSG00000169194 | IL13          | regulator             | 9606    | P24394       | ENSG00000077238 | IL4R          | regulator&nbsp;target | 9606    |
+
+<br/><br/>
+
+**Get protein-protein interactions for a specific gene, filtering by protein or gene IDs:**
+```bash
+gget opentargets ENSG00000169194 -r interactions -fpa P35225 --filter_gene_b ENSG00000077238 ENSG00000111537 --or -l 5
+```
+```python
+import gget
+gget.opentargets(
+    'ENSG00000169194',
+    resource='interactions',
+    filters={'protein_a_id': 'P35225', 'gene_b_id': ['ENSG00000077238', 'ENSG00000111537']},
+    filter_mode='or',
+    limit=5
+)
+```
+
+&rarr; Returns protein-protein interactions for the gene ENSG00000169194, where the first protein is P35225 **or** the second gene is either ENSG00000077238 or ENSG00000111537.
+
+| evidence_score | evidence_count | source_db | protein_a_id    | gene_a_id       | gene_a_symbol | role_a                | taxon_a | protein_b_id    | gene_b_id       | gene_b_symbol | role_b                | taxon_b |
+|----------------|----------------|-----------|-----------------|-----------------|---------------|-----------------------|---------|-----------------|-----------------|---------------|-----------------------|---------|
+| 0.999          | 3              | string    | ENSP00000304915 | ENSG00000169194 | IL13          | unspecified&nbsp;role | 9606    | ENSP00000379111 | ENSG00000077238 | IL4R          | unspecified&nbsp;role | 9606    |
+| 0.961          | 2              | string    | ENSP00000304915 | ENSG00000169194 | IL13          | unspecified&nbsp;role | 9606    | ENSP00000229135 | ENSG00000111537 | IFNG          | unspecified&nbsp;role | 9606    |
+| 0.800          | 9              | intact    | P35225          | ENSG00000169194 | IL13          | unspecified&nbsp;role | 9606    | Q14627          | ENSG00000123496 | IL13RA2       | unspecified&nbsp;role | 9606    |
+| 0.740          | 6              | intact    | P35225          | ENSG00000169194 | IL13          | unspecified&nbsp;role | 9606    | P78552          | ENSG00000131724 | IL13RA1       | unspecified&nbsp;role | 9606    |
+| 0.400          | 1              | intact    | P35225          | ENSG00000169194 | IL13          | unspecified&nbsp;role | 9606    | Q86XT9          | ENSG00000149932 | TMEM219       | stimulator            | 9606    |
+
+
     
 #### [More examples](https://github.com/pachterlab/gget_examples)

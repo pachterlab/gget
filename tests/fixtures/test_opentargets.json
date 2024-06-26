@@ -370,6 +370,140 @@
         },
         "expected_result": "483362ee0e9454f16cde738a6dc4887c"
     },
+    "test_interactions_simple_filter": {
+        "type": "assert_equal",
+        "args": {
+            "ensembl_id": "ENSG00000169194",
+            "resource": "interactions",
+            "filters": {
+                "protein_a_id": "P35225",
+                "gene_b_id": "ENSG00000077238"
+            }
+        },
+        "expected_result": [
+            [
+                3,
+                "reactome",
+                "P35225",
+                "ENSG00000169194",
+                "IL13",
+                "unspecified role",
+                9606,
+                "P24394",
+                "ENSG00000077238",
+                "IL4R",
+                "unspecified role",
+                9606
+            ],
+            [
+                2,
+                "signor",
+                "P35225",
+                "ENSG00000169194",
+                "IL13",
+                "regulator",
+                9606,
+                "P24394",
+                "ENSG00000077238",
+                "IL4R",
+                "regulator target",
+                9606
+            ]
+        ]
+    },
+    "test_interactions_complex_filter": {
+        "type": "assert_equal",
+        "args": {
+            "ensembl_id": "ENSG00000169194",
+            "resource": "interactions",
+            "filters": {
+                "protein_a_id": "P35225",
+                "gene_b_id": [
+                    "ENSG00000077238",
+                    "ENSG00000111537"
+                ]
+            },
+            "filter_mode": "or",
+            "limit": 5
+        },
+        "expected_result": [
+            [
+                0.999,
+                3,
+                "string",
+                "ENSP00000304915",
+                "ENSG00000169194",
+                "IL13",
+                "unspecified role",
+                9606,
+                "ENSP00000379111",
+                "ENSG00000077238",
+                "IL4R",
+                "unspecified role",
+                9606
+            ],
+            [
+                0.961,
+                2,
+                "string",
+                "ENSP00000304915",
+                "ENSG00000169194",
+                "IL13",
+                "unspecified role",
+                9606,
+                "ENSP00000229135",
+                "ENSG00000111537",
+                "IFNG",
+                "unspecified role",
+                9606
+            ],
+            [
+                0.8,
+                9,
+                "intact",
+                "P35225",
+                "ENSG00000169194",
+                "IL13",
+                "unspecified role",
+                9606,
+                "Q14627",
+                "ENSG00000123496",
+                "IL13RA2",
+                "unspecified role",
+                9606
+            ],
+            [
+                0.74,
+                6,
+                "intact",
+                "P35225",
+                "ENSG00000169194",
+                "IL13",
+                "unspecified role",
+                9606,
+                "P78552",
+                "ENSG00000131724",
+                "IL13RA1",
+                "unspecified role",
+                9606
+            ],
+            [
+                0.4,
+                1,
+                "intact",
+                "P35225",
+                "ENSG00000169194",
+                "IL13",
+                "unspecified role",
+                9606,
+                "Q86XT9",
+                "ENSG00000149932",
+                "TMEM219",
+                "stimulator",
+                9606
+            ]
+        ]
+    },
 
 
     "test_error_opentargets_bad_resource": {
