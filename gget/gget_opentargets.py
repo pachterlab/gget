@@ -12,7 +12,13 @@ logger = set_up_logger()
 def opentargets(
     ensembl_id: str,
     resource: Literal[
-        "diseases", "drugs", "tractability", "pharmacogenetics", "expression", "depmap", "interactions"
+        "diseases",
+        "drugs",
+        "tractability",
+        "pharmacogenetics",
+        "expression",
+        "depmap",
+        "interactions",
     ] = "diseases",
     limit: int | None = None,
     verbose: bool = True,
@@ -123,7 +129,9 @@ def _pharmacogenetics_converter(row: dict[str, ...]):
     row["drugs"] = drugs_df
 
 
-def _mk_list_converter(f: Callable[[dict[str, ...]], None]) -> Callable[[list[dict[str, ...]]], None]:
+def _mk_list_converter(
+    f: Callable[[dict[str, ...]], None]
+) -> Callable[[list[dict[str, ...]]], None]:
     def fun(rows: list[dict[str, ...]]):
         for row in rows:
             f(row)
@@ -530,13 +538,11 @@ _RESOURCES = {
             ("evidence_score", "score"),
             ("evidence_count", "count"),
             ("source_db", "sourceDatabase"),
-
             ("protein_a_id", "intA"),
             ("gene_a_id", "targetA.id"),
             ("gene_a_symbol", "targetA.approvedSymbol"),
             ("role_a", "intABiologicalRole"),
             ("taxon_a", "speciesA.taxonId"),
-
             ("protein_b_id", "intB"),
             ("gene_b_id", "targetB.id"),
             ("gene_b_symbol", "targetB.approvedSymbol"),
@@ -545,7 +551,7 @@ _RESOURCES = {
         ],
         [],
         _limit_pagination,
-    )
+    ),
 }
 
 OPENTARGETS_RESOURCES = list(_RESOURCES.keys())

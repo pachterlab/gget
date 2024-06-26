@@ -27,7 +27,7 @@ from .constants import (
 def set_up_logger():
     logging_level_name = os.getenv("GGET_LOGLEVEL", "INFO")
     logging_level = logging.getLevelName(logging_level_name)
-    if type(logging_level) != int: # unknown log level
+    if type(logging_level) != int:  # unknown log level
         logging_level = logging.INFO
     logger = logging.getLogger(__name__)
     logger.setLevel(logging_level)
@@ -666,7 +666,9 @@ def graphql_query(server: str, query: str, variables: dict[str, ...]) -> dict[st
     r = requests.post(server, json={"query": query, "variables": variables})
 
     if not r.ok:
-        logger.debug(f"Server: {server}, Query: {query}, Variables: {variables}, Response: {r.text}")
+        logger.debug(
+            f"Server: {server}, Query: {query}, Variables: {variables}, Response: {r.text}"
+        )
         raise RuntimeError(
             f"{server} returned error status code {r.status_code}. "
             "Please double-check arguments and try again.\n"
