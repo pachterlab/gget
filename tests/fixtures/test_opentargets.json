@@ -1,5 +1,5 @@
 {
-    "test1": {
+    "test_opentargets": {
         "type": "assert_equal",
         "args": {
             "ensembl_id": "ENSG00000169194",
@@ -39,7 +39,7 @@
             ]
         ]
     },
-    "test2": {
+    "test_opentargets_no_limit": {
         "type": "assert_equal_json_hash",
         "args": {
             "ensembl_id": "ENSG00000169194",
@@ -47,7 +47,7 @@
         },
         "expected_result": "e6030c0f3da91f8176deaf29dcc08285"
     },
-    "test3": {
+    "test_opentargets_no_specified_resource": {
         "type": "assert_equal",
         "args": {
             "ensembl_id": "ENSG00000169194",
@@ -88,7 +88,7 @@
     },
 
 
-    "test4": {
+    "test_opentargets_drugs": {
         "type": "assert_equal",
         "args": {
             "ensembl_id": "ENSG00000169194",
@@ -138,7 +138,7 @@
             ]
         ]
     },
-    "test5": {
+    "test_opentargets_drugs_no_limit": {
         "type": "assert_equal_json_hash",
         "args": {
             "ensembl_id": "ENSG00000169194",
@@ -148,7 +148,7 @@
     },
 
 
-    "test6": {
+    "test_opentargets_tractability": {
         "type": "assert_equal",
         "args": {
             "ensembl_id": "ENSG00000169194",
@@ -179,8 +179,8 @@
     },
 
 
-    "test7": {
-        "type": "assert_equal",
+    "test_opentargets_pharmacogenetics": {
+        "type": "assert_equal_nested",
         "args": {
             "ensembl_id": "ENSG00000169194",
             "resource": "pharmacogenetics",
@@ -234,8 +234,8 @@
             }
         ]
     },
-    "test8": {
-        "type": "assert_equal_json_hash",
+    "test_pharmacogenetics_no_limit": {
+        "type": "assert_equal_json_hash_nested",
         "args": {
             "ensembl_id": "ENSG00000169194",
             "resource": "pharmacogenetics"
@@ -244,7 +244,7 @@
     },
 
 
-    "test9": {
+    "test_expression": {
         "type": "assert_equal",
         "args": {
             "ensembl_id": "ENSG00000169194",
@@ -302,7 +302,7 @@
             ]
         ]
     },
-    "test10": {
+    "test_expression_no_limit": {
         "type": "assert_equal_json_hash",
         "args": {
             "ensembl_id": "ENSG00000169194",
@@ -312,7 +312,7 @@
     },
 
 
-    "test11": {
+    "test_depmap": {
         "type": "assert_equal_json_hash",
         "args": {
             "ensembl_id": "ENSG00000169194",
@@ -322,7 +322,7 @@
     },
 
 
-    "test12": {
+    "test_interactions": {
         "type": "assert_equal",
         "args": {
             "ensembl_id": "ENSG00000169194",
@@ -362,7 +362,7 @@
             ]
         ]
     },
-    "test13": {
+    "test_interactions_no_limit": {
         "type": "assert_equal_json_hash",
         "args": {
             "ensembl_id": "ENSG00000169194",
