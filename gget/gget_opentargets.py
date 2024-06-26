@@ -12,7 +12,7 @@ logger = set_up_logger()
 def opentargets(
     ensembl_id: str,
     resource: Literal[
-        "diseases", "drugs", "tractability", "pharmacogenetics", "expression", "depmap"
+        "diseases", "drugs", "tractability", "pharmacogenetics", "expression", "depmap", "interactions"
     ] = "diseases",
     limit: int | None = None,
     verbose: bool = True,
@@ -31,6 +31,7 @@ def opentargets(
                     "pharmacogenetics": Returns pharmacogenetics data for the gene.
                     "expression":       Returns gene expression data (by tissues, organs, and anatomical systems).
                     "depmap":           Returns DepMap gene-disease effect data for the gene.
+                    "interactions":     Returns protein-protein interactions for the gene.
     - limit         Limit the number of results returned (default: No limit).
                     Note: Not compatible with the 'tractability' and 'depmap' resources.
     - verbose       Print progress messages (default: True).
@@ -497,6 +498,54 @@ _RESOURCES = {
         is_rows_based_query=False,
         converter=_flatten_depmap,
     ),
+    "interactions": _make_query_fun(
+        "interactions",
+        """
+        score
+        count
+        sourceDatabase
+        
+        intA
+        targetA{
+            id
+            approvedSymbol
+        }
+        intABiologicalRole
+        speciesA{
+            taxonId
+        }
+        
+        intB
+        targetB{
+            id
+            approvedSymbol
+        }
+        intBBiologicalRole
+        speciesB{
+            taxonId
+        }
+        """,
+        "interactions",
+        [
+            ("evidence_score", "score"),
+            ("evidence_count", "count"),
+            ("source_db", "sourceDatabase"),
+
+            ("protein_a_id", "intA"),
+            ("gene_a_id", "targetA.id"),
+            ("gene_a_symbol", "targetA.approvedSymbol"),
+            ("role_a", "intABiologicalRole"),
+            ("taxon_a", "speciesA.taxonId"),
+
+            ("protein_b_id", "intB"),
+            ("gene_b_id", "targetB.id"),
+            ("gene_b_symbol", "targetB.approvedSymbol"),
+            ("role_b", "intBBiologicalRole"),
+            ("taxon_b", "speciesB.taxonId"),
+        ],
+        [],
+        _limit_pagination,
+    )
 }
 
 OPENTARGETS_RESOURCES = list(_RESOURCES.keys())

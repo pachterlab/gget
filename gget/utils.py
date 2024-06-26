@@ -1031,6 +1031,8 @@ def json_list_to_df(
             keys_split = key.split(".")
             value = json_obj
             for k in keys_split:
+                if value is None:
+                    break
                 value = value[k]
             tmp_columns[i].append(value)
 

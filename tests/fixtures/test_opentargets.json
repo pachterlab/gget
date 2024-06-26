@@ -252,54 +252,54 @@
             "limit": 3
         },
         "expected_result": [
-            {
-                "anatomical_systems": [
+            [
+                "UBERON_0000473",
+                "testis",
+                5,
+                1026.0,
+                "",
+                3,
+                [
                     "reproductive system"
                 ],
-                "organs": [
+                [
                     "reproductive organ",
                     "reproductive structure"
-                ],
-                "rna_level": 3,
-                "rna_unit": "",
-                "rna_value": 1026.0,
-                "rna_zscore": 5,
-                "tissue_id": "UBERON_0000473",
-                "tissue_name": "testis"
-            },
-            {
-                "anatomical_systems": [
+                ]
+            ],
+            [
+                "CL_0000542",
+                "EBV-transformed lymphocyte",
+                1,
+                54.0,
+                "",
+                2,
+                [
                     "hemolymphoid system",
                     "immune system",
                     "lymphoid system"
                 ],
-                "organs": [
+                [
                     "immune organ"
-                ],
-                "rna_level": 2,
-                "rna_unit": "",
-                "rna_value": 54.0,
-                "rna_zscore": 1,
-                "tissue_id": "CL_0000542",
-                "tissue_name": "EBV-transformed lymphocyte"
-            },
-            {
-                "anatomical_systems": [
+                ]
+            ],
+            [
+                "UBERON_0002371",
+                "bone marrow",
+                1,
+                45.5,
+                "TPM",
+                2,
+                [
                     "hemolymphoid system",
                     "musculoskeletal system",
                     "hematopoietic system",
                     "immune system"
                 ],
-                "organs": [
+                [
                     "skeletal element"
-                ],
-                "rna_level": 2,
-                "rna_unit": "TPM",
-                "rna_value": 45.5,
-                "rna_zscore": 1,
-                "tissue_id": "UBERON_0002371",
-                "tissue_name": "bone marrow"
-            }
+                ]
+            ]
         ]
     },
     "test10": {
@@ -308,7 +308,7 @@
             "ensembl_id": "ENSG00000169194",
             "resource": "expression"
         },
-        "expected_result": "a7331f21208ef719cff418ddf19d0774"
+        "expected_result": "192b5fceebfbb1cc7386cf319c264688"
     },
 
 
@@ -318,7 +318,57 @@
             "ensembl_id": "ENSG00000169194",
             "resource": "depmap"
         },
-        "expected_result": "994dde80c95dbb3dd1fbe0faa9bcb0a6"
+        "expected_result": "83de5c6bfee6e796bd5d68af1af702fc"
+    },
+
+
+    "test12": {
+        "type": "assert_equal",
+        "args": {
+            "ensembl_id": "ENSG00000169194",
+            "resource": "interactions",
+            "limit": 2
+        },
+        "expected_result": [
+            [
+                0.999,
+                3,
+                "string",
+                "ENSP00000304915",
+                "ENSG00000169194",
+                "IL13",
+                "unspecified role",
+                9606,
+                "ENSP00000379111",
+                "ENSG00000077238",
+                "IL4R",
+                "unspecified role",
+                9606
+            ],
+            [
+                0.999,
+                3,
+                "string",
+                "ENSP00000304915",
+                "ENSG00000169194",
+                "IL13",
+                "unspecified role",
+                9606,
+                "ENSP00000360730",
+                "ENSG00000131724",
+                "IL13RA1",
+                "unspecified role",
+                9606
+            ]
+        ]
+    },
+    "test13": {
+        "type": "assert_equal_json_hash",
+        "args": {
+            "ensembl_id": "ENSG00000169194",
+            "resource": "interactions"
+        },
+        "expected_result": "483362ee0e9454f16cde738a6dc4887c"
     },
 
 

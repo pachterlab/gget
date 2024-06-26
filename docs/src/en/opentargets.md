@@ -17,6 +17,7 @@ Possible resources are:
 'pharmacogenetics' - Returns pharmacogenetic responses.
 'expression' - Returns gene expression data (by tissues, organs, and anatomical systems).
 'depmap' - Returns DepMap gene-disease effect data.
+'interactions' - Returns protein-protein interactions.
 
 `-l` `--limit`  
 Limit the number of results, e.g 10. Default: No limit.     
@@ -149,6 +150,24 @@ gget.opentargets('ENSG00000169194', resource='depmap')
 | depmap_id        | expression | effect   | tissue_id      | tissue_name | cell_line_name | disease_cell_line_id | disease_name    | mutation |
 |------------------|------------|----------|----------------|-------------|----------------|----------------------|-----------------|----------|
 | ACH&#8209;001532 | 0.176323   | 0.054950 | UBERON_0002113 | kidney      | JMU-RTK-2      | None                 | Rhabdoid Cancer | None     |
+
+<br/><br/>
+
+**Get protein-protein interactions for a specific gene:**
+```bash
+gget opentargets ENSG00000169194 -r interactions -l 2
+```
+```python
+import gget
+gget.opentargets('ENSG00000169194', resource='interactions', limit=2)
+```
+
+&rarr; Returns the top 2 protein-protein interactions for the gene ENSG00000169194.
+
+| evidence_score | evidence_count | source_db | protein_a_id    | gene_a_id       | gene_a_symbol | role_a                | taxon_a | protein_b_id    | gene_b_id       | gene_b_symbol | role_b                | taxon_b |
+|----------------|----------------|-----------|-----------------|-----------------|---------------|-----------------------|---------|-----------------|-----------------|---------------|-----------------------|---------|
+| 0.999          | 3              | string    | ENSP00000304915 | ENSG00000169194 | IL13          | unspecified&nbsp;role | 9606    | ENSP00000379111 | ENSG00000077238 | IL4R          | unspecified&nbsp;role | 9606    |
+| 0.999          | 3              | string    | ENSP00000304915 | ENSG00000169194 | IL13          | unspecified&nbsp;role | 9606    | ENSP00000360730 | ENSG00000131724 | IL13RA1       | unspecified&nbsp;role | 9606    |
 
     
 #### [More examples](https://github.com/pachterlab/gget_examples)
