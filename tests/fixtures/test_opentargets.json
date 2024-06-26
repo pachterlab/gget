@@ -372,7 +372,7 @@
     },
 
 
-    "error_test1": {
+    "test_error_opentargets_bad_resource": {
         "type": "error",
         "args": {
             "ensembl_id": "ENSG00000169194",
@@ -381,7 +381,7 @@
         },
         "expected_result": "ValueError"
     },
-    "error_test2": {
+    "test_error_opentargets_bad_limit": {
         "type": "error",
         "args": {
             "ensembl_id": "ENSG00000169194",
@@ -390,7 +390,7 @@
         },
         "expected_result": "RuntimeError"
     },
-    "error_test3": {
+    "test_error_opentargets_nonexistent_id": {
         "type": "error",
         "args": {
             "ensembl_id": "NON EXISTENT ID",
@@ -401,7 +401,7 @@
     },
 
 
-    "error_test4": {
+    "test_error_opentargets_tractability_limit": {
         "type": "error",
         "args": {
             "ensembl_id": "ENSG00000169194",
