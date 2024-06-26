@@ -10,18 +10,21 @@ Ensembl gene ID, e.g ENSG00000169194.
 **Optional arguments**  
 `-r` `--resource`   
 Defines the type of information to return in the output. Default: 'diseases'.   
-Possible resources are:     
-'diseases' - Returns associated diseases.
-'drugs' - Returns associated drugs.
-'tractability' - Returns tractability data.
-'pharmacogenetics' - Returns pharmacogenetic responses.
-'expression' - Returns gene expression data (by tissues, organs, and anatomical systems).
-'depmap' - Returns DepMap gene-disease effect data.
-'interactions' - Returns protein-protein interactions.
+Possible resources are:
+
+| Resource           | Return Value                                                      |
+|--------------------|-------------------------------------------------------------------|
+| `diseases`         | Associated diseases                                               |
+| `drugs`            | Associated drugs                                                  |
+| `tractability`     | Tractability data                                                 |
+| `pharmacogenetics` | Pharmacogenetic responses                                         |
+| `expression`       | Gene expression data (by tissues, organs, and anatomical systems) |
+| `depmap`           | DepMap gene&rarr;disease-effect data.                             |
+| `interactions`     | Protein&rlarr;protein interactions                                |
 
 `-l` `--limit`  
 Limit the number of results, e.g 10. Default: No limit.     
-Note: Not compatible with the 'tractability' and 'depmap' resources.
+Note: Not compatible with the `tractability` and `depmap` resources.
 
 `-o` `--out`    
 Path to the JSON file the results will be saved in, e.g. path/to/directory/results.json. Default: Standard out.  
@@ -43,18 +46,18 @@ Python only. `wrap_text=True` displays data frame with wrapped text for easy rea
 
 **Get associated diseases for a specific gene:**   
 ```bash
-gget opentargets ENSG00000169194 -l 1
+gget opentargets ENSG00000169194 -r diseases -l 1
 ```
 ```python
 # Python
 import gget
-gget.opentargets('ENSG00000169194', limit=1)
+gget.opentargets('ENSG00000169194', resource='diseases', limit=1)
 ```
 &rarr; Returns the top disease associated with the gene ENSG00000169194.
 
-| id            | name          | description                                                           | score            |
-|---------------|---------------|-----------------------------------------------------------------------|------------------|
-| EFO_0000274   | atopic eczema | A chronic inflammatory genetically determined disease of the skin ... | 0.66364347241831 |
+| id            | name               | description                                                           | score            |
+|---------------|--------------------|-----------------------------------------------------------------------|------------------|
+| EFO_0000274   | atopic&nbsp;eczema | A chronic inflammatory genetically determined disease of the skin ... | 0.66364347241831 |
 
 <br/><br/>
 
@@ -69,10 +72,10 @@ gget.opentargets('ENSG00000169194', resource='drugs', limit=2)
 
 &rarr; Returns the top 2 drugs associated with the gene ENSG00000169194.
 
-| id            | name         | type     | action_mechanism          | description                                                  | synonyms                                           | trade_names           | disease_id  | disease_name             | trial_phase | trial_status | trial_ids     | approved |
-|---------------|--------------|----------|---------------------------|--------------------------------------------------------------|----------------------------------------------------|-----------------------|-------------|--------------------------|-------------|--------------|---------------|----------|
-| CHEMBL1743081 | TRALOKINUMAB | Antibody | Interleukin-13 inhibitor  | Antibody drug with a maximum clinical trial phase of IV ...  | ['CAT-354', 'Tralokinumab']                        | ['Adbry', 'Adtralza'] | EFO_0000274 | atopic eczema            | 4           |              | []            | True     |
-| CHEMBL4297864 | CENDAKIMAB   | Antibody | Interleukin-13 inhibitor  | Antibody drug with a maximum clinical trial phase of III ... | [ABT-308, Abt-308, CC-93538, Cendakimab, RPC-4046] | []                    | EFO_0004232 | eosinophilic esophagitis | 3           | Recruiting   | [NCT04991935] | False    |
+| id            | name         | type     | action_mechanism                    | description                                                  | synonyms                                           | trade_names           | disease_id  | disease_name                  | trial_phase | trial_status | trial_ids     | approved |
+|---------------|--------------|----------|-------------------------------------|--------------------------------------------------------------|----------------------------------------------------|-----------------------|-------------|-------------------------------|-------------|--------------|---------------|----------|
+| CHEMBL1743081 | TRALOKINUMAB | Antibody | Interleukin&#8209;13&nbsp;inhibitor | Antibody drug with a maximum clinical trial phase of IV ...  | ['CAT-354', 'Tralokinumab']                        | ['Adbry', 'Adtralza'] | EFO_0000274 | atopic&nbsp;eczema            | 4           |              | []            | True     |
+| CHEMBL4297864 | CENDAKIMAB   | Antibody | Interleukin&#8209;13&nbsp;inhibitor | Antibody drug with a maximum clinical trial phase of III ... | [ABT-308, Abt-308, CC-93538, Cendakimab, RPC-4046] | []                    | EFO_0004232 | eosinophilic&nbsp;esophagitis | 3           | Recruiting   | [NCT04991935] | False    |
 
 *Note: Returned `trial_ids` are [ClinicalTrials.gov](https://clinicaltrials.gov) identifiers*
 
@@ -147,9 +150,9 @@ gget.opentargets('ENSG00000169194', resource='depmap')
 
 &rarr; Returns DepMap gene-disease effect data for the gene ENSG00000169194.
 
-| depmap_id        | expression | effect   | tissue_id      | tissue_name | cell_line_name | disease_cell_line_id | disease_name    | mutation |
-|------------------|------------|----------|----------------|-------------|----------------|----------------------|-----------------|----------|
-| ACH&#8209;001532 | 0.176323   | 0.054950 | UBERON_0002113 | kidney      | JMU-RTK-2      | None                 | Rhabdoid Cancer | None     |
+| depmap_id        | expression | effect   | tissue_id      | tissue_name | cell_line_name | disease_cell_line_id | disease_name         | mutation |
+|------------------|------------|----------|----------------|-------------|----------------|----------------------|----------------------|----------|
+| ACH&#8209;001532 | 0.176323   | 0.054950 | UBERON_0002113 | kidney      | JMU-RTK-2      | None                 | Rhabdoid&nbsp;Cancer | None     |
 
 <br/><br/>
 
