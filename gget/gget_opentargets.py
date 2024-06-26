@@ -12,7 +12,7 @@ logger = set_up_logger()
 def opentargets(
     ensembl_id: str,
     resource: Literal[
-        "diseases", "drugs", "tractability", "pharmacogenetics", "expression"
+        "diseases", "drugs", "tractability", "pharmacogenetics", "expression", "depmap"
     ] = "diseases",
     limit: int | None = None,
     verbose: bool = True,
@@ -30,7 +30,9 @@ def opentargets(
                     "tractability":     Returns tractability data for the gene.
                     "pharmacogenetics": Returns pharmacogenetics data for the gene.
                     "expression":       Returns gene expression data (by tissues, organs, and anatomical systems).
+                    "depmap":           Returns DepMap gene-disease effect data for the gene.
     - limit         Limit the number of results returned (default: No limit).
+                    Note: Not compatible with the 'tractability' and 'depmap' resources.
     - verbose       Print progress messages (default: True).
     - wrap_text     If True, displays data frame with wrapped text for easy reading. Default: False.
 
@@ -120,6 +122,26 @@ def _pharmacogenetics_converter(row: dict[str, ...]):
     row["drugs"] = drugs_df
 
 
+def _mk_list_converter(f: Callable[[dict[str, ...]], None]) -> Callable[[list[dict[str, ...]]], None]:
+    def fun(rows: list[dict[str, ...]]):
+        for row in rows:
+            f(row)
+
+    return fun
+
+
+def _flatten_depmap(json_entries: list[dict[str, ...]]):
+    old_entries = json_entries.copy()
+    json_entries.clear()
+
+    for entry in old_entries:
+        for screen in entry["screens"]:
+            new_entry = entry.copy()
+            del new_entry["screens"]
+            new_entry["screen"] = screen
+            json_entries.append(new_entry)
+
+
 def _make_query_fun(
     top_level_key: str,
     inner_query: str,
@@ -131,7 +153,7 @@ def _make_query_fun(
     sorter: Callable[[dict[str, ...]], Any] | None = None,
     sort_reverse: bool = False,
     filter_: Callable[[dict[str, ...]], bool] = lambda x: True,
-    converter: Callable[[dict[str, ...]], None] = lambda x: None,
+    converter: Callable[[list[dict[str, ...]]], None] = lambda x: None,
 ) -> callable:
     """
     Make a query function for OpenTargets API.
@@ -260,8 +282,7 @@ def _make_query_fun(
             rows = rows[:limit]
 
         rows = [row for row in rows if filter_(row)]
-        for row in rows:
-            converter(row)
+        converter(rows)
 
         df = json_list_to_df(
             rows,
@@ -359,7 +380,7 @@ _RESOURCES = {
         [],
         _limit_not_supported,
         filter_=lambda x: x["value"],
-        converter=_tractability_converter,
+        converter=_mk_list_converter(_tractability_converter),
         is_rows_based_query=False,
     ),
     "pharmacogenetics": _make_query_fun(
@@ -409,7 +430,7 @@ _RESOURCES = {
         ["phenotype", "genotype_annotation"],
         _limit_pagination,
         is_rows_based_query=False,
-        converter=_pharmacogenetics_converter,
+        converter=_mk_list_converter(_pharmacogenetics_converter),
     ),
     "expression": _make_query_fun(
         "expressions",
@@ -443,6 +464,38 @@ _RESOURCES = {
         is_rows_based_query=False,
         sorter=lambda x: (x["rna"]["value"], x["rna"]["zscore"]),
         sort_reverse=True,
+    ),
+    "depmap": _make_query_fun(
+        "depMapEssentiality",
+        """
+        tissueId
+        tissueName
+        screens{
+            depmapId
+            expression
+            geneEffect
+            cellLineName
+            diseaseCellLineId
+            diseaseFromSource
+            mutation
+        }
+        """,
+        "DepMap entries",
+        [
+            ("depmap_id", "screen.depmapId"),
+            ("expression", "screen.expression"),
+            ("effect", "screen.geneEffect"),
+            ("tissue_id", "tissueId"),
+            ("tissue_name", "tissueName"),
+            ("cell_line_name", "screen.cellLineName"),
+            ("disease_cell_line_id", "screen.diseaseCellLineId"),
+            ("disease_name", "screen.diseaseFromSource"),
+            ("mutation", "screen.mutation"),
+        ],
+        [],
+        _limit_not_supported,
+        is_rows_based_query=False,
+        converter=_flatten_depmap,
     ),
 }
 

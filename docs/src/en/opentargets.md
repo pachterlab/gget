@@ -16,10 +16,11 @@ Possible resources are:
 'tractability' - Returns tractability data.
 'pharmacogenetics' - Returns pharmacogenetic responses.
 'expression' - Returns gene expression data (by tissues, organs, and anatomical systems).
+'depmap' - Returns DepMap gene-disease effect data.
 
 `-l` `--limit`  
 Limit the number of results, e.g 10. Default: No limit.     
-Note: Not compatible with the 'tractability' resource.
+Note: Not compatible with the 'tractability' and 'depmap' resources.
 
 `-o` `--out`    
 Path to the JSON file the results will be saved in, e.g. path/to/directory/results.json. Default: Standard out.  
@@ -132,6 +133,22 @@ gget.opentargets('ENSG00000169194', resource='expression', limit=2)
 | UBERON_0000473 | testis                                | 5          | 1026      |          | 3         | [reproductive&nbsp;system]                                           | [reproductive&nbsp;organ, reproductive&nbsp;structure] |
 | CL_0000542     | EBV&#8209;transformed&nbsp;lymphocyte | 1          | 54        |          | 2         | [hemolymphoid&nbsp;system, immune&nbsp;system, lymphoid&nbsp;system] | [immune organ]                                         |
 
+<br/><br/>
+
+**Get DepMap gene-disease effect data for a specific gene:**
+```bash
+gget opentargets ENSG00000169194 -r depmap
+```
+```python
+import gget
+gget.opentargets('ENSG00000169194', resource='depmap')
+```
+
+&rarr; Returns DepMap gene-disease effect data for the gene ENSG00000169194.
+
+| depmap_id        | expression | effect   | tissue_id      | tissue_name | cell_line_name | disease_cell_line_id | disease_name    | mutation |
+|------------------|------------|----------|----------------|-------------|----------------|----------------------|-----------------|----------|
+| ACH&#8209;001532 | 0.176323   | 0.054950 | UBERON_0002113 | kidney      | JMU-RTK-2      | None                 | Rhabdoid Cancer | None     |
 
     
 #### [More examples](https://github.com/pachterlab/gget_examples)

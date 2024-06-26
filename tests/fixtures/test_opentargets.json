@@ -312,6 +312,16 @@
     },
 
 
+    "test11": {
+        "type": "assert_equal_json_hash",
+        "args": {
+            "ensembl_id": "ENSG00000169194",
+            "resource": "depmap"
+        },
+        "expected_result": "994dde80c95dbb3dd1fbe0faa9bcb0a6"
+    },
+
+
     "error_test1": {
         "type": "error",
         "args": {
