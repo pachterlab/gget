@@ -7,7 +7,7 @@
         },
         "expected_result": [
             [
-                "Homo sapiens ATAC-STARR-seq lymphoblastoid active region 16974 (LOC129935398) on chromosome 2",
+                "Homo sapiens CASP8 and FADD like apoptosis regulator (CFLAR), RefSeqGene on chromosome 2",
                 "Homo sapiens",
                 "human",
                 9606,
@@ -16,8 +16,8 @@
                 "100%",
                 1e-53,
                 "100.00%",
-                460,
-                "NG_168413.1"
+                67524,
+                "NG_029005.2"
             ]
         ]
     },
