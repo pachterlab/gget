@@ -16,6 +16,7 @@ from .gget_elm import elm
 from .gget_diamond import diamond
 from .gget_cosmic import cosmic
 from .gget_mutate import mutate
+from .gget_opentargets import opentargets
 
 import logging
 # Mute numexpr threads info

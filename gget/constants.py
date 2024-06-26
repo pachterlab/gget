@@ -51,3 +51,6 @@ ELM_INTDOMAINS_TSV_DOWNLOAD = "http://elm.eu.org/interactiondomains.tsv"
 # COSMIC API endpoint
 COSMIC_GET_URL = "https://cancer.sanger.ac.uk/cosmic/search/"
 COSMIC_RELEASE_URL = "https://cancer.sanger.ac.uk/cosmic/release_notes"
+
+# OpenTargets API endpoint
+OPENTARGETS_GRAPHQL_API = "https://api.platform.opentargets.org/api/v4/graphql"
