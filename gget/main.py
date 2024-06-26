@@ -1958,8 +1958,10 @@ def main():
     )
 
     ## opentargets parser arguments
-    opentargets_desc = ("Query the Open Targets Platform with a gene for associated drugs, diseases, tractability stats,"
-                        " pharmacogenetic responses, expression data, DepMap effects, and protein-protein interaction data.")
+    opentargets_desc = (
+        "Query the Open Targets Platform with a gene for associated drugs, diseases, tractability stats,"
+        " pharmacogenetic responses, expression data, DepMap effects, and protein-protein interaction data."
+    )
     parser_opentargets = parent_subparsers.add_parser(
         "opentargets",
         parents=[parent],
@@ -2020,13 +2022,13 @@ def main():
         else:
             help_text += f"Only valid for the '{valid_resources[0]}' resource."
         parser_opentargets.add_argument(
-            '-f'+flag,
-            '--filter_'+long_flag,
+            "-f" + flag,
+            "--filter_" + long_flag,
             type=str,
             required=False,
             nargs="+",
             default=None,
-            help=help_text
+            help=help_text,
         )
     # End Filters
     parser_opentargets.add_argument(

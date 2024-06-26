@@ -69,7 +69,12 @@ def opentargets(
         filters = {k: v if isinstance(v, list) else [v] for k, v in filters.items()}
 
     return _RESOURCES[resource](
-        ensembl_id, limit=limit, verbose=verbose, wrap_text=wrap_text, filters=filters, filter_mode=filter_mode
+        ensembl_id,
+        limit=limit,
+        verbose=verbose,
+        wrap_text=wrap_text,
+        filters=filters,
+        filter_mode=filter_mode,
     )
 
 
@@ -167,7 +172,9 @@ def _flatten_depmap(json_entries: list[dict[str, ...]]):
             json_entries.append(new_entry)
 
 
-_FilterApplicator: TypeAlias = Callable[[dict[str, ...], Literal["and", "or"], dict[str, list[str]]], bool]
+_FilterApplicator: TypeAlias = Callable[
+    [dict[str, ...], Literal["and", "or"], dict[str, list[str]]], bool
+]
 
 
 def _mk_filter_applicator(id_key: dict[str, str]) -> tuple[set[str], _FilterApplicator]:
@@ -175,7 +182,10 @@ def _mk_filter_applicator(id_key: dict[str, str]) -> tuple[set[str], _FilterAppl
     Make a filter applicator function based on the provided mapping.
     :param id_key: Mapping of filter key to the key in the row data. (e.g. {"disease_id": "disease.id"})
     """
-    def f(row: dict[str, ...], mode: Literal["and", "or"], filters: dict[str, list[str]]) -> bool:
+
+    def f(
+        row: dict[str, ...], mode: Literal["and", "or"], filters: dict[str, list[str]]
+    ) -> bool:
         for filter_id, filter_values in filters.items():
             split_key = id_key[filter_id].split(".")
             actual_value = row
@@ -186,13 +196,17 @@ def _mk_filter_applicator(id_key: dict[str, str]) -> tuple[set[str], _FilterAppl
 
             if mode == "and":
                 if type(actual_value) is list:
-                    if not any(v in filter_values for v in actual_value):  # if none match, return False
+                    if not any(
+                        v in filter_values for v in actual_value
+                    ):  # if none match, return False
                         return False
                 elif actual_value not in filter_values:
                     return False
             else:
                 if type(actual_value) is list:
-                    if any(v in filter_values for v in actual_value):  # if any match, return True
+                    if any(
+                        v in filter_values for v in actual_value
+                    ):  # if any match, return True
                         return True
                 elif actual_value in filter_values:
                     return True
@@ -516,7 +530,7 @@ _RESOURCES = {
         _limit_pagination,
         is_rows_based_query=False,
         converter=_mk_list_converter(_pharmacogenetics_converter),
-        user_filter=_mk_filter_applicator({"drug_id": "drugs.drugId"})
+        user_filter=_mk_filter_applicator({"drug_id": "drugs.drugId"}),
     ),
     "expression": _make_query_fun(
         "expressions",
@@ -550,7 +564,13 @@ _RESOURCES = {
         is_rows_based_query=False,
         sorter=lambda x: (x["rna"]["value"], x["rna"]["zscore"]),
         sort_reverse=True,
-        user_filter=_mk_filter_applicator({"tissue_id": "tissue.id", "anatomical_system": "tissue.anatomicalSystems", "organ": "tissue.organs"})
+        user_filter=_mk_filter_applicator(
+            {
+                "tissue_id": "tissue.id",
+                "anatomical_system": "tissue.anatomicalSystems",
+                "organ": "tissue.organs",
+            }
+        ),
     ),
     "depmap": _make_query_fun(
         "depMapEssentiality",
@@ -583,7 +603,7 @@ _RESOURCES = {
         _limit_not_supported,
         is_rows_based_query=False,
         converter=_flatten_depmap,
-        user_filter=_mk_filter_applicator({"tissue_id": "tissueId"})
+        user_filter=_mk_filter_applicator({"tissue_id": "tissueId"}),
     ),
     "interactions": _make_query_fun(
         "interactions",
@@ -630,7 +650,9 @@ _RESOURCES = {
         ],
         [],
         _limit_pagination,
-        user_filter=_mk_filter_applicator({"protein_a_id": "intA", "protein_b_id": "intB", "gene_b_id": "targetB.id"})
+        user_filter=_mk_filter_applicator(
+            {"protein_a_id": "intA", "protein_b_id": "intB", "gene_b_id": "targetB.id"}
+        ),
     ),
 }
 
