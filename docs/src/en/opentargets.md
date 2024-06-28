@@ -211,6 +211,8 @@ gget.opentargets('ENSG00000169194', resource='interactions', limit=2)
 | 0.999          | 3              | string    | ENSP00000304915 | ENSG00000169194 | IL13          | unspecified&nbsp;role | 9606    | ENSP00000379111 | ENSG00000077238 | IL4R          | unspecified&nbsp;role | 9606    |
 | 0.999          | 3              | string    | ENSP00000304915 | ENSG00000169194 | IL13          | unspecified&nbsp;role | 9606    | ENSP00000360730 | ENSG00000131724 | IL13RA1       | unspecified&nbsp;role | 9606    |
 
+<br/><br/>
+
 **Get protein-protein interactions for a specific gene, filtering by protein and gene IDs:**
 ```bash
 gget opentargets ENSG00000169194 -r interactions -fpa P35225 --filter_gene_b ENSG00000077238
