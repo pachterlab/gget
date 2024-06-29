@@ -57,7 +57,9 @@ Read the article here: [https://doi.org/10.1093/bioinformatics/btac836](https://
 <iframe width="560" height="315" src="https://www.youtube.com/embed/cVR0k6Mt97o?si=BJwRyaymmxF9w65f" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>  
 
 <br>  
-<iframe src="https://pachterlab.github.io/gget/docs/assets/get_modules_overview.html" width="800" height="600"></iframe>
+<iframe src="https://github.com/pachterlab/gget/blob/main/docs/assets/gget_modules_overview.html" width="800" height="600"></iframe>  
+
+<iframe src="https://pachterlab.github.io/gget/docs/assets/gget_modules_overview.html" width="800" height="600"></iframe>
 
 
 
