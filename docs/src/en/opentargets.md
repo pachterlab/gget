@@ -69,6 +69,7 @@ Python only. `filter_mode='or'` combines filters of different IDs with OR logic.
 **Flags**   
 `-csv` `--csv`  
 Command-line only. Returns the output in CSV format, instead of JSON format.
+Python: Use `json=True` to return output in JSON format.
 
 `-q` `--quiet`   
 Command-line only. Prevents progress information from being displayed.  
