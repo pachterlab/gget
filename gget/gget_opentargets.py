@@ -1,4 +1,4 @@
-import time
+import json as json_
 from typing import Literal, Callable, Any, TypeAlias
 
 import pandas as pd
@@ -25,7 +25,8 @@ def opentargets(
     wrap_text: bool = False,
     filters: dict[str, str | list[str]] | None = None,
     filter_mode: Literal["and", "or"] = "and",
-) -> pd.DataFrame:
+    json: bool = False
+) -> pd.DataFrame | list[dict[str, ...]]:
     """
     Query OpenTargets for data associated with a given Ensembl gene ID.
 
@@ -53,6 +54,7 @@ def opentargets(
                     "depmap": tissue_id (e.g. "UBERON_0002245")
                     "interactions": protein_a_id (e.g. "ENSP00000304915"), protein_b_id (e.g. "ENSP00000379111"), gene_b_id (e.g. "ENSG00000077238")
     - filter_mode   For resources that support multiple types of filters, this argument specifies how to combine them.
+    - json          If True, returns results in JSON format instead of as a Data Frame. Default: False.
 
 
     Returns requested information in DataFrame format.
@@ -68,14 +70,12 @@ def opentargets(
     if filters is not None:
         filters = {k: v if isinstance(v, list) else [v] for k, v in filters.items()}
 
-    return _RESOURCES[resource](
-        ensembl_id,
-        limit=limit,
-        verbose=verbose,
-        wrap_text=wrap_text,
-        filters=filters,
-        filter_mode=filter_mode,
-    )
+    df: pd.DataFrame = _RESOURCES[resource](ensembl_id, limit=limit, verbose=verbose, wrap_text=wrap_text, filters=filters, filter_mode=filter_mode, )
+
+    if json:
+        return json_.loads(df.to_json(orient="records", force_ascii=False))
+    else:
+        return df
 
 
 def _limit_pagination() -> tuple[str, str, callable]:
