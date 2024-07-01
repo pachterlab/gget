@@ -1,3 +1,5 @@
+import hashlib
+import gzip
 import json
 import math
 import os
@@ -396,6 +398,7 @@ class _GeneAnalysis:
         remove_non_ensembl_genes: bool = False,
         data_dir: str = "gget_cbio_cache",
         figure_output_dir: str = "gget_cbio_figures",
+        verbose: bool = False
     ):
         self.study_ids = study_ids
         self.genes = genes
@@ -403,6 +406,7 @@ class _GeneAnalysis:
         self.remove_non_ensembl_genes = remove_non_ensembl_genes
         self.data_dir = data_dir
         self.figure_output_dir = figure_output_dir
+        self.verbose = verbose
 
         os.makedirs(self.figure_output_dir, exist_ok=True)
 
@@ -422,7 +426,7 @@ class _GeneAnalysis:
         )
 
         self.df_collection: dict[str, dict[str, pd.DataFrame]] = {}
-        self.big_combined_df = self._create_study_dataframes()
+        self.big_combined_df = self._create_or_load_study_dataframes()
 
     def _create_single_study_dataframe(self, study_id: str) -> pd.DataFrame:
         data_folder = os.path.join(self.data_dir, study_id)
@@ -450,7 +454,8 @@ class _GeneAnalysis:
                 "Transcript_ID" in mutation_df.columns
                 and mutation_df["Transcript_ID"].str.startswith("ENST").any()
             ):
-                logger.info("Fetching gene IDs from Ensembl")
+                if self.verbose:
+                    logger.info("Fetching gene IDs from Ensembl")
                 mutation_df.progress_apply(
                     _get_valid_ensembl_gene_id,
                     axis=1,
@@ -630,6 +635,8 @@ class _GeneAnalysis:
         return final_df
 
     def _create_study_dataframes(self) -> pd.DataFrame:
+        self.df_collection = {}
+
         dataframes = []
 
         for study_id in self.study_ids:
@@ -650,6 +657,70 @@ class _GeneAnalysis:
             dataframes.append(final_df)
 
         return pd.concat(dataframes, ignore_index=True)
+
+    def _create_or_load_study_dataframes(self) -> pd.DataFrame:
+        cache_key = {
+            "study_ids": self.study_ids,
+            "merge_type": self.merge_type,
+            "remove_non_ensembl_genes": self.remove_non_ensembl_genes,
+        }
+        cache_key = json.dumps(cache_key)
+        cache_key = hashlib.sha256(cache_key.encode()).hexdigest()
+
+        cache_dir = os.path.join(self.data_dir, "cache")
+        os.makedirs(cache_dir, exist_ok=True)
+
+        cache_file = os.path.join(cache_dir, f"{cache_key}.cache.gz")
+
+        if os.path.exists(cache_file):
+            if self.verbose:
+                logger.info(f"Loading data from cache: {cache_file}")
+            try:
+                with gzip.open(cache_file, "rt", encoding="UTF-8") as file:
+                    cache_data: dict[str, str | dict[str, dict[str, str]]] = json.load(file)
+
+                    df = pd.read_json(cache_data["df"], orient="records")
+                    self.df_collection = {
+                        k: {
+                            k1: pd.read_json(v1, orient="records")
+                            for k1, v1 in v.items()
+                        }
+                        for k, v in cache_data["df_collection"].items()
+                    }
+
+                if self.verbose:
+                    logger.info(f"Loaded data from cache: {cache_file}")
+
+                return df
+            except Exception as e:
+                logger.error(f"Error loading cache: {e}, creating new dataframes")
+
+        df = self._create_study_dataframes()
+
+        # write to cache
+        if self.verbose:
+            logger.info(f"Writing data to cache: {cache_file}")
+
+        try:
+            cache_data = {
+                "df": df.to_json(orient="records"),
+                "df_collection": {
+                    k: {
+                        k1: v1.to_json(orient="records")
+                        for k1, v1 in v.items()
+                    }
+                    for k, v in self.df_collection.items()
+                }
+            }
+            with gzip.open(cache_file, "wt", encoding="UTF-8") as file:
+                json.dump(cache_data, file)
+
+            if self.verbose:
+                logger.info(f"Data written to cache: {cache_file}")
+        except Exception as e:
+            logger.error(f"Error writing cache: {e}")
+
+        return df
 
     def plot_heatmap(
         self,
@@ -1102,6 +1173,7 @@ def plot(
         figure_output_dir=figure_output_dir,
         merge_type=merge_type,
         remove_non_ensembl_genes=remove_non_ensembl_genes,
+        verbose=verbose
     )
     if verbose:
         logger.info("Data loaded")
