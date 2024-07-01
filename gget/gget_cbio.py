@@ -1,8 +1,10 @@
+__all__ = ["download_cbioportal_data", "find_study_ids_by_keywords", "cbio"]
+
 import json
 import math
 import os
 import subprocess
-from typing import Literal, TypeVar
+from typing import Literal, TypeVar, Callable
 
 import pandas as pd
 import numpy as np
@@ -370,6 +372,44 @@ def _get_ensembl_gene_id(transcript_id: str, verbose: bool = False):
         return "Unknown"
 
 
+def _get_ensembl_gene_id_bulk(transcript_ids: list[str]) -> dict[str, str]:
+    if not transcript_ids:
+        return {}
+
+    try:
+        url = f"https://rest.ensembl.org/lookup/id/"
+        response = requests.post(url, json={"ids": transcript_ids}, headers={"Content-Type": "application/json"})
+
+        if not response.ok:
+            response.raise_for_status()
+
+        data = response.json()
+
+        return {transcript_id: data[transcript_id].get("Parent") for transcript_id in transcript_ids}
+    except Exception as e:
+        logger.error(f"Failed to fetch gene IDs from Ensembl: {e}")
+        raise e
+
+
+def _get_ensembl_gene_name_bulk(gene_ids: list[str]) -> dict[str, str]:
+    if not gene_ids:
+        return {}
+
+    try:
+        url = f"https://rest.ensembl.org/lookup/id/"
+        response = requests.post(url, json={"ids": gene_ids}, headers={"Content-Type": "application/json"})
+
+        if not response.ok:
+            response.raise_for_status()
+
+        data = response.json()
+
+        return {transcript_id: data[transcript_id].get("display_name") for transcript_id in gene_ids}
+    except Exception as e:
+        logger.error(f"Failed to fetch gene names from Ensembl: {e}")
+        raise e
+
+
 def _get_valid_ensembl_gene_id(
     row, transcript_column: str = "seq_ID", gene_column: str = "gene_name"
 ):
@@ -377,6 +417,23 @@ def _get_valid_ensembl_gene_id(
     if ensembl_gene_id == "Unknown":
         return row[gene_column]
     return ensembl_gene_id
+
+
+def _get_valid_ensembl_gene_id_bulk(df: pd.DataFrame) -> Callable[[pd.Series, str, str], str]:
+    map_: dict[str, str] | None = None
+
+    def f(row, transcript_column: str = "seq_ID", gene_column: str = "gene_name"):
+        nonlocal map_
+        if map_ is None:
+            all_transcript_ids = df[transcript_column].unique()
+            map_ = _get_ensembl_gene_id_bulk(list(all_transcript_ids))
+
+        ensembl_gene_id = map_[row[transcript_column]]
+        if ensembl_gene_id == "Unknown":
+            return row[gene_column]
+        return ensembl_gene_id
+
+    return f
 
 
 def _nested_defaultdict() -> defaultdict[_K, _V | defaultdict[_K]]:
@@ -398,7 +455,15 @@ class _GeneAnalysis:
         figure_output_dir: str = "gget_cbio_figures",
     ):
         self.study_ids = study_ids
-        self.genes = genes
+
+        ensembl_transcripts = [gene for gene in genes if gene.startswith("ENST")]
+        map_ = {k: v for k, v in _get_ensembl_gene_id_bulk(ensembl_transcripts).items() if v != "Unknown" and v is not None}
+        genes = [map_.get(gene, gene) for gene in genes]
+
+        ensembl_gene_ids = [gene for gene in genes if gene.startswith("ENSG")]
+        map_ = {k: v for k, v in _get_ensembl_gene_name_bulk(ensembl_gene_ids).items() if v != "Unknown" and v is not None}
+        self.genes = [map_.get(gene, gene) for gene in genes]
+
         self.merge_type = merge_type
         self.remove_non_ensembl_genes = remove_non_ensembl_genes
         self.data_dir = data_dir
@@ -406,6 +471,8 @@ class _GeneAnalysis:
 
         os.makedirs(self.figure_output_dir, exist_ok=True)
 
+        # todo "Ensembl_Gene_ID" is not a valid column name in the dataframes...
+        assert self.merge_type == _SYMBOL, "Only 'Symbol' merge type is supported for now."
         assert self.merge_type in [
             _SYMBOL,
             _ENSEMBL,
@@ -452,7 +519,7 @@ class _GeneAnalysis:
             ):
                 logger.info("Fetching gene IDs from Ensembl")
                 mutation_df.progress_apply(
-                    _get_valid_ensembl_gene_id,
+                    _get_valid_ensembl_gene_id_bulk(mutation_df),
                     axis=1,
                     transcript_column="Transcript_ID",
                     gene_column="Hugo_Symbol",
@@ -470,6 +537,7 @@ class _GeneAnalysis:
         if self.merge_type == _ENSEMBL:
             self.column_for_merging = "Ensembl_Gene_ID"
 
+            logger.info(f"Columns: {mutation_df.columns}")
             aggregated_df = (
                 mutation_df.groupby(["Tumor_Sample_Barcode", self.column_for_merging])
                 .agg(
@@ -595,6 +663,8 @@ class _GeneAnalysis:
             sample_identifier_column = "Sample Identifier"
         elif "#Sample Identifier" in sample_df.columns:
             sample_identifier_column = "#Sample Identifier"
+        elif "SAMPLE_ID" in sample_df.columns:
+            sample_identifier_column = "SAMPLE_ID"
         else:
             raise AssertionError(
                 "Sample Identifier column not found in the sample dataframe"
@@ -635,15 +705,21 @@ class _GeneAnalysis:
         for study_id in self.study_ids:
             self.df_collection[study_id] = {}
 
-            # clean up data just in case
-            with open(f"{self.data_dir}/{study_id}/mutations.txt", "r") as file:
-                lines = file.readlines()[
-                    1:
-                ]  # cut out a comment (needed at least for msk_impact_2017)
+            # clean up data just in case (cut out comments)
+            filename = f"{self.data_dir}/{study_id}/mutations.txt"
 
-            if lines[0].split("\t")[0] == "Hugo_Symbol":
+            with open(filename, "r") as file:
+                lines = file.readlines()
+
+            changed = False
+            while lines[0].startswith("#"):
+                lines.pop(0)
+                changed = True
+
+            if changed:
+                logger.info(f"Stripped comments from {filename}")
                 # Write the remaining lines back to the file
-                with open(f"{self.data_dir}/{study_id}/mutations.txt", "w") as file:
+                with open(filename, "w") as file:
                     file.writelines(lines)
 
             final_df = self._create_single_study_dataframe(study_id=study_id)
@@ -653,7 +729,6 @@ class _GeneAnalysis:
 
     def plot_heatmap(
         self,
-        gene_list: list[str],
         stratification: Literal[
             "tissue", "cancer_type", "cancer_type_detailed", "study_id", "sample"
         ] = "tissue",
@@ -666,6 +741,7 @@ class _GeneAnalysis:
             "cna_occurrences",
             "Consequence",
         ] = "mutation_occurrences",
+        dpi: int = 100,
     ):
         if variation_type == "cna_nonbinary" or variation_type == "Consequence":
             assert (
@@ -708,12 +784,12 @@ class _GeneAnalysis:
                 ].drop_duplicates()
 
                 hugo_mask = final_df["Hugo_Symbol"].isin(
-                    [gene for gene in gene_list if not gene.startswith("ENSG")]
+                    [gene for gene in (self.genes) if not gene.startswith("ENSG")]
                 )
 
                 if self.merge_type == _ENSEMBL:
                     ensg_mask = final_df["Ensembl_Gene_ID"].isin(
-                        [gene for gene in gene_list if gene.startswith("ENSG")]
+                        [gene for gene in (self.genes) if gene.startswith("ENSG")]
                     )
                     combined_mask = ensg_mask | hugo_mask
                 elif self.merge_type == _SYMBOL:
@@ -733,7 +809,7 @@ class _GeneAnalysis:
                     raise AssertionError(f"Invalid merge type: {self.merge_type}")
 
                 unexpressed_genes = [
-                    gene for gene in gene_list if gene not in existing_genes
+                    gene for gene in (self.genes) if gene not in existing_genes
                 ]
 
                 # Get all unique Tumor_Sample_Barcode from the original DataFrame
@@ -842,14 +918,14 @@ class _GeneAnalysis:
             ), "filter_category must be 'study_id' for CNA data"
             pivot_df1 = self.df_collection[filter_value]["cna"].copy()
             pivot_df1.set_index("Hugo_Symbol", inplace=True)
-            pivot_df1 = pivot_df1[pivot_df1.index.isin(gene_list)]
+            pivot_df1 = pivot_df1[pivot_df1.index.isin(self.genes)]
 
             pivot_df1 = pivot_df1.reset_index()
             if "Hugo_Symbol" not in pivot_df1.columns:
                 pivot_df1["Hugo_Symbol"] = pivot_df1.index
 
             # Iterate over the top_mutant_gene_list and add missing entries
-            for gene in gene_list:
+            for gene in self.genes:
                 if gene not in pivot_df1["Hugo_Symbol"].values:
                     new_row = pd.Series(
                         {col: np.nan for col in pivot_df1.columns}, name=gene
@@ -1021,7 +1097,7 @@ class _GeneAnalysis:
 
         filepath = os.path.join(self.figure_output_dir, f"{filename}.png")
 
-        plt.savefig(filepath, bbox_inches="tight")
+        plt.savefig(filepath, bbox_inches="tight", dpi=dpi)
 
         plt.show()
 
@@ -1036,10 +1112,9 @@ class _GeneAnalysis:
         #     self.pivot_df_dict[selected_group_category][selected_group][variation_type] = pivot_df1
 
 
-def plot(
+def cbio(
     study_ids: list[str],
     genes: list[str],
-    figure_output_dir: str,
 
     stratification: Literal[
         "tissue", "cancer_type", "cancer_type_detailed", "study_id", "sample"
@@ -1057,8 +1132,10 @@ def plot(
     remove_non_ensembl_genes: bool = False,
 
     data_dir: str = "gget_cbio_cache",
+    figure_output_dir: str = "gget_cbio_figures",
     verbose: bool = False,
     confirm_download: bool = False,
+    dpi: int = 100
 ) -> bool:
     """
     Plot a heatmap of given genes in the given studies.
@@ -1079,6 +1156,7 @@ def plot(
     :param data_dir:                    directory to store the downloaded data, default 'gget_cbio_cache'
     :param verbose:                     whether to print out progress, default False
     :param confirm_download:            whether to confirm the download before proceeding, default False
+    :param dpi:                         resolution of the figure, default 100 dots per inch
 
     Return:
 
@@ -1108,11 +1186,11 @@ def plot(
         logger.info("Plotting data")
 
     gene_analyzer.plot_heatmap(
-        genes,
         stratification=stratification,
         filter_category=filter_[0] if filter_ else None,
         filter_value=filter_[1] if filter_ else None,
         variation_type=variation_type,
+        dpi=dpi
     )
 
     del gene_analyzer
