@@ -108,7 +108,7 @@ gget.cbio(
 
 &rarr; Saves a heatmap of mutation occurrences for the specified genes in the specified study to `./gget_cbio_figures/Heatmap_tissue.png`.
 
-![Heatmap](../../assets/gget_cbio_figure_1.png)
+![Heatmap](https://raw.githubusercontent.com/techno-sam/gget/f6b4465eecae0f07c71558f8f6e7b60d36c8d41a/docs/assets/gget_cbio_figure_1.png)
 
 <br/><br/>
 
@@ -129,6 +129,6 @@ gget.cbio(
 
 &rarr; Saves a heatmap of mutation types for the specified genes in the specified study to `./gget_cbio_figures/Heatmap_sample.png`.
 
-![Heatmap](../../assets/gget_cbio_figure_2.png)
+![Heatmap](https://raw.githubusercontent.com/techno-sam/gget/f6b4465eecae0f07c71558f8f6e7b60d36c8d41a/docs/assets/gget_cbio_figure_2.png)
     
 #### [More examples](https://github.com/pachterlab/gget_examples)
