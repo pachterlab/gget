@@ -89,78 +89,41 @@ def seq(
 
         # If isoforms False, just fetch sequences of passed Ensembl ID
         if not isoforms:
-            BULK = True
-            if BULK:
-                actual_results_dict = {}
+            actual_results_dict = {}
 
-                endpoint = "sequence/id/"
-                query = {"ids": ens_ids_clean}
+            endpoint = "sequence/id/"
+            query = {"ids": ens_ids_clean}
 
-                # noinspection PyTypeChecker
-                results_list: list[dict[str, ...]] = post_query(server, endpoint, query)
-                results_dict: dict[str, dict[str, ...]] = {v['query']: v for v in results_list if v is not None}
+            # noinspection PyTypeChecker
+            results_list: list[dict[str, ...]] = post_query(server, endpoint, query)
+            results_dict: dict[str, dict[str, ...]] = {v['query']: v for v in results_list if v is not None}
 
-                for ensembl_ID, df_temp in results_dict.items():
-                    df_temp: dict[str, ...]
+            for ensembl_ID, df_temp in results_dict.items():
+                df_temp: dict[str, ...]
 
-                    # Delete superfluous entries
-                    keys_to_delete = ["query", "id", "version", "molecule"]
-                    for key in keys_to_delete:
-                        # Pop keys, None -> do not raise an error if key to delete not found
-                        df_temp.pop(key, None)
+                # Delete superfluous entries
+                keys_to_delete = ["query", "id", "version", "molecule"]
+                for key in keys_to_delete:
+                    # Pop keys, None -> do not raise an error if key to delete not found
+                    df_temp.pop(key, None)
 
-                    # Add results to main dict
-                    actual_results_dict[ensembl_ID] = {"seq": df_temp}
+                # Add results to main dict
+                actual_results_dict[ensembl_ID] = {"seq": df_temp}
 
-                    if verbose:
-                        logger.info(
-                            f"Requesting nucleotide sequence of {ensembl_ID} from Ensembl."
-                        )
-
-                missing_ids = set(ens_ids_clean) - set(actual_results_dict.keys())
-
-                for missing in missing_ids:
-                    logger.error(
-                        f"ID {missing} not found. Please double-check spelling/arguments and try again."
+                if verbose:
+                    logger.info(
+                        f"Requesting nucleotide sequence of {ensembl_ID} from Ensembl."
                     )
 
-                # Add results to master dict
-                master_dict.update(actual_results_dict)
+            missing_ids = set(ens_ids_clean) - set(actual_results_dict.keys())
 
-            else:
-                for ensembl_ID in ens_ids_clean:
-                    # Create dict to save query results
-                    results_dict = {ensembl_ID: {}}
+            for missing in missing_ids:
+                logger.error(
+                    f"ID {missing} not found. Please double-check spelling/arguments and try again."
+                )
 
-                    # sequence/id/ query: Request sequence by stable identifier
-                    query = "sequence/id/" + ensembl_ID + "?"
-
-                    # Try if query valid
-                    try:
-                        # Submit query; this will throw RuntimeError if ID not found
-                        df_temp = rest_query(server, query, content_type)
-
-                        # Delete superfluous entries
-                        keys_to_delete = ["query", "id", "version", "molecule"]
-                        for key in keys_to_delete:
-                            # Pop keys, None -> do not raise an error if key to delete not found
-                            df_temp.pop(key, None)
-
-                        # Add results to main dict
-                        results_dict[ensembl_ID].update({"seq": df_temp})
-
-                        if verbose:
-                            logger.info(
-                                f"Requesting nucleotide sequence of {ensembl_ID} from Ensembl."
-                            )
-
-                    except RuntimeError:
-                        logger.error(
-                            f"ID {ensembl_ID} not found. Please double-check spelling/arguments and try again."
-                        )
-
-                    # Add results to master dict
-                    master_dict.update(results_dict)
+            # Add results to master dict
+            master_dict.update(actual_results_dict)
 
         # If isoforms true, fetch sequences of isoforms instead
         # todo this could possibly be refactored to use bulk queries
