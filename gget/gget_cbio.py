@@ -553,14 +553,14 @@ class _GeneAnalysis:
             aggregation_dict = {
                 "Hugo_Symbol": lambda x: ",".join(x.unique()),
                 "Entrez_Gene_Id": lambda x: ",".join(map(str, x.unique())),
-                "Consequence": lambda x: ",".join(x.unique()),
+                "Consequence": lambda x: ",".join(map(str, x.unique())),
             }
         elif self.merge_type == _SYMBOL:
             self.column_for_merging = "Hugo_Symbol"
 
             aggregation_dict = {
                 "Entrez_Gene_Id": lambda x: ",".join(map(str, x.unique())),
-                "Consequence": lambda x: ",".join(x.unique()),
+                "Consequence": lambda x: ",".join(map(str, x.unique())),
             }
         else:
             raise AssertionError(f"Invalid merge type: {self.merge_type}")
