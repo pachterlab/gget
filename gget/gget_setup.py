@@ -41,6 +41,35 @@ PARAMS_DIR = os.path.join(PACKAGE_PATH, "bins/alphafold/")
 PARAMS_PATH = os.path.join(PARAMS_DIR, "params_temp.tar")
 
 
+def _install(package: str, import_name: str, verbose: bool = True):
+    if verbose:
+        logger.info(f"Installing {package} package (requires pip).")
+    command = f"pip install -q -U {package}"
+    with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
+        stderr = process.stderr.read().decode("utf-8")
+    # Exit system if the subprocess returned with an error
+    if process.wait() != 0:
+        if stderr:
+            # Log the standard error if it is not empty
+            sys.stderr.write(stderr)
+        logger.error(
+            f"{package} installation with pip (https://pypi.org/project/{package}) failed."
+        )
+        return
+
+    # Test installation
+    try:
+        exec(f"import {import_name}")
+
+        if verbose:
+            logger.info(f"{import_name} installed succesfully.")
+    except ImportError as e:
+        logger.error(
+            f"{package} installation with pip (https://pypi.org/project/{package}) failed. Import error:\n{e}"
+        )
+        return
+
+
 def setup(module, verbose=True, out=None):
     """
     Function to install third-party dependencies for a specified gget module.
@@ -48,13 +77,13 @@ def setup(module, verbose=True, out=None):
     Some modules require curl to be installed (https://everything.curl.dev/get).
 
     Args:
-    - module    (str) gget module for which dependencies should be installed, e.g. "alphafold", "cellxgene", "elm", or "gpt".
+    - module    (str) gget module for which dependencies should be installed, e.g. "alphafold", "cellxgene", "elm", "gpt", or "cbio".
     - verbose   True/False whether to print progress information. Default True.
     - out       (str) Path to directory to save downloaded files in (currently only applies when module='elm').
                 NOTE: Do not use this argument when downloading the files for use with 'gget.elm'.
                 Default None (files are saved in the gget installation directory).
     """
-    supported_modules = ["alphafold", "cellxgene", "elm", "gpt"]
+    supported_modules = ["alphafold", "cellxgene", "elm", "gpt", "cbio"]
     if module not in supported_modules:
         raise ValueError(
             f"'module' argument specified as {module}. Expected one of: {', '.join(supported_modules)}"
@@ -88,35 +117,10 @@ def setup(module, verbose=True, out=None):
             )
             return
 
-    if module == "cellxgene":
-        if verbose:
-            logger.info("Installing cellxgene-census package (requires pip).")
-        command = "pip install -q -U cellxgene-census"
-        with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
-            stderr = process.stderr.read().decode("utf-8")
-        # Exit system if the subprocess returned with an error
-        if process.wait() != 0:
-            if stderr:
-                # Log the standard error if it is not empty
-                sys.stderr.write(stderr)
-            logger.error(
-                "cellxgene-census installation with pip (https://pypi.org/project/cellxgene-census) failed."
-            )
-            return
+    elif module == "cellxgene":
+        _install("cellxgene-census", "cellxgene_census", verbose=verbose)
 
-        # Test installation
-        try:
-            import cellxgene_census
-
-            if verbose:
-                logger.info(f"cellxgene_census installed succesfully.")
-        except ImportError as e:
-            logger.error(
-                f"cellxgene-census installation with pip (https://pypi.org/project/cellxgene-census) failed. Import error:\n{e}"
-            )
-            return
-
-    if module == "elm":
+    elif module == "elm":
         if verbose:
             logger.info(
                 "ELM data can be downloaded & distributed for non-commercial use according to the following license: http://elm.eu.org/media/Elm_academic_license.pdf"
@@ -199,7 +203,7 @@ def setup(module, verbose=True, out=None):
         else:
             logger.error("ELM interactions domains file missing.")
 
-    if module == "alphafold":
+    elif module == "alphafold":
         if platform.system() == "Windows":
             logger.error(
                 "gget setup alphafold and gget alphafold are not supported on Windows OS."
@@ -428,3 +432,6 @@ def setup(module, verbose=True, out=None):
         else:
             if verbose:
                 logger.info("AlphaFold model parameters already downloaded.")
+
+    elif module == "cbio":
+        _install("bravado", "bravado", verbose=verbose)

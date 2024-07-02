@@ -1,5 +1,5 @@
 import unittest
-from typing import Callable
+from typing import Callable, Any
 import pandas as pd
 import sys
 import json
@@ -17,11 +17,17 @@ _KNOWN_ERRORS = {
 }
 
 
+def do_call(func: Callable, args: dict[str, ...] | list[...]) -> Any:
+    if isinstance(args, dict):
+        return func(**args)
+    return func(*args)
+
+
 def _assert_equal(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Callable:
     def assert_equal(self: unittest.TestCase):
         test = name
         expected_result = td[test]["expected_result"]
-        result_to_test = func(**td[test]["args"])
+        result_to_test = do_call(func, td[test]["args"])
         # If result is a DataFrame, convert to list
         if isinstance(result_to_test, pd.DataFrame):
             result_to_test = result_to_test.dropna(axis=1).values.tolist()
@@ -34,7 +40,7 @@ def _assert_equal_json_hash(name: str, td: dict[str, dict[str, ...]], func: Call
     def assert_equal_json_hash(self: unittest.TestCase):
         test = name
         expected_result = td[test]["expected_result"]
-        result_to_test = func(**td[test]["args"])
+        result_to_test = do_call(func, td[test]["args"])
         # If result is a DataFrame, convert to list
         if isinstance(result_to_test, pd.DataFrame):
             result_to_test = result_to_test.dropna(axis=1).values.tolist()
@@ -50,7 +56,7 @@ def _assert_equal_nested(name: str, td: dict[str, dict[str, ...]], func: Callabl
     def assert_equal_nested(self: unittest.TestCase):
         test = name
         expected_result = td[test]["expected_result"]
-        result_to_test = func(**td[test]["args"])
+        result_to_test = do_call(func, td[test]["args"])
         # If result is a DataFrame, convert to json (nested dataframes prevent easy listification)
         if isinstance(result_to_test, pd.DataFrame):
             result_to_test = json.loads(
@@ -65,7 +71,7 @@ def _assert_equal_json_hash_nested(name: str, td: dict[str, dict[str, ...]], fun
     def assert_equal_json_hash_nested(self: unittest.TestCase):
         test = name
         expected_result = td[test]["expected_result"]
-        result_to_test = func(**td[test]["args"])
+        result_to_test = do_call(func, td[test]["args"])
         # If result is a DataFrame, convert to json (nested dataframes prevent easy listification)
         if isinstance(result_to_test, pd.DataFrame):
             result_to_test = json.loads(
@@ -95,11 +101,11 @@ def _error(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Callable
     def error(self: unittest.TestCase):
         test = name
         with self.assertRaises(Error):
-            func(**td[test]["args"])
+            do_call(func, td[test]["args"])
     return error
 
-
-_TYPES: dict[str, Callable[[str, dict[str, dict[str, ...]], Callable], Callable]] = {
+_test_constructor = Callable[[str, dict[str, dict[str, ...]], Callable], Callable]
+_TYPES: dict[str, _test_constructor] = {
     "assert_equal": _assert_equal,
     "assert_equal_json_hash": _assert_equal_json_hash,
     "assert_equal_nested": _assert_equal_nested,
@@ -108,10 +114,15 @@ _TYPES: dict[str, Callable[[str, dict[str, dict[str, ...]], Callable], Callable]
 }
 
 
-def from_json(test_dict: dict[str, dict[str, ...]], func: callable) -> type:
+def from_json(test_dict: dict[str, dict[str, ...]], func: callable, custom_types: dict[str, _test_constructor] | None = None) -> type:
     """
     Create a metaclass that will generate test methods from a (json-loaded) dictionary.
     """
+
+    local_types = _TYPES.copy()
+    if custom_types:
+        local_types.update(custom_types)
+
     class C(type):
         def __new__(cls, name: str, bases: tuple[type, ...], dct: dict[str, ...]):
             assert unittest.TestCase in bases, "from_json should only be applied to unittest.TestCase subclasses."
@@ -119,7 +130,7 @@ def from_json(test_dict: dict[str, dict[str, ...]], func: callable) -> type:
                 type_ = v["type"]
                 if type_ == "code_defined":
                     continue
-                if type_ in _TYPES:
+                if type_ in local_types:
                     if not k.startswith("test_"):
                         print(f"Invalid test name: {k}", file=sys.stderr)
                         continue
@@ -129,7 +140,7 @@ def from_json(test_dict: dict[str, dict[str, ...]], func: callable) -> type:
                         continue
 
                     # Create the test method for the given type and add it to the new class
-                    dct[k] = _TYPES[type_](k, test_dict, func)
+                    dct[k] = local_types[type_](k, test_dict, func)
                     print(f"Loaded test {k} of type {type_} from json.")
                 else:
                     if k not in dct:

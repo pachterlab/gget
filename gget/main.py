@@ -34,6 +34,7 @@ from .gget_diamond import diamond
 from .gget_cosmic import cosmic
 from .gget_mutate import mutate
 from .gget_opentargets import opentargets, OPENTARGETS_RESOURCES
+from .gget_cbio import cbio_plot, cbio_search
 
 
 # Custom formatter for help messages that preserved the text formatting and adds the default value to the end of the help message
@@ -1198,7 +1199,7 @@ def main():
     parser_setup.add_argument(
         "module",
         type=str,
-        choices=["alphafold", "gpt", "cellxgene", "elm"],
+        choices=["alphafold", "gpt", "cellxgene", "elm", "cbio"],
         help="gget module for which dependencies should be installed, e.g. 'alphafold'",
     )
 
@@ -2056,6 +2057,132 @@ def main():
         help="Use OR instead of AND logic for multiple filter IDs.",
     )
 
+    ## cbio parser arguments
+    cbio_desc = "Plot cancer genomics heatmaps using data from cBioPortal using Ensembl IDs or gene names"
+    parser_cbio = parent_subparsers.add_parser(
+        "cbio",
+        parents=[parent],
+        description=cbio_desc,
+        help=cbio_desc,
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
+    )
+    parser_cbio_subparsers = parser_cbio.add_subparsers(
+        dest="subcommand",
+        help="Subcommand to execute."
+    )
+    parser_cbio_search = parser_cbio_subparsers.add_parser(
+        "search",
+        description="Search for genes in cBioPortal.",
+        help="Find cBioPortal study IDs by keyword.",
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
+    )
+    parser_cbio_search.add_argument(
+        "keywords",
+        type=str,
+        nargs="+",
+        help="Keywords to search for in cBioPortal.",
+    )
+    parser_cbio_plot = parser_cbio_subparsers.add_parser(
+        "plot",
+        description="Plot a heatmap of cancer genomics data.",
+        help="Plot a heatmap of cancer genomics data.",
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
+    )
+    parser_cbio_plot.add_argument(
+        "-s",
+        "--study_ids",
+        type=str,
+        nargs="+",
+        help="Space-separated list of cBioPortal study IDs, e.g. `msk_impact_2017 egc_msk_2023`",
+        required=True,
+    )
+    parser_cbio_plot.add_argument(
+        "-g",
+        "--genes",
+        type=str,
+        nargs="+",
+        help="Space-separated list of gene names or Ensembl IDs, e.g. `NOTCH3 ENSG00000108375`",
+        required=True,
+    )
+    parser_cbio_plot.add_argument(
+        "-st",
+        "--stratification",
+        type=str,
+        choices=["tissue", "cancer_type", "cancer_type_detailed", "study_id", "sample"],
+        help="Column to stratify the heatmap by.",
+        default="tissue",
+        required=False,
+    )
+    parser_cbio_plot.add_argument(
+        "-vt",
+        "--variation_type",
+        type=str,
+        choices=["mutation_occurrences", "cna_nonbinary", "sv_occurrences", "cna_occurrences", "Consequence"],
+        help="Type of variation to plot",
+        default="mutation_occurrences",
+        required=False,
+    )
+    parser_cbio_plot.add_argument(
+        "-f",
+        "--filter",
+        type=str,
+        default=None,
+        help="Filter the heatmap by a specific value in a specific column, e.g. `tissue:intestine`",
+        required=False,
+    )
+    parser_cbio_plot.add_argument(
+        "-dd",
+        "--data_dir",
+        type=str,
+        default="gget_cbio_cache",
+        help="Directory to store downloaded data (default: ./gget_cbio_cache)",
+        required=False
+    )
+    parser_cbio_plot.add_argument(
+        "-fd",
+        "--figure_dir",
+        type=str,
+        default="gget_cbio_figures",
+        help="Directory to store generated figures (default: ./gget_cbio_figures)",
+        required=False
+    )
+    parser_cbio_plot.add_argument(
+        "-dpi",
+        "--dpi",
+        type=int,
+        default=100,
+        help="DPI of the generated figures (default: 100)",
+        required=False
+    )
+    parser_cbio_plot.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Does not print progress information.",
+    )
+    parser_cbio_plot.add_argument(
+        "-y",
+        "--no_confirm",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Skip confirmation before downloading data.",
+    )
+    parser_cbio_plot.add_argument(
+        "-sh",
+        "--show",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Show the plot in a window"
+    )
+
+
     ### Define return values
     args = parent_parser.parse_args()
 
@@ -2105,6 +2232,7 @@ def main():
         "cosmic": parser_cosmic,
         "mutate": parser_mutate,
         "opentargets": parser_opentargets,
+        "cbio": parser_cbio,
     }
 
     if len(sys.argv) == 2:
@@ -2958,3 +3086,23 @@ def main():
                         orient="records", force_ascii=False, indent=4
                     )
                 )
+
+    ## cbio return
+    if args.command == "cbio":
+        if args.subcommand == "search":
+            cbio_results = cbio_search(*args.keywords)
+            print(json.dumps(cbio_results, ensure_ascii=False, indent=4))
+        elif args.subcommand == "plot":
+            cbio_plot(
+                args.study_ids,
+                args.genes,
+                stratification=args.stratification,
+                variation_type=args.variation_type,
+                filter_=args.filter.split(":", 1) if args.filter else None,
+                data_dir=args.data_dir,
+                figure_dir=args.figure_dir,
+                dpi=args.dpi,
+                verbose=args.quiet,
+                confirm_download=not args.no_confirm,
+                show=args.show,
+            )
