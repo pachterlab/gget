@@ -208,6 +208,7 @@ def download_cbioportal_data(
 
     for study_id in study_ids:
         file_types = ["mutations", "cna", "sv", "clinical_patient", "clinical_sample"]
+        optional_file_types = ["cna", "sv"]
 
         for file_type in file_types:
             try:
@@ -231,7 +232,8 @@ def download_cbioportal_data(
                     logger.error(
                         f"Failed to download {file_type} data for study {study_id}"
                     )
-                    success = False
+                    if file_type not in optional_file_types:
+                        success = False
                     continue
 
                 lines = response.content.decode().splitlines(keepends=True)
