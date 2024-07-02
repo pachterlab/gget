@@ -419,7 +419,7 @@ def _get_valid_ensembl_gene_id(
     return ensembl_gene_id
 
 
-def _get_valid_ensembl_gene_id_bulk(df: pd.DataFrame) -> Callable[[pd.Series, str, str], pd.Series]:
+def _get_valid_ensembl_gene_id_bulk(df: pd.DataFrame) -> Callable[[pd.Series, str, str], str]:
     map_: dict[str, str] | None = None
 
     def f(row: pd.Series, transcript_column: str = "seq_ID", gene_column: str = "gene_name"):
@@ -430,13 +430,10 @@ def _get_valid_ensembl_gene_id_bulk(df: pd.DataFrame) -> Callable[[pd.Series, st
             map_ = _get_ensembl_gene_id_bulk(list(all_transcript_ids))
 
         ensembl_gene_id = map_.get(row[transcript_column], "Unknown")
-        copy = row.copy()
         if ensembl_gene_id == "Unknown":
-            copy[transcript_column] = row[gene_column]
-        else:
-            copy[transcript_column] = ensembl_gene_id
+            return row[gene_column]
 
-        return copy
+        return ensembl_gene_id
 
     return f
 
@@ -517,23 +514,22 @@ class _GeneAnalysis:
                 mutation_df.rename(columns={"Gene": "Ensembl_Gene_ID"}, inplace=True)
                 if self.remove_non_ensembl_genes:
                     mutation_df = mutation_df[
-                        mutation_df["Ensemble_Gene_ID"].str.startswith("ENSG")
+                        mutation_df["Ensembl_Gene_ID"].str.startswith("ENSG")
                     ]
             elif (
                 "Transcript_ID" in mutation_df.columns
                 and mutation_df["Transcript_ID"].str.startswith("ENST").any()
             ):
                 logger.info("Fetching gene IDs from Ensembl")
-                mutation_df["Ensembl_Gene_ID"] = mutation_df["Transcript_ID"]
-                mutation_df = mutation_df.progress_apply(
+                mutation_df["Ensembl_Gene_ID"] = mutation_df.progress_apply(
                     _get_valid_ensembl_gene_id_bulk(mutation_df),
                     axis=1,
-                    transcript_column="Ensembl_Gene_ID",  # rewriting this column
+                    transcript_column="Transcript_ID",  # rewriting this column
                     gene_column="Hugo_Symbol",
                 )
                 if self.remove_non_ensembl_genes:
                     mutation_df = mutation_df[
-                        mutation_df["Ensemble_Gene_ID"].str.startswith("ENSG")
+                        mutation_df["Ensembl_Gene_ID"].str.startswith("ENSG")
                     ]
             else:
                 self.merge_type = _SYMBOL
