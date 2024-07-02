@@ -385,7 +385,7 @@ def _get_ensembl_gene_id_bulk(transcript_ids: list[str]) -> dict[str, str]:
 
         data = response.json()
 
-        return {transcript_id: data[transcript_id].get("Parent") for transcript_id in transcript_ids}
+        return {transcript_id: data[transcript_id].get("Parent") for transcript_id in transcript_ids if data[transcript_id]}
     except Exception as e:
         logger.error(f"Failed to fetch gene IDs from Ensembl: {e}")
         raise e
@@ -404,7 +404,7 @@ def _get_ensembl_gene_name_bulk(gene_ids: list[str]) -> dict[str, str]:
 
         data = response.json()
 
-        return {transcript_id: data[transcript_id].get("display_name") for transcript_id in gene_ids}
+        return {gene_id: data[gene_id].get("display_name") for gene_id in gene_ids if data[gene_id]}
     except Exception as e:
         logger.error(f"Failed to fetch gene names from Ensembl: {e}")
         raise e
@@ -419,19 +419,24 @@ def _get_valid_ensembl_gene_id(
     return ensembl_gene_id
 
 
-def _get_valid_ensembl_gene_id_bulk(df: pd.DataFrame) -> Callable[[pd.Series, str, str], str]:
+def _get_valid_ensembl_gene_id_bulk(df: pd.DataFrame) -> Callable[[pd.Series, str, str], pd.Series]:
     map_: dict[str, str] | None = None
 
-    def f(row, transcript_column: str = "seq_ID", gene_column: str = "gene_name"):
+    def f(row: pd.Series, transcript_column: str = "seq_ID", gene_column: str = "gene_name"):
+        # logger.info(f"Row: {row}")
         nonlocal map_
         if map_ is None:
             all_transcript_ids = df[transcript_column].unique()
             map_ = _get_ensembl_gene_id_bulk(list(all_transcript_ids))
 
-        ensembl_gene_id = map_[row[transcript_column]]
+        ensembl_gene_id = map_.get(row[transcript_column], "Unknown")
+        copy = row.copy()
         if ensembl_gene_id == "Unknown":
-            return row[gene_column]
-        return ensembl_gene_id
+            copy[transcript_column] = row[gene_column]
+        else:
+            copy[transcript_column] = ensembl_gene_id
+
+        return copy
 
     return f
 
@@ -472,7 +477,7 @@ class _GeneAnalysis:
         os.makedirs(self.figure_output_dir, exist_ok=True)
 
         # todo "Ensembl_Gene_ID" is not a valid column name in the dataframes...
-        assert self.merge_type == _SYMBOL, "Only 'Symbol' merge type is supported for now."
+        ##assert self.merge_type == _SYMBOL, "Only 'Symbol' merge type is supported for now."
         assert self.merge_type in [
             _SYMBOL,
             _ENSEMBL,
@@ -506,6 +511,7 @@ class _GeneAnalysis:
         if self.merge_type == _ENSEMBL:
             if (
                 "Gene" in mutation_df.columns
+                and not mutation_df["Gene"].isna().all()
                 and mutation_df["Gene"].str.startswith("ENSG").any()
             ):
                 mutation_df.rename(columns={"Gene": "Ensembl_Gene_ID"}, inplace=True)
@@ -518,10 +524,11 @@ class _GeneAnalysis:
                 and mutation_df["Transcript_ID"].str.startswith("ENST").any()
             ):
                 logger.info("Fetching gene IDs from Ensembl")
-                mutation_df.progress_apply(
+                mutation_df["Ensembl_Gene_ID"] = mutation_df["Transcript_ID"]
+                mutation_df = mutation_df.progress_apply(
                     _get_valid_ensembl_gene_id_bulk(mutation_df),
                     axis=1,
-                    transcript_column="Transcript_ID",
+                    transcript_column="Ensembl_Gene_ID",  # rewriting this column
                     gene_column="Hugo_Symbol",
                 )
                 if self.remove_non_ensembl_genes:
@@ -537,7 +544,9 @@ class _GeneAnalysis:
         if self.merge_type == _ENSEMBL:
             self.column_for_merging = "Ensembl_Gene_ID"
 
-            logger.info(f"Columns: {mutation_df.columns}")
+            # logger.info(f"Columns: {mutation_df.columns}")
+            # logger.info(f"Transcript column: {mutation_df.head(20)['Transcript_ID']}")
+            # logger.info(f"Gene ID column: {mutation_df.head(20)['Ensembl_Gene_ID']}")
             aggregated_df = (
                 mutation_df.groupby(["Tumor_Sample_Barcode", self.column_for_merging])
                 .agg(
@@ -903,11 +912,10 @@ class _GeneAnalysis:
                 title = title + " - " + filter_value
 
             if self.column_for_merging == "Ensembl_Gene_ID":
-                # todo - add ensembl to hugo conversion
-                raise NotImplementedError(
-                    "Ensembl to Hugo conversion not implemented yet"
-                )
-                # pivot_df1.rename(index=self.top_mutant_gene_list_ensembl_to_hugo, inplace=True)
+                logger.info("Fetching gene names from Ensembl...")
+                map_ = _get_ensembl_gene_name_bulk(pivot_df1.index.tolist())
+                logger.info("Fetched gene names from Ensembl")
+                pivot_df1.rename(index=map_, inplace=True)
 
         else:  # variation_type == "cna_nonbinary"
             assert (
