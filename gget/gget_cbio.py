@@ -550,32 +550,31 @@ class _GeneAnalysis:
             # logger.info(f"Columns: {mutation_df.columns}")
             # logger.info(f"Transcript column: {mutation_df.head(20)['Transcript_ID']}")
             # logger.info(f"Gene ID column: {mutation_df.head(20)['Ensembl_Gene_ID']}")
-            aggregated_df = (
-                mutation_df.groupby(["Tumor_Sample_Barcode", self.column_for_merging])
-                .agg(
-                    {
-                        "Hugo_Symbol": lambda x: ",".join(x.unique()),
-                        "Entrez_Gene_Id": lambda x: ",".join(map(str, x.unique())),
-                        "Consequence": lambda x: ",".join(x.unique()),
-                    }
-                )
-                .reset_index()
-            )
+            aggregation_dict = {
+                "Hugo_Symbol": lambda x: ",".join(x.unique()),
+                "Entrez_Gene_Id": lambda x: ",".join(map(str, x.unique())),
+                "Consequence": lambda x: ",".join(x.unique()),
+            }
         elif self.merge_type == _SYMBOL:
             self.column_for_merging = "Hugo_Symbol"
 
-            aggregated_df = (
-                mutation_df.groupby(["Tumor_Sample_Barcode", self.column_for_merging])
-                .agg(
-                    {
-                        "Entrez_Gene_Id": lambda x: ",".join(map(str, x.unique())),
-                        "Consequence": lambda x: ",".join(x.unique()),
-                    }
-                )
-                .reset_index()
-            )
+            aggregation_dict = {
+                "Entrez_Gene_Id": lambda x: ",".join(map(str, x.unique())),
+                "Consequence": lambda x: ",".join(x.unique()),
+            }
         else:
             raise AssertionError(f"Invalid merge type: {self.merge_type}")
+
+        if "Entrez_Gene_Id" not in mutation_df.columns:
+            del aggregation_dict["Entrez_Gene_Id"]
+            if "Entrez_Gene_Id" in self.columns_to_keep:
+                self.columns_to_keep.remove("Entrez_Gene_Id")
+
+        aggregated_df = (
+            mutation_df.groupby(["Tumor_Sample_Barcode", self.column_for_merging])
+            .agg(aggregation_dict)
+            .reset_index()
+        )
 
         if self.column_for_merging not in self.columns_to_keep:
             self.columns_to_keep.append(self.column_for_merging)
