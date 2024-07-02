@@ -544,6 +544,12 @@ class _GeneAnalysis:
                     "No Ensembl gene IDs found in the mutation data. Merging on gene symbol instead."
                 )
 
+        def join_unique_string_values(series):
+            if series.isnull().all():
+                return np.nan
+            else:
+                return ','.join(series.dropna().unique())
+
         if self.merge_type == _ENSEMBL:
             self.column_for_merging = "Ensembl_Gene_ID"
 
@@ -553,14 +559,14 @@ class _GeneAnalysis:
             aggregation_dict = {
                 "Hugo_Symbol": lambda x: ",".join(x.unique()),
                 "Entrez_Gene_Id": lambda x: ",".join(map(str, x.unique())),
-                "Consequence": lambda x: ",".join(map(str, x.unique())),
+                "Consequence": join_unique_string_values,
             }
         elif self.merge_type == _SYMBOL:
             self.column_for_merging = "Hugo_Symbol"
 
             aggregation_dict = {
                 "Entrez_Gene_Id": lambda x: ",".join(map(str, x.unique())),
-                "Consequence": lambda x: ",".join(map(str, x.unique())),
+                "Consequence": join_unique_string_values,
             }
         else:
             raise AssertionError(f"Invalid merge type: {self.merge_type}")
