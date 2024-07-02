@@ -290,7 +290,7 @@ def _extract_study_name(name: str) -> str:
     return name
 
 
-def find_study_ids_by_keywords(key_words: list[str] | set[str]) -> list[str]:
+def find_study_ids_by_keywords(*key_words: str) -> list[str]:
     """
     Find cBioPortal study IDs by keyword.
 
@@ -747,6 +747,7 @@ class _GeneAnalysis:
             "Consequence",
         ] = "mutation_occurrences",
         dpi: int = 100,
+        show: bool = False
     ):
         if variation_type == "cna_nonbinary" or variation_type == "Consequence":
             assert (
@@ -850,7 +851,7 @@ class _GeneAnalysis:
                 )
 
                 if (
-                    filter_category is None or stratification != "sample"
+                    stratification != "sample"
                 ):  # no filtering
                     df_for_heatmap_very_final: pd.DataFrame = (
                         merged_df.groupby([self.column_for_merging, stratification])[
@@ -1103,12 +1104,11 @@ class _GeneAnalysis:
 
         plt.savefig(filepath, bbox_inches="tight", dpi=dpi)
 
-        plt.show()
+        if show:
+            plt.show()
 
-        plt.close()
-
-        if nas_present:
-            pivot_df1 = pivot_df1.replace(min_value, np.nan)
+        # if nas_present:
+        #     pivot_df1 = pivot_df1.replace(min_value, np.nan)
 
         # if filter_category is None:  # * no filtering
         #     self.pivot_df_dict[variation_type] = pivot_df1
@@ -1136,10 +1136,11 @@ def cbio(
     remove_non_ensembl_genes: bool = False,
 
     data_dir: str = "gget_cbio_cache",
-    figure_output_dir: str = "gget_cbio_figures",
-    verbose: bool = False,
+    figure_dir: str = "gget_cbio_figures",
+    verbose: bool = True,
     confirm_download: bool = False,
-    dpi: int = 100
+    dpi: int = 100,
+    show: bool = False
 ) -> bool:
     """
     Plot a heatmap of given genes in the given studies.
@@ -1148,7 +1149,7 @@ def cbio(
 
     :param study_ids:                   list of cBioPortal study IDs
     :param genes:                       list of gene names
-    :param figure_output_dir:           directory to save the figure in
+    :param figure_dir:           directory to save the figure in
 
     :param stratification:              column to group the data by, default 'tissue'
     :param variation_type:              column to use for the heatmap, default 'mutation_occurrences'
@@ -1161,6 +1162,7 @@ def cbio(
     :param verbose:                     whether to print out progress, default False
     :param confirm_download:            whether to confirm the download before proceeding, default False
     :param dpi:                         resolution of the figure, default 100 dots per inch
+    :param show:                        whether to show the plot, default False
 
     Return:
 
@@ -1181,7 +1183,7 @@ def cbio(
         study_ids,
         genes,
         data_dir=data_dir,
-        figure_output_dir=figure_output_dir,
+        figure_output_dir=figure_dir,
         merge_type=merge_type,
         remove_non_ensembl_genes=remove_non_ensembl_genes,
     )
@@ -1194,7 +1196,8 @@ def cbio(
         filter_category=filter_[0] if filter_ else None,
         filter_value=filter_[1] if filter_ else None,
         variation_type=variation_type,
-        dpi=dpi
+        dpi=dpi,
+        show=show
     )
 
     del gene_analyzer
