@@ -1,4 +1,4 @@
-__all__ = ["download_cbioportal_data", "cbio_search", "cbio"]
+__all__ = ["download_cbioportal_data", "cbio_search", "cbio_plot"]
 
 import json
 import math
@@ -1116,7 +1116,7 @@ class _GeneAnalysis:
         #     self.pivot_df_dict[selected_group_category][selected_group][variation_type] = pivot_df1
 
 
-def cbio(
+def cbio_plot(
     study_ids: list[str],
     genes: list[str],
 

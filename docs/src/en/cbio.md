@@ -15,7 +15,7 @@ Return format: JSON (command-line) or string list (Python).
 `keywords`  
 Space-separated list of keywords to search for, e.g. <code>breast&nbsp;lung</code>.
 
-### `plot` subcommand (Python: `gget.cbio`)
+### `plot` subcommand (Python: `gget.cbio_plot`)
 Plot cancer genomics heatmaps using data from cBioPortal.
 Return format: PNG (command-line and Python)
 
@@ -97,7 +97,7 @@ gget cbio plot -s msk_impact_2017 -g AKT1 ALK FLT4 MAP3K1 MLL2 MLL3 NOTCH3 NOTCH
 ```
 ```python
 import gget
-gget.cbio(
+gget.cbio_plot(
     ['msk_impact_2017'],
     ['AKT1', 'ALK', 'FLT4', 'MAP3K1', 'MLL2', 'MLL3', 'NOTCH3', 'NOTCH4', 'PDCD1', 'RNF43'],
     stratification='tissue',
@@ -118,7 +118,7 @@ gget cbio plot -s msk_impact_2017 -g AKT1 ALK FLT4 MAP3K1 MLL2 MLL3 NOTCH3 NOTCH
 ```
 ```python
 import gget
-gget.cbio(
+gget.cbio_plot(
     ['msk_impact_2017'],
     ['AKT1', 'ALK', 'FLT4', 'MAP3K1', 'MLL2', 'MLL3', 'NOTCH3', 'NOTCH4', 'PDCD1', 'RNF43'],
     stratification='sample',
@@ -139,7 +139,7 @@ gget cbio plot -s msk_impact_2017 -g AKT1 ALK FLT4 MAP3K1 MLL2 MLL3 NOTCH3 NOTCH
 ```
 ```python
 import gget
-gget.cbio(
+gget.cbio_plot(
     ['msk_impact_2017'],
     ['AKT1', 'ALK', 'FLT4', 'MAP3K1', 'MLL2', 'MLL3', 'NOTCH3', 'NOTCH4', 'PDCD1', 'RNF43'],
     stratification='sample',

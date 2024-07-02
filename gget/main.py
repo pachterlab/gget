@@ -34,7 +34,7 @@ from .gget_diamond import diamond
 from .gget_cosmic import cosmic
 from .gget_mutate import mutate
 from .gget_opentargets import opentargets, OPENTARGETS_RESOURCES
-from .gget_cbio import cbio, cbio_search
+from .gget_cbio import cbio_plot, cbio_search
 
 
 # Custom formatter for help messages that preserved the text formatting and adds the default value to the end of the help message
@@ -3093,7 +3093,7 @@ def main():
             cbio_results = cbio_search(*args.keywords)
             print(json.dumps(cbio_results, ensure_ascii=False, indent=4))
         elif args.subcommand == "plot":
-            cbio(
+            cbio_plot(
                 args.study_ids,
                 args.genes,
                 stratification=args.stratification,
