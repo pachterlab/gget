@@ -25,6 +25,11 @@ _V = TypeVar("_V")
 logger = set_up_logger()
 
 
+if not hasattr(pd.DataFrame, "map"):
+    logger.info("Old pandas version detected. Patching DataFrame.map to DataFrame.applymap")
+    pd.DataFrame.map = pd.DataFrame.applymap
+
+
 def _ints_between(
     start: int, end: int, max_count: int, min_count: int, verbose: bool = False
 ) -> list[int]:
