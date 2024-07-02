@@ -1,0 +1,32 @@
+{
+    "test_cbio_search": {
+        "type": "assert_equal",
+        "args": [
+            "esophag",
+            "ovary",
+            "ovarian"
+        ],
+        "expected_result": [
+            "egc_tmucih_2015",
+            "egc_msk_2017",
+            "egc_mskcc_2020",
+            "egc_msk_tp53_ccr_2022",
+            "escc_ucla_2014",
+            "esca_broad",
+            "escc_icgc",
+            "egc_trap_msk_2020",
+            "hgsoc_msk_2021",
+            "lgsoc_mapk_msk_2022",
+            "ov_tcga_pub",
+            "scco_mskcc",
+            "stes_tcga_pub",
+            "egc_trap_ccr_msk_2023",
+            "esca_tcga",
+            "egc_msk_2023",
+            "ov_tcga",
+            "esca_tcga_pan_can_atlas_2018",
+            "ov_tcga_pan_can_atlas_2018",
+            "msk_spectrum_tme_2022"
+        ]
+    }
+}

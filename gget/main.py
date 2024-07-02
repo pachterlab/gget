@@ -34,8 +34,7 @@ from .gget_diamond import diamond
 from .gget_cosmic import cosmic
 from .gget_mutate import mutate
 from .gget_opentargets import opentargets, OPENTARGETS_RESOURCES
-from .gget_cbio import cbio
-from .gget_cbio import find_study_ids_by_keywords as cbio_search
+from .gget_cbio import cbio, cbio_search
 
 
 # Custom formatter for help messages that preserved the text formatting and adds the default value to the end of the help message

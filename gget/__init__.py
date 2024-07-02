@@ -17,8 +17,7 @@ from .gget_diamond import diamond
 from .gget_cosmic import cosmic
 from .gget_mutate import mutate
 from .gget_opentargets import opentargets
-from .gget_cbio import cbio
-from .gget_cbio import find_study_ids_by_keywords as cbio_search
+from .gget_cbio import cbio, cbio_search
 
 import logging
 # Mute numexpr threads info

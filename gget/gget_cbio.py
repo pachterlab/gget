@@ -1,4 +1,4 @@
-__all__ = ["download_cbioportal_data", "find_study_ids_by_keywords", "cbio"]
+__all__ = ["download_cbioportal_data", "cbio_search", "cbio"]
 
 import json
 import math
@@ -290,7 +290,7 @@ def _extract_study_name(name: str) -> str:
     return name
 
 
-def find_study_ids_by_keywords(*key_words: str) -> list[str]:
+def cbio_search(*key_words: str) -> list[str]:
     """
     Find cBioPortal study IDs by keyword.
 
