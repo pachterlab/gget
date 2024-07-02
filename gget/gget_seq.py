@@ -1,7 +1,8 @@
 import numpy as np
 
 # Custom functions
-from .utils import rest_query, get_uniprot_seqs, set_up_logger
+from .utils import rest_query, get_uniprot_seqs, set_up_logger, post_query
+
 logger = set_up_logger()
 from .gget_info import info
 
@@ -88,9 +89,44 @@ def seq(
 
         # If isoforms False, just fetch sequences of passed Ensembl ID
         if not isoforms:
-            BULK = False
+            BULK = True
             if BULK:
-                pass
+                actual_results_dict = {}
+
+                endpoint = "sequence/id/"
+                query = {"ids": ens_ids_clean}
+
+                # noinspection PyTypeChecker
+                results_list: list[dict[str, ...]] = post_query(server, endpoint, query)
+                results_dict: dict[str, dict[str, ...]] = {v['query']: v for v in results_list if v is not None}
+
+                for ensembl_ID, df_temp in results_dict.items():
+                    df_temp: dict[str, ...]
+
+                    # Delete superfluous entries
+                    keys_to_delete = ["query", "id", "version", "molecule"]
+                    for key in keys_to_delete:
+                        # Pop keys, None -> do not raise an error if key to delete not found
+                        df_temp.pop(key, None)
+
+                    # Add results to main dict
+                    actual_results_dict[ensembl_ID] = {"seq": df_temp}
+
+                    if verbose:
+                        logger.info(
+                            f"Requesting nucleotide sequence of {ensembl_ID} from Ensembl."
+                        )
+
+                missing_ids = set(ens_ids_clean) - set(actual_results_dict.keys())
+
+                for missing in missing_ids:
+                    logger.error(
+                        f"ID {missing} not found. Please double-check spelling/arguments and try again."
+                    )
+
+                # Add results to master dict
+                master_dict.update(actual_results_dict)
+
             else:
                 for ensembl_ID in ens_ids_clean:
                     # Create dict to save query results
