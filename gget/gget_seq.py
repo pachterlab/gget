@@ -85,41 +85,54 @@ def seq(
         master_dict = {}
 
         # Query REST APIs from https://rest.ensembl.org/
-        for ensembl_ID in ens_ids_clean:
-            # Create dict to save query results
-            results_dict = {ensembl_ID: {}}
 
-            # If isoforms False, just fetch sequences of passed Ensembl ID
-            if isoforms == False:
-                # sequence/id/ query: Request sequence by stable identifier
-                query = "sequence/id/" + ensembl_ID + "?"
+        # If isoforms False, just fetch sequences of passed Ensembl ID
+        if not isoforms:
+            BULK = False
+            if BULK:
+                pass
+            else:
+                for ensembl_ID in ens_ids_clean:
+                    # Create dict to save query results
+                    results_dict = {ensembl_ID: {}}
 
-                # Try if query valid
-                try:
-                    # Submit query; this will throw RuntimeError if ID not found
-                    df_temp = rest_query(server, query, content_type)
+                    # sequence/id/ query: Request sequence by stable identifier
+                    query = "sequence/id/" + ensembl_ID + "?"
 
-                    # Delete superfluous entries
-                    keys_to_delete = ["query", "id", "version", "molecule"]
-                    for key in keys_to_delete:
-                        # Pop keys, None -> do not raise an error if key to delete not found
-                        df_temp.pop(key, None)
+                    # Try if query valid
+                    try:
+                        # Submit query; this will throw RuntimeError if ID not found
+                        df_temp = rest_query(server, query, content_type)
 
-                    # Add results to main dict
-                    results_dict[ensembl_ID].update({"seq": df_temp})
+                        # Delete superfluous entries
+                        keys_to_delete = ["query", "id", "version", "molecule"]
+                        for key in keys_to_delete:
+                            # Pop keys, None -> do not raise an error if key to delete not found
+                            df_temp.pop(key, None)
 
-                    if verbose:
-                        logger.info(
-                            f"Requesting nucleotide sequence of {ensembl_ID} from Ensembl."
+                        # Add results to main dict
+                        results_dict[ensembl_ID].update({"seq": df_temp})
+
+                        if verbose:
+                            logger.info(
+                                f"Requesting nucleotide sequence of {ensembl_ID} from Ensembl."
+                            )
+
+                    except RuntimeError:
+                        logger.error(
+                            f"ID {ensembl_ID} not found. Please double-check spelling/arguments and try again."
                         )
 
-                except RuntimeError:
-                    logger.error(
-                        f"ID {ensembl_ID} not found. Please double-check spelling/arguments and try again."
-                    )
+                    # Add results to master dict
+                    master_dict.update(results_dict)
 
-            # If isoforms true, fetch sequences of isoforms instead
-            if isoforms == True:
+        # If isoforms true, fetch sequences of isoforms instead
+        # todo this could possibly be refactored to use bulk queries
+        else:
+            for ensembl_ID in ens_ids_clean:
+                # Create dict to save query results
+                results_dict = {ensembl_ID: {}}
+
                 # Get ID type (gene, transcript, ...) using gget info
                 info_df = info(ensembl_ID, verbose=False, pdb=False, ncbi=False, uniprot=False)
 
@@ -198,8 +211,8 @@ def seq(
                             "Please double-check spelling/arguments and try again."
                         )
 
-            # Add results to master dict
-            master_dict.update(results_dict)
+                # Add results to master dict
+                master_dict.update(results_dict)
 
         # Build FASTA file
         for ens_ID in master_dict:
