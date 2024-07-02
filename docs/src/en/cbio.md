@@ -69,7 +69,7 @@ Command-line only. Skip download confirmation prompts.
 Python: Use `confirm_download=True` to enable download confirmation prompts.
 
 `-sh` `--show`  
-Show the plot in a window/in a Jupyter notebook.
+Show the plot in a window (automatic in Jupyter notebooks).
   
   
 ### Examples
@@ -130,5 +130,27 @@ gget.cbio(
 &rarr; Saves a heatmap of mutation types for the specified genes in the specified study to `./gget_cbio_figures/Heatmap_sample.png`.
 
 ![Heatmap](https://raw.githubusercontent.com/techno-sam/gget/f6b4465eecae0f07c71558f8f6e7b60d36c8d41a/docs/assets/gget_cbio_figure_2.png)
+
+<br/><br/>
+
+**Plot a heatmap of mutation types for specific genes in a specific study, filtering by tissue:**
+```bash
+gget cbio plot -s msk_impact_2017 -g AKT1 ALK FLT4 MAP3K1 MLL2 MLL3 NOTCH3 NOTCH4 PDCD1 RNF43 -st sample -vt Consequence -f tissue:intestine -dpi 200 -y
+```
+```python
+import gget
+gget.cbio(
+    ['msk_impact_2017'],
+    ['AKT1', 'ALK', 'FLT4', 'MAP3K1', 'MLL2', 'MLL3', 'NOTCH3', 'NOTCH4', 'PDCD1', 'RNF43'],
+    stratification='sample',
+    variation_type='Consequence',
+    filter_=('tissue', 'intestine'),
+    dpi=200,
+)
+```
+
+&rarr; Saves a heatmap of mutation types for the specified genes in the specified study, filtered by tissue, to `./gget_cbio_figures/Heatmap_sample_intestine.png`.
+
+![Heatmap](../../assets/gget_cbio_figure_3.png)
     
 #### [More examples](https://github.com/pachterlab/gget_examples)
