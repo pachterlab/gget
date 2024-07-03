@@ -2185,6 +2185,22 @@ def main():
         required=False
     )
     parser_cbio_plot.add_argument(
+        "-fn",
+        "--filename",
+        type=str,
+        default=None,
+        help="Filename for the generated figure, relative to `figure_dir` (default: auto-generated)",
+        required=False
+    )
+    parser_cbio_plot.add_argument(
+        "-t",
+        "--title",
+        type=str,
+        default=None,
+        help="Title for the generated figure (default: auto-generated)",
+        required=False
+    )
+    parser_cbio_plot.add_argument(
         "-dpi",
         "--dpi",
         type=int,
@@ -3140,4 +3156,6 @@ def main():
                 verbose=args.quiet,
                 confirm_download=not args.no_confirm,
                 show=args.show,
+                figure_filename=args.filename,
+                figure_title=args.title,
             )

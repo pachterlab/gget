@@ -55,6 +55,14 @@ Directory to store data files. Default: `./gget_cbio_cache`.
 `-fd` `--figure_dir`    
 Directory to output figures. Default: `./gget_cbio_figures`.
 
+`-fn` `--filename`  
+Filename for the output figure, relative to `figure_dir`. Default: auto-generated   
+Python: `figure_filename`
+
+`-t` `--title`  
+Title for the output figure. Default: auto-generated
+Python: `figure_title`
+
 `-dpi` `--dpi`  
 DPI of the output figure. Default: 100.
 
@@ -152,5 +160,29 @@ gget.cbio_plot(
 &rarr; Saves a heatmap of mutation types for the specified genes in the specified study, filtered by tissue, to `./gget_cbio_figures/Heatmap_sample_intestine.png`.
 
 ![Heatmap](https://raw.githubusercontent.com/pachterlab/gget/ef0e8334d87214c17cbac70713028e7b823bba49/docs/assets/gget_cbio_figure_3.png)
+
+<br/><br/>
+
+**Plot a heatmap with a custom title and filename:**
+```bash
+gget cbio plot -s msk_impact_2017 -g AKT1 ALK FLT4 MAP3K1 MLL2 MLL3 NOTCH3 NOTCH4 PDCD1 RNF43 -st sample -vt Consequence -f tissue:intestine -dpi 200 -y -t "Intestinal Mutations" -fn intestinal_mutations.png
+```
+```python
+import gget
+gget.cbio_plot(
+    ['msk_impact_2017'],
+    ['AKT1', 'ALK', 'FLT4', 'MAP3K1', 'MLL2', 'MLL3', 'NOTCH3', 'NOTCH4', 'PDCD1', 'RNF43'],
+    stratification='sample',
+    variation_type='Consequence',
+    filter_=('tissue', 'intestine'),
+    dpi=200,
+    figure_title='Intestinal Mutations',
+    figure_filename='intestinal_mutations.png'
+)
+```
+
+&rarr; Saves a heatmap of mutation types for the specified genes in the specified study, filtered by tissue, with the title "Intestinal Mutations" to `./gget_cbio_figures/intestinal_mutations.png`.
+
+![Heatmap](../../assets/gget_cbio_figure_4.png)
     
 #### [More examples](https://github.com/pachterlab/gget_examples)
