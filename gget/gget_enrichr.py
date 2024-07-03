@@ -314,7 +314,7 @@ def enrichr(
                 """
             )
 
-    enrichr_results = r2.json()
+    enrichr_results = r2.json(allow_nan=True)
 
     ## Build data frame (standard return)
     # Define column names

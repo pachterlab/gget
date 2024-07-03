@@ -1,11 +1,11 @@
 import unittest
-from typing import Callable, Any
+from typing import Callable, Any, Optional
 import pandas as pd
 import sys
 import json
 import hashlib
 
-
+# Here's a question: how many errors does Copilot know? Answer: see below.
 _KNOWN_ERRORS = {
     "ValueError": ValueError,
     "RuntimeError": RuntimeError,
@@ -13,7 +13,38 @@ _KNOWN_ERRORS = {
     "KeyError": KeyError,
     "AssertionError": AssertionError,
     "AttributeError": AttributeError,
-    "NotImplementedError": NotImplementedError
+    "NotImplementedError": NotImplementedError,
+    "FileNotFoundError": FileNotFoundError,
+    "IndexError": IndexError,
+    "OSError": OSError,
+    "PermissionError": PermissionError,
+    "ConnectionError": ConnectionError,
+    "TimeoutError": TimeoutError,
+    "RecursionError": RecursionError,
+    "OverflowError": OverflowError,
+    "ZeroDivisionError": ZeroDivisionError,
+    "ArithmeticError": ArithmeticError,
+    "ImportError": ImportError,
+    "ModuleNotFoundError": ModuleNotFoundError,
+    "NameError": NameError,
+    "SyntaxError": SyntaxError,
+    "IndentationError": IndentationError,
+    "TabError": TabError,
+    "SystemError": SystemError,
+    "SystemExit": SystemExit,
+    "KeyboardInterrupt": KeyboardInterrupt,
+    "GeneratorExit": GeneratorExit,
+    "StopIteration": StopIteration,
+    "MemoryError": MemoryError,
+    "BufferError": BufferError,
+    "LookupError": LookupError,
+    "EnvironmentError": EnvironmentError,
+    "IOError": IOError,
+    "BlockingIOError": BlockingIOError,
+    "ChildProcessError": ChildProcessError,
+    "BrokenPipeError": BrokenPipeError,
+    "ConnectionAbortedError": ConnectionAbortedError,
+    "ConnectionRefusedError": ConnectionRefusedError,
 }
 
 
@@ -34,6 +65,31 @@ def _assert_equal(name: str, td: dict[str, dict[str, ...]], func: Callable) -> C
 
         self.assertEqual(result_to_test, expected_result)
     return assert_equal
+
+
+def _assert_equal_na(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Callable:
+    def assert_equal_na(self: unittest.TestCase):
+        test = name
+        expected_result = td[test]["expected_result"]
+        result_to_test = do_call(func, td[test]["args"])
+        # If result is a DataFrame, convert to list
+        if isinstance(result_to_test, pd.DataFrame):
+            result_to_test = result_to_test.values.tolist()
+
+        self.assertEqual(result_to_test, expected_result)
+    return assert_equal_na
+
+
+def _assert_none(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Callable:
+    def assert_none(self: unittest.TestCase):
+        test = name
+        expected_result = td[test].get("expected_result", None)
+        msg = td[test].get("msg", None)
+        result_to_test = do_call(func, td[test]["args"])
+
+        self.assertIsNone(expected_result, "assert_none test must not have a non-null expected_result key.")
+        self.assertIsNone(result_to_test, msg=msg)
+    return assert_none
 
 
 def _assert_equal_json_hash(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Callable:
@@ -104,9 +160,12 @@ def _error(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Callable
             do_call(func, td[test]["args"])
     return error
 
+
 _test_constructor = Callable[[str, dict[str, dict[str, ...]], Callable], Callable]
 _TYPES: dict[str, _test_constructor] = {
     "assert_equal": _assert_equal,
+    "assert_equal_na": _assert_equal_na,
+    "assert_none": _assert_none,
     "assert_equal_json_hash": _assert_equal_json_hash,
     "assert_equal_nested": _assert_equal_nested,
     "assert_equal_json_hash_nested": _assert_equal_json_hash_nested,
@@ -114,7 +173,7 @@ _TYPES: dict[str, _test_constructor] = {
 }
 
 
-def from_json(test_dict: dict[str, dict[str, ...]], func: callable, custom_types: dict[str, _test_constructor] | None = None) -> type:
+def from_json(test_dict: dict[str, dict[str, ...]], func: Callable, custom_types: dict[str, _test_constructor] | None = None, pre_test: Optional[Callable[[], None]] = None) -> type:
     """
     Create a metaclass that will generate test methods from a (json-loaded) dictionary.
     """
@@ -129,6 +188,8 @@ def from_json(test_dict: dict[str, dict[str, ...]], func: callable, custom_types
             for k, v in test_dict.items():
                 type_ = v["type"]
                 if type_ == "code_defined":
+                    if k not in dct:
+                        raise ValueError(f"Test {k} is not defined in code, despite being of type 'code_defined'.")
                     continue
                 if type_ in local_types:
                     if not k.startswith("test_"):
@@ -140,7 +201,18 @@ def from_json(test_dict: dict[str, dict[str, ...]], func: callable, custom_types
                         continue
 
                     # Create the test method for the given type and add it to the new class
-                    dct[k] = local_types[type_](k, test_dict, func)
+                    test_func = local_types[type_](k, test_dict, func)
+                    if pre_test:
+                        # This has to be done with nested functions to actually close on `test_func`.
+                        # Otherwise, it just becomes a recursive mess
+                        def wrap(tf):
+                            def inner(*args, **kwargs):
+                                pre_test()
+                                tf(*args, **kwargs)
+                            return inner
+                        test_func = wrap(test_func)
+
+                    dct[k] = test_func
                     print(f"Loaded test {k} of type {type_} from json.")
                 else:
                     if k not in dct:

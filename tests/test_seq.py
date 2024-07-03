@@ -8,6 +8,7 @@ with open("./tests/fixtures/test_seq.json") as json_file:
     seq_dict = json.load(json_file)
 
 
+# todo convert to json loading once wormbase & flybase IDs are fixed. At that point, the json test framework will need a way to handle the ANY values
 class TestSeq(unittest.TestCase):
     def test_seq_gene(self):
         test = "test1"

@@ -1,5 +1,5 @@
 {
-    "test1": {
+    "test_diamond_seqs_multiple": {
         "type": "assert_equal",
         "args": {
             "query": [
@@ -64,7 +64,7 @@
             ]
         ]
     },
-    "test2": {
+    "test_diamond_seqs_single": {
         "type": "assert_equal",
         "args": {
             "query": "GGETISAWESQME",
@@ -89,7 +89,7 @@
             ]
         ]
     },
-    "test3": {
+    "test_diamond_ref_file": {
         "type": "assert_equal",
         "args": {
             "query": "MLMPGPLRRALGQKFSIFPSVDHDSDDDSYEVLDLTEYARRHHWWNRLFGRNSGPVVEKYSVATQIVMGGVTGWCAGFLFQKVGKLAA",
@@ -130,7 +130,7 @@
             ]
         ]
     },
-    "test4": {
+    "test_diamond_query_file": {
         "type": "assert_equal",
         "args": {
             "query": "tests/fixtures/muscle_aa_test.fa",
@@ -171,7 +171,7 @@
             ]
         ]
     },
-    "test5": {
+    "test_diamond_both_files": {
         "type": "assert_equal",
         "args": {
             "query": "tests/fixtures/muscle_aa_test.fa",
@@ -244,7 +244,7 @@
             ]
         ]
     },
-    "test6": {
+    "test_diamond_JSON_out": {
         "type": "assert_equal",
         "args": {
             "query": "tests/fixtures/muscle_aa_test.fa",
