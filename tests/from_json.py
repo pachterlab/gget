@@ -5,7 +5,7 @@ import sys
 import json
 import hashlib
 
-
+# Here's a question: how many errors does Copilot know? Answer: see below.
 _KNOWN_ERRORS = {
     "ValueError": ValueError,
     "RuntimeError": RuntimeError,
@@ -13,7 +13,38 @@ _KNOWN_ERRORS = {
     "KeyError": KeyError,
     "AssertionError": AssertionError,
     "AttributeError": AttributeError,
-    "NotImplementedError": NotImplementedError
+    "NotImplementedError": NotImplementedError,
+    "FileNotFoundError": FileNotFoundError,
+    "IndexError": IndexError,
+    "OSError": OSError,
+    "PermissionError": PermissionError,
+    "ConnectionError": ConnectionError,
+    "TimeoutError": TimeoutError,
+    "RecursionError": RecursionError,
+    "OverflowError": OverflowError,
+    "ZeroDivisionError": ZeroDivisionError,
+    "ArithmeticError": ArithmeticError,
+    "ImportError": ImportError,
+    "ModuleNotFoundError": ModuleNotFoundError,
+    "NameError": NameError,
+    "SyntaxError": SyntaxError,
+    "IndentationError": IndentationError,
+    "TabError": TabError,
+    "SystemError": SystemError,
+    "SystemExit": SystemExit,
+    "KeyboardInterrupt": KeyboardInterrupt,
+    "GeneratorExit": GeneratorExit,
+    "StopIteration": StopIteration,
+    "MemoryError": MemoryError,
+    "BufferError": BufferError,
+    "LookupError": LookupError,
+    "EnvironmentError": EnvironmentError,
+    "IOError": IOError,
+    "BlockingIOError": BlockingIOError,
+    "ChildProcessError": ChildProcessError,
+    "BrokenPipeError": BrokenPipeError,
+    "ConnectionAbortedError": ConnectionAbortedError,
+    "ConnectionRefusedError": ConnectionRefusedError,
 }
 
 
