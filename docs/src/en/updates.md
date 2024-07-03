@@ -2,6 +2,7 @@
 **Version ≥ 0.28.7** (XXX):  
 - [`gget mutate`](./mutate.md): Merge identical sequences in final file containing mutated sequences. Vectorized mutation creation for faster runtime. Improved flanking sequence check for non-substitution mutations.
 - [`gget cosmic`](./cosmic.md): Adding support for targeted and gene screens. Csv file created for gget mutate also contains protein mutation info.
+- [`gget ref`](./ref.md): Added out file option.
 
 **Version ≥ 0.28.6** (Jun 2, 2024):  
 - **New module: [`gget mutate`](./mutate.md)**
