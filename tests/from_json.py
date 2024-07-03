@@ -67,6 +67,19 @@ def _assert_equal(name: str, td: dict[str, dict[str, ...]], func: Callable) -> C
     return assert_equal
 
 
+def _assert_equal_na(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Callable:
+    def assert_equal_na(self: unittest.TestCase):
+        test = name
+        expected_result = td[test]["expected_result"]
+        result_to_test = do_call(func, td[test]["args"])
+        # If result is a DataFrame, convert to list
+        if isinstance(result_to_test, pd.DataFrame):
+            result_to_test = result_to_test.values.tolist()
+
+        self.assertEqual(result_to_test, expected_result)
+    return assert_equal_na
+
+
 def _assert_none(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Callable:
     def assert_none(self: unittest.TestCase):
         test = name
@@ -151,6 +164,7 @@ def _error(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Callable
 _test_constructor = Callable[[str, dict[str, dict[str, ...]], Callable], Callable]
 _TYPES: dict[str, _test_constructor] = {
     "assert_equal": _assert_equal,
+    "assert_equal_na": _assert_equal_na,
     "assert_none": _assert_none,
     "assert_equal_json_hash": _assert_equal_json_hash,
     "assert_equal_nested": _assert_equal_nested,
