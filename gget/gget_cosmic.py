@@ -317,6 +317,7 @@ def cosmic(
                     "GENOMIC_MUTATION_ID",
                     "MUTATION_URL",
                     "Mutation CDS",
+                    "Mutation AA"
                 ]
             else:
                 relevant_cols = [
@@ -325,6 +326,7 @@ def cosmic(
                     "GENOMIC_MUTATION_ID",
                     "MUTATION_ID",
                     "MUTATION_CDS",
+                    "MUTATION_AA"
                 ]
 
             df = pd.read_csv(mutation_tsv_file, usecols=relevant_cols, sep="\t")
@@ -337,6 +339,7 @@ def cosmic(
                         "ACCESSION_NUMBER": "seq_ID",
                         "Mutation CDS": "mutation",
                         "MUTATION_URL": "MUTATION_ID",
+                        "Mutation AA": "mutation_aa",
                     }
                 )
             else:
@@ -345,6 +348,7 @@ def cosmic(
                         "GENE_SYMBOL": "GENE_NAME",
                         "TRANSCRIPT_ACCESSION": "seq_ID",
                         "MUTATION_CDS": "mutation",
+                        "MUTATION_AA": "mutation_aa",
                     }
                 )
 
