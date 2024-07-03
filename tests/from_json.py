@@ -36,6 +36,17 @@ def _assert_equal(name: str, td: dict[str, dict[str, ...]], func: Callable) -> C
     return assert_equal
 
 
+def _assert_none(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Callable:
+    def assert_none(self: unittest.TestCase):
+        test = name
+        expected_result = td[test].get("expected_result", None)
+        result_to_test = do_call(func, td[test]["args"])
+
+        self.assertIsNone(expected_result, "assert_none test must not have a non-null expected_result key.")
+        self.assertIsNone(result_to_test)
+    return assert_none
+
+
 def _assert_equal_json_hash(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Callable:
     def assert_equal_json_hash(self: unittest.TestCase):
         test = name
@@ -104,9 +115,11 @@ def _error(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Callable
             do_call(func, td[test]["args"])
     return error
 
+
 _test_constructor = Callable[[str, dict[str, dict[str, ...]], Callable], Callable]
 _TYPES: dict[str, _test_constructor] = {
     "assert_equal": _assert_equal,
+    "assert_none": _assert_none,
     "assert_equal_json_hash": _assert_equal_json_hash,
     "assert_equal_nested": _assert_equal_nested,
     "assert_equal_json_hash_nested": _assert_equal_json_hash_nested,
