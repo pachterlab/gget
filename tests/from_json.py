@@ -71,10 +71,11 @@ def _assert_none(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Ca
     def assert_none(self: unittest.TestCase):
         test = name
         expected_result = td[test].get("expected_result", None)
+        msg = td[test].get("msg", None)
         result_to_test = do_call(func, td[test]["args"])
 
         self.assertIsNone(expected_result, "assert_none test must not have a non-null expected_result key.")
-        self.assertIsNone(result_to_test)
+        self.assertIsNone(result_to_test, msg=msg)
     return assert_none
 
 
