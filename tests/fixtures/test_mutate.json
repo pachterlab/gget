@@ -1,0 +1,11 @@
+{
+    "test_single_substitution": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.35G>A"
+        },
+        "expected_result": "GCCCCACCCCGCCCCTCCCCGCCCCACCCCACCCCTCCCCGCCCCACCCCGCCCCTCCCCG",
+        "global_variables": {}
+    }
+}

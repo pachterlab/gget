@@ -1,12 +1,21 @@
+import json
+
 import pytest
+import unittest
 import gget
 import pandas as pd
 import os
 import tempfile
+from typing import Callable
+from .from_json import from_json, do_call
+
+LONG_SEQUENCE = 'CCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCCG'
+
 
 @pytest.fixture
 def long_sequence():
-    return 'CCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCCG'
+    return LONG_SEQUENCE
+
 
 @pytest.fixture
 def create_temp_files(long_sequence):
@@ -44,12 +53,60 @@ def create_temp_files(long_sequence):
     os.remove(temp_csv_file.name)
     os.remove(temp_fasta_file.name)
 
+
 def assert_global_variables_zero(number_intronic_position_mutations = 0, number_posttranslational_region_mutations = 0, number_uncertain_mutations = 0, number_ambiguous_position_mutations = 0, number_index_errors = 0):
     assert gget.gget_mutate.intronic_mutations == number_intronic_position_mutations
     assert gget.gget_mutate.posttranslational_region_mutations == number_posttranslational_region_mutations
     assert gget.gget_mutate.uncertain_mutations == number_uncertain_mutations
     assert gget.gget_mutate.ambiguous_position_mutations == number_ambiguous_position_mutations
     assert gget.gget_mutate.mut_idx_outside_seq == number_index_errors
+
+
+def _recursive_replace(v: str|dict|list, old: str, new: str, exact: bool = False) -> str|dict|list:
+    if isinstance(v, str):
+        if exact:
+            if v == old:
+                return new
+            else:
+                return v
+        else:
+            return v.replace(old, new)
+    elif isinstance(v, dict):
+        return {_recursive_replace(k, old, new, exact=exact): _recursive_replace(v, old, new, exact=exact) for k, v in v.items()}
+    elif isinstance(v, list):
+        return [_recursive_replace(v, old, new, exact=exact) for v in v]
+    else:
+        return v
+
+
+def _assert_mutate(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Callable:
+    ls = LONG_SEQUENCE
+
+    def assert_mutate(self: unittest.TestCase):
+        test = name
+        expected_result = td[test].get("expected_result", None)
+        global_variables = td[test].get("global_variables", {})
+
+        args = td[test]["args"]
+
+        args = _recursive_replace(args, "<long_sequence>", ls, exact=True)
+
+        result = do_call(func, args)
+
+        if expected_result:
+            self.assertEqual(result[0], expected_result)
+
+        assert_global_variables_zero(**global_variables)
+
+    return assert_mutate
+
+
+with open("./tests/fixtures/test_mutate.json") as json_file:
+    mutate_dict = json.load(json_file)
+
+
+class TestMutate(unittest.TestCase, metaclass=from_json(mutate_dict, gget.mutate, {"assert_mutate": _assert_mutate})):
+    pass  # all tests are loaded from json
 
 
 def test_single_substitution(long_sequence):
@@ -268,6 +325,7 @@ def test_list_of_mutations(long_sequence):
     assert_global_variables_zero()
 
 
+# fixme special
 def test_csv_of_mutations(create_temp_files):
     mutation_temp_csv_file, sequence_temp_fasta_path = create_temp_files
 
@@ -331,6 +389,7 @@ def test_index_error(long_sequence):
     assert_global_variables_zero(number_index_errors=1)
 
 
+# fixme special
 def test_mismatch_error(long_sequence):
     gget.gget_mutate.mutate(
         sequences=long_sequence,
