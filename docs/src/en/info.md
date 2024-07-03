@@ -5,7 +5,7 @@ Return format: JSON (command-line) or data frame/CSV (Python).
 
 **Positional argument**  
 `ens_ids`   
-One or more Ensembl IDs.
+One or more Ensembl IDs (WormBase and Flybase IDs are also supported).
 
 **Optional arguments**  
 `-o` `--out`   
