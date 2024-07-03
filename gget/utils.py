@@ -651,6 +651,27 @@ def rest_query(server, query, content_type):
         return r.text
 
 
+def post_query(server: str, endpoint: str, query: dict[str, ...]) -> dict[str, ...]:
+    """
+    Function to perform a POST API query.
+
+    :param server:  Server to query .
+    :param query:   Query that is passed to server.
+
+    :return: server output
+    """
+
+    r = requests.post(server + endpoint, json=query, headers={"Content-Type": "application/json"})
+
+    if not r.ok:
+        raise RuntimeError(
+            f"{server} returned error status code {r.status_code}. "
+            "Please double-check arguments and try again.\n"
+        )
+
+    return r.json()
+
+
 def graphql_query(server: str, query: str, variables: dict[str, ...]) -> dict[str, ...]:
     """
     Function to perform a GraphQL API query.

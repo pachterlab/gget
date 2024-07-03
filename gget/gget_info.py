@@ -5,7 +5,8 @@ import requests
 from bs4 import BeautifulSoup
 
 # Custom functions
-from .utils import rest_query, get_uniprot_info, wrap_cols_func, get_pdb_ids, set_up_logger
+from .utils import rest_query, get_uniprot_info, wrap_cols_func, get_pdb_ids, set_up_logger, post_query
+
 logger = set_up_logger()
 
 # Constants
@@ -105,56 +106,54 @@ def info(
     master_dict = {}
 
     # Query REST APIs from https://rest.ensembl.org/
-    for ensembl_ID in ens_ids_clean:
-        # Create dict to save query results
-        results_dict = {ensembl_ID: {}}
+    endpoint = "lookup/id/"
+    query = {"ids": ens_ids_clean, "expand": True}
 
-        # Define the REST query
-        query = "lookup/id/" + ensembl_ID + "?" + "expand=1"
+    results_dict = post_query(server, endpoint, query)
+    results_dict = {k: v for k, v in results_dict.items() if v is not None}
 
-        # Submit query
+    for ensembl_ID, df_temp in results_dict.items():
         try:
-            df_temp = rest_query(server, query, content_type)
+            # Add Ensembl ID with latest version number to df_temp
+            df_temp["ensembl_id"] = str(df_temp["id"]) + "." + str(df_temp["version"])
+        except KeyError:
+            # Just add Ensembl ID if no version found
+            df_temp["ensembl_id"] = str(df_temp["id"])
 
+    # second pass for ids that were not found in the initial query
+    ens_ids_clean_tmp = [ensembl_ID for ensembl_ID in ens_ids_clean if ensembl_ID not in results_dict.keys()]
+
+    if len(ens_ids_clean_tmp) > 0:
+        # print(f"Second pass for ids: {ens_ids_clean_tmp}")
+        # Try submitting query without expand (expand does not work for exons and translation IDs)
+        query = {"ids": ens_ids_clean_tmp}
+        results_dict_new = post_query(server, endpoint, query)
+        results_dict_new = {k: v for k, v in results_dict_new.items() if v is not None}
+
+        for ensembl_ID, df_temp in results_dict_new.items():
             try:
                 # Add Ensembl ID with latest version number to df_temp
-                ensembl_id_dict = {
-                    "ensembl_id": str(df_temp["id"]) + "." + str(df_temp["version"])
-                }
-                df_temp.update(ensembl_id_dict)
-
+                df_temp["ensembl_id"] = str(df_temp["id"]) + "." + str(df_temp["version"])
             except KeyError:
                 # Just add Ensembl ID if no version found
-                ensembl_id_dict = {"ensembl_id": str(df_temp["id"])}
-                df_temp.update(ensembl_id_dict)
+                df_temp["ensembl_id"] = str(df_temp["id"])
 
-        # If query returns in an error:
-        except RuntimeError:
-            # Try submitting query without expand (expand does not work for exons and translation IDs)
-            try:
-                query = "lookup/id/" + ensembl_ID + "?"
-                df_temp = rest_query(server, query, content_type)
-                # Add Ensembl ID with latest version number to df_temp
-                ensembl_id_dict = {
-                    "ensembl_id": str(df_temp["id"]) + "." + str(df_temp["version"])
-                }
-                df_temp.update(ensembl_id_dict)
+        results_dict.update(results_dict_new)
 
-            # Log error if this also did not work
-            except RuntimeError:
-                if verbose:
-                    logger.warning(
-                        f"ID '{ensembl_ID}' not found. Please double-check spelling/arguments and try again."
-                    )
+    ens_ids_clean_2 = []
+    for ensembl_ID in ens_ids_clean:
+        if ensembl_ID in results_dict.keys():
+            ens_ids_clean_2.append(ensembl_ID)
+        else:
+            if verbose:
+                logger.warning(
+                    f"ID '{ensembl_ID}' not found. Please double-check spelling/arguments and try again."
+                )
 
-                # Remove IDs that were not found from ID list
-                ens_ids_clean_2.remove(ensembl_ID)
+    # rewrite results to be in the input order
+    results_dict = {ensembl_ID: results_dict[ensembl_ID] for ensembl_ID in ens_ids_clean_2}
 
-                continue
-
-        # Add results to master dict
-        results_dict[ensembl_ID].update(df_temp)
-        master_dict.update(results_dict)
+    master_dict.update(results_dict)
 
     # Return None if none of the Ensembl IDs were found
     if len(master_dict) == 0:
