@@ -249,19 +249,19 @@ def calculate_end_mutation_overlap_with_left_flank(row):
 
 
 def mutate(
-    sequences: str | list[str],
-    mutations: str | list[str],
-    k: int = 30,
-    mut_column: str = "mutation",
-    mut_id_column: str = "mut_ID",
-    seq_id_column: str = "seq_ID",
-    out: str | None = None,
-    verbose: bool = True,
-    minimum_kmer_length: int | None = None,
-    update_df: bool = False,
-    translate: bool = False,
-    translate_start: int | None = None,
-    translate_end: int | None = None,
+    sequences,
+    mutations,
+    k=30,
+    mut_column="mutation",
+    mut_id_column="mut_ID",
+    seq_id_column="seq_ID",
+    out=None,
+    verbose=True,
+    minimum_kmer_length=None,
+    update_df=False,
+    translate=False,
+    translate_start=None,
+    translate_end=None,
 ):
     """
     Takes in nucleotide sequences and mutations (in standard mutation annotation - see below)
@@ -308,10 +308,10 @@ def mutate(
                     The identifiers (following the '>') of the mutated sequences in the output fasta will be '>[seq_ID]_[mut_ID]'.
     - verbose       (True/False) whether to print progress information. Default: True
     - minimum_kmer_length (int) Minimum length of the mutant kmer required. Mutant kmers with a smaller length will be erased. Default: None
-    - update_df     (True/False) whether to update the input DataFrame with the mutated sequences and associated data (only if mutations is a csv/tsv). Default: False
-    - translate     (True/False) whether to translate the mutated sequences to amino acids. Default: False
-    - translate_start (int) The position in the sequence to start translating (int or column). Default: None (translate from the beginning of the sequence)
-    - translate_end (int)  The position in the sequence to stop translating (int or column). Default: None (translate to the of the sequence)
+    - update_df     (True/False) Whether to update the input DataFrame with the mutated sequences and associated data (only if mutations is a csv/tsv). Default: False
+    - translate     (True/False) Whether to translate the mutated sequences to amino acids. Default: False
+    - translate_start (int) The position in the sequence to start translating (int or column). Only valid if --translate is set. Default: None (translate from the beginning of the sequence)
+    - translate_end (int)  The position in the sequence to stop translating (int or column). Only valid if --translate is set. Default: None (translate to the of the sequence)
 
     For more information on the standard mutation annotation, see https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1867422/.
 
@@ -348,11 +348,11 @@ def mutate(
     mutations_path = None
 
     # Read in 'mutations' if passed as filepath to comma-separated csv
-    if isinstance(mutations, str) and mutations.endswith(".csv"):
+    if isinstance(mutations, str) and ".csv" in mutations:
         mutations_path = mutations
         mutations = pd.read_csv(mutations)
 
-    elif isinstance(mutations, str) and mutations.endswith(".tsv"):
+    elif isinstance(mutations, str) and ".tsv" in mutations:
         mutations_path = mutations
         mutations = pd.read_csv(mutations, sep="\t")
 
@@ -585,30 +585,35 @@ def mutate(
         non_substitution_mask
     ].apply(extract_sequence, axis=1)
 
+    def make_mutant_nucleotides(mutations):
+        mutations["mut_nucleotides"] = None
+        mutations.loc[substitution_mask, "mut_nucleotides"] = mutations.loc[
+            substitution_mask, "actual_mutation"
+        ].str[-1]
+        mutations.loc[deletion_mask, "mut_nucleotides"] = ""
+        mutations.loc[delins_mask, "mut_nucleotides"] = mutations.loc[
+            delins_mask, "actual_mutation"
+        ].str.extract(r"delins([A-Z]+)")[0]
+        mutations.loc[insertion_mask, "mut_nucleotides"] = mutations.loc[
+            insertion_mask, "actual_mutation"
+        ].str.extract(r"ins([A-Z]+)")[0]
+        mutations.loc[duplication_mask, "mut_nucleotides"] = mutations.loc[
+            duplication_mask
+        ].apply(lambda row: row["wt_nucleotides_ensembl"], axis=1)
+        mutations.loc[inversion_mask, "mut_nucleotides"] = mutations.loc[
+            inversion_mask
+        ].apply(
+            lambda row: "".join(
+                complement.get(nucleotide, "N")
+                for nucleotide in row["wt_nucleotides_ensembl"][::-1]
+            ),
+            axis=1,
+        )
+
+        return mutations
+
     # Apply mutations to the sequences
-    mutations["mut_nucleotides"] = None
-    mutations.loc[substitution_mask, "mut_nucleotides"] = mutations.loc[
-        substitution_mask, "actual_mutation"
-    ].str[-1]
-    mutations.loc[deletion_mask, "mut_nucleotides"] = ""
-    mutations.loc[delins_mask, "mut_nucleotides"] = mutations.loc[
-        delins_mask, "actual_mutation"
-    ].str.extract(r"delins([A-Z]+)")[0]
-    mutations.loc[insertion_mask, "mut_nucleotides"] = mutations.loc[
-        insertion_mask, "actual_mutation"
-    ].str.extract(r"ins([A-Z]+)")[0]
-    mutations.loc[duplication_mask, "mut_nucleotides"] = mutations.loc[
-        duplication_mask
-    ].apply(lambda row: row["wt_nucleotides_ensembl"], axis=1)
-    mutations.loc[inversion_mask, "mut_nucleotides"] = mutations.loc[
-        inversion_mask
-    ].apply(
-        lambda row: "".join(
-            complement.get(nucleotide, "N")
-            for nucleotide in row["wt_nucleotides_ensembl"][::-1]
-        ),
-        axis=1,
-    )
+    mutations = make_mutant_nucleotides(mutations)
 
     # Adjust the nucleotide positions of duplication mutations to mimic that of insertions (since duplications are essentially just insertions)
     mutations.loc[duplication_mask, "start_mutation_position"] = (
@@ -631,43 +636,65 @@ def mutate(
     )  # don't forget to increment by 1
 
     # Extract flank sequences
-    mut_apply = mutations.progress_apply if verbose else mutations.apply
     if verbose:
         tqdm.pandas(desc="Extracting full left flank sequences")
 
-    mutations["left_flank_region_full"] = mut_apply(
-        lambda row: row["full_sequence"][0 : row["start_mutation_position"]], axis=1
-    )  # ? vectorize
+        mutations["left_flank_region_full"] = mutations.progress_apply(
+            lambda row: row["full_sequence"][0 : row["start_mutation_position"]], axis=1
+        )  # ? vectorize
 
-    if verbose:
         tqdm.pandas(desc="Extracting full right flank sequences")
 
-    mutations["right_flank_region_full"] = mut_apply(
-        lambda row: row["full_sequence"][
-            row["end_mutation_position"] + 1 : row["sequence_length"] + 1
-        ],
-        axis=1,
-    )  # ? vectorize
+        mutations["right_flank_region_full"] = mutations.progress_apply(
+            lambda row: row["full_sequence"][
+                row["end_mutation_position"] + 1 : row["sequence_length"] + 1
+            ],
+            axis=1,
+        )  # ? vectorize
 
-    if verbose:
         tqdm.pandas(desc="Extracting k-mer left flank sequences")
 
-    mutations["left_flank_region"] = mut_apply(
-        lambda row: row["full_sequence"][
-            row["start_kmer_position"] : row["start_mutation_position"]
-        ],
-        axis=1,
-    )  # ? vectorize
+        mutations["left_flank_region"] = mutations.progress_apply(
+            lambda row: row["full_sequence"][
+                row["start_kmer_position"] : row["start_mutation_position"]
+            ],
+            axis=1,
+        )  # ? vectorize
 
-    if verbose:
         tqdm.pandas(desc="Extracting k-mer right flank sequences")
 
-    mutations["right_flank_region"] = mut_apply(
-        lambda row: row["full_sequence"][
-            row["end_mutation_position"] + 1 : row["end_kmer_position"] + 1
-        ],
-        axis=1,
-    )  # ? vectorize
+        mutations["right_flank_region"] = mutations.progress_apply(
+            lambda row: row["full_sequence"][
+                row["end_mutation_position"] + 1 : row["end_kmer_position"] + 1
+            ],
+            axis=1,
+        )  # ? vectorize
+
+    else:
+        mutations["left_flank_region_full"] = mutations.apply(
+            lambda row: row["full_sequence"][0 : row["start_mutation_position"]], axis=1
+        )  # ? vectorize
+
+        mutations["right_flank_region_full"] = mutations.apply(
+            lambda row: row["full_sequence"][
+                row["end_mutation_position"] + 1 : row["sequence_length"] + 1
+            ],
+            axis=1,
+        )  # ? vectorize
+
+        mutations["left_flank_region"] = mutations.apply(
+            lambda row: row["full_sequence"][
+                row["start_kmer_position"] : row["start_mutation_position"]
+            ],
+            axis=1,
+        )  # ? vectorize
+
+        mutations["right_flank_region"] = mutations.apply(
+            lambda row: row["full_sequence"][
+                row["end_mutation_position"] + 1 : row["end_kmer_position"] + 1
+            ],
+            axis=1,
+        )  # ? vectorize
 
     mutations["beginning_mutation_overlap_with_right_flank"] = 0
     mutations["end_mutation_overlap_with_left_flank"] = 0
@@ -726,14 +753,31 @@ def mutate(
         mutations["updated_right_flank_end"].fillna(0).astype(int)
     )
 
-    # Create substitution k-mer sequences
+    # Create WT substitution k-mer sequences
+    mutations.loc[substitution_mask, "wt_sequence_kmer"] = (
+        mutations.loc[substitution_mask, "left_flank_region"]
+        + mutations.loc[substitution_mask, "wt_nucleotides_ensembl"]
+        + mutations.loc[substitution_mask, "right_flank_region"]
+    )
+
+    # Create WT non-substitution k-mer sequences
+    mutations.loc[non_substitution_mask, "wt_sequence_kmer"] = mutations.loc[
+        non_substitution_mask
+    ].apply(
+        lambda row: row["left_flank_region"][row["updated_left_flank_start"] :]
+        + row["wt_nucleotides_ensembl"]
+        + row["right_flank_region"][: k - row["updated_right_flank_end"]],
+        axis=1,
+    )
+
+    # Create mutant substitution k-mer sequences
     mutations.loc[substitution_mask, "mutant_sequence_kmer"] = (
         mutations.loc[substitution_mask, "left_flank_region"]
         + mutations.loc[substitution_mask, "mut_nucleotides"]
         + mutations.loc[substitution_mask, "right_flank_region"]
     )
 
-    # Create non-substitution k-mer sequences
+    # Create mutant non-substitution k-mer sequences
     mutations.loc[non_substitution_mask, "mutant_sequence_kmer"] = mutations.loc[
         non_substitution_mask
     ].apply(
@@ -808,11 +852,13 @@ def mutate(
     else:
         logger.info("All mutations correctly recorded")
 
-    # combined_df = pd.concat(mutation_dict.values(), ignore_index=True)  #! erase
-
     combined_df = mutations
 
+    columns_to_keep = ["header", seq_id_column, "gene_name", "mutation_id", mut_column, "mutation_aa", "full_sequence", "mutant_sequence_full", "wt_sequence_kmer", "mutant_sequence_kmer",  "mutant_sequence_kmer"]
+
     if translate:
+        columns_to_keep.extend(["full_sequence_wt_aa", "full_sequence_mutant_aa"])
+
         if "." not in sequences:
             assert (
                 type(translate_start) != str and type(translate_end) != str
@@ -918,6 +964,8 @@ def mutate(
             print(
                 f"Translated mutated sequence: {combined_df['full_sequence_wt_aa'][0]}"
             )
+
+    combined_df = combined_df[columns_to_keep]
 
     if update_df and mutations_path:
         base_name, ext = os.path.splitext(mutations_path)

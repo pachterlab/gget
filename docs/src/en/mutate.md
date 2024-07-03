@@ -58,7 +58,29 @@ Name of the column containing the IDs of the sequences to be mutated in `mutatio
 `-o` `--out`   
 Path to output FASTA file containing the mutated sequences, e.g., 'path/to/output_fasta.fa'.  
 Default: None -> returns a list of the mutated sequences to standard out.    
-The identifiers (following the '>') of the mutated sequences in the output FASTA will be '>[seq_ID]_[mut_ID]'.  
+The identifiers (following the '>') of the mutated sequences in the output FASTA will be '>[seq_ID]_[mut_ID]'. 
+
+`--minimum_kmer_length`   
+Minimum length of the mutant kmer required. Mutant kmers with a smaller length will be erased. Default: None -> No k-mers are filtered out    
+
+`--update_df`   
+Whether to update the input DataFrame with the mutated sequences and associated data (only if mutations is a csv/tsv). Default: False    
+
+`--translate`   
+Whether to translate the mutated sequences to amino acids. Default: False    
+
+`--translate_start`   
+The position in the sequence to start translating (int or column). Only valid if --translate is set. Default: None (translate from the beginning of the sequence).    
+
+`--translate_end`   
+The position in the sequence to stop translating (int or column). Only valid if --translate is set. Default: None (translate to the of the sequence).   
+
+
+    - minimum_kmer_length (int) Minimum length of the mutant kmer required. Mutant kmers with a smaller length will be erased. Default: None
+    -      (True/False) whether to update the input DataFrame with the mutated sequences and associated data (only if mutations is a csv/tsv). Default: False
+    -      (True/False) whether to translate the mutated sequences to amino acids. Default: False
+    -  (int) The position in the sequence to start translating (int or column). Default: None (translate from the beginning of the sequence)
+    -  (int)  The position in the sequence to stop translating (int or column). Default: None (translate to the of the sequence)
 
 **Flags**  
 `-q` `--quiet`   

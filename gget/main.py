@@ -1957,6 +1957,41 @@ def main():
         required=False,
         help="Do not print progress information.",
     )
+    parser_mutate.add_argument(
+        "--minimum_kmer_length",
+        default=None,
+        type=int,
+        required=False,
+        help="Minimum length of the mutant kmer required. Mutant kmers with a smaller length will be erased. Default: None.",
+    )
+    parser_mutate.add_argument(
+        "--update_df",
+        default=False,
+        action="store_false",
+        required=False,
+        help="Whether to update the input DataFrame with the mutated sequences and associated data (only if mutations is a csv/tsv). Default: False.",
+    )
+    parser_mutate.add_argument(
+        "--translate",
+        default=None,
+        action="store_false",
+        required=False,
+        help="Whether to translate the mutated sequences to amino acids. Default: False.",
+    )
+    parser_mutate.add_argument(
+        "--translate_start",
+        default=None,
+        type=int,
+        required=False,
+        help="The position in the sequence to start translating (int or column). Only valid if --translate is set. Default: None (translate from the beginning of the sequence).",
+    )
+    parser_mutate.add_argument(
+        "--translate_end",
+        default=None,
+        type=int,
+        required=False,
+        help="The position in the sequence to stop translating (int or column). Only valid if --translate is set. Default: None (translate to the of the sequence).",
+    )
 
     ## opentargets parser arguments
     opentargets_desc = (
