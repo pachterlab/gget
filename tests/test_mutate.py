@@ -15,11 +15,13 @@ def create_temp_files(long_sequence):
     
     # Data to write to CSV
     mutation_list = ["c.35G>A", "c.65G>A", "c.35del", "c.4_5insT"]
+    protein_mutation_list = ['A12T', 'A22T', 'A12del', 'A4_5insT']
     mut_ID_list = ['GENE1_MUT1A_MUT1B', 'GENE1_MUT2A_MUT2B', 'GENE2_MUT1A_MUT1B', 'GENE3_MUT1A_MUT1B']
     seq_ID_list = ['ENST1', 'ENST2', 'ENST3', 'ENST4']
     
     data = {
         'mutation': mutation_list,
+        'mutation_aa': protein_mutation_list,
         'mut_ID': mut_ID_list,
         'seq_ID': seq_ID_list
     }

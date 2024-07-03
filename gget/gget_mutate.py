@@ -249,19 +249,19 @@ def calculate_end_mutation_overlap_with_left_flank(row):
 
 
 def mutate(
-    sequences,
-    mutations,
-    k=30,
-    mut_column="mutation",
-    mut_id_column="mut_ID",
-    seq_id_column="seq_ID",
-    out=None,
-    verbose=True,
-    minimum_kmer_length=None,
-    update_df=False,
-    translate=False,
-    translate_start=None,
-    translate_end=None,
+    sequences: str | list[str],
+    mutations: str | list[str],
+    k: int = 30,
+    mut_column: str = "mutation",
+    mut_id_column: str = "mut_ID",
+    seq_id_column: str = "seq_ID",
+    out: str | None = None,
+    verbose: bool = True,
+    minimum_kmer_length: int | None = None,
+    update_df: bool = False,
+    translate: bool = False,
+    translate_start: int | str | None = None,
+    translate_end: int | str | None = None,
 ):
     """
     Takes in nucleotide sequences and mutations (in standard mutation annotation - see below)
@@ -320,6 +320,8 @@ def mutate(
 
     global intronic_mutations, posttranslational_region_mutations, unknown_mutations, uncertain_mutations, ambiguous_position_mutations, cosmic_incorrect_wt_base, mut_idx_outside_seq
 
+    columns_to_keep = ["header", seq_id_column, "gene_name", "mutation_id", mut_column, "full_sequence", "mutant_sequence_full", "wt_sequence_kmer", "mutant_sequence_kmer"]
+
     # Load input sequences and their identifiers from fasta file
     if "." in sequences:
         titles, seqs = read_fasta(sequences)
@@ -348,13 +350,19 @@ def mutate(
     mutations_path = None
 
     # Read in 'mutations' if passed as filepath to comma-separated csv
-    if isinstance(mutations, str) and ".csv" in mutations:
+    if isinstance(mutations, str) and mutations.endswith(".csv"):
         mutations_path = mutations
         mutations = pd.read_csv(mutations)
+        for col in mutations.columns:
+            if col not in columns_to_keep:
+                columns_to_keep.append(col)  # append "mutation_aa"
 
-    elif isinstance(mutations, str) and ".tsv" in mutations:
+    elif isinstance(mutations, str) and mutations.endswith(".tsv"):
         mutations_path = mutations
         mutations = pd.read_csv(mutations, sep="\t")
+        for col in mutations.columns:
+            if col not in columns_to_keep:
+                columns_to_keep.append(col)  # append "mutation_aa"
 
     # Handle mutations passed as a list
     elif isinstance(mutations, list):
@@ -585,35 +593,30 @@ def mutate(
         non_substitution_mask
     ].apply(extract_sequence, axis=1)
 
-    def make_mutant_nucleotides(mutations):
-        mutations["mut_nucleotides"] = None
-        mutations.loc[substitution_mask, "mut_nucleotides"] = mutations.loc[
-            substitution_mask, "actual_mutation"
-        ].str[-1]
-        mutations.loc[deletion_mask, "mut_nucleotides"] = ""
-        mutations.loc[delins_mask, "mut_nucleotides"] = mutations.loc[
-            delins_mask, "actual_mutation"
-        ].str.extract(r"delins([A-Z]+)")[0]
-        mutations.loc[insertion_mask, "mut_nucleotides"] = mutations.loc[
-            insertion_mask, "actual_mutation"
-        ].str.extract(r"ins([A-Z]+)")[0]
-        mutations.loc[duplication_mask, "mut_nucleotides"] = mutations.loc[
-            duplication_mask
-        ].apply(lambda row: row["wt_nucleotides_ensembl"], axis=1)
-        mutations.loc[inversion_mask, "mut_nucleotides"] = mutations.loc[
-            inversion_mask
-        ].apply(
-            lambda row: "".join(
-                complement.get(nucleotide, "N")
-                for nucleotide in row["wt_nucleotides_ensembl"][::-1]
-            ),
-            axis=1,
-        )
-
-        return mutations
-
     # Apply mutations to the sequences
-    mutations = make_mutant_nucleotides(mutations)
+    mutations["mut_nucleotides"] = None
+    mutations.loc[substitution_mask, "mut_nucleotides"] = mutations.loc[
+        substitution_mask, "actual_mutation"
+    ].str[-1]
+    mutations.loc[deletion_mask, "mut_nucleotides"] = ""
+    mutations.loc[delins_mask, "mut_nucleotides"] = mutations.loc[
+        delins_mask, "actual_mutation"
+    ].str.extract(r"delins([A-Z]+)")[0]
+    mutations.loc[insertion_mask, "mut_nucleotides"] = mutations.loc[
+        insertion_mask, "actual_mutation"
+    ].str.extract(r"ins([A-Z]+)")[0]
+    mutations.loc[duplication_mask, "mut_nucleotides"] = mutations.loc[
+        duplication_mask
+    ].apply(lambda row: row["wt_nucleotides_ensembl"], axis=1)
+    mutations.loc[inversion_mask, "mut_nucleotides"] = mutations.loc[
+        inversion_mask
+    ].apply(
+        lambda row: "".join(
+            complement.get(nucleotide, "N")
+            for nucleotide in row["wt_nucleotides_ensembl"][::-1]
+        ),
+        axis=1,
+    )
 
     # Adjust the nucleotide positions of duplication mutations to mimic that of insertions (since duplications are essentially just insertions)
     mutations.loc[duplication_mask, "start_mutation_position"] = (
@@ -638,63 +641,41 @@ def mutate(
     # Extract flank sequences
     if verbose:
         tqdm.pandas(desc="Extracting full left flank sequences")
+    
+    mut_apply = (lambda *args, **kwargs: mutations.progress_apply(*args, **kwargs)) if verbose else mutations.apply
+    mutations["left_flank_region_full"] = mut_apply(
+        lambda row: row["full_sequence"][0 : row["start_mutation_position"]], axis=1
+    )  # ? vectorize
 
-        mutations["left_flank_region_full"] = mutations.progress_apply(
-            lambda row: row["full_sequence"][0 : row["start_mutation_position"]], axis=1
-        )  # ? vectorize
-
+    if verbose:
         tqdm.pandas(desc="Extracting full right flank sequences")
 
-        mutations["right_flank_region_full"] = mutations.progress_apply(
-            lambda row: row["full_sequence"][
-                row["end_mutation_position"] + 1 : row["sequence_length"] + 1
-            ],
-            axis=1,
-        )  # ? vectorize
+    mutations["right_flank_region_full"] = mut_apply(
+        lambda row: row["full_sequence"][
+            row["end_mutation_position"] + 1 : row["sequence_length"] + 1
+        ],
+        axis=1,
+    )  # ? vectorize
 
+    if verbose:
         tqdm.pandas(desc="Extracting k-mer left flank sequences")
 
-        mutations["left_flank_region"] = mutations.progress_apply(
-            lambda row: row["full_sequence"][
-                row["start_kmer_position"] : row["start_mutation_position"]
-            ],
-            axis=1,
-        )  # ? vectorize
+    mutations["left_flank_region"] = mut_apply(
+        lambda row: row["full_sequence"][
+            row["start_kmer_position"] : row["start_mutation_position"]
+        ],
+        axis=1,
+    )  # ? vectorize
 
+    if verbose:
         tqdm.pandas(desc="Extracting k-mer right flank sequences")
 
-        mutations["right_flank_region"] = mutations.progress_apply(
-            lambda row: row["full_sequence"][
-                row["end_mutation_position"] + 1 : row["end_kmer_position"] + 1
-            ],
-            axis=1,
-        )  # ? vectorize
-
-    else:
-        mutations["left_flank_region_full"] = mutations.apply(
-            lambda row: row["full_sequence"][0 : row["start_mutation_position"]], axis=1
-        )  # ? vectorize
-
-        mutations["right_flank_region_full"] = mutations.apply(
-            lambda row: row["full_sequence"][
-                row["end_mutation_position"] + 1 : row["sequence_length"] + 1
-            ],
-            axis=1,
-        )  # ? vectorize
-
-        mutations["left_flank_region"] = mutations.apply(
-            lambda row: row["full_sequence"][
-                row["start_kmer_position"] : row["start_mutation_position"]
-            ],
-            axis=1,
-        )  # ? vectorize
-
-        mutations["right_flank_region"] = mutations.apply(
-            lambda row: row["full_sequence"][
-                row["end_mutation_position"] + 1 : row["end_kmer_position"] + 1
-            ],
-            axis=1,
-        )  # ? vectorize
+    mutations["right_flank_region"] = mut_apply(
+        lambda row: row["full_sequence"][
+            row["end_mutation_position"] + 1 : row["end_kmer_position"] + 1
+        ],
+        axis=1,
+    )  # ? vectorize
 
     mutations["beginning_mutation_overlap_with_right_flank"] = 0
     mutations["end_mutation_overlap_with_left_flank"] = 0
@@ -852,36 +833,56 @@ def mutate(
     else:
         logger.info("All mutations correctly recorded")
 
-    combined_df = mutations
-
-    columns_to_keep = ["header", seq_id_column, "gene_name", "mutation_id", mut_column, "mutation_aa", "full_sequence", "mutant_sequence_full", "wt_sequence_kmer", "mutant_sequence_kmer",  "mutant_sequence_kmer"]
-
     if translate:
         columns_to_keep.extend(["full_sequence_wt_aa", "full_sequence_mutant_aa"])
 
-        if "." not in sequences:
+        if not mutations_path:
             assert (
                 type(translate_start) != str and type(translate_end) != str
             ), "translate_start and translate_end must be integers when translating sequences (or default None)."
             if translate_start is None:
                 translate_start = 0
             if translate_end is None:
-                translate_end = combined_df["sequence_length"][0]
+                translate_end = mutations["sequence_length"][0]
 
             # combined_df['ORF'] = combined_df[translate_start] % 3
 
-            combined_df["full_sequence_wt_aa"] = combined_df["full_sequence"].apply(
-                lambda x: translate_sequence(
-                    x, start=translate_start, end=translate_end
+            if verbose:
+                tqdm.pandas(desc="Translating WT amino acid sequences")
+                mutations["full_sequence_wt_aa"] = mutations["full_sequence"].progress_apply(
+                    lambda x: translate_sequence(
+                        x, start=translate_start, end=translate_end
+                    )
                 )
-            )
+            else:
+                mutations["full_sequence_wt_aa"] = mutations["full_sequence"].apply(
+                    lambda x: translate_sequence(
+                        x, start=translate_start, end=translate_end
+                    )
+                )
 
-            combined_df["full_sequence_mutant_aa"] = combined_df[
-                "mutant_sequence_full"
-            ].apply(
-                lambda x: translate_sequence(
-                    x, start=translate_start, end=translate_end
+            if verbose:
+                tqdm.pandas(desc="Translating mutant amino acid sequences")
+
+                mutations["full_sequence_mutant_aa"] = mutations[
+                    "mutant_sequence_full"
+                ].progress_apply(
+                    lambda x: translate_sequence(
+                        x, start=translate_start, end=translate_end
+                    )
                 )
+            
+            else:
+                mutations["full_sequence_mutant_aa"] = mutations[
+                    "mutant_sequence_full"
+                ].apply(
+                    lambda x: translate_sequence(
+                        x, start=translate_start, end=translate_end
+                    )
+                )
+
+            print(
+                f"Translated mutated sequences: {mutations['full_sequence_wt_aa']}"
             )
         else:
             if not translate_start:
@@ -890,13 +891,16 @@ def mutate(
             if not translate_end:
                 translate_end = "translate_end"
 
-            if translate_start not in combined_df.columns:
-                combined_df["translate_start"] = 0
+            if translate_start not in mutations.columns:
+                mutations["translate_start"] = 0
 
-            if translate_end not in combined_df.columns:
-                combined_df["translate_end"] = combined_df["sequence_length"]
+            if translate_end not in mutations.columns:
+                mutations["translate_end"] = mutations["sequence_length"]
 
-            combined_df["full_sequence_wt_aa"] = combined_df.apply(
+            if verbose:
+                tqdm.pandas(desc="Translating WT amino acid sequences")
+
+            mutations["full_sequence_wt_aa"] = mut_apply(
                 lambda row: translate_sequence(
                     row["full_sequence"], row[translate_start], row[translate_end]
                 ),
@@ -926,7 +930,11 @@ def mutate(
             #!! possibility to speed up substitution translation - this is more pseudocode than anything else
 
             #!! erase this line if the block above works
-            combined_df["full_sequence_mutant_aa"] = combined_df.apply(
+
+            if verbose:
+                tqdm.pandas(desc="Translating mutant amino acid sequences")
+            
+            mutations["full_sequence_mutant_aa"] = mut_apply(
                 lambda row: translate_sequence(
                     row["mutant_sequence_full"],
                     row[translate_start],
@@ -959,48 +967,45 @@ def mutate(
         # combined_df["mutant_sequence_kmer_aa"] = combined_df["mutant_sequence_kmer"].apply(  #! would need to select start and stop sites within mutant sequence
         #     lambda x: translate_sequence(x, start=translate_start, end=translate_end)
         # )
+            
 
-        if isinstance(sequences, str) or isinstance(sequences, list):
-            print(
-                f"Translated mutated sequence: {combined_df['full_sequence_wt_aa'][0]}"
-            )
-
-    combined_df = combined_df[columns_to_keep]
+    mutations = mutations[columns_to_keep]
 
     if update_df and mutations_path:
+        logger.warning("File size can be very large if the number of mutations is large.")
         base_name, ext = os.path.splitext(mutations_path)
         new_mutations_path = f"{base_name}_updated{ext}"
-        combined_df.to_csv(new_mutations_path, index=False)
+        mutations.to_csv(new_mutations_path, index=False)
         print(f"Updated mutation info has been saved to {new_mutations_path}")
 
-    combined_df = combined_df[["mutant_sequence_kmer", "header"]]
+    mutations = mutations[["mutant_sequence_kmer", "header"]]
 
     # Group by 'mutant_sequence_kmer' and concatenate 'header' values
-    pre_len = len(combined_df)
-    combined_df = (
-        combined_df.groupby("mutant_sequence_kmer", sort=False)["header"]
+    pre_len = len(mutations)
+    mutations = (
+        mutations.groupby("mutant_sequence_kmer", sort=False)["header"]
         .apply(";".join)
         .reset_index()
     )
 
-    if pre_len > len(combined_df):
-        combined_df["header"] = combined_df["header"].apply(
+    if pre_len > len(mutations):
+        mutations["header"] = mutations["header"].apply(
             lambda x: remove_all_but_first_gt(x) if ";" in x else x
         )  # remove any additional > symbols for merged lines
         if verbose:
             logger.info(
-                f"{pre_len - len(combined_df)} identical mutated sequences were merged (headers were combined and separated using a semicolon (;). Occurences of identical mutated sequences may be reduced by increasing k."
+                f"{pre_len - len(mutations)} identical mutated sequences were merged (headers were combined and separated using a semicolon (;). Occurences of identical mutated sequences may be reduced by increasing k."
             )
 
-    combined_df["fasta_format"] = (
-        combined_df["header"] + "\n" + combined_df["mutant_sequence_kmer"] + "\n"
+    mutations["fasta_format"] = (
+        mutations["header"] + "\n" + mutations["mutant_sequence_kmer"] + "\n"
     )
-    combined_df = combined_df[combined_df["mutant_sequence_kmer"] != ""]
+    mutations = mutations[mutations["mutant_sequence_kmer"] != ""]
 
     if out:
         # Save mutated sequences in new fasta file
         with open(out, "w") as fasta_file:
-            fasta_file.write("".join(combined_df["fasta_format"].values))
+            fasta_file.write("".join(mutations["fasta_format"].values))
 
         if verbose:
             logger.info(f"FASTA file containing mutated sequences created at {out}.")
@@ -1008,7 +1013,7 @@ def mutate(
     # When out=None, return list of mutated seqs
     else:
         all_mut_seqs = []
-        all_mut_seqs.extend(combined_df["mutant_sequence_kmer"].values)
+        all_mut_seqs.extend(mutations["mutant_sequence_kmer"].values)
 
         # Remove empty strings from final list of mutated sequences
         # (these are introduced when unknown mutations are encountered)

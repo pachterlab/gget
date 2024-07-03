@@ -76,12 +76,6 @@ The position in the sequence to start translating (int or column). Only valid if
 The position in the sequence to stop translating (int or column). Only valid if --translate is set. Default: None (translate to the of the sequence).   
 
 
-    - minimum_kmer_length (int) Minimum length of the mutant kmer required. Mutant kmers with a smaller length will be erased. Default: None
-    -      (True/False) whether to update the input DataFrame with the mutated sequences and associated data (only if mutations is a csv/tsv). Default: False
-    -      (True/False) whether to translate the mutated sequences to amino acids. Default: False
-    -  (int) The position in the sequence to start translating (int or column). Default: None (translate from the beginning of the sequence)
-    -  (int)  The position in the sequence to stop translating (int or column). Default: None (translate to the of the sequence)
-
 **Flags**  
 `-q` `--quiet`   
 Command-line only. Prevents progress information from being displayed.  

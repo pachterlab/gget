@@ -2456,6 +2456,11 @@ def main():
             seq_id_column=args.seq_id_column,
             out=args.out,
             verbose=args.quiet,
+            minimum_kmer_length=args.minimum_kmer_length,
+            update_df=args.update_df,
+            translate=args.translate,
+            translate_start=args.translate_start,
+            translate_end=args.translate_end
         )
 
         # Print list of mutated sequences if any are returned (this should only happen when out=None)
