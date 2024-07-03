@@ -1,0 +1,248 @@
+{
+    "test_single_substitution": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.35G>A"
+        },
+        "expected_result": "GCCCCACCCCGCCCCTCCCCGCCCCACCCCACCCCTCCCCGCCCCACCCCGCCCCTCCCCG",
+        "global_variables": {}
+    },
+    "test_single_substitution_near_right_end": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.65G>A"
+        },
+        "expected_result": "GCCCCTCCCCGCCCCACCCCGCCCCTCCCCACCCCACCCCG",
+        "global_variables": {}
+    },
+    "test_single_substitution_near_left_end": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.5G>A"
+        },
+        "expected_result": "CCCCACCCCACCCCGCCCCTCCCCGCCCCACCCCG",
+        "global_variables": {}
+    },
+    "test_single_deletion": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.35del"
+        },
+        "expected_result": "GCCCCACCCCGCCCCTCCCCGCCCCACCCCCCCCTCCCCGCCCCACCCCGCCCCTCCCCG",
+        "global_variables": {}
+    },
+    "test_multi_deletion": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.35_40del"
+        },
+        "expected_result": "GCCCCACCCCGCCCCTCCCCGCCCCACCCCCCCCGCCCCACCCCGCCCCTCCCCGCCCCA",
+        "global_variables": {}
+    },
+    "test_single_deletion_with_right_repeats": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.31del"
+        },
+        "expected_result": "CGCCCCACCCCGCCCCTCCCCGCCCCACCCGCCCCTCCCCGCCCCACCCCGCCCCTC",
+        "global_variables": {}
+    },
+    "test_single_deletion_with_left_repeats": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.34del"
+        },
+        "expected_result": "CGCCCCACCCCGCCCCTCCCCGCCCCACCCGCCCCTCCCCGCCCCACCCCGCCCCTC",
+        "global_variables": {}
+    },
+    "test_multi_deletion_with_right_repeats": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.31_32del"
+        },
+        "expected_result": "CCGCCCCACCCCGCCCCTCCCCGCCCCACCGCCCCTCCCCGCCCCACCCCGCCCCTCC",
+        "global_variables": {}
+    },
+    "test_single_insertion": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.4_5insT"
+        },
+        "expected_result": "CCCCTGCCCCACCCCGCCCCTCCCCGCCCCACCCC",
+        "global_variables": {}
+    },
+    "test_multi_insertion": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.65_66insTTTTT"
+        },
+        "expected_result": "CCCCTCCCCGCCCCACCCCGCCCCTCCCCGTTTTTCCCCACCCCG",
+        "global_variables": {}
+    },
+    "test_multi_insertion_with_left_repeats": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.20_21insCCAAA"
+        },
+        "expected_result": "CCCCGCCCCACCCCGCCCCTCCAAACCCCGCCCCACCCCGCCCCTCCCCGCCCCA",
+        "global_variables": {}
+    },
+    "test_single_delins": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.38delinsAAA"
+        },
+        "expected_result": "CCACCCCGCCCCTCCCCGCCCCACCCCGCCAAACTCCCCGCCCCACCCCGCCCCTCCCCGCCC",
+        "global_variables": {}
+    },
+    "test_multi_delins": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.38_40delinsAAA"
+        },
+        "expected_result": "CCACCCCGCCCCTCCCCGCCCCACCCCGCCAAACCCCGCCCCACCCCGCCCCTCCCCGCCCCA",
+        "global_variables": {}
+    },
+    "test_multi_delins_with_psuedo_left_repeats": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.36_37delinsAG"
+        },
+        "expected_result": "CCCCACCCCGCCCCTCCCCGCCCCACCCCGAGCCTCCCCGCCCCACCCCGCCCCTCCCCGCC",
+        "global_variables": {}
+    },
+    "test_multi_delins_with_true_left_repeats": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.36_37delinsAC"
+        },
+        "expected_result": "CCCCACCCCGCCCCTCCCCGCCCCACCCCGACCCTCCCCGCCCCACCCCGCCCCTCCCCGC",
+        "global_variables": {}
+    },
+    "test_multi_delins_with_true_right_repeats": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.36_37delinsCA"
+        },
+        "expected_result": "CCCACCCCGCCCCTCCCCGCCCCACCCCGCACCTCCCCGCCCCACCCCGCCCCTCCCCGCC",
+        "global_variables": {}
+    },
+    "test_single_dup": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.35dup"
+        },
+        "expected_result": "CCCCACCCCGCCCCTCCCCGCCCCACCCCGGCCCCTCCCCGCCCCACCCCGCCCCTCCCC",
+        "global_variables": {}
+    },
+    "test_multi_dup": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.35_37dup"
+        },
+        "expected_result": "CCACCCCGCCCCTCCCCGCCCCACCCCGCCGCCCCTCCCCGCCCCACCCCGCCCCTCC",
+        "global_variables": {}
+    },
+    "test_inversion_with_overlaps": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.35_38inv"
+        },
+        "expected_result": "CCCCACCCCGCCCCTCCCCGCCCCACCCCGGGCCTCCCCGCCCCACCCCGCCCCTCCCCGCC",
+        "global_variables": {}
+    },
+    "test_list_of_mutations": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": ["<long_sequence>", "<long_sequence>", "<long_sequence>", "<long_sequence>"],
+            "mutations": ["c.35G>A", "c.65G>A", "c.35del", "c.4_5insT"]
+        },
+        "expected_result": "",
+        "global_variables": {}
+    },
+    "test_intron_mutation_plus": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.20+3T>A"
+        },
+        "expected_result": null,
+        "global_variables": {
+            "number_intronic_position_mutations": 1
+        }
+    },
+    "test_intron_mutation_minus": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.20-3T>A"
+        },
+        "expected_result": null,
+        "global_variables": {
+            "number_intronic_position_mutations": 1
+        }
+    },
+    "test_posttranslational_mutation": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.20*5T>A"
+        },
+        "expected_result": null,
+        "global_variables": {
+            "number_posttranslational_region_mutations": 1
+        }
+    },
+    "test_uncertain_mutation": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.?"
+        },
+        "expected_result": null,
+        "global_variables": {
+            "number_uncertain_mutations": 1
+        }
+    },
+    "test_ambiguous_mutation": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.(20_28)del"
+        },
+        "expected_result": null,
+        "global_variables": {
+            "number_ambiguous_position_mutations": 1
+        }
+    },
+    "test_index_error": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.99999999C>A"
+        },
+        "expected_result": null,
+        "global_variables": {
+            "number_index_errors": 1
+        }
+    }
+}
