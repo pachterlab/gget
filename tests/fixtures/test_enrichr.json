@@ -1,5 +1,5 @@
 {
-    "test1": {
+    "test_enrichr_pathway": {
         "type": "assert_equal",
         "args": {
             "genes": [
@@ -42,7 +42,7 @@
             ]
         ]
     },
-    "test2": {
+    "test_enrichr_json": {
         "type": "assert_equal",
         "args": {
             "genes": "ACE2",
@@ -88,7 +88,7 @@
             }
         ]
     },
-    "test3": {
+    "test_enrichr_none": {
         "type": "assert_equal",
         "args": {
             "genes": [
@@ -133,7 +133,7 @@
             ]
         ]
     },
-    "test4": {
+    "test_enrichr_transcription": {
         "type": "assert_equal",
         "args": {
             "genes": [
@@ -3366,7 +3366,7 @@
             ]
         ]
     },
-    "test5": {
+    "test_enrichr_ensembl_ids": {
         "type": "assert_equal",
         "args": {
             "genes": [
@@ -3694,7 +3694,7 @@
             ]
         ]
     },
-    "test6": {
+    "test_enrichr_ontology": {
         "type": "assert_equal",
         "args": {
             "genes": [
@@ -4943,7 +4943,7 @@
             ]
         ]
     },
-    "test7": {
+    "test_enrichr_diseases_drugs": {
         "type": "assert_equal",
         "args": {
             "genes": [
@@ -5226,7 +5226,7 @@
             ]
         ]
     },
-    "test8": {
+    "test_enrichr_celltypes": {
         "type": "assert_equal",
         "args": {
             "genes": [
@@ -5301,7 +5301,7 @@
             ]
         ]
     },
-    "test9": {
+    "test_enrichr_kinase_interactions": {
         "type": "assert_equal",
         "args": {
             "genes": [
@@ -5387,8 +5387,8 @@
             ]
         ]
     },
-    "test10": {
-        "type": "assert_equal",
+    "test_enrichr_bad_gene": {
+        "type": "code_defined",
         "args": {
             "genes": "banana",
             "database": "ontology",
@@ -5396,8 +5396,8 @@
         },
         "expected_result": "df.empty"
     },
-    "test11": {
-        "type": "assert_equal",
+    "test_enrichr_background": {
+        "type": "code_defined",
         "args": {
             "genes": [
                 "ALB",
@@ -5617,8 +5617,8 @@
             ]
         ]
     },
-    "test12": {
-        "type": "assert_equal",
+    "test_enrichr_background_ensembl": {
+        "type": "code_defined",
         "args": {
             "genes": [
                 "ENSG00000120053",

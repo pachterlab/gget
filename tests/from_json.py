@@ -174,6 +174,8 @@ def from_json(test_dict: dict[str, dict[str, ...]], func: Callable, custom_types
             for k, v in test_dict.items():
                 type_ = v["type"]
                 if type_ == "code_defined":
+                    if k not in dct:
+                        raise ValueError(f"Test {k} is not defined in code, despite being of type 'code_defined'.")
                     continue
                 if type_ in local_types:
                     if not k.startswith("test_"):
