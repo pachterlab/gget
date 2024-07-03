@@ -7,6 +7,7 @@ import json
 import time
 from gget.gget_cosmic import cosmic
 from gget.utils import get_latest_cosmic
+from .from_json import from_json
 
 # Test download data from the latest COSMIC release
 cosmic_version = get_latest_cosmic()
@@ -28,85 +29,12 @@ arg_combinations = [
 with open("./tests/fixtures/test_cosmic.json") as json_file:
     cosmic_dict = json.load(json_file)
 
-# Sleep time in seconds (wait 2 min between server requests to avoid 429 errors)
-sleep_time = 120
+# Sleep time in seconds (wait 4 seconds between server requests to avoid 429 errors)
+sleep_time = 4
 
-class TestCosmic(unittest.TestCase):
-    def test_cosmic_defaults(self):
-        test = "test1"
-        expected_result = cosmic_dict[test]["expected_result"]
-        result_to_test = cosmic(**cosmic_dict[test]["args"])
-        # If result is a DataFrame, convert to list
-        if isinstance(result_to_test, pd.DataFrame):
-            result_to_test = result_to_test.values.tolist()
-        self.assertListEqual(result_to_test, expected_result)
 
-    # Delay to avoid server overload errors
-    time.sleep(sleep_time)
-
-    def test_cosmic_limit_and_pubmet(self):
-        test = "test2"
-        expected_result = cosmic_dict[test]["expected_result"]
-        result_to_test = cosmic(**cosmic_dict[test]["args"])
-        # If result is a DataFrame, convert to list
-        if isinstance(result_to_test, pd.DataFrame):
-            result_to_test = result_to_test.values.tolist()
-        self.assertListEqual(result_to_test, expected_result)
-
-    time.sleep(sleep_time)
-
-    def test_cosmic_json_and_genes(self):
-        test = "test3"
-        expected_result = cosmic_dict[test]["expected_result"]
-        result_to_test = cosmic(**cosmic_dict[test]["args"])
-        # If result is a DataFrame, convert to list
-        if isinstance(result_to_test, pd.DataFrame):
-            result_to_test = result_to_test.values.tolist()
-        self.assertListEqual(result_to_test, expected_result)
-
-    time.sleep(sleep_time)
-
-    def test_cosmic_samples(self):
-        test = "test4"
-        expected_result = cosmic_dict[test]["expected_result"]
-        result_to_test = cosmic(**cosmic_dict[test]["args"])
-        # If result is a DataFrame, convert to list
-        if isinstance(result_to_test, pd.DataFrame):
-            result_to_test = result_to_test.values.tolist()
-        self.assertListEqual(result_to_test, expected_result)
-
-    time.sleep(sleep_time)
-
-    def test_cosmic_studies(self):
-        test = "test5"
-        expected_result = cosmic_dict[test]["expected_result"]
-        result_to_test = cosmic(**cosmic_dict[test]["args"])
-        # If result is a DataFrame, convert to list
-        if isinstance(result_to_test, pd.DataFrame):
-            result_to_test = result_to_test.values.tolist()
-        self.assertListEqual(result_to_test, expected_result)
-
-    time.sleep(sleep_time)
-
-    def test_cosmic_cancer(self):
-        test = "test6"
-        expected_result = cosmic_dict[test]["expected_result"]
-        result_to_test = cosmic(**cosmic_dict[test]["args"])
-        # If result is a DataFrame, convert to list
-        if isinstance(result_to_test, pd.DataFrame):
-            result_to_test = result_to_test.values.tolist()
-        self.assertListEqual(result_to_test, expected_result)
-
-    time.sleep(sleep_time)
-
-    def test_cosmic_tumour(self):
-        test = "test7"
-        expected_result = cosmic_dict[test]["expected_result"]
-        result_to_test = cosmic(**cosmic_dict[test]["args"])
-        # If result is a DataFrame, convert to list
-        if isinstance(result_to_test, pd.DataFrame):
-            result_to_test = result_to_test.values.tolist()
-        self.assertListEqual(result_to_test, expected_result)
+class TestCosmic(unittest.TestCase, metaclass=from_json(cosmic_dict, cosmic, pre_test=lambda: time.sleep(sleep_time))):
+    pass  # all tests are loaded from json
 
 
 class TestCaseBase(unittest.TestCase):

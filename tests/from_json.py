@@ -1,5 +1,5 @@
 import unittest
-from typing import Callable, Any
+from typing import Callable, Any, Optional
 import pandas as pd
 import sys
 import json
@@ -159,7 +159,7 @@ _TYPES: dict[str, _test_constructor] = {
 }
 
 
-def from_json(test_dict: dict[str, dict[str, ...]], func: callable, custom_types: dict[str, _test_constructor] | None = None) -> type:
+def from_json(test_dict: dict[str, dict[str, ...]], func: Callable, custom_types: dict[str, _test_constructor] | None = None, pre_test: Optional[Callable[[], None]] = None) -> type:
     """
     Create a metaclass that will generate test methods from a (json-loaded) dictionary.
     """
@@ -185,7 +185,18 @@ def from_json(test_dict: dict[str, dict[str, ...]], func: callable, custom_types
                         continue
 
                     # Create the test method for the given type and add it to the new class
-                    dct[k] = local_types[type_](k, test_dict, func)
+                    test_func = local_types[type_](k, test_dict, func)
+                    if pre_test:
+                        # This has to be done with nested functions to actually close on `test_func`.
+                        # Otherwise, it just becomes a recursive mess
+                        def wrap(tf):
+                            def inner(*args, **kwargs):
+                                pre_test()
+                                tf(*args, **kwargs)
+                            return inner
+                        test_func = wrap(test_func)
+
+                    dct[k] = test_func
                     print(f"Loaded test {k} of type {type_} from json.")
                 else:
                     if k not in dct:

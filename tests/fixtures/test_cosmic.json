@@ -1,6 +1,6 @@
 {
-    "test1": {
-        "type": "assert_equal_mutations",
+    "test_cosmic_defaults": {
+        "type": "assert_equal",
         "args": {
             "searchterm": "v600e"
         },
@@ -79,8 +79,8 @@
             ]
         ]
     },
-    "test2": {
-        "type": "assert_equal_pubmed",
+    "test_cosmic_limit_and_pubmet": {
+        "type": "assert_equal",
         "args": {
             "searchterm": "v600e",
             "entity": "pubmed",
@@ -99,8 +99,8 @@
             ]
         ]
     },
-    "test3": {
-        "type": "assert_equal_genes_and_json",
+    "test_cosmic_json_and_genes": {
+        "type": "assert_equal",
         "args": {
             "searchterm": "EGFR",
             "entity": "genes",
@@ -173,8 +173,8 @@
             }
         ]
     },
-    "test4": {
-        "type": "assert_equal_samples",
+    "test_cosmic_samples": {
+        "type": "assert_equal",
         "args": {
             "searchterm": "EGFR",
             "entity": "samples"
@@ -190,8 +190,8 @@
             ]
         ]
     },
-    "test5": {
-        "type": "assert_equal_studies",
+    "test_cosmic_studies": {
+        "type": "assert_equal",
         "args": {
             "searchterm": "THCA-SA",
             "entity": "studies"
@@ -204,8 +204,8 @@
             ]
         ]
     },
-    "test6": {
-        "type": "assert_equal_cancer",
+    "test_cosmic_cancer": {
+        "type": "assert_equal",
         "args": {
             "searchterm": "prostate",
             "entity": "cancer",
@@ -226,8 +226,8 @@
             ]
         ]
     },
-    "test7": {
-        "type": "assert_equal_tumour",
+    "test_cosmic_tumour": {
+        "type": "assert_equal",
         "args": {
             "searchterm": "prostate",
             "entity": "tumour_site",
