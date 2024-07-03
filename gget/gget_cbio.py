@@ -25,6 +25,11 @@ _V = TypeVar("_V")
 logger = set_up_logger()
 
 
+if not hasattr(pd.DataFrame, "map"):
+    logger.info("Old pandas version detected. Patching DataFrame.map to DataFrame.applymap")
+    pd.DataFrame.map = pd.DataFrame.applymap
+
+
 def _ints_between(
     start: int, end: int, max_count: int, min_count: int, verbose: bool = False
 ) -> list[int]:
@@ -203,6 +208,7 @@ def download_cbioportal_data(
 
     for study_id in study_ids:
         file_types = ["mutations", "cna", "sv", "clinical_patient", "clinical_sample"]
+        optional_file_types = ["cna", "sv"]
 
         for file_type in file_types:
             try:
@@ -226,7 +232,8 @@ def download_cbioportal_data(
                     logger.error(
                         f"Failed to download {file_type} data for study {study_id}"
                     )
-                    success = False
+                    if file_type not in optional_file_types:
+                        success = False
                     continue
 
                 lines = response.content.decode().splitlines(keepends=True)
@@ -537,38 +544,43 @@ class _GeneAnalysis:
                     "No Ensembl gene IDs found in the mutation data. Merging on gene symbol instead."
                 )
 
+        def join_unique_string_values(series):
+            if series.isnull().all():
+                return np.nan
+            else:
+                return ','.join(series.dropna().unique())
+
         if self.merge_type == _ENSEMBL:
             self.column_for_merging = "Ensembl_Gene_ID"
 
             # logger.info(f"Columns: {mutation_df.columns}")
             # logger.info(f"Transcript column: {mutation_df.head(20)['Transcript_ID']}")
             # logger.info(f"Gene ID column: {mutation_df.head(20)['Ensembl_Gene_ID']}")
-            aggregated_df = (
-                mutation_df.groupby(["Tumor_Sample_Barcode", self.column_for_merging])
-                .agg(
-                    {
-                        "Hugo_Symbol": lambda x: ",".join(x.unique()),
-                        "Entrez_Gene_Id": lambda x: ",".join(map(str, x.unique())),
-                        "Consequence": lambda x: ",".join(x.unique()),
-                    }
-                )
-                .reset_index()
-            )
+            aggregation_dict = {
+                "Hugo_Symbol": lambda x: ",".join(x.unique()),
+                "Entrez_Gene_Id": lambda x: ",".join(map(str, x.unique())),
+                "Consequence": join_unique_string_values,
+            }
         elif self.merge_type == _SYMBOL:
             self.column_for_merging = "Hugo_Symbol"
 
-            aggregated_df = (
-                mutation_df.groupby(["Tumor_Sample_Barcode", self.column_for_merging])
-                .agg(
-                    {
-                        "Entrez_Gene_Id": lambda x: ",".join(map(str, x.unique())),
-                        "Consequence": lambda x: ",".join(x.unique()),
-                    }
-                )
-                .reset_index()
-            )
+            aggregation_dict = {
+                "Entrez_Gene_Id": lambda x: ",".join(map(str, x.unique())),
+                "Consequence": join_unique_string_values,
+            }
         else:
             raise AssertionError(f"Invalid merge type: {self.merge_type}")
+
+        if "Entrez_Gene_Id" not in mutation_df.columns:
+            del aggregation_dict["Entrez_Gene_Id"]
+            if "Entrez_Gene_Id" in self.columns_to_keep:
+                self.columns_to_keep.remove("Entrez_Gene_Id")
+
+        aggregated_df = (
+            mutation_df.groupby(["Tumor_Sample_Barcode", self.column_for_merging])
+            .agg(aggregation_dict)
+            .reset_index()
+        )
 
         if self.column_for_merging not in self.columns_to_keep:
             self.columns_to_keep.append(self.column_for_merging)
