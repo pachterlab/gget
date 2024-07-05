@@ -175,7 +175,7 @@ _TYPES: dict[str, _test_constructor] = {
 }
 
 
-def from_json(test_dict: dict[str, dict[str, ...]], func: Callable, custom_types: dict[str, _test_constructor] | None = None, pre_test: Optional[Callable[[], None]] = None) -> type:
+def from_json(test_dict: dict[str, dict[str, ...]], func: Callable, custom_types: Optional[dict[str, _test_constructor]] = None, pre_test: Optional[Callable[[], None]] = None) -> type:
     """
     Create a metaclass that will generate test methods from a (json-loaded) dictionary.
     """
