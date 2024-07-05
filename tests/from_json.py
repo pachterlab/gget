@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import unittest
 from typing import Callable, Any, Optional
 import pandas as pd
