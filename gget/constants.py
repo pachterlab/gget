@@ -29,9 +29,6 @@ BLAST_CLIENT = "gget_client-" + str(uuid.uuid4())
 MUSCLE_GITHUB_LINK = "https://github.com/rcedgar/muscle.git"
 
 # Enrichr API endpoints
-# Notes for modEnrichr:
-# FlyEnrichr doesn't support background
-# nor does YeastEnrichr, nor WormEnrichr or FishEnrichr
 POST_ENRICHR_URL = "https://maayanlab.cloud/speedrichr/api/addList"
 GET_ENRICHR_URL = "https://maayanlab.cloud/speedrichr/api/enrich"
 POST_BACKGROUND_ID_ENRICHR_URL = "https://maayanlab.cloud/speedrichr/api/addbackground"
