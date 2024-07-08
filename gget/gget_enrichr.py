@@ -131,7 +131,14 @@ def enrichr(
         species_enrichr = "Enrichr"
 
     if species != "human":
-        if database in ["pathway", "transcription", "ontology", "diseases_drugs", "celltypes", "kinase_interactions"]:
+        if database in [
+            "pathway",
+            "transcription",
+            "ontology",
+            "diseases_drugs",
+            "celltypes",
+            "kinase_interactions",
+        ]:
             raise ValueError(
                 f"Database '{database}' is not supported for species '{species}'."
                 f" Please select a database from the species-specific libraries listed at:"
@@ -334,9 +341,19 @@ def enrichr(
 
     # Submit query to Enrich using gene list and background genes list
     if not background_final:
-        r2 = requests.get(GET_ENRICHR_URLS[species], params={"userListId": userListId, "backgroundType": database})
+        r2 = requests.get(
+            GET_ENRICHR_URLS[species],
+            params={"userListId": userListId, "backgroundType": database},
+        )
     else:
-        r2 = requests.post(GET_BACKGROUND_ENRICHR_URL, params={"userListId": userListId, "backgroundid": background_list_id, "backgroundType": database})
+        r2 = requests.post(
+            GET_BACKGROUND_ENRICHR_URL,
+            params={
+                "userListId": userListId,
+                "backgroundid": background_list_id,
+                "backgroundType": database,
+            },
+        )
 
     if not r2.ok:
         if background_final:

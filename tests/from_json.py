@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import unittest
-import warnings
 from typing import Callable, Any, Optional
 import pandas as pd
 import sys
@@ -67,10 +66,13 @@ def _assert_equal(name: str, td: dict[str, dict[str, ...]], func: Callable) -> C
             result_to_test = result_to_test.dropna(axis=1).values.tolist()
 
         self.assertEqual(result_to_test, expected_result)
+
     return assert_equal
 
 
-def _assert_equal_na(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Callable:
+def _assert_equal_na(
+    name: str, td: dict[str, dict[str, ...]], func: Callable
+) -> Callable:
     def assert_equal_na(self: unittest.TestCase):
         test = name
         expected_result = td[test]["expected_result"]
@@ -80,6 +82,7 @@ def _assert_equal_na(name: str, td: dict[str, dict[str, ...]], func: Callable) -
             result_to_test = result_to_test.values.tolist()
 
         self.assertEqual(result_to_test, expected_result)
+
     return assert_equal_na
 
 
@@ -90,12 +93,18 @@ def _assert_none(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Ca
         msg = td[test].get("msg", None)
         result_to_test = do_call(func, td[test]["args"])
 
-        self.assertIsNone(expected_result, "assert_none test must not have a non-null expected_result key.")
+        self.assertIsNone(
+            expected_result,
+            "assert_none test must not have a non-null expected_result key.",
+        )
         self.assertIsNone(result_to_test, msg=msg)
+
     return assert_none
 
 
-def _assert_equal_json_hash(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Callable:
+def _assert_equal_json_hash(
+    name: str, td: dict[str, dict[str, ...]], func: Callable
+) -> Callable:
     def assert_equal_json_hash(self: unittest.TestCase):
         test = name
         expected_result = td[test]["expected_result"]
@@ -108,10 +117,13 @@ def _assert_equal_json_hash(name: str, td: dict[str, dict[str, ...]], func: Call
         result_to_test = hashlib.md5(result_to_test.encode()).hexdigest()
 
         self.assertEqual(result_to_test, expected_result)
+
     return assert_equal_json_hash
 
 
-def _assert_equal_nested(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Callable:
+def _assert_equal_nested(
+    name: str, td: dict[str, dict[str, ...]], func: Callable
+) -> Callable:
     def assert_equal_nested(self: unittest.TestCase):
         test = name
         expected_result = td[test]["expected_result"]
@@ -123,10 +135,13 @@ def _assert_equal_nested(name: str, td: dict[str, dict[str, ...]], func: Callabl
             )
 
         self.assertEqual(result_to_test, expected_result)
+
     return assert_equal_nested
 
 
-def _assert_equal_json_hash_nested(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Callable:
+def _assert_equal_json_hash_nested(
+    name: str, td: dict[str, dict[str, ...]], func: Callable
+) -> Callable:
     def assert_equal_json_hash_nested(self: unittest.TestCase):
         test = name
         expected_result = td[test]["expected_result"]
@@ -141,6 +156,7 @@ def _assert_equal_json_hash_nested(name: str, td: dict[str, dict[str, ...]], fun
         result_to_test = hashlib.md5(result_to_test.encode()).hexdigest()
 
         self.assertEqual(result_to_test, expected_result)
+
     return assert_equal_json_hash_nested
 
 
@@ -158,7 +174,9 @@ def _error(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Callable
     Error = _KNOWN_ERRORS[Error]
 
     if "expected_msg" not in td[name]:
-        print(f"^ Warning: 'error' test should have an 'expected_msg' key, but test '{name}' lacks one.")
+        print(
+            f"^ Warning: 'error' test should have an 'expected_msg' key, but test '{name}' lacks one."
+        )
 
     def error(self: unittest.TestCase):
         test = name
@@ -167,7 +185,9 @@ def _error(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Callable
         the_exception = cm.exception
 
         if "expected_msg" in td[test]:
-            self.assertEqual(td[test]["expected_msg"], str(the_exception), f"Error message mismatch")
+            self.assertEqual(
+                td[test]["expected_msg"], str(the_exception), f"Error message mismatch"
+            )
 
     return error
 
@@ -180,11 +200,16 @@ _TYPES: dict[str, _test_constructor] = {
     "assert_equal_json_hash": _assert_equal_json_hash,
     "assert_equal_nested": _assert_equal_nested,
     "assert_equal_json_hash_nested": _assert_equal_json_hash_nested,
-    "error": _error
+    "error": _error,
 }
 
 
-def from_json(test_dict: dict[str, dict[str, ...]], func: Callable, custom_types: Optional[dict[str, _test_constructor]] = None, pre_test: Optional[Callable[[], None]] = None) -> type:
+def from_json(
+    test_dict: dict[str, dict[str, ...]],
+    func: Callable,
+    custom_types: Optional[dict[str, _test_constructor]] = None,
+    pre_test: Optional[Callable[[], None]] = None,
+) -> type:
     """
     Create a metaclass that will generate test methods from a (json-loaded) dictionary.
     """
@@ -195,12 +220,16 @@ def from_json(test_dict: dict[str, dict[str, ...]], func: Callable, custom_types
 
     class C(type):
         def __new__(cls, name: str, bases: tuple[type, ...], dct: dict[str, ...]):
-            assert unittest.TestCase in bases, "from_json should only be applied to unittest.TestCase subclasses."
+            assert (
+                unittest.TestCase in bases
+            ), "from_json should only be applied to unittest.TestCase subclasses."
             for k, v in test_dict.items():
                 type_ = v["type"]
                 if type_ == "code_defined":
                     if k not in dct:
-                        raise ValueError(f"Test {k} is not defined in code, despite being of type 'code_defined'.")
+                        raise ValueError(
+                            f"Test {k} is not defined in code, despite being of type 'code_defined'."
+                        )
                     continue
                 if type_ in local_types:
                     if not k.startswith("test_"):
@@ -220,15 +249,20 @@ def from_json(test_dict: dict[str, dict[str, ...]], func: Callable, custom_types
                             def inner(*args, **kwargs):
                                 pre_test()
                                 tf(*args, **kwargs)
+
                             return inner
+
                         test_func = wrap(test_func)
 
                     dct[k] = test_func
                     print(f"Loaded test {k} of type {type_} from json.")
                 else:
                     if k not in dct:
-                        raise ValueError(f"Unknown test type: {type_} and no test method defined.")
+                        raise ValueError(
+                            f"Unknown test type: {type_} and no test method defined."
+                        )
                     print(f"Unknown test type: {type_}", file=sys.stderr)
 
             return super().__new__(cls, name, bases, dct)
+
     return C
