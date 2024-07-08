@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+import warnings
 from typing import Callable, Any, Optional
 import pandas as pd
 import sys
@@ -156,10 +157,18 @@ def _error(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Callable
     # noinspection PyPep8Naming
     Error = _KNOWN_ERRORS[Error]
 
+    if "expected_msg" not in td[name]:
+        print(f"^ Warning: 'error' test should have an 'expected_msg' key, but test '{name}' lacks one.")
+
     def error(self: unittest.TestCase):
         test = name
-        with self.assertRaises(Error):
+        with self.assertRaises(Error) as cm:
             do_call(func, td[test]["args"])
+        the_exception = cm.exception
+
+        if "expected_msg" in td[test]:
+            self.assertEqual(td[test]["expected_msg"], str(the_exception), f"Error message mismatch")
+
     return error
 
 

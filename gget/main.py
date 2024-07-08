@@ -983,7 +983,17 @@ def main():
         help=(
             "'pathway', 'transcription', 'ontology', 'diseases_drugs', 'celltypes', 'kinase_interactions'"
             "or any database listed at: https://maayanlab.cloud/Enrichr/#libraries"
+            " or the species-specific libraries listed in the documentation"
         ),
+    )
+    parser_enrichr.add_argument(
+        "-s",
+        "--species",
+        type=str,
+        choices=["human", "mouse", "fly", "yeast", "worm", "fish"],
+        default="human",
+        required=False,
+        help="Enrichr variant to query. Default: 'human'.",
     )
     parser_enrichr.add_argument(
         "-bkg_l",
@@ -992,7 +1002,7 @@ def main():
         nargs="*",
         default=None,
         required=False,
-        help="List of gene names/Ensembl IDs to be used as background genes.",
+        help="List of gene names/Ensembl IDs to be used as background genes. ONLY SUPPORTED FOR HUMAN/MOUSE SPECIES",
     )
     parser_enrichr.add_argument(
         "-bkg",
@@ -1000,7 +1010,7 @@ def main():
         default=False,
         action="store_true",
         required=False,
-        help="If True, use set of >20,000 default background genes listed here: https://github.com/pachterlab/gget/blob/main/gget/constants/enrichr_bkg_genes.txt.",
+        help="If True, use set of >20,000 default background genes listed here: https://github.com/pachterlab/gget/blob/main/gget/constants/enrichr_bkg_genes.txt. ONLY SUPPORTED FOR HUMAN/MOUSE SPECIES",
     )
     parser_enrichr.add_argument(
         "-e",
@@ -2872,6 +2882,7 @@ def main():
         # Submit Enrichr query
         enrichr_results = enrichr(
             genes=genes_clean_final,
+            species=args.species,
             background=args.background,
             background_list=bkg_genes_clean_final,
             database=args.database,
@@ -2884,7 +2895,7 @@ def main():
         )
 
         # Check if the function returned something
-        if not isinstance(enrichr_results, type(None)):
+        if enrichr_results is not None:
             # Save enrichr results if args.out specified
             if args.out and not args.csv:
                 # Create saving directory
