@@ -2,6 +2,7 @@ import requests
 import pandas as pd
 import json as json_package
 import numpy as np
+from typing import Optional
 
 # Plotting packages
 import matplotlib.pyplot as plt
@@ -18,7 +19,9 @@ from .compile import PACKAGE_PATH
 from .gget_info import info
 
 from .utils import set_up_logger
+
 logger = set_up_logger()
+
 
 def ensembl_to_gene_names(ensembl_ids):
     """
@@ -26,14 +29,14 @@ def ensembl_to_gene_names(ensembl_ids):
     """
     genes_v2 = []
 
+    # Remove version number if passed
+    ensembl_ids = [gene_id.split(".")[0] for gene_id in ensembl_ids]
+
+    info_df = info(ensembl_ids, pdb=False, ncbi=False, uniprot=False, verbose=False)
+
     for gene_id in ensembl_ids:
-        # Remove version number if passed
-        gene_id = gene_id.split(".")[0]
-
-        info_df = info(gene_id, pdb=False, ncbi=False, uniprot=False, verbose=False)
-
         # Check if Ensembl ID was found
-        if isinstance(info_df, type(None)):
+        if gene_id not in info_df.index:
             logger.warning(
                 f"ID '{gene_id}' not found. Please double-check spelling/arguments."
             )
@@ -49,30 +52,31 @@ def ensembl_to_gene_names(ensembl_ids):
 
     return genes_v2
 
+
 def clean_genes_list(genes_list):
     # Remove any NaNs/Nones from the gene list
     genes_clean = []
     for gene in genes_list:
-        if not isinstance(gene, float) and not gene is None and not gene == "nan":
+        if not isinstance(gene, float) and gene is not None and gene != "nan":
             genes_clean.append(gene)
     return genes_clean
 
 
 def enrichr(
-    genes,
-    database,
-    background_list=None,
-    background=False,
-    ensembl=False,
-    ensembl_bkg=False,
-    plot=False,
-    figsize=(10, 10),
-    ax=None,
-    kegg_out=None,
-    kegg_rank=1,
-    json=False,
-    save=False,
-    verbose=True,
+    genes: list[str],
+    database: str,
+    background_list: Optional[list[str]] = None,
+    background: bool = False,
+    ensembl: bool = False,
+    ensembl_bkg: bool = False,
+    plot: bool = False,
+    figsize: tuple[int, int] = (10, 10),
+    ax: plt.Axes = None,
+    kegg_out: Optional[str] = None,
+    kegg_rank: int = 1,
+    json: bool = False,
+    save: bool = False,
+    verbose: bool = True,
 ):
     """
     Perform an enrichment analysis on a list of genes using Enrichr (https://maayanlab.cloud/Enrichr/).
@@ -112,7 +116,7 @@ def enrichr(
     Please note that there might be a more appropriate database for your application. 
     Go to https://maayanlab.cloud/Enrichr/#libraries for a full list of supported databases.
     """
-    if not (type(background) == bool):
+    if not isinstance(background, bool):
         raise ValueError(
             f"Argument`background` must be a boolean True/False. If you are adding a background list, use the argument `background_list` instead."
         )
@@ -181,7 +185,7 @@ def enrichr(
             return
 
     # If single gene passed as string, convert to list
-    if type(genes) == str:
+    if isinstance(genes, str):
         genes = [genes]
 
     ## Transform Ensembl IDs to gene symbols
@@ -202,7 +206,7 @@ def enrichr(
     if background_list and ensembl_bkg:
         background_list = ensembl_to_gene_names(background_list)
 
-    if not isinstance(background_list, type(None)):
+    if background_list is not None:
         if len(background_list) == 0 and ensembl:
             logger.error("No background gene symbols found for given Ensembl IDs.")
             return
