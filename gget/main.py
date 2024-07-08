@@ -37,7 +37,7 @@ from .gget_cosmic import cosmic
 from .gget_mutate import mutate
 from .gget_opentargets import opentargets, OPENTARGETS_RESOURCES
 from .gget_cbio import cbio_plot, cbio_search
-from .gget_bgee import bgee_orthologs, bgee_expression
+from .gget_bgee import bgee
 
 
 # Custom formatter for help messages that preserved the text formatting and adds the default value to the end of the help message
@@ -3221,13 +3221,9 @@ def main():
 
     ## bgee return
     if args.command == "bgee":
-        fun = {
-            "orthologs": bgee_orthologs,
-            "expression": bgee_expression,
-        }[args.type]
-
-        bgee_results: pd.DataFrame = fun(
+        bgee_results: pd.DataFrame = bgee(
             args.ens_id,
+            type=args.type,
             verbose=args.quiet,
         )
 

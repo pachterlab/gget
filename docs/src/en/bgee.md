@@ -12,8 +12,7 @@ Ensembl gene ID, e.g. ENSG00000169194 or ENSSSCG00000014725.
 
 **Required arguments**  
 `-t` `--type`  
-Command-line only. Type of data to fetch. Options: `orthologs`, `expression`.  
-Python: use `bgee_orthologs()` or `bgee_expression()`.
+Type of data to fetch. Options: `orthologs`, `expression`.  
 
 **Optional arguments**  
 `-o` `--out`    
@@ -39,7 +38,7 @@ gget bgee ENSSSCG00000014725 -t orthologs
 
 ```python
 import gget
-gget.bgee_orthologs("ENSSSCG00000014725")
+gget.bgee("ENSSSCG00000014725", type="orthologs")
 ```
 
 &rarr; Returns orthologs for the gene with Ensembl ID ENSSSCG00000014725.
@@ -62,7 +61,7 @@ gget bgee ENSSSCG00000014725 -t expression
 ```
 ```python
 import gget
-gget.bgee_expression("ENSSSCG00000014725")
+gget.bgee("ENSSSCG00000014725", type="expression")
 ```
 
 &rarr; Returns gene expression data for the gene with Ensembl ID ENSSSCG00000014725.

@@ -1,5 +1,6 @@
 import pandas as pd
 import json as json_
+from typing import Literal
 
 import requests
 
@@ -43,11 +44,11 @@ def _bgee_species(gene_id: str, verbose: bool = True) -> int:
     return species
 
 
-def bgee_orthologs(
+def _bgee_orthologs(
     gene_id: str, json: bool = False, verbose: bool = True
 ) -> pd.DataFrame | list[dict[str, ...]]:
     """
-    Search for gene in Bgee
+    Get orthologs for a gene from Bgee
 
     Args:
 
@@ -102,7 +103,7 @@ def bgee_orthologs(
         return df
 
 
-def bgee_expression(
+def _bgee_expression(
     gene_id: str, json: bool = False, verbose: bool = True
 ) -> pd.DataFrame | list[dict[str, ...]]:
     """
@@ -160,3 +161,30 @@ def bgee_expression(
         return json_.loads(df.to_json(orient="records", force_ascii=False))
     else:
         return df
+
+
+# noinspection PyShadowingBuiltins
+def bgee(
+    gene_id: str,
+    type: Literal["expression", "orthologs"],
+    json: bool = False,
+    verbose: bool = True,
+) -> pd.DataFrame | list[dict[str, ...]]:
+    """
+    Get orthologs/expression data for a gene from Bgee
+
+    Args:
+
+    :param type:    type of data to retrieve (expression or orthologs)
+    :param gene_id: Ensembl gene ID
+    :param json:    return JSON instead of DataFrame
+    :param verbose: log progress
+
+    Returns requested information as a DataFrame or JSON
+    """
+    if type == "expression":
+        return _bgee_expression(gene_id, json=json, verbose=verbose)
+    elif type == "orthologs":
+        return _bgee_orthologs(gene_id, json=json, verbose=verbose)
+    else:
+        raise ValueError(f"Unknown type: {type}")

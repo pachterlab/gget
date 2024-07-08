@@ -696,5 +696,15 @@
             "gene_id": "this gene does not exist"
         },
         "expected_result": "RuntimeError"
+    },
+
+
+    "test_error_bgee_unknown_type": {
+        "type": "error",
+        "args": {
+            "type": "this type does not exist",
+            "gene_id": "ENSBTAG00000047356"
+        },
+        "expected_result": "ValueError"
     }
 }
