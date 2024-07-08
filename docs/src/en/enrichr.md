@@ -1,6 +1,6 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
 ## gget enrichr 💰
-Perform an enrichment analysis on a list of genes using [Enrichr](https://maayanlab.cloud/Enrichr/).  
+Perform an enrichment analysis on a list of genes using [Enrichr](https://maayanlab.cloud/Enrichr/) or [modEnrichr](https://maayanlab.cloud/modEnrichr/).  
 Return format: JSON (command-line) or data frame/CSV (Python).
   
 **Positional argument**  
@@ -18,8 +18,22 @@ Supports any database listed [here](https://maayanlab.cloud/Enrichr/#libraries) 
 'diseases_drugs'   (GWAS_Catalog_2019)   
 'celltypes'      (PanglaoDB_Augmented_2021)  
 'kinase_interactions'   (KEA_2015)  
+Note: database shortcuts are not supported for species other than 'human' or 'mouse'.  
   
 **Optional arguments**  
+`-s` `--species`  
+Species to use as reference for the enrichment analysis. (Default: human)
+Options:
+
+| Species  | Database list                                                     |
+|----------|-------------------------------------------------------------------|
+| `human`  | [Enrichr](https://maayanlab.cloud/Enrichr/#libraries)             |
+| `mouse`  | [Equivalent to human](https://maayanlab.cloud/Enrichr/#libraries) |
+| `fly`    | [FlyEnrichr](https://maayanlab.cloud/FlyEnrichr/#libraries)       |
+| `yeast`  | [YeastEnrichr](https://maayanlab.cloud/YeastEnrichr/#libraries)   |
+| `worm`   | [WormEnrichr](https://maayanlab.cloud/WormEnrichr/#libraries)     |
+| `fish`   | [FishEnrichr](https://maayanlab.cloud/FishEnrichr/#libraries)     |
+
 `-bkg_l` `--background_list`  
 Short names (gene symbols) of background genes to perform enrichment analysis on, e.g. NSUN3 POLRMT NLRX1.  
 Alternatively: use flag `--ensembl_background` to input a list of Ensembl gene IDs.  

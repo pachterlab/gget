@@ -29,6 +29,7 @@ conda install -c bioconda gget
 
 For use in Jupyter Lab / Google Colab:
 ```python
+# Python
 import gget
 ```
 # [🔗 Manual](https://pachterlab.github.io/gget) 

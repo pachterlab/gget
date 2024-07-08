@@ -106,6 +106,7 @@ gget.opentargets('ENSG00000169194', resource='diseases', limit=1)
 gget opentargets ENSG00000169194 -r drugs -l 2
 ```
 ```python
+# Python
 import gget
 gget.opentargets('ENSG00000169194', resource='drugs', limit=2)
 ```
@@ -126,6 +127,7 @@ gget.opentargets('ENSG00000169194', resource='drugs', limit=2)
 gget opentargets ENSG00000169194 -r tractability
 ```
 ```python
+# Python
 import gget
 gget.opentargets('ENSG00000169194', resource='tractability')
 ```
@@ -147,6 +149,7 @@ gget.opentargets('ENSG00000169194', resource='tractability')
 gget opentargets ENSG00000169194 -r pharmacogenetics -l 1
 ```
 ```python
+# Python
 import gget
 gget.opentargets('ENSG00000169194', resource='pharmacogenetics', limit=1)
 ```
@@ -166,6 +169,7 @@ gget.opentargets('ENSG00000169194', resource='pharmacogenetics', limit=1)
 gget opentargets ENSG00000169194 -r expression -l 2
 ```
 ```python
+# Python
 import gget
 gget.opentargets('ENSG00000169194', resource='expression', limit=2)
 ```
@@ -184,6 +188,7 @@ gget.opentargets('ENSG00000169194', resource='expression', limit=2)
 gget opentargets ENSG00000169194 -r depmap
 ```
 ```python
+# Python
 import gget
 gget.opentargets('ENSG00000169194', resource='depmap')
 ```
@@ -201,6 +206,7 @@ gget.opentargets('ENSG00000169194', resource='depmap')
 gget opentargets ENSG00000169194 -r interactions -l 2
 ```
 ```python
+# Python
 import gget
 gget.opentargets('ENSG00000169194', resource='interactions', limit=2)
 ```
@@ -219,6 +225,7 @@ gget.opentargets('ENSG00000169194', resource='interactions', limit=2)
 gget opentargets ENSG00000169194 -r interactions -fpa P35225 --filter_gene_b ENSG00000077238
 ```
 ```python
+# Python
 import gget
 gget.opentargets('ENSG00000169194', resource='interactions', filters={'protein_a_id': 'P35225', 'gene_b_id': 'ENSG00000077238'})
 ```
@@ -237,6 +244,7 @@ gget.opentargets('ENSG00000169194', resource='interactions', filters={'protein_a
 gget opentargets ENSG00000169194 -r interactions -fpa P35225 --filter_gene_b ENSG00000077238 ENSG00000111537 --or -l 5
 ```
 ```python
+# Python
 import gget
 gget.opentargets(
     'ENSG00000169194',
