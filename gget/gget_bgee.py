@@ -1,4 +1,5 @@
 import pandas as pd
+import json as json_
 
 import requests
 
@@ -7,12 +8,17 @@ from .utils import set_up_logger, json_list_to_df
 logger = set_up_logger()
 
 
-def _bgee_species(gene_id: str) -> int:
+def _bgee_species(gene_id: str, verbose: bool = True) -> int:
     """
     Get species ID from Bgee
     :param gene_id: Ensembl gene ID
+    :param verbose: log progress
     :return: species ID
     """
+
+    if verbose:
+        logger.info(f"Getting species ID for gene {gene_id} from Bgee")
+
     response = requests.get(
         "https://bgee.org/api/",
         params={
@@ -37,15 +43,26 @@ def _bgee_species(gene_id: str) -> int:
     return species
 
 
-def bgee_orthologs(gene_id: str) -> pd.DataFrame:
+def bgee_orthologs(
+    gene_id: str, json: bool = False, verbose: bool = True
+) -> pd.DataFrame | list[dict[str, ...]]:
     """
     Search for gene in Bgee
+
+    Args:
+
     :param gene_id: Ensembl gene ID
-    :return: DataFrame with orthologs
+    :param json:    return JSON instead of DataFrame
+    :param verbose: log progress
+
+    Returns requested information as a DataFrame or JSON
     """
 
     # must first obtain species
-    species = _bgee_species(gene_id)
+    species = _bgee_species(gene_id, verbose=verbose)
+
+    if verbose:
+        logger.info(f"Getting orthologs for gene {gene_id} from Bgee")
 
     # then obtain homologs
     response = requests.get(
@@ -68,7 +85,7 @@ def bgee_orthologs(gene_id: str) -> pd.DataFrame:
     homologs_data: list[dict[str, ...]] = response.json()["data"]["orthologsByTaxon"]
     homologs_data: list[dict[str, ...]] = sum([v["genes"] for v in homologs_data], [])
 
-    return json_list_to_df(
+    df = json_list_to_df(
         homologs_data,
         [
             ("gene_id", "geneId"),
@@ -79,15 +96,33 @@ def bgee_orthologs(gene_id: str) -> pd.DataFrame:
         ],
     )
 
+    if json:
+        return json_.loads(df.to_json(orient="records", force_ascii=False))
+    else:
+        return df
 
-def bgee_expression(gene_id: str) -> pd.DataFrame:
+
+def bgee_expression(
+    gene_id: str, json: bool = False, verbose: bool = True
+) -> pd.DataFrame | list[dict[str, ...]]:
     """
     Get expression data from Bgee
-    :param gene_id: Ensembl gene ID
-    :return: DataFrame with expression data
-    """
-    species = _bgee_species(gene_id)
 
+    Args:
+
+    :param gene_id: Ensembl gene ID
+    :param json:    return JSON instead of DataFrame
+    :param verbose: log progress
+
+    Returns requested information as a DataFrame or JSON
+    """
+    # must first obtain species
+    species = _bgee_species(gene_id, verbose=verbose)
+
+    if verbose:
+        logger.info(f"Getting expression data for gene {gene_id} from Bgee")
+
+    # then obtain expression data
     response = requests.get(
         "https://bgee.org/api/",
         params={
@@ -120,4 +155,8 @@ def bgee_expression(gene_id: str) -> pd.DataFrame:
         ],
     )
     df["score"] = df["score"].astype(float)
-    return df
+
+    if json:
+        return json_.loads(df.to_json(orient="records", force_ascii=False))
+    else:
+        return df
