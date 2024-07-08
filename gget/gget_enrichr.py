@@ -277,7 +277,7 @@ def enrichr(
         }
 
         request_background_id = requests.post(
-            POST_BACKGROUND_ID_ENRICHR_URL, files=args_dict_background
+            POST_BACKGROUND_ID_ENRICHR_URL, data=args_dict_background
         )
 
         if not request_background_id.ok:
@@ -294,11 +294,9 @@ def enrichr(
 
     # Submit query to Enrich using gene list and background genes list
     if not background_final:
-        query_string = f"?userListId={userListId}&backgroundType={database}"
-        r2 = requests.get(GET_ENRICHR_URL + query_string)
+        r2 = requests.get(GET_ENRICHR_URL, params={"userListId": userListId, "backgroundType": database})
     else:
-        query_string = f"?userListId={userListId}&backgroundid={background_list_id}&backgroundType={database}"
-        r2 = requests.post(GET_BACKGROUND_ENRICHR_URL + query_string)
+        r2 = requests.post(GET_BACKGROUND_ENRICHR_URL, params={"userListId": userListId, "backgroundid": background_list_id, "backgroundType": database})
 
     if not r2.ok:
         if background_final:
@@ -482,7 +480,7 @@ def enrichr(
         plt.tight_layout()
 
         if save:
-            fig.savefig(
+            plt.savefig(
                 "gget_enrichr_results.png",
                 dpi=300,
                 bbox_inches="tight",
