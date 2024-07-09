@@ -1967,14 +1967,21 @@ def main():
     parser_mutate.add_argument(
         "--update_df",
         default=False,
-        action="store_false",
+        action="store_true",
         required=False,
         help="Whether to update the input DataFrame with the mutated sequences and associated data (only if mutations is a csv/tsv). Default: False.",
     )
     parser_mutate.add_argument(
+        "--remove_overlapping_mutations",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Removes mutations where the mutated fragment has at least one k-mer that overlaps with the WT fragment in the same region. Default: False",
+    )
+    parser_mutate.add_argument(
         "--translate",
         default=None,
-        action="store_false",
+        action="store_true",
         required=False,
         help="Whether to translate the mutated sequences to amino acids. Default: False.",
     )
@@ -2474,6 +2481,7 @@ def main():
             verbose=args.quiet,
             minimum_kmer_length=args.minimum_kmer_length,
             update_df=args.update_df,
+            remove_overlapping_mutations=args.remove_overlapping_mutations,
             translate=args.translate,
             translate_start=args.translate_start,
             translate_end=args.translate_end

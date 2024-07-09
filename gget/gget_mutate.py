@@ -123,6 +123,20 @@ def translate_sequence(sequence, start, end):
 def remove_all_but_first_gt(line):
     return line[:1] + line[1:].replace(">", "")
 
+def wt_fragment_and_mutant_fragment_share_kmer(mutated_fragment: str, wildtype_fragment: str, k: int) -> bool:
+    if len(mutated_fragment) <= k:
+        if mutated_fragment in wildtype_fragment:
+            return True
+        else:
+            return False
+    else:
+        for mutant_position in range(len(mutated_fragment) - k):
+            mutant_kmer = mutated_fragment[mutant_position:mutant_position + k]
+            if mutant_kmer in wildtype_fragment:
+                # wt_position = wildtype_fragment.find(mutant_kmer)
+                return True
+        return False
+
 
 def add_mutation_type(mutations, mut_column):
     mutations["mutation_type_id"] = mutations[mut_column].str.extract(mutation_pattern)[
@@ -259,6 +273,7 @@ def mutate(
     verbose: bool = True,
     minimum_kmer_length: int | None = None,
     update_df: bool = False,
+    remove_overlapping_mutations: bool = False,
     translate: bool = False,
     translate_start: int | str | None = None,
     translate_end: int | str | None = None,
@@ -309,9 +324,10 @@ def mutate(
     - verbose       (True/False) whether to print progress information. Default: True
     - minimum_kmer_length (int) Minimum length of the mutant kmer required. Mutant kmers with a smaller length will be erased. Default: None
     - update_df     (True/False) Whether to update the input DataFrame with the mutated sequences and associated data (only if mutations is a csv/tsv). Default: False
+    - remove_overlapping_mutations:   (True/False) Removes mutations where the mutated fragment has at least one k-mer that overlaps with the WT fragment in the same region. Default: False
     - translate     (True/False) Whether to translate the mutated sequences to amino acids. Default: False
-    - translate_start (int) The position in the sequence to start translating (int or column). Only valid if --translate is set. Default: None (translate from the beginning of the sequence)
-    - translate_end (int)  The position in the sequence to stop translating (int or column). Only valid if --translate is set. Default: None (translate to the of the sequence)
+    - translate_start (int | str | None) The position in the sequence to start translating (int or column). Only valid if --translate is set. Default: None (translate from the beginning of the sequence)
+    - translate_end (int | str | None)  The position in the sequence to stop translating (int or column). Only valid if --translate is set. Default: None (translate to the of the sequence)
 
     For more information on the standard mutation annotation, see https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1867422/.
 
@@ -320,7 +336,7 @@ def mutate(
 
     global intronic_mutations, posttranslational_region_mutations, unknown_mutations, uncertain_mutations, ambiguous_position_mutations, cosmic_incorrect_wt_base, mut_idx_outside_seq
 
-    columns_to_keep = ["header", seq_id_column, "gene_name", "mutation_id", mut_column, "full_sequence", "mutant_sequence_full", "wt_sequence_kmer", "mutant_sequence_kmer"]
+    columns_to_keep = ["header", seq_id_column, "gene_name", "mutation_id", mut_column, "mutation_type", "full_sequence", "mutant_sequence_full", "wt_sequence_kmer", "mutant_sequence_kmer"]
 
     # Load input sequences and their identifiers from fasta file
     if "." in sequences:
@@ -430,9 +446,6 @@ def mutate(
             """
         )
 
-    # Get all mutation types
-    if verbose:
-        tqdm.pandas(desc="Extracting mutation types")
     mutations = add_mutation_type(mutations, mut_column)
 
     # Link sequences to their mutations using the sequence identifiers
@@ -549,6 +562,12 @@ def mutate(
     duplication_mask = mutations["mutation_type"] == "duplication"
     inversion_mask = mutations["mutation_type"] == "inversion"
 
+    if remove_overlapping_mutations:
+        logger.info(f"Removing {long_duplications} duplications > k")
+        mutations = mutations[~((duplication_mask) & ((mutations['end_mutation_position'] - mutations['start_mutation_position']) >= k))]
+
+        long_duplications = ((duplication_mask) & ((mutations["end_mutation_position"] - mutations["start_mutation_position"]) >= k)).sum()
+
     # Create a mask for all non-substitution mutations
     non_substitution_mask = (
         deletion_mask | delins_mask | insertion_mask | duplication_mask | inversion_mask
@@ -573,12 +592,19 @@ def mutate(
     mutations.loc[substitution_mask, "wt_nucleotides_cosmic"] = mutations[
         "actual_mutation"
     ].str[0]
-    comparison = mutations.loc[
-        substitution_mask, ["wt_nucleotides_cosmic", "wt_nucleotides_ensembl"]
-    ].dropna()
-    cosmic_incorrect_wt_base = (
-        comparison["wt_nucleotides_cosmic"] != comparison["wt_nucleotides_ensembl"]
-    ).sum()
+
+    congruent_wt_bases_mask = (
+        (mutations["wt_nucleotides_cosmic"] == mutations["wt_nucleotides_ensembl"]) |
+        mutations[["wt_nucleotides_cosmic", "wt_nucleotides_ensembl"]].isna().any(axis=1)
+    )
+    
+    cosmic_incorrect_wt_base = (~congruent_wt_bases_mask).sum()
+
+    mutations = mutations[congruent_wt_bases_mask]
+
+    if mutations.empty:
+        logger.warning("No valid mutations found in the input.")
+        return []
 
     # Adjust the start and end positions for insertions
     mutations.loc[
@@ -764,9 +790,21 @@ def mutate(
     ].apply(
         lambda row: row["left_flank_region"][row["updated_left_flank_start"] :]
         + row["mut_nucleotides"]
-        + row["right_flank_region"][: k - row["updated_right_flank_end"]],
+        + row["right_flank_region"][: len(row['right_flank_region']) - row["updated_right_flank_end"]],
         axis=1,
     )
+
+    if remove_overlapping_mutations:
+        if verbose:
+            tqdm.pandas(desc="Removing mutant fragments which share a kmer with wt fragments")
+
+        mutations['wt_fragment_and_mutant_fragment_share_kmer'] = mutations.mut_apply(lambda row: wt_fragment_and_mutant_fragment_share_kmer(mutated_fragment=row['mutant_sequence_kmer'], wildtype_fragment=row['wt_sequence_kmer'], k=k+1), axis=1)
+
+        mutations_overlapping_with_wt = mutations['wt_fragment_and_mutant_fragment_share_kmer'].sum()
+
+        mutations = mutations[~mutations['wt_fragment_and_mutant_fragment_share_kmer']]
+
+        
 
     # Create full sequences (substitution and non-substitution)
     mutations["mutant_sequence_full"] = (
@@ -815,21 +853,41 @@ def mutate(
     mutations["mutation_id"] = split_cols[1].fillna(mutations["mut_ID"])
 
     # Report status of mutations back to user
-    good_mutations = mutations.shape[0]
+    good_mutations = total_mutations - intronic_mutations - posttranslational_region_mutations - unknown_mutations - uncertain_mutations - ambiguous_position_mutations - cosmic_incorrect_wt_base - mut_idx_outside_seq
+
+    if remove_overlapping_mutations:
+        good_mutations -= long_duplications - mutations_overlapping_with_wt
+        summary_log 
 
     if good_mutations != total_mutations:
-        logger.warning(
-            f"""
-            {good_mutations} mutations correctly recorded ({good_mutations/total_mutations*100:.2f}%)
-            {intronic_mutations} intronic mutations found ({intronic_mutations/total_mutations*100:.2f}%)
-            {posttranslational_region_mutations} posttranslational region mutations found ({posttranslational_region_mutations/total_mutations*100:.2f}%)
-            {unknown_mutations} unknown mutations found ({unknown_mutations/total_mutations*100:.2f}%)
-            {uncertain_mutations} mutations with uncertain mutation found ({uncertain_mutations/total_mutations*100:.2f}%)
-            {ambiguous_position_mutations} mutations with ambiguous position found ({ambiguous_position_mutations/total_mutations*100:.2f}%)
-            {cosmic_incorrect_wt_base} mutations with incorrect wildtype base found ({cosmic_incorrect_wt_base/total_mutations*100:.2f}%)
-            {mut_idx_outside_seq} mutations with indices outside of the sequence length found ({mut_idx_outside_seq/total_mutations*100:.2f}%)
-            """
-        )
+        if remove_overlapping_mutations:
+            logger.warning(
+                f"""
+                {good_mutations} mutations correctly recorded ({good_mutations/total_mutations*100:.2f}%)
+                {intronic_mutations} intronic mutations found ({intronic_mutations/total_mutations*100:.2f}%)
+                {posttranslational_region_mutations} posttranslational region mutations found ({posttranslational_region_mutations/total_mutations*100:.2f}%)
+                {unknown_mutations} unknown mutations found ({unknown_mutations/total_mutations*100:.2f}%)
+                {uncertain_mutations} mutations with uncertain mutation found ({uncertain_mutations/total_mutations*100:.2f}%)
+                {ambiguous_position_mutations} mutations with ambiguous position found ({ambiguous_position_mutations/total_mutations*100:.2f}%)
+                {cosmic_incorrect_wt_base} mutations with incorrect wildtype base found ({cosmic_incorrect_wt_base/total_mutations*100:.2f}%)
+                {mut_idx_outside_seq} mutations with indices outside of the sequence length found ({mut_idx_outside_seq/total_mutations*100:.2f}%)
+                {long_duplications} duplications longer than k found ({long_duplications/total_mutations*100:.2f}%)
+                {mutations_overlapping_with_wt} mutations with overlapping kmers found ({mutations_overlapping_with_wt/total_mutations*100:.2f}%)
+                """
+            )
+        else:
+            logger.warning(
+                f"""
+                {good_mutations} mutations correctly recorded ({good_mutations/total_mutations*100:.2f}%)
+                {intronic_mutations} intronic mutations found ({intronic_mutations/total_mutations*100:.2f}%)
+                {posttranslational_region_mutations} posttranslational region mutations found ({posttranslational_region_mutations/total_mutations*100:.2f}%)
+                {unknown_mutations} unknown mutations found ({unknown_mutations/total_mutations*100:.2f}%)
+                {uncertain_mutations} mutations with uncertain mutation found ({uncertain_mutations/total_mutations*100:.2f}%)
+                {ambiguous_position_mutations} mutations with ambiguous position found ({ambiguous_position_mutations/total_mutations*100:.2f}%)
+                {cosmic_incorrect_wt_base} mutations with incorrect wildtype base found ({cosmic_incorrect_wt_base/total_mutations*100:.2f}%)
+                {mut_idx_outside_seq} mutations with indices outside of the sequence length found ({mut_idx_outside_seq/total_mutations*100:.2f}%)
+                """
+            )
     else:
         logger.info("All mutations correctly recorded")
 
