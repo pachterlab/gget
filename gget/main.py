@@ -1990,14 +1990,14 @@ def main():
         default=None,
         type=int,
         required=False,
-        help="The position in the sequence to start translating (int or column). Only valid if --translate is set. Default: None (translate from the beginning of the sequence).",
+        help="The position in the sequence to start translating (int or string of column name). Only valid if --translate is set. Default: None (translate from the beginning of the sequence).",
     )
     parser_mutate.add_argument(
         "--translate_end",
         default=None,
         type=int,
         required=False,
-        help="The position in the sequence to stop translating (int or column). Only valid if --translate is set. Default: None (translate to the of the sequence).",
+        help="The position in the sequence to stop translating (int or string of column name). Only valid if --translate is set. Default: None (translate to the of the sequence).",
     )
 
     ## opentargets parser arguments

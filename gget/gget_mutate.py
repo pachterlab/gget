@@ -326,8 +326,8 @@ def mutate(
     - update_df     (True/False) Whether to update the input DataFrame with the mutated sequences and associated data (only if mutations is a csv/tsv). Default: False
     - remove_overlapping_mutations:   (True/False) Removes mutations where the mutated fragment has at least one k-mer that overlaps with the WT fragment in the same region. Default: False
     - translate     (True/False) Whether to translate the mutated sequences to amino acids. Default: False
-    - translate_start (int | str | None) The position in the sequence to start translating (int or column). Only valid if --translate is set. Default: None (translate from the beginning of the sequence)
-    - translate_end (int | str | None)  The position in the sequence to stop translating (int or column). Only valid if --translate is set. Default: None (translate to the of the sequence)
+    - translate_start (int | str | None) The position in the sequence to start translating (int or string of column name). Only valid if --translate is set. Default: None (translate from the beginning of the sequence)
+    - translate_end (int | str | None)  The position in the sequence to stop translating (int or string of column name). Only valid if --translate is set. Default: None (translate to the of the sequence)
 
     For more information on the standard mutation annotation, see https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1867422/.
 
