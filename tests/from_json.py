@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import unittest
-from typing import Callable, Any, Optional
+from typing import Callable, Any, Optional, Union
 import pandas as pd
 import sys
 import json
@@ -50,7 +50,7 @@ _KNOWN_ERRORS = {
 }
 
 
-def do_call(func: Callable, args: dict[str, ...] | list[...]) -> Any:
+def do_call(func: Callable, args: Union[dict[str, ...], list[...]]) -> Any:
     if isinstance(args, dict):
         return func(**args)
     return func(*args)
