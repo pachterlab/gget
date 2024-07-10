@@ -325,7 +325,7 @@ def mutate(
     - minimum_kmer_length (int) Minimum length of the mutant kmer required. Mutant kmers with a smaller length will be erased. Default: None
     - update_df     (True/False) Whether to update the input DataFrame with the mutated sequences and associated data (only if mutations is a csv/tsv). Default: False
     - remove_overlapping_mutations:   (True/False) Removes mutations where the mutated fragment has at least one k-mer that overlaps with the WT fragment in the same region. Default: False
-    - translate     (True/False) Whether to translate the mutated sequences to amino acids. Default: False
+    - translate     (True/False) Translates the mutated sequences to amino acids. Default: False
     - translate_start (int | str | None) The position in the sequence to start translating (int or column). Only valid if --translate is set. Default: None (translate from the beginning of the sequence)
     - translate_end (int | str | None)  The position in the sequence to stop translating (int or column). Only valid if --translate is set. Default: None (translate to the of the sequence)
 
@@ -337,6 +337,9 @@ def mutate(
     global intronic_mutations, posttranslational_region_mutations, unknown_mutations, uncertain_mutations, ambiguous_position_mutations, cosmic_incorrect_wt_base, mut_idx_outside_seq
 
     columns_to_keep = ["header", seq_id_column, "gene_name", "mutation_id", mut_column, "mutation_type", "full_sequence", "mutant_sequence_full", "wt_sequence_kmer", "mutant_sequence_kmer"]
+
+    # from pdb import set_trace as st
+    # st()
 
     # Load input sequences and their identifiers from fasta file
     if "." in sequences:
@@ -563,10 +566,9 @@ def mutate(
     inversion_mask = mutations["mutation_type"] == "inversion"
 
     if remove_overlapping_mutations:
+        long_duplications = ((duplication_mask) & ((mutations["end_mutation_position"] - mutations["start_mutation_position"]) >= k)).sum()
         logger.info(f"Removing {long_duplications} duplications > k")
         mutations = mutations[~((duplication_mask) & ((mutations['end_mutation_position'] - mutations['start_mutation_position']) >= k))]
-
-        long_duplications = ((duplication_mask) & ((mutations["end_mutation_position"] - mutations["start_mutation_position"]) >= k)).sum()
 
     # Create a mask for all non-substitution mutations
     non_substitution_mask = (
@@ -798,7 +800,7 @@ def mutate(
         if verbose:
             tqdm.pandas(desc="Removing mutant fragments which share a kmer with wt fragments")
 
-        mutations['wt_fragment_and_mutant_fragment_share_kmer'] = mutations.mut_apply(lambda row: wt_fragment_and_mutant_fragment_share_kmer(mutated_fragment=row['mutant_sequence_kmer'], wildtype_fragment=row['wt_sequence_kmer'], k=k+1), axis=1)
+        mutations['wt_fragment_and_mutant_fragment_share_kmer'] = mut_apply(lambda row: wt_fragment_and_mutant_fragment_share_kmer(mutated_fragment=row['mutant_sequence_kmer'], wildtype_fragment=row['wt_sequence_kmer'], k=k+1), axis=1)
 
         mutations_overlapping_with_wt = mutations['wt_fragment_and_mutant_fragment_share_kmer'].sum()
 
@@ -821,7 +823,7 @@ def mutate(
     max_length = mutations["mutant_sequence_kmer_length"].max()
 
     # Create bins of width 5 from 0 to max_length
-    bins = range(0, max_length + 5, 5)
+    bins = range(0, max_length + 6, 5)
 
     # Bin the lengths and count the number of elements in each bin
     binned_lengths = pd.cut(
@@ -857,7 +859,6 @@ def mutate(
 
     if remove_overlapping_mutations:
         good_mutations -= long_duplications - mutations_overlapping_with_wt
-        summary_log 
 
     if good_mutations != total_mutations:
         if remove_overlapping_mutations:
