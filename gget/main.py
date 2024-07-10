@@ -2,6 +2,8 @@ import argparse
 import sys
 from datetime import datetime
 
+import pandas as pd
+
 # Get current date and time for alphafold default foldername
 dt_string = datetime.now().strftime("%Y_%m_%d-%H_%M")
 
@@ -35,6 +37,7 @@ from .gget_cosmic import cosmic
 from .gget_mutate import mutate
 from .gget_opentargets import opentargets, OPENTARGETS_RESOURCES
 from .gget_cbio import cbio_plot, cbio_search
+from .gget_bgee import bgee
 
 
 # Custom formatter for help messages that preserved the text formatting and adds the default value to the end of the help message
@@ -983,7 +986,17 @@ def main():
         help=(
             "'pathway', 'transcription', 'ontology', 'diseases_drugs', 'celltypes', 'kinase_interactions'"
             "or any database listed at: https://maayanlab.cloud/Enrichr/#libraries"
+            " or the species-specific libraries listed in the documentation"
         ),
+    )
+    parser_enrichr.add_argument(
+        "-s",
+        "--species",
+        type=str,
+        choices=["human", "mouse", "fly", "yeast", "worm", "fish"],
+        default="human",
+        required=False,
+        help="Enrichr variant to query. Default: 'human'.",
     )
     parser_enrichr.add_argument(
         "-bkg_l",
@@ -992,7 +1005,7 @@ def main():
         nargs="*",
         default=None,
         required=False,
-        help="List of gene names/Ensembl IDs to be used as background genes.",
+        help="List of gene names/Ensembl IDs to be used as background genes. ONLY SUPPORTED FOR HUMAN/MOUSE SPECIES",
     )
     parser_enrichr.add_argument(
         "-bkg",
@@ -1000,7 +1013,7 @@ def main():
         default=False,
         action="store_true",
         required=False,
-        help="If True, use set of >20,000 default background genes listed here: https://github.com/pachterlab/gget/blob/main/gget/constants/enrichr_bkg_genes.txt.",
+        help="If True, use set of >20,000 default background genes listed here: https://github.com/pachterlab/gget/blob/main/gget/constants/enrichr_bkg_genes.txt. ONLY SUPPORTED FOR HUMAN/MOUSE SPECIES",
     )
     parser_enrichr.add_argument(
         "-e",
@@ -2240,6 +2253,56 @@ def main():
         help="Show the plot in a window"
     )
 
+    ## bgee parser arguments
+    bgee_desc = "Query the Bgee database for orthology and gene expression data using Ensembl IDs."
+    parser_bgee = parent_subparsers.add_parser(
+        "bgee",
+        parents=[parent],
+        description=bgee_desc,
+        help=bgee_desc,
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
+    )
+    parser_bgee.add_argument(
+        "ens_id",
+        type=str,
+        help="Ensembl gene ID, e.g. ENSG00000169194 or ENSSSCG00000014725.",
+    )
+    parser_bgee.add_argument(
+        "-t",
+        "--type",
+        type=str,
+        choices=["orthologs", "expression"],
+        help="Type of information to be returned.",
+        required=True
+    )
+    parser_bgee.add_argument(
+        "-o",
+        "--out",
+        type=str,
+        required=False,
+        help=(
+            "Path to the file the results will be saved in, e.g. path/to/directory/results.json.\n"
+            "Default: Standard out."
+        ),
+    )
+    parser_bgee.add_argument(
+        "-csv",
+        "--csv",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Returns results in csv format instead of json.",
+    )
+    parser_bgee.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Does not print progress information.",
+    )
+
 
     ### Define return values
     args = parent_parser.parse_args()
@@ -2291,6 +2354,7 @@ def main():
         "mutate": parser_mutate,
         "opentargets": parser_opentargets,
         "cbio": parser_cbio,
+        "bgee": parser_bgee,
     }
 
     if len(sys.argv) == 2:
@@ -2880,6 +2944,7 @@ def main():
         # Submit Enrichr query
         enrichr_results = enrichr(
             genes=genes_clean_final,
+            species=args.species,
             background=args.background,
             background_list=bkg_genes_clean_final,
             database=args.database,
@@ -2892,7 +2957,7 @@ def main():
         )
 
         # Check if the function returned something
-        if not isinstance(enrichr_results, type(None)):
+        if enrichr_results is not None:
             # Save enrichr results if args.out specified
             if args.out and not args.csv:
                 # Create saving directory
@@ -3172,3 +3237,35 @@ def main():
                 figure_filename=args.filename,
                 figure_title=args.title,
             )
+
+    ## bgee return
+    if args.command == "bgee":
+        bgee_results: pd.DataFrame = bgee(
+            args.ens_id,
+            type=args.type,
+            verbose=args.quiet,
+        )
+
+        if args.out is not None and args.out != "":
+            # Make saving directory
+            directory = os.path.dirname(args.out)
+            if directory != "":
+                os.makedirs(directory, exist_ok=True)
+
+            # Save json
+            with open(args.out, "w", encoding="utf-8") as f:
+                if args.csv:
+                    bgee_results.to_csv(f, index=False)
+                else:
+                    bgee_results.to_json(
+                        f, orient="records", force_ascii=False, indent=4
+                    )
+        else:
+            if args.csv:
+                bgee_results.to_csv(sys.stdout, index=False)
+            else:
+                print(
+                    bgee_results.to_json(
+                        orient="records", force_ascii=False, indent=4
+                    )
+                )
