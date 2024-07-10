@@ -4,7 +4,7 @@ import json
 import math
 import os
 import subprocess
-from typing import Literal, TypeVar, Callable
+from typing import Literal, TypeVar, Callable, Union, Optional
 
 import pandas as pd
 import numpy as np
@@ -48,13 +48,13 @@ def _ints_between(
     else:
         step = int(math.ceil((end - start) / (max_count - 1)))
         if verbose:
-            print(f"Original step: {step}, {(end - start) % step=}")
-            print(f"{end - start=}")
+            print(f"Original step: {step}, (end - start) % step={(end - start) % step}")
+            print(f"end - start={end - start}")
         # check if it comes out even
         while ((end - start) / step) + 1 >= min_count and (end - start) % step != 0:
             step += 1
             if verbose:
-                print(f"New step: {step}, {(end - start) % step=}")
+                print(f"New step: {step}, (end - start) % step={(end - start) % step}")
         if (end - start) % step != 0:
             step = int(math.ceil((end - start) / (max_count - 1)))
             if verbose:
@@ -67,7 +67,7 @@ def _ints_between(
             out.append(current)
         out.append(end)
         if verbose:
-            print(f"{out=}")
+            print(f"out={out}")
         return out
 
 
@@ -177,7 +177,7 @@ class _LFSDownloadPlan:
 def download_cbioportal_data(
     study_ids: list[str],
     verbose: bool = False,
-    out_dir: str | None = None,
+    out_dir: Optional[str] = None,
     confirm_download: bool = False,
 ) -> bool:
     """
@@ -427,7 +427,7 @@ def _get_valid_ensembl_gene_id(
 
 
 def _get_valid_ensembl_gene_id_bulk(df: pd.DataFrame) -> Callable[[pd.Series, str, str], str]:
-    map_: dict[str, str] | None = None
+    map_: Optional[dict[str, str]] = None
 
     def f(row: pd.Series, transcript_column: str = "seq_ID", gene_column: str = "gene_name"):
         # logger.info(f"Row: {row}")
@@ -445,7 +445,7 @@ def _get_valid_ensembl_gene_id_bulk(df: pd.DataFrame) -> Callable[[pd.Series, st
     return f
 
 
-def _nested_defaultdict() -> defaultdict[_K, _V | defaultdict[_K]]:
+def _nested_defaultdict() -> defaultdict[_K, Union[_V, defaultdict[_K]]]:
     return defaultdict(_nested_defaultdict)
 
 
@@ -749,8 +749,8 @@ class _GeneAnalysis:
         stratification: Literal[
             "tissue", "cancer_type", "cancer_type_detailed", "study_id", "sample"
         ] = "tissue",
-        filter_category: str | None = None,
-        filter_value: str | None = None,
+        filter_category: Optional[str] = None,
+        filter_value: Optional[str] = None,
         variation_type: Literal[
             "mutation_occurrences",
             "cna_nonbinary",
@@ -760,8 +760,8 @@ class _GeneAnalysis:
         ] = "mutation_occurrences",
         dpi: int = 100,
         show: bool = False,
-        figure_filename: str | None = None,
-        figure_title: str | None = None
+        figure_filename: Optional[str] = None,
+        figure_title: Optional[str] = None
     ):
         if variation_type == "cna_nonbinary" or variation_type == "Consequence":
             assert (
@@ -996,7 +996,7 @@ class _GeneAnalysis:
             norm = TwoSlopeNorm(vmin=min_value, vcenter=0, vmax=max_value)
 
         elif variation_type == "Consequence":
-            consequences: list[str | float] = list(
+            consequences: list[Union[str, float]] = list(
                 self.big_combined_df["Consequence"].unique()
             )
 
@@ -1024,7 +1024,7 @@ class _GeneAnalysis:
             )
             levels = list(range(min_value, max_value))
 
-            string_to_int: dict[str | float, int] = {
+            string_to_int: dict[Union[str, float], int] = {
                 consequence: i for i, consequence in enumerate(consequences)
             }
 
@@ -1073,7 +1073,7 @@ class _GeneAnalysis:
 
         cbar = plt.colorbar(label=colorbar_label, ticks=levels)
 
-        labels: list[str | int] = levels.copy()
+        labels: list[Union[str, int]] = levels.copy()
         if nas_present:
             labels[0] = "NaN"
 
@@ -1150,19 +1150,19 @@ def cbio_plot(
         "cna_occurrences",
         "Consequence",
     ] = "mutation_occurrences",
-    filter_: tuple[str, str] | None = None,
+    filter_: Optional[tuple[str, str]] = None,
 
     merge_type: Literal["Ensembl", "Symbol"] = "Symbol",
     remove_non_ensembl_genes: bool = False,
 
     data_dir: str = "gget_cbio_cache",
     figure_dir: str = "gget_cbio_figures",
-    figure_filename: str | None = None,
+    figure_filename: Optional[str] = None,
     verbose: bool = True,
     confirm_download: bool = False,
     dpi: int = 100,
     show: bool = False,
-    figure_title: str | None = None,
+    figure_title: Optional[str] = None,
 ) -> bool:
     """
     Plot a heatmap of given genes in the given studies.

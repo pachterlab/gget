@@ -598,7 +598,7 @@ def mutate(
         (mutations["wt_nucleotides_cosmic"] == mutations["wt_nucleotides_ensembl"]) |
         mutations[["wt_nucleotides_cosmic", "wt_nucleotides_ensembl"]].isna().any(axis=1)
     )
-    
+
     cosmic_incorrect_wt_base = (~congruent_wt_bases_mask).sum()
 
     mutations = mutations[congruent_wt_bases_mask]
@@ -805,7 +805,7 @@ def mutate(
 
         mutations = mutations[~mutations['wt_fragment_and_mutant_fragment_share_kmer']]
 
-        
+
 
     # Create full sequences (substitution and non-substitution)
     mutations["mutant_sequence_full"] = (
@@ -858,7 +858,7 @@ def mutate(
 
     if remove_overlapping_mutations:
         good_mutations -= long_duplications - mutations_overlapping_with_wt
-        summary_log 
+        summary_log
 
     if good_mutations != total_mutations:
         if remove_overlapping_mutations:

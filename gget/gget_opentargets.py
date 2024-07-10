@@ -1,9 +1,9 @@
 import json as json_
 try:
-    from typing import Literal, Callable, Any, TypeAlias
+    from typing import Literal, Callable, Any, TypeAlias, Union, Optional
 except ImportError:
     from typing_extensions import Literal, TypeAlias
-    from typing import Callable, Any
+    from typing import Callable, Any, Union, Optional
 
 import pandas as pd
 
@@ -24,13 +24,13 @@ def opentargets(
         "depmap",
         "interactions",
     ] = "diseases",
-    limit: int | None = None,
+    limit: Optional[int] = None,
     verbose: bool = True,
     wrap_text: bool = False,
-    filters: dict[str, str | list[str]] | None = None,
+    filters: Optional[dict[str, Union[str, list[str]]]] = None,
     filter_mode: Literal["and", "or"] = "and",
     json: bool = False
-) -> pd.DataFrame | list[dict[str, ...]]:
+) -> Union[pd.DataFrame, list[dict[str, ...]]]:
     """
     Query OpenTargets for data associated with a given Ensembl gene ID.
 
@@ -87,7 +87,7 @@ def _limit_pagination() -> tuple[str, str, callable]:
     Limit is expressed as (page: {"index": 0, "size": limit}).
     """
 
-    def f(limit: int | None, is_rows_based_query: bool):
+    def f(limit: Optional[int], is_rows_based_query: bool):
         if limit is None:
             # special case because `None` is used to probe the total count
             if is_rows_based_query:
@@ -104,7 +104,7 @@ def _limit_size() -> tuple[str, str, callable]:
     Limit is expressed as (size: limit).
     """
 
-    def f(limit: int | None, is_rows_based_query: bool):
+    def f(limit: Optional[int], is_rows_based_query: bool):
         # special case because `None` is used to probe the total count
         if limit is None and is_rows_based_query:
             limit = 1
@@ -118,7 +118,7 @@ def _limit_not_supported() -> tuple[None, None, callable]:
     Limit is not supported for this resource (it has no GraphQL-support, and it is meaningless).
     """
 
-    def f(limit: int | None, _is_rows_based_query: bool):
+    def f(limit: Optional[int], _is_rows_based_query: bool):
         if limit is not None:
             raise ValueError("Limit is not supported for this resource.")
         return None
@@ -131,7 +131,7 @@ def _limit_deferred() -> tuple[None, None, callable]:
     Limit is handled after fetching the data (it is not supported by the GraphQL query, but does have meaning).
     """
 
-    def f(_limit: int | None, _is_rows_based_query: bool):
+    def f(_limit: Optional[int], _is_rows_based_query: bool):
         return None
 
     return None, None, f
@@ -192,7 +192,7 @@ def _mk_filter_applicator(id_key: dict[str, str]) -> tuple[set[str], _FilterAppl
     ) -> bool:
         for filter_id, filter_values in filters.items():
             split_key = id_key[filter_id].split(".")
-            actual_value: dict[str, ...] | list[dict[str, ...]] = row
+            actual_value: Union[dict[str, ...], list[dict[str, ...]]] = row
             for k in split_key:
                 if actual_value is None:
                     break
@@ -231,11 +231,11 @@ def _make_query_fun(
     wrap_columns: list[str],
     limit_func: callable,
     is_rows_based_query: bool = True,
-    sorter: Callable[[dict[str, ...]], Any] | None = None,
+    sorter: Optional[Callable[[dict[str, ...]], Any]] = None,
     sort_reverse: bool = False,
     filter_: Callable[[dict[str, ...]], bool] = lambda x: True,
     converter: Callable[[list[dict[str, ...]]], None] = lambda x: None,
-    user_filter: tuple[set[str], _FilterApplicator] | None = None,
+    user_filter: Optional[tuple[set[str], _FilterApplicator]] = None,
 ) -> callable:
     """
     Make a query function for OpenTargets API.
@@ -266,10 +266,10 @@ def _make_query_fun(
 
     def fun(
         ensembl_id: str,
-        limit: int | None = None,
+        limit: Optional[int] = None,
         verbose: bool = True,
         wrap_text: bool = False,
-        filters: dict[str, list[str]] | None = None,
+        filters: Optional[dict[str, list[str]]] = None,
         filter_mode: Literal["and", "or"] = "and",
     ) -> pd.DataFrame:
         if limit_key is None:
