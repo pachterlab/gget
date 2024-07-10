@@ -34,6 +34,17 @@ GET_ENRICHR_URL = "https://maayanlab.cloud/speedrichr/api/enrich"
 POST_BACKGROUND_ID_ENRICHR_URL = "https://maayanlab.cloud/speedrichr/api/addbackground"
 GET_BACKGROUND_ENRICHR_URL = "https://maayanlab.cloud/speedrichr/api/backgroundenrich"
 
+POST_ENRICHR_URLS = {
+    f"{typ}": f"https://maayanlab.cloud/{typ.capitalize()}Enrichr/addList"
+    for typ in ["fly", "yeast", "worm", "fish"]
+}
+POST_ENRICHR_URLS["human"] = POST_ENRICHR_URL
+GET_ENRICHR_URLS = {
+    f"{typ}": f"https://maayanlab.cloud/{typ.capitalize()}Enrichr/enrich"
+    for typ in ["fly", "yeast", "worm", "fish"]
+}
+GET_ENRICHR_URLS["human"] = GET_ENRICHR_URL
+
 # ARCHS4 API endpoints
 GENECORR_URL = "https://maayanlab.cloud/matrixapi/coltop"
 EXPRESSION_URL = "https://maayanlab.cloud/archs4/search/loadExpressionTissue.php?"
