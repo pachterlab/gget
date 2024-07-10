@@ -564,9 +564,9 @@ def mutate(
     inversion_mask = mutations["mutation_type"] == "inversion"
 
     if remove_overlapping_mutations:
-        mutations = mutations[~((duplication_mask) & ((mutations['end_mutation_position'] - mutations['start_mutation_position']) >= k))]
         long_duplications = ((duplication_mask) & ((mutations["end_mutation_position"] - mutations["start_mutation_position"]) >= k)).sum()
         logger.info(f"Removing {long_duplications} duplications > k")
+        mutations = mutations[~((duplication_mask) & ((mutations['end_mutation_position'] - mutations['start_mutation_position']) >= k))]
 
     # Create a mask for all non-substitution mutations
     non_substitution_mask = (
