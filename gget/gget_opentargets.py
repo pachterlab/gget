@@ -1,5 +1,9 @@
 import json as json_
-from typing import Literal, Callable, Any, TypeAlias
+try:
+    from typing import Literal, Callable, Any, TypeAlias
+except ImportError:
+    from typing_extensions import Literal, TypeAlias
+    from typing import Callable, Any
 
 import pandas as pd
 
