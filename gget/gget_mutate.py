@@ -263,20 +263,20 @@ def calculate_end_mutation_overlap_with_left_flank(row):
 
 
 def mutate(
-    sequences: str | list[str],
-    mutations: str | list[str],
+    sequences: Union[str, List[str]],
+    mutations: Union[str, List[str]],
     k: int = 30,
     mut_column: str = "mutation",
     mut_id_column: str = "mut_ID",
     seq_id_column: str = "seq_ID",
-    out: str | None = None,
+    out: Optional[str] = None,
     verbose: bool = True,
-    minimum_kmer_length: int | None = None,
+    minimum_kmer_length: Optional[int] = None,
     update_df: bool = False,
     remove_overlapping_mutations: bool = False,
     translate: bool = False,
-    translate_start: int | str | None = None,
-    translate_end: int | str | None = None,
+    translate_start: Union[int, str, None] = None,
+    translate_end: Union[int, str, None] = None,
 ):
     """
     Takes in nucleotide sequences and mutations (in standard mutation annotation - see below)
