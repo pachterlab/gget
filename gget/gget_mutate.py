@@ -3,6 +3,7 @@ import re
 from tqdm import tqdm
 import numpy as np
 import os
+from typing import Union, List, Optional
 
 tqdm.pandas()
 
@@ -263,20 +264,20 @@ def calculate_end_mutation_overlap_with_left_flank(row):
 
 
 def mutate(
-    sequences: str | list[str],
-    mutations: str | list[str],
+    sequences: Union[str, List[str]],
+    mutations: Union[str, List[str]],
     k: int = 30,
     mut_column: str = "mutation",
     mut_id_column: str = "mut_ID",
     seq_id_column: str = "seq_ID",
-    out: str | None = None,
+    out: Optional[str] = None,
     verbose: bool = True,
-    minimum_kmer_length: int | None = None,
+    minimum_kmer_length: Optional[int] = None,
     update_df: bool = False,
     remove_overlapping_mutations: bool = False,
     translate: bool = False,
-    translate_start: int | str | None = None,
-    translate_end: int | str | None = None,
+    translate_start: Union[int, str, None] = None,
+    translate_end: Union[int, str, None] = None,
 ):
     """
     Takes in nucleotide sequences and mutations (in standard mutation annotation - see below)
@@ -337,9 +338,6 @@ def mutate(
     global intronic_mutations, posttranslational_region_mutations, unknown_mutations, uncertain_mutations, ambiguous_position_mutations, cosmic_incorrect_wt_base, mut_idx_outside_seq
 
     columns_to_keep = ["header", seq_id_column, "gene_name", "mutation_id", mut_column, "mutation_type", "full_sequence", "mutant_sequence_full", "wt_sequence_kmer", "mutant_sequence_kmer"]
-
-    # from pdb import set_trace as st
-    # st()
 
     # Load input sequences and their identifiers from fasta file
     if "." in sequences:
@@ -599,7 +597,7 @@ def mutate(
         (mutations["wt_nucleotides_cosmic"] == mutations["wt_nucleotides_ensembl"]) |
         mutations[["wt_nucleotides_cosmic", "wt_nucleotides_ensembl"]].isna().any(axis=1)
     )
-    
+
     cosmic_incorrect_wt_base = (~congruent_wt_bases_mask).sum()
 
     mutations = mutations[congruent_wt_bases_mask]
@@ -806,7 +804,7 @@ def mutate(
 
         mutations = mutations[~mutations['wt_fragment_and_mutant_fragment_share_kmer']]
 
-        
+
 
     # Create full sequences (substitution and non-substitution)
     mutations["mutant_sequence_full"] = (

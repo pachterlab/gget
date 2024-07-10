@@ -1,6 +1,6 @@
 import pandas as pd
 import json as json_
-from typing import Literal
+from typing import Literal, List, Dict, Union
 
 import requests
 
@@ -46,7 +46,7 @@ def _bgee_species(gene_id: str, verbose: bool = True) -> int:
 
 def _bgee_orthologs(
     gene_id: str, json: bool = False, verbose: bool = True
-) -> pd.DataFrame | list[dict[str, ...]]:
+) -> Union[pd.DataFrame, List[Dict[str, object]]]:
     """
     Get orthologs for a gene from Bgee
 
@@ -105,7 +105,7 @@ def _bgee_orthologs(
 
 def _bgee_expression(
     gene_id: str, json: bool = False, verbose: bool = True
-) -> pd.DataFrame | list[dict[str, ...]]:
+) -> Union[pd.DataFrame, List[Dict[str, object]]]:
     """
     Get expression data from Bgee
 
@@ -169,7 +169,7 @@ def bgee(
     type: Literal["expression", "orthologs"],
     json: bool = False,
     verbose: bool = True,
-) -> pd.DataFrame | list[dict[str, ...]]:
+) -> Union[pd.DataFrame, List[Dict[str, object]]]:
     """
     Get orthologs/expression data for a gene from Bgee
 

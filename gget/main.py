@@ -1,6 +1,7 @@
 import argparse
 import sys
 from datetime import datetime
+from typing import Optional
 
 import pandas as pd
 
@@ -3174,7 +3175,7 @@ def main():
             "filter_protein_b": "protein_b_id",
             "filter_gene_b": "gene_b_id",
         }
-        filters: dict[str, list[str]] | None = {}
+        filters: Optional[dict[str, list[str]]] = {}
 
         for flag, filter_id in flag_to_filter_id.items():
             if getattr(args, flag) is not None:

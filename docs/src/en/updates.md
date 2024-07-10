@@ -1,10 +1,10 @@
 ## ✨ What's new  
-**Version ≥ 0.28.7** (XXX):  
+**Version ≥ 0.29.0** (XXX):  
 - **New modules: [`gget cbio`](cbio.md) and [`gget opentargets`](opentargets.md)**
 - [`gget mutate`](./mutate.md): Merge identical sequences in final file containing mutated sequences. Vectorized mutation creation for faster runtime. Improved flanking sequence check for non-substitution mutations.
 - [`gget cosmic`](./cosmic.md): Adding support for targeted and gene screens. Csv file created for gget mutate also contains protein mutation info.
 - [`gget ref`](./ref.md): Added out file option.
-- [`gget info`](./info.md) and [`gget seq`](./seq.md): Switch to Ensembl POST API to increase speed (nothing changes for user).
+- [`gget info`](./info.md) and [`gget seq`](./seq.md): Switch to Ensembl POST API to increase speed (nothing changes in front end).
 
 **Version ≥ 0.28.6** (Jun 2, 2024):  
 - **New module: [`gget mutate`](./mutate.md)**
