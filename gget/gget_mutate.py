@@ -831,8 +831,8 @@ def mutate(
 
     # Display the report
     if verbose:
-        logger.info("Report of the number of elements in each bin of width 5:")
-        logger.info(bin_counts)
+        logger.debug("Report of the number of elements in each bin of width 5:")
+        logger.debug(bin_counts)
 
     if minimum_kmer_length:
         if verbose:
