@@ -1986,7 +1986,14 @@ def main():
         help="Whether to update the input DataFrame with the mutated sequences and associated data (only if mutations is a csv/tsv). Default: False.",
     )
     parser_mutate.add_argument(
-        "--remove_overlapping_mutations",
+        "--optimize_flanking_regions",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Whether to create mutant fragments with mutations ± k (False, default) or remove nucleotides from either end as needed to ensure that the mutant fragment does not contain any kmers found in the WT fragment. Default: False",
+    )
+    parser_mutate.add_argument(
+        "--remove_mutations_with_wt_kmers",
         default=False,
         action="store_true",
         required=False,
@@ -2546,7 +2553,8 @@ def main():
             verbose=args.quiet,
             minimum_kmer_length=args.minimum_kmer_length,
             update_df=args.update_df,
-            remove_overlapping_mutations=args.remove_overlapping_mutations,
+            remove_mutations_with_wt_kmers=args.remove_mutations_with_wt_kmers,
+            optimize_flanking_regions=args.optimize_flanking_regions,
             translate=args.translate,
             translate_start=args.translate_start,
             translate_end=args.translate_end

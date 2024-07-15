@@ -274,7 +274,8 @@ def mutate(
     verbose: bool = True,
     minimum_kmer_length: Optional[int] = None,
     update_df: bool = False,
-    remove_overlapping_mutations: bool = False,
+    remove_mutations_with_wt_kmers: bool = False,
+    optimize_flanking_regions: bool = False,
     translate: bool = False,
     translate_start: Union[int, str, None] = None,
     translate_end: Union[int, str, None] = None,
@@ -325,7 +326,8 @@ def mutate(
     - verbose       (True/False) whether to print progress information. Default: True
     - minimum_kmer_length (int) Minimum length of the mutant kmer required. Mutant kmers with a smaller length will be erased. Default: None
     - update_df     (True/False) Whether to update the input DataFrame with the mutated sequences and associated data (only if mutations is a csv/tsv). Default: False
-    - remove_overlapping_mutations:   (True/False) Removes mutations where the mutated fragment has at least one k-mer that overlaps with the WT fragment in the same region. Default: False
+    - remove_mutations_with_wt_kmers:   (True/False) Removes mutations where the mutated fragment has at least one k-mer that overlaps with the WT fragment in the same region. Default: False
+    - optimize_flanking_regions: (True/False) Whether to create mutant fragments with mutations ± k (False, default) or remove nucleotides from either end as needed to ensure that the mutant fragment does not contain any kmers found in the WT fragment. Default: False
     - translate     (True/False) Translates the mutated sequences to amino acids. Default: False
     - translate_start (int | str | None) The position in the sequence to start translating (int or column). Only valid if --translate is set. Default: None (translate from the beginning of the sequence)
     - translate_end (int | str | None)  The position in the sequence to stop translating (int or column). Only valid if --translate is set. Default: None (translate to the of the sequence)
@@ -563,7 +565,7 @@ def mutate(
     duplication_mask = mutations["mutation_type"] == "duplication"
     inversion_mask = mutations["mutation_type"] == "inversion"
 
-    if remove_overlapping_mutations:
+    if remove_mutations_with_wt_kmers:
         long_duplications = ((duplication_mask) & ((mutations["end_mutation_position"] - mutations["start_mutation_position"]) >= k)).sum()
         logger.info(f"Removing {long_duplications} duplications > k")
         mutations = mutations[~((duplication_mask) & ((mutations['end_mutation_position'] - mutations['start_mutation_position']) >= k))]
@@ -718,47 +720,52 @@ def mutate(
     # To what extend the beginning of i overlaps with the beginning of d --> shave up to that many nucleotides off the beginning of r1 until k - len(r1) ≥ extent of overlap
     # To what extend the end of i overlaps with the beginning of d --> shave up to that many nucleotides off the end of r2 until k - len(r2) ≥ extent of overlap
 
-    # Apply the function for beginning of mut_nucleotides with right_flank_region
-    mutations.loc[
-        non_substitution_mask, "beginning_mutation_overlap_with_right_flank"
-    ] = mutations.loc[non_substitution_mask].apply(
-        calculate_beginning_mutation_overlap_with_right_flank, axis=1
-    )
-
-    # Apply the function for end of mut_nucleotides with left_flank_region
-    mutations.loc[non_substitution_mask, "end_mutation_overlap_with_left_flank"] = (
-        mutations.loc[non_substitution_mask].apply(
-            calculate_end_mutation_overlap_with_left_flank, axis=1
-        )
-    )
-
-    # Calculate k-len(flank) (see above instructions)
-    mutations.loc[non_substitution_mask, "k_minus_left_flank_length"] = (
-        k - mutations.loc[non_substitution_mask, "left_flank_region"].apply(len)
-    )
-    mutations.loc[non_substitution_mask, "k_minus_right_flank_length"] = (
-        k - mutations.loc[non_substitution_mask, "right_flank_region"].apply(len)
-    )
-
-    mutations.loc[non_substitution_mask, "updated_left_flank_start"] = np.maximum(
+    if optimize_flanking_regions:
+        # Apply the function for beginning of mut_nucleotides with right_flank_region
         mutations.loc[
             non_substitution_mask, "beginning_mutation_overlap_with_right_flank"
-        ]
-        - mutations.loc[non_substitution_mask, "k_minus_left_flank_length"],
-        0,
-    )
-    mutations.loc[non_substitution_mask, "updated_right_flank_end"] = np.maximum(
-        mutations.loc[non_substitution_mask, "end_mutation_overlap_with_left_flank"]
-        - mutations.loc[non_substitution_mask, "k_minus_right_flank_length"],
-        0,
-    )
+        ] = mutations.loc[non_substitution_mask].apply(
+            calculate_beginning_mutation_overlap_with_right_flank, axis=1
+        )
 
-    mutations["updated_left_flank_start"] = (
-        mutations["updated_left_flank_start"].fillna(0).astype(int)
-    )
-    mutations["updated_right_flank_end"] = (
-        mutations["updated_right_flank_end"].fillna(0).astype(int)
-    )
+        # Apply the function for end of mut_nucleotides with left_flank_region
+        mutations.loc[non_substitution_mask, "end_mutation_overlap_with_left_flank"] = (
+            mutations.loc[non_substitution_mask].apply(
+                calculate_end_mutation_overlap_with_left_flank, axis=1
+            )
+        )
+
+        # Calculate k-len(flank) (see above instructions)
+        mutations.loc[non_substitution_mask, "k_minus_left_flank_length"] = (
+            k - mutations.loc[non_substitution_mask, "left_flank_region"].apply(len)
+        )
+        mutations.loc[non_substitution_mask, "k_minus_right_flank_length"] = (
+            k - mutations.loc[non_substitution_mask, "right_flank_region"].apply(len)
+        )
+
+        mutations.loc[non_substitution_mask, "updated_left_flank_start"] = np.maximum(
+            mutations.loc[
+                non_substitution_mask, "beginning_mutation_overlap_with_right_flank"
+            ]
+            - mutations.loc[non_substitution_mask, "k_minus_left_flank_length"],
+            0,
+        )
+        mutations.loc[non_substitution_mask, "updated_right_flank_end"] = np.maximum(
+            mutations.loc[non_substitution_mask, "end_mutation_overlap_with_left_flank"]
+            - mutations.loc[non_substitution_mask, "k_minus_right_flank_length"],
+            0,
+        )
+
+        mutations["updated_left_flank_start"] = (
+            mutations["updated_left_flank_start"].fillna(0).astype(int)
+        )
+        mutations["updated_right_flank_end"] = (
+            mutations["updated_right_flank_end"].fillna(0).astype(int)
+        )
+
+    else:
+        mutations["updated_left_flank_start"] = 0
+        mutations["updated_right_flank_end"] = 0
 
     # Create WT substitution k-mer sequences
     mutations.loc[substitution_mask, "wt_sequence_kmer"] = (
@@ -794,7 +801,7 @@ def mutate(
         axis=1,
     )
 
-    if remove_overlapping_mutations:
+    if remove_mutations_with_wt_kmers:
         if verbose:
             tqdm.pandas(desc="Removing mutant fragments which share a kmer with wt fragments")
 
@@ -855,11 +862,11 @@ def mutate(
     # Report status of mutations back to user
     good_mutations = total_mutations - intronic_mutations - posttranslational_region_mutations - unknown_mutations - uncertain_mutations - ambiguous_position_mutations - cosmic_incorrect_wt_base - mut_idx_outside_seq
 
-    if remove_overlapping_mutations:
+    if remove_mutations_with_wt_kmers:
         good_mutations -= long_duplications - mutations_overlapping_with_wt
 
     if good_mutations != total_mutations:
-        if remove_overlapping_mutations:
+        if remove_mutations_with_wt_kmers:
             logger.warning(
                 f"""
                 {good_mutations} mutations correctly recorded ({good_mutations/total_mutations*100:.2f}%)

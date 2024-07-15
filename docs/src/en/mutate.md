@@ -66,8 +66,11 @@ Minimum length of the mutant kmer required. Mutant kmers with a smaller length w
 `--update_df`   
 Whether to update the input DataFrame with the mutated sequences and associated data (only if mutations is a csv/tsv). Default: False    
 
-`remove_overlapping_mutations`:   
+`remove_mutations_with_wt_kmers`:   
 Removes mutations where the mutated fragment has at least one k-mer that overlaps with the WT fragment in the same region. Default: False
+
+`optimize_flanking_regions`:
+Whether to create mutant fragments with mutations ± k (False, default) or remove nucleotides from either end as needed to ensure that the mutant fragment does not contain any kmers found in the WT fragment. Default: False
 
 `--translate`   
 Whether to translate the mutated sequences to amino acids. Default: False    
