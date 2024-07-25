@@ -1847,6 +1847,13 @@ def main():
         help="Do NOT create a modified version of the database for use with gget mutate (only for use with --download_cosmic).",
     )
     parser_cosmic.add_argument(
+        "--keep_genome_info",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Whether to keep genome information in the modified database for use with gget mutate. Default: False",
+    )
+    parser_cosmic.add_argument(
         "-o",
         "--out",
         type=str,
@@ -1998,6 +2005,13 @@ def main():
         action="store_true",
         required=False,
         help="Removes mutations where the mutated fragment has at least one k-mer that overlaps with the WT fragment in the same region. Default: False",
+    )
+    parser_mutate.add_argument(
+        "--hard_transcript_boundaries",
+        default=True,
+        action="store_true",
+        required=False,
+        help="If using the genome as a reference, this flag indicates whether to end the fragment at transcript boundaries (True) or to go beyond transcript boundaries into unexpressed regions (False). Default: True",
     )
     parser_mutate.add_argument(
         "--translate",
@@ -2555,6 +2569,7 @@ def main():
             update_df=args.update_df,
             remove_mutations_with_wt_kmers=args.remove_mutations_with_wt_kmers,
             optimize_flanking_regions=args.optimize_flanking_regions,
+            hard_transcript_boundaries=args.hard_transcript_boundaries,
             translate=args.translate,
             translate_start=args.translate_start,
             translate_end=args.translate_end
@@ -2578,6 +2593,7 @@ def main():
             cosmic_version=args.cosmic_version,
             grch_version=args.grch_version,
             gget_mutate=args.gget_mutate,
+            keep_genome_info=args.keep_genome_info,
             out=args.out,
             verbose=args.quiet,
         )

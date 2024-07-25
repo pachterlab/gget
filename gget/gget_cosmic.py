@@ -207,6 +207,7 @@ def cosmic(
     cosmic_version=None,
     grch_version=37,
     gget_mutate=True,
+    keep_genome_info=False,
     out=None,
     verbose=True,
 ):
@@ -248,7 +249,8 @@ def cosmic(
                       'cancer' (default), 'cell_line', 'census', 'resistance', 'genome_screen', 'targeted_screen', 'cancer_example'
     - cosmic_version  (int) Version of the COSMIC database. Default: None -> Defaults to latest version.
     - grch_version    (int) Version of the human GRCh reference genome the COSMIC database was based on (37 or 38). Default: 37
-    - gget_mutate     (True/False) whether to create a modified version of the database for use with gget mutate. Default: True
+    - gget_mutate     (True/False) Whether to create a modified version of the database for use with gget mutate. Default: True
+    - keep_genome_info  (True/False) Whether to keep genome information in the modified database for use with gget mutate. Default: False
 
     General args:
     - out             (str) Path to the file (or folder when downloading databases with the download_cosmic flag) the results will be saved in, e.g. 'path/to/results.json'.
@@ -319,6 +321,8 @@ def cosmic(
                     "Mutation CDS",
                     "Mutation AA"
                 ]
+                if keep_genome_info:
+                    relevant_cols.append('Mutation genome position GRCh37')
             else:
                 relevant_cols = [
                     "GENE_SYMBOL",
@@ -328,6 +332,8 @@ def cosmic(
                     "MUTATION_CDS",
                     "MUTATION_AA"
                 ]
+                if keep_genome_info:
+                    relevant_cols.append('HGVSG')
 
             df = pd.read_csv(mutation_tsv_file, usecols=relevant_cols, sep="\t")
 
@@ -342,6 +348,23 @@ def cosmic(
                         "Mutation AA": "mutation_aa",
                     }
                 )
+
+                if keep_genome_info:
+                    df[['CHROMOSOME', 'GENOME_POS']] = df['Mutation genome position GRCh37'].str.split(':', expand=True)
+                    df[['GENOME_START', 'GENOME_STOP']] = df['GENOME_POS'].str.split('-', expand=True)
+                    
+                    from .gget_mutate import mutation_pattern
+                    import numpy as np
+
+                    df[["nucleotide_positions", "actual_mutation"]] = df["mutation"].str.extract(mutation_pattern)
+
+                    df['mutation_genome'] = np.where(
+                        df['GENOME_START'] != df['GENOME_STOP'],
+                        'g.' + df['GENOME_START'].astype(str) + '_' + df['GENOME_STOP'].astype(str) + df['actual_mutation'],
+                        'g.' + df['GENOME_START'].astype(str) + df['actual_mutation']
+                    )
+
+                    df.drop(columns=['GENOME_POS', 'GENOME_START', 'GENOME_STOP', 'nucleotide_positions', 'actual_mutation', 'Mutation genome position GRCh37'], inplace=True)
             else:
                 df = df.rename(
                     columns={
@@ -349,6 +372,18 @@ def cosmic(
                         "TRANSCRIPT_ACCESSION": "seq_ID",
                         "MUTATION_CDS": "mutation",
                         "MUTATION_AA": "mutation_aa",
+                    }
+                )
+
+                if keep_genome_info:
+                    df['mutation_genome'] = df['HGVSG'].str.split(':').str[1]
+
+                    df.drop(columns=['HGVSG'], inplace=True)
+
+            if keep_genome_info:
+                df = df.rename(
+                    columns={
+                        "CHROMOSOME": "chromosome"
                     }
                 )
 

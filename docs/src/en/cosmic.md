@@ -54,6 +54,9 @@ Version of the COSMIC database. Default: None -> Defaults to latest version.
 `-gv` `--grch_version`  
 Version of the human GRCh reference genome the COSMIC database was based on (37 or 38). Default: 37  
 
+`--keep_genome_info`
+Whether to keep genome information in the modified database for use with gget mutate. Default: False
+
 **Optional arguments (general)**  
 `-o` `--out`   
 Path to the file (or folder when downloading databases with the `download_cosmic` flag) the results will be saved in, e.g. 'path/to/results.json'.  

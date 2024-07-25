@@ -20,7 +20,7 @@ ambiguous_position_mutations = 0
 cosmic_incorrect_wt_base = 0
 mut_idx_outside_seq = 0
 
-mutation_pattern = r"c\.([0-9_\-\+\*]+)([a-zA-Z>]+)"  # more complex: r'c\.([0-9_\-\+\*\(\)\?]+)([a-zA-Z>\(\)0-9]+)'
+mutation_pattern = r"(?:c|g)\.([0-9_\-\+\*]+)([a-zA-Z>]+)"  # more complex: r'c\.([0-9_\-\+\*\(\)\?]+)([a-zA-Z>\(\)0-9]+)'
 
 # Get complement
 complement = {
@@ -276,6 +276,7 @@ def mutate(
     update_df: bool = False,
     remove_mutations_with_wt_kmers: bool = False,
     optimize_flanking_regions: bool = False,
+    hard_transcript_boundaries: bool = True,
     translate: bool = False,
     translate_start: Union[int, str, None] = None,
     translate_end: Union[int, str, None] = None,
@@ -326,8 +327,9 @@ def mutate(
     - verbose       (True/False) whether to print progress information. Default: True
     - minimum_kmer_length (int) Minimum length of the mutant kmer required. Mutant kmers with a smaller length will be erased. Default: None
     - update_df     (True/False) Whether to update the input DataFrame with the mutated sequences and associated data (only if mutations is a csv/tsv). Default: False
-    - remove_mutations_with_wt_kmers:   (True/False) Removes mutations where the mutated fragment has at least one k-mer that overlaps with the WT fragment in the same region. Default: False
-    - optimize_flanking_regions: (True/False) Whether to create mutant fragments with mutations ± k (False, default) or remove nucleotides from either end as needed to ensure that the mutant fragment does not contain any kmers found in the WT fragment. Default: False
+    - remove_mutations_with_wt_kmers   (True/False) Removes mutations where the mutated fragment has at least one k-mer that overlaps with the WT fragment in the same region. Default: False
+    - optimize_flanking_regions (True/False) Whether to create mutant fragments with mutations ± k (False, default) or remove nucleotides from either end as needed to ensure that the mutant fragment does not contain any kmers found in the WT fragment. Default: False
+    - hard_transcript_boundaries     (True/False) If using the genome as a reference, this flag indicates whether to end the fragment at transcript boundaries (True) or to go beyond transcript boundaries into unexpressed regions (False). Default: True
     - translate     (True/False) Translates the mutated sequences to amino acids. Default: False
     - translate_start (int | str | None) The position in the sequence to start translating (int or column). Only valid if --translate is set. Default: None (translate from the beginning of the sequence)
     - translate_end (int | str | None)  The position in the sequence to stop translating (int or column). Only valid if --translate is set. Default: None (translate to the of the sequence)
@@ -339,7 +341,7 @@ def mutate(
 
     global intronic_mutations, posttranslational_region_mutations, unknown_mutations, uncertain_mutations, ambiguous_position_mutations, cosmic_incorrect_wt_base, mut_idx_outside_seq
 
-    columns_to_keep = ["header", seq_id_column, "gene_name", "mutation_id", mut_column, "mutation_type", "full_sequence", "mutant_sequence_full", "wt_sequence_kmer", "mutant_sequence_kmer"]
+    columns_to_keep = ["header", seq_id_column, "gene_name", "mutation_id", mut_column, "mutation_type", "full_sequence", "wt_sequence_kmer", "mutant_sequence_kmer"]
 
     # Load input sequences and their identifiers from fasta file
     if "." in sequences:
@@ -493,7 +495,7 @@ def mutate(
     # Calculate number of bad mutations
     uncertain_mutations = mutations["mutation"].str.contains(r"\?").sum()
 
-    ambiguous_position_mutations = mutations["mutation"].str.contains(r"\(").sum()
+    ambiguous_position_mutations = mutations["mutation"].str.contains(r"\(|\)").sum()
 
     intronic_mutations = mutations["mutation"].str.contains(r"\+|\-").sum()
 
@@ -664,26 +666,35 @@ def mutate(
         ["end_kmer_position_max", "sequence_length"]
     ].min(
         axis=1
-    )  # don't forget to increment by 1
+    )  # don't forget to increment by 1 later on
 
-    # Extract flank sequences
-    if verbose:
-        tqdm.pandas(desc="Extracting full left flank sequences")
-    
+    if hard_transcript_boundaries and 'start_transcript_position' in mutations.columns and 'end_transcript_position' in mutations.columns:
+        # adjust start_transcript_position to be 0-index
+        mutations["start_transcript_position"] -= 1
+        
+        mutations["start_kmer_position"] = mutations[["start_kmer_position", "start_transcript_position"]].max(axis=1)
+        mutations["end_kmer_position"] = mutations[["end_kmer_position", "end_transcript_position"]].min(axis=1)
+
     mut_apply = (lambda *args, **kwargs: mutations.progress_apply(*args, **kwargs)) if verbose else mutations.apply
-    mutations["left_flank_region_full"] = mut_apply(
-        lambda row: row["full_sequence"][0 : row["start_mutation_position"]], axis=1
-    )  # ? vectorize
 
-    if verbose:
-        tqdm.pandas(desc="Extracting full right flank sequences")
+    if update_df:
+        # Extract flank sequences
+        if verbose:
+            tqdm.pandas(desc="Extracting full left flank sequences")
+        
+        mutations["left_flank_region_full"] = mut_apply(
+            lambda row: row["full_sequence"][0 : row["start_mutation_position"]], axis=1
+        )  # ? vectorize
 
-    mutations["right_flank_region_full"] = mut_apply(
-        lambda row: row["full_sequence"][
-            row["end_mutation_position"] + 1 : row["sequence_length"] + 1
-        ],
-        axis=1,
-    )  # ? vectorize
+        if verbose:
+            tqdm.pandas(desc="Extracting full right flank sequences")
+
+        mutations["right_flank_region_full"] = mut_apply(
+            lambda row: row["full_sequence"][
+                row["end_mutation_position"] + 1 : row["sequence_length"]
+            ],
+            axis=1,
+        )  # ? vectorize
 
     if verbose:
         tqdm.pandas(desc="Extracting k-mer left flank sequences")
@@ -700,7 +711,7 @@ def mutate(
 
     mutations["right_flank_region"] = mut_apply(
         lambda row: row["full_sequence"][
-            row["end_mutation_position"] + 1 : row["end_kmer_position"] + 1
+            row["end_mutation_position"] + 1 : row["end_kmer_position"]
         ],
         axis=1,
     )  # ? vectorize
@@ -803,7 +814,7 @@ def mutate(
 
     if remove_mutations_with_wt_kmers:
         if verbose:
-            tqdm.pandas(desc="Removing mutant fragments which share a kmer with wt fragments")
+            tqdm.pandas(desc="Removing mutant fragments that share a kmer with wt fragments")
 
         mutations['wt_fragment_and_mutant_fragment_share_kmer'] = mut_apply(lambda row: wt_fragment_and_mutant_fragment_share_kmer(mutated_fragment=row['mutant_sequence_kmer'], wildtype_fragment=row['wt_sequence_kmer'], k=k+1), axis=1)
 
@@ -812,13 +823,15 @@ def mutate(
         mutations = mutations[~mutations['wt_fragment_and_mutant_fragment_share_kmer']]
 
 
+    if update_df:
+        columns_to_keep.append("mutant_sequence_full")
 
-    # Create full sequences (substitution and non-substitution)
-    mutations["mutant_sequence_full"] = (
-        mutations["left_flank_region_full"]
-        + mutations["mut_nucleotides"]
-        + mutations["right_flank_region_full"]
-    )
+        # Create full sequences (substitution and non-substitution)
+        mutations["mutant_sequence_full"] = (
+            mutations["left_flank_region_full"]
+            + mutations["mut_nucleotides"]
+            + mutations["right_flank_region_full"]
+        )
 
     # Calculate k-mer lengths and report the distribution
     mutations["mutant_sequence_kmer_length"] = mutations["mutant_sequence_kmer"].apply(
@@ -863,7 +876,7 @@ def mutate(
     good_mutations = total_mutations - intronic_mutations - posttranslational_region_mutations - unknown_mutations - uncertain_mutations - ambiguous_position_mutations - cosmic_incorrect_wt_base - mut_idx_outside_seq
 
     if remove_mutations_with_wt_kmers:
-        good_mutations -= long_duplications - mutations_overlapping_with_wt
+        good_mutations = good_mutations - long_duplications - mutations_overlapping_with_wt
 
     if good_mutations != total_mutations:
         if remove_mutations_with_wt_kmers:
@@ -897,7 +910,7 @@ def mutate(
     else:
         logger.info("All mutations correctly recorded")
 
-    if translate:
+    if translate and update_df:
         columns_to_keep.extend(["full_sequence_wt_aa", "full_sequence_mutant_aa"])
 
         if not mutations_path:
