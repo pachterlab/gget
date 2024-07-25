@@ -108,6 +108,22 @@ codon_to_amino_acid = {
     "GGG": "G",
 }
 
+def convert_value(val):
+    try:
+        # Try to convert the value to a float, then to an int, and finally to a string
+        return str(int(float(val)))
+    except ValueError:
+        # If conversion fails, keep the value as it is
+        return val
+        
+def get_sequence_length(seq_id, seq_dict):
+    return len(seq_dict.get(seq_id, ""))
+
+def get_nucleotide_at_position(seq_id, pos, seq_dict):
+    full_seq = seq_dict.get(seq_id, "")
+    if pos < len(full_seq):
+        return full_seq[pos]
+    return None
 
 def translate_sequence(sequence, start, end):
     amino_acid_sequence = ""
@@ -174,11 +190,11 @@ def add_mutation_type(mutations, mut_column):
     return mutations
 
 
-def extract_sequence(row):
+def extract_sequence(row, seq_dict, seq_id_column = "seq_ID"):
     if pd.isna(row["start_mutation_position"]) or pd.isna(row["end_mutation_position"]):
-        return None
-    seq = row["full_sequence"][
-        row["start_mutation_position"] : row["end_mutation_position"] + 1
+        return None    
+    seq = seq_dict[row[seq_id_column]][
+        int(row["start_mutation_position"]) : int(row["end_mutation_position"]) + 1
     ]
     return seq
 
@@ -277,6 +293,7 @@ def mutate(
     remove_mutations_with_wt_kmers: bool = False,
     optimize_flanking_regions: bool = False,
     hard_transcript_boundaries: bool = True,
+    store_full_sequences: bool = False,
     translate: bool = False,
     translate_start: Union[int, str, None] = None,
     translate_end: Union[int, str, None] = None,
@@ -330,6 +347,7 @@ def mutate(
     - remove_mutations_with_wt_kmers   (True/False) Removes mutations where the mutated fragment has at least one k-mer that overlaps with the WT fragment in the same region. Default: False
     - optimize_flanking_regions (True/False) Whether to create mutant fragments with mutations ± k (False, default) or remove nucleotides from either end as needed to ensure that the mutant fragment does not contain any kmers found in the WT fragment. Default: False
     - hard_transcript_boundaries     (True/False) If using the genome as a reference, this flag indicates whether to end the fragment at transcript boundaries (True) or to go beyond transcript boundaries into unexpressed regions (False). Default: True
+    - store_full_sequences: (True/False) Whether to store full sequence with update_df. Default: False
     - translate     (True/False) Translates the mutated sequences to amino acids. Default: False
     - translate_start (int | str | None) The position in the sequence to start translating (int or column). Only valid if --translate is set. Default: None (translate from the beginning of the sequence)
     - translate_end (int | str | None)  The position in the sequence to stop translating (int or column). Only valid if --translate is set. Default: None (translate to the of the sequence)
@@ -341,7 +359,7 @@ def mutate(
 
     global intronic_mutations, posttranslational_region_mutations, unknown_mutations, uncertain_mutations, ambiguous_position_mutations, cosmic_incorrect_wt_base, mut_idx_outside_seq
 
-    columns_to_keep = ["header", seq_id_column, "gene_name", "mutation_id", mut_column, "mutation_type", "full_sequence", "wt_sequence_kmer", "mutant_sequence_kmer"]
+    columns_to_keep = ["header", seq_id_column, "gene_name", "mutation_id", mut_column, "mutation_type", "wt_sequence_kmer", "mutant_sequence_kmer"]
 
     # Load input sequences and their identifiers from fasta file
     if "." in sequences:
@@ -451,17 +469,33 @@ def mutate(
             """
         )
 
+    number_of_missing_seq_ids = mutations[seq_id_column].isna().sum()
+
+    if number_of_missing_seq_ids > 0:
+        logger.warning(
+            f"""
+            {number_of_missing_seq_ids} rows in 'mutations' are missing sequence IDs. These rows will be dropped from the analysis.
+            """
+        )
+
+        # Drop rows with missing sequence IDs
+        mutations = mutations.dropna(subset=[seq_id_column])
+
+    # ensure seq_ID column is string type, and chromosome numbers don't have decimals
+    mutations[seq_id_column] = mutations[seq_id_column].apply(convert_value)
+
     mutations = add_mutation_type(mutations, mut_column)
 
     # Link sequences to their mutations using the sequence identifiers
-    mutations["full_sequence"] = mutations[seq_id_column].map(seq_dict)
+    if store_full_sequences:
+        mutations["full_sequence"] = mutations[seq_id_column].map(seq_dict)
 
     # Handle sequences that were not found based on their sequence IDs
-    seqs_not_found = mutations[mutations["full_sequence"].isnull()]
+    seqs_not_found = mutations[~mutations[seq_id_column].isin(seq_dict.keys())]
     if 0 < len(seqs_not_found) < 20:
         logger.warning(
             f"""
-            The sequences with the following {len(seqs_not_found)} sequence ID(s) were not found: {", ".join(seqs_not_found["seq_ID"].values)}  
+            The sequences with the following {len(seqs_not_found)} sequence ID(s) were not found: {", ".join(seqs_not_found[seq_id_column].values)}  
             These sequences and their corresponding mutations will not be included in the output.  
             Ensure that the sequence IDs correspond to the string following the > character in the 'sequences' fasta file (do NOT include spaces or dots).
             """
@@ -543,7 +577,7 @@ def mutate(
     mutations["end_mutation_position"] -= 1  # don't forget to increment by 1 later
 
     # Calculate sequence length
-    mutations["sequence_length"] = mutations["full_sequence"].apply(len)
+    mutations["sequence_length"] = mutations[seq_id_column].apply(lambda x: get_sequence_length(x, seq_dict))
 
     # Filter out mutations with positions outside the sequence
     index_error_mask = (
@@ -579,14 +613,13 @@ def mutate(
 
     # Extract the WT nucleotides for the substitution rows from reference fasta (i.e., Ensembl)
     start_positions = mutations.loc[substitution_mask, "start_mutation_position"].values
-    wt_nucleotides_substitution = np.array(
-        [
-            seq[pos]
-            for seq, pos in zip(
-                mutations.loc[substitution_mask, "full_sequence"], start_positions
-            )
-        ]
-    )
+    
+    # Get the nucleotides at the start positions
+    wt_nucleotides_substitution = np.array([
+        get_nucleotide_at_position(seq_id, pos, seq_dict)
+        for seq_id, pos in zip(mutations.loc[substitution_mask, seq_id_column], start_positions)
+    ])
+
     mutations.loc[substitution_mask, "wt_nucleotides_ensembl"] = (
         wt_nucleotides_substitution
     )
@@ -621,7 +654,7 @@ def mutate(
     # Extract the WT nucleotides for the non-substitution rows from the Mutation CDS (i.e., COSMIC)
     mutations.loc[non_substitution_mask, "wt_nucleotides_ensembl"] = mutations.loc[
         non_substitution_mask
-    ].apply(extract_sequence, axis=1)
+    ].apply(lambda row: extract_sequence(row, seq_dict, seq_id_column), axis=1)
 
     # Apply mutations to the sequences
     mutations["mut_nucleotides"] = None
@@ -677,20 +710,20 @@ def mutate(
 
     mut_apply = (lambda *args, **kwargs: mutations.progress_apply(*args, **kwargs)) if verbose else mutations.apply
 
-    if update_df:
+    if update_df and store_full_sequences:
         # Extract flank sequences
         if verbose:
             tqdm.pandas(desc="Extracting full left flank sequences")
         
         mutations["left_flank_region_full"] = mut_apply(
-            lambda row: row["full_sequence"][0 : row["start_mutation_position"]], axis=1
+            lambda row: seq_dict[row[seq_id_column]][0 : row["start_mutation_position"]], axis=1
         )  # ? vectorize
 
         if verbose:
             tqdm.pandas(desc="Extracting full right flank sequences")
 
         mutations["right_flank_region_full"] = mut_apply(
-            lambda row: row["full_sequence"][
+            lambda row: seq_dict[row[seq_id_column]][
                 row["end_mutation_position"] + 1 : row["sequence_length"]
             ],
             axis=1,
@@ -700,7 +733,7 @@ def mutate(
         tqdm.pandas(desc="Extracting k-mer left flank sequences")
 
     mutations["left_flank_region"] = mut_apply(
-        lambda row: row["full_sequence"][
+        lambda row: seq_dict[row[seq_id_column]][
             row["start_kmer_position"] : row["start_mutation_position"]
         ],
         axis=1,
@@ -710,7 +743,7 @@ def mutate(
         tqdm.pandas(desc="Extracting k-mer right flank sequences")
 
     mutations["right_flank_region"] = mut_apply(
-        lambda row: row["full_sequence"][
+        lambda row: seq_dict[row[seq_id_column]][
             row["end_mutation_position"] + 1 : row["end_kmer_position"]
         ],
         axis=1,
@@ -823,8 +856,8 @@ def mutate(
         mutations = mutations[~mutations['wt_fragment_and_mutant_fragment_share_kmer']]
 
 
-    if update_df:
-        columns_to_keep.append("mutant_sequence_full")
+    if update_df and store_full_sequences:
+        columns_to_keep.extend(["full_sequence", "mutant_sequence_full"])
 
         # Create full sequences (substitution and non-substitution)
         mutations["mutant_sequence_full"] = (
@@ -910,7 +943,7 @@ def mutate(
     else:
         logger.info("All mutations correctly recorded")
 
-    if translate and update_df:
+    if translate and update_df and store_full_sequences:
         columns_to_keep.extend(["full_sequence_wt_aa", "full_sequence_mutant_aa"])
 
         if not mutations_path:

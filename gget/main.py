@@ -2014,6 +2014,13 @@ def main():
         help="If using the genome as a reference, this flag indicates whether to end the fragment at transcript boundaries (True) or to go beyond transcript boundaries into unexpressed regions (False). Default: True",
     )
     parser_mutate.add_argument(
+        "--store_full_sequences",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Whether to store full sequences with update_df. Default: False",
+    )
+    parser_mutate.add_argument(
         "--translate",
         default=None,
         action="store_true",
@@ -2570,6 +2577,7 @@ def main():
             remove_mutations_with_wt_kmers=args.remove_mutations_with_wt_kmers,
             optimize_flanking_regions=args.optimize_flanking_regions,
             hard_transcript_boundaries=args.hard_transcript_boundaries,
+            store_full_sequences=args.store_full_sequences,
             translate=args.translate,
             translate_start=args.translate_start,
             translate_end=args.translate_end

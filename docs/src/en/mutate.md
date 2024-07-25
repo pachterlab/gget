@@ -75,6 +75,9 @@ Whether to create mutant fragments with mutations ± k (False, default) or remov
 `--hard_transcript_boundaries`:
 If using the genome as a reference, this flag indicates whether to end the fragment at transcript boundaries (True) or to go beyond transcript boundaries into unexpressed regions (False). Default: True
 
+`--store_full_sequences`:
+Whether to store full sequences with update_df. Default: False
+
 `--translate`   
 Whether to translate the mutated sequences to amino acids. Default: False    
 
