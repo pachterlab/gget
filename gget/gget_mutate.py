@@ -527,22 +527,22 @@ def mutate(
     )
 
     # Calculate number of bad mutations
-    uncertain_mutations = mutations["mutation"].str.contains(r"\?").sum()
+    uncertain_mutations = mutations[mut_column].str.contains(r"\?").sum()
 
-    ambiguous_position_mutations = mutations["mutation"].str.contains(r"\(|\)").sum()
+    ambiguous_position_mutations = mutations[mut_column].str.contains(r"\(|\)").sum()
 
-    intronic_mutations = mutations["mutation"].str.contains(r"\+|\-").sum()
+    intronic_mutations = mutations[mut_column].str.contains(r"\+|\-").sum()
 
-    posttranslational_region_mutations = mutations["mutation"].str.contains(r"\*").sum()
+    posttranslational_region_mutations = mutations[mut_column].str.contains(r"\*").sum()
 
     # Filter out bad mutations
     combined_pattern = re.compile(r"(\?|\(|\)|\+|\-|\*)")
-    mask = mutations["mutation"].str.contains(combined_pattern)
+    mask = mutations[mut_column].str.contains(combined_pattern)
     mutations = mutations[~mask]
 
     # Extract nucleotide positions and mutation info from Mutation CDS
     mutations[["nucleotide_positions", "actual_mutation"]] = mutations[
-        "mutation"
+        mut_column
     ].str.extract(mutation_pattern)
 
     # Filter out mutations that did not match the re
@@ -614,7 +614,6 @@ def mutate(
     # Extract the WT nucleotides for the substitution rows from reference fasta (i.e., Ensembl)
     start_positions = mutations.loc[substitution_mask, "start_mutation_position"].values
     
-    #!!! PROBLEM???
     # Get the nucleotides at the start positions
     wt_nucleotides_substitution = np.array([
         get_nucleotide_at_position(seq_id, pos, seq_dict)
@@ -897,14 +896,14 @@ def mutate(
             mutations["mutant_sequence_kmer_length"] >= minimum_kmer_length
         ]
 
-    split_cols = mutations["mut_ID"].str.split("_", n=1, expand=True)
+    split_cols = mutations[mut_id_column].str.split("_", n=1, expand=True)
 
     if split_cols.shape[1] == 1:
         split_cols[1] = None
 
     # Extract gene name and mutation ID from mut_ID column (based on formatting of gget cosmic)
     mutations["gene_name"] = split_cols[0]
-    mutations["mutation_id"] = split_cols[1].fillna(mutations["mut_ID"])
+    mutations["mutation_id"] = split_cols[1].fillna(mutations[mut_id_column])
 
     # Report status of mutations back to user
     good_mutations = total_mutations - intronic_mutations - posttranslational_region_mutations - unknown_mutations - uncertain_mutations - ambiguous_position_mutations - cosmic_incorrect_wt_base - mut_idx_outside_seq
