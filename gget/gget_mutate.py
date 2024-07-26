@@ -614,6 +614,7 @@ def mutate(
     # Extract the WT nucleotides for the substitution rows from reference fasta (i.e., Ensembl)
     start_positions = mutations.loc[substitution_mask, "start_mutation_position"].values
     
+    #!!! PROBLEM???
     # Get the nucleotides at the start positions
     wt_nucleotides_substitution = np.array([
         get_nucleotide_at_position(seq_id, pos, seq_dict)
@@ -744,7 +745,7 @@ def mutate(
 
     mutations["right_flank_region"] = mut_apply(
         lambda row: seq_dict[row[seq_id_column]][
-            row["end_mutation_position"] + 1 : row["end_kmer_position"]
+            row["end_mutation_position"] + 1 : row["end_kmer_position"] + 1
         ],
         axis=1,
     )  # ? vectorize
