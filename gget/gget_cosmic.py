@@ -316,24 +316,23 @@ def cosmic(
                 relevant_cols = [
                     "GENE_NAME",
                     "ACCESSION_NUMBER",
-                    "GENOMIC_MUTATION_ID",
                     "MUTATION_URL",
                     "Mutation CDS",
                     "Mutation AA"
                 ]
                 if keep_genome_info:
-                    relevant_cols.append('Mutation genome position GRCh37')
+                    relevant_cols.extend(['Mutation genome position GRCh37', 'GENOMIC_WT_ALLELE_SEQ','GENOMIC_MUT_ALLELE_SEQ', 'GENOMIC_MUTATION_ID'])    #!!! ERASE
+                    # relevant_cols.extend(['Mutation genome position GRCh37', 'GENOMIC_MUTATION_ID'])    #!!! UNCOMMENT
             else:
                 relevant_cols = [
                     "GENE_SYMBOL",
                     "TRANSCRIPT_ACCESSION",
-                    "GENOMIC_MUTATION_ID",
                     "MUTATION_ID",
                     "MUTATION_CDS",
                     "MUTATION_AA"
                 ]
                 if keep_genome_info:
-                    relevant_cols.append('HGVSG')
+                    relevant_cols.extend(['HGVSG', 'STRAND', 'GENOMIC_MUTATION_ID'])
 
             df = pd.read_csv(mutation_tsv_file, usecols=relevant_cols, sep="\t")
 
@@ -349,22 +348,68 @@ def cosmic(
                     }
                 )
 
-                if keep_genome_info:
-                    df[['CHROMOSOME', 'GENOME_POS']] = df['Mutation genome position GRCh37'].str.split(':', expand=True)
+                if keep_genome_info:  
+                    #!!! UNCOMMENT
+                    # df = df.rename(
+                    #     columns={
+                    #         "Mutation genome position GRCh37": "position_genome",
+                    #     }
+                    # )
+
+                    #!!! ERASE
+                    df[['chromosome', 'GENOME_POS']] = df['Mutation genome position GRCh37'].str.split(':', expand=True)
                     df[['GENOME_START', 'GENOME_STOP']] = df['GENOME_POS'].str.split('-', expand=True)
-                    
-                    from .gget_mutate import mutation_pattern
+
+                    from gget.gget_mutate import mutation_pattern
                     import numpy as np
 
                     df[["nucleotide_positions", "actual_mutation"]] = df["mutation"].str.extract(mutation_pattern)
 
-                    df['mutation_genome'] = np.where(
-                        df['GENOME_START'] != df['GENOME_STOP'],
-                        'g.' + df['GENOME_START'].astype(str) + '_' + df['GENOME_STOP'].astype(str) + df['actual_mutation'],
-                        'g.' + df['GENOME_START'].astype(str) + df['actual_mutation']
+                    sub_mask = df['actual_mutation'].str.contains('>')
+                    ins_mask = (df['actual_mutation'].str.contains('ins')) & (~df['actual_mutation'].str.contains('delins')) 
+                    delins_mask = df['actual_mutation'].str.contains('delins')
+                    ins_delins_mask = ins_mask | delins_mask
+                    sub_ins_delins_mask = sub_mask | ins_delins_mask
+
+                    df.loc[sub_mask, 'wt_allele_cds'] = df.loc[sub_mask, 'actual_mutation'].str.split('>').str[0]
+                    df.loc[sub_mask, 'mut_allele_cds'] = df.loc[sub_mask, 'actual_mutation'].str.split('>').str[1]
+
+                    df.loc[ins_delins_mask, 'mut_allele_cds'] = df.loc[ins_delins_mask, 'actual_mutation'].str.extract(r'ins(.+)')[0]
+
+                    df['strand'] = np.nan
+
+                    df.loc[sub_ins_delins_mask, 'strand'] = np.where(
+                        pd.isna(df.loc[sub_ins_delins_mask, 'GENOMIC_MUT_ALLELE_SEQ']),
+                        np.nan,
+                        np.where(
+                            df.loc[sub_ins_delins_mask, 'mut_allele_cds'] != df.loc[sub_ins_delins_mask, 'GENOMIC_MUT_ALLELE_SEQ'],
+                            '-',
+                            '+'
+                        )
                     )
 
-                    df.drop(columns=['GENOME_POS', 'GENOME_START', 'GENOME_STOP', 'nucleotide_positions', 'actual_mutation', 'Mutation genome position GRCh37'], inplace=True)
+                    df.loc[sub_mask, 'actual_mutation_updated'] = df.loc[sub_mask, 'GENOMIC_WT_ALLELE_SEQ'] + '>' + df.loc[sub_mask, 'GENOMIC_MUT_ALLELE_SEQ']
+                    df.loc[ins_mask, 'actual_mutation_updated'] = 'ins' + df.loc[ins_mask, 'GENOMIC_MUT_ALLELE_SEQ']
+                    df.loc[delins_mask, 'actual_mutation_updated'] = 'delins' + df.loc[delins_mask, 'GENOMIC_MUT_ALLELE_SEQ']
+
+                    df.loc[~sub_ins_delins_mask, 'actual_mutation_final'] = df.loc[~sub_ins_delins_mask, 'actual_mutation']
+
+                    df.loc[sub_ins_delins_mask, 'actual_mutation_final'] = np.where(
+                        pd.isna(df.loc[sub_ins_delins_mask, 'strand']),
+                        np.nan,
+                        np.where(df.loc[sub_ins_delins_mask, 'strand'] == '+', df.loc[sub_ins_delins_mask, 'actual_mutation'], df.loc[sub_ins_delins_mask, 'actual_mutation_updated'])
+                    )
+
+                    df['mutation_genome'] = np.where(
+                        df['GENOME_START'] != df['GENOME_STOP'],
+                        'g.' + df['GENOME_START'].astype(str) + '_' + df['GENOME_STOP'].astype(str) + df['actual_mutation_final'],
+                        'g.' + df['GENOME_START'].astype(str) + df['actual_mutation_final']
+                    )
+
+                    df.loc[df['Mutation genome position GRCh37'].isna(), 'mutation_genome'] = np.nan
+
+                    df.drop(columns=['GENOME_POS', 'GENOME_START', 'GENOME_STOP', 'nucleotide_positions', 'actual_mutation', 'actual_mutation_updated', 'actual_mutation_final', 'Mutation genome position GRCh37', 'wt_allele_cds', 'mut_allele_cds', 'GENOMIC_WT_ALLELE_SEQ', 'GENOMIC_MUT_ALLELE_SEQ'], inplace=True)
+
             else:
                 df = df.rename(
                     columns={
@@ -380,31 +425,20 @@ def cosmic(
 
                     df.drop(columns=['HGVSG'], inplace=True)
 
-            if keep_genome_info:
-                df = df.rename(
-                    columns={
-                        "CHROMOSOME": "chromosome"
-                    }
-                )
+                    df = df.rename(
+                        columns={
+                            "CHROMOSOME": "chromosome",
+                            "STRAND": "strand",
+                        }
+                    )
 
             # Remove version numbers from Ensembl IDs
             df["seq_ID"] = df["seq_ID"].str.split(".").str[0]
 
-            # Get mut_ID column (by combining GENE_NAME, GENOMIC_MUTATION_ID and MUTATION_URL/MUTATION_ID)
-            df["GENE_NAME"] = df["GENE_NAME"].astype(str)
-            df["GENOMIC_MUTATION_ID"] = df["GENOMIC_MUTATION_ID"].fillna("NA")
-            df["GENOMIC_MUTATION_ID"] = df["GENOMIC_MUTATION_ID"].astype(str)
-            df["MUTATION_ID"] = df["MUTATION_ID"].astype(str)
+            df["gene_name"] = df["GENE_NAME"].astype(str)
+            df["mutation_id"] = df["MUTATION_ID"].astype(str)
 
-            df["mut_ID"] = (
-                df["GENE_NAME"]
-                + "_"
-                + df["GENOMIC_MUTATION_ID"]
-                + "_"
-                + df["MUTATION_ID"]
-            )
-
-            df = df.drop(columns=["GENE_NAME", "GENOMIC_MUTATION_ID", "MUTATION_ID"])
+            df = df.drop(columns=["GENE_NAME", "MUTATION_ID"])
 
             mutate_csv_out = mutation_tsv_file.replace(".tsv", "_gget_mutate.csv")
             df.to_csv(mutate_csv_out, index=False)

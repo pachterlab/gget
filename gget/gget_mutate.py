@@ -108,6 +108,7 @@ codon_to_amino_acid = {
     "GGG": "G",
 }
 
+
 def convert_value(val):
     try:
         # Try to convert the value to a float, then to an int, and finally to a string
@@ -284,8 +285,8 @@ def mutate(
     mutations: Union[str, List[str]],
     k: int = 30,
     mut_column: str = "mutation",
-    mut_id_column: str = "mut_ID",
     seq_id_column: str = "seq_ID",
+    mut_id_column: Optional[str] = None,
     out: Optional[str] = None,
     verbose: bool = True,
     minimum_kmer_length: Optional[int] = None,
@@ -336,8 +337,8 @@ def mutate(
     - k             (int) Length of sequences flanking the mutation. Default: 30.
                     If k > total length of the sequence, the entire sequence will be kept.
     - mut_column    (str) Name of the column containing the mutations to be performed in 'mutations'. Default: 'mutation'.
-    - mut_id_column (str) Name of the column containing the IDs of each mutation in 'mutations'. Default: 'mut_ID'.
     - seq_id_column (str) Name of the column containing the IDs of the sequences to be mutated in 'mutations'. Default: 'seq_ID'.
+    - mut_id_column (str) Name of the column containing the IDs of each mutation in 'mutations'. Default: Will use mut_column.
     - out           (str) Path to output fasta file containing the mutated sequences, e.g., 'path/to/output_fasta.fa'.
                     Default: None -> returns a list of the mutated sequences to standard out.
                     The identifiers (following the '>') of the mutated sequences in the output fasta will be '>[seq_ID]_[mut_ID]'.
@@ -359,7 +360,7 @@ def mutate(
 
     global intronic_mutations, posttranslational_region_mutations, unknown_mutations, uncertain_mutations, ambiguous_position_mutations, cosmic_incorrect_wt_base, mut_idx_outside_seq
 
-    columns_to_keep = ["header", seq_id_column, "gene_name", "mutation_id", mut_column, "mutation_type", "wt_sequence_kmer", "mutant_sequence_kmer"]
+    columns_to_keep = ["header", seq_id_column, mut_column, "mutation_type", "wt_sequence_kmer", "mutant_sequence_kmer"]
 
     # Load input sequences and their identifiers from fasta file
     if "." in sequences:
@@ -394,14 +395,14 @@ def mutate(
         mutations = pd.read_csv(mutations)
         for col in mutations.columns:
             if col not in columns_to_keep:
-                columns_to_keep.append(col)  # append "mutation_aa"
+                columns_to_keep.append(col)  # append "mutation_aa", "gene_name", "mutation_id"
 
     elif isinstance(mutations, str) and mutations.endswith(".tsv"):
         mutations_path = mutations
         mutations = pd.read_csv(mutations, sep="\t")
         for col in mutations.columns:
             if col not in columns_to_keep:
-                columns_to_keep.append(col)  # append "mutation_aa"
+                columns_to_keep.append(col)  # append "mutation_aa", "gene_name", "mutation_id"
 
     # Handle mutations passed as a list
     elif isinstance(mutations, list):
@@ -521,9 +522,12 @@ def mutate(
 
     total_mutations = mutations.shape[0]
 
+    if mut_id_column is None:
+        mut_id_column = mut_column
+
     mutations["mutant_sequence_kmer"] = ""
     mutations["header"] = (
-        ">" + mutations[seq_id_column] + "_" + mutations[mut_id_column]
+        ">" + mutations[seq_id_column] + ":" + mutations[mut_id_column]
     )
 
     # Calculate number of bad mutations
@@ -896,14 +900,14 @@ def mutate(
             mutations["mutant_sequence_kmer_length"] >= minimum_kmer_length
         ]
 
-    split_cols = mutations[mut_id_column].str.split("_", n=1, expand=True)
+    # split_cols = mutations[mut_id_column].str.split("_", n=1, expand=True)
 
-    if split_cols.shape[1] == 1:
-        split_cols[1] = None
+    # if split_cols.shape[1] == 1:
+    #     split_cols[1] = None
 
-    # Extract gene name and mutation ID from mut_ID column (based on formatting of gget cosmic)
-    mutations["gene_name"] = split_cols[0]
-    mutations["mutation_id"] = split_cols[1].fillna(mutations[mut_id_column])
+    # # Extract gene name and mutation ID from mut_ID column (based on formatting of gget cosmic)
+    # mutations["gene_name"] = split_cols[0]
+    # mutations["mutation_id"] = split_cols[1].fillna(mutations[mut_id_column])
 
     # Report status of mutations back to user
     good_mutations = total_mutations - intronic_mutations - posttranslational_region_mutations - unknown_mutations - uncertain_mutations - ambiguous_position_mutations - cosmic_incorrect_wt_base - mut_idx_outside_seq
