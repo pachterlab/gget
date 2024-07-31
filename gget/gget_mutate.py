@@ -892,13 +892,16 @@ def mutate(
         logger.debug(bin_counts)
 
     if minimum_kmer_length:
-        if verbose:
-            logger.info(
-                f"Removing mutant kmers with length less than {minimum_kmer_length}..."
-            )
+        rows_less_than_minimum = (mutations["mutant_sequence_kmer_length"] < minimum_kmer_length).sum()
+
         mutations = mutations[
             mutations["mutant_sequence_kmer_length"] >= minimum_kmer_length
         ]
+
+        if verbose:
+            logger.info(
+                f"Removed {rows_less_than_minimum} mutant kmers with length less than {minimum_kmer_length}..."
+            )
 
     # split_cols = mutations[mut_id_column].str.split("_", n=1, expand=True)
 
@@ -914,36 +917,31 @@ def mutate(
 
     if remove_mutations_with_wt_kmers:
         good_mutations = good_mutations - long_duplications - mutations_overlapping_with_wt
+        
+    if minimum_kmer_length:
+        good_mutations = good_mutations - rows_less_than_minimum
+
+    report = f"""
+        {good_mutations} mutations correctly recorded ({good_mutations/total_mutations*100:.2f}%)
+        {intronic_mutations} intronic mutations found ({intronic_mutations/total_mutations*100:.2f}%)
+        {posttranslational_region_mutations} posttranslational region mutations found ({posttranslational_region_mutations/total_mutations*100:.2f}%)
+        {unknown_mutations} unknown mutations found ({unknown_mutations/total_mutations*100:.2f}%)
+        {uncertain_mutations} mutations with uncertain mutation found ({uncertain_mutations/total_mutations*100:.2f}%)
+        {ambiguous_position_mutations} mutations with ambiguous position found ({ambiguous_position_mutations/total_mutations*100:.2f}%)
+        {cosmic_incorrect_wt_base} mutations with incorrect wildtype base found ({cosmic_incorrect_wt_base/total_mutations*100:.2f}%)
+        {mut_idx_outside_seq} mutations with indices outside of the sequence length found ({mut_idx_outside_seq/total_mutations*100:.2f}%)
+        """
+
+    if remove_mutations_with_wt_kmers:        
+        report += f"""{long_duplications} duplications longer than k found ({long_duplications/total_mutations*100:.2f}%)
+        {mutations_overlapping_with_wt} mutations with overlapping kmers found ({mutations_overlapping_with_wt/total_mutations*100:.2f}%)
+        """
+
+    if minimum_kmer_length:
+        report += f"{rows_less_than_minimum} mutations with overlapping kmers found ({rows_less_than_minimum/total_mutations*100:.2f}%)"
 
     if good_mutations != total_mutations:
-        if remove_mutations_with_wt_kmers:
-            logger.warning(
-                f"""
-                {good_mutations} mutations correctly recorded ({good_mutations/total_mutations*100:.2f}%)
-                {intronic_mutations} intronic mutations found ({intronic_mutations/total_mutations*100:.2f}%)
-                {posttranslational_region_mutations} posttranslational region mutations found ({posttranslational_region_mutations/total_mutations*100:.2f}%)
-                {unknown_mutations} unknown mutations found ({unknown_mutations/total_mutations*100:.2f}%)
-                {uncertain_mutations} mutations with uncertain mutation found ({uncertain_mutations/total_mutations*100:.2f}%)
-                {ambiguous_position_mutations} mutations with ambiguous position found ({ambiguous_position_mutations/total_mutations*100:.2f}%)
-                {cosmic_incorrect_wt_base} mutations with incorrect wildtype base found ({cosmic_incorrect_wt_base/total_mutations*100:.2f}%)
-                {mut_idx_outside_seq} mutations with indices outside of the sequence length found ({mut_idx_outside_seq/total_mutations*100:.2f}%)
-                {long_duplications} duplications longer than k found ({long_duplications/total_mutations*100:.2f}%)
-                {mutations_overlapping_with_wt} mutations with overlapping kmers found ({mutations_overlapping_with_wt/total_mutations*100:.2f}%)
-                """
-            )
-        else:
-            logger.warning(
-                f"""
-                {good_mutations} mutations correctly recorded ({good_mutations/total_mutations*100:.2f}%)
-                {intronic_mutations} intronic mutations found ({intronic_mutations/total_mutations*100:.2f}%)
-                {posttranslational_region_mutations} posttranslational region mutations found ({posttranslational_region_mutations/total_mutations*100:.2f}%)
-                {unknown_mutations} unknown mutations found ({unknown_mutations/total_mutations*100:.2f}%)
-                {uncertain_mutations} mutations with uncertain mutation found ({uncertain_mutations/total_mutations*100:.2f}%)
-                {ambiguous_position_mutations} mutations with ambiguous position found ({ambiguous_position_mutations/total_mutations*100:.2f}%)
-                {cosmic_incorrect_wt_base} mutations with incorrect wildtype base found ({cosmic_incorrect_wt_base/total_mutations*100:.2f}%)
-                {mut_idx_outside_seq} mutations with indices outside of the sequence length found ({mut_idx_outside_seq/total_mutations*100:.2f}%)
-                """
-            )
+        logger.warning(report)
     else:
         logger.info("All mutations correctly recorded")
 
