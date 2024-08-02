@@ -109,7 +109,7 @@ codon_to_amino_acid = {
 }
 
 
-def convert_value(val):
+def convert_chromosome_value_to_int_when_possible(val):
     try:
         # Try to convert the value to a float, then to an int, and finally to a string
         return str(int(float(val)))
@@ -138,8 +138,15 @@ def translate_sequence(sequence, start, end):
     return amino_acid_sequence
 
 
-def remove_all_but_first_gt(line):
-    return line[:1] + line[1:].replace(">", "")
+# def remove_all_but_first_gt(line):
+#     return line[:1] + line[1:].replace(">", "")
+
+def remove_gt_after_semicolon(line):
+    parts = line.split(';')
+    # Remove '>' from the beginning of each part except the first part
+    parts = [parts[0]] + [part.lstrip('>') for part in parts[1:]]
+    return ';'.join(parts)
+
 
 def wt_fragment_and_mutant_fragment_share_kmer(mutated_fragment: str, wildtype_fragment: str, k: int) -> bool:
     if len(mutated_fragment) <= k:
@@ -485,7 +492,7 @@ def mutate(
         mutations = mutations.dropna(subset=[seq_id_column])
 
     # ensure seq_ID column is string type, and chromosome numbers don't have decimals
-    mutations[seq_id_column] = mutations[seq_id_column].apply(convert_value)
+    mutations[seq_id_column] = mutations[seq_id_column].apply(convert_chromosome_value_to_int_when_possible)
 
     mutations = add_mutation_type(mutations, mut_column)
 
@@ -907,7 +914,7 @@ def mutate(
 
     if remove_Ns:
         num_rows_with_N = mutations['mutant_sequence_kmer'].str.contains('N', case=False).sum()
-        mutations = mutations[mutations['mutant_sequence_kmer'].str.contains('N', case=False)]
+        mutations = mutations[~mutations['mutant_sequence_kmer'].str.contains('N', case=False)]
 
         if verbose:
             logger.info(
@@ -924,16 +931,18 @@ def mutate(
     # mutations["mutation_id"] = split_cols[1].fillna(mutations[mut_id_column])
 
     # Report status of mutations back to user
-    good_mutations = total_mutations - intronic_mutations - posttranslational_region_mutations - unknown_mutations - uncertain_mutations - ambiguous_position_mutations - cosmic_incorrect_wt_base - mut_idx_outside_seq
+    good_mutations = mutations.shape[0]
 
-    if remove_mutations_with_wt_kmers:
-        good_mutations = good_mutations - long_duplications - mutations_overlapping_with_wt
+    # good_mutations = total_mutations - intronic_mutations - posttranslational_region_mutations - unknown_mutations - uncertain_mutations - ambiguous_position_mutations - cosmic_incorrect_wt_base - mut_idx_outside_seq
+
+    # if remove_mutations_with_wt_kmers:
+    #     good_mutations = good_mutations - long_duplications - mutations_overlapping_with_wt
         
-    if minimum_kmer_length:
-        good_mutations = good_mutations - rows_less_than_minimum
+    # if minimum_kmer_length:
+    #     good_mutations = good_mutations - rows_less_than_minimum
 
-    if remove_Ns:
-        good_mutations = good_mutations - num_rows_with_N
+    # if remove_Ns:
+    #     good_mutations = good_mutations - num_rows_with_N
 
     report = f"""
         {good_mutations} mutations correctly recorded ({good_mutations/total_mutations*100:.2f}%)
@@ -952,10 +961,12 @@ def mutate(
         """
 
     if minimum_kmer_length:
-        report += f"{rows_less_than_minimum} mutations with overlapping kmers found ({rows_less_than_minimum/total_mutations*100:.2f}%)"
+        report += f"""{rows_less_than_minimum} mutations with fragment length < k found ({rows_less_than_minimum/total_mutations*100:.2f}%)
+        """
 
     if remove_Ns:
-        report += f"{num_rows_with_N} mutations with Ns found ({num_rows_with_N/total_mutations*100:.2f}%)"
+        report += f"""{num_rows_with_N} mutations with Ns found ({num_rows_with_N/total_mutations*100:.2f}%)
+        """
 
     if good_mutations != total_mutations:
         logger.warning(report)
@@ -1112,15 +1123,13 @@ def mutate(
     # Group by 'mutant_sequence_kmer' and concatenate 'header' values
     pre_len = len(mutations)
     mutations = (
-        mutations.groupby("mutant_sequence_kmer", sort=False)["header"]
+        mutations.groupby("mutant_sequence_kmer", sort=False, group_keys=False)["header"]   #? mutations.groupby("mutant_sequence_kmer", sort=False, group_keys=False)["header"]
         .apply(";".join)
         .reset_index()
     )
 
     if pre_len > len(mutations):
-        mutations["header"] = mutations["header"].apply(
-            lambda x: remove_all_but_first_gt(x) if ";" in x else x
-        )  # remove any additional > symbols for merged lines
+        mutations["header"] = mutations["header"].apply(remove_gt_after_semicolon)  # removes > symbols after semicolons (eg >ENST1:112A>T;>ENST2:199T>C to >ENST1:112A>T;ENST2:199T>C)
         if verbose:
             logger.info(
                 f"{pre_len - len(mutations)} identical mutated sequences were merged (headers were combined and separated using a semicolon (;). Occurences of identical mutated sequences may be reduced by increasing k."
@@ -1129,6 +1138,14 @@ def mutate(
     mutations["fasta_format"] = (
         mutations["header"] + "\n" + mutations["mutant_sequence_kmer"] + "\n"
     )
+
+    empty_kmer_count = (mutations["mutant_sequence_kmer"] == "").sum()
+    
+    if empty_kmer_count > 0 and verbose:
+        logger.warning(
+            f"{empty_kmer_count} mutated sequences were empty and were not included in the output."
+        )
+    
     mutations = mutations[mutations["mutant_sequence_kmer"] != ""]
 
     if out:
