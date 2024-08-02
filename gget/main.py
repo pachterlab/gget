@@ -1854,6 +1854,13 @@ def main():
         help="Whether to keep genome information in the modified database for use with gget mutate. Default: False",
     )
     parser_cosmic.add_argument(
+        "--remove_duplicates",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Whether to remove duplicate rows from the modified database for use with gget mutate. Default: False",
+    )
+    parser_cosmic.add_argument(
         "-o",
         "--out",
         type=str,
@@ -2005,6 +2012,13 @@ def main():
         action="store_true",
         required=False,
         help="Removes mutations where the mutated fragment has at least one k-mer that overlaps with the WT fragment in the same region. Default: False",
+    )
+    parser_mutate.add_argument(
+        "--remove_Ns",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Removes mutations where the mutant fragment contains Ns. Default: False",
     )
     parser_mutate.add_argument(
         "--hard_transcript_boundaries",
@@ -2575,6 +2589,7 @@ def main():
             minimum_kmer_length=args.minimum_kmer_length,
             update_df=args.update_df,
             remove_mutations_with_wt_kmers=args.remove_mutations_with_wt_kmers,
+            remove_Ns=args.remove_Ns,
             optimize_flanking_regions=args.optimize_flanking_regions,
             hard_transcript_boundaries=args.hard_transcript_boundaries,
             store_full_sequences=args.store_full_sequences,
@@ -2602,6 +2617,7 @@ def main():
             grch_version=args.grch_version,
             gget_mutate=args.gget_mutate,
             keep_genome_info=args.keep_genome_info,
+            remove_duplicates=args.remove_duplicates,
             out=args.out,
             verbose=args.quiet,
         )

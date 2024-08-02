@@ -292,6 +292,7 @@ def mutate(
     minimum_kmer_length: Optional[int] = None,
     update_df: bool = False,
     remove_mutations_with_wt_kmers: bool = False,
+    remove_Ns: bool = False,
     optimize_flanking_regions: bool = False,
     hard_transcript_boundaries: bool = True,
     store_full_sequences: bool = False,
@@ -346,6 +347,7 @@ def mutate(
     - minimum_kmer_length (int) Minimum length of the mutant kmer required. Mutant kmers with a smaller length will be erased. Default: None
     - update_df     (True/False) Whether to update the input DataFrame with the mutated sequences and associated data (only if mutations is a csv/tsv). Default: False
     - remove_mutations_with_wt_kmers   (True/False) Removes mutations where the mutated fragment has at least one k-mer that overlaps with the WT fragment in the same region. Default: False
+    - remove_Ns      (True/False) Removes mutations where the mutant fragment contains Ns. Default: False
     - optimize_flanking_regions (True/False) Whether to create mutant fragments with mutations ± k (False, default) or remove nucleotides from either end as needed to ensure that the mutant fragment does not contain any kmers found in the WT fragment. Default: False
     - hard_transcript_boundaries     (True/False) If using the genome as a reference, this flag indicates whether to end the fragment at transcript boundaries (True) or to go beyond transcript boundaries into unexpressed regions (False). Default: True
     - store_full_sequences: (True/False) Whether to store full sequence with update_df. Default: False
@@ -903,6 +905,15 @@ def mutate(
                 f"Removed {rows_less_than_minimum} mutant kmers with length less than {minimum_kmer_length}..."
             )
 
+    if remove_Ns:
+        num_rows_with_N = mutations['mutant_sequence_kmer'].str.contains('N', case=False).sum()
+        mutations = mutations[mutations['mutant_sequence_kmer'].str.contains('N', case=False)]
+
+        if verbose:
+            logger.info(
+                f"Removed {num_rows_with_N} mutant kmers containing at least 1 N..."
+            )
+
     # split_cols = mutations[mut_id_column].str.split("_", n=1, expand=True)
 
     # if split_cols.shape[1] == 1:
@@ -920,6 +931,9 @@ def mutate(
         
     if minimum_kmer_length:
         good_mutations = good_mutations - rows_less_than_minimum
+
+    if remove_Ns:
+        good_mutations = good_mutations - num_rows_with_N
 
     report = f"""
         {good_mutations} mutations correctly recorded ({good_mutations/total_mutations*100:.2f}%)
@@ -939,6 +953,9 @@ def mutate(
 
     if minimum_kmer_length:
         report += f"{rows_less_than_minimum} mutations with overlapping kmers found ({rows_less_than_minimum/total_mutations*100:.2f}%)"
+
+    if remove_Ns:
+        report += f"{num_rows_with_N} mutations with Ns found ({num_rows_with_N/total_mutations*100:.2f}%)"
 
     if good_mutations != total_mutations:
         logger.warning(report)

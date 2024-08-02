@@ -69,6 +69,9 @@ Whether to update the input DataFrame with the mutated sequences and associated 
 `--remove_mutations_with_wt_kmers`:   
 Removes mutations where the mutated fragment has at least one k-mer that overlaps with the WT fragment in the same region. Default: False
 
+`--remove_Ns`:
+Removes mutations where the mutant fragment contains Ns. Default: False
+
 `--optimize_flanking_regions`:
 Whether to create mutant fragments with mutations ± k (False, default) or remove nucleotides from either end as needed to ensure that the mutant fragment does not contain any kmers found in the WT fragment. Default: False
 

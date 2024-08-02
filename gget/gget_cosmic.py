@@ -197,6 +197,14 @@ def select_reference(
     return file_path, overwrite
 
 
+def convert_chromosome_value_to_int_when_possible(val):
+    try:
+        # Try to convert the value to a float, then to an int, and finally to a string
+        return str(int(float(val)))
+    except ValueError:
+        # If conversion fails, keep the value as it is
+        return val
+
 def cosmic(
     searchterm,
     entity="mutations",
@@ -208,6 +216,7 @@ def cosmic(
     grch_version=37,
     gget_mutate=True,
     keep_genome_info=False,
+    remove_duplicates=False,
     out=None,
     verbose=True,
 ):
@@ -251,6 +260,7 @@ def cosmic(
     - grch_version    (int) Version of the human GRCh reference genome the COSMIC database was based on (37 or 38). Default: 37
     - gget_mutate     (True/False) Whether to create a modified version of the database for use with gget mutate. Default: True
     - keep_genome_info  (True/False) Whether to keep genome information in the modified database for use with gget mutate. Default: False
+    - remove_duplicates (True/False) Whether to remove duplicate rows from the modified database for use with gget mutate. Default: False
 
     General args:
     - out             (str) Path to the file (or folder when downloading databases with the download_cosmic flag) the results will be saved in, e.g. 'path/to/results.json'.
@@ -321,8 +331,8 @@ def cosmic(
                     "Mutation AA"
                 ]
                 if keep_genome_info:
-                    relevant_cols.extend(['Mutation genome position GRCh37', 'GENOMIC_WT_ALLELE_SEQ','GENOMIC_MUT_ALLELE_SEQ', 'GENOMIC_MUTATION_ID'])    #!!! ERASE
-                    # relevant_cols.extend(['Mutation genome position GRCh37', 'GENOMIC_MUTATION_ID'])    #!!! UNCOMMENT
+                    relevant_cols.extend(['Mutation genome position GRCh37', 'GENOMIC_WT_ALLELE_SEQ','GENOMIC_MUT_ALLELE_SEQ', 'GENOMIC_MUTATION_ID'])    #* uncomment to include strand information (tested not to be accurate for CMC)
+                    # relevant_cols.extend(['Mutation genome position GRCh37', 'GENOMIC_MUTATION_ID'])    #* erase to include strand information (tested not to be accurate for CMC)
             else:
                 relevant_cols = [
                     "GENE_SYMBOL",
@@ -349,19 +359,20 @@ def cosmic(
                 )
 
                 if keep_genome_info:  
-                    #!!! UNCOMMENT
+                    #* erase to include strand information (tested not to be accurate for CMC)
                     # df = df.rename(
                     #     columns={
                     #         "Mutation genome position GRCh37": "position_genome",
                     #     }
                     # )
 
-                    #!!! ERASE
-                    df[['chromosome', 'GENOME_POS']] = df['Mutation genome position GRCh37'].str.split(':', expand=True)
-                    df[['GENOME_START', 'GENOME_STOP']] = df['GENOME_POS'].str.split('-', expand=True)
-
-                    from gget.gget_mutate import mutation_pattern
+                    from gget.gget_mutate import mutation_pattern, convert_chromosome_value_to_int_when_possible
                     import numpy as np
+
+                    #* uncomment to include strand information (tested not to be accurate for CMC)
+                    df[['chromosome', 'GENOME_POS']] = df['Mutation genome position GRCh37'].str.split(':', expand=True)
+                    df['chromosome'] = df['chromosome'].apply(convert_chromosome_value_to_int_when_possible)
+                    df[['GENOME_START', 'GENOME_STOP']] = df['GENOME_POS'].str.split('-', expand=True)
 
                     df[["nucleotide_positions", "actual_mutation"]] = df["mutation"].str.extract(mutation_pattern)
 
@@ -439,6 +450,14 @@ def cosmic(
             df["mutation_id"] = df["MUTATION_ID"].astype(str)
 
             df = df.drop(columns=["GENE_NAME", "MUTATION_ID"])
+
+            if remove_duplicates:
+                duplicate_count = df.duplicated(subset=['seq_ID', 'mutation'], keep=False).sum() // 2
+                print(f"Removing {duplicate_count} duplicate entries from the COSMIC csv for gget mutate: {duplicate_count}")
+                df['non_na_count'] = df.notna().sum(axis=1)
+                df = df.sort_values(by='non_na_count', ascending=False)
+                df = df.drop_duplicates(subset=['seq_ID', 'mutation'], keep='first')
+                df = df.drop(columns=['non_na_count'])
 
             mutate_csv_out = mutation_tsv_file.replace(".tsv", "_gget_mutate.csv")
             df.to_csv(mutate_csv_out, index=False)

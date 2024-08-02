@@ -57,6 +57,9 @@ Version of the human GRCh reference genome the COSMIC database was based on (37 
 `--keep_genome_info`
 Whether to keep genome information in the modified database for use with gget mutate. Default: False
 
+`--remove_duplicates`
+Whether to remove duplicate rows from the modified database for use with gget mutate. Default: False
+
 **Optional arguments (general)**  
 `-o` `--out`   
 Path to the file (or folder when downloading databases with the `download_cosmic` flag) the results will be saved in, e.g. 'path/to/results.json'.  
