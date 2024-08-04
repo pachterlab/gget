@@ -520,7 +520,7 @@ def mutate(
         )
 
     # Drop inputs for sequences that were not found
-    mutations = mutations.dropna()
+    mutations = mutations.dropna(subset=[seq_id_column, mut_column])
     if len(mutations) < 1:
         raise ValueError(
             """
@@ -1121,19 +1121,29 @@ def mutate(
     mutations = mutations[["mutant_sequence_kmer", "header"]]
 
     # Group by 'mutant_sequence_kmer' and concatenate 'header' values
-    pre_len = len(mutations)
     mutations = (
         mutations.groupby("mutant_sequence_kmer", sort=False, group_keys=False)["header"]   #? mutations.groupby("mutant_sequence_kmer", sort=False, group_keys=False)["header"]
         .apply(";".join)
         .reset_index()
     )
 
-    if pre_len > len(mutations):
-        mutations["header"] = mutations["header"].apply(remove_gt_after_semicolon)  # removes > symbols after semicolons (eg >ENST1:112A>T;>ENST2:199T>C to >ENST1:112A>T;ENST2:199T>C)
-        if verbose:
-            logger.info(
-                f"{pre_len - len(mutations)} identical mutated sequences were merged (headers were combined and separated using a semicolon (;). Occurences of identical mutated sequences may be reduced by increasing k."
-            )
+    # Calculate the number of semicolons in each entry
+    mutations['semicolon_count'] = mutations['header'].str.count(';')
+
+    mutations['semicolon_count'] += 1
+
+    # Convert all 1 values to NaN
+    mutations['semicolon_count'] = mutations['semicolon_count'].replace(1, np.nan)
+
+    # Take the sum across all rows of the new column
+    total_semicolons = int(mutations['semicolon_count'].sum())
+
+    mutations = mutations.drop(columns=['semicolon_count'])
+
+    if verbose:
+        logger.info(
+            f"{total_semicolons} identical mutated sequences were merged (headers were combined and separated using a semicolon (;). Occurences of identical mutated sequences may be reduced by increasing k."
+        )
 
     mutations["fasta_format"] = (
         mutations["header"] + "\n" + mutations["mutant_sequence_kmer"] + "\n"
