@@ -1127,6 +1127,11 @@ def mutate(
         .reset_index()
     )
 
+    # apply remove_gt_after_semicolon to mutant_sequence_kmer
+    mutations["mutant_sequence_kmer"] = mutations["mutant_sequence_kmer"].apply(
+        remove_gt_after_semicolon
+    )
+
     # Calculate the number of semicolons in each entry
     mutations['semicolon_count'] = mutations['header'].str.count(';')
 
