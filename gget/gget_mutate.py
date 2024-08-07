@@ -298,6 +298,7 @@ def mutate(
     verbose: bool = True,
     minimum_kmer_length: Optional[int] = None,
     update_df: bool = False,
+    update_df_out: Optional[str] = None,
     remove_mutations_with_wt_kmers: bool = False,
     remove_Ns: bool = False,
     optimize_flanking_regions: bool = False,
@@ -353,6 +354,7 @@ def mutate(
     - verbose       (True/False) whether to print progress information. Default: True
     - minimum_kmer_length (int) Minimum length of the mutant kmer required. Mutant kmers with a smaller length will be erased. Default: None
     - update_df     (True/False) Whether to update the input DataFrame with the mutated sequences and associated data (only if mutations is a csv/tsv). Default: False
+    - update_df_out (str) Path to output csv file containing the updated DataFrame. Default: None
     - remove_mutations_with_wt_kmers   (True/False) Removes mutations where the mutated fragment has at least one k-mer that overlaps with the WT fragment in the same region. Default: False
     - remove_Ns      (True/False) Removes mutations where the mutant fragment contains Ns. Default: False
     - optimize_flanking_regions (True/False) Whether to create mutant fragments with mutations ± k (False, default) or remove nucleotides from either end as needed to ensure that the mutant fragment does not contain any kmers found in the WT fragment. Default: False
@@ -1111,12 +1113,19 @@ def mutate(
 
     mutations = mutations[columns_to_keep]
 
-    if update_df and mutations_path:
+    if update_df:
+        saved_updated_df = True
         logger.warning("File size can be very large if the number of mutations is large.")
-        base_name, ext = os.path.splitext(mutations_path)
-        new_mutations_path = f"{base_name}_updated{ext}"
-        mutations.to_csv(new_mutations_path, index=False)
-        print(f"Updated mutation info has been saved to {new_mutations_path}")
+        if not update_df_out:
+            if not mutations_path:
+                logger.warning("mutations_path must be provided if update_df is True and update_df_out is not provided.")
+                saved_updated_df = False
+            else:
+                base_name, ext = os.path.splitext(mutations_path)
+                update_df_out = f"{base_name}_updated{ext}"
+        if saved_updated_df:
+            mutations.to_csv(update_df_out, index=False)
+            print(f"Updated mutation info has been saved to {update_df_out}")
 
     mutations = mutations[["mutant_sequence_kmer", "header"]]
 

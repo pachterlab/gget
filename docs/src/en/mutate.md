@@ -64,7 +64,10 @@ The identifiers (following the '>') of the mutated sequences in the output FASTA
 Minimum length of the mutant kmer required. Mutant kmers with a smaller length will be erased. Default: None -> No k-mers are filtered out    
 
 `--update_df`   
-Whether to update the input DataFrame with the mutated sequences and associated data (only if mutations is a csv/tsv). Default: False    
+Whether to update the input DataFrame with the mutated sequences and associated data (only if mutations is a csv/tsv). Default: False
+
+`--update_df`
+Path to output csv file containing the updated DataFrame. Default: None
 
 `--remove_mutations_with_wt_kmers`:   
 Removes mutations where the mutated fragment has at least one k-mer that overlaps with the WT fragment in the same region. Default: False

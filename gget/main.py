@@ -2000,6 +2000,13 @@ def main():
         help="Whether to update the input DataFrame with the mutated sequences and associated data (only if mutations is a csv/tsv). Default: False.",
     )
     parser_mutate.add_argument(
+        "--update_df_out",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Path to output csv file containing the updated DataFrame. Default: None",
+    )
+    parser_mutate.add_argument(
         "--optimize_flanking_regions",
         default=False,
         action="store_true",
@@ -2588,6 +2595,7 @@ def main():
             verbose=args.quiet,
             minimum_kmer_length=args.minimum_kmer_length,
             update_df=args.update_df,
+            update_df_out=args.update_df_out,
             remove_mutations_with_wt_kmers=args.remove_mutations_with_wt_kmers,
             remove_Ns=args.remove_Ns,
             optimize_flanking_regions=args.optimize_flanking_regions,
