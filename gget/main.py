@@ -1993,6 +1993,13 @@ def main():
         help="Minimum length of the mutant kmer required. Mutant kmers with a smaller length will be erased. Default: None.",
     )
     parser_mutate.add_argument(
+        "--merge_identical_entries",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Whether to merge identical entries in the output fasta file. Default: False",
+    )
+    parser_mutate.add_argument(
         "--update_df",
         default=False,
         action="store_true",
@@ -2001,8 +2008,8 @@ def main():
     )
     parser_mutate.add_argument(
         "--update_df_out",
-        default=False,
-        action="store_true",
+        default=None,
+        type=str,
         required=False,
         help="Path to output csv file containing the updated DataFrame. Default: None",
     )
@@ -2594,6 +2601,7 @@ def main():
             out=args.out,
             verbose=args.quiet,
             minimum_kmer_length=args.minimum_kmer_length,
+            merge_identical_entries=args.merge_identical_entries,
             update_df=args.update_df,
             update_df_out=args.update_df_out,
             remove_mutations_with_wt_kmers=args.remove_mutations_with_wt_kmers,

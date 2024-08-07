@@ -297,6 +297,7 @@ def mutate(
     out: Optional[str] = None,
     verbose: bool = True,
     minimum_kmer_length: Optional[int] = None,
+    merge_identical_entries: bool = False,
     update_df: bool = False,
     update_df_out: Optional[str] = None,
     remove_mutations_with_wt_kmers: bool = False,
@@ -353,6 +354,7 @@ def mutate(
                     The identifiers (following the '>') of the mutated sequences in the output fasta will be '>[seq_ID]_[mut_ID]'.
     - verbose       (True/False) whether to print progress information. Default: True
     - minimum_kmer_length (int) Minimum length of the mutant kmer required. Mutant kmers with a smaller length will be erased. Default: None
+    - merge_identical_entries (True/False) Whether to merge identical entries in the output fasta file. Default: False
     - update_df     (True/False) Whether to update the input DataFrame with the mutated sequences and associated data (only if mutations is a csv/tsv). Default: False
     - update_df_out (str) Path to output csv file containing the updated DataFrame. Default: None
     - remove_mutations_with_wt_kmers   (True/False) Removes mutations where the mutated fragment has at least one k-mer that overlaps with the WT fragment in the same region. Default: False
@@ -1113,6 +1115,46 @@ def mutate(
 
     mutations = mutations[columns_to_keep]
 
+    if merge_identical_entries:
+        # Group by 'mutant_sequence_kmer' and concatenate 'header' values
+        mutations = (
+            mutations.groupby("mutant_sequence_kmer", sort=False, group_keys=False)["header"]   #? mutations.groupby("mutant_sequence_kmer", sort=False, group_keys=False)["header"]
+            .apply(";".join)
+            .reset_index()
+        )
+
+        # apply remove_gt_after_semicolon to mutant_sequence_kmer
+        mutations["mutant_sequence_kmer"] = mutations["mutant_sequence_kmer"].apply(
+            remove_gt_after_semicolon
+        )
+
+        # Calculate the number of semicolons in each entry
+        mutations['semicolon_count'] = mutations['header'].str.count(';')
+
+        mutations['semicolon_count'] += 1
+
+        # Convert all 1 values to NaN
+        mutations['semicolon_count'] = mutations['semicolon_count'].replace(1, np.nan)
+
+        # Take the sum across all rows of the new column
+        total_semicolons = int(mutations['semicolon_count'].sum())
+
+        mutations = mutations.drop(columns=['semicolon_count'])
+
+        if verbose:
+            logger.info(
+                f"{total_semicolons} identical mutated sequences were merged (headers were combined and separated using a semicolon (;). Occurences of identical mutated sequences may be reduced by increasing k."
+            )
+
+    empty_kmer_count = (mutations["mutant_sequence_kmer"] == "").sum()
+    
+    if empty_kmer_count > 0 and verbose:
+        logger.warning(
+            f"{empty_kmer_count} mutated sequences were empty and were not included in the output."
+        )
+
+    mutations = mutations[mutations["mutant_sequence_kmer"] != ""]
+
     if update_df:
         saved_updated_df = True
         logger.warning("File size can be very large if the number of mutations is large.")
@@ -1129,48 +1171,9 @@ def mutate(
 
     mutations = mutations[["mutant_sequence_kmer", "header"]]
 
-    # Group by 'mutant_sequence_kmer' and concatenate 'header' values
-    mutations = (
-        mutations.groupby("mutant_sequence_kmer", sort=False, group_keys=False)["header"]   #? mutations.groupby("mutant_sequence_kmer", sort=False, group_keys=False)["header"]
-        .apply(";".join)
-        .reset_index()
-    )
-
-    # apply remove_gt_after_semicolon to mutant_sequence_kmer
-    mutations["mutant_sequence_kmer"] = mutations["mutant_sequence_kmer"].apply(
-        remove_gt_after_semicolon
-    )
-
-    # Calculate the number of semicolons in each entry
-    mutations['semicolon_count'] = mutations['header'].str.count(';')
-
-    mutations['semicolon_count'] += 1
-
-    # Convert all 1 values to NaN
-    mutations['semicolon_count'] = mutations['semicolon_count'].replace(1, np.nan)
-
-    # Take the sum across all rows of the new column
-    total_semicolons = int(mutations['semicolon_count'].sum())
-
-    mutations = mutations.drop(columns=['semicolon_count'])
-
-    if verbose:
-        logger.info(
-            f"{total_semicolons} identical mutated sequences were merged (headers were combined and separated using a semicolon (;). Occurences of identical mutated sequences may be reduced by increasing k."
-        )
-
     mutations["fasta_format"] = (
         mutations["header"] + "\n" + mutations["mutant_sequence_kmer"] + "\n"
     )
-
-    empty_kmer_count = (mutations["mutant_sequence_kmer"] == "").sum()
-    
-    if empty_kmer_count > 0 and verbose:
-        logger.warning(
-            f"{empty_kmer_count} mutated sequences were empty and were not included in the output."
-        )
-    
-    mutations = mutations[mutations["mutant_sequence_kmer"] != ""]
 
     if out:
         # Save mutated sequences in new fasta file

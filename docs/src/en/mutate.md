@@ -61,7 +61,10 @@ Default: None -> returns a list of the mutated sequences to standard out.
 The identifiers (following the '>') of the mutated sequences in the output FASTA will be '>[seq_ID]_[mut_ID]'. 
 
 `--minimum_kmer_length`   
-Minimum length of the mutant kmer required. Mutant kmers with a smaller length will be erased. Default: None -> No k-mers are filtered out    
+Minimum length of the mutant kmer required. Mutant kmers with a smaller length will be erased. Default: None -> No k-mers are filtered out
+
+`--merge_identical_entries`
+Whether to merge identical entries in the output fasta file. Default: False
 
 `--update_df`   
 Whether to update the input DataFrame with the mutated sequences and associated data (only if mutations is a csv/tsv). Default: False
