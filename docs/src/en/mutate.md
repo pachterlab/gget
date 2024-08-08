@@ -64,7 +64,7 @@ The identifiers (following the '>') of the mutated sequences in the output FASTA
 Minimum length of the mutant kmer required. Mutant kmers with a smaller length will be erased. Default: None -> No k-mers are filtered out
 
 `--merge_identical_entries`
-Whether to merge identical entries in the output fasta file. Default: False
+Whether to merge identical entries in the output fasta file. Default: True
 
 `--update_df`   
 Whether to update the input DataFrame with the mutated sequences and associated data (only if mutations is a csv/tsv). Default: False

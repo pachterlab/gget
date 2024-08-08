@@ -297,7 +297,7 @@ def mutate(
     out: Optional[str] = None,
     verbose: bool = True,
     minimum_kmer_length: Optional[int] = None,
-    merge_identical_entries: bool = False,
+    merge_identical_entries: bool = True,
     update_df: bool = False,
     update_df_out: Optional[str] = None,
     remove_mutations_with_wt_kmers: bool = False,
@@ -354,7 +354,7 @@ def mutate(
                     The identifiers (following the '>') of the mutated sequences in the output fasta will be '>[seq_ID]_[mut_ID]'.
     - verbose       (True/False) whether to print progress information. Default: True
     - minimum_kmer_length (int) Minimum length of the mutant kmer required. Mutant kmers with a smaller length will be erased. Default: None
-    - merge_identical_entries (True/False) Whether to merge identical entries in the output fasta file. Default: False
+    - merge_identical_entries (True/False) Whether to merge identical entries in the output fasta file. Default: True
     - update_df     (True/False) Whether to update the input DataFrame with the mutated sequences and associated data (only if mutations is a csv/tsv). Default: False
     - update_df_out (str) Path to output csv file containing the updated DataFrame. Default: None
     - remove_mutations_with_wt_kmers   (True/False) Removes mutations where the mutated fragment has at least one k-mer that overlaps with the WT fragment in the same region. Default: False

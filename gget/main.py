@@ -1994,7 +1994,7 @@ def main():
     )
     parser_mutate.add_argument(
         "--merge_identical_entries",
-        default=False,
+        default=True,
         action="store_true",
         required=False,
         help="Whether to merge identical entries in the output fasta file. Default: False",
