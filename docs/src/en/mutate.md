@@ -69,7 +69,7 @@ Whether to merge identical entries in the output fasta file. Default: True
 `--update_df`   
 Whether to update the input DataFrame with the mutated sequences and associated data (only if mutations is a csv/tsv). Default: False
 
-`--update_df`
+`--update_df_out`
 Path to output csv file containing the updated DataFrame. Default: None
 
 `--remove_mutations_with_wt_kmers`:   
@@ -141,3 +141,7 @@ gget mutate ATCGCTAAGCT TAGCTA -m 'c.1_3inv' -k 3
 gget.mutate(["ATCGCTAAGCT", "TAGCTA"], "c.1_3inv", k=3)
 ```
 &rarr; Returns ['CTAGCT', 'GATCTA'].  
+
+
+**Detailed description**  
+For each mutation and its corresponding input sequence, gget mutate will output the corresponding mutation-containing reference sequence (MCRS) with length k flanking each side of the mutation. The output fasta file can be seamlessly passed into kallisto-bustools (with kallisto k = gget k + 1) for generation of an index containing the MCRSs. minimum_seq_length will automatically filter out MCRSs with length below minimum_seq_length (default does not filter anything). merge_identical_entries will merge headers with semicolons which share identical MCRSs (default on). update_df will save a copy of the csv file to the path update_df_out containing additional information including the MCRS, the corresponding non-mutated sequence of the same length, the mutation type, (if store_full_sequences = True) the mutation and non-mutated counterpart in the context of their full sequences, and (if translate = True) the translated MCRS and its non-mutated counterpart (with open reading frame determined by translate_start and translate_end). optimize_flanking_regions will reduce the lengths of the sequence portions flanking the mutation such that they retain maximal length while not possessing a k+1-mer that occurs in the unmutated input sequence (the remove_mutations_with_wt_kmers flag removes MCRSs from the final output for which this operation was unsuccesful). remove_Ns will remove any MCRSs which contain at least one N from the final output (by default, sequences containing Ns will be retained in the mutation-containing output sequences). hard_transcript_boundaries will cut off the unmutated input sequence at 'start_transcript_position' and 'end_transcript_position' (two additional columns in the input mutation csv), relevant if passing in the genome as the sequences file while desiring not to include non-gene regions in the MCRSs.

@@ -1124,7 +1124,7 @@ def mutate(
         )
 
         # apply remove_gt_after_semicolon to mutant_sequence_kmer
-        mutations["mutant_sequence_kmer"] = mutations["mutant_sequence_kmer"].apply(
+        mutations["header"] = mutations["header"].apply(
             remove_gt_after_semicolon
         )
 
