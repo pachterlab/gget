@@ -5,6 +5,7 @@
 - [`gget cosmic`](./cosmic.md): Adding support for targeted and gene screens. Csv file created for gget mutate also contains protein mutation info.
 - [`gget ref`](./ref.md): Added out file option.
 - [`gget info`](./info.md) and [`gget seq`](./seq.md): Switch to Ensembl POST API to increase speed (nothing changes in front end).
+- [`gget enrichr`](./enrichr.md) now also supports species other than human (fly, yeast, worm, and fish) via [modEnrichR](https://maayanlab.cloud/modEnrichr/)
 
 **Version ≥ 0.28.6** (Jun 2, 2024):  
 - **New module: [`gget mutate`](./mutate.md)**
