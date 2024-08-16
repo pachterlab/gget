@@ -1851,14 +1851,14 @@ def main():
         default=False,
         action="store_true",
         required=False,
-        help="Whether to keep genome information in the modified database for use with gget mutate. Default: False",
+        help="Whether to keep genome information (e.g. location of mutation in the genome) in the modified database for use with gget mutate (only for use with --download_cosmic).",
     )
     parser_cosmic.add_argument(
         "--remove_duplicates",
         default=False,
         action="store_true",
         required=False,
-        help="Whether to remove duplicate rows from the modified database for use with gget mutate. Default: False",
+        help="Whether to remove duplicated rows from the modified database for use with gget mutate (only for use with --download_cosmic).",
     )
     parser_cosmic.add_argument(
         "-o",
