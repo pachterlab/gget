@@ -253,13 +253,13 @@ def cosmic(
 
     Args for downloading COSMIC databases:
     NOTE: Downloading complete databases from COSMIC requires an account (https://cancer.sanger.ac.uk/cosmic/register; free for academic use, license for commercial use)
-    - download_cosmic (True/False) whether to switch into database download mode. Default: False
-    - mutation_class  (str) Type of COSMIC database to download. One of the following:
-                      'cancer' (default), 'cell_line', 'census', 'resistance', 'genome_screen', 'targeted_screen', 'cancer_example'
-    - cosmic_version  (int) Version of the COSMIC database. Default: None -> Defaults to latest version.
-    - grch_version    (int) Version of the human GRCh reference genome the COSMIC database was based on (37 or 38). Default: 37
-    - gget_mutate     (True/False) Whether to create a modified version of the database for use with gget mutate. Default: True
-    - keep_genome_info  (True/False) Whether to keep genome information in the modified database for use with gget mutate. Default: False
+    - download_cosmic   (True/False) whether to switch into database download mode. Default: False
+    - mutation_class    (str) Type of COSMIC database to download. One of the following:
+                        'cancer' (default), 'cell_line', 'census', 'resistance', 'genome_screen', 'targeted_screen', 'cancer_example'
+    - cosmic_version    (int) Version of the COSMIC database. Default: None -> Defaults to latest version.
+    - grch_version      (int) Version of the human GRCh reference genome the COSMIC database was based on (37 or 38). Default: 37
+    - gget_mutate       (True/False) Whether to create a modified version of the database for use with gget mutate. Default: True
+    - keep_genome_info  (True/False) Whether to keep genome information (e.g. location of mutation in the genome) in the modified database for use with gget mutate. Default: False
     - remove_duplicates (True/False) Whether to remove duplicate rows from the modified database for use with gget mutate. Default: False
 
     General args:
