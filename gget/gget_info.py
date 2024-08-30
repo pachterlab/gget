@@ -320,7 +320,7 @@ def info(
                 if pdb_ids:
                     df_pdb["pdb_id"] = [pdb_ids]
                 else:
-                    df_pdb["pdb_id"] = [np.NaN]
+                    df_pdb["pdb_id"] = [np.nan]
 
                 # Transpose pdb df and add Ensembl ID as column name
                 df_pdb = df_pdb.T
@@ -436,27 +436,27 @@ def info(
                         # Just add ID if no version found
                         all_transcripts.append(trans_dict["id"])
                 except:
-                    all_transcripts.append(np.NaN)
+                    all_transcripts.append(np.nan)
                 try:
                     transcript_names.append(trans_dict["display_name"])
                 except:
-                    transcript_names.append(np.NaN)
+                    transcript_names.append(np.nan)
                 try:
                     transcript_biotypes.append(trans_dict["biotype"])
                 except:
-                    transcript_biotypes.append(np.NaN)
+                    transcript_biotypes.append(np.nan)
                 try:
                     transcript_starts.append(trans_dict["start"])
                 except:
-                    transcript_starts.append(np.NaN)
+                    transcript_starts.append(np.nan)
                 try:
                     transcript_ends.append(trans_dict["end"])
                 except:
-                    transcript_ends.append(np.NaN)
+                    transcript_ends.append(np.nan)
                 try:
                     transcript_strands.append(trans_dict["strand"])
                 except:
-                    transcript_strands.append(np.NaN)
+                    transcript_strands.append(np.nan)
 
             data["all_transcripts"].append(all_transcripts)
             data["transcript_biotypes"].append(transcript_biotypes)
@@ -466,12 +466,12 @@ def info(
             data["transcript_ends"].append(transcript_ends)
 
         except:
-            data["all_transcripts"].append(np.NaN)
-            data["transcript_biotypes"].append(np.NaN)
-            data["transcript_names"].append(np.NaN)
-            data["transcript_strands"].append(np.NaN)
-            data["transcript_starts"].append(np.NaN)
-            data["transcript_ends"].append(np.NaN)
+            data["all_transcripts"].append(np.nan)
+            data["transcript_biotypes"].append(np.nan)
+            data["transcript_names"].append(np.nan)
+            data["transcript_strands"].append(np.nan)
+            data["transcript_starts"].append(np.nan)
+            data["transcript_ends"].append(np.nan)
 
         # Clean up exon info, if available
         all_exons = []
@@ -490,24 +490,24 @@ def info(
                         # Just add ID if no version found
                         all_exons.append(exon_dict["id"])
                 except:
-                    all_exons.append(np.NaN)
+                    all_exons.append(np.nan)
                 try:
                     exon_starts.append(exon_dict["start"])
                 except:
-                    exon_starts.append(np.NaN)
+                    exon_starts.append(np.nan)
                 try:
                     exon_ends.append(exon_dict["end"])
                 except:
-                    exon_ends.append(np.NaN)
+                    exon_ends.append(np.nan)
 
             data["all_exons"].append(all_exons)
             data["exon_starts"].append(exon_starts)
             data["exon_ends"].append(exon_ends)
 
         except:
-            data["all_exons"].append(np.NaN)
-            data["exon_starts"].append(np.NaN)
-            data["exon_ends"].append(np.NaN)
+            data["all_exons"].append(np.nan)
+            data["exon_starts"].append(np.nan)
+            data["exon_ends"].append(np.nan)
 
         # Clean up translation info, if available
         all_translations = []
@@ -526,24 +526,24 @@ def info(
                         # Just add ID if no version found
                         all_translations.append(transl_dict["id"])
                 except:
-                    all_translations.append(np.NaN)
+                    all_translations.append(np.nan)
                 try:
                     translation_starts.append(transl_dict["start"])
                 except:
-                    translation_starts.append(np.NaN)
+                    translation_starts.append(np.nan)
                 try:
                     translation_ends.append(transl_dict["end"])
                 except:
-                    translation_ends.append(np.NaN)
+                    translation_ends.append(np.nan)
 
             data["all_translations"].append(all_translations)
             data["translation_starts"].append(translation_starts)
             data["translation_ends"].append(translation_ends)
 
         except:
-            data["all_translations"].append(np.NaN)
-            data["translation_starts"].append(np.NaN)
-            data["translation_ends"].append(np.NaN)
+            data["all_translations"].append(np.nan)
+            data["translation_starts"].append(np.nan)
+            data["translation_ends"].append(np.nan)
 
     # Append cleaned up info to df_final
     df_final = pd.concat(
