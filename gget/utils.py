@@ -310,7 +310,7 @@ def get_uniprot_seqs(server, ensembl_ids):
                         json["results"][i]["genes"][0]["geneName"]["value"]
                     )
                 except:
-                    gene_names.append(np.NaN)
+                    gene_names.append(np.nan)
             df["gene_name"] = gene_names
             df["query"] = id_
 
@@ -384,7 +384,7 @@ def get_uniprot_info(server, ensembl_id, verbose=True):
             try:
                 gene_names.append(json["results"][i]["genes"][0]["geneName"]["value"])
             except:
-                gene_names.append(np.NaN)
+                gene_names.append(np.nan)
         df["primary_gene_name"] = gene_names
 
         # Get synonyms for each result
@@ -395,7 +395,7 @@ def get_uniprot_info(server, ensembl_id, verbose=True):
                 for syn in json["results"][i]["genes"][0]["synonyms"]:
                     uni_syn_temp.append(syn["value"])
             except:
-                uni_syn_temp.append(np.NaN)
+                uni_syn_temp.append(np.nan)
             uni_synonyms.append(uni_syn_temp)
         df["uni_synonyms"] = uni_synonyms
 
@@ -409,7 +409,7 @@ def get_uniprot_info(server, ensembl_id, verbose=True):
                     ]["value"]
                 )
             except:
-                protein_names.append(np.NaN)
+                protein_names.append(np.nan)
         df["protein_names"] = protein_names
 
         # Get descriptions for each result
@@ -425,7 +425,7 @@ def get_uniprot_info(server, ensembl_id, verbose=True):
                 # Append all descriptions to a single string object
                 des_temp = " ".join(des_temp)
             except:
-                des_temp.append(np.NaN)
+                des_temp.append(np.nan)
 
             descriptions.append(des_temp)
         df["uniprot_description"] = descriptions
@@ -449,7 +449,7 @@ def get_uniprot_info(server, ensembl_id, verbose=True):
         else:
             # No subcellular localisation data will return as nan
             nan_list = np.empty(len(subcel_locs_final))
-            nan_list[:] = np.NaN
+            nan_list[:] = np.nan
             df["subcellular_localisation"] = nan_list
 
         # Add query colunm
