@@ -186,7 +186,7 @@ def info(
                 except Exception as e:
                     if verbose:
                         logger.warning(
-                            f"UniProt server request for ID '{ens_id}' return following error:\n{e}"
+                            f"UniProt server request for ID '{ens_id}' returned the following error:\n{e}"
                         )
                     continue
 
