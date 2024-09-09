@@ -2,6 +2,7 @@ import time
 import zipfile
 import os
 import sys
+import shutil
 import platform
 import subprocess
 import json
@@ -18,6 +19,7 @@ from Bio import SeqIO
 # logger = set_up_logger()
 
 from .compile import PACKAGE_PATH
+from .gget_setup import UUID
 
 # Path to precompiled datasets binary
 if platform.system() == "Windows":
@@ -478,7 +480,7 @@ def ncbi_virus(
     current_date = datetime.now().strftime("%Y-%m-%d")
     if outfolder is None:
         outfolder = os.getcwd()
-    temp_dir = os.path.join(outfolder, f"tmp_{current_date}")
+    temp_dir = os.path.join(outfolder, f"tmp_{current_date}_{UUID}")
     os.makedirs(temp_dir, exist_ok=True)
 
     # Download all sequences matching virus and host from NCBI
@@ -549,3 +551,6 @@ def ncbi_virus(
 
         # Save filtered metadata to CSV file
         save_metadata_to_csv(filtered_metadata, output_metadata_csv)
+
+    # Delete temporary folder and its concent
+    shutil.rmtree(temp_dir)
