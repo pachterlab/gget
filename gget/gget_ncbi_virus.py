@@ -1,12 +1,15 @@
 import time
 import zipfile
 import os
+import platform
 import json
 import csv
 import pandas as pd
-from Bio import SeqIO
 from datetime import datetime
 from dateutil import parser
+
+# !!! REMOVE BIOPYTHON DEPENDENCY
+from Bio import SeqIO
 
 # Uncomment after merge with dev
 # from .utils import set_up_logger
