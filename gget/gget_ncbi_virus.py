@@ -527,7 +527,7 @@ def ncbi_virus(
         "max_release_date": max_release_date,
         "min_mature_peptide_count": min_mature_peptide_count,
         "max_mature_peptide_count": max_mature_peptide_count,
-        "min_protein_count": min_protein_countNone,
+        "min_protein_count": min_protein_count,
         "max_protein_count": max_protein_count,
         "max_ambiguous_chars": max_ambiguous_chars,
     }
