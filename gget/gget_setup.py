@@ -277,7 +277,7 @@ def setup(module, verbose=True, out=None):
         if platform.system() == "Darwin":
             command = """
                 git clone --branch main -q --branch {} {} {} \
-                && sed -i '' 's/\/tmp\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \
+                && sed -i '' 's/\\/tmp\\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \
                 && sed -i '' 's/from absl import logging/from absl import logging\\\logging.set_verbosity(logging.WARNING)/g' {}/alphafold/data/tools/jackhmmer.py \
                 && pip install -q -r {}/requirements.txt \
                 && pip install -q --no-dependencies {}
@@ -286,7 +286,7 @@ def setup(module, verbose=True, out=None):
                 ALPHAFOLD_GIT_REPO,
                 alphafold_folder,
                 os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace(
-                    "/", "\/"
+                    "/", "\\/"
                 ),  # Replace directory where jackhmmer database chunks will be saved
                 alphafold_folder,
                 alphafold_folder,
@@ -296,7 +296,7 @@ def setup(module, verbose=True, out=None):
         else:
             command = """
                 git clone --branch main -q --branch {} {} {} \
-                && sed -i 's/\/tmp\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \
+                && sed -i 's/\\/tmp\\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \
                 && sed -i 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' {}/alphafold/data/tools/jackhmmer.py \
                 && pip install -q -r {}/requirements.txt \
                 && pip install -q --no-dependencies {}
@@ -305,7 +305,7 @@ def setup(module, verbose=True, out=None):
                 ALPHAFOLD_GIT_REPO,
                 alphafold_folder,
                 os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace(
-                    "/", "\/"
+                    "/", "\\/"
                 ),  # Replace directory where jackhmmer database chunks will be saved
                 alphafold_folder,
                 alphafold_folder,
