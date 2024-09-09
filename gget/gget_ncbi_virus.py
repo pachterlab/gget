@@ -47,7 +47,9 @@ def run_datasets(virus, host, filename, accession):
 
         # Return None if the subprocess returned with an error
         if process_2.wait() != 0:
-            raise RuntimeError("Making the NCBI 'datasets' binary executable has failed.")
+            raise RuntimeError(
+                "Making the NCBI 'datasets' binary executable has failed."
+            )
 
     # Initialize the base datasets command
     if accession:
@@ -58,7 +60,7 @@ def run_datasets(virus, host, filename, accession):
     # Loop through the dictionary and construct the command
     for key, value in args_dict.items():
         if value:
-            command += f" --{key} {value}"
+            command += f" --{key} '{value}'"
 
     # Run datasets command and write command output
     start_time = time.time()
@@ -433,7 +435,7 @@ def ncbi_virus(
                            Default: None (saves output into current working directory)
 
     Filters:
-    - host                 Host organism, e.g. "homo_sapiens". Default: None
+    - host                 Host organism, e.g. "homo sapiens". Default: None
     - min_seq_length       Min length of the returned sequences, e.g. 6252. Default: None
     - max_seq_length       Max length of the returned sequences, e.g. 7500. Default: None
     - min_gene_count       Min number of genes present in the virus genome, e.g. 1. Default: None
@@ -505,29 +507,29 @@ def ncbi_virus(
 
     # Define filter criteria (customize these as needed)
     filters = {
-        "min_seq_length": 6252,
-        "max_seq_length": 7815,
-        "min_gene_count": None,
-        "max_gene_count": None,
-        "nuc_completeness": None,  # Nucleotide completeness 'partial' or 'complete'
-        "host": "homo_sapiens",
-        "host_taxid": None,
-        "lab_passaged": None,  # True/False
-        "geographic_region": None,  #  e.g. Africa
-        "geographic_location": None,  # e.g. South_Africa
-        "submitter_country": None,  # e.g. South_Africa
-        "min_collection_date": "2000-01-01",  # YYYY-MM-DD
-        "max_collection_date": None,
-        "annotated": None,  # True/False
-        "virus_taxid": None,
-        "source_database": None,  # e.g. GenBank
-        "min_release_date": None,
-        "max_release_date": None,
-        "min_mature_peptide_count": None,
-        "max_mature_peptide_count": None,
-        "min_protein_count": None,
-        "max_protein_count": None,
-        "max_ambiguous_chars": 0,
+        "min_seq_length": min_seq_length,
+        "max_seq_length": max_seq_length,
+        "min_gene_count": min_gene_count,
+        "max_gene_count": max_gene_count,
+        "nuc_completeness": nuc_completeness,
+        "host": None,  # Host filtering is done when datasets is called
+        "host_taxid": host_taxid,
+        "lab_passaged": lab_passaged,
+        "geographic_region": geographic_region,
+        "geographic_location": geographic_location,
+        "submitter_country": submitter_country,
+        "min_collection_date": min_collection_date,
+        "max_collection_date": max_collection_date,
+        "annotated": annotated,
+        "virus_taxid": virus_taxid,
+        "source_database": source_database,
+        "min_release_date": min_release_date,
+        "max_release_date": max_release_date,
+        "min_mature_peptide_count": min_mature_peptide_count,
+        "max_mature_peptide_count": max_mature_peptide_count,
+        "min_protein_count": min_protein_countNone,
+        "max_protein_count": max_protein_count,
+        "max_ambiguous_chars": max_ambiguous_chars,
     }
 
     # Filter sequences
