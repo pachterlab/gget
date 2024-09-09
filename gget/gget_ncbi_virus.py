@@ -543,9 +543,9 @@ def ncbi_virus(
         SeqIO.write(filtered_sequences, output_fasta_file, "fasta")
 
         # Save filtered metadata to .jsonl file
-        with open(output_metadata_file, "w") as file:
+        with open(output_metadata_jsonl, "w") as file:
             for metadata in filtered_metadata:
                 file.write(json.dumps(metadata) + "\n")
 
         # Save filtered metadata to CSV file
-        save_metadata_to_csv(filtered_metadata, output_metadata_file)
+        save_metadata_to_csv(filtered_metadata, output_metadata_csv)
