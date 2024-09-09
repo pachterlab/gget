@@ -2,6 +2,7 @@ import time
 import zipfile
 import os
 import platform
+import subprocess
 import json
 import csv
 import pandas as pd
