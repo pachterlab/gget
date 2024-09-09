@@ -437,7 +437,7 @@ def ncbi_virus(
                            Default: None (saves output into current working directory)
 
     Filters:
-    - host                 Host organism, e.g. "homo sapiens". Default: None
+    - host                 Host organism, e.g. 'homo sapiens'. Default: None
     - min_seq_length       Min length of the returned sequences, e.g. 6252. Default: None
     - max_seq_length       Max length of the returned sequences, e.g. 7500. Default: None
     - min_gene_count       Min number of genes present in the virus genome, e.g. 1. Default: None
