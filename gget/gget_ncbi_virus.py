@@ -431,7 +431,7 @@ def ncbi_virus(
     - virus                Virus taxon or accession, e.g. 'Norovirus' or 'coronaviridae' or 'NC_045512.2'
                            If this input is a virus accession (e.g. 'NC_045512.2'), set accession = True.
     - accession            True/False whether 'virus' is an accession. Default: False
-    - outfolder            Path to folder to save the requested data in (str).
+    - outfolder            Path to folder to save the requested data in, e.g. 'path/to/norovirus_folder'.
                            Default: None (saves output into current working directory)
 
     Filters:
@@ -490,8 +490,8 @@ def ncbi_virus(
     unzip_file(zipped_file, temp_ncbi_folder)
 
     # Define file paths
-    fna_file = os.path.join(temp_ncbi_folder, "data/genomic.fna")
-    jsonl_file = os.path.join(temp_ncbi_folder, "data/data_report.jsonl")
+    fna_file = os.path.join(temp_ncbi_folder, "ncbi_dataset/data/genomic.fna")
+    jsonl_file = os.path.join(temp_ncbi_folder, "ncbi_dataset/data/data_report.jsonl")
     output_fasta_file = os.path.join(
         outfolder, f"{virus}_{current_date}_sequences.fasta"
     )
