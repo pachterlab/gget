@@ -36,7 +36,20 @@ def run_datasets(virus, host, filename, accession):
         "filename": filename,
     }
 
-    # Initialize the base command
+    # Make datasets binary executable
+    if platform.system() != "Windows":
+        command = f"chmod +x {PRECOMPILED_DATASETS_PATH}"
+        with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process_2:
+            stderr_2 = process_2.stderr.read().decode("utf-8")
+            # Log the standard error if it is not empty
+            if stderr_2:
+                sys.stderr.write(stderr_2)
+
+        # Return None if the subprocess returned with an error
+        if process_2.wait() != 0:
+            raise RuntimeError("Making the NCBI 'datasets' binary executable has failed.")
+
+    # Initialize the base datasets command
     if accession:
         command = f"{PRECOMPILED_DATASETS_PATH} download virus genome accession {virus}"
     else:
@@ -57,7 +70,7 @@ def run_datasets(virus, host, filename, accession):
 
     # Return None if the subprocess returned with an error
     if process_2.wait() != 0:
-        return None
+        raise RuntimeError("NCBI dataset download failed.")
     else:
         logger.debug(
             f"NCBI dataset download complete. Download time: {round(time.time() - start_time, 2)} seconds"
@@ -463,7 +476,7 @@ def ncbi_virus(
     current_date = datetime.now().strftime("%Y-%m-%d")
     if outfolder is None:
         outfolder = os.getcwd()
-    temp_dir = os.path.join(outfolder, "tmp_{current_date}")
+    temp_dir = os.path.join(outfolder, f"tmp_{current_date}")
     os.makedirs(temp_dir, exist_ok=True)
 
     # Download all sequences matching virus and host from NCBI
