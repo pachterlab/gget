@@ -53,9 +53,9 @@ def run_datasets(virus, host, filename, accession):
 
     # Initialize the base datasets command
     if accession:
-        command = f"{PRECOMPILED_DATASETS_PATH} download virus genome accession {virus}"
+        command = f"{PRECOMPILED_DATASETS_PATH} download virus genome accession {virus} --no-progressbar"
     else:
-        command = f"{PRECOMPILED_DATASETS_PATH} download virus genome taxon {virus}"
+        command = f"{PRECOMPILED_DATASETS_PATH} download virus genome taxon {virus} --no-progressbar"
 
     # Loop through the dictionary and construct the command
     for key, value in args_dict.items():
@@ -73,10 +73,10 @@ def run_datasets(virus, host, filename, accession):
     # Return None if the subprocess returned with an error
     if process_2.wait() != 0:
         raise RuntimeError("NCBI dataset download failed.")
-    else:
-        logger.debug(
-            f"NCBI dataset download complete. Download time: {round(time.time() - start_time, 2)} seconds"
-        )
+    # else:
+    #     logger.debug(
+    #         f"NCBI dataset download complete. Download time: {round(time.time() - start_time, 2)} seconds"
+    #     )
 
 
 def unzip_file(zip_file_path, extract_to_path):
