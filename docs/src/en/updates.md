@@ -1,6 +1,6 @@
 ## ✨ What's new  
 **Version ≥ 0.29.0** (XXX):  
-- **New modules: [`gget cbio`](cbio.md) and [`gget opentargets`](opentargets.md)** and [`gget bgee`](bgee.md)**
+- **New modules: [`gget cbio`](cbio.md) and [`gget opentargets`](opentargets.md) and [`gget bgee`](bgee.md)**
 - [`gget mutate`](./mutate.md): Merge identical sequences in the final file. Vectorized mutation creation for faster runtime. Improved flanking sequence check for non-substitution mutations to make sure no wildtype kmer is retained in the mutation-containing sequence.
 - [`gget cosmic`](./cosmic.md): Adding support for targeted and gene screens. Csv file created for gget mutate also contains protein mutation info.
 - [`gget ref`](./ref.md): Added out file option.
