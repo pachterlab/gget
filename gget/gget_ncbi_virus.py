@@ -14,9 +14,8 @@ from dateutil import parser
 # !!! REMOVE BIOPYTHON DEPENDENCY
 from Bio import SeqIO
 
-# Uncomment after merge with dev
-# from .utils import set_up_logger
-# logger = set_up_logger()
+from .utils import set_up_logger
+logger = set_up_logger()
 
 from .compile import PACKAGE_PATH
 from .gget_setup import UUID
@@ -75,10 +74,10 @@ def run_datasets(virus, host, filename, accession):
     # Return None if the subprocess returned with an error
     if process_2.wait() != 0:
         raise RuntimeError("NCBI dataset download failed.")
-    # else:
-    #     logger.debug(
-    #         f"NCBI dataset download complete. Download time: {round(time.time() - start_time, 2)} seconds"
-    #     )
+    else:
+        logger.debug(
+            f"NCBI dataset download complete. Download time: {round(time.time() - start_time, 2)} seconds"
+        )
 
 
 def unzip_file(zip_file_path, extract_to_path):
@@ -162,8 +161,8 @@ def filter_sequences(
         # Check if metadata exists for this accession number
         metadata = metadata_dict.get(accession)
         if metadata is None:
-            print(
-                f"Warning: No metadata found for sequence {accession}. Sequence will be dropped."
+            logger.warning(
+                f"No metadata found for sequence {accession}. Sequence will be dropped."
             )
             continue
 
@@ -319,14 +318,14 @@ def filter_sequences(
 
     num_seqs = len(filtered_sequences)
     if num_seqs > 0:
-        print(f"{num_seqs} sequences passed the provided filters.")
+        logger.info(f"{num_seqs} sequences passed the provided filters.")
         if num_seqs != len(filtered_metadata):
-            print(
-                f"Warning: Number of sequences ({num_seqs}) and number of metadata entries ({len(filtered_metadata)}) do not match."
+            logger.warning(
+                f"Number of sequences ({num_seqs}) and number of metadata entries ({len(filtered_metadata)}) do not match."
             )
         return filtered_sequences, filtered_metadata
     else:
-        print("No sequences passed the provided filters.")
+        logger.warning("No sequences passed the provided filters.")
         return None, None
 
 
