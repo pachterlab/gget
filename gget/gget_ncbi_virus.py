@@ -124,7 +124,6 @@ def filter_sequences(
     host=None,
     host_taxid=None,
     lab_passaged=None,
-    virus_taxid=None,
     geographic_region=None,
     geographic_location=None,
     submitter_country=None,
@@ -256,13 +255,13 @@ def filter_sequences(
             if not annotated_value:
                 continue
 
-        if virus_taxid is not None:
-            virus_lineage = metadata.get("virus", {}).get("lineage", [])
-            if not virus_lineage:
-                continue
-            virus_lineage_taxids = {lineage["taxId"] for lineage in virus_lineage}
-            if virus_taxid not in virus_lineage_taxids:
-                continue
+        # if virus_taxid is not None:
+        #     virus_lineage = metadata.get("virus", {}).get("lineage", [])
+        #     if not virus_lineage:
+        #         continue
+        #     virus_lineage_taxids = {lineage["taxId"] for lineage in virus_lineage}
+        #     if virus_taxid not in virus_lineage_taxids:
+        #         continue
 
         if source_database is not None:
             source_db = metadata.get("sourceDatabase", "").lower()
@@ -417,7 +416,6 @@ def ncbi_virus(
     min_collection_date=None,
     max_collection_date=None,
     annotated=None,
-    virus_taxid=None,
     source_database=None,
     min_release_date=None,
     max_release_date=None,
@@ -431,8 +429,9 @@ def ncbi_virus(
     Download a virus genome dataset from the NCBI Virus database (https://www.ncbi.nlm.nih.gov/labs/virus/).
 
     Args:
-    - virus                Virus taxon or accession, e.g. 'Norovirus' or 'coronaviridae' or 'NC_045512.2'
-                           If this input is a virus accession (e.g. 'NC_045512.2'), set accession = True.
+    - virus                Virus taxon or accession, e.g. 'Norovirus' or 'coronaviridae' or 
+                           '11320' (taxid of Influenza A virus) or 'NC_045512.2'
+                           If this input is a virus NCBI accession (e.g. 'NC_045512.2'), set accession = True.
     - accession            True/False whether 'virus' is an accession. Default: False
     - outfolder            Path to folder to save the requested data in, e.g. 'path/to/norovirus_folder'.
                            Default: None (saves output into current working directory)
@@ -459,8 +458,6 @@ def ncbi_virus(
     - max_collection_date  The latest collection date (in 'YYYY-MM-DD' format). Samples collected after this date will be
                            excluded. Example: '2014-12-04'. Default: None
     - annotated            True/False Indicates whether the virus genome sequence is annotated. Default: None
-    - virus_taxid          NCBI Taxonomy ID of the virus. Filters the results to only include viruses that fall within the
-                           specified TaxID. Default: None
     - source_database      The source database from which the virus sequences originate, e.g. 'GenBank'.
                            Default: None
     - min_release_date     The earliest release date (in 'YYYY-MM-DD' format) of the virus sequence data. Sequences released
@@ -515,7 +512,7 @@ def ncbi_virus(
         "min_gene_count": min_gene_count,
         "max_gene_count": max_gene_count,
         "nuc_completeness": nuc_completeness,
-        "host": None,  # Host filtering is done when datasets is called
+        "host": None,  # Host filtering is done when dataset is called
         "host_taxid": host_taxid,
         "lab_passaged": lab_passaged,
         "geographic_region": geographic_region,
@@ -524,7 +521,6 @@ def ncbi_virus(
         "min_collection_date": min_collection_date,
         "max_collection_date": max_collection_date,
         "annotated": annotated,
-        "virus_taxid": virus_taxid,
         "source_database": source_database,
         "min_release_date": min_release_date,
         "max_release_date": max_release_date,
