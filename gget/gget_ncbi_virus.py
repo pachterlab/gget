@@ -50,7 +50,8 @@ def run_datasets(
         geographic_location = geographic_location.replace("_", " ")
 
     # Replace slashes in path for Windows compatibility
-    if platform.system() == "Windows":PRECOMPILED_DATASETS_PATH = PRECOMPILED_DATASETS_PATH.replace("/", "\\")
+    if platform.system() == "Windows":
+        PRECOMPILED_DATASETS_PATH = PRECOMPILED_DATASETS_PATH.replace("/", "\\")
         filename = filename.replace("/", "\\")
 
     args_dict = {
