@@ -76,6 +76,7 @@ def run_datasets(
     for key, value in args_dict.items():
         if value:
             command += f" --{key} '{value}'"
+    print(command)
 
     # Run datasets command and write command output
     start_time = time.time()
