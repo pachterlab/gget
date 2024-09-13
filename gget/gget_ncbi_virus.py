@@ -46,7 +46,6 @@ def run_datasets(
         "host": host,
         "filename": filename,
         "geo-location": geographic_location,
-        "annotated": annotated,
         "released-after": min_release_date,
     }
 
@@ -78,6 +77,9 @@ def run_datasets(
 
     if complete_only:
         command += f" --complete-only"
+
+    if annotated:
+        command += f" --annotated"
 
     # Run datasets command and write command output
     start_time = time.time()
@@ -512,7 +514,7 @@ def ncbi_virus(
         host,
         zipped_file,
         geographic_location,
-        annotated,
+        True if annotated is True else None,
         True if nuc_completeness == "complete" else None,
         min_release_date,
         accession,
