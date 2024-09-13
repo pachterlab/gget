@@ -51,8 +51,10 @@ def run_datasets(
 
     # Replace slashes in path for Windows compatibility
     if platform.system() == "Windows":
-        PRECOMPILED_DATASETS_PATH = PRECOMPILED_DATASETS_PATH.replace("/", "\\")
+        datasets_path = PRECOMPILED_DATASETS_PATH.replace("/", "\\")
         filename = filename.replace("/", "\\")
+    else:
+        datasets_path = PRECOMPILED_DATASETS_PATH
 
     args_dict = {
         "host": host,
@@ -63,7 +65,7 @@ def run_datasets(
 
     # Make datasets binary executable
     if platform.system() != "Windows":
-        command = f"chmod +x {PRECOMPILED_DATASETS_PATH}"
+        command = f"chmod +x {datasets_path}"
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process_2:
             stderr_2 = process_2.stderr.read().decode("utf-8")
             # Log the standard error if it is not empty
@@ -80,14 +82,14 @@ def run_datasets(
     if platform.system() == "Windows":
         if accession:
             # The double-quotation marks allow white spaces in the path, but this does not work for Windows
-            command = f"{PRECOMPILED_DATASETS_PATH} download virus genome accession {virus} --no-progressbar"
+            command = f"{datasets_path} download virus genome accession {virus} --no-progressbar"
         else:
-            command = f"{PRECOMPILED_DATASETS_PATH} download virus genome taxon {virus} --no-progressbar"
+            command = f"{datasets_path} download virus genome taxon {virus} --no-progressbar"
     else:
         if accession:
-            command = f"{PRECOMPILED_DATASETS_PATH} download virus genome accession '{virus}' --no-progressbar"
+            command = f"{datasets_path} download virus genome accession '{virus}' --no-progressbar"
         else:
-            command = f"{PRECOMPILED_DATASETS_PATH} download virus genome taxon '{virus}' --no-progressbar"
+            command = f"{datasets_path} download virus genome taxon '{virus}' --no-progressbar"
 
     # Loop through the dictionary and construct the command
     for key, value in args_dict.items():
