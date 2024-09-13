@@ -47,7 +47,6 @@ def run_datasets(
         "filename": filename,
         "geo-location": geographic_location,
         "annotated": annotated,
-        "complete-only": complete,
         "released-after": min_release_date,
     }
 
@@ -68,15 +67,17 @@ def run_datasets(
 
     # Initialize the base datasets command
     if accession:
-        command = f"{PRECOMPILED_DATASETS_PATH} download virus genome accession {virus} --no-progressbar"
+        command = f"{PRECOMPILED_DATASETS_PATH} download virus genome accession '{virus}' --no-progressbar"
     else:
-        command = f"{PRECOMPILED_DATASETS_PATH} download virus genome taxon {virus} --no-progressbar"
+        command = f"{PRECOMPILED_DATASETS_PATH} download virus genome taxon '{virus}' --no-progressbar"
 
     # Loop through the dictionary and construct the command
     for key, value in args_dict.items():
         if value:
             command += f" --{key} '{value}'"
-    print(command)
+
+    if complete:
+        command += f" --complete-only"
 
     # Run datasets command and write command output
     start_time = time.time()
@@ -439,7 +440,7 @@ def ncbi_virus(
     min_protein_count=None,
     max_protein_count=None,
     max_ambiguous_chars=None,
-    complete=None
+    complete=None,
 ):
     """
     Download a virus genome dataset from the NCBI Virus database (https://www.ncbi.nlm.nih.gov/labs/virus/).
