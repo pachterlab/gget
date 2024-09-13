@@ -565,9 +565,9 @@ def ncbi_virus(
     # Define file paths
     fna_file = os.path.join(temp_ncbi_folder, "ncbi_dataset/data/genomic.fna")
     jsonl_file = os.path.join(temp_ncbi_folder, "ncbi_dataset/data/data_report.jsonl")
-    output_fasta_file = os.path.join(outfolder, f"{virus}_sequences.fasta")
-    output_metadata_csv = os.path.join(outfolder, f"{virus}_metadata.csv")
-    output_metadata_jsonl = os.path.join(outfolder, f"{virus}_metadata.jsonl")
+    output_fasta_file = os.path.join(outfolder, f"{virus.replace(' ', '_')}_sequences.fasta")
+    output_metadata_csv = os.path.join(outfolder, f"{virus.replace(' ', '_')}_metadata.csv")
+    output_metadata_jsonl = os.path.join(outfolder, f"{virus.replace(' ', '_')}_metadata.jsonl")
 
     # Load metadata
     metadata_dict = load_metadata(jsonl_file)
