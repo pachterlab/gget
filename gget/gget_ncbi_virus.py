@@ -38,7 +38,7 @@ def run_datasets(
     filename,
     geographic_location,
     annotated,
-    complete,
+    complete_only,
     min_release_date,
     accession,
 ):
@@ -76,7 +76,7 @@ def run_datasets(
         if value:
             command += f" --{key} '{value}'"
 
-    if complete:
+    if complete_only:
         command += f" --complete-only"
 
     # Run datasets command and write command output
@@ -440,7 +440,6 @@ def ncbi_virus(
     min_protein_count=None,
     max_protein_count=None,
     max_ambiguous_chars=None,
-    complete=None,
 ):
     """
     Download a virus genome dataset from the NCBI Virus database (https://www.ncbi.nlm.nih.gov/labs/virus/).
@@ -491,6 +490,14 @@ def ncbi_virus(
     Returns a fasta file containing the requested sequences and .csv and .jsonl files containing the associated metadata.
     """
 
+    # Check arguments
+    if nuc_completeness is not None:
+        nuc_completeness = nuc_completeness.lower()
+    if nuc_completeness is not None and nuc_completeness not in ["partial", "complete"]:
+        raise ValueError(
+            "Argument 'nuc_completeness' must be 'partial', 'complete', or None."
+        )
+
     # Create out and tmp folders
     # current_date = datetime.now().strftime("%Y-%m-%d")
     if outfolder is None:
@@ -506,7 +513,7 @@ def ncbi_virus(
         zipped_file,
         geographic_location,
         annotated,
-        complete,
+        True if nuc_completeness == "complete" else None,
         min_release_date,
         accession,
     )
