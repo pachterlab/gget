@@ -45,7 +45,7 @@ def run_datasets(
     args_dict = {
         "host": host,
         "filename": filename,
-        "geo-location": geographic_location,
+        "geo-location": geographic_location.replace("_", " "),
         "released-after": min_release_date,
     }
 
@@ -147,7 +147,7 @@ def filter_sequences(
     submitter_country=None,
     min_collection_date=None,
     max_collection_date=None,
-    # annotated=None,
+    annotated=None,
     source_database=None,
     # min_release_date=None,
     max_release_date=None,
@@ -226,9 +226,14 @@ def filter_sequences(
             if host_taxid not in host_lineage_taxids:
                 continue
 
-        if lab_passaged is not None:
+        if lab_passaged is True:
             from_lab = metadata.get("isLabHost")
             if not from_lab:
+                continue
+
+        if lab_passaged is False:
+            from_lab = metadata.get("isLabHost")
+            if from_lab:
                 continue
 
         # if geographic_location is not None:
@@ -268,10 +273,11 @@ def filter_sequences(
             if max_collection_date and date > max_collection_date:
                 continue
 
-        # if annotated is not None:
-        #     annotated_value = metadata.get("isAnnotated")
-        #     if not annotated_value:
-        #         continue
+        # Annotated = True filter is applies when datasets is called
+        if annotated is False:
+            annotated_value = metadata.get("isAnnotated")
+            if annotated_value:
+                continue
 
         # if virus_taxid is not None:
         #     virus_lineage = metadata.get("virus", {}).get("lineage", [])
@@ -499,6 +505,14 @@ def ncbi_virus(
         raise ValueError(
             "Argument 'nuc_completeness' must be 'partial', 'complete', or None."
         )
+    if annotated is not None and not isinstance(annotated, bool):
+        raise TypeError(
+            "Argument 'annotated' must be a boolean (True or False) or None."
+        )
+    if lab_passaged is not None and not isinstance(lab_passaged, bool):
+        raise TypeError(
+            "Argument 'lab_passaged' must be a boolean (True or False) or None."
+        )
 
     # Create out and tmp folders
     # current_date = datetime.now().strftime("%Y-%m-%d")
@@ -549,7 +563,7 @@ def ncbi_virus(
         "submitter_country": submitter_country,
         "min_collection_date": min_collection_date,
         "max_collection_date": max_collection_date,
-        # "annotated": annotated,
+        "annotated": annotated,
         "source_database": source_database,
         # "min_release_date": min_release_date,
         "max_release_date": max_release_date,
