@@ -15,6 +15,7 @@ from dateutil import parser
 from Bio import SeqIO
 
 from .utils import set_up_logger
+
 logger = set_up_logger()
 
 from .compile import PACKAGE_PATH
@@ -31,10 +32,23 @@ else:
     )
 
 
-def run_datasets(virus, host, filename, accession):
+def run_datasets(
+    virus,
+    host,
+    filename,
+    geographic_location,
+    annotated,
+    complete,
+    min_release_date,
+    accession,
+):
     args_dict = {
         "host": host,
         "filename": filename,
+        "geo-location": geographic_location,
+        "annotated": annotated,
+        "complete-only": complete,
+        "released-after": min_release_date,
     }
 
     # Make datasets binary executable
@@ -125,13 +139,13 @@ def filter_sequences(
     host_taxid=None,
     lab_passaged=None,
     geographic_region=None,
-    geographic_location=None,
+    # geographic_location=None,
     submitter_country=None,
     min_collection_date=None,
     max_collection_date=None,
-    annotated=None,
+    # annotated=None,
     source_database=None,
-    min_release_date=None,
+    # min_release_date=None,
     max_release_date=None,
     min_mature_peptide_count=None,
     max_mature_peptide_count=None,
@@ -148,7 +162,7 @@ def filter_sequences(
     max_collection_date = (
         parse_date(max_collection_date) if max_collection_date else None
     )
-    min_release_date = parse_date(min_release_date) if min_release_date else None
+    # min_release_date = parse_date(min_release_date) if min_release_date else None
     max_release_date = parse_date(max_release_date) if max_release_date else None
 
     # Read sequences from the .fna file
@@ -213,14 +227,14 @@ def filter_sequences(
             if not from_lab:
                 continue
 
-        if geographic_location is not None:
-            location = "_".join(
-                metadata.get("location", {}).get("geographicLocation", "").split(" ")
-            ).lower()
-            if not location:
-                continue
-            if location != geographic_location.lower():
-                continue
+        # if geographic_location is not None:
+        #     location = "_".join(
+        #         metadata.get("location", {}).get("geographicLocation", "").split(" ")
+        #     ).lower()
+        #     if not location:
+        #         continue
+        #     if location != geographic_location.lower():
+        #         continue
 
         if geographic_region is not None:
             location = "_".join(
@@ -250,10 +264,10 @@ def filter_sequences(
             if max_collection_date and date > max_collection_date:
                 continue
 
-        if annotated is not None:
-            annotated_value = metadata.get("isAnnotated")
-            if not annotated_value:
-                continue
+        # if annotated is not None:
+        #     annotated_value = metadata.get("isAnnotated")
+        #     if not annotated_value:
+        #         continue
 
         # if virus_taxid is not None:
         #     virus_lineage = metadata.get("virus", {}).get("lineage", [])
@@ -270,15 +284,15 @@ def filter_sequences(
             if source_db != source_database.lower():
                 continue
 
-        if min_release_date is not None or max_release_date is not None:
-            release_date_str = metadata.get("releaseDate")
-            release_date_value = parse_date(release_date_str.split("T")[0])
-            if release_date_str is None or release_date_value is None:
-                continue
-            if min_release_date and release_date_value < min_release_date:
-                continue
-            if max_release_date and release_date_value > max_release_date:
-                continue
+        # if min_release_date is not None or max_release_date is not None:
+        #     release_date_str = metadata.get("releaseDate")
+        #     release_date_value = parse_date(release_date_str.split("T")[0])
+        #     if release_date_str is None or release_date_value is None:
+        #         continue
+        #     if min_release_date and release_date_value < min_release_date:
+        #         continue
+        #     if max_release_date and release_date_value > max_release_date:
+        #         continue
 
         if min_mature_peptide_count is not None or max_mature_peptide_count is not None:
             mature_peptide_count = metadata.get("maturePeptideCount")
@@ -424,12 +438,13 @@ def ncbi_virus(
     min_protein_count=None,
     max_protein_count=None,
     max_ambiguous_chars=None,
+    complete=None
 ):
     """
     Download a virus genome dataset from the NCBI Virus database (https://www.ncbi.nlm.nih.gov/labs/virus/).
 
     Args:
-    - virus                Virus taxon or accession, e.g. 'Norovirus' or 'coronaviridae' or 
+    - virus                Virus taxon or accession, e.g. 'Norovirus' or 'coronaviridae' or
                            '11320' (taxid of Influenza A virus) or 'NC_045512.2'
                            If this input is a virus NCBI accession (e.g. 'NC_045512.2'), set accession = True.
     - accession            True/False whether 'virus' is an accession. Default: False
@@ -475,15 +490,24 @@ def ncbi_virus(
     """
 
     # Create out and tmp folders
-    current_date = datetime.now().strftime("%Y-%m-%d")
+    # current_date = datetime.now().strftime("%Y-%m-%d")
     if outfolder is None:
         outfolder = os.getcwd()
-    temp_dir = os.path.join(outfolder, f"tmp_{current_date}_{UUID}")
+    temp_dir = os.path.join(outfolder, f"tmp_{UUID}")
     os.makedirs(temp_dir, exist_ok=True)
 
     # Download all sequences matching virus and host from NCBI
     zipped_file = os.path.join(temp_dir, "ncbi_dataset.zip")
-    run_datasets(virus, host, zipped_file, accession)
+    run_datasets(
+        virus,
+        host,
+        zipped_file,
+        geographic_location,
+        annotated,
+        complete,
+        min_release_date,
+        accession,
+    )
 
     # Unzip NCBI database
     temp_ncbi_folder = os.path.join(temp_dir, "ncbi_dataset")
@@ -492,15 +516,9 @@ def ncbi_virus(
     # Define file paths
     fna_file = os.path.join(temp_ncbi_folder, "ncbi_dataset/data/genomic.fna")
     jsonl_file = os.path.join(temp_ncbi_folder, "ncbi_dataset/data/data_report.jsonl")
-    output_fasta_file = os.path.join(
-        outfolder, f"{virus}_{current_date}_sequences.fasta"
-    )
-    output_metadata_csv = os.path.join(
-        outfolder, f"{virus}_{current_date}_metadata.csv"
-    )
-    output_metadata_jsonl = os.path.join(
-        outfolder, f"{virus}_{current_date}_metadata.jsonl"
-    )
+    output_fasta_file = os.path.join(outfolder, f"{virus}_sequences.fasta")
+    output_metadata_csv = os.path.join(outfolder, f"{virus}_metadata.csv")
+    output_metadata_jsonl = os.path.join(outfolder, f"{virus}_metadata.jsonl")
 
     # Load metadata
     metadata_dict = load_metadata(jsonl_file)
@@ -516,13 +534,13 @@ def ncbi_virus(
         "host_taxid": host_taxid,
         "lab_passaged": lab_passaged,
         "geographic_region": geographic_region,
-        "geographic_location": geographic_location,
+        # "geographic_location": geographic_location,
         "submitter_country": submitter_country,
         "min_collection_date": min_collection_date,
         "max_collection_date": max_collection_date,
-        "annotated": annotated,
+        # "annotated": annotated,
         "source_database": source_database,
-        "min_release_date": min_release_date,
+        # "min_release_date": min_release_date,
         "max_release_date": max_release_date,
         "min_mature_peptide_count": min_mature_peptide_count,
         "max_mature_peptide_count": max_mature_peptide_count,
