@@ -84,7 +84,9 @@ def run_datasets(
             # The double-quotation marks allow white spaces in the path, but this does not work for Windows
             command = f"{datasets_path} download virus genome accession {virus} --no-progressbar"
         else:
-            command = f"{datasets_path} download virus genome taxon {virus} --no-progressbar"
+            command = (
+                f"{datasets_path} download virus genome taxon {virus} --no-progressbar"
+            )
     else:
         if accession:
             command = f"{datasets_path} download virus genome accession '{virus}' --no-progressbar"
@@ -446,6 +448,17 @@ def save_metadata_to_csv(filtered_metadata, output_metadata_file):
     df.to_csv(output_metadata_file, index=False)
 
 
+def check_min_max(min, max, filtername, date=False):
+    if min is not None and max is not None:
+        if date:
+            min = parse_date(min)
+            max = parse_date(max)
+        if min > max:
+            raise ValueError(
+                f"Min value ({min}) cannot be greater than max value ({max}) for {filtername}."
+            )
+
+
 def ncbi_virus(
     virus,
     accession=False,
@@ -538,6 +551,33 @@ def ncbi_virus(
             "Argument 'lab_passaged' must be a boolean (True or False) or None."
         )
 
+    check_min_max(
+        min_seq_length,
+        max_seq_length,
+        "sequence length (arguments: min_seq_length and max_seq_length)",
+    )
+    check_min_max(
+        min_gene_count,
+        max_gene_count,
+        "gene count (arguments: min_gene_count and max_gene_count)",
+    )
+    check_min_max(
+        min_mature_peptide_count,
+        max_mature_peptide_count,
+        "mature peptide count (arguments: min_mature_peptide_count and max_mature_peptide_count)",
+    )
+    check_min_max(
+        min_protein_count,
+        max_protein_count,
+        "protein count (arguments: min_protein_count and max_protein_count)",
+    )
+    check_min_max(
+        min_release_date,
+        max_release_date,
+        "release data (arguments: min_release_date and max_release_date)",
+        date=True,
+    )
+
     # Create out and tmp folders
     # current_date = datetime.now().strftime("%Y-%m-%d")
     if outfolder is None:
@@ -565,9 +605,15 @@ def ncbi_virus(
     # Define file paths
     fna_file = os.path.join(temp_ncbi_folder, "ncbi_dataset/data/genomic.fna")
     jsonl_file = os.path.join(temp_ncbi_folder, "ncbi_dataset/data/data_report.jsonl")
-    output_fasta_file = os.path.join(outfolder, f"{virus.replace(' ', '_')}_sequences.fasta")
-    output_metadata_csv = os.path.join(outfolder, f"{virus.replace(' ', '_')}_metadata.csv")
-    output_metadata_jsonl = os.path.join(outfolder, f"{virus.replace(' ', '_')}_metadata.jsonl")
+    output_fasta_file = os.path.join(
+        outfolder, f"{virus.replace(' ', '_')}_sequences.fasta"
+    )
+    output_metadata_csv = os.path.join(
+        outfolder, f"{virus.replace(' ', '_')}_metadata.csv"
+    )
+    output_metadata_jsonl = os.path.join(
+        outfolder, f"{virus.replace(' ', '_')}_metadata.jsonl"
+    )
 
     # Load metadata
     metadata_dict = load_metadata(jsonl_file)
