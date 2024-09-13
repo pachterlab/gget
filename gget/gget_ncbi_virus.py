@@ -42,10 +42,20 @@ def run_datasets(
     min_release_date,
     accession,
 ):
+    if host:
+        host = host.replace("_", " ")
+    if geographic_location:
+        geographic_location = geographic_location.replace("_", " ")
+
+    # Replace slashes in path for Windows compatibility
+    if platform.system() == "Windows":
+        PRECOMPILED_DATASETS_PATH = PRECOMPILED_DATASETS_PATH.replace("/", "\\")
+        filename = filename.replace("/", "\\")
+
     args_dict = {
         "host": host,
         "filename": filename,
-        "geo-location": geographic_location.replace("_", " "),
+        "geo-location": geographic_location,
         "released-after": min_release_date,
     }
 
@@ -65,15 +75,25 @@ def run_datasets(
             )
 
     # Initialize the base datasets command
-    if accession:
-        command = f"{PRECOMPILED_DATASETS_PATH} download virus genome accession '{virus}' --no-progressbar"
+    if platform.system() == "Windows":
+        if accession:
+            # The double-quotation marks allow white spaces in the path, but this does not work for Windows
+            command = f"{PRECOMPILED_DATASETS_PATH} download virus genome accession {virus} --no-progressbar"
+        else:
+            command = f"{PRECOMPILED_DATASETS_PATH} download virus genome taxon {virus} --no-progressbar"
     else:
-        command = f"{PRECOMPILED_DATASETS_PATH} download virus genome taxon '{virus}' --no-progressbar"
+        if accession:
+            command = f"{PRECOMPILED_DATASETS_PATH} download virus genome accession '{virus}' --no-progressbar"
+        else:
+            command = f"{PRECOMPILED_DATASETS_PATH} download virus genome taxon '{virus}' --no-progressbar"
 
     # Loop through the dictionary and construct the command
     for key, value in args_dict.items():
         if value:
-            command += f" --{key} '{value}'"
+            if platform.system() == "Windows":
+                command += f" --{key} {value}"
+            else:
+                command += f" --{key} '{value}'"
 
     if complete_only:
         command += f" --complete-only"
