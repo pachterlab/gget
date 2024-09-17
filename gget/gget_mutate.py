@@ -1118,8 +1118,8 @@ def mutate(
     if merge_identical_entries:
         # Group by 'mutant_sequence_kmer' and concatenate 'header' values
         mutations = (
-            mutations.groupby("mutant_sequence_kmer", sort=False, group_keys=False)["header"]   #? mutations.groupby("mutant_sequence_kmer", sort=False, group_keys=False)["header"]
-            .apply(";".join)
+            mutations.groupby("mutant_sequence_kmer", sort=False)
+            .agg(lambda x: ";".join(x.astype(str)))  # Concatenate values with semicolons
             .reset_index()
         )
 
