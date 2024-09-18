@@ -394,6 +394,7 @@ def save_metadata_to_csv(filtered_metadata, output_metadata_file):
         "Virus Lineage",
         "Length",
         "Nuc Completeness",
+        "Geo Region",
         "Geo Location",
         "Host",
         "Host Lineage",
@@ -404,6 +405,8 @@ def save_metadata_to_csv(filtered_metadata, output_metadata_file):
         "SRA Accessions",
         "Bioprojects",
         "Biosample",
+        "Protein count",
+        "Gene count",
     ]
 
     # Prepare data for DataFrame
@@ -413,7 +416,15 @@ def save_metadata_to_csv(filtered_metadata, output_metadata_file):
         location_info = metadata.get("location", {})
         location_values = [v for v in location_info.values() if v and v != ""]
         location_values.reverse()
-        geo_info = ":".join(location_values) if location_values else pd.NA
+        # geo_info = ":".join(location_values) if location_values else pd.NA
+        try:
+            geo_region = location_values[0]
+        except IndexError:
+            geo_region = pd.NA
+        try:
+            geo_loc = location_values[1]
+        except IndexError:
+            geo_loc = pd.NA
 
         # Build table
         row = {
@@ -428,7 +439,9 @@ def save_metadata_to_csv(filtered_metadata, output_metadata_file):
             "Virus Lineage": metadata.get("virus", {}).get("lineage", []),
             "Length": metadata.get("length", pd.NA),
             "Nuc Completeness": metadata.get("completeness", pd.NA),
-            "Geo Location": geo_info,
+            # "Geo Location": geo_info,
+            "Geo Region": geo_region,
+            "Geo Location": geo_loc,
             "Host": metadata.get("host", {}).get("organismName", pd.NA),
             "Host Lineage": metadata.get("host", {}).get("lineage", []),
             "Lab Host": metadata.get("labHost", pd.NA),
@@ -438,6 +451,8 @@ def save_metadata_to_csv(filtered_metadata, output_metadata_file):
             "SRA Accessions": metadata.get("sraAccessions", []),
             "Bioprojects": metadata.get("bioprojects", []),
             "Biosample": metadata.get("biosample", pd.NA),
+            "Gene count": metadata.get("geneCount"),
+            "Protein count": metadata.get("proteinCount"),
         }
         data_for_df.append(row)
 
