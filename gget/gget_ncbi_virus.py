@@ -379,9 +379,9 @@ def filter_sequences(
                 for protein in has_proteins:
                     print(protein)
                     # Dynamically create the regex for each protein with case insensitivity and quotes
-                    regex = rf"(?i)\b['\"]?\(?{protein}\)?['\"]?\b"
+                    regex = rf"(?i)\b['\",]?\(?{protein}\)?['\",]?\b"
                     if not any(
-                        re.search(regex, part) and "complete cds" in part
+                        re.search(regex, part) and "complete" in part
                         for part in prot_parts
                     ):
                         print(f"Blocked {record.description}")
