@@ -370,19 +370,21 @@ def filter_sequences(
             if isinstance(has_proteins, str):
                 has_proteins = [has_proteins]
             try:
-                prot_header = record.id.split(metadata.get("isolate", {}).get("name"))[
-                    -1
-                ]
+                prot_header = record.description.split(
+                    metadata.get("isolate", {}).get("name")
+                )[-1]
                 prot_parts = prot_header.split(";")
 
                 # Only "complete cds"
                 for protein in has_proteins:
+                    print(protein)
                     # Dynamically create the regex for each protein with case insensitivity and quotes
                     regex = rf"(?i)\b['\"]?\(?{protein}\)?['\"]?\b"
                     if not any(
                         re.search(regex, part) and "complete cds" in part
                         for part in prot_parts
                     ):
+                        print(f"Blocked {record.description}")
                         continue
 
             except Exception as e:
@@ -392,7 +394,9 @@ def filter_sequences(
 
         # Attempt to record information about the protein/segments present in the sequence
         try:
-            prot_header = record.id.split(metadata.get("isolate", {}).get("name"))[-1]
+            prot_header = record.description.split(
+                metadata.get("isolate", {}).get("name")
+            )[-1]
             print(prot_header)
         except Exception:
             prot_header = pd.Na
