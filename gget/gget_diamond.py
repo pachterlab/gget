@@ -64,24 +64,24 @@ def translate_seqs(query):
 
         print([frame1, frame2, frame3, frame4, frame5, frame6])
         print([
-                f"{headers[i]}_frame1",
-                f"{headers[i]}_frame2",
-                f"{headers[i]}_frame3",
-                f"{headers[i]}_frame4",
-                f"{headers[i]}_frame5",
-                f"{headers[i]}_frame6",
+                f"{headers[i]}Frame1",
+                f"{headers[i]}Frame2",
+                f"{headers[i]}Frame3",
+                f"{headers[i]}Frame4",
+                f"{headers[i]}Frame5",
+                f"{headers[i]}Frame6",
             ])
 
         # Collect translations and headers
         trans_seqs.extend([frame1, frame2, frame3, frame4, frame5, frame6])
         frame_headers.extend(
             [
-                f"{headers[i]}_frame1",
-                f"{headers[i]}_frame2",
-                f"{headers[i]}_frame3",
-                f"{headers[i]}_frame4",
-                f"{headers[i]}_frame5",
-                f"{headers[i]}_frame6",
+                f"{headers[i]}Frame1",
+                f"{headers[i]}Frame2",
+                f"{headers[i]}Frame3",
+                f"{headers[i]}Frame4",
+                f"{headers[i]}Frame5",
+                f"{headers[i]}Frame6",
             ]
         )
 
