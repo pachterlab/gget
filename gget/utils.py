@@ -23,7 +23,6 @@ from .constants import (
     COSMIC_RELEASE_URL,
 )
 
-
 def set_up_logger():
     logging_level = logging.INFO
     logger = logging.getLogger(__name__)
@@ -62,7 +61,20 @@ def flatten(xss):
     """
     return [x for xs in xss for x in xs]
 
+def translate_nuc_to_prot(nuc_seq):
+    protein_seq = []
+    for i in range(0, len(nuc_seq) - 2, 3):
+        codon = nuc_seq[i:i+3]
+        if codon in CODON_TABLE:
+            protein_seq.append(CODON_TABLE[codon])
+        else:
+            protein_seq.append('X')
+    return ''.join(protein_seq)
 
+def reverse_complement(seq):
+    complement = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
+    return ''.join(complement[base] for base in reversed(seq))
+    
 def get_latest_cosmic():
     html = requests.get(COSMIC_RELEASE_URL)
     if html.status_code != 200:

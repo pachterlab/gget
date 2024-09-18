@@ -426,6 +426,14 @@ def main():
         help="Reference sequences (str or list) or path to FASTA file containing reference sequences.",
     )
     parser_diamond.add_argument(
+        "-tr",
+        "--translate",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Set to True when query sequences are nucleotide sequences. Query sequences will be translated to amino acids in all 6 possible reading frames.",
+    )
+    parser_diamond.add_argument(
         "-db",
         "--diamond_db",
         type=str,
@@ -2321,6 +2329,7 @@ def main():
         diamond_results = diamond(
             query=args.query,
             reference=args.reference,
+            translate=args.translate,
             diamond_db=args.diamond_db,
             sensitivity=args.sensitivity,
             threads=args.threads,
