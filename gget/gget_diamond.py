@@ -54,11 +54,22 @@ def translate_seqs(query):
         frame2 = translate_nuc_to_prot(seq[1:])
         frame3 = translate_nuc_to_prot(seq[2:])
 
+
         # Reverse complement frames
         rev_seq = reverse_complement(seq)
         frame4 = translate_nuc_to_prot(rev_seq)
         frame5 = translate_nuc_to_prot(rev_seq[1:])
         frame6 = translate_nuc_to_prot(rev_seq[2:])
+
+        print([frame1, frame2, frame3, frame4, frame5, frame6])
+        print([
+                f"{headers[i]}_frame1",
+                f"{headers[i]}_frame2",
+                f"{headers[i]}_frame3",
+                f"{headers[i]}_frame4",
+                f"{headers[i]}_frame5",
+                f"{headers[i]}_frame6",
+            ])
 
         # Collect translations and headers
         trans_seqs.extend([frame1, frame2, frame3, frame4, frame5, frame6])
