@@ -48,6 +48,7 @@ def translate_seqs(query):
     trans_seqs = []
     frame_headers = []
     for i, seq in enumerate(seqs):
+        print(seq)
         seq = seq.upper()
         # Forward frames
         frame1 = translate_nuc_to_prot(seq)
