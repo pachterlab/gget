@@ -49,6 +49,7 @@ def translate_seqs(query):
     trans_seqs = []
     frame_headers = []
     for i, seq in enumerate(seqs):
+        seq = seq.upper()
         # Forward frames
         frame1 = translate_nuc_to_prot(seq)
         frame2 = translate_nuc_to_prot(seq[1:])
@@ -99,7 +100,7 @@ def diamond(
     Args:
     - query          Sequences (str or list) or path to FASTA file containing sequences to be aligned against the reference.
     - reference      Reference sequences (str or list) or path to FASTA file containing reference sequences.
-    - translate      Set to True when query sequences are nucleotide sequences. Query sequences will be translated to amino acids in 
+    - translate      Set to True when query sequences are nucleotide sequences. Query sequences will be translated to amino acids in
                      all 6 possible reading frames. Default: False
     - diamond_db     Path to save DIAMOND database created from reference.
                      Default: None -> Temporary db file will be deleted after alignment or saved in 'out' if 'out' is provided.
