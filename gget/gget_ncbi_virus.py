@@ -377,7 +377,6 @@ def filter_sequences(
 
                 # Only "complete cds"
                 for protein in has_proteins:
-                    print(protein)
                     # Dynamically create the regex for each protein with case insensitivity and quotes
                     regex = rf"(?i)\b['\",]?\(?{protein}\)?['\",]?\b"
                     if not any(
@@ -397,7 +396,6 @@ def filter_sequences(
             prot_header = record.description.split(
                 metadata.get("isolate", {}).get("name")
             )[-1]
-            print(prot_header)
         except Exception:
             prot_header = pd.Na
 
