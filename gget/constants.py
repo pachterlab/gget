@@ -69,5 +69,6 @@ CODON_TABLE = {
     'TGT': 'C', 'TGC': 'C', 'TGA': '*', 'TGG': 'W',
     'CGT': 'R', 'CGC': 'R', 'CGA': 'R', 'CGG': 'R',
     'AGT': 'S', 'AGC': 'S', 'AGA': 'R', 'AGG': 'R',
-    'GGT': 'G', 'GGC': 'G', 'GGA': 'G', 'GGG': 'G'
+    'GGT': 'G', 'GGC': 'G', 'GGA': 'G', 'GGG': 'G',
+    '---': '-'
 }
