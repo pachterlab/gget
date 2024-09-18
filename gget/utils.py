@@ -65,6 +65,10 @@ def flatten(xss):
 
 
 def translate_nuc_to_prot(nuc_seq):
+    nucleotides = set("ATGCN")
+    if set(nuc_seq) <= nucleotides:
+        logger.warning(f"Nucleotide sequence contains unknown (non-ATGCN) characters.")
+
     protein_seq = []
     for i in range(0, len(nuc_seq) - 2, 3):
         codon = nuc_seq[i : i + 3]
@@ -76,7 +80,10 @@ def translate_nuc_to_prot(nuc_seq):
 
 
 def reverse_complement(seq):
-    complement = {"A": "T", "T": "A", "C": "G", "G": "C"}
+    try:
+        complement = {"A": "T", "T": "A", "C": "G", "G": "C", "N": "N", "-": "-"}
+    except KeyError as e:
+        raise KeyError(f"Nucleotide {e} not recognized.")
     return "".join(complement[base] for base in reversed(seq))
 
 
