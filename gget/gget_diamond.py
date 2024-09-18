@@ -16,7 +16,6 @@ from .utils import (
     translate_nuc_to_prot,
     reverse_complement,
 )
-from .constants import CODON_TABLE
 
 logger = set_up_logger()
 
