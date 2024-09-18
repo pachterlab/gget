@@ -66,7 +66,7 @@ def flatten(xss):
 
 def translate_nuc_to_prot(nuc_seq):
     nucleotides = set("ATGCN")
-    if set(nuc_seq) <= nucleotides:
+    if not set(nuc_seq) <= nucleotides:
         logger.warning(f"Nucleotide sequence contains unknown (non-ATGCN) characters.")
 
     protein_seq = []
@@ -82,9 +82,10 @@ def translate_nuc_to_prot(nuc_seq):
 def reverse_complement(seq):
     try:
         complement = {"A": "T", "T": "A", "C": "G", "G": "C", "N": "N", "-": "-"}
+        rev_comp = "".join(complement[base] for base in reversed(seq))
     except KeyError as e:
         raise KeyError(f"Nucleotide {e} not recognized.")
-    return "".join(complement[base] for base in reversed(seq))
+    return rev_comp
 
 
 def get_latest_cosmic():
