@@ -1,6 +1,7 @@
 import time
 import zipfile
 import os
+import re
 import sys
 import shutil
 import platform
@@ -182,6 +183,7 @@ def filter_sequences(
     min_protein_count=None,
     max_protein_count=None,
     max_ambiguous_chars=None,
+    has_proteins=None,
 ):
     """Filter sequences based on various metadata criteria."""
 
@@ -198,6 +200,7 @@ def filter_sequences(
     # Read sequences from the .fna file
     filtered_sequences = []
     filtered_metadata = []
+    protein_headers = []
     for record in SeqIO.parse(fna_file, "fasta"):
         accession = record.id.split(" ")[0]
 
@@ -362,6 +365,38 @@ def filter_sequences(
             if n_count > max_ambiguous_chars:
                 continue
 
+        # Check if requested proteins/segments are present based on sequence header labels
+        if has_proteins is not None:
+            if isinstance(has_proteins, str):
+                has_proteins = [has_proteins]
+            try:
+                prot_header = record.id.split(metadata.get("isolate", {}).get("name"))[
+                    -1
+                ]
+                prot_parts = prot_header.split(";")
+
+                # Only "complete cds"
+                for protein in has_proteins:
+                    # Dynamically create the regex for each protein with case insensitivity and quotes
+                    regex = rf"(?i)\b['\"]?\(?{protein}\)?['\"]?\b"
+                    if not any(
+                        re.search(regex, part) and "complete cds" in part
+                        for part in prot_parts
+                    ):
+                        continue
+
+            except Exception as e:
+                logger.warning(
+                    f"The 'has_proteins' filter could not be applied to the following error:\n{e}"
+                )
+
+        # Attempt to record information about the protein/segments present in the sequence
+        try:
+            prot_header = record.id.split(metadata.get("isolate", {}).get("name"))[-1]
+        except Exception:
+            prot_header = pd.Na
+
+        protein_headers.append(prot_header)
         filtered_sequences.append(record)
         filtered_metadata.append(metadata)
 
@@ -372,13 +407,13 @@ def filter_sequences(
             logger.warning(
                 f"Number of sequences ({num_seqs}) and number of metadata entries ({len(filtered_metadata)}) do not match."
             )
-        return filtered_sequences, filtered_metadata
+        return filtered_sequences, filtered_metadata, protein_headers
     else:
         logger.warning("No sequences passed the provided filters.")
         return None, None
 
 
-def save_metadata_to_csv(filtered_metadata, output_metadata_file):
+def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_file):
     """Save filtered metadata to a CSV file with a specific column order."""
 
     # Define the column order
@@ -394,13 +429,16 @@ def save_metadata_to_csv(filtered_metadata, output_metadata_file):
         "Virus Lineage",
         "Length",
         "Nuc Completeness",
-        "Geo Region",
-        "Geo Location",
+        "Proteins/Segments",
+        "Geographic Region",
+        "Geographic Location",
+        "Geo String",
         "Host",
         "Host Lineage",
         "Lab Host",
         "Tissue/Specimen/Source",
         "Collection Date",
+        "Sample Name",
         "Annotated",
         "SRA Accessions",
         "Bioprojects",
@@ -411,12 +449,12 @@ def save_metadata_to_csv(filtered_metadata, output_metadata_file):
 
     # Prepare data for DataFrame
     data_for_df = []
-    for metadata in filtered_metadata:
+    for i, metadata in enumerate(filtered_metadata):
         # Grab info on geographic location
         location_info = metadata.get("location", {})
         location_values = [v for v in location_info.values() if v and v != ""]
         location_values.reverse()
-        # geo_info = ":".join(location_values) if location_values else pd.NA
+        geo_info = ":".join(location_values) if location_values else pd.NA
         try:
             geo_region = location_values[0]
         except IndexError:
@@ -439,14 +477,16 @@ def save_metadata_to_csv(filtered_metadata, output_metadata_file):
             "Virus Lineage": metadata.get("virus", {}).get("lineage", []),
             "Length": metadata.get("length", pd.NA),
             "Nuc Completeness": metadata.get("completeness", pd.NA),
-            # "Geo Location": geo_info,
-            "Geo Region": geo_region,
-            "Geo Location": geo_loc,
+            "Proteins/Segments": protein_headers[i],
+            "Geographic Region": geo_region,
+            "Geographic Location": geo_loc,
+            "Geo String": geo_info,
             "Host": metadata.get("host", {}).get("organismName", pd.NA),
             "Host Lineage": metadata.get("host", {}).get("lineage", []),
             "Lab Host": metadata.get("labHost", pd.NA),
             "Tissue/Specimen/Source": metadata.get("isolate", {}).get("source", pd.NA),
             "Collection Date": metadata.get("isolate", {}).get("collectionDate", pd.NA),
+            "Sample Name": metadata.get("isolate", {}).get("name", pd.NA),
             "Annotated": metadata.get("isAnnotated", pd.NA),
             "SRA Accessions": metadata.get("sraAccessions", []),
             "Bioprojects": metadata.get("bioprojects", []),
@@ -484,6 +524,7 @@ def ncbi_virus(
     min_gene_count=None,
     max_gene_count=None,
     nuc_completeness=None,
+    has_proteins=None,
     host_taxid=None,
     lab_passaged=None,
     geographic_region=None,
@@ -519,6 +560,8 @@ def ncbi_virus(
     - min_gene_count       Min number of genes present in the virus genome, e.g. 1. Default: None
     - max_gene_count       Max number of genes present in the virus genome, e.g. 40. Default: None
     - nuc_completeness     Completeness status of the nucleotide sequence. Should be 'partial' or 'complete'. Default: None
+    - has_proteins         Str or list of proteins or segments that should be present completely in the sequence
+                           (based on the sequence annotation provided by the submitter). Default: None
     - host_taxid           NCBI Taxonomy ID of the host organism. Filters the results to only include viruses
                            associated with hosts that fall within the specified TaxID. Default: None
     - lab_passaged         True/False Indicates whether the virus sequence has been passaged in a laboratory setting.
@@ -657,10 +700,11 @@ def ncbi_virus(
         "min_protein_count": min_protein_count,
         "max_protein_count": max_protein_count,
         "max_ambiguous_chars": max_ambiguous_chars,
+        "has_proteins": has_proteins,
     }
 
     # Filter sequences
-    filtered_sequences, filtered_metadata = filter_sequences(
+    filtered_sequences, filtered_metadata, protein_headers = filter_sequences(
         fna_file, metadata_dict, **filters
     )
 
@@ -675,7 +719,7 @@ def ncbi_virus(
                 file.write(json.dumps(metadata) + "\n")
 
         # Save filtered metadata to CSV file
-        save_metadata_to_csv(filtered_metadata, output_metadata_csv)
+        save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_csv)
 
     # Delete temporary folder and its concent
     shutil.rmtree(temp_dir)
