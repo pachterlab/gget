@@ -152,8 +152,8 @@ def diamond(
         input_file = os.path.abspath(query)
     elif translate is True:
         input_file = translate_seqs(query)
-        if not "." in query:
-            files_to_delete.append(input_file)
+        # if not "." in query:
+        #     files_to_delete.append(input_file)
     else:
         input_file = create_tmp_fasta(query)
         files_to_delete.append(input_file)
