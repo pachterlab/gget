@@ -393,6 +393,7 @@ def filter_sequences(
         # Attempt to record information about the protein/segments present in the sequence
         try:
             prot_header = record.id.split(metadata.get("isolate", {}).get("name"))[-1]
+            print(prot_header)
         except Exception:
             prot_header = pd.Na
 
@@ -410,7 +411,7 @@ def filter_sequences(
         return filtered_sequences, filtered_metadata, protein_headers
     else:
         logger.warning("No sequences passed the provided filters.")
-        return None, None
+        return None, None, None
 
 
 def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_file):
