@@ -375,12 +375,13 @@ def filter_sequences(
                         metadata.get("isolate", {}).get("name")
                     )[-1]
                 else:
-                    # If sample name was not added to metadata, 
+                    # If sample name was not added to metadata,
                     # whole header will be searched for protein/segment names
                     prot_header = record.description
                 prot_parts = prot_header.split(";")
 
-                # Only "complete cds"
+                # Only keeping sequences that have all proteins in has_proteins and are marked as "complete"
+                skip_outer_loop = False
                 for protein in has_proteins:
                     # Dynamically create the regex for each protein with case insensitivity and quotes
                     regex = rf"(?i)\b['\",]?\(?{protein}\)?['\",]?\b"
@@ -388,7 +389,10 @@ def filter_sequences(
                         re.search(regex, part) and "complete" in part
                         for part in prot_parts
                     ):
-                        continue
+                        skip_outer_loop = True
+                        break
+                if skip_outer_loop:
+                    continue
 
             except Exception as e:
                 logger.warning(
@@ -396,18 +400,15 @@ def filter_sequences(
                 )
 
         # Attempt to record information about the protein/segments present in the sequence
-        print(metadata.get("isolate", {}).get("name"))
         try:
             if metadata.get("isolate", {}).get("name"):
                 prot_header = record.description.split(
                     metadata.get("isolate", {}).get("name")
                 )[-1]
-                print(prot_header)
             else:
-                # If sample name was not added to metadata, 
+                # If sample name was not added to metadata,
                 # whole header will be added as protein/segment description
                 prot_header = record.description
-                print(prot_header)
         except Exception:
             prot_header = pd.Na
 
@@ -423,8 +424,8 @@ def filter_sequences(
                 f"Number of sequences ({num_seqs}) and number of metadata entries ({len(filtered_metadata)}) do not match."
             )
         logger.debug(
-                f"# seqs: {num_seqs}; # metadata: ({len(filtered_metadata)}); # prot headers: ({len(protein_headers)})."
-            )
+            f"# seqs: {num_seqs}; # metadata: ({len(filtered_metadata)}); # prot headers: ({len(protein_headers)})."
+        )
         return filtered_sequences, filtered_metadata, protein_headers
     else:
         logger.warning("No sequences passed the provided filters.")
@@ -578,7 +579,7 @@ def ncbi_virus(
     - min_gene_count       Min number of genes present in the virus genome, e.g. 1. Default: None
     - max_gene_count       Max number of genes present in the virus genome, e.g. 40. Default: None
     - nuc_completeness     Completeness status of the nucleotide sequence. Should be 'partial' or 'complete'. Default: None
-    - has_proteins         Str or list of proteins, genes, or segments that should be present AND marked as complete 
+    - has_proteins         Str or list of proteins, genes, or segments that should be present AND marked as complete
                            in the sequence (based on sequence annotation provided by the submitter). Default: None
     - host_taxid           NCBI Taxonomy ID of the host organism. Filters the results to only include viruses
                            associated with hosts that fall within the specified TaxID. Default: None
