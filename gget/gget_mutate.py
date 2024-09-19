@@ -1116,12 +1116,28 @@ def mutate(
     mutations = mutations[columns_to_keep]
 
     if merge_identical_entries:
-        # Group by 'mutant_sequence_kmer' and concatenate 'header' values
-        mutations = (
-            mutations.groupby("mutant_sequence_kmer", sort=False)
-            .agg(lambda x: ";".join(x.astype(str)))  # Concatenate values with semicolons
-            .reset_index()
-        )
+        logger.info("Merging identical mutated sequences")
+        if update_df:
+            if verbose:
+                tqdm.pandas(desc="Merging identical mutated sequences (Can take a while if update_df=True since it will concatenate all MCRSs too)")
+                mutations = (
+                    mutations.groupby("mutant_sequence_kmer", sort=False)
+                    .progress_apply(lambda group: group.astype(str).agg(";".join))
+                    .reset_index()
+                )
+            else:
+                mutations = (
+                    mutations.groupby("mutant_sequence_kmer", sort=False)
+                    .agg(lambda x: ";".join(x.astype(str)))  # Concatenate values with semicolons
+                    .reset_index()
+                )
+
+        else:
+            mutations = (
+                mutations.groupby("mutant_sequence_kmer", sort=False, group_keys=False)["header"]
+                .apply(";".join)
+                .reset_index()
+            )
 
         # apply remove_gt_after_semicolon to mutant_sequence_kmer
         mutations["header"] = mutations["header"].apply(
@@ -1156,6 +1172,7 @@ def mutate(
     mutations = mutations[mutations["mutant_sequence_kmer"] != ""]
 
     if update_df:
+        logger.info("Saving dataframe with updated mutation info...")
         saved_updated_df = True
         logger.warning("File size can be very large if the number of mutations is large.")
         if not update_df_out:
