@@ -380,11 +380,6 @@ def filter_sequences(
                     prot_header = record.description
                 prot_parts = prot_header.split(";")
 
-                print(record.description)
-                print(metadata.get("isolate", {}).get("name"))
-                print(prot_header)
-                print(prot_parts)
-
                 # Only "complete cds"
                 for protein in has_proteins:
                     # Dynamically create the regex for each protein with case insensitivity and quotes
@@ -398,7 +393,7 @@ def filter_sequences(
 
             except Exception as e:
                 logger.warning(
-                    f"The 'has_proteins' filter could not be applied to the following error:\n{e}"
+                    f"The 'has_proteins' filter could not be applied to sequence {record.id} due to the following error:\n{e}"
                 )
 
         # Attempt to record information about the protein/segments present in the sequence
@@ -468,6 +463,8 @@ def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_fil
     # Prepare data for DataFrame
     data_for_df = []
     for i, metadata in enumerate(filtered_metadata):
+        print(i)
+        print(protein_headers[i])
         # Grab info on geographic location
         location_info = metadata.get("location", {})
         location_values = [v for v in location_info.values() if v and v != ""]
@@ -725,6 +722,7 @@ def ncbi_virus(
     filtered_sequences, filtered_metadata, protein_headers = filter_sequences(
         fna_file, metadata_dict, **filters
     )
+    print(protein_headers)
 
     # Save filtered sequences and metadata
     if filtered_sequences:
