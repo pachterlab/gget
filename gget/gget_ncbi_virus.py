@@ -370,9 +370,14 @@ def filter_sequences(
             if isinstance(has_proteins, str):
                 has_proteins = [has_proteins]
             try:
-                prot_header = record.description.split(
-                    metadata.get("isolate", {}).get("name")
-                )[-1]
+                if metadata.get("isolate", {}).get("name"):
+                    prot_header = record.description.split(
+                        metadata.get("isolate", {}).get("name")
+                    )[-1]
+                else:
+                    # If sample name was not added to metadata, 
+                    # whole header will be searched for protein/segment names
+                    prot_header = record.description
                 prot_parts = prot_header.split(";")
 
                 print(record.description)
@@ -398,9 +403,14 @@ def filter_sequences(
 
         # Attempt to record information about the protein/segments present in the sequence
         try:
-            prot_header = record.description.split(
-                metadata.get("isolate", {}).get("name")
-            )[-1]
+            if metadata.get("isolate", {}).get("name"):
+                prot_header = record.description.split(
+                    metadata.get("isolate", {}).get("name")
+                )[-1]
+            else:
+                # If sample name was not added to metadata, 
+                # whole header will be added as protein/segment description
+                prot_header = record.description
         except Exception:
             prot_header = pd.Na
 
