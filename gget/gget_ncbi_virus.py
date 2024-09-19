@@ -375,6 +375,9 @@ def filter_sequences(
                 )[-1]
                 prot_parts = prot_header.split(";")
 
+                print(record.description)
+                print(metadata.get("isolate", {}).get("name"))
+                print(prot_header)
                 print(prot_parts)
 
                 # Only "complete cds"
