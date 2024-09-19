@@ -1118,19 +1118,12 @@ def mutate(
     if merge_identical_entries:
         logger.info("Merging identical mutated sequences")
         if update_df:
-            if verbose:
-                tqdm.pandas(desc="Merging identical mutated sequences (Can take a while if update_df=True since it will concatenate all MCRSs too)")
-                mutations = (
-                    mutations.groupby("mutant_sequence_kmer", sort=False)
-                    .progress_apply(lambda group: group.astype(str).agg(";".join))
-                    .reset_index()
-                )
-            else:
-                mutations = (
-                    mutations.groupby("mutant_sequence_kmer", sort=False)
-                    .agg(lambda x: ";".join(x.astype(str)))  # Concatenate values with semicolons
-                    .reset_index()
-                )
+            logger.warning("Merging identical mutated sequences can take a while if update_df=True since it will concatenate all MCRSs too)")
+            mutations = (
+                mutations.groupby("mutant_sequence_kmer", sort=False)
+                .agg(lambda x: ";".join(x.astype(str)))  # Concatenate values with semicolons
+                .reset_index()
+            )
 
         else:
             mutations = (
