@@ -184,6 +184,7 @@ def filter_sequences(
     max_protein_count=None,
     max_ambiguous_chars=None,
     has_proteins=None,
+    proteins_complete=False,
 ):
     """Filter sequences based on various metadata criteria."""
 
@@ -380,17 +381,24 @@ def filter_sequences(
                     prot_header = record.description
                 prot_parts = prot_header.split(";")
 
-                # Only keeping sequences that have all proteins in has_proteins and are marked as "complete"
+                # Only keeping sequences that have all proteins in has_proteins
                 skip_outer_loop = False
                 for protein in has_proteins:
                     # Dynamically create the regex for each protein with case insensitivity and quotes
                     regex = rf"(?i)\b['\",]?\(?{protein}\)?['\",]?\b"
-                    if not any(
-                        re.search(regex, part) and "complete" in part
-                        for part in prot_parts
-                    ):
-                        skip_outer_loop = True
-                        break
+
+                    if proteins_complete:
+                        # Only keeping sequences for which proteins are marked as "complete"
+                        if not any(
+                            re.search(regex, part) and "complete" in part
+                            for part in prot_parts
+                        ):
+                            skip_outer_loop = True
+                            break
+                    else:
+                        if not any(re.search(regex, part) for part in prot_parts):
+                            skip_outer_loop = True
+                            break
                 if skip_outer_loop:
                     continue
 
@@ -544,6 +552,7 @@ def ncbi_virus(
     max_gene_count=None,
     nuc_completeness=None,
     has_proteins=None,
+    proteins_complete=False,
     host_taxid=None,
     lab_passaged=None,
     geographic_region=None,
@@ -579,8 +588,10 @@ def ncbi_virus(
     - min_gene_count       Min number of genes present in the virus genome, e.g. 1. Default: None
     - max_gene_count       Max number of genes present in the virus genome, e.g. 40. Default: None
     - nuc_completeness     Completeness status of the nucleotide sequence. Should be 'partial' or 'complete'. Default: None
-    - has_proteins         Str or list of proteins, genes, or segments that should be present AND marked as complete
-                           in the sequence (based on sequence annotation provided by the submitter). Default: None
+    - has_proteins         Str or list of proteins, genes, or segments that should be present in the sequence
+                           (based on sequence annotation provided by the submitter). Default: None
+                           Note: Set proteins_complete=True to only include sequences for which the proteins/genes/segments are marked 'complete'
+    - proteins_complete    True/False whether proteins/genes/segments in has_proteins should be marked as complete. Default: False
     - host_taxid           NCBI Taxonomy ID of the host organism. Filters the results to only include viruses
                            associated with hosts that fall within the specified TaxID. Default: None
     - lab_passaged         True/False Indicates whether the virus sequence has been passaged in a laboratory setting.
@@ -626,6 +637,10 @@ def ncbi_virus(
     if lab_passaged is not None and not isinstance(lab_passaged, bool):
         raise TypeError(
             "Argument 'lab_passaged' must be a boolean (True or False) or None."
+        )
+    if proteins_complete is not None and not isinstance(proteins_complete, bool):
+        raise TypeError(
+            "Argument 'proteins_complete' must be a boolean (True or False) or None."
         )
 
     check_min_max(
@@ -720,6 +735,7 @@ def ncbi_virus(
         "max_protein_count": max_protein_count,
         "max_ambiguous_chars": max_ambiguous_chars,
         "has_proteins": has_proteins,
+        "proteins_complete": proteins_complete,
     }
 
     # Filter sequences
