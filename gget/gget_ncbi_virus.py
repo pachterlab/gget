@@ -375,6 +375,8 @@ def filter_sequences(
                 )[-1]
                 prot_parts = prot_header.split(";")
 
+                print(prot_parts)
+
                 # Only "complete cds"
                 for protein in has_proteins:
                     # Dynamically create the regex for each protein with case insensitivity and quotes
