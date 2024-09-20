@@ -373,7 +373,7 @@ def mutate(
 
     # Add additional output information stored in the 'mutations' DataFrame
     - update_df                    (True/False) Whether to update the input 'mutations' DataFrame to include additional columns with the mutation type, 
-                                   wildtype nucleotide sequence, and mutant nucleotide sequence (only if 'mutations' is a csv or tsv file). Default: False
+                                   wildtype nucleotide sequence, and mutant nucleotide sequence (only valid if 'mutations' is a csv or tsv file). Default: False
     - update_df_out                (str) Path to output csv file containing the updated DataFrame. Only valid if update_df=True.
                                    Default: None -> the new DataFrame will be saved in the same directory as the 'mutations' DataFrame with appendix '_updated'
     - store_full_sequences         (True/False) Whether to also include the complete wildtype and mutant sequences with update_df (not just the sub-sequence with 
