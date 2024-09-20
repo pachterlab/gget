@@ -104,13 +104,13 @@ Adds additional columns to the updated `mutations` DataFrame containing the wild
 `-sfs` `--store_full_sequences`         
 Includes the complete wildtype and mutant sequences in the updated `mutations` DataFrame (not just the sub-sequence with k-length flanks). Only valid when used with `--update_df`.   
                                   
-**General optional arguments**  
+**Optional general arguments**  
 `-o` `--out`   
 Path to output FASTA file containing the mutated sequences, e.g., 'path/to/output_fasta.fa'.  
 Default: None -> returns a list of the mutated sequences to standard out.    
 The identifiers (following the '>') of the mutated sequences in the output FASTA will be '>[seq_ID]_[mut_ID]'. 
 
-**General flags**  
+**Optional general flags**  
 `-q` `--quiet`   
 Command-line only. Prevents progress information from being displayed.  
 Python: Use `verbose=False` to prevent progress information from being displayed.  
