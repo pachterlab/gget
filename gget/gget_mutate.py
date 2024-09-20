@@ -1164,6 +1164,10 @@ def mutate(
 
     mutations = mutations[mutations["mutant_sequence_kmer"] != ""]
 
+    mutations["fasta_format"] = (
+        mutations["header"] + "\n" + mutations["mutant_sequence_kmer"] + "\n"
+    )
+
     if update_df:
         logger.info("Saving dataframe with updated mutation info...")
         saved_updated_df = True
@@ -1173,6 +1177,7 @@ def mutate(
                 logger.warning("mutations_path must be provided if update_df is True and update_df_out is not provided.")
                 saved_updated_df = False
             else:
+                mutations['header'] = mutations['header'].str[1:]  # remove the > character
                 base_name, ext = os.path.splitext(mutations_path)
                 update_df_out = f"{base_name}_updated{ext}"
         if saved_updated_df:
@@ -1180,10 +1185,6 @@ def mutate(
             print(f"Updated mutation info has been saved to {update_df_out}")
 
     mutations = mutations[["mutant_sequence_kmer", "header"]]
-
-    mutations["fasta_format"] = (
-        mutations["header"] + "\n" + mutations["mutant_sequence_kmer"] + "\n"
-    )
 
     if out:
         # Save mutated sequences in new fasta file
