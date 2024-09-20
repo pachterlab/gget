@@ -20,8 +20,8 @@ AGATCGCTAG
 
 Alternatively: Input sequence(s) as a string or list, e.g. 'AGCTAGCT'.
 
-NOTE: Only the letters until the first space or dot will be used as sequence identifiers - Version numbers of Ensembl IDs will be ignored.
-NOTE: When 'sequences' input is a genome, also see 'gtf' argument below.
+NOTE: Only the letters until the first space or dot will be used as sequence identifiers - Version numbers of Ensembl IDs will be ignored.  
+NOTE: When the `sequences` input is a genome fasta file, also see the `gtf` argument below.
 
 **Required arguments**  
 `-m` `--mutations`  
