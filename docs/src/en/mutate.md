@@ -25,7 +25,7 @@ NOTE: When the `sequences` input is a genome fasta file, also see the `gtf` argu
 
 **Required arguments**  
 `-m` `--mutations`  
-Path to the csv or tsv file (e.g., 'path/to/mutations.csv') or data frame (DataFrame object) containing information about the mutations in the following format (the 'notes' column is not necessary):  
+Path to the csv or tsv file (e.g., 'path/to/mutations.csv') or data frame (DataFrame object) containing information about the mutations in the following format (the 'notes' and 'mut_ID' columns are optional):  
 
 | mutation         | mut_ID | seq_ID | notes |
 |------------------|--------|--------|-------|
@@ -80,10 +80,7 @@ When used with `--optimize_flanking_regions`, only sequences for which a wildtpy
 Do not merge identical mutant sequences in the output (by default, identical sequences will be merged by concatenating the sequence headers for all identical sequences).
 
 **Optional arguments to generate additional output**   
-This output will be stored in a copy of the `mutations` DataFrame.  
-  
-`-udf` `--update_df`   
-Updates the input `mutations` DataFrame to include additional columns with the mutation type, wildtype nucleotide sequence, and mutant nucleotide sequence (only valid if `mutations` is a .csv or .tsv file).  
+This output is activated using the  `--update_df` flag and will be stored in a copy of the `mutations` DataFrame.  
 
 `-udf_o` `--update_df_out`               
 Path to output csv file containing the updated DataFrame, e.g. 'path/to/mutations_updated.csv'. Only valid when used with `--update_df`.  
@@ -98,12 +95,15 @@ Default: translates from the beginning of each sequence
 Default: translates until the end of each sequence  
 
 **Optional flags to modify additional output**  
-`-sfs` `--store_full_sequences`         
-Includes the complete wildtype and mutant sequences in the updated `mutations` DataFrame (not just the sub-sequence with k-length flanks). Only valid when used with `--update_df`.   
-                                   
+`-udf` `--update_df`   
+Updates the input `mutations` DataFrame to include additional columns with the mutation type, wildtype nucleotide sequence, and mutant nucleotide sequence (only valid if `mutations` is a .csv or .tsv file).  
+
 `-tr` `--translate`                  
 Adds additional columns to the updated `mutations` DataFrame containing the wildtype and mutant amino acid sequences. Only valid when used with `--update_df`.   
 
+`-sfs` `--store_full_sequences`         
+Includes the complete wildtype and mutant sequences in the updated `mutations` DataFrame (not just the sub-sequence with k-length flanks). Only valid when used with `--update_df`.   
+                                  
 **General optional arguments**  
 `-o` `--out`   
 Path to output FASTA file containing the mutated sequences, e.g., 'path/to/output_fasta.fa'.  
