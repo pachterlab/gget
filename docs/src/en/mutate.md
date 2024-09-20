@@ -3,13 +3,12 @@
 Takes in nucleotide sequences and mutations (in [standard mutation annotation](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1867422/) and returns mutated versions of the input sequences according to the provided mutations.  
 Return format: Saves mutated sequences in FASTA format (or returns a list containing the mutated sequences if `out=None`).  
 
-This module was co-written by [Joseph Rich](https://github.com/josephrich98).
+This module was written by [Joseph Rich](https://github.com/josephrich98).
 
 **Positional argument**  
 `sequences`   
 Path to the FASTA file containing the sequences to be mutated, e.g., 'path/to/seqs.fa'.  
 Sequence identifiers following the '>' character must correspond to the identifiers in the seq_ID column of `mutations`.  
-NOTE: Only the string following the '>' until the first space or dot will be used as a sequence identifier. - Version numbers of Ensembl IDs will be ignored.  
 
 Example format of the FASTA file:  
 ```
@@ -21,12 +20,15 @@ AGATCGCTAG
 
 Alternatively: Input sequence(s) as a string or list, e.g. 'AGCTAGCT'.
 
+NOTE: Only the letters until the first space or dot will be used as sequence identifiers - Version numbers of Ensembl IDs will be ignored.
+NOTE: When 'sequences' input is a genome, also see 'gtf' argument below.
+
 **Required arguments**  
 `-m` `--mutations`  
 Path to the csv or tsv file (e.g., 'path/to/mutations.csv') or data frame (DataFrame object) containing information about the mutations in the following format (the 'notes' column is not necessary):  
 
 | mutation         | mut_ID | seq_ID | notes |
-|------------------|--------|--------|-|
+|------------------|--------|--------|-------|
 | c.2C>T           | mut1   | seq1   | -> Apply mutation 1 to sequence 1 |
 | c.9_13inv        | mut2   | seq2   | -> Apply mutation 2 to sequence 2 |
 | c.9_13inv        | mut2   | seq4   | -> Apply mutation 2 to sequence 4 |
@@ -39,65 +41,76 @@ Path to the csv or tsv file (e.g., 'path/to/mutations.csv') or data frame (DataF
 
 Alternatively: Input mutation(s) as a string or list, e.g., 'c.2C>T'.  
 If a list is provided, the number of mutations must equal the number of input sequences.  
+
 For use from the terminal (bash): Enclose individual mutation annotations in quotation marks to prevent parsing errors.  
 
-**Optional arguments**  
-`-k` `--k`  
-Length of sequences flanking the mutation. Default: 30.  
-If k > total length of the sequence, the entire sequence will be kept.  
+**Optional input-related arguments**  
+`-gtf` `--gtf`  
+Path to a .gtf file. When providing a genome fasta file as input for 'sequences', you can provide a .gtf file here and the input sequences will be defined according to the transcript boundaries, e.g. 'path/to/genome_annotation.gtf'. Default: None
 
 `-mc` `--mut_column`  
 Name of the column containing the mutations to be performed in `mutations`. Default: 'mutation'.  
 
-`-mic` `--mut_id_column`  
-Name of the column containing the IDs of each mutation in `mutations`. Default: 'mut_ID'.  
-
 `-sic` `--seq_id_column`  
-Name of the column containing the IDs of the sequences to be mutated in `mutations`. Default: 'seq_ID'.  
+Name of the column containing the IDs of the sequences to be mutated in `mutations`. Default: 'seq_ID'.
 
+`-mic` `--mut_id_column`  
+Name of the column containing the IDs of each mutation in `mutations`. Default: Same as `mut_column`.
+  
+**Optional mutant sequence generation/filtering arguments**  
+`-k` `--k`  
+Length of sequences flanking the mutation. Default: 30.  
+If k > total length of the sequence, the entire sequence will be kept.  
+
+`-msl` `--min_seq_len`  
+Minimum length of the mutant output sequence, e.g. 100. Mutant sequences smaller than this will be dropped. Default: None
+
+`-ma` `--max_ambiguous`                
+Maximum number of 'N' (or 'n') characters allowed in the output sequence, e.g. 10. Default: None (no ambiguous character filter will be applied)
+
+**Optional mutant sequence generation/filtering flags**  
+`-ofr` `--optimize_flanking_regions`  
+Removes nucleotides from either end of the mutant sequence to ensure (when possible) that the mutant sequence does not contain any k-mers also found in the wildtype/input sequence. 
+
+`-rswk` `--remove_seqs_with_wt_kmers`  
+Removes output sequences where at least one k-mer is also present in the wildtype/input sequence in the same region.  
+When used with `--optimize_flanking_regions`, only sequences for which a wildtpye kmer is still present after optimization will be removed.
+
+`-mio` `--merge_identical_off`          
+Do not merge identical mutant sequences in the output (by default, identical sequences will be merged by concatenating the sequence headers for all identical sequences).
+
+**Optional arguments to generate additional output**   
+This output will be stored in a copy of the `mutations` DataFrame.  
+  
+`-udf` `--update_df`   
+Updates the input `mutations` DataFrame to include additional columns with the mutation type, wildtype nucleotide sequence, and mutant nucleotide sequence (only valid if `mutations` is a .csv or .tsv file).  
+
+`-udf_o` `--update_df_out`               
+Path to output csv file containing the updated DataFrame, e.g. 'path/to/mutations_updated.csv'. Only valid when used with `--update_df`.  
+Default: None -> the new csv file will be saved in the same directory as the `mutations` DataFrame with appendix '_updated'  
+
+`-ts` `--translate_start`              
+(int or str) The position in the input nucleotide sequence to start translating, e.g. 5. If a string is provided, it should correspond to a column name in `mutations` containing the open reading frame start positions for each sequence/mutation. Only valid when used with `--translate`.  
+Default: translates from the beginning of each sequence  
+
+`-te` `--translate_end`                
+(int or str) The position in the input nucleotide sequence to end translating, e.g. 35. If a string is provided, it should correspond to a column name in `mutations` containing the open reading frame end positions for each sequence/mutation. Only valid when used with `--translate`.  
+Default: translates until the end of each sequence  
+
+**Optional flags to modify additional output**  
+`-sfs` `--store_full_sequences`         
+Includes the complete wildtype and mutant sequences in the updated `mutations` DataFrame (not just the sub-sequence with k-length flanks). Only valid when used with `--update_df`.   
+                                   
+`-tr` `--translate`                  
+Adds additional columns to the updated `mutations` DataFrame containing the wildtype and mutant amino acid sequences. Only valid when used with `--update_df`.   
+
+**General optional arguments**  
 `-o` `--out`   
 Path to output FASTA file containing the mutated sequences, e.g., 'path/to/output_fasta.fa'.  
 Default: None -> returns a list of the mutated sequences to standard out.    
 The identifiers (following the '>') of the mutated sequences in the output FASTA will be '>[seq_ID]_[mut_ID]'. 
 
-`--minimum_kmer_length`   
-Minimum length of the mutant kmer required. Mutant kmers with a smaller length will be erased. Default: None -> No k-mers are filtered out
-
-`--merge_identical_entries`
-Whether to merge identical entries in the output fasta file. Default: True
-
-`--update_df`   
-Whether to update the input DataFrame with the mutated sequences and associated data (only if mutations is a csv/tsv). Default: False
-
-`--update_df_out`
-Path to output csv file containing the updated DataFrame. Default: None
-
-`--remove_mutations_with_wt_kmers`:   
-Removes mutations where the mutated fragment has at least one k-mer that overlaps with the WT fragment in the same region. Default: False
-
-`--remove_Ns`:
-Removes mutations where the mutant fragment contains Ns. Default: False
-
-`--optimize_flanking_regions`:
-Whether to create mutant fragments with mutations ± k (False, default) or remove nucleotides from either end as needed to ensure that the mutant fragment does not contain any kmers found in the WT fragment. Default: False
-
-`--hard_transcript_boundaries`:
-If using the genome as a reference, this flag indicates whether to end the fragment at transcript boundaries (True) or to go beyond transcript boundaries into unexpressed regions (False). Default: True
-
-`--store_full_sequences`:
-Whether to store full sequences with update_df. Default: False
-
-`--translate`   
-Whether to translate the mutated sequences to amino acids. Default: False    
-
-`--translate_start`   
-The position in the sequence to start translating (int or string of column name). Only valid if --translate is set. Default: None (translate from the beginning of the sequence).    
-
-`--translate_end`   
-The position in the sequence to stop translating (int or string of column name). Only valid if --translate is set. Default: None (translate to the of the sequence).   
-
-
-**Flags**  
+**General flags**  
 `-q` `--quiet`   
 Command-line only. Prevents progress information from being displayed.  
 Python: Use `verbose=False` to prevent progress information from being displayed.  
@@ -141,7 +154,3 @@ gget mutate ATCGCTAAGCT TAGCTA -m 'c.1_3inv' -k 3
 gget.mutate(["ATCGCTAAGCT", "TAGCTA"], "c.1_3inv", k=3)
 ```
 &rarr; Returns ['CTAGCT', 'GATCTA'].  
-
-
-**Detailed description**  
-For each mutation and its corresponding input sequence, gget mutate will output the corresponding mutation-containing reference sequence (MCRS) with length k flanking each side of the mutation. The output fasta file can be seamlessly passed into kallisto-bustools (with kallisto k = gget k + 1) for generation of an index containing the MCRSs. minimum_seq_length will automatically filter out MCRSs with length below minimum_seq_length (default does not filter anything). merge_identical_entries will merge headers with semicolons which share identical MCRSs (default on). update_df will save a copy of the csv file to the path update_df_out containing additional information including the MCRS, the corresponding non-mutated sequence of the same length, the mutation type, (if store_full_sequences = True) the mutation and non-mutated counterpart in the context of their full sequences, and (if translate = True) the translated MCRS and its non-mutated counterpart (with open reading frame determined by translate_start and translate_end). optimize_flanking_regions will reduce the lengths of the sequence portions flanking the mutation such that they retain maximal length while not possessing a k+1-mer that occurs in the unmutated input sequence (the remove_mutations_with_wt_kmers flag removes MCRSs from the final output for which this operation was unsuccesful). remove_Ns will remove any MCRSs which contain at least one N from the final output (by default, sequences containing Ns will be retained in the mutation-containing output sequences). hard_transcript_boundaries will cut off the unmutated input sequence at 'start_transcript_position' and 'end_transcript_position' (two additional columns in the input mutation csv), relevant if passing in the genome as the sequences file while desiring not to include non-gene regions in the MCRSs.
