@@ -351,13 +351,13 @@ def mutate(
                     For more information on the standard mutation annotation, see https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1867422/.
    
     Additional input arguments:
-    - gtf                          (str) Path to .gtf file. When using a genome as input for 'sequences', you can provide a .gtf file here 
-                                   and the input sequences will be defined according to the transcript boundaries.
+    - gtf                          (str) Path to .gtf file. When providing a genome fasta file as input for 'sequences', you can provide a .gtf file here 
+                                   and the input sequences will be defined according to the transcript boundaries. Default: None
     - mut_column                   (str) Name of the column containing the mutations to be performed in 'mutations'. Default: 'mutation'.
     - seq_id_column                (str) Name of the column containing the IDs of the sequences to be mutated in 'mutations'. Default: 'seq_ID'.
     - mut_id_column                (str) Name of the column containing the IDs of each mutation in 'mutations'. Default: Will use mut_column.
 
-    Mutant sequence computation/filtering options:
+    Mutant sequence generation/filtering options:
     - k                            (int) Length of sequences flanking the mutation. Default: 30.
                                    If k > total length of the sequence, the entire sequence will be kept.
     - min_seq_len                  (int) Minimum length of the mutant output sequence. Mutant sequences smaller than this will be dropped. 
@@ -368,15 +368,15 @@ def mutate(
                                    If optimize_flanking_regions=True, only sequences for which a wildtpye kmer is still present after optimization will be removed.
                                    Default: False
     - max_ambiguous                (int) Maximum number of 'N' characters allowed in the output sequence. Default: None (no 'N' filter will be applied)
-    - merge_identical              (True/False) Whether to merge identical entries in the output (headers for identical sequences will be concatenated). 
-                                   Default: True
+    - merge_identical              (True/False) Whether to merge identical mutant sequences in the output (identical sequences will be merged by concatenating the sequence 
+                                   headers for all identical sequences). Default: True
 
-    # Add additional output information stored in the 'mutations' DataFrame
+    # Optional arguments to generate additional output stored in a copy of the 'mutations' DataFrame
     - update_df                    (True/False) Whether to update the input 'mutations' DataFrame to include additional columns with the mutation type, 
                                    wildtype nucleotide sequence, and mutant nucleotide sequence (only valid if 'mutations' is a csv or tsv file). Default: False
     - update_df_out                (str) Path to output csv file containing the updated DataFrame. Only valid if update_df=True.
                                    Default: None -> the new DataFrame will be saved in the same directory as the 'mutations' DataFrame with appendix '_updated'
-    - store_full_sequences         (True/False) Whether to also include the complete wildtype and mutant sequences with update_df (not just the sub-sequence with 
+    - store_full_sequences         (True/False) Whether to also include the complete wildtype and mutant sequences in the updated 'mutations' DataFrame (not just the sub-sequence with 
                                    k-length flanks). Only valid if update_df=True. Default: False
     - translate                    (True/False) Add additional columns to the 'mutations' DataFrame containing the wildtype and mutant amino acid sequences. 
                                    Only valid if update_df=True. Default: False
