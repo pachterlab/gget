@@ -58,6 +58,11 @@ class CustomHelpFormatter(argparse.RawTextHelpFormatter):
             help_str += " (default: %(default)s)"
         return help_str
 
+def int_or_str(value):
+    try:
+        return int(value)
+    except ValueError:
+        return value
 
 def main():
     """
@@ -1883,7 +1888,7 @@ def main():
     )
 
     # mutate parser arguments
-    mutate_desc = "Mutate nucleotide sequences according to defined mutations."
+    mutate_desc = "Mutate nucleotide sequences based on provided mutations."
     parser_mutate = parent_subparsers.add_parser(
         "mutate",
         parents=[parent],
@@ -1925,7 +1930,7 @@ def main():
             "| c.2239_2253delinsAAT | mut3   | seq3   | -> Apply mutation 3 to sequence 3\n"
             "| ...                  | ...    | ...    |\n\n"
             "'mutation' = Column containing the mutations to be performed written in standard mutation annotation (see below)\n"
-            "'mut_ID' = Column containing an identifier for each mutation\n"
+            "'mut_ID' = Column containing an identifier for each mutation (optional)\n"
             "'seq_ID' = Column containing the identifiers of the sequences to be mutated\n"
             "(sequence IDs must correspond to the string following the > character in the input fasta; do NOT include spaces or dots)\n\n"
             "Alternatively: Input mutation(s) as a string or list, e.g. 'c.2C>T' or 'c.2C>T' 'c.1A>C'\n\n"
@@ -1934,12 +1939,12 @@ def main():
         ),
     )
     parser_mutate.add_argument(
-        "-k",
-        "--k",
-        default=30,
-        type=int,
+        "-gtf",
+        "--gtf",
+        default=None,
+        type=str,
         required=False,
-        help="Length of sequences flanking the mutation. If k > total length of the sequence, the entire sequence will be kept.",
+        help="Path to a .gtf file. When providing a genome fasta file as input for 'sequences', you can provide a .gtf file here and the input sequences will be defined according to the transcript boundaries, e.g. 'path/to/genome_annotation.gtf'.",
     )
     parser_mutate.add_argument(
         "-mc",
@@ -1950,20 +1955,114 @@ def main():
         help="Name of the column containing the mutations to be performed in 'mutations'.",
     )
     parser_mutate.add_argument(
-        "-mic",
-        "--mut_id_column",
-        default="mut_ID",
-        type=str,
-        required=False,
-        help="Name of the column containing the IDs of each mutation in 'mutations'.",
-    )
-    parser_mutate.add_argument(
         "-sic",
         "--seq_id_column",
         default="seq_ID",
         type=str,
         required=False,
         help="Name of the column containing the IDs of the sequences to be mutated in 'mutations'.",
+    )
+    parser_mutate.add_argument(
+        "-mic",
+        "--mut_id_column",
+        default=None,
+        type=str,
+        required=False,
+        help="Name of the column containing the IDs of each mutation in 'mutations'. Default: Same as 'mut_column'.",
+    )
+    parser_mutate.add_argument(
+        "-k",
+        "--k",
+        default=30,
+        type=int,
+        required=False,
+        help="Length of sequences flanking the mutation. If k > total length of the sequence, the entire sequence will be kept.",
+    )
+    parser_mutate.add_argument(
+        "-msl",
+        "--min_seq_len",
+        default=None,
+        type=int,
+        required=False,
+        help="Minimum length of the mutant output sequence, e.g. 100. Mutant sequences smaller than this will be dropped.",
+    )
+    parser_mutate.add_argument(
+        "-ma",
+        "--max_ambiguous",
+        default=None,
+        type=int,
+        required=False,
+        help="Maximum number of 'N' (or 'n') characters allowed in the output sequence, e.g. 10. Default: None (no ambiguous character filter will be applied).",
+    )
+    parser_mutate.add_argument(
+        "-ofr",
+        "--optimize_flanking_regions",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Removes nucleotides from either end of the mutant sequence to ensure (when possible) that the mutant sequence does not contain any k-mers also found in the wildtype/input sequence.",
+    )
+    parser_mutate.add_argument(
+        "rswk",
+        "--remove_seqs_with_wt_kmers",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Removes output sequences where at least one k-mer is also present in the wildtype/input sequence in the same region. When used with `--optimize_flanking_regions`, only sequences for which a wildtpye kmer is still present after optimization will be removed.",
+    )
+    parser_mutate.add_argument(
+        "-mio",
+        "--merge_identical_off",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Do not merge identical mutant sequences in the output (by default, identical sequences will be merged by concatenating the sequence headers for all identical sequences).",
+    )
+    parser_mutate.add_argument(
+        "-udf",
+        "--update_df",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Updates the input `mutations` DataFrame to include additional columns with the mutation type, wildtype nucleotide sequence, and mutant nucleotide sequence (only valid if `mutations` is a .csv or .tsv file).",
+    )
+    parser_mutate.add_argument(
+        "-udf_o",
+        "--update_df_out",
+        default=None,
+        type=str,
+        required=False,
+        help="Path to output csv file containing the updated DataFrame, e.g. 'path/to/mutations_updated.csv'. Only valid when used with `--update_df`. Default: None -> the new csv file will be saved in the same directory as the `mutations` DataFrame with appendix '_updated'.",
+    )
+    parser_mutate.add_argument(
+        "--translate",
+        default=None,
+        action="store_true",
+        required=False,
+        help="Adds additional columns to the updated `mutations` DataFrame containing the wildtype and mutant amino acid sequences. Only valid when used with `--update_df`.",
+    )
+    parser_mutate.add_argument(
+        "-ts",
+        "--translate_start",
+        default=None,
+        type=int_or_str,
+        required=False,
+        help="(int or str) The position in the input nucleotide sequence to start translating, e.g. 5. If a string is provided, it should correspond to a column name in `mutations` containing the open reading frame start positions for each sequence/mutation. Only valid when used with `--translate`. Default: translates from the beginning of each sequence.",
+    )
+    parser_mutate.add_argument(
+        "--translate_end",
+        default=None,
+        type=int_or_str,
+        required=False,
+        help="(int or str) The position in the input nucleotide sequence to end translating, e.g. 35. If a string is provided, it should correspond to a column name in `mutations` containing the open reading frame end positions for each sequence/mutation. Only valid when used with `--translate`. Default: translates until the end of each sequence.",
+    )
+    parser_mutate.add_argument(
+        "-sfs",
+        "--store_full_sequences",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Includes the complete wildtype and mutant sequences in the updated `mutations` DataFrame (not just the sub-sequence with k-length flanks). Only valid when used with `--update_df`.",
     )
     parser_mutate.add_argument(
         "-o",
@@ -1984,90 +2083,6 @@ def main():
         action="store_false",
         required=False,
         help="Do not print progress information.",
-    )
-    parser_mutate.add_argument(
-        "--minimum_kmer_length",
-        default=None,
-        type=int,
-        required=False,
-        help="Minimum length of the mutant kmer required. Mutant kmers with a smaller length will be erased. Default: None.",
-    )
-    parser_mutate.add_argument(
-        "--merge_identical_entries",
-        default=True,
-        action="store_true",
-        required=False,
-        help="Whether to merge identical entries in the output fasta file. Default: False",
-    )
-    parser_mutate.add_argument(
-        "--update_df",
-        default=False,
-        action="store_true",
-        required=False,
-        help="Whether to update the input DataFrame with the mutated sequences and associated data (only if mutations is a csv/tsv). Default: False.",
-    )
-    parser_mutate.add_argument(
-        "--update_df_out",
-        default=None,
-        type=str,
-        required=False,
-        help="Path to output csv file containing the updated DataFrame. Default: None",
-    )
-    parser_mutate.add_argument(
-        "--optimize_flanking_regions",
-        default=False,
-        action="store_true",
-        required=False,
-        help="Whether to create mutant fragments with mutations ± k (False, default) or remove nucleotides from either end as needed to ensure that the mutant fragment does not contain any kmers found in the WT fragment. Default: False",
-    )
-    parser_mutate.add_argument(
-        "--remove_mutations_with_wt_kmers",
-        default=False,
-        action="store_true",
-        required=False,
-        help="Removes mutations where the mutated fragment has at least one k-mer that overlaps with the WT fragment in the same region. Default: False",
-    )
-    parser_mutate.add_argument(
-        "--remove_Ns",
-        default=False,
-        action="store_true",
-        required=False,
-        help="Removes mutations where the mutant fragment contains Ns. Default: False",
-    )
-    parser_mutate.add_argument(
-        "--hard_transcript_boundaries",
-        default=True,
-        action="store_true",
-        required=False,
-        help="If using the genome as a reference, this flag indicates whether to end the fragment at transcript boundaries (True) or to go beyond transcript boundaries into unexpressed regions (False). Default: True",
-    )
-    parser_mutate.add_argument(
-        "--store_full_sequences",
-        default=False,
-        action="store_true",
-        required=False,
-        help="Whether to store full sequences with update_df. Default: False",
-    )
-    parser_mutate.add_argument(
-        "--translate",
-        default=None,
-        action="store_true",
-        required=False,
-        help="Whether to translate the mutated sequences to amino acids. Default: False.",
-    )
-    parser_mutate.add_argument(
-        "--translate_start",
-        default=None,
-        type=int,
-        required=False,
-        help="The position in the sequence to start translating (int or string of column name). Only valid if --translate is set. Default: None (translate from the beginning of the sequence).",
-    )
-    parser_mutate.add_argument(
-        "--translate_end",
-        default=None,
-        type=int,
-        required=False,
-        help="The position in the sequence to stop translating (int or string of column name). Only valid if --translate is set. Default: None (translate to the of the sequence).",
     )
 
     ## opentargets parser arguments
@@ -2594,24 +2609,24 @@ def main():
         mutate_results = mutate(
             sequences=seqs,
             mutations=muts,
+            gtf=args.gtf,
             k=args.k,
             mut_column=args.mut_column,
             mut_id_column=args.mut_id_column,
             seq_id_column=args.seq_id_column,
-            out=args.out,
-            verbose=args.quiet,
-            minimum_kmer_length=args.minimum_kmer_length,
-            merge_identical_entries=args.merge_identical_entries,
+            min_seq_len=args.min_seq_len,
+            max_ambiguous=args.max_ambiguous,
+            optimize_flanking_regions=args.optimize_flanking_regions,
+            remove_seqs_with_wt_kmers=args.remove_seqs_with_wt_kmers,
+            merge_identical=args.merge_identical_off,
             update_df=args.update_df,
             update_df_out=args.update_df_out,
-            remove_mutations_with_wt_kmers=args.remove_mutations_with_wt_kmers,
-            remove_Ns=args.remove_Ns,
-            optimize_flanking_regions=args.optimize_flanking_regions,
-            hard_transcript_boundaries=args.hard_transcript_boundaries,
             store_full_sequences=args.store_full_sequences,
             translate=args.translate,
             translate_start=args.translate_start,
-            translate_end=args.translate_end
+            translate_end=args.translate_end,
+            out=args.out,
+            verbose=args.quiet,
         )
 
         # Print list of mutated sequences if any are returned (this should only happen when out=None)
