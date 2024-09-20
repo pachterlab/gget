@@ -290,35 +290,33 @@ def calculate_end_mutation_overlap_with_left_flank(row):
 def mutate(
     sequences: Union[str, List[str]],
     mutations: Union[str, List[str]],
-    k: int = 30,
+    gtf: Optional[str] = None,
     mut_column: str = "mutation",
     seq_id_column: str = "seq_ID",
     mut_id_column: Optional[str] = None,
-    out: Optional[str] = None,
-    verbose: bool = True,
-    minimum_kmer_length: Optional[int] = None,
-    merge_identical_entries: bool = True,
+    k: int = 30,
+    min_seq_len: Optional[int] = None,
+    optimize_flanking_regions: bool = False,
+    remove_seqs_with_wt_kmers: bool = False,
+    max_ambiguous: Optional[int] = None,
+    merge_identical: bool = True,
     update_df: bool = False,
     update_df_out: Optional[str] = None,
-    remove_mutations_with_wt_kmers: bool = False,
-    remove_Ns: bool = False,
-    optimize_flanking_regions: bool = False,
-    hard_transcript_boundaries: bool = True,
     store_full_sequences: bool = False,
     translate: bool = False,
     translate_start: Union[int, str, None] = None,
     translate_end: Union[int, str, None] = None,
+    out: Optional[str] = None,
+    verbose: bool = True,
 ):
-    """
+ """
     Takes in nucleotide sequences and mutations (in standard mutation annotation - see below)
     and returns mutated versions of the input sequences according to the provided mutations.
 
-    Args:
+    Reuiqred input argument:
     - sequences     (str) Path to the fasta file containing the sequences to be mutated, e.g., 'seqs.fa'.
                     Sequence identifiers following the '>' character must correspond to the identifiers
                     in the seq_ID column of 'mutations'.
-                    NOTE: Only string until first space or dot will be used as sequence identifier
-                    - Version numbers of Ensembl IDs will be ignored.
 
                     Example:
                     >seq1 (or ENSG00000106443)
@@ -327,6 +325,11 @@ def mutate(
                     AGATCGCTAG
 
                     Alternatively: Input sequence(s) as a string or list, e.g. 'AGCTAGCT' or ['ACTGCTAGCT', 'AGCTAGCT'].
+
+                    NOTE: Only the letters until the first space or dot will be used as sequence identifiers
+                    - Version numbers of Ensembl IDs will be ignored.
+                    NOTE: When 'sequences' input is a genome, also see 'gtf' argument below.
+                    
     - mutations     Path to csv or tsv file (str) (e.g., 'mutations.csv') or data frame (DataFrame object)
                     containing information about the mutations in the following format:
 
@@ -344,29 +347,51 @@ def mutate(
 
                     Alternatively: Input mutation(s) as a string or list, e.g., 'c.2C>T' or ['c.2C>T', 'c.1A>C'].
                     If a list is provided, the number of mutations must equal the number of input sequences.
-    - k             (int) Length of sequences flanking the mutation. Default: 30.
-                    If k > total length of the sequence, the entire sequence will be kept.
-    - mut_column    (str) Name of the column containing the mutations to be performed in 'mutations'. Default: 'mutation'.
-    - seq_id_column (str) Name of the column containing the IDs of the sequences to be mutated in 'mutations'. Default: 'seq_ID'.
-    - mut_id_column (str) Name of the column containing the IDs of each mutation in 'mutations'. Default: Will use mut_column.
-    - out           (str) Path to output fasta file containing the mutated sequences, e.g., 'path/to/output_fasta.fa'.
-                    Default: None -> returns a list of the mutated sequences to standard out.
-                    The identifiers (following the '>') of the mutated sequences in the output fasta will be '>[seq_ID]_[mut_ID]'.
-    - verbose       (True/False) whether to print progress information. Default: True
-    - minimum_kmer_length (int) Minimum length of the mutant kmer required. Mutant kmers with a smaller length will be erased. Default: None
-    - merge_identical_entries (True/False) Whether to merge identical entries in the output fasta file. Default: True
-    - update_df     (True/False) Whether to update the input DataFrame with the mutated sequences and associated data (only if mutations is a csv/tsv). Default: False
-    - update_df_out (str) Path to output csv file containing the updated DataFrame. Default: None
-    - remove_mutations_with_wt_kmers   (True/False) Removes mutations where the mutated fragment has at least one k-mer that overlaps with the WT fragment in the same region. Default: False
-    - remove_Ns      (True/False) Removes mutations where the mutant fragment contains Ns. Default: False
-    - optimize_flanking_regions (True/False) Whether to create mutant fragments with mutations ± k (False, default) or remove nucleotides from either end as needed to ensure that the mutant fragment does not contain any kmers found in the WT fragment. Default: False
-    - hard_transcript_boundaries     (True/False) If using the genome as a reference, this flag indicates whether to end the fragment at transcript boundaries (True) or to go beyond transcript boundaries into unexpressed regions (False). Default: True
-    - store_full_sequences: (True/False) Whether to store full sequence with update_df. Default: False
-    - translate     (True/False) Translates the mutated sequences to amino acids. Default: False
-    - translate_start (int | str | None) The position in the sequence to start translating (int or column). Only valid if --translate is set. Default: None (translate from the beginning of the sequence)
-    - translate_end (int | str | None)  The position in the sequence to stop translating (int or column). Only valid if --translate is set. Default: None (translate to the of the sequence)
+                    
+                    For more information on the standard mutation annotation, see https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1867422/.
+   
+    Additional input arguments:
+    - gtf                          (str) Path to .gtf file. When using a genome as input for 'sequences', you can provide a .gtf file here 
+                                   and the input sequences will be defined according to the transcript boundaries.
+    - mut_column                   (str) Name of the column containing the mutations to be performed in 'mutations'. Default: 'mutation'.
+    - seq_id_column                (str) Name of the column containing the IDs of the sequences to be mutated in 'mutations'. Default: 'seq_ID'.
+    - mut_id_column                (str) Name of the column containing the IDs of each mutation in 'mutations'. Default: Will use mut_column.
 
-    For more information on the standard mutation annotation, see https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1867422/.
+    Mutant sequence computation/filtering options:
+    - k                            (int) Length of sequences flanking the mutation. Default: 30.
+                                   If k > total length of the sequence, the entire sequence will be kept.
+    - min_seq_len                  (int) Minimum length of the mutant output sequence. Mutant sequences smaller than this will be dropped. 
+                                   Default: None
+    - optimize_flanking_regions    (True/False) Whether to remove nucleotides from either end of the mutant sequence to ensure (when possible) 
+                                   that the mutant sequence does not contain any k-mers also found in the wildtype/input sequence. Default: False
+    - remove_seqs_with_wt_kmers    (True/False) Removes output sequences where at least one k-mer is also present in the wildtype/input sequence in the same region. 
+                                   If optimize_flanking_regions=True, only sequences for which a wildtpye kmer is still present after optimization will be removed.
+                                   Default: False
+    - max_ambiguous                (int) Maximum number of 'N' characters allowed in the output sequence. Default: None (no 'N' filter will be applied)
+    - merge_identical              (True/False) Whether to merge identical entries in the output (headers for identical sequences will be concatenated). 
+                                   Default: True
+
+    # Add additional output information stored in the 'mutations' DataFrame
+    - update_df                    (True/False) Whether to update the input 'mutations' DataFrame to include additional columns with the mutation type, 
+                                   wildtype nucleotide sequence, and mutant nucleotide sequence (only if 'mutations' is a csv or tsv file). Default: False
+    - update_df_out                (str) Path to output csv file containing the updated DataFrame. Only valid if update_df=True.
+                                   Default: None -> the new DataFrame will be saved in the same directory as the 'mutations' DataFrame with appendix '_updated'
+    - store_full_sequences         (True/False) Whether to also include the complete wildtype and mutant sequences with update_df (not just the sub-sequence with 
+                                   k-length flanks). Only valid if update_df=True. Default: False
+    - translate                    (True/False) Add additional columns to the 'mutations' DataFrame containing the wildtype and mutant amino acid sequences. 
+                                   Only valid if update_df=True. Default: False
+    - translate_start              (int | str | None) The position in the input nucleotide sequence to start translating. If a string is provided, it should correspond 
+                                   to a column name in 'mutations' containing the open reading frame start positions for each sequence/mutation.
+                                   Only valid if translate=True. Default: None (translate from the beginning of the sequence)
+    - translate_end                (int | str | None) The position in the input nucleotide sequence to end translating. If a string is provided, it should correspond 
+                                   to a column name in 'mutations' containing the open reading frame end positions for each sequence/mutation.
+                                   Only valid if translate=True. Default: None (translate from to the end of the sequence)
+    
+    # General arguments:
+    - out                          (str) Path to output fasta file containing the mutated sequences, e.g., 'path/to/output_fasta.fa'.
+                                   Default: None -> returns a list of the mutated sequences to standard out.
+                                   The identifiers (following the '>') of the mutated sequences in the output fasta will be '>[seq_ID]_[mut_ID]'.
+    - verbose                      (True/False) whether to print progress information. Default: True
 
     Saves mutated sequences in fasta format (or returns a list containing the mutated sequences if out=None).
     """
@@ -618,7 +643,7 @@ def mutate(
     duplication_mask = mutations["mutation_type"] == "duplication"
     inversion_mask = mutations["mutation_type"] == "inversion"
 
-    if remove_mutations_with_wt_kmers:
+    if remove_seqs_with_wt_kmers:
         long_duplications = ((duplication_mask) & ((mutations["end_mutation_position"] - mutations["start_mutation_position"]) >= k)).sum()
         logger.info(f"Removing {long_duplications} duplications > k")
         mutations = mutations[~((duplication_mask) & ((mutations['end_mutation_position'] - mutations['start_mutation_position']) >= k))]
@@ -862,7 +887,7 @@ def mutate(
         axis=1,
     )
 
-    if remove_mutations_with_wt_kmers:
+    if remove_seqs_with_wt_kmers:
         if verbose:
             tqdm.pandas(desc="Removing mutant fragments that share a kmer with wt fragments")
 
@@ -904,26 +929,31 @@ def mutate(
         logger.debug("Report of the number of elements in each bin of width 5:")
         logger.debug(bin_counts)
 
-    if minimum_kmer_length:
-        rows_less_than_minimum = (mutations["mutant_sequence_kmer_length"] < minimum_kmer_length).sum()
+    if min_seq_len:
+        rows_less_than_minimum = (mutations["mutant_sequence_kmer_length"] < min_seq_len).sum()
 
         mutations = mutations[
-            mutations["mutant_sequence_kmer_length"] >= minimum_kmer_length
+            mutations["mutant_sequence_kmer_length"] >= min_seq_len
         ]
 
         if verbose:
             logger.info(
-                f"Removed {rows_less_than_minimum} mutant kmers with length less than {minimum_kmer_length}..."
+                f"Removed {rows_less_than_minimum} mutant kmers with length less than {min_seq_len}..."
             )
 
-    if remove_Ns:
-        num_rows_with_N = mutations['mutant_sequence_kmer'].str.contains('N', case=False).sum()
-        mutations = mutations[~mutations['mutant_sequence_kmer'].str.contains('N', case=False)]
-
+    if max_ambiguous:
+        # Get number of 'N' or 'n' occuring in the sequence
+        mutations['num_N'] = mutations['mutant_sequence_kmer'].str.lower().str.count('n')
+        num_rows_with_N = (mutations['num_N'] > max_ambiguous).sum()
+        mutations = mutations[mutations['num_N'] <= max_ambiguous]
+    
         if verbose:
             logger.info(
-                f"Removed {num_rows_with_N} mutant kmers containing at least 1 N..."
+                f"Removed {num_rows_with_N} mutant kmers containing more than {max_ambiguous} 'N's..."
             )
+        
+        # Drop the 'num_N' column after filtering
+        mutations = mutations.drop(columns=['num_N'])
 
     # split_cols = mutations[mut_id_column].str.split("_", n=1, expand=True)
 
@@ -939,13 +969,13 @@ def mutate(
 
     # good_mutations = total_mutations - intronic_mutations - posttranslational_region_mutations - unknown_mutations - uncertain_mutations - ambiguous_position_mutations - cosmic_incorrect_wt_base - mut_idx_outside_seq
 
-    # if remove_mutations_with_wt_kmers:
+    # if remove_seqs_with_wt_kmers:
     #     good_mutations = good_mutations - long_duplications - mutations_overlapping_with_wt
         
-    # if minimum_kmer_length:
+    # if min_seq_len:
     #     good_mutations = good_mutations - rows_less_than_minimum
 
-    # if remove_Ns:
+    # if max_ambigious:
     #     good_mutations = good_mutations - num_rows_with_N
 
     report = f"""
@@ -959,16 +989,16 @@ def mutate(
         {mut_idx_outside_seq} mutations with indices outside of the sequence length found ({mut_idx_outside_seq/total_mutations*100:.2f}%)
         """
 
-    if remove_mutations_with_wt_kmers:        
+    if remove_seqs_with_wt_kmers:        
         report += f"""{long_duplications} duplications longer than k found ({long_duplications/total_mutations*100:.2f}%)
         {mutations_overlapping_with_wt} mutations with overlapping kmers found ({mutations_overlapping_with_wt/total_mutations*100:.2f}%)
         """
 
-    if minimum_kmer_length:
+    if min_seq_len:
         report += f"""{rows_less_than_minimum} mutations with fragment length < k found ({rows_less_than_minimum/total_mutations*100:.2f}%)
         """
 
-    if remove_Ns:
+    if max_ambiguous:
         report += f"""{num_rows_with_N} mutations with Ns found ({num_rows_with_N/total_mutations*100:.2f}%)
         """
 
@@ -1115,7 +1145,7 @@ def mutate(
 
     mutations = mutations[columns_to_keep]
 
-    if merge_identical_entries:
+    if merge_identical:
         logger.info("Merging identical mutated sequences")
         if update_df:
             logger.warning("Merging identical mutated sequences can take a while if update_df=True since it will concatenate all MCRSs too)")
