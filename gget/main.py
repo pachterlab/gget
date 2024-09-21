@@ -2005,7 +2005,7 @@ def main():
         help="Removes nucleotides from either end of the mutant sequence to ensure (when possible) that the mutant sequence does not contain any k-mers also found in the wildtype/input sequence.",
     )
     parser_mutate.add_argument(
-        "rswk",
+        "-rswk",
         "--remove_seqs_with_wt_kmers",
         default=False,
         action="store_true",
