@@ -1183,8 +1183,6 @@ def mutate(
 
     mutations = mutations[mutations["mutant_sequence"] != ""]
 
-    mutations = mutations[["mutant_sequence", "header"]]
-
     mutations["fasta_format"] = (
         mutations["header"] + "\n" + mutations["mutant_sequence"] + "\n"
     )
