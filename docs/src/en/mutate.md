@@ -45,9 +45,6 @@ If a list is provided, the number of mutations must equal the number of input se
 For use from the terminal (bash): Enclose individual mutation annotations in quotation marks to prevent parsing errors.  
 
 **Optional input-related arguments**  
-`-gtf` `--gtf`  
-Path to a .gtf file. When providing a genome fasta file as input for 'sequences', you can provide a .gtf file here and the input sequences will be defined according to the transcript boundaries, e.g. 'path/to/genome_annotation.gtf'. Default: None
-
 `-mc` `--mut_column`  
 Name of the column containing the mutations to be performed in `mutations`. Default: 'mutation'.  
 
@@ -56,6 +53,13 @@ Name of the column containing the IDs of the sequences to be mutated in `mutatio
 
 `-mic` `--mut_id_column`  
 Name of the column containing the IDs of each mutation in `mutations`. Default: Same as `mut_column`.
+
+`-gtf` `--gtf`  
+Path to a .gtf file. When providing a genome fasta file as input for 'sequences', you can provide a .gtf file here and the input sequences will be defined according to the transcript boundaries, e.g. 'path/to/genome_annotation.gtf'. Default: None
+
+`-gtic` `--gtf_transcript_id_column`  
+Column name in the input `mutations` file containing the transcript ID. In this case, column `seq_id_column` should contain the chromosome number.  
+Required when `gtf` is provided. Default: None  
   
 **Optional mutant sequence generation/filtering arguments**  
 `-k` `--k`  
@@ -98,11 +102,11 @@ Default: translates until the end of each sequence
 `-udf` `--update_df`   
 Updates the input `mutations` DataFrame to include additional columns with the mutation type, wildtype nucleotide sequence, and mutant nucleotide sequence (only valid if `mutations` is a .csv or .tsv file).  
 
-`-tr` `--translate`                  
-Adds additional columns to the updated `mutations` DataFrame containing the wildtype and mutant amino acid sequences. Only valid when used with `--update_df`.   
-
 `-sfs` `--store_full_sequences`         
 Includes the complete wildtype and mutant sequences in the updated `mutations` DataFrame (not just the sub-sequence with k-length flanks). Only valid when used with `--update_df`.   
+
+`-tr` `--translate`                  
+Adds additional columns to the updated `mutations` DataFrame containing the wildtype and mutant amino acid sequences. Only valid when used with `--store_full_sequences`.   
                                   
 **Optional general arguments**  
 `-o` `--out`   
@@ -154,3 +158,41 @@ gget mutate ATCGCTAAGCT TAGCTA -m 'c.1_3inv' -k 3
 gget.mutate(["ATCGCTAAGCT", "TAGCTA"], "c.1_3inv", k=3)
 ```
 &rarr; Returns ['CTAGCT', 'GATCTA'].  
+
+
+<br/><br/>
+
+**Pass in the genome mutation information as a `mutations` CSV (by having `seq_id_column` contain chromosome information, and `mut_column` contain mutation information with respect to genome coordinates), as well as the genome as the `sequences` file. Respect the transcript boundaries by merging in transcript start and end positions with the `gtf` argument set to the path to the gtf file, as well as the `gtf_transcript_id_column` specifying the name of the column containing transcript ID's corresponding to the gtf in the input `mutations` file. Optimize the length to maximize length while maintaining specificity of all k-mers with the `optimize_flanking_regions` argument. Create a CSV file with updated information including mutation type and output sequences with the `update_df argument`, stored to the path designated by `update_df_out`. Store the full sequences (i.e., the mutation in the context of the entire sequence of the corresponding `sequences` fasta file entry) with the `store_full_sequences` argument. Store translated amino acid sequences for each full mutation with the `translate` argument, with `translate_start` and `translate_end` specifying the names of the column in the input `mutations` file that contain the start and end sequence positions of the open reading frame, respectively:**  
+```bash
+gget mutate genome_reference.fa -m mutations_input.csv -o mut_fasta.fa -k 4 -sic Chromosome -mic Mutation -gtf genome_annotation.gtf -gtic Ensembl_Transcript_ID -ofr -update_df -udf_o mutations_updated.csv -sfs -tr -ts Translate_Start -te Translate_End
+```
+```python
+# Python
+gget.mutate(sequences="genome_reference.fa", mutations="mutations_input.csv", out="mut_fasta.fa", k=4, seq_id_column="Chromosome", mut_column="Mutation", gtf="genome_annotation.gtf", gtf_transcript_id_column="Ensembl_Transcript_ID", optimize_flanking_regions=True, update_df=True, update_df_out="mutations_updated.csv", store_full_sequences=True, translate=True, translate_start="Translate_Start", translate_end="Translate_End")
+```
+&rarr; Takes as input 'mutations_input.csv' file containing: 
+```
+| Chromosome | Mutation          | Ensembl_Transcript_ID  | Translate_Start | Translate_End |
+|------------|-------------------|------------------------|-----------------|---------------|
+| 1          | g.224411A>C       | ENST00000193812        | 0               | 100           |
+| 8          | g.25111del        | ENST00000174411        | 0               | 294           |
+| X          | g.1011_1012insAA  | ENST00000421914        | 9               | 1211          |
+``` 
+&rarr; Saves 'mut_fasta.fa' file containing: 
+```
+>1:g.224411A>C  
+TGCTCTGCT  
+>8:g.25111del  
+GAGTCGAT
+>X:g.1011_1012insAA
+TTAGAACTT
+``` 
+&rarr; Saves 'mutations_updated.csv' file containing: 
+```
+
+| Chromosome | Mutation          | Ensembl_Transcript_ID  | mutation_type | wt_sequence | mutant_sequence | wt_sequence_full  | mutant_sequence_full | wt_sequence_aa_full | mutant_sequence_aa_full |
+|------------|-------------------|------------------------|---------------|-------------|-----------------|-------------------|----------------------|---------------------|-------------------------|
+| 1          | g.224411A>C       | ENSMUST00000193812     | Substitution  | TGCTATGCT   | TGCTCTGCT       | ...TGCTATGCT...   | ...TGCTCTGCT...      | ...CYA...           | ...CSA...               |
+| 8          | g.25111del        | ENST00000174411        | Deletion      | GAGTCCGAT   | GAGTCGAT        | ...GAGTCCGAT...   | ...GAGTCGAT...       | ...ESD...           | ...ES...                |
+| X          | g.1011_1012insAA  | ENST00000421914        | Insertion     | TTAGCTT     | TTAGAACTT       | ...TTAGCTT...     | ...TTAGAACTT...      | ...A...             | ...EL...                |
+

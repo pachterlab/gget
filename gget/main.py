@@ -1941,14 +1941,6 @@ def main():
         ),
     )
     parser_mutate.add_argument(
-        "-gtf",
-        "--gtf",
-        default=None,
-        type=str,
-        required=False,
-        help="Path to a .gtf file. When providing a genome fasta file as input for 'sequences', you can provide a .gtf file here and the input sequences will be defined according to the transcript boundaries, e.g. 'path/to/genome_annotation.gtf'.",
-    )
-    parser_mutate.add_argument(
         "-mc",
         "--mut_column",
         default="mutation",
@@ -1971,6 +1963,22 @@ def main():
         type=str,
         required=False,
         help="Name of the column containing the IDs of each mutation in 'mutations'. Default: Same as 'mut_column'.",
+    )
+    parser_mutate.add_argument(
+        "-gtf",
+        "--gtf",
+        default=None,
+        type=str,
+        required=False,
+        help="Path to a .gtf file. When providing a genome fasta file as input for 'sequences', you can provide a .gtf file here and the input sequences will be defined according to the transcript boundaries, e.g. 'path/to/genome_annotation.gtf'.",
+    )
+    parser_mutate.add_argument(
+        "-gtic",
+        "--gtf_transcript_id_column",
+        default=None,
+        type=str,
+        required=False,
+        help="Column name in the input 'mutations' file containing the transcript ID. In this case, column 'seq_id_column' should contain the chromosome number. Required when 'gtf' is provided.",
     )
     parser_mutate.add_argument(
         "-k",
@@ -2041,7 +2049,7 @@ def main():
         default=None,
         action="store_true",
         required=False,
-        help="Adds additional columns to the updated `mutations` DataFrame containing the wildtype and mutant amino acid sequences. Only valid when used with `--update_df`.",
+        help="Adds additional columns to the updated `mutations` DataFrame containing the wildtype and mutant amino acid sequences. Only valid when used with `--store_full_sequences`.",
     )
     parser_mutate.add_argument(
         "-ts",
@@ -2616,6 +2624,7 @@ def main():
             sequences=seqs,
             mutations=muts,
             gtf=args.gtf,
+            gtf_transcript_id_column=args.gtf_transcript_id_column,
             k=args.k,
             mut_column=args.mut_column,
             mut_id_column=args.mut_id_column,
