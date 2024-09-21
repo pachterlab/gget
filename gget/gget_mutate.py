@@ -980,7 +980,7 @@ def mutate(
                 f"Removed {rows_less_than_minimum} mutant kmers with length less than {min_seq_len}..."
             )
 
-    if max_ambiguous:
+    if max_ambiguous is not None:
         # Get number of 'N' or 'n' occuring in the sequence
         mutations['num_N'] = mutations['mutant_sequence'].str.lower().str.count('n')
         num_rows_with_N = (mutations['num_N'] > max_ambiguous).sum()
@@ -1037,7 +1037,7 @@ def mutate(
         report += f"""{rows_less_than_minimum} mutations with fragment length < k found ({rows_less_than_minimum/total_mutations*100:.2f}%)
         """
 
-    if max_ambiguous:
+    if max_ambiguous is not None:
         report += f"""{num_rows_with_N} mutations with Ns found ({num_rows_with_N/total_mutations*100:.2f}%)
         """
 
