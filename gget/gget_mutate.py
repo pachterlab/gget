@@ -777,8 +777,11 @@ def mutate(
 
     if gtf is not None:        
         assert (mutations_path.endswith(".csv") or mutations_path.endswith(".tsv")), "Mutations must be a CSV or TSV file"
-        mutations = merge_gtf_transcript_locations_into_cosmic_csv(mutations, gtf, gtf_transcript_id_column = gtf_transcript_id_column)
-        columns_to_keep.extend(["start_transcript_position", "end_transcript_position", "strand"])
+        if "start_transcript_position" not in mutations.columns and "end_transcript_position" not in mutations.columns:  #* currently hard-coded column names, but optionally can be changed to arguments later
+            mutations = merge_gtf_transcript_locations_into_cosmic_csv(mutations, gtf, gtf_transcript_id_column = gtf_transcript_id_column)
+            columns_to_keep.extend(["start_transcript_position", "end_transcript_position", "strand"])
+        else:
+            logger.warning("Transcript positions already present in the input mutations file. Skipping GTF file merging.")
        
         # adjust start_transcript_position to be 0-index
         mutations["start_transcript_position"] -= 1
