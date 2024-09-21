@@ -58,11 +58,13 @@ class CustomHelpFormatter(argparse.RawTextHelpFormatter):
             help_str += " (default: %(default)s)"
         return help_str
 
+
 def int_or_str(value):
     try:
         return int(value)
     except ValueError:
         return value
+
 
 def main():
     """
@@ -2133,14 +2135,14 @@ def main():
     # Filters
     _filters = [
         # flag, long flag,   filter name,            example,            valid resources
-        ('d',  'disease',    "disease ID",           "EFO_0000274",      ["drugs"]),
-        ('c',  'drug',       "drug ID",              "CHEMBL1743081",    ["pharmacogenetics"]),
-        ('t',  'tissue',     "tissue ID",            "UBERON_0000473",   ["expression", "depmap"]),
-        ('a',  'anat_sys',   "anatomical system",    "nervous system",   ["expression"]),
-        ('o',  'organ',      "organ",                "brain",            ["expression"]),
-        ('pa', 'protein_a',  "protein A ID",         "ENSP00000304915",  ["interactions"]),
-        ('pb', 'protein_b',  "protein B ID",         "ENSP00000379111",  ["interactions"]),
-        ('gb', 'gene_b',     "gene B ID",            "ENSG00000077238",  ["interactions"]),
+        ("d", "disease", "disease ID", "EFO_0000274", ["drugs"]),
+        ("c", "drug", "drug ID", "CHEMBL1743081", ["pharmacogenetics"]),
+        ("t", "tissue", "tissue ID", "UBERON_0000473", ["expression", "depmap"]),
+        ("a", "anat_sys", "anatomical system", "nervous system", ["expression"]),
+        ("o", "organ", "organ", "brain", ["expression"]),
+        ("pa", "protein_a", "protein A ID", "ENSP00000304915", ["interactions"]),
+        ("pb", "protein_b", "protein B ID", "ENSP00000379111", ["interactions"]),
+        ("gb", "gene_b", "gene B ID", "ENSG00000077238", ["interactions"]),
     ]
     for flag, long_flag, filter_name, example, valid_resources in _filters:
         help_text = f"Filter results by {filter_name}, e.g. '{example}'.\n"
@@ -2195,8 +2197,7 @@ def main():
         formatter_class=CustomHelpFormatter,
     )
     parser_cbio_subparsers = parser_cbio.add_subparsers(
-        dest="subcommand",
-        help="Subcommand to execute."
+        dest="subcommand", help="Subcommand to execute."
     )
     parser_cbio_search = parser_cbio_subparsers.add_parser(
         "search",
@@ -2247,7 +2248,13 @@ def main():
         "-vt",
         "--variation_type",
         type=str,
-        choices=["mutation_occurrences", "cna_nonbinary", "sv_occurrences", "cna_occurrences", "Consequence"],
+        choices=[
+            "mutation_occurrences",
+            "cna_nonbinary",
+            "sv_occurrences",
+            "cna_occurrences",
+            "Consequence",
+        ],
         help="Type of variation to plot",
         default="mutation_occurrences",
         required=False,
@@ -2266,7 +2273,7 @@ def main():
         type=str,
         default="gget_cbio_cache",
         help="Directory to store downloaded data (default: ./gget_cbio_cache)",
-        required=False
+        required=False,
     )
     parser_cbio_plot.add_argument(
         "-fd",
@@ -2274,7 +2281,7 @@ def main():
         type=str,
         default="gget_cbio_figures",
         help="Directory to store generated figures (default: ./gget_cbio_figures)",
-        required=False
+        required=False,
     )
     parser_cbio_plot.add_argument(
         "-fn",
@@ -2282,7 +2289,7 @@ def main():
         type=str,
         default=None,
         help="Filename for the generated figure, relative to `figure_dir` (default: auto-generated)",
-        required=False
+        required=False,
     )
     parser_cbio_plot.add_argument(
         "-t",
@@ -2290,7 +2297,7 @@ def main():
         type=str,
         default=None,
         help="Title for the generated figure (default: auto-generated)",
-        required=False
+        required=False,
     )
     parser_cbio_plot.add_argument(
         "-dpi",
@@ -2298,7 +2305,7 @@ def main():
         type=int,
         default=100,
         help="DPI of the generated figures (default: 100)",
-        required=False
+        required=False,
     )
     parser_cbio_plot.add_argument(
         "-q",
@@ -2322,7 +2329,7 @@ def main():
         default=False,
         action="store_true",
         required=False,
-        help="Show the plot in a window"
+        help="Show the plot in a window",
     )
 
     ## bgee parser arguments
@@ -2346,7 +2353,7 @@ def main():
         type=str,
         choices=["orthologs", "expression"],
         help="Type of information to be returned.",
-        required=True
+        required=True,
     )
     parser_bgee.add_argument(
         "-o",
@@ -2374,7 +2381,6 @@ def main():
         required=False,
         help="Does not print progress information.",
     )
-
 
     ### Define return values
     args = parent_parser.parse_args()
@@ -3345,7 +3351,5 @@ def main():
                 bgee_results.to_csv(sys.stdout, index=False)
             else:
                 print(
-                    bgee_results.to_json(
-                        orient="records", force_ascii=False, indent=4
-                    )
+                    bgee_results.to_json(orient="records", force_ascii=False, indent=4)
                 )
