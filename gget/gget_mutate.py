@@ -1183,6 +1183,8 @@ def mutate(
 
     mutations = mutations[mutations["mutant_sequence"] != ""]
 
+    mutations = mutations[["mutant_sequence", "header"]]
+
     mutations["fasta_format"] = (
         mutations["header"] + "\n" + mutations["mutant_sequence"] + "\n"
     )
@@ -1202,8 +1204,6 @@ def mutate(
         if saved_updated_df:
             mutations.to_csv(update_df_out, index=False)
             print(f"Updated mutation info has been saved to {update_df_out}")
-
-    mutations = mutations[["mutant_sequence", "header"]]
 
     if out:
         # Save mutated sequences in new fasta file
