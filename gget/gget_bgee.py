@@ -1,6 +1,6 @@
 import pandas as pd
 import json as json_
-from typing import Literal, List, Dict, Union
+from typing import List, Dict, Union
 
 import requests
 
@@ -166,7 +166,7 @@ def _bgee_expression(
 # noinspection PyShadowingBuiltins
 def bgee(
     gene_id: str,
-    type: Literal["expression", "orthologs"],
+    type: str,
     json: bool = False,
     verbose: bool = True,
 ) -> Union[pd.DataFrame, List[Dict[str, object]]]:
