@@ -1,10 +1,4 @@
 import json as json_
-try:
-    from typing import Literal, Callable, Any, TypeAlias, Union, Optional
-except ImportError:
-    from typing_extensions import Literal, TypeAlias
-    from typing import Callable, Any, Union, Optional
-
 import pandas as pd
 
 from .constants import OPENTARGETS_GRAPHQL_API
@@ -14,23 +8,15 @@ logger = set_up_logger()
 
 
 def opentargets(
-    ensembl_id: str,
-    resource: Literal[
-        "diseases",
-        "drugs",
-        "tractability",
-        "pharmacogenetics",
-        "expression",
-        "depmap",
-        "interactions",
-    ] = "diseases",
-    limit: Optional[int] = None,
-    verbose: bool = True,
-    wrap_text: bool = False,
-    filters: Optional[dict[str, Union[str, list[str]]]] = None,
-    filter_mode: Literal["and", "or"] = "and",
-    json: bool = False
-) -> Union[pd.DataFrame, list[dict[str, ...]]]:
+    ensembl_id,
+    resource = "diseases",
+    limit = None,
+    verbose = True,
+    wrap_text = False,
+    filters = None,
+    filter_mode = "and",
+    json = False
+):
     """
     Query OpenTargets for data associated with a given Ensembl gene ID.
 
@@ -82,7 +68,7 @@ def opentargets(
         return df
 
 
-def _limit_pagination() -> tuple[str, str, callable]:
+def _limit_pagination():
     """
     Limit is expressed as (page: {"index": 0, "size": limit}).
     """
@@ -99,7 +85,7 @@ def _limit_pagination() -> tuple[str, str, callable]:
     return "page", "Pagination", f
 
 
-def _limit_size() -> tuple[str, str, callable]:
+def _limit_size():
     """
     Limit is expressed as (size: limit).
     """
@@ -113,7 +99,7 @@ def _limit_size() -> tuple[str, str, callable]:
     return "size", "Int", f
 
 
-def _limit_not_supported() -> tuple[None, None, callable]:
+def _limit_not_supported():
     """
     Limit is not supported for this resource (it has no GraphQL-support, and it is meaningless).
     """
@@ -126,7 +112,7 @@ def _limit_not_supported() -> tuple[None, None, callable]:
     return None, None, f
 
 
-def _limit_deferred() -> tuple[None, None, callable]:
+def _limit_deferred():
     """
     Limit is handled after fetching the data (it is not supported by the GraphQL query, but does have meaning).
     """
@@ -137,7 +123,7 @@ def _limit_deferred() -> tuple[None, None, callable]:
     return None, None, f
 
 
-def _tractability_converter(row: dict[str, ...]):
+def _tractability_converter(row):
     _modality_map = {
         "SM": "Small molecule",
         "AB": "Antibody",
@@ -147,24 +133,22 @@ def _tractability_converter(row: dict[str, ...]):
     row["modality"] = _modality_map.get(row["modality"], row["modality"])
 
 
-def _pharmacogenetics_converter(row: dict[str, ...]):
+def _pharmacogenetics_converter(row):
     # need to modify the drugs field to parse it into a dataframe
     drugs = row["drugs"]
     drugs_df = json_list_to_df(drugs, [("id", "drugId"), ("name", "drugFromSource")])
     row["drugs"] = drugs_df
 
 
-def _mk_list_converter(
-    f: Callable[[dict[str, ...]], None]
-) -> Callable[[list[dict[str, ...]]], None]:
-    def fun(rows: list[dict[str, ...]]):
+def _mk_list_converter(f):
+    def fun(rows):
         for row in rows:
             f(row)
 
     return fun
 
 
-def _flatten_depmap(json_entries: list[dict[str, ...]]):
+def _flatten_depmap(json_entries):
     old_entries = json_entries.copy()
     json_entries.clear()
 
@@ -176,20 +160,13 @@ def _flatten_depmap(json_entries: list[dict[str, ...]]):
             json_entries.append(new_entry)
 
 
-_FilterApplicator: TypeAlias = Callable[
-    [dict[str, ...], Literal["and", "or"], dict[str, list[str]]], bool
-]
-
-
-def _mk_filter_applicator(id_key: dict[str, str]) -> tuple[set[str], _FilterApplicator]:
+def _mk_filter_applicator(id_key):
     """
     Make a filter applicator function based on the provided mapping.
     :param id_key: Mapping of filter key to the key in the row data. (e.g. {"disease_id": "disease.id"})
     """
 
-    def f(
-        row: dict[str, ...], mode: Literal["and", "or"], filters: dict[str, list[str]]
-    ) -> bool:
+    def f(row, mode, filters):
         for filter_id, filter_values in filters.items():
             split_key = id_key[filter_id].split(".")
             actual_value: Union[dict[str, ...], list[dict[str, ...]]] = row
@@ -224,19 +201,19 @@ def _mk_filter_applicator(id_key: dict[str, str]) -> tuple[set[str], _FilterAppl
 
 
 def _make_query_fun(
-    top_level_key: str,
-    inner_query: str,
-    human_readable_tlk: str,
-    df_schema: list[tuple[str, str]],
-    wrap_columns: list[str],
-    limit_func: callable,
-    is_rows_based_query: bool = True,
-    sorter: Optional[Callable[[dict[str, ...]], Any]] = None,
-    sort_reverse: bool = False,
-    filter_: Callable[[dict[str, ...]], bool] = lambda x: True,
-    converter: Callable[[list[dict[str, ...]]], None] = lambda x: None,
-    user_filter: Optional[tuple[set[str], _FilterApplicator]] = None,
-) -> callable:
+    top_level_key,
+    inner_query,
+    human_readable_tlk,
+    df_schema,
+    wrap_columns,
+    limit_func,
+    is_rows_based_query = True,
+    sorter = None,
+    sort_reverse = False,
+    filter_ = lambda x: True,
+    converter = lambda x: None,
+    user_filter = None,
+):
     """
     Make a query function for OpenTargets API.
 
@@ -265,13 +242,13 @@ def _make_query_fun(
     limit_key, limit_type, limit_func = limit_func()
 
     def fun(
-        ensembl_id: str,
-        limit: Optional[int] = None,
-        verbose: bool = True,
-        wrap_text: bool = False,
-        filters: Optional[dict[str, list[str]]] = None,
-        filter_mode: Literal["and", "or"] = "and",
-    ) -> pd.DataFrame:
+        ensembl_id,
+        limit = None,
+        verbose = True,
+        wrap_text = False,
+        filters = None,
+        filter_mode = "and",
+    ):
         if limit_key is None:
             query_string = """
             query target($ensemblId: String!) {
