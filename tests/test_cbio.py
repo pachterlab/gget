@@ -1,7 +1,6 @@
 import hashlib
 import unittest
 import json
-from typing import Callable
 from gget.gget_cbio import download_cbioportal_data, cbio_search
 from .from_json import from_json, do_call
 
@@ -21,7 +20,7 @@ class TestCbioSearch(unittest.TestCase, metaclass=from_json(cb_search_dict, _sor
     pass  # all tests are loaded from json
 
 
-def _cbio_download(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Callable:
+def _cbio_download(name: str, td, func):
     def cbio_download(self: unittest.TestCase):
         test = name
         expected_result = td[test]["expected_result"]
