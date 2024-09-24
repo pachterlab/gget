@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import unittest
-from typing import Callable, Any, Optional, Union
+# from typing import Callable, Any, Optional, Union
 import pandas as pd
 import sys
 import json
@@ -50,13 +50,13 @@ _KNOWN_ERRORS = {
 }
 
 
-def do_call(func: Callable, args: Union[dict[str, ...], list[...]]) -> Any:
+def do_call(func, args):
     if isinstance(args, dict):
         return func(**args)
     return func(*args)
 
 
-def _assert_equal(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Callable:
+def _assert_equal(name, td, func):
     def assert_equal(self: unittest.TestCase):
         test = name
         expected_result = td[test]["expected_result"]
@@ -71,8 +71,8 @@ def _assert_equal(name: str, td: dict[str, dict[str, ...]], func: Callable) -> C
 
 
 def _assert_equal_na(
-    name: str, td: dict[str, dict[str, ...]], func: Callable
-) -> Callable:
+    name, td, func
+):
     def assert_equal_na(self: unittest.TestCase):
         test = name
         expected_result = td[test]["expected_result"]
@@ -86,7 +86,7 @@ def _assert_equal_na(
     return assert_equal_na
 
 
-def _assert_none(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Callable:
+def _assert_none(name, td, func):
     def assert_none(self: unittest.TestCase):
         test = name
         expected_result = td[test].get("expected_result", None)
@@ -103,8 +103,7 @@ def _assert_none(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Ca
 
 
 def _assert_equal_json_hash(
-    name: str, td: dict[str, dict[str, ...]], func: Callable
-) -> Callable:
+    name, td, func):
     def assert_equal_json_hash(self: unittest.TestCase):
         test = name
         expected_result = td[test]["expected_result"]
@@ -122,8 +121,8 @@ def _assert_equal_json_hash(
 
 
 def _assert_equal_nested(
-    name: str, td: dict[str, dict[str, ...]], func: Callable
-) -> Callable:
+    name, td, func
+):
     def assert_equal_nested(self: unittest.TestCase):
         test = name
         expected_result = td[test]["expected_result"]
@@ -140,8 +139,7 @@ def _assert_equal_nested(
 
 
 def _assert_equal_json_hash_nested(
-    name: str, td: dict[str, dict[str, ...]], func: Callable
-) -> Callable:
+    name, td, func):
     def assert_equal_json_hash_nested(self: unittest.TestCase):
         test = name
         expected_result = td[test]["expected_result"]
@@ -160,7 +158,7 @@ def _assert_equal_json_hash_nested(
     return assert_equal_json_hash_nested
 
 
-def _error(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Callable:
+def _error(name, td, func):
     try:
         # noinspection PyPep8Naming
         Error = td[name]["expected_result"]
@@ -192,8 +190,8 @@ def _error(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Callable
     return error
 
 
-_test_constructor = Callable[[str, dict[str, dict[str, ...]], Callable], Callable]
-_TYPES: dict[str, _test_constructor] = {
+# _test_constructor = Callable[[str, dict[str, dict[str, ...]], Callable], Callable]
+_TYPES = {
     "assert_equal": _assert_equal,
     "assert_equal_na": _assert_equal_na,
     "assert_none": _assert_none,
@@ -205,11 +203,11 @@ _TYPES: dict[str, _test_constructor] = {
 
 
 def from_json(
-    test_dict: dict[str, dict[str, ...]],
-    func: Callable,
-    custom_types: Optional[dict[str, _test_constructor]] = None,
-    pre_test: Optional[Callable[[], None]] = None,
-) -> type:
+    test_dict,
+    func,
+    custom_types = None,
+    pre_test = None,
+):
     """
     Create a metaclass that will generate test methods from a (json-loaded) dictionary.
     """
@@ -219,7 +217,7 @@ def from_json(
         local_types.update(custom_types)
 
     class C(type):
-        def __new__(cls, name: str, bases: tuple[type, ...], dct: dict[str, ...]):
+        def __new__(cls, name, bases, dct):
             assert (
                 unittest.TestCase in bases
             ), "from_json should only be applied to unittest.TestCase subclasses."
