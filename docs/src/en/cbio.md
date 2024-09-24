@@ -56,11 +56,11 @@ Directory to store data files. Default: `./gget_cbio_cache`.
 Directory to output figures. Default: `./gget_cbio_figures`.
 
 `-fn` `--filename`  
-Filename for the output figure, relative to `figure_dir`. Default: auto-generated   
+Filename for the output figure, relative to `figure_dir`. Default: auto-generated    
 Python: `figure_filename`
 
 `-t` `--title`  
-Title for the output figure. Default: auto-generated
+Title for the output figure. Default: auto-generated  
 Python: `figure_title`
 
 `-dpi` `--dpi`  
@@ -72,7 +72,7 @@ DPI of the output figure. Default: 100.
 Command-line only. Prevents progress information from being displayed.  
 Python: Use `verbose=False` to prevent progress information from being displayed. 
 
-`-y` `--no_confirm`     
+`-nc` `--no_confirm`     
 Command-line only. Skip download confirmation prompts.  
 Python: Use `confirm_download=True` to enable download confirmation prompts.
 
