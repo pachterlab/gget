@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 import json as json_package
 import numpy as np
-from typing import Optional, Literal
+from typing import Optional
 
 # Plotting packages
 import matplotlib.pyplot as plt
@@ -65,7 +65,7 @@ def clean_genes_list(genes_list):
 def enrichr(
     genes: list[str],
     database: str,
-    species: Literal["human", "mouse", "fly", "yeast", "worm", "fish"] = "human",
+    species: str = "human",
     background_list: Optional[list[str]] = None,
     background: bool = False,
     ensembl: bool = False,
