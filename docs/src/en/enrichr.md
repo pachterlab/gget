@@ -29,10 +29,10 @@ Options:
 |----------|-------------------------------------------------------------------|
 | `human`  | [Enrichr](https://maayanlab.cloud/Enrichr/#libraries)             |
 | `mouse`  | [Equivalent to human](https://maayanlab.cloud/Enrichr/#libraries) |
-| `fly`    | [FlyEnrichr](https://maayanlab.cloud/FlyEnrichr/#libraries)       |
-| `yeast`  | [YeastEnrichr](https://maayanlab.cloud/YeastEnrichr/#libraries)   |
-| `worm`   | [WormEnrichr](https://maayanlab.cloud/WormEnrichr/#libraries)     |
-| `fish`   | [FishEnrichr](https://maayanlab.cloud/FishEnrichr/#libraries)     |
+| `fly`    | [FlyEnrichr](https://maayanlab.cloud/FlyEnrichr/#stats)       |
+| `yeast`  | [YeastEnrichr](https://maayanlab.cloud/YeastEnrichr/#stats)   |
+| `worm`   | [WormEnrichr](https://maayanlab.cloud/WormEnrichr/#stats)     |
+| `fish`   | [FishEnrichr](https://maayanlab.cloud/FishEnrichr/#stats)     |
 
 `-bkg_l` `--background_list`  
 Short names (gene symbols) of background genes to perform enrichment analysis on, e.g. NSUN3 POLRMT NLRX1.  
