@@ -445,7 +445,7 @@ def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_fil
 
     # Define the column order
     columns = [
-        "Accession",
+        "accession", # Lower case to conform with Delphy required format
         "Organism Name",
         "GenBank/RefSeq",
         "Submitters",
@@ -493,7 +493,7 @@ def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_fil
 
         # Build table
         row = {
-            "Accession": metadata.get("accession", pd.NA),
+            "accession": metadata.get("accession", pd.NA),
             "Organism Name": metadata.get("virus", {}).get("organismName", pd.NA),
             "GenBank/RefSeq": metadata.get("sourceDatabase", pd.NA),
             "Submitters": ", ".join(metadata.get("submitter", {}).get("names", [])),
