@@ -396,7 +396,7 @@ def mutate(
                                    Default: None
     - optimize_flanking_regions    (True/False) Whether to remove nucleotides from either end of the mutant sequence to ensure (when possible) 
                                    that the mutant sequence does not contain any k-mers also found in the wildtype/input sequence. Default: False
-    - remove_seqs_with_wt_kmers    (True/False) Removes output sequences where at least one k-mer is also present in the wildtype/input sequence in the same region. 
+    - remove_seqs_with_wt_kmers    (True/False) Removes output sequences where at least one (k+1)-mer is also present in the wildtype/input sequence in the same region. 
                                    If optimize_flanking_regions=True, only sequences for which a wildtpye kmer is still present after optimization will be removed.
                                    Default: False
     - max_ambiguous                (int) Maximum number of 'N' characters allowed in the output sequence. Default: None (no 'N' filter will be applied)
@@ -954,20 +954,6 @@ def mutate(
 
     max_length = mutations["mutant_sequence_kmer_length"].max()
 
-    # Create bins of width 5 from 0 to max_length
-    bins = range(0, max_length + 6, 5)
-
-    # Bin the lengths and count the number of elements in each bin
-    binned_lengths = pd.cut(
-        mutations["mutant_sequence_kmer_length"], bins=bins, right=False
-    )
-    bin_counts = binned_lengths.value_counts().sort_index()
-
-    # Display the report
-    if verbose:
-        logger.debug("Report of the number of elements in each bin of width 5:")
-        logger.debug(bin_counts)
-
     if min_seq_len:
         rows_less_than_minimum = (mutations["mutant_sequence_kmer_length"] < min_seq_len).sum()
 
@@ -993,6 +979,23 @@ def mutate(
         
         # Drop the 'num_N' column after filtering
         mutations = mutations.drop(columns=['num_N'])
+
+    try:
+        # Create bins of width 5 from 0 to max_length
+        bins = range(0, max_length + 6, 5)
+
+        # Bin the lengths and count the number of elements in each bin
+        binned_lengths = pd.cut(
+            mutations["mutant_sequence_kmer_length"], bins=bins, right=False
+        )
+        bin_counts = binned_lengths.value_counts().sort_index()
+
+        # Display the report
+        if verbose:
+            logger.debug("Report of the number of elements in each bin of width 5:")
+            logger.debug(bin_counts)
+    except Exception as e:
+        pass
 
     # split_cols = mutations[mut_id_column].str.split("_", n=1, expand=True)
 
@@ -1224,4 +1227,3 @@ def mutate(
 
         if len(all_mut_seqs) > 0:
             return all_mut_seqs
-
