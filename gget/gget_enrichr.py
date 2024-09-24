@@ -94,7 +94,7 @@ def enrichr(
                         'celltypes' (PanglaoDB_Augmented_2021)
                         'kinase_interactions' (KEA_2015)
                         or any database listed under Gene-set Library at: https://maayanlab.cloud/Enrichr/#libraries or the species-specific libraries listed below
-    - species           Enrichr variant to query. Options:
+    - species           Enrichr species database to query. Options:
                         'human' (default) [H. sapiens] - https://maayanlab.cloud/Enrichr/#libraries
                         'mouse' [M. musculus] - equivalent to 'human'
                         'fly' [D. melanogaster] - https://maayanlab.cloud/FlyEnrichr/#libraries
