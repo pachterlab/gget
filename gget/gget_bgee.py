@@ -1,6 +1,5 @@
 import pandas as pd
 import json as json_
-from typing import List, Dict, Union
 
 import requests
 
@@ -9,7 +8,7 @@ from .utils import set_up_logger, json_list_to_df
 logger = set_up_logger()
 
 
-def _bgee_species(gene_id: str, verbose: bool = True) -> int:
+def _bgee_species(gene_id: str, verbose = True):
     """
     Get species ID from Bgee
     :param gene_id: Ensembl gene ID
@@ -36,17 +35,16 @@ def _bgee_species(gene_id: str, verbose: bool = True) -> int:
             "Please double-check the arguments and try again.\n"
         )
 
-    genes_data: list[dict[str, ...]] = response.json()["data"]["genes"]
+    genes_data = response.json()["data"]["genes"]
     assert len(genes_data) == 1
-    gene_data: dict[str, ...] = genes_data[0]
+    gene_data = genes_data[0]
 
     species: int = gene_data["species"]["genomeSpeciesId"]
     return species
 
 
 def _bgee_orthologs(
-    gene_id: str, json: bool = False, verbose: bool = True
-) -> Union[pd.DataFrame, List[Dict[str, object]]]:
+    gene_id, json = False, verbose = True):
     """
     Get orthologs for a gene from Bgee
 
@@ -83,8 +81,8 @@ def _bgee_orthologs(
             "Please double-check the arguments and try again.\n"
         )
 
-    homologs_data: list[dict[str, ...]] = response.json()["data"]["orthologsByTaxon"]
-    homologs_data: list[dict[str, ...]] = sum([v["genes"] for v in homologs_data], [])
+    homologs_data = response.json()["data"]["orthologsByTaxon"]
+    homologs_data = sum([v["genes"] for v in homologs_data], [])
 
     df = json_list_to_df(
         homologs_data,
@@ -104,8 +102,7 @@ def _bgee_orthologs(
 
 
 def _bgee_expression(
-    gene_id: str, json: bool = False, verbose: bool = True
-) -> Union[pd.DataFrame, List[Dict[str, object]]]:
+    gene_id, json = False, verbose = True):
     """
     Get expression data from Bgee
 
@@ -143,7 +140,7 @@ def _bgee_expression(
             "Please double-check the arguments and try again.\n"
         )
 
-    expression_data: list[dict[str, ...]] = response.json()["data"]["calls"]
+    expression_data = response.json()["data"]["calls"]
 
     df = json_list_to_df(
         expression_data,
@@ -165,22 +162,21 @@ def _bgee_expression(
 
 # noinspection PyShadowingBuiltins
 def bgee(
-    gene_id: str,
-    type: str,
-    json: bool = False,
-    verbose: bool = True,
-) -> Union[pd.DataFrame, List[Dict[str, object]]]:
+    gene_id,
+    type,
+    json = False,
+    verbose = True,
+):
     """
-    Get orthologs/expression data for a gene from Bgee
+    Get orthologs/expression data for a gene from Bgee (https://www.bgee.org/).
 
     Args:
+    type        type of data to retrieve (expression or orthologs)
+    gene_id     Ensembl gene ID
+    json        return JSON instead of DataFrame
+    verbose     log progress
 
-    :param type:    type of data to retrieve (expression or orthologs)
-    :param gene_id: Ensembl gene ID
-    :param json:    return JSON instead of DataFrame
-    :param verbose: log progress
-
-    Returns requested information as a DataFrame or JSON
+    Returns requested information as a DataFrame or JSON.
     """
     if type == "expression":
         return _bgee_expression(gene_id, json=json, verbose=verbose)
