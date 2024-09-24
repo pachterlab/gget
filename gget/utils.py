@@ -651,7 +651,7 @@ def rest_query(server, query, content_type):
         return r.text
 
 
-def post_query(server: str, endpoint: str, query: dict[str, ...]) -> dict[str, ...]:
+def post_query(server, query):
     """
     Function to perform a POST API query.
 
@@ -672,7 +672,7 @@ def post_query(server: str, endpoint: str, query: dict[str, ...]) -> dict[str, .
     return r.json()
 
 
-def graphql_query(server: str, query: str, variables: dict[str, ...]) -> dict[str, ...]:
+def graphql_query(server, query, variables):
     """
     Function to perform a GraphQL API query.
 
