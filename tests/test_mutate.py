@@ -6,7 +6,6 @@ import gget
 import pandas as pd
 import os
 import tempfile
-from typing import Callable, Union
 from .from_json import from_json, do_call
 
 LONG_SEQUENCE = 'CCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCCG'
@@ -57,7 +56,7 @@ def assert_global_variables_zero(number_intronic_position_mutations = 0, number_
     assert gget.gget_mutate.mut_idx_outside_seq == number_index_errors
 
 
-def _recursive_replace(v: Union[str, dict, list], old: str, new: str, exact: bool = False) -> Union[str, dict, list]:
+def _recursive_replace(v, old: str, new: str, exact = False):
     if isinstance(v, str):
         if exact:
             if v == old:
@@ -74,7 +73,7 @@ def _recursive_replace(v: Union[str, dict, list], old: str, new: str, exact: boo
         return v
 
 
-def _assert_mutate(name: str, td: dict[str, dict[str, ...]], func: Callable) -> Callable:
+def _assert_mutate(name: str, td, func):
     ls = LONG_SEQUENCE
 
     def assert_mutate(self: unittest.TestCase):
