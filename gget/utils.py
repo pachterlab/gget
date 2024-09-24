@@ -1032,7 +1032,7 @@ def remove_temp_files(files_to_delete):
 
 
 def json_list_to_df(
-    json_list: list[dict[str, ...]], columns: list[tuple[str, str]]
+    json_list, columns
 ) -> pd.DataFrame:
     """
     Convert list of JSON objects to data frame.
