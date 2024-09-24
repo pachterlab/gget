@@ -3322,7 +3322,7 @@ def main():
                 args.genes,
                 stratification=args.stratification,
                 variation_type=args.variation_type,
-                filter_=args.filter.split(":", 1) if args.filter else None,
+                filter=args.filter.split(":", 1) if args.filter else None,
                 data_dir=args.data_dir,
                 figure_dir=args.figure_dir,
                 dpi=args.dpi,
