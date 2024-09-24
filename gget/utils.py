@@ -651,11 +651,12 @@ def rest_query(server, query, content_type):
         return r.text
 
 
-def post_query(server, query):
+def post_query(server, endpoint, query):
     """
     Function to perform a POST API query.
 
     :param server:  Server to query .
+    :param endpoint: Server endpoint
     :param query:   Query that is passed to server.
 
     :return: server output
