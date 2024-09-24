@@ -73,7 +73,7 @@ def _limit_pagination():
     Limit is expressed as (page: {"index": 0, "size": limit}).
     """
 
-    def f(limit: Optional[int], is_rows_based_query: bool):
+    def f(limit, is_rows_based_query):
         if limit is None:
             # special case because `None` is used to probe the total count
             if is_rows_based_query:
@@ -90,7 +90,7 @@ def _limit_size():
     Limit is expressed as (size: limit).
     """
 
-    def f(limit: Optional[int], is_rows_based_query: bool):
+    def f(limit, is_rows_based_query):
         # special case because `None` is used to probe the total count
         if limit is None and is_rows_based_query:
             limit = 1
@@ -104,7 +104,7 @@ def _limit_not_supported():
     Limit is not supported for this resource (it has no GraphQL-support, and it is meaningless).
     """
 
-    def f(limit: Optional[int], _is_rows_based_query: bool):
+    def f(limit, _is_rows_based_query):
         if limit is not None:
             raise ValueError("Limit is not supported for this resource.")
         return None
@@ -117,7 +117,7 @@ def _limit_deferred():
     Limit is handled after fetching the data (it is not supported by the GraphQL query, but does have meaning).
     """
 
-    def f(_limit: Optional[int], _is_rows_based_query: bool):
+    def f(_limit, _is_rows_based_query):
         return None
 
     return None, None, f
@@ -169,7 +169,7 @@ def _mk_filter_applicator(id_key):
     def f(row, mode, filters):
         for filter_id, filter_values in filters.items():
             split_key = id_key[filter_id].split(".")
-            actual_value: Union[dict[str, ...], list[dict[str, ...]]] = row
+            actual_value = row
             for k in split_key:
                 if actual_value is None:
                     break
@@ -314,19 +314,19 @@ def _make_query_fun(
             del variables["pagination"]
 
         results = graphql_query(OPENTARGETS_GRAPHQL_API, query_string, variables)
-        target: dict[str, ...] = results["data"]["target"]
+        target = results["data"]["target"]
         if target is None:
             raise ValueError(
                 f"No data found for Ensembl ID: {ensembl_id}. Please double-check the ID and try again."
             )
-        data: dict[str, ...] = target[top_level_key]
+        data = target[top_level_key]
 
         if is_rows_based_query:
-            total_count: int = data["count"]
-            rows: list[dict[str, ...]] = data["rows"]
+            total_count = data["count"]
+            rows = data["rows"]
         else:
             # noinspection PyTypeChecker
-            rows: list[dict[str, ...]] = data
+            rows = data
             total_count = len(data)
 
         if verbose:
@@ -343,8 +343,8 @@ def _make_query_fun(
             new_results = graphql_query(
                 OPENTARGETS_GRAPHQL_API, query_string, variables
             )
-            new_data: dict[str, ...] = new_results["data"]["target"][top_level_key]
-            new_rows: list[dict[str, ...]] = new_data["rows"]
+            new_data = new_results["data"]["target"][top_level_key]
+            new_rows = new_data["rows"]
             # we re-fetched the original 1, so we need to replace them
             rows = new_rows
             if verbose:
