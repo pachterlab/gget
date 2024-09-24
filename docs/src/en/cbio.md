@@ -101,7 +101,13 @@ gget.cbio_search('esophag', 'ovary', 'ovarian')
 
 **Plot a heatmap of mutation occurrences for specific genes in a specific study:**   
 ```bash
-gget cbio plot -s msk_impact_2017 -g AKT1 ALK FLT4 MAP3K1 MLL2 MLL3 NOTCH3 NOTCH4 PDCD1 RNF43 -st tissue -vt mutation_occurrences -dpi 200 -y
+gget cbio plot \
+    -s msk_impact_2017 \
+    -g AKT1 ALK FLT4 MAP3K1 MLL2 MLL3 NOTCH3 NOTCH4 PDCD1 RNF43 \
+    -st tissue \
+    -vt mutation_occurrences \
+    -dpi 200 \
+    -y
 ```
 ```python
 # Python
@@ -123,7 +129,13 @@ gget.cbio_plot(
 
 **Plot a heatmap of mutation types for specific genes in a specific study:**   
 ```bash
-gget cbio plot -s msk_impact_2017 -g AKT1 ALK FLT4 MAP3K1 MLL2 MLL3 NOTCH3 NOTCH4 PDCD1 RNF43 -st sample -vt Consequence -dpi 200 -y
+gget cbio plot \
+    -s msk_impact_2017 \
+    -g AKT1 ALK FLT4 MAP3K1 MLL2 MLL3 NOTCH3 NOTCH4 PDCD1 RNF43 \
+    -st sample \
+    -vt Consequence \
+    -dpi 200 \
+    -y
 ```
 ```python
 # Python
@@ -145,7 +157,14 @@ gget.cbio_plot(
 
 **Plot a heatmap of mutation types for specific genes in a specific study, filtering by tissue:**
 ```bash
-gget cbio plot -s msk_impact_2017 -g AKT1 ALK FLT4 MAP3K1 MLL2 MLL3 NOTCH3 NOTCH4 PDCD1 RNF43 -st sample -vt Consequence -f tissue:intestine -dpi 200 -y
+gget cbio plot \
+    -s msk_impact_2017 \
+    -g AKT1 ALK FLT4 MAP3K1 MLL2 MLL3 NOTCH3 NOTCH4 PDCD1 RNF43 \
+    -st sample \
+    -vt Consequence \
+    -f tissue:intestine \
+    -dpi 200 \
+    -y
 ```
 ```python
 # Python
@@ -168,7 +187,16 @@ gget.cbio_plot(
 
 **Plot a heatmap with a custom title and filename:**
 ```bash
-gget cbio plot -s msk_impact_2017 -g AKT1 ALK FLT4 MAP3K1 MLL2 MLL3 NOTCH3 NOTCH4 PDCD1 RNF43 -st sample -vt Consequence -f tissue:intestine -dpi 200 -y -t "Intestinal Mutations" -fn intestinal_mutations.png
+gget cbio plot \
+    -s msk_impact_2017 \
+    -g AKT1 ALK FLT4 MAP3K1 MLL2 MLL3 NOTCH3 NOTCH4 PDCD1 RNF43 \
+    -st sample \
+    -vt Consequence \
+    -f tissue:intestine \
+    -dpi 200 \
+    -y \
+    -t "Intestinal Mutations" \
+    -fn intestinal_mutations.png
 ```
 ```python
 # Python
