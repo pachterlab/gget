@@ -3,7 +3,8 @@
         "type": "assert_mutate",
         "args": {
             "sequences": "<long_sequence>",
-            "mutations": "c.35G>A"
+            "mutations": "c.35G>A",
+            "optimize_flanking_regions": true
         },
         "expected_result": "GCCCCACCCCGCCCCTCCCCGCCCCACCCCACCCCTCCCCGCCCCACCCCGCCCCTCCCCG",
         "global_variables": {}
@@ -12,7 +13,8 @@
         "type": "assert_mutate",
         "args": {
             "sequences": "<long_sequence>",
-            "mutations": "c.65G>A"
+            "mutations": "c.65G>A",
+            "optimize_flanking_regions": true
         },
         "expected_result": "GCCCCTCCCCGCCCCACCCCGCCCCTCCCCACCCCACCCCG",
         "global_variables": {}
@@ -21,7 +23,8 @@
         "type": "assert_mutate",
         "args": {
             "sequences": "<long_sequence>",
-            "mutations": "c.5G>A"
+            "mutations": "c.5G>A",
+            "optimize_flanking_regions": true
         },
         "expected_result": "CCCCACCCCACCCCGCCCCTCCCCGCCCCACCCCG",
         "global_variables": {}
@@ -30,7 +33,8 @@
         "type": "assert_mutate",
         "args": {
             "sequences": "<long_sequence>",
-            "mutations": "c.35del"
+            "mutations": "c.35del",
+            "optimize_flanking_regions": true
         },
         "expected_result": "GCCCCACCCCGCCCCTCCCCGCCCCACCCCCCCCTCCCCGCCCCACCCCGCCCCTCCCCG",
         "global_variables": {}
@@ -39,7 +43,8 @@
         "type": "assert_mutate",
         "args": {
             "sequences": "<long_sequence>",
-            "mutations": "c.35_40del"
+            "mutations": "c.35_40del",
+            "optimize_flanking_regions": true
         },
         "expected_result": "GCCCCACCCCGCCCCTCCCCGCCCCACCCCCCCCGCCCCACCCCGCCCCTCCCCGCCCCA",
         "global_variables": {}
@@ -48,7 +53,8 @@
         "type": "assert_mutate",
         "args": {
             "sequences": "<long_sequence>",
-            "mutations": "c.31del"
+            "mutations": "c.31del",
+            "optimize_flanking_regions": true
         },
         "expected_result": "CGCCCCACCCCGCCCCTCCCCGCCCCACCCGCCCCTCCCCGCCCCACCCCGCCCCTC",
         "global_variables": {}
@@ -57,7 +63,8 @@
         "type": "assert_mutate",
         "args": {
             "sequences": "<long_sequence>",
-            "mutations": "c.34del"
+            "mutations": "c.34del",
+            "optimize_flanking_regions": true
         },
         "expected_result": "CGCCCCACCCCGCCCCTCCCCGCCCCACCCGCCCCTCCCCGCCCCACCCCGCCCCTC",
         "global_variables": {}
@@ -66,7 +73,8 @@
         "type": "assert_mutate",
         "args": {
             "sequences": "<long_sequence>",
-            "mutations": "c.31_32del"
+            "mutations": "c.31_32del",
+            "optimize_flanking_regions": true
         },
         "expected_result": "CCGCCCCACCCCGCCCCTCCCCGCCCCACCGCCCCTCCCCGCCCCACCCCGCCCCTCC",
         "global_variables": {}
@@ -75,7 +83,8 @@
         "type": "assert_mutate",
         "args": {
             "sequences": "<long_sequence>",
-            "mutations": "c.4_5insT"
+            "mutations": "c.4_5insT",
+            "optimize_flanking_regions": true
         },
         "expected_result": "CCCCTGCCCCACCCCGCCCCTCCCCGCCCCACCCC",
         "global_variables": {}
@@ -84,7 +93,8 @@
         "type": "assert_mutate",
         "args": {
             "sequences": "<long_sequence>",
-            "mutations": "c.65_66insTTTTT"
+            "mutations": "c.65_66insTTTTT",
+            "optimize_flanking_regions": true
         },
         "expected_result": "CCCCTCCCCGCCCCACCCCGCCCCTCCCCGTTTTTCCCCACCCCG",
         "global_variables": {}
@@ -93,7 +103,8 @@
         "type": "assert_mutate",
         "args": {
             "sequences": "<long_sequence>",
-            "mutations": "c.20_21insCCAAA"
+            "mutations": "c.20_21insCCAAA",
+            "optimize_flanking_regions": true
         },
         "expected_result": "CCCCGCCCCACCCCGCCCCTCCAAACCCCGCCCCACCCCGCCCCTCCCCGCCCCA",
         "global_variables": {}
@@ -102,7 +113,8 @@
         "type": "assert_mutate",
         "args": {
             "sequences": "<long_sequence>",
-            "mutations": "c.38delinsAAA"
+            "mutations": "c.38delinsAAA",
+            "optimize_flanking_regions": true
         },
         "expected_result": "CCACCCCGCCCCTCCCCGCCCCACCCCGCCAAACTCCCCGCCCCACCCCGCCCCTCCCCGCCC",
         "global_variables": {}
@@ -111,7 +123,8 @@
         "type": "assert_mutate",
         "args": {
             "sequences": "<long_sequence>",
-            "mutations": "c.38_40delinsAAA"
+            "mutations": "c.38_40delinsAAA",
+            "optimize_flanking_regions": true
         },
         "expected_result": "CCACCCCGCCCCTCCCCGCCCCACCCCGCCAAACCCCGCCCCACCCCGCCCCTCCCCGCCCCA",
         "global_variables": {}
@@ -120,7 +133,8 @@
         "type": "assert_mutate",
         "args": {
             "sequences": "<long_sequence>",
-            "mutations": "c.36_37delinsAG"
+            "mutations": "c.36_37delinsAG",
+            "optimize_flanking_regions": true
         },
         "expected_result": "CCCCACCCCGCCCCTCCCCGCCCCACCCCGAGCCTCCCCGCCCCACCCCGCCCCTCCCCGCC",
         "global_variables": {}
@@ -129,7 +143,8 @@
         "type": "assert_mutate",
         "args": {
             "sequences": "<long_sequence>",
-            "mutations": "c.36_37delinsAC"
+            "mutations": "c.36_37delinsAC",
+            "optimize_flanking_regions": true
         },
         "expected_result": "CCCCACCCCGCCCCTCCCCGCCCCACCCCGACCCTCCCCGCCCCACCCCGCCCCTCCCCGC",
         "global_variables": {}
@@ -138,7 +153,8 @@
         "type": "assert_mutate",
         "args": {
             "sequences": "<long_sequence>",
-            "mutations": "c.36_37delinsCA"
+            "mutations": "c.36_37delinsCA",
+            "optimize_flanking_regions": true
         },
         "expected_result": "CCCACCCCGCCCCTCCCCGCCCCACCCCGCACCTCCCCGCCCCACCCCGCCCCTCCCCGCC",
         "global_variables": {}
@@ -147,7 +163,8 @@
         "type": "assert_mutate",
         "args": {
             "sequences": "<long_sequence>",
-            "mutations": "c.35dup"
+            "mutations": "c.35dup",
+            "optimize_flanking_regions": true
         },
         "expected_result": "CCCCACCCCGCCCCTCCCCGCCCCACCCCGGCCCCTCCCCGCCCCACCCCGCCCCTCCCC",
         "global_variables": {}
@@ -156,7 +173,8 @@
         "type": "assert_mutate",
         "args": {
             "sequences": "<long_sequence>",
-            "mutations": "c.35_37dup"
+            "mutations": "c.35_37dup",
+            "optimize_flanking_regions": true
         },
         "expected_result": "CCACCCCGCCCCTCCCCGCCCCACCCCGCCGCCCCTCCCCGCCCCACCCCGCCCCTCC",
         "global_variables": {}
@@ -165,7 +183,8 @@
         "type": "assert_mutate",
         "args": {
             "sequences": "<long_sequence>",
-            "mutations": "c.35_38inv"
+            "mutations": "c.35_38inv",
+            "optimize_flanking_regions": true
         },
         "expected_result": "CCCCACCCCGCCCCTCCCCGCCCCACCCCGGGCCTCCCCGCCCCACCCCGCCCCTCCCCGCC",
         "global_variables": {}
@@ -183,7 +202,8 @@
         "type": "assert_mutate",
         "args": {
             "sequences": "<long_sequence>",
-            "mutations": "c.20+3T>A"
+            "mutations": "c.20+3T>A",
+            "optimize_flanking_regions": true
         },
         "expected_result": null,
         "global_variables": {
@@ -194,7 +214,8 @@
         "type": "assert_mutate",
         "args": {
             "sequences": "<long_sequence>",
-            "mutations": "c.20-3T>A"
+            "mutations": "c.20-3T>A",
+            "optimize_flanking_regions": true
         },
         "expected_result": null,
         "global_variables": {
@@ -205,7 +226,8 @@
         "type": "assert_mutate",
         "args": {
             "sequences": "<long_sequence>",
-            "mutations": "c.20*5T>A"
+            "mutations": "c.20*5T>A",
+            "optimize_flanking_regions": true
         },
         "expected_result": null,
         "global_variables": {
@@ -216,7 +238,8 @@
         "type": "assert_mutate",
         "args": {
             "sequences": "<long_sequence>",
-            "mutations": "c.?"
+            "mutations": "c.?",
+            "optimize_flanking_regions": true
         },
         "expected_result": null,
         "global_variables": {
@@ -227,7 +250,8 @@
         "type": "assert_mutate",
         "args": {
             "sequences": "<long_sequence>",
-            "mutations": "c.(20_28)del"
+            "mutations": "c.(20_28)del",
+            "optimize_flanking_regions": true
         },
         "expected_result": null,
         "global_variables": {
@@ -238,7 +262,8 @@
         "type": "assert_mutate",
         "args": {
             "sequences": "<long_sequence>",
-            "mutations": "c.99999999C>A"
+            "mutations": "c.99999999C>A",
+            "optimize_flanking_regions": true
         },
         "expected_result": null,
         "global_variables": {
