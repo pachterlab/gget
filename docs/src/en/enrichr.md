@@ -10,7 +10,7 @@ Alternatively: use flag `--ensembl` to input a list of Ensembl gene IDs, e.g. EN
 
 **Other required arguments**  
 `-db` `--database`  
-Database to use as reference for the enrichment analysis.  
+Database database to use as reference for the enrichment analysis.  
 Supports any database listed [here](https://maayanlab.cloud/Enrichr/#libraries) under 'Gene-set Library' or one of the following shortcuts:  
 'pathway'       (KEGG_2021_Human)  
 'transcription'     (ChEA_2016)  
