@@ -18,7 +18,7 @@ Supports any database listed [here](https://maayanlab.cloud/Enrichr/#libraries) 
 'diseases_drugs'   (GWAS_Catalog_2019)   
 'celltypes'      (PanglaoDB_Augmented_2021)  
 'kinase_interactions'   (KEA_2015)  
-Note: database shortcuts are not supported for species other than 'human' or 'mouse'.  
+NOTE: database shortcuts are not supported for species other than 'human' or 'mouse'. Click on the species databases listed below under `species` to view a list of databases available for each species.  	  
   
 **Optional arguments**  
 `-s` `--species`  
