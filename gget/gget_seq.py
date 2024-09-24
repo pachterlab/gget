@@ -95,12 +95,10 @@ def seq(
             query = {"ids": ens_ids_clean}
 
             # noinspection PyTypeChecker
-            results_list: list[dict[str, ...]] = post_query(server, endpoint, query)
-            results_dict: dict[str, dict[str, ...]] = {v['query']: v for v in results_list if v is not None}
+            results_list = post_query(server, endpoint, query)
+            results_dict = {v['query']: v for v in results_list if v is not None}
 
             for ensembl_ID, df_temp in results_dict.items():
-                df_temp: dict[str, ...]
-
                 # Delete superfluous entries
                 keys_to_delete = ["query", "id", "version", "molecule"]
                 for key in keys_to_delete:
