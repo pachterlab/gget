@@ -1,5 +1,5 @@
 {
-    "test1": {
+    "test_ref": {
         "type": "assert_equal",
         "args": {
             "species": "taeniopygia_guttata",
@@ -54,7 +54,7 @@
             }
         }
     },
-    "test2": {
+    "test_ref_which": {
         "type": "assert_equal",
         "args": {
             "species": "taeniopygia_guttata",
@@ -92,7 +92,7 @@
             }
         }
     },
-    "test3": {
+    "test_ref_rel": {
         "type": "assert_equal",
         "args": {
             "species": "taeniopygia_guttata",
@@ -130,7 +130,7 @@
             }
         }
     },
-    "test4": {
+    "test_ref_rel_ftp": {
         "type": "assert_equal",
         "args": {
             "species": "taeniopygia_guttata",
@@ -148,7 +148,7 @@
             "http://ftp.ensembl.org/pub/release-76/fasta/taeniopygia_guttata/pep/Taeniopygia_guttata.taeGut3.2.4.pep.all.fa.gz"
         ]
     },
-    "test5": {
+    "test_ref_ftp": {
         "type": "assert_equal",
         "args": {
             "species": "taeniopygia_guttata",
@@ -166,7 +166,7 @@
             "http://ftp.ensembl.org/pub/release-110/gtf/taeniopygia_guttata/Taeniopygia_guttata.bTaeGut1_v1.p.110.gtf.gz"
         ]
     },
-    "test6": {
+    "test_ref_plant": {
         "type": "assert_equal",
         "args": {
             "species": "actinidia_chinensis",
@@ -221,7 +221,7 @@
             }
         }
     },
-    "test7": {
+    "test_ref_which_plant": {
         "type": "assert_equal",
         "args": {
             "species": "aegilops_tauschii",
@@ -259,7 +259,7 @@
             }
         }
     },
-    "test8": {
+    "test_ref_rel_protist": {
         "type": "assert_equal",
         "args": {
             "species": "entamoeba_histolytica",
@@ -297,7 +297,7 @@
             }
         }
     },
-    "test9": {
+    "test_ref_rel_ftp_octopus": {
         "type": "assert_equal",
         "args": {
             "species": "octopus_bimaculoides",
@@ -315,7 +315,7 @@
             "http://ftp.ensemblgenomes.org/pub/release-51/metazoa/fasta/octopus_bimaculoides/pep/Octopus_bimaculoides.PRJNA270931.pep.all.fa.gz"
         ]
     },
-    "test10": {
+    "test_ref_list": {
         "type": "assert_equal",
         "args": {
             "species": null,
@@ -611,7 +611,7 @@
             "zosterops_lateralis_melanops"
         ]
     },
-    "error_test1": {
+    "test_ref_bad_species": {
         "type": "error",
         "args": {
             "species": "banana",
@@ -625,7 +625,7 @@
         },
         "expected_result": "RuntimeError"
     },
-    "error_test2": {
+    "test_ref_bad_which": {
         "type": "error",
         "args": {
             "species": "taeniopygia_guttata",
@@ -637,7 +637,7 @@
         },
         "expected_result": "ValueError"
     },
-    "error_test3": {
+    "test_ref_bad_rel": {
         "type": "error",
         "args": {
             "species": "taeniopygia_guttata",

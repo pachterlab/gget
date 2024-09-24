@@ -23,7 +23,7 @@ setup(
     zip_safe=False,
     packages=find_packages(include=["gget", "gget.*"]),
     include_package_data=True,
-    python_requires=">=3.6",
+    python_requires=">=3.7",
     install_requires=open("requirements.txt").read().strip().split("\n"),
     setup_requires=open("requirements.txt").read().strip().split("\n"),
     url="https://github.com/pachterlab/gget",

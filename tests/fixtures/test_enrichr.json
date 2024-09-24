@@ -1,5 +1,5 @@
 {
-    "test1": {
+    "test_enrichr_pathway": {
         "type": "assert_equal",
         "args": {
             "genes": [
@@ -42,7 +42,7 @@
             ]
         ]
     },
-    "test2": {
+    "test_enrichr_json": {
         "type": "assert_equal",
         "args": {
             "genes": "ACE2",
@@ -88,7 +88,54 @@
             }
         ]
     },
-    "test3": {
+    "test_enrichr_mouse_is_human": {
+        "type": "assert_equal",
+        "args": {
+            "genes": "ACE2",
+            "species": "mouse",
+            "database": "KEGG_2021_Human",
+            "json": true
+        },
+        "expected_result": [
+            {
+                "rank": 1,
+                "path_name": "Renin-angiotensin system",
+                "p_val": 0.0011499749,
+                "z_score": 19977.0,
+                "combined_score": 135204.6392226724,
+                "overlapping_genes": [
+                    "ACE2"
+                ],
+                "adj_p_val": 0.0034499246,
+                "database": "KEGG_2021_Human"
+            },
+            {
+                "rank": 2,
+                "path_name": "Protein digestion and absorption",
+                "p_val": 0.0051499318,
+                "z_score": 19897.0,
+                "combined_score": 104832.7525292024,
+                "overlapping_genes": [
+                    "ACE2"
+                ],
+                "adj_p_val": 0.0077248977,
+                "database": "KEGG_2021_Human"
+            },
+            {
+                "rank": 3,
+                "path_name": "Coronavirus disease",
+                "p_val": 0.0115998901,
+                "z_score": 19768.0,
+                "combined_score": 88101.2248015025,
+                "overlapping_genes": [
+                    "ACE2"
+                ],
+                "adj_p_val": 0.0115998901,
+                "database": "KEGG_2021_Human"
+            }
+        ]
+    },
+    "test_enrichr_none": {
         "type": "assert_equal",
         "args": {
             "genes": [
@@ -133,7 +180,7 @@
             ]
         ]
     },
-    "test4": {
+    "test_enrichr_transcription": {
         "type": "assert_equal",
         "args": {
             "genes": [
@@ -3366,7 +3413,7 @@
             ]
         ]
     },
-    "test5": {
+    "test_enrichr_ensembl_ids": {
         "type": "assert_equal",
         "args": {
             "genes": [
@@ -3694,7 +3741,7 @@
             ]
         ]
     },
-    "test6": {
+    "test_enrichr_ontology": {
         "type": "assert_equal",
         "args": {
             "genes": [
@@ -4943,7 +4990,7 @@
             ]
         ]
     },
-    "test7": {
+    "test_enrichr_diseases_drugs": {
         "type": "assert_equal",
         "args": {
             "genes": [
@@ -5226,7 +5273,7 @@
             ]
         ]
     },
-    "test8": {
+    "test_enrichr_celltypes": {
         "type": "assert_equal",
         "args": {
             "genes": [
@@ -5301,7 +5348,7 @@
             ]
         ]
     },
-    "test9": {
+    "test_enrichr_kinase_interactions": {
         "type": "assert_equal",
         "args": {
             "genes": [
@@ -5387,8 +5434,431 @@
             ]
         ]
     },
-    "test10": {
+
+
+    "test_enrichr_fly": {
         "type": "assert_equal",
+        "args": {
+            "species": "fly",
+            "genes": [
+                "Atu",
+                "Arp10",
+                "14-3-3epsilon",
+                "CG14715",
+                "AGO1",
+                "Akt1",
+                "Aats-thr",
+                "Amph",
+                "Buffy"
+            ],
+            "database": "KEGG_2019"
+        },
+        "expected_result": [
+            [
+                1,
+                "AGE-RAGE signaling pathway in diabetic complications",
+                0.013866578448356225,
+                -71.70990840432587,
+                306.79461962321056,
+                [
+                    "Akt1"
+                ],
+                0.04844354198078241,
+                "KEGG_2019"
+            ],
+            [
+                2,
+                "Longevity regulating pathway",
+                0.024484333254890283,
+                -74.67869191692976,
+                277.03717326344616,
+                [
+                    "Akt1"
+                ],
+                0.04844354198078241,
+                "KEGG_2019"
+            ],
+            [
+                3,
+                "FoxO signaling pathway",
+                0.028878320773539124,
+                -34.65497149188862,
+                122.84023373611505,
+                [
+                    "Akt1"
+                ],
+                0.04844354198078241,
+                "KEGG_2019"
+            ],
+            [
+                4,
+                "Hippo signaling pathway",
+                0.028000933364347887,
+                -7.653509902619876,
+                27.36525809516185,
+                [
+                    "14-3-3epsilon"
+                ],
+                0.04844354198078241,
+                "KEGG_2019"
+            ],
+            [
+                5,
+                "Apoptosis",
+                0.03063098391468958,
+                -1.4461493848642943,
+                5.040905436639352,
+                [
+                    "Buffy"
+                ],
+                0.04844354198078241,
+                "KEGG_2019"
+            ],
+            [
+                6,
+                "Endocytosis",
+                0.05316112044067067,
+                -0.721972272636934,
+                2.118575629377468,
+                [
+                    "Amph"
+                ],
+                0.05316112044067067,
+                "KEGG_2019"
+            ],
+            [
+                7,
+                "mTOR signaling pathway",
+                0.04238809923318461,
+                -0.25864570811488513,
+                0.8175500205238455,
+                [
+                    "Akt1"
+                ],
+                0.04844354198078241,
+                "KEGG_2019"
+            ],
+            [
+                8,
+                "Autophagy",
+                0.04195492135229644,
+                -0.2430235804590055,
+                0.770666545188524,
+                [
+                    "Akt1"
+                ],
+                0.04844354198078241,
+                "KEGG_2019"
+            ]
+        ]
+    },
+    "test_enrichr_yeast": {
+        "type": "assert_equal",
+        "args": {
+            "species": "yeast",
+            "genes": [
+                "OST6",
+                "UGO1",
+                "ICE2",
+                "RLI1",
+                "VPS75",
+                "YBL010C",
+                "FLO5",
+                "TIM18"
+            ],
+            "database": "KEGG_2019"
+        },
+        "expected_result": [
+            [
+                1,
+                "Various types of N-glycan biosynthesis",
+                0.011939267213322538,
+                -1.7200637726637844,
+                7.616309158365445,
+                [
+                    "OST6"
+                ],
+                0.01790890081998381,
+                "KEGG_2019"
+            ],
+            [
+                2,
+                "N-Glycan biosynthesis",
+                0.011939267213322538,
+                -1.6633575843321016,
+                7.365218548592448,
+                [
+                    "OST6"
+                ],
+                0.01790890081998381,
+                "KEGG_2019"
+            ],
+            [
+                3,
+                "Protein processing in endoplasmic reticulum",
+                0.034668638399731576,
+                -1.5542294494115034,
+                5.2251947491679225,
+                [
+                    "OST6"
+                ],
+                0.034668638399731576,
+                "KEGG_2019"
+            ]
+        ]
+    },
+    "test_enrichr_worm": {
+        "type": "assert_equal",
+        "args": {
+            "species": "worm",
+            "genes": [
+                "hop-1",
+                "C49C8",
+                "mom-4",
+                "ggtb-1",
+                "atg-5",
+                "lsm-8",
+                "mrps-6",
+                "acr-7"
+            ],
+            "database": "KEGG_2019"
+        },
+        "expected_result": [
+            [
+                1,
+                "Wnt signaling pathway",
+                0.00039315413604505114,
+                -1.7002729688381644,
+                13.332365425784747,
+                [
+                    "hop-1",
+                    "mom-4"
+                ],
+                0.0022121576616973802,
+                "KEGG_2019"
+            ],
+            [
+                2,
+                "Autophagy",
+                0.0004915905914883068,
+                -1.488674839512249,
+                11.340522942523213,
+                [
+                    "atg-5",
+                    "mom-4"
+                ],
+                0.0022121576616973802,
+                "KEGG_2019"
+            ],
+            [
+                3,
+                "Notch signaling pathway",
+                0.0075760994669518055,
+                -2.1016367079310982,
+                10.261780914101102,
+                [
+                    "hop-1"
+                ],
+                0.022728298400855416,
+                "KEGG_2019"
+            ],
+            [
+                4,
+                "Mitophagy",
+                0.011543310400553262,
+                -1.890764643162447,
+                8.435928549814511,
+                [
+                    "atg-5"
+                ],
+                0.025972448401244838,
+                "KEGG_2019"
+            ],
+            [
+                5,
+                "RNA degradation",
+                0.019436123470595184,
+                -1.956731941412363,
+                7.710740759902681,
+                [
+                    "lsm-8"
+                ],
+                0.034985022247071326,
+                "KEGG_2019"
+            ],
+            [
+                6,
+                "MAPK signaling pathway",
+                0.030393398104287924,
+                -1.0786817155918655,
+                3.768406784772349,
+                [
+                    "mom-4"
+                ],
+                0.045590097156431884,
+                "KEGG_2019"
+            ],
+            [
+                7,
+                "Spliceosome",
+                0.04355451225469591,
+                -1.153689460317217,
+                3.615365082316738,
+                [
+                    "lsm-8"
+                ],
+                0.0489988262865329,
+                "KEGG_2019"
+            ],
+            [
+                8,
+                "Longevity regulating pathway",
+                0.03660647048462186,
+                -1.082994681603428,
+                3.582037686240481,
+                [
+                    "atg-5"
+                ],
+                0.047065462051656674,
+                "KEGG_2019"
+            ],
+            [
+                9,
+                "Ribosome",
+                0.058078771800230945,
+                -0.9614498070377168,
+                2.736242938832567,
+                [
+                    "mrps-6"
+                ],
+                0.058078771800230945,
+                "KEGG_2019"
+            ]
+        ]
+    },
+    "test_enrichr_fish": {
+        "type": "assert_equal",
+        "args": {
+            "species": "fish",
+            "genes": [
+                "si:dkeyp-110e4",
+                "myog",
+                "rpl6",
+                "zfp36l1b",
+                "ptp4a2a",
+                "cby1",
+                "snx16",
+                "chata"
+            ],
+            "database": "KEGG_2019"
+        },
+        "expected_result": [
+            [
+                1,
+                "Ribosome",
+                0.052368733453294354,
+                -8.37978531263129,
+                24.715720546954245,
+                [
+                    "rpl6"
+                ],
+                0.07128526475645196,
+                "KEGG_2019"
+            ],
+            [
+                2,
+                "Glycerophospholipid metabolism",
+                0.03854089792131061,
+                -3.6734364035533082,
+                11.960838667816189,
+                [
+                    "chata"
+                ],
+                0.07128526475645196,
+                "KEGG_2019"
+            ],
+            [
+                3,
+                "Cellular senescence",
+                0.07128526475645196,
+                -1.7042650657646372,
+                4.501075903792993,
+                [
+                    "zfp36l1b"
+                ],
+                0.07128526475645196,
+                "KEGG_2019"
+            ]
+        ]
+    },
+
+
+    "test_enrichr_bad_species": {
+        "type": "error",
+        "args": {
+            "genes": [
+                "HAND1",
+                "HAND2",
+                "HEG1",
+                "HRAT17"
+            ],
+            "database": "KEGG_2019",
+            "species": "chocolate"
+        },
+        "expected_result": "ValueError",
+        "expected_msg": "Argument 'species' must be one of 'human', 'mouse', 'fly', 'yeast', 'worm', or 'fish'."
+    },
+    "test_enrichr_bad_database_shortcut": {
+        "type": "error",
+        "args": {
+            "genes": [
+                "HAND1",
+                "HAND2",
+                "HEG1",
+                "HRAT17"
+            ],
+            "database": "pathway",
+            "species": "fish"
+        },
+        "expected_result": "ValueError",
+        "expected_msg": "Database 'pathway' is not supported for species 'fish'. Please select a database from the species-specific libraries listed at: https://maayanlab.cloud/FishEnrichr/#libraries."
+    },
+    "test_enrichr_bad_background": {
+        "type": "error",
+        "args": {
+            "genes": [
+                "HAND1",
+                "HAND2",
+                "HEG1",
+                "HRAT17"
+            ],
+            "database": "KEGG_2019",
+            "species": "fly",
+            "background": true
+        },
+        "expected_result": "ValueError",
+        "expected_msg": "Background genes are only supported for species 'human' and 'mouse', not for species 'fly'. Please set 'background=False' or leave it unspecified."
+    },
+    "test_enrichr_bad_background_list": {
+        "type": "error",
+        "args": {
+            "genes": [
+                "HAND1",
+                "HAND2",
+                "HEG1",
+                "HRAT17"
+            ],
+            "database": "KEGG_2019",
+            "species": "fly",
+            "background_list": ["banana"]
+        },
+        "expected_result": "ValueError",
+        "expected_msg": "Background genes are only supported for species 'human' and 'mouse', not for species 'fly'. Please do not provide a value for 'background_list'."
+    },
+
+
+    "test_enrichr_bad_gene": {
+        "type": "code_defined",
         "args": {
             "genes": "banana",
             "database": "ontology",
@@ -5396,8 +5866,8 @@
         },
         "expected_result": "df.empty"
     },
-    "test11": {
-        "type": "assert_equal",
+    "test_enrichr_background": {
+        "type": "code_defined",
         "args": {
             "genes": [
                 "ALB",
@@ -5617,8 +6087,8 @@
             ]
         ]
     },
-    "test12": {
-        "type": "assert_equal",
+    "test_enrichr_background_ensembl": {
+        "type": "code_defined",
         "args": {
             "genes": [
                 "ENSG00000120053",

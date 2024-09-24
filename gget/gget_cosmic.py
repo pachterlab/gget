@@ -118,13 +118,22 @@ def select_reference(
             f"Cosmic_ResistanceMutations_v{cosmic_version}_GRCh{grch_version}.tsv"
         )
 
-    elif mutation_class == "screen":
+    elif mutation_class == "genome_screen":
         download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{grch_version}/cosmic/v{cosmic_version}/Cosmic_GenomeScreensMutant_Tsv_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
         tarred_folder = (
             f"Cosmic_GenomeScreensMutant_Tsv_v{cosmic_version}_GRCh{grch_version}"
         )
         contained_file = (
             f"Cosmic_GenomeScreensMutant_v{cosmic_version}_GRCh{grch_version}.tsv"
+        )
+
+    elif mutation_class == "targeted_screen":
+        download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{grch_version}/cosmic/v{cosmic_version}/Cosmic_CompleteTargetedScreensMutant_Tsv_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
+        tarred_folder = (
+            f"Cosmic_CompleteTargetedScreensMutant_Tsv_v{cosmic_version}_GRCh{grch_version}"
+        )
+        contained_file = (
+            f"Cosmic_CompleteTargetedScreensMutant_v{cosmic_version}_GRCh{grch_version}.tsv"
         )
 
     # Only available for the latest COSMIC version
@@ -188,6 +197,14 @@ def select_reference(
     return file_path, overwrite
 
 
+def convert_chromosome_value_to_int_when_possible(val):
+    try:
+        # Try to convert the value to a float, then to an int, and finally to a string
+        return str(int(float(val)))
+    except ValueError:
+        # If conversion fails, keep the value as it is
+        return val
+
 def cosmic(
     searchterm,
     entity="mutations",
@@ -198,6 +215,8 @@ def cosmic(
     cosmic_version=None,
     grch_version=37,
     gget_mutate=True,
+    keep_genome_info=False,
+    remove_duplicates=False,
     out=None,
     verbose=True,
 ):
@@ -234,12 +253,14 @@ def cosmic(
 
     Args for downloading COSMIC databases:
     NOTE: Downloading complete databases from COSMIC requires an account (https://cancer.sanger.ac.uk/cosmic/register; free for academic use, license for commercial use)
-    - download_cosmic (True/False) whether to switch into database download mode. Default: False
-    - mutation_class  (str) Type of COSMIC database to download. One of the following:
-                      'cancer' (default), 'cell_line', 'census', 'resistance', 'screen', 'cancer_example'
-    - cosmic_version  (int) Version of the COSMIC database. Default: None -> Defaults to latest version.
-    - grch_version    (int) Version of the human GRCh reference genome the COSMIC database was based on (37 or 38). Default: 37
-    - gget_mutate     (True/False) whether to create a modified version of the database for use with gget mutate. Default: True
+    - download_cosmic   (True/False) whether to switch into database download mode. Default: False
+    - mutation_class    (str) Type of COSMIC database to download. One of the following:
+                        'cancer' (default), 'cell_line', 'census', 'resistance', 'genome_screen', 'targeted_screen', 'cancer_example'
+    - cosmic_version    (int) Version of the COSMIC database. Default: None -> Defaults to latest version.
+    - grch_version      (int) Version of the human GRCh reference genome the COSMIC database was based on (37 or 38). Default: 37
+    - gget_mutate       (True/False) Whether to create a modified version of the database for use with gget mutate. Default: True
+    - keep_genome_info  (True/False) Whether to keep genome information (e.g. location of mutation in the genome) in the modified database for use with gget mutate. Default: False
+    - remove_duplicates (True/False) Whether to remove duplicate rows from the modified database for use with gget mutate. Default: False
 
     General args:
     - out             (str) Path to the file (or folder when downloading databases with the download_cosmic flag) the results will be saved in, e.g. 'path/to/results.json'.
@@ -261,7 +282,8 @@ def cosmic(
             "cell_line",
             "census",
             "resistance",
-            "screen",
+            "genome_screen"
+            "targeted_screen",
             "cancer_example",
         ]
         if mutation_class not in mut_class_allowed:
@@ -304,18 +326,23 @@ def cosmic(
                 relevant_cols = [
                     "GENE_NAME",
                     "ACCESSION_NUMBER",
-                    "GENOMIC_MUTATION_ID",
                     "MUTATION_URL",
                     "Mutation CDS",
+                    "Mutation AA"
                 ]
+                if keep_genome_info:
+                    relevant_cols.extend(['Mutation genome position GRCh37', 'GENOMIC_WT_ALLELE_SEQ','GENOMIC_MUT_ALLELE_SEQ', 'GENOMIC_MUTATION_ID'])    #* uncomment to include strand information (tested not to be accurate for CMC)
+                    # relevant_cols.extend(['Mutation genome position GRCh37', 'GENOMIC_MUTATION_ID'])    #* erase to include strand information (tested not to be accurate for CMC)
             else:
                 relevant_cols = [
                     "GENE_SYMBOL",
                     "TRANSCRIPT_ACCESSION",
-                    "GENOMIC_MUTATION_ID",
                     "MUTATION_ID",
                     "MUTATION_CDS",
+                    "MUTATION_AA"
                 ]
+                if keep_genome_info:
+                    relevant_cols.extend(['HGVSG', 'STRAND', 'GENOMIC_MUTATION_ID'])
 
             df = pd.read_csv(mutation_tsv_file, usecols=relevant_cols, sep="\t")
 
@@ -327,35 +354,110 @@ def cosmic(
                         "ACCESSION_NUMBER": "seq_ID",
                         "Mutation CDS": "mutation",
                         "MUTATION_URL": "MUTATION_ID",
+                        "Mutation AA": "mutation_aa",
                     }
                 )
+
+                if keep_genome_info:  
+                    #* erase to include strand information (tested not to be accurate for CMC)
+                    # df = df.rename(
+                    #     columns={
+                    #         "Mutation genome position GRCh37": "position_genome",
+                    #     }
+                    # )
+
+                    from gget.gget_mutate import mutation_pattern, convert_chromosome_value_to_int_when_possible
+                    import numpy as np
+
+                    #* uncomment to include strand information (tested not to be accurate for CMC)
+                    df[['chromosome', 'GENOME_POS']] = df['Mutation genome position GRCh37'].str.split(':', expand=True)
+                    df['chromosome'] = df['chromosome'].apply(convert_chromosome_value_to_int_when_possible)
+                    df[['GENOME_START', 'GENOME_STOP']] = df['GENOME_POS'].str.split('-', expand=True)
+
+                    df[["nucleotide_positions", "actual_mutation"]] = df["mutation"].str.extract(mutation_pattern)
+
+                    sub_mask = df['actual_mutation'].str.contains('>')
+                    ins_mask = (df['actual_mutation'].str.contains('ins')) & (~df['actual_mutation'].str.contains('delins')) 
+                    delins_mask = df['actual_mutation'].str.contains('delins')
+                    ins_delins_mask = ins_mask | delins_mask
+                    sub_ins_delins_mask = sub_mask | ins_delins_mask
+
+                    df.loc[sub_mask, 'wt_allele_cds'] = df.loc[sub_mask, 'actual_mutation'].str.split('>').str[0]
+                    df.loc[sub_mask, 'mut_allele_cds'] = df.loc[sub_mask, 'actual_mutation'].str.split('>').str[1]
+
+                    df.loc[ins_delins_mask, 'mut_allele_cds'] = df.loc[ins_delins_mask, 'actual_mutation'].str.extract(r'ins(.+)')[0]
+
+                    df['strand'] = np.nan
+
+                    df.loc[sub_ins_delins_mask, 'strand'] = np.where(
+                        pd.isna(df.loc[sub_ins_delins_mask, 'GENOMIC_MUT_ALLELE_SEQ']),
+                        np.nan,
+                        np.where(
+                            df.loc[sub_ins_delins_mask, 'mut_allele_cds'] != df.loc[sub_ins_delins_mask, 'GENOMIC_MUT_ALLELE_SEQ'],
+                            '-',
+                            '+'
+                        )
+                    )
+
+                    df.loc[sub_mask, 'actual_mutation_updated'] = df.loc[sub_mask, 'GENOMIC_WT_ALLELE_SEQ'] + '>' + df.loc[sub_mask, 'GENOMIC_MUT_ALLELE_SEQ']
+                    df.loc[ins_mask, 'actual_mutation_updated'] = 'ins' + df.loc[ins_mask, 'GENOMIC_MUT_ALLELE_SEQ']
+                    df.loc[delins_mask, 'actual_mutation_updated'] = 'delins' + df.loc[delins_mask, 'GENOMIC_MUT_ALLELE_SEQ']
+
+                    df.loc[~sub_ins_delins_mask, 'actual_mutation_final'] = df.loc[~sub_ins_delins_mask, 'actual_mutation']
+
+                    df.loc[sub_ins_delins_mask, 'actual_mutation_final'] = np.where(
+                        pd.isna(df.loc[sub_ins_delins_mask, 'strand']),
+                        np.nan,
+                        np.where(df.loc[sub_ins_delins_mask, 'strand'] == '+', df.loc[sub_ins_delins_mask, 'actual_mutation'], df.loc[sub_ins_delins_mask, 'actual_mutation_updated'])
+                    )
+
+                    df['mutation_genome'] = np.where(
+                        df['GENOME_START'] != df['GENOME_STOP'],
+                        'g.' + df['GENOME_START'].astype(str) + '_' + df['GENOME_STOP'].astype(str) + df['actual_mutation_final'],
+                        'g.' + df['GENOME_START'].astype(str) + df['actual_mutation_final']
+                    )
+
+                    df.loc[df['Mutation genome position GRCh37'].isna(), 'mutation_genome'] = np.nan
+
+                    df.drop(columns=['GENOME_POS', 'GENOME_START', 'GENOME_STOP', 'nucleotide_positions', 'actual_mutation', 'actual_mutation_updated', 'actual_mutation_final', 'Mutation genome position GRCh37', 'wt_allele_cds', 'mut_allele_cds', 'GENOMIC_WT_ALLELE_SEQ', 'GENOMIC_MUT_ALLELE_SEQ'], inplace=True)
+
             else:
                 df = df.rename(
                     columns={
                         "GENE_SYMBOL": "GENE_NAME",
                         "TRANSCRIPT_ACCESSION": "seq_ID",
                         "MUTATION_CDS": "mutation",
+                        "MUTATION_AA": "mutation_aa",
                     }
                 )
+
+                if keep_genome_info:
+                    df['mutation_genome'] = df['HGVSG'].str.split(':').str[1]
+
+                    df.drop(columns=['HGVSG'], inplace=True)
+
+                    df = df.rename(
+                        columns={
+                            "CHROMOSOME": "chromosome",
+                            "STRAND": "strand",
+                        }
+                    )
 
             # Remove version numbers from Ensembl IDs
             df["seq_ID"] = df["seq_ID"].str.split(".").str[0]
 
-            # Get mut_ID column (by combining GENE_NAME, GENOMIC_MUTATION_ID and MUTATION_URL/MUTATION_ID)
-            df["GENE_NAME"] = df["GENE_NAME"].astype(str)
-            df["GENOMIC_MUTATION_ID"] = df["GENOMIC_MUTATION_ID"].fillna("NA")
-            df["GENOMIC_MUTATION_ID"] = df["GENOMIC_MUTATION_ID"].astype(str)
-            df["MUTATION_ID"] = df["MUTATION_ID"].astype(str)
+            df["gene_name"] = df["GENE_NAME"].astype(str)
+            df["mutation_id"] = df["MUTATION_ID"].astype(str)
 
-            df["mut_ID"] = (
-                df["GENE_NAME"]
-                + "_"
-                + df["GENOMIC_MUTATION_ID"]
-                + "_"
-                + df["MUTATION_ID"]
-            )
+            df = df.drop(columns=["GENE_NAME", "MUTATION_ID"])
 
-            df = df.drop(columns=["GENE_NAME", "GENOMIC_MUTATION_ID", "MUTATION_ID"])
+            if remove_duplicates:
+                duplicate_count = df.duplicated(subset=['seq_ID', 'mutation'], keep=False).sum() // 2
+                print(f"Removing {duplicate_count} duplicate entries from the COSMIC csv for gget mutate: {duplicate_count}")
+                df['non_na_count'] = df.notna().sum(axis=1)
+                df = df.sort_values(by='non_na_count', ascending=False)
+                df = df.drop_duplicates(subset=['seq_ID', 'mutation'], keep='first')
+                df = df.drop(columns=['non_na_count'])
 
             mutate_csv_out = mutation_tsv_file.replace(".tsv", "_gget_mutate.csv")
             df.to_csv(mutate_csv_out, index=False)

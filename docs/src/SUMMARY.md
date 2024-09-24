@@ -26,6 +26,9 @@
 * [gget search](en/search.md)  
 * [gget setup](en/setup.md)  
 * [gget seq](en/seq.md)  
+* [gget opentargets](en/opentargets.md)  
+* [gget cbio](en/cbio.md)  
+* [gget bgee](en/bgee.md)
 
 ---
 

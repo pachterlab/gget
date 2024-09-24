@@ -1,6 +1,6 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
 ## gget enrichr 💰
-Perform an enrichment analysis on a list of genes using [Enrichr](https://maayanlab.cloud/Enrichr/).  
+Perform an enrichment analysis on a list of genes using [Enrichr](https://maayanlab.cloud/Enrichr/) or [modEnrichr](https://maayanlab.cloud/modEnrichr/).  
 Return format: JSON (command-line) or data frame/CSV (Python).
   
 **Positional argument**  
@@ -10,7 +10,7 @@ Alternatively: use flag `--ensembl` to input a list of Ensembl gene IDs, e.g. EN
 
 **Other required arguments**  
 `-db` `--database`  
-Database to use as reference for the enrichment analysis.  
+Database database to use as reference for the enrichment analysis.  
 Supports any database listed [here](https://maayanlab.cloud/Enrichr/#libraries) under 'Gene-set Library' or one of the following shortcuts:  
 'pathway'       (KEGG_2021_Human)  
 'transcription'     (ChEA_2016)  
@@ -19,7 +19,22 @@ Supports any database listed [here](https://maayanlab.cloud/Enrichr/#libraries) 
 'celltypes'      (PanglaoDB_Augmented_2021)  
 'kinase_interactions'   (KEA_2015)  
   
+NOTE: database shortcuts are not supported for species other than 'human' or 'mouse'. Click on the species databases listed below under `species` to view a list of databases available for each species.  	  
+  
 **Optional arguments**  
+`-s` `--species`  
+Species to use as reference for the enrichment analysis. (Default: human)
+Options:
+
+| Species  | Database list                                                     |
+|----------|-------------------------------------------------------------------|
+| `human`  | [Enrichr](https://maayanlab.cloud/Enrichr/#libraries)             |
+| `mouse`  | [Equivalent to human](https://maayanlab.cloud/Enrichr/#libraries) |
+| `fly`    | [FlyEnrichr](https://maayanlab.cloud/FlyEnrichr/#stats)       |
+| `yeast`  | [YeastEnrichr](https://maayanlab.cloud/YeastEnrichr/#stats)   |
+| `worm`   | [WormEnrichr](https://maayanlab.cloud/WormEnrichr/#stats)     |
+| `fish`   | [FishEnrichr](https://maayanlab.cloud/FishEnrichr/#stats)     |
+
 `-bkg_l` `--background_list`  
 Short names (gene symbols) of background genes to perform enrichment analysis on, e.g. NSUN3 POLRMT NLRX1.  
 Alternatively: use flag `--ensembl_background` to input a list of Ensembl gene IDs.  

@@ -1,4 +1,12 @@
 ## ✨ What's new  
+**Version ≥ 0.29.0** (XXX):  
+- **New modules: [`gget cbio`](cbio.md) and [`gget opentargets`](opentargets.md) and [`gget bgee`](bgee.md)**
+- [`gget mutate`](./mutate.md): `gget mutate` will now merge identical sequences in the final file by default. Mutation creation was vectorized to decrease runtime. Improved flanking sequence check for non-substitution mutations to make sure no wildtype kmer is retained in the mutation-containing sequence. Addition of several new arguments to customize sequence generation and output.
+- [`gget cosmic`](./cosmic.md): Added support for targeted as well as gene screens. The CSV file created for gget mutate now also contains protein mutation info.
+- [`gget ref`](./ref.md): Added out file option.
+- [`gget info`](./info.md) and [`gget seq`](./seq.md): Switched to Ensembl POST API to increase speed (nothing changes in front end).
+- [`gget enrichr`](./enrichr.md) now also supports species other than human (fly, yeast, worm, and fish) via [modEnrichR](https://maayanlab.cloud/modEnrichr/)
+
 **Version ≥ 0.28.6** (Jun 2, 2024):  
 - **New module: [`gget mutate`](./mutate.md)**
 - [`gget cosmic`](./cosmic.md): You can now download entire COSMIC databases using the argument `download_cosmic` argument

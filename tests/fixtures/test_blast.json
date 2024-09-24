@@ -1,5 +1,5 @@
 {
-    "test1": {
+    "test_blast_nt": {
         "type": "assert_equal",
         "args": {
             "sequence": "ATACTCAGTCACACAAGCCATAGCAGGAAACAGCGAGCTTGCAGCCTCACCGACGAGTCTCAACTAAAAGGGACTCCCGGAGCTAGGGGTGGGGACTCGGCCTCACACAGTGAGTGCCGG",
@@ -21,7 +21,7 @@
             ]
         ]
     },
-    "test2": {
+    "test_blast_nt_json": {
         "type": "assert_equal",
         "args": {
             "sequence": "ATACTCAGTCACACAAGCCATAGCAGGAAACAGCGAGCTTGCAGCCTCACCGACGAGTCTCAACTAAAAGGGACTCCCGGAGCTAGGGGTGGGGACTCGGCCTCACACAGTGAGTGCCGG",
@@ -44,21 +44,21 @@
             }
         ]
     },
-    "error_test1": {
+    "test_blast_bad_seq": {
         "type": "error",
         "args": {
             "sequence": "BANANA123"
         },
         "expected_result": "ValueError"
     },
-    "error_test2": {
+    "test_blast_bad_fasta": {
         "type": "error",
         "args": {
             "sequence": "banana.fa"
         },
         "expected_result": "FileNotFoundError"
     },
-    "error_test3": {
+    "test_blast_bad_program": {
         "type": "error",
         "args": {
             "sequence": "tests/fixtures/muscle_aa_test.txt",
@@ -67,7 +67,7 @@
         },
         "expected_result": "ValueError"
     },
-    "error_test4": {
+    "test_blast_db_missing": {
         "type": "error",
         "args": {
             "sequence": "tests/fixtures/muscle_aa_test.txt",
@@ -76,7 +76,7 @@
         },
         "expected_result": "ValueError"
     },
-    "error_test5": {
+    "test_blast_bad_db1": {
         "type": "error",
         "args": {
             "sequence": "tests/fixtures/muscle_aa_test.txt",
@@ -86,7 +86,7 @@
         },
         "expected_result": "ValueError"
     },
-    "error_test6": {
+    "test_blast_bad_db2": {
         "type": "error",
         "args": {
             "sequence": "tests/fixtures/muscle_aa_test.txt",

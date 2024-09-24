@@ -25,7 +25,10 @@ from .constants import (
 
 
 def set_up_logger():
-    logging_level = logging.INFO
+    logging_level_name = os.getenv("GGET_LOGLEVEL", "INFO")
+    logging_level = logging.getLevelName(logging_level_name)
+    if type(logging_level) != int:  # unknown log level
+        logging_level = logging.INFO
     logger = logging.getLogger(__name__)
     logger.setLevel(logging_level)
 
@@ -307,7 +310,7 @@ def get_uniprot_seqs(server, ensembl_ids):
                         json["results"][i]["genes"][0]["geneName"]["value"]
                     )
                 except:
-                    gene_names.append(np.NaN)
+                    gene_names.append(np.nan)
             df["gene_name"] = gene_names
             df["query"] = id_
 
@@ -381,7 +384,7 @@ def get_uniprot_info(server, ensembl_id, verbose=True):
             try:
                 gene_names.append(json["results"][i]["genes"][0]["geneName"]["value"])
             except:
-                gene_names.append(np.NaN)
+                gene_names.append(np.nan)
         df["primary_gene_name"] = gene_names
 
         # Get synonyms for each result
@@ -392,7 +395,7 @@ def get_uniprot_info(server, ensembl_id, verbose=True):
                 for syn in json["results"][i]["genes"][0]["synonyms"]:
                     uni_syn_temp.append(syn["value"])
             except:
-                uni_syn_temp.append(np.NaN)
+                uni_syn_temp.append(np.nan)
             uni_synonyms.append(uni_syn_temp)
         df["uni_synonyms"] = uni_synonyms
 
@@ -406,7 +409,7 @@ def get_uniprot_info(server, ensembl_id, verbose=True):
                     ]["value"]
                 )
             except:
-                protein_names.append(np.NaN)
+                protein_names.append(np.nan)
         df["protein_names"] = protein_names
 
         # Get descriptions for each result
@@ -422,7 +425,7 @@ def get_uniprot_info(server, ensembl_id, verbose=True):
                 # Append all descriptions to a single string object
                 des_temp = " ".join(des_temp)
             except:
-                des_temp.append(np.NaN)
+                des_temp.append(np.nan)
 
             descriptions.append(des_temp)
         df["uniprot_description"] = descriptions
@@ -446,7 +449,7 @@ def get_uniprot_info(server, ensembl_id, verbose=True):
         else:
             # No subcellular localisation data will return as nan
             nan_list = np.empty(len(subcel_locs_final))
-            nan_list[:] = np.NaN
+            nan_list[:] = np.nan
             df["subcellular_localisation"] = nan_list
 
         # Add query colunm
@@ -646,6 +649,53 @@ def rest_query(server, query, content_type):
         return r.json()
     else:
         return r.text
+
+
+def post_query(server: str, endpoint: str, query: dict[str, ...]) -> dict[str, ...]:
+    """
+    Function to perform a POST API query.
+
+    :param server:  Server to query .
+    :param query:   Query that is passed to server.
+
+    :return: server output
+    """
+
+    r = requests.post(server + endpoint, json=query, headers={"Content-Type": "application/json"})
+
+    if not r.ok:
+        raise RuntimeError(
+            f"{server} returned error status code {r.status_code}. "
+            "Please double-check arguments and try again.\n"
+        )
+
+    return r.json()
+
+
+def graphql_query(server: str, query: str, variables: dict[str, ...]) -> dict[str, ...]:
+    """
+    Function to perform a GraphQL API query.
+
+    Args:
+    - server        Server to query.
+    - query         Query that is passed to server.
+    - variables     Variables that are passed to server.
+
+    Returns server output.
+    """
+
+    r = requests.post(server, json={"query": query, "variables": variables})
+
+    if not r.ok:
+        logger.debug(
+            f"Server: {server}, Query: {query}, Variables: {variables}, Response: {r.text}"
+        )
+        raise RuntimeError(
+            f"{server} returned error status code {r.status_code}. "
+            "Please double-check arguments and try again.\n"
+        )
+
+    return r.json()
 
 
 def find_latest_ens_rel(database=ENSEMBL_FTP_URL):
@@ -979,3 +1029,34 @@ def remove_temp_files(files_to_delete):
     for file in files_to_delete:
         if os.path.exists(file):
             os.remove(file)
+
+
+def json_list_to_df(
+    json_list: list[dict[str, ...]], columns: list[tuple[str, str]]
+) -> pd.DataFrame:
+    """
+    Convert list of JSON objects to data frame.
+
+    Args:
+
+    - json_list     List of JSON objects.
+    - columns       List of (column, key) pairs in the data frame.
+                    Format of each key is "key.subkey.etc", which corresponds to json_list[i]["key"]["subkey"]["etc"].
+
+    Returns data frame with columns as specified in keys.
+    """
+
+    tmp_columns = [[] for _ in range(len(columns))]
+
+    for json_obj in json_list:
+        for i, column_key in enumerate(columns):
+            _, key = column_key
+            keys_split = key.split(".")
+            value = json_obj
+            for k in keys_split:
+                if value is None:
+                    break
+                value = value[k]
+            tmp_columns[i].append(value)
+
+    return pd.DataFrame({key[0]: value for key, value in zip(columns, tmp_columns)})

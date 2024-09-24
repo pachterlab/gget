@@ -5,7 +5,8 @@ import requests
 from bs4 import BeautifulSoup
 
 # Custom functions
-from .utils import rest_query, get_uniprot_info, wrap_cols_func, get_pdb_ids, set_up_logger
+from .utils import rest_query, get_uniprot_info, wrap_cols_func, get_pdb_ids, set_up_logger, post_query
+
 logger = set_up_logger()
 
 # Constants
@@ -105,56 +106,54 @@ def info(
     master_dict = {}
 
     # Query REST APIs from https://rest.ensembl.org/
-    for ensembl_ID in ens_ids_clean:
-        # Create dict to save query results
-        results_dict = {ensembl_ID: {}}
+    endpoint = "lookup/id/"
+    query = {"ids": ens_ids_clean, "expand": True}
 
-        # Define the REST query
-        query = "lookup/id/" + ensembl_ID + "?" + "expand=1"
+    results_dict = post_query(server, endpoint, query)
+    results_dict = {k: v for k, v in results_dict.items() if v is not None}
 
-        # Submit query
+    for ensembl_ID, df_temp in results_dict.items():
         try:
-            df_temp = rest_query(server, query, content_type)
+            # Add Ensembl ID with latest version number to df_temp
+            df_temp["ensembl_id"] = str(df_temp["id"]) + "." + str(df_temp["version"])
+        except KeyError:
+            # Just add Ensembl ID if no version found
+            df_temp["ensembl_id"] = str(df_temp["id"])
 
+    # second pass for ids that were not found in the initial query
+    ens_ids_clean_tmp = [ensembl_ID for ensembl_ID in ens_ids_clean if ensembl_ID not in results_dict.keys()]
+
+    if len(ens_ids_clean_tmp) > 0:
+        # print(f"Second pass for ids: {ens_ids_clean_tmp}")
+        # Try submitting query without expand (expand does not work for exons and translation IDs)
+        query = {"ids": ens_ids_clean_tmp}
+        results_dict_new = post_query(server, endpoint, query)
+        results_dict_new = {k: v for k, v in results_dict_new.items() if v is not None}
+
+        for ensembl_ID, df_temp in results_dict_new.items():
             try:
                 # Add Ensembl ID with latest version number to df_temp
-                ensembl_id_dict = {
-                    "ensembl_id": str(df_temp["id"]) + "." + str(df_temp["version"])
-                }
-                df_temp.update(ensembl_id_dict)
-
+                df_temp["ensembl_id"] = str(df_temp["id"]) + "." + str(df_temp["version"])
             except KeyError:
                 # Just add Ensembl ID if no version found
-                ensembl_id_dict = {"ensembl_id": str(df_temp["id"])}
-                df_temp.update(ensembl_id_dict)
+                df_temp["ensembl_id"] = str(df_temp["id"])
 
-        # If query returns in an error:
-        except RuntimeError:
-            # Try submitting query without expand (expand does not work for exons and translation IDs)
-            try:
-                query = "lookup/id/" + ensembl_ID + "?"
-                df_temp = rest_query(server, query, content_type)
-                # Add Ensembl ID with latest version number to df_temp
-                ensembl_id_dict = {
-                    "ensembl_id": str(df_temp["id"]) + "." + str(df_temp["version"])
-                }
-                df_temp.update(ensembl_id_dict)
+        results_dict.update(results_dict_new)
 
-            # Log error if this also did not work
-            except RuntimeError:
-                if verbose:
-                    logger.warning(
-                        f"ID '{ensembl_ID}' not found. Please double-check spelling/arguments and try again."
-                    )
+    ens_ids_clean_2 = []
+    for ensembl_ID in ens_ids_clean:
+        if ensembl_ID in results_dict.keys():
+            ens_ids_clean_2.append(ensembl_ID)
+        else:
+            if verbose:
+                logger.warning(
+                    f"ID '{ensembl_ID}' not found. Please double-check spelling/arguments and try again."
+                )
 
-                # Remove IDs that were not found from ID list
-                ens_ids_clean_2.remove(ensembl_ID)
+    # rewrite results to be in the input order
+    results_dict = {ensembl_ID: results_dict[ensembl_ID] for ensembl_ID in ens_ids_clean_2}
 
-                continue
-
-        # Add results to master dict
-        results_dict[ensembl_ID].update(df_temp)
-        master_dict.update(results_dict)
+    master_dict.update(results_dict)
 
     # Return None if none of the Ensembl IDs were found
     if len(master_dict) == 0:
@@ -187,7 +186,7 @@ def info(
                 except Exception as e:
                     if verbose:
                         logger.warning(
-                            f"UniProt server request for ID '{ens_id}' return following error:\n{e}"
+                            f"UniProt server request for ID '{ens_id}' returned the following error:\n{e}"
                         )
                     continue
 
@@ -321,7 +320,7 @@ def info(
                 if pdb_ids:
                     df_pdb["pdb_id"] = [pdb_ids]
                 else:
-                    df_pdb["pdb_id"] = [np.NaN]
+                    df_pdb["pdb_id"] = [np.nan]
 
                 # Transpose pdb df and add Ensembl ID as column name
                 df_pdb = df_pdb.T
@@ -437,27 +436,27 @@ def info(
                         # Just add ID if no version found
                         all_transcripts.append(trans_dict["id"])
                 except:
-                    all_transcripts.append(np.NaN)
+                    all_transcripts.append(np.nan)
                 try:
                     transcript_names.append(trans_dict["display_name"])
                 except:
-                    transcript_names.append(np.NaN)
+                    transcript_names.append(np.nan)
                 try:
                     transcript_biotypes.append(trans_dict["biotype"])
                 except:
-                    transcript_biotypes.append(np.NaN)
+                    transcript_biotypes.append(np.nan)
                 try:
                     transcript_starts.append(trans_dict["start"])
                 except:
-                    transcript_starts.append(np.NaN)
+                    transcript_starts.append(np.nan)
                 try:
                     transcript_ends.append(trans_dict["end"])
                 except:
-                    transcript_ends.append(np.NaN)
+                    transcript_ends.append(np.nan)
                 try:
                     transcript_strands.append(trans_dict["strand"])
                 except:
-                    transcript_strands.append(np.NaN)
+                    transcript_strands.append(np.nan)
 
             data["all_transcripts"].append(all_transcripts)
             data["transcript_biotypes"].append(transcript_biotypes)
@@ -467,12 +466,12 @@ def info(
             data["transcript_ends"].append(transcript_ends)
 
         except:
-            data["all_transcripts"].append(np.NaN)
-            data["transcript_biotypes"].append(np.NaN)
-            data["transcript_names"].append(np.NaN)
-            data["transcript_strands"].append(np.NaN)
-            data["transcript_starts"].append(np.NaN)
-            data["transcript_ends"].append(np.NaN)
+            data["all_transcripts"].append(np.nan)
+            data["transcript_biotypes"].append(np.nan)
+            data["transcript_names"].append(np.nan)
+            data["transcript_strands"].append(np.nan)
+            data["transcript_starts"].append(np.nan)
+            data["transcript_ends"].append(np.nan)
 
         # Clean up exon info, if available
         all_exons = []
@@ -491,24 +490,24 @@ def info(
                         # Just add ID if no version found
                         all_exons.append(exon_dict["id"])
                 except:
-                    all_exons.append(np.NaN)
+                    all_exons.append(np.nan)
                 try:
                     exon_starts.append(exon_dict["start"])
                 except:
-                    exon_starts.append(np.NaN)
+                    exon_starts.append(np.nan)
                 try:
                     exon_ends.append(exon_dict["end"])
                 except:
-                    exon_ends.append(np.NaN)
+                    exon_ends.append(np.nan)
 
             data["all_exons"].append(all_exons)
             data["exon_starts"].append(exon_starts)
             data["exon_ends"].append(exon_ends)
 
         except:
-            data["all_exons"].append(np.NaN)
-            data["exon_starts"].append(np.NaN)
-            data["exon_ends"].append(np.NaN)
+            data["all_exons"].append(np.nan)
+            data["exon_starts"].append(np.nan)
+            data["exon_ends"].append(np.nan)
 
         # Clean up translation info, if available
         all_translations = []
@@ -527,24 +526,24 @@ def info(
                         # Just add ID if no version found
                         all_translations.append(transl_dict["id"])
                 except:
-                    all_translations.append(np.NaN)
+                    all_translations.append(np.nan)
                 try:
                     translation_starts.append(transl_dict["start"])
                 except:
-                    translation_starts.append(np.NaN)
+                    translation_starts.append(np.nan)
                 try:
                     translation_ends.append(transl_dict["end"])
                 except:
-                    translation_ends.append(np.NaN)
+                    translation_ends.append(np.nan)
 
             data["all_translations"].append(all_translations)
             data["translation_starts"].append(translation_starts)
             data["translation_ends"].append(translation_ends)
 
         except:
-            data["all_translations"].append(np.NaN)
-            data["translation_starts"].append(np.NaN)
-            data["translation_ends"].append(np.NaN)
+            data["all_translations"].append(np.nan)
+            data["translation_starts"].append(np.nan)
+            data["translation_ends"].append(np.nan)
 
     # Append cleaned up info to df_final
     df_final = pd.concat(
