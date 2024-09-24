@@ -1,4 +1,5 @@
 import requests
+import sys
 import pandas as pd
 import json as json_package
 import numpy as np
@@ -142,7 +143,7 @@ def enrichr(
             raise ValueError(
                 f"Database '{database}' is not supported for species '{species}'."
                 f" Please select a database from the species-specific libraries listed at:"
-                f" https://maayanlab.cloud/{species_enrichr}/#libraries."
+                f" https://maayanlab.cloud/{species_enrichr}/#stats."
             )
 
         if background:
@@ -373,7 +374,12 @@ def enrichr(
                 """
             )
 
-    enrichr_results = r2.json(allow_nan=True)
+    # Python 3.9 or newer
+    if sys.version_info >= (3, 9):
+        enrichr_results = r2.json(allow_nan=True)
+    # Older Python versions
+    else:
+        enrichr_results = r2.json()
 
     ## Build data frame (standard return)
     # Define column names
