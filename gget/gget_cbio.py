@@ -1150,7 +1150,7 @@ def cbio_plot(
         "cna_occurrences",
         "Consequence",
     ] = "mutation_occurrences",
-    filter_: Optional[tuple[str, str]] = None,
+    filter: Optional[tuple[str, str]] = None,
 
     merge_type: Literal["Ensembl", "Symbol"] = "Symbol",
     remove_non_ensembl_genes: bool = False,
@@ -1168,30 +1168,27 @@ def cbio_plot(
     Plot a heatmap of given genes in the given studies.
 
     Args:
+    study_ids                   list of cBioPortal study IDs
+    genes                       list of gene names
 
-    :param study_ids:                   list of cBioPortal study IDs
-    :param genes:                       list of gene names
+    stratification              column to group the data by, default 'tissue'
+    variation_type              column to use for the heatmap, default 'mutation_occurrences'
+    filter                      filter to apply to the data in the format (column_name, value), default None
 
-    :param stratification:              column to group the data by, default 'tissue'
-    :param variation_type:              column to use for the heatmap, default 'mutation_occurrences'
-    :param filter_:                     filter to apply to the data in the format (column_name, value), default None
+    merge_type                  gene ID type to group by (e.g. 'IL13' or 'ENSG00000169194'), default 'Symbol'
+    remove_non_ensembl_genes    whether to remove genes without Ensembl IDs, default False
 
-    :param merge_type:                  gene ID type to group by (e.g. 'IL13' or 'ENSG00000169194'), default 'Symbol'
-    :param remove_non_ensembl_genes:    whether to remove genes without Ensembl IDs, default False
+    data_dir                    directory to store the downloaded data, default 'gget_cbio_cache'
+    figure_dir                  directory to save the figure in
+    figure_filename             filename to use for the figure, relative to `figure_dir`, default auto-generated
+    verbose                     whether to print out progress, default False
+    confirm_download            whether to confirm the download before proceeding, default False
+    dpi                         resolution of the figure, default 100 dots per inch
+    show                        whether to show the plot, default False
 
-    :param data_dir:                    directory to store the downloaded data, default 'gget_cbio_cache'
-    :param figure_dir:                  directory to save the figure in
-    :param figure_filename:             filename to use for the figure, relative to `figure_dir`, default auto-generated
-    :param verbose:                     whether to print out progress, default False
-    :param confirm_download:            whether to confirm the download before proceeding, default False
-    :param dpi:                         resolution of the figure, default 100 dots per inch
-    :param show:                        whether to show the plot, default False
+    figure_title                title to use for the figure, default auto-generated
 
-    :param figure_title:                title to use for the figure, default auto-generated
-
-    Return:
-
-    :return:                            True if the plot was successful, False otherwise
+    Returns True if the plot was successful, False otherwise.
     """
     if verbose:
         logger.info("Downloading data")
@@ -1218,8 +1215,8 @@ def cbio_plot(
 
     gene_analyzer.plot_heatmap(
         stratification=stratification,
-        filter_category=filter_[0] if filter_ else None,
-        filter_value=filter_[1] if filter_ else None,
+        filter_category=filter[0] if filter else None,
+        filter_value=filter[1] if filter else None,
         variation_type=variation_type,
         dpi=dpi,
         show=show,
