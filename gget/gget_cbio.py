@@ -145,7 +145,7 @@ def _download_file_from_git_lfs(
 
 class _LFSDownloadPlan:
     def __init__(self, verbose = False):
-        self.objects: list[tuple[str, tuple[str, int]]] = []
+        self.objects = []
         """(target_path, (oid, size))"""
 
         self.verbose = verbose
@@ -235,7 +235,7 @@ def download_cbioportal_data(
 
                 lines = response.content.decode().splitlines(keepends=True)
 
-                fields: dict[str, str] = {}
+                fields = {}
 
                 for line in lines:
                     k, v = line.split(" ", 1)
@@ -494,7 +494,7 @@ class _GeneAnalysis:
             "Hugo_Symbol" if self.merge_type == _SYMBOL else "Ensembl_Gene_ID"
         )
 
-        self.df_collection: dict[str, dict[str, pd.DataFrame]] = {}
+        self.df_collection = {}
         self.big_combined_df = self._create_study_dataframes()
 
     def _create_single_study_dataframe(self, study_id: str) -> pd.DataFrame:
@@ -985,7 +985,7 @@ class _GeneAnalysis:
             norm = TwoSlopeNorm(vmin=min_value, vcenter=0, vmax=max_value)
 
         elif variation_type == "Consequence":
-            consequences: list[Union[str, float]] = list(
+            consequences = list(
                 self.big_combined_df["Consequence"].unique()
             )
 
@@ -1013,7 +1013,7 @@ class _GeneAnalysis:
             )
             levels = list(range(min_value, max_value))
 
-            string_to_int: dict[Union[str, float], int] = {
+            string_to_int = {
                 consequence: i for i, consequence in enumerate(consequences)
             }
 
@@ -1062,7 +1062,7 @@ class _GeneAnalysis:
 
         cbar = plt.colorbar(label=colorbar_label, ticks=levels)
 
-        labels: list[Union[str, int]] = levels.copy()
+        labels = levels.copy()
         if nas_present:
             labels[0] = "NaN"
 
