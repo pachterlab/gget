@@ -6,7 +6,6 @@ import os
 import subprocess
 import pandas as pd
 import numpy as np
-from typing import TypeVar
 import requests
 from collections import defaultdict, OrderedDict
 
@@ -16,9 +15,6 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap, BoundaryNorm, TwoSlopeNorm
 
 from .constants import CBIO_CANCER_TYPE_TO_TISSUE_DICTIONARY
-
-_K = TypeVar("_K")
-_V = TypeVar("_V")
 
 logger = set_up_logger()
 
