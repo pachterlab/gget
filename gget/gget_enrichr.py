@@ -2,7 +2,6 @@ import requests
 import pandas as pd
 import json as json_package
 import numpy as np
-from typing import Optional
 
 # Plotting packages
 import matplotlib.pyplot as plt
@@ -66,18 +65,18 @@ def enrichr(
     genes: list[str],
     database: str,
     species: str = "human",
-    background_list: Optional[list[str]] = None,
-    background: bool = False,
-    ensembl: bool = False,
-    ensembl_bkg: bool = False,
-    plot: bool = False,
+    background_list: list[str] = None,
+    background = False,
+    ensembl = False,
+    ensembl_bkg = False,
+    plot = False,
     figsize: tuple[int, int] = (10, 10),
     ax: plt.Axes = None,
-    kegg_out: Optional[str] = None,
+    kegg_out: str = None,
     kegg_rank: int = 1,
-    json: bool = False,
-    save: bool = False,
-    verbose: bool = True,
+    json = False,
+    save = False,
+    verbose = True,
 ):
     """
     Perform an enrichment analysis on a list of genes using Enrichr (https://maayanlab.cloud/Enrichr/).
