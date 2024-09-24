@@ -4,7 +4,6 @@ import json
 import math
 import os
 import subprocess
-from typing import Literal, TypeVar, Callable, Union, Optional
 
 import pandas as pd
 import numpy as np
@@ -31,8 +30,7 @@ if not hasattr(pd.DataFrame, "map"):
 
 
 def _ints_between(
-    start: int, end: int, max_count: int, min_count: int, verbose: bool = False
-) -> list[int]:
+    start, end, max_count, min_count, verbose = False):
     """
     Generate a list of integers between start and end (inclusive) with a maximum count of max_count and a minimum count min_count.
     The list is guaranteed to contain start and end, and the spacing between the numbers will be as even as possible.
@@ -71,7 +69,7 @@ def _ints_between(
         return out
 
 
-def _describe_bytes(size: int) -> str:
+def _describe_bytes(size):
     """
     Describe a size in bytes in human-readable format.
 
@@ -92,8 +90,7 @@ def _describe_bytes(size: int) -> str:
 
 
 def _download_file_from_git_lfs(
-    target_path: str, oid: str, size: int, verbose: bool = False
-) -> bool:
+    target_path: str, oid: str, size: int, verbose = False):
     """
     Download a single object from Git LFS.
 
@@ -147,7 +144,7 @@ def _download_file_from_git_lfs(
 
 
 class _LFSDownloadPlan:
-    def __init__(self, verbose: bool = False):
+    def __init__(self, verbose = False):
         self.objects: list[tuple[str, tuple[str, int]]] = []
         """(target_path, (oid, size))"""
 
@@ -175,10 +172,10 @@ class _LFSDownloadPlan:
 
 
 def download_cbioportal_data(
-    study_ids: list[str],
-    verbose: bool = False,
-    out_dir: Optional[str] = None,
-    confirm_download: bool = False,
+    study_ids,
+    verbose = False,
+    out_dir = None,
+    confirm_download = False,
 ) -> bool:
     """
     Download data from cBioPortal studies.
@@ -297,7 +294,7 @@ def _extract_study_name(name: str) -> str:
     return name
 
 
-def cbio_search(*key_words: str) -> list[str]:
+def cbio_search(*key_words: str):
     """
     Find cBioPortal study IDs by keyword.
 
@@ -362,7 +359,7 @@ def cbio_search(*key_words: str) -> list[str]:
     return matching_study_ids
 
 
-def _get_ensembl_gene_id(transcript_id: str, verbose: bool = False):
+def _get_ensembl_gene_id(transcript_id: str, verbose = False):
     try:
         url = f"https://rest.ensembl.org/lookup/id/{transcript_id}?expand=1"
         response = requests.get(url, headers={"Content-Type": "application/json"})
@@ -379,7 +376,7 @@ def _get_ensembl_gene_id(transcript_id: str, verbose: bool = False):
         return "Unknown"
 
 
-def _get_ensembl_gene_id_bulk(transcript_ids: list[str]) -> dict[str, str]:
+def _get_ensembl_gene_id_bulk(transcript_ids):
     if not transcript_ids:
         return {}
 
@@ -398,7 +395,7 @@ def _get_ensembl_gene_id_bulk(transcript_ids: list[str]) -> dict[str, str]:
         raise e
 
 
-def _get_ensembl_gene_name_bulk(gene_ids: list[str]) -> dict[str, str]:
+def _get_ensembl_gene_name_bulk(gene_ids):
     if not gene_ids:
         return {}
 
@@ -426,7 +423,7 @@ def _get_valid_ensembl_gene_id(
     return ensembl_gene_id
 
 
-def _get_valid_ensembl_gene_id_bulk(df: pd.DataFrame) -> Callable[[pd.Series, str, str], str]:
+def _get_valid_ensembl_gene_id_bulk(df: pd.DataFrame):
     map_: Optional[dict[str, str]] = None
 
     def f(row: pd.Series, transcript_column: str = "seq_ID", gene_column: str = "gene_name"):
@@ -445,7 +442,7 @@ def _get_valid_ensembl_gene_id_bulk(df: pd.DataFrame) -> Callable[[pd.Series, st
     return f
 
 
-def _nested_defaultdict() -> defaultdict[_K, Union[_V, defaultdict[_K]]]:
+def _nested_defaultdict():
     return defaultdict(_nested_defaultdict)
 
 
@@ -456,12 +453,12 @@ _SYMBOL = "Symbol"
 class _GeneAnalysis:
     def __init__(
         self,
-        study_ids: list[str],
-        genes: list[str],
-        merge_type: Literal["Symbol", "Ensembl"] = "Symbol",
-        remove_non_ensembl_genes: bool = False,
-        data_dir: str = "gget_cbio_cache",
-        figure_output_dir: str = "gget_cbio_figures",
+        study_ids,
+        genes,
+        merge_type = "Symbol",
+        remove_non_ensembl_genes = False,
+        data_dir = "gget_cbio_cache",
+        figure_output_dir = "gget_cbio_figures",
     ):
         self.study_ids = study_ids
 
@@ -746,22 +743,14 @@ class _GeneAnalysis:
 
     def plot_heatmap(
         self,
-        stratification: Literal[
-            "tissue", "cancer_type", "cancer_type_detailed", "study_id", "sample"
-        ] = "tissue",
-        filter_category: Optional[str] = None,
-        filter_value: Optional[str] = None,
-        variation_type: Literal[
-            "mutation_occurrences",
-            "cna_nonbinary",
-            "sv_occurrences",
-            "cna_occurrences",
-            "Consequence",
-        ] = "mutation_occurrences",
-        dpi: int = 100,
-        show: bool = False,
-        figure_filename: Optional[str] = None,
-        figure_title: Optional[str] = None
+        stratification = "tissue",
+        filter_category = None,
+        filter_value = None,
+        variation_type = "mutation_occurrences",
+        dpi = 100,
+        show = False,
+        figure_filename = None,
+        figure_title = None
     ):
         if variation_type == "cna_nonbinary" or variation_type == "Consequence":
             assert (
@@ -1137,33 +1126,22 @@ class _GeneAnalysis:
 
 
 def cbio_plot(
-    study_ids: list[str],
-    genes: list[str],
-
-    stratification: Literal[
-        "tissue", "cancer_type", "cancer_type_detailed", "study_id", "sample"
-    ] = "tissue",
-    variation_type: Literal[
-        "mutation_occurrences",
-        "cna_nonbinary",
-        "sv_occurrences",
-        "cna_occurrences",
-        "Consequence",
-    ] = "mutation_occurrences",
-    filter: Optional[tuple[str, str]] = None,
-
-    merge_type: Literal["Ensembl", "Symbol"] = "Symbol",
-    remove_non_ensembl_genes: bool = False,
-
-    data_dir: str = "gget_cbio_cache",
-    figure_dir: str = "gget_cbio_figures",
-    figure_filename: Optional[str] = None,
-    verbose: bool = True,
-    confirm_download: bool = False,
-    dpi: int = 100,
-    show: bool = False,
-    figure_title: Optional[str] = None,
-) -> bool:
+    study_ids,
+    genes,
+    stratification = "tissue",
+    variation_type = "mutation_occurrences",
+    filter = None,
+    merge_type = "Symbol",
+    remove_non_ensembl_genes = False,
+    data_dir = "gget_cbio_cache",
+    figure_dir = "gget_cbio_figures",
+    figure_filename = None,
+    verbose = True,
+    confirm_download = False,
+    dpi = 100,
+    show = False,
+    figure_title = None,
+):
     """
     Plot a heatmap of given genes in the given studies.
 
