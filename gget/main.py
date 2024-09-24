@@ -2324,7 +2324,7 @@ def main():
         help="Does not print progress information.",
     )
     parser_cbio_plot.add_argument(
-        "-y",
+        "-nc",
         "--no_confirm",
         default=False,
         action="store_true",
