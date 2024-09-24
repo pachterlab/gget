@@ -97,10 +97,10 @@ def enrichr(
     - species           Enrichr species database to query. Options:
                         'human' (default) [H. sapiens] - https://maayanlab.cloud/Enrichr/#libraries
                         'mouse' [M. musculus] - equivalent to 'human'
-                        'fly' [D. melanogaster] - https://maayanlab.cloud/FlyEnrichr/#libraries
-                        'yeast' [S. cerevisiae] - https://maayanlab.cloud/YeastEnrichr/#libraries
-                        'worm' [C. elegans] - https://maayanlab.cloud/WormEnrichr/#libraries
-                        'fish' [D. rerio] - https://maayanlab.cloud/FishEnrichr/#libraries
+                        'fly' [D. melanogaster] - https://maayanlab.cloud/FlyEnrichr/#stats
+                        'yeast' [S. cerevisiae] - https://maayanlab.cloud/YeastEnrichr/#stats
+                        'worm' [C. elegans] - https://maayanlab.cloud/WormEnrichr/#stats
+                        'fish' [D. rerio] - https://maayanlab.cloud/FishEnrichr/#stats
     - background_list   List of gene names/Ensembl IDs to be used as background genes. ONLY SUPPORTED FOR HUMAN/MOUSE SPECIES (Default: None)
     - background        If True, use set of > 20,000 default background genes listed here: https://github.com/pachterlab/gget/blob/main/gget/constants/enrichr_bkg_genes.txt.
                         ONLY SUPPORTED FOR HUMAN/MOUSE SPECIES (Default: False)
@@ -159,10 +159,16 @@ def enrichr(
 
     # Define database
     # All available libraries: https://maayanlab.cloud/Enrichr/#libraries
-    db_message = f"""
-    Please note that there might be a more appropriate database for your application. 
-    Go to https://maayanlab.cloud/{species_enrichr}/#libraries for a full list of supported databases.
-    """
+    if species == "human":
+        db_message = f"""
+        Please note that there might be a more appropriate database for your application. 
+        Go to https://maayanlab.cloud/{species_enrichr}/#libraries for a full list of supported databases.
+        """
+    else:
+        db_message = f"""
+        Please note that there might be a more appropriate database for your application. 
+        Go to https://maayanlab.cloud/{species_enrichr}/#stats for a full list of supported databases.
+        """
     if not isinstance(background, bool):
         raise ValueError(
             f"Argument`background` must be a boolean True/False. If you are adding a background list, use the argument `background_list` instead."
@@ -394,12 +400,20 @@ def enrichr(
         df = pd.DataFrame(enrichr_results[database], columns=columns)
 
     except KeyError:
-        logger.error(
-            f"""
-            Database {database} not found. Go to https://maayanlab.cloud/{species_enrichr}/#libraries 
-            for a full list of supported databases.
-            """
-        )
+        if species=="human":
+            logger.error(
+                f"""
+                Database {database} not found. Go to https://maayanlab.cloud/{species_enrichr}/#libraries 
+                for a full list of supported databases.
+                """
+            )
+        else:
+            logger.error(
+                f"""
+                Database {database} not found. Go to https://maayanlab.cloud/{species_enrichr}/#stats 
+                for a full list of supported databases.
+                """
+            )
         return
 
     # Drop last two columns ("Old p-value", "Old adjusted p-value")
