@@ -47,7 +47,7 @@ Options:
 
 `-f` `--filter`     
 Filter the data by a specific value in a specific column, e.g. `study_id:msk_impact_2017`   
-Python: `filter_=(column, value)`
+Python: `filter=(column, value)`
 
 `-dd` `--data_dir`  
 Directory to store data files. Default: `./gget_cbio_cache`.
@@ -155,7 +155,7 @@ gget.cbio_plot(
     ['AKT1', 'ALK', 'FLT4', 'MAP3K1', 'MLL2', 'MLL3', 'NOTCH3', 'NOTCH4', 'PDCD1', 'RNF43'],
     stratification='sample',
     variation_type='Consequence',
-    filter_=('tissue', 'intestine'),
+    filter=('tissue', 'intestine'),
     dpi=200,
 )
 ```
@@ -178,7 +178,7 @@ gget.cbio_plot(
     ['AKT1', 'ALK', 'FLT4', 'MAP3K1', 'MLL2', 'MLL3', 'NOTCH3', 'NOTCH4', 'PDCD1', 'RNF43'],
     stratification='sample',
     variation_type='Consequence',
-    filter_=('tissue', 'intestine'),
+    filter=('tissue', 'intestine'),
     dpi=200,
     figure_title='Intestinal Mutations',
     figure_filename='intestinal_mutations.png'
