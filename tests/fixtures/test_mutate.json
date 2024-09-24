@@ -271,7 +271,7 @@
         }
     },
     "test_large_k": {
-        "type": "assert_mutate",
+        "type": "assert_mutate_long",
         "args": {
             "sequences": "<extra_long_sequence>",
             "mutations": "c.40T>G",
@@ -314,7 +314,7 @@
         "global_variables": {}
     },
     "test_sequence_with_N": {
-        "type": "assert_mutate",
+        "type": "assert_mutate_with_N",
         "args": {
             "sequences": "<long_sequence_with_N>",
             "mutations": "c.35G>A",

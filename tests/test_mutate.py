@@ -93,6 +93,8 @@ def _assert_mutate(name: str, td, func):
         args = td[test]["args"]
 
         args = _recursive_replace(args, "<long_sequence>", ls, exact=True)
+        # args = _recursive_replace(args, "<extra_long_sequence>", els, exact=True)
+        # args = _recursive_replace(args, "<long_sequence_with_n>", ls_with_n, exact=True)
 
         result = do_call(func, args)
 
@@ -103,12 +105,69 @@ def _assert_mutate(name: str, td, func):
 
     return assert_mutate
 
+def _assert_mutate_N(name: str, td, func):
+    ls_with_n = LONG_SEQUENCE_WITH_N
+
+    def assert_mutate_N(self: unittest.TestCase):
+        # reset global variables
+        gget.gget_mutate.intronic_mutations = 0
+        gget.gget_mutate.posttranslational_region_mutations = 0
+        gget.gget_mutate.uncertain_mutations = 0
+        gget.gget_mutate.ambiguous_position_mutations = 0
+        gget.gget_mutate.mut_idx_outside_seq = 0
+
+        test = name
+        expected_result = td[test].get("expected_result", None)
+        global_variables = td[test].get("global_variables", {})
+
+        args = td[test]["args"]
+
+        args = _recursive_replace(args, "<long_sequence_with_n>", ls_with_n, exact=True)
+
+        result = do_call(func, args)
+
+        if expected_result:
+            self.assertEqual(result[0], expected_result)
+
+        assert_global_variables_zero(**global_variables)
+
+    return assert_mutate_N
+
+def _assert_mutate_long(name: str, td, func):
+    els = EXTRA_LONG_SEQUENCE
+
+    def assert_mutate_long(self: unittest.TestCase):
+        # reset global variables
+        gget.gget_mutate.intronic_mutations = 0
+        gget.gget_mutate.posttranslational_region_mutations = 0
+        gget.gget_mutate.uncertain_mutations = 0
+        gget.gget_mutate.ambiguous_position_mutations = 0
+        gget.gget_mutate.mut_idx_outside_seq = 0
+
+        test = name
+        expected_result = td[test].get("expected_result", None)
+        global_variables = td[test].get("global_variables", {})
+
+        args = td[test]["args"]
+
+        args = _recursive_replace(args, "<extra_long_sequence>", els, exact=True)
+        # args = _recursive_replace(args, "<long_sequence_with_n>", ls_with_n, exact=True)
+
+        result = do_call(func, args)
+
+        if expected_result:
+            self.assertEqual(result[0], expected_result)
+
+        assert_global_variables_zero(**global_variables)
+
+    return assert_mutate_long
+
 
 with open("./tests/fixtures/test_mutate.json") as json_file:
     mutate_dict = json.load(json_file)
 
 
-class TestMutate(unittest.TestCase, metaclass=from_json(mutate_dict, gget.mutate, {"assert_mutate": _assert_mutate})):
+class TestMutate(unittest.TestCase, metaclass=from_json(mutate_dict, gget.mutate, {"assert_mutate": _assert_mutate, "assert_mutate_N": _assert_mutate_N, "assert_mutate_long": _assert_mutate_long})):
     pass  # all tests are loaded from json
 
 
