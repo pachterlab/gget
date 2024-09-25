@@ -6,6 +6,8 @@ Return format: JSON/CSV (command-line) or data frame (Python).
 > If you are specifically interested in human gene expression data, consider using [gget opentargets](./opentargets.md) instead.
 > **gget bgee** has less data, but supports more species.
 
+This module was written by [Sam Wagenaar](https://github.com/techno-sam).
+
 **Positional argument**  
 `ens_id`  
 Ensembl gene ID, e.g. ENSG00000169194 or ENSSSCG00000014725.
