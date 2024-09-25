@@ -29,8 +29,8 @@ arg_combinations = [
 with open("./tests/fixtures/test_cosmic.json") as json_file:
     cosmic_dict = json.load(json_file)
 
-# Sleep time in seconds (wait 8 seconds between server requests to avoid 429 errors)
-sleep_time = 8
+# Sleep time in seconds (wait [sleep_time] seconds between server requests to avoid 429 errors)
+sleep_time = 10
 
 
 class TestCosmic(unittest.TestCase, metaclass=from_json(cosmic_dict, cosmic, pre_test=lambda: time.sleep(sleep_time))):
