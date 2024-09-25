@@ -5821,7 +5821,7 @@
             "species": "fish"
         },
         "expected_result": "ValueError",
-        "expected_msg": "Database 'pathway' is not supported for species 'fish'. Please select a database from the species-specific libraries listed at: https://maayanlab.cloud/FishEnrichr/#libraries."
+        "expected_msg": "Database 'pathway' is not supported for species 'fish'. Please select a database from the species-specific libraries listed at: https://maayanlab.cloud/FishEnrichr/#stats."
     },
     "test_enrichr_bad_background": {
         "type": "error",
