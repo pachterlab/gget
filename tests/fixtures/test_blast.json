@@ -28,17 +28,21 @@
             "limit": 1,
             "json": true
         },
-        "expected_result": [{"Description": "Homo sapiens ATAC-STARR-seq lymphoblastoid active region 16974 (LOC129935398) on chromosome 2",
-  "Scientific Name": "Homo sapiens",
-  "Common Name": "human",
-  "Taxid": 9606,
-  "Max Score": 222,
-  "Total Score": 222,
-  "Query Cover": "100%",
-  "E value": 6e-54,
-  "Per. Ident": "100.00%",
-  "Acc. Len": 460,
-  "Accession": "NG_168413.1"}]
+        "expected_result": [
+            {
+                "Description": "Homo sapiens ATAC-STARR-seq lymphoblastoid active region 16974 (LOC129935398) on chromosome 2",
+                "Scientific Name": "Homo sapiens",
+                "Common Name": "human",
+                "Taxid": 9606,
+                "Max Score": 222,
+                "Total Score": 222,
+                "Query Cover": "100%",
+                "E value": 6e-54,
+                "Per. Ident": "100.00%",
+                "Acc. Len": 460,
+                "Accession": "NG_168413.1"
+            }
+        ]
     },
     "test_blast_bad_seq": {
         "type": "error",

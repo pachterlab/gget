@@ -377,18 +377,10 @@ def enrichr(
                 If the input genes are Ensembl IDs, please set argument 'ensembl=True'. (For command-line, add flag [-e][--ensembl].)\n
                 """
             )
-    
-    # print(r2.headers.get('Content-Type'))
-    # if r2.content:
-    #     data = r2.json()
-    # else:
-    #     print("Empty response")
-    # print(r2.text)
 
     # Replace inf values with "inf" string
-    response_text = r2.text.replace('Infinity', '"inf"')
+    response_text = r2.text.replace("Infinity", '"inf"')
     enrichr_results = json_package.loads(response_text)
-    # enrichr_results = r2.json()
 
     ## Build data frame (standard return)
     # Define column names
