@@ -178,48 +178,48 @@ def enrichr(
         database = "KEGG_2021_Human"
         if verbose:
             logger.info(
-                f"Performing Enichr analysis using database {database}. " + db_message
+                f"Performing Enrichr analysis using database {database}. " + db_message
             )
 
     elif database == "transcription":
         database = "ChEA_2016"
         if verbose:
             logger.info(
-                f"Performing Enichr analysis using database {database}. " + db_message
+                f"Performing Enrichr analysis using database {database}. " + db_message
             )
 
     elif database == "ontology":
         database = "GO_Biological_Process_2021"
         if verbose:
             logger.info(
-                f"Performing Enichr analysis using database {database}. " + db_message
+                f"Performing Enrichr analysis using database {database}. " + db_message
             )
 
     elif database == "diseases_drugs":
         database = "GWAS_Catalog_2019"
         if verbose:
             logger.info(
-                f"Performing Enichr analysis using database {database}. " + db_message
+                f"Performing Enrichr analysis using database {database}. " + db_message
             )
 
     elif database == "celltypes":
         database = "PanglaoDB_Augmented_2021"
         if verbose:
             logger.info(
-                f"Performing Enichr analysis using database {database}. " + db_message
+                f"Performing Enrichr analysis using database {database}. " + db_message
             )
 
     elif database == "kinase_interactions":
         database = "KEA_2015"
         if verbose:
             logger.info(
-                f"Performing Enichr analysis using database {database}. " + db_message
+                f"Performing Enrichr analysis using database {database}. " + db_message
             )
 
     else:
         database = database
         if verbose:
-            logger.info(f"Performing Enichr analysis using database {database}.")
+            logger.info(f"Performing Enrichr analysis using database {database}.")
 
     # To generate a KEGG pathway image, confirm that the database is a KEGG database and pykegg is installed
     if kegg_out:
@@ -268,7 +268,7 @@ def enrichr(
     if ensembl:
         if verbose:
             logger.info(
-                f"Performing Enichr analysis on the following gene symbols: {', '.join(genes_clean)}"
+                f"Performing Enrichr analysis on the following gene symbols: {', '.join(genes_clean)}"
             )
 
     # Join genes from list
@@ -303,7 +303,7 @@ def enrichr(
     if background_list:
         if verbose:
             logger.info(
-                f"Performing Enichr analysis using user-defined background gene list."
+                f"Performing Enrichr analysis using user-defined background gene list."
             )
 
         if background:
@@ -377,9 +377,18 @@ def enrichr(
                 If the input genes are Ensembl IDs, please set argument 'ensembl=True'. (For command-line, add flag [-e][--ensembl].)\n
                 """
             )
+    
+    # print(r2.headers.get('Content-Type'))
+    # if r2.content:
+    #     data = r2.json()
+    # else:
+    #     print("Empty response")
+    # print(r2.text)
 
-    r2.encoding = 'utf-8'
-    enrichr_results = r2.json()
+    # Replace inf values with "inf" string
+    response_text = r2.text.replace('Infinity', '"inf"')
+    enrichr_results = json.loads(response_text)
+    # enrichr_results = r2.json()
 
     ## Build data frame (standard return)
     # Define column names
