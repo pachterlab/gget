@@ -387,7 +387,7 @@ def enrichr(
 
     # Replace inf values with "inf" string
     response_text = r2.text.replace('Infinity', '"inf"')
-    enrichr_results = json.loads(response_text)
+    enrichr_results = json_package.loads(response_text)
     # enrichr_results = r2.json()
 
     ## Build data frame (standard return)
