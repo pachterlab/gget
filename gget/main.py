@@ -58,7 +58,10 @@ class CustomHelpFormatter(argparse.RawTextHelpFormatter):
             help_str += " (default: %(default)s)"
         return help_str
 
-
+def convert_to_list(*args):
+    args_list = list(args)
+    return args_list
+                
 def int_or_str(value):
     try:
         return int(value)
@@ -3314,7 +3317,7 @@ def main():
     ## cbio return
     if args.command == "cbio":
         if args.subcommand == "search":
-            cbio_results = cbio_search(*args.keywords)
+            cbio_results = cbio_search(convert_to_list(*args.keywords))
             print(json.dumps(cbio_results, ensure_ascii=False, indent=4))
         elif args.subcommand == "plot":
             cbio_plot(
