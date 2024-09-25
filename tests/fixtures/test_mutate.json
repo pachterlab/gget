@@ -314,7 +314,7 @@
         "global_variables": {}
     },
     "test_sequence_with_N": {
-        "type": "assert_mutate_with_N",
+        "type": "assert_mutate_N",
         "args": {
             "sequences": "<long_sequence_with_N>",
             "mutations": "c.35G>A",
