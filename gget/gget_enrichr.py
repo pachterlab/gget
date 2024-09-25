@@ -378,6 +378,7 @@ def enrichr(
                 """
             )
 
+    r2.encoding = 'utf-8'
     enrichr_results = r2.json()
 
     ## Build data frame (standard return)
