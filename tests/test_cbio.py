@@ -12,8 +12,8 @@ with open("./tests/fixtures/test_cbio.json") as json_file:
     cb_dict = json.load(json_file)
 
 
-def _sorted_search(*args):
-    return sorted(cbio_search(*args))
+def _sorted_search(args):
+    return sorted(cbio_search(args))
 
 
 class TestCbioSearch(unittest.TestCase, metaclass=from_json(cb_search_dict, _sorted_search)):
