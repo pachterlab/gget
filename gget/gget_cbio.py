@@ -353,7 +353,7 @@ def cbio_search(key_words):
         if individual_study["cancerTypeId"] in cancer_id_list
     ]
 
-    return matching_study_ids
+    return sorted(matching_study_ids)
 
 
 def _get_ensembl_gene_id(transcript_id: str, verbose = False):
