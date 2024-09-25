@@ -156,17 +156,17 @@ def setup(module, verbose=True, out=None):
         if platform.system() == "Windows":
             # The double-quotation marks allow white spaces in the path, but this does not work for Windows
             command = f"""
-                curl -o {elm_instances_fasta} \"{ELM_INSTANCES_FASTA_DOWNLOAD}\" \
-                &&  curl -o {elm_classes_tsv} \"{ELM_CLASSES_TSV_DOWNLOAD}\" \
-                &&  curl -o {elm_instances_tsv} \"{ELM_INSTANCES_TSV_DOWNLOAD}\" \
+                curl -o {elm_instances_fasta} \"{ELM_INSTANCES_FASTA_DOWNLOAD}\" \\
+                &&  curl -o {elm_classes_tsv} \"{ELM_CLASSES_TSV_DOWNLOAD}\" \\
+                &&  curl -o {elm_instances_tsv} \"{ELM_INSTANCES_TSV_DOWNLOAD}\" \\
                 &&  curl -o {elm_intdomains_tsv} \"{ELM_INTDOMAINS_TSV_DOWNLOAD}\"
                 """
 
         else:
             command = f"""
-                curl -o '{elm_instances_fasta}' {ELM_INSTANCES_FASTA_DOWNLOAD} \
-                &&  curl -o '{elm_classes_tsv}' {ELM_CLASSES_TSV_DOWNLOAD} \
-                &&  curl -o '{elm_instances_tsv}' {ELM_INSTANCES_TSV_DOWNLOAD} \
+                curl -o '{elm_instances_fasta}' {ELM_INSTANCES_FASTA_DOWNLOAD} \\
+                &&  curl -o '{elm_classes_tsv}' {ELM_CLASSES_TSV_DOWNLOAD} \\
+                &&  curl -o '{elm_instances_tsv}' {ELM_INSTANCES_TSV_DOWNLOAD} \\
                 &&  curl -o '{elm_intdomains_tsv}' '{ELM_INTDOMAINS_TSV_DOWNLOAD}'
                 """
 
@@ -283,17 +283,17 @@ def setup(module, verbose=True, out=None):
         # Pip install AlphaFold from local directory
         if platform.system() == "Darwin":
             command = """
-                git clone --branch main -q --branch {} {} {} \
-                && sed -i '' 's/\/tmp\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \
-                && sed -i '' 's/from absl import logging/from absl import logging\\\logging.set_verbosity(logging.WARNING)/g' {}/alphafold/data/tools/jackhmmer.py \
-                && pip install -q -r {}/requirements.txt \
+                git clone --branch main -q --branch {} {} {} \\
+                && sed -i '' 's/\\/tmp\\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \\
+                && sed -i '' '/from absl import logging/a logging.set_verbosity(logging.WARNING)' {}/alphafold/data/tools/jackhmmer.py \\
+                && pip install -q -r {}/requirements.txt \\
                 && pip install -q --no-dependencies {}
                 """.format(
                 ALPHAFOLD_GIT_REPO_VERSION,
                 ALPHAFOLD_GIT_REPO,
                 alphafold_folder,
                 os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace(
-                    "/", "\/"
+                    "/", "\\/"
                 ),  # Replace directory where jackhmmer database chunks will be saved
                 alphafold_folder,
                 alphafold_folder,
@@ -302,17 +302,17 @@ def setup(module, verbose=True, out=None):
             )
         else:
             command = """
-                git clone --branch main -q --branch {} {} {} \
-                && sed -i 's/\/tmp\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \
-                && sed -i 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' {}/alphafold/data/tools/jackhmmer.py \
-                && pip install -q -r {}/requirements.txt \
+                git clone --branch main -q --branch {} {} {} \\
+                && sed -i 's/\\/tmp\\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \\
+                && sed -i 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' {}/alphafold/data/tools/jackhmmer.py \\
+                && pip install -q -r {}/requirements.txt \\
                 && pip install -q --no-dependencies {}
                 """.format(
                 ALPHAFOLD_GIT_REPO_VERSION,
                 ALPHAFOLD_GIT_REPO,
                 alphafold_folder,
                 os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace(
-                    "/", "\/"
+                    "/", "\\/"
                 ),  # Replace directory where jackhmmer database chunks will be saved
                 alphafold_folder,
                 alphafold_folder,
@@ -365,8 +365,8 @@ def setup(module, verbose=True, out=None):
             PDBFIXER_VERSION = "v1.8.1"
 
         command = f"""
-            git clone -q --branch {PDBFIXER_VERSION} {PDBFIXER_GIT_REPO} {pdbfixer_folder} \
-            && pip install -q {pdbfixer_folder} \
+            git clone -q --branch {PDBFIXER_VERSION} {PDBFIXER_GIT_REPO} {pdbfixer_folder} \\
+            && pip install -q {pdbfixer_folder}
             """
 
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
@@ -407,14 +407,14 @@ def setup(module, verbose=True, out=None):
             if platform.system() == "Windows":
                 # The double-quotation marks allow white spaces in the path, but this does not work for Windows
                 command = f"""
-                    curl -# -o {PARAMS_PATH} {PARAMS_URL} \
-                    && tar --extract --file={PARAMS_PATH} --directory={PARAMS_DIR+'params/'} --preserve-permissions \
+                    curl -# -o {PARAMS_PATH} {PARAMS_URL} \\
+                    && tar --extract --file={PARAMS_PATH} --directory={PARAMS_DIR+'params/'} --preserve-permissions \\
                     && rm {PARAMS_PATH}
                     """
             else:
                 command = f"""
-                    curl -# -o '{PARAMS_PATH}' '{PARAMS_URL}' \
-                    && tar --extract --file='{PARAMS_PATH}' --directory='{PARAMS_DIR+'params/'}' --preserve-permissions \
+                    curl -# -o '{PARAMS_PATH}' '{PARAMS_URL}' \\
+                    && tar --extract --file='{PARAMS_PATH}' --directory='{PARAMS_DIR+'params/'}' --preserve-permissions \\
                     && rm '{PARAMS_PATH}'
                     """
 
