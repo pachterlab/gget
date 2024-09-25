@@ -122,7 +122,7 @@ def _assert_mutate_N(name: str, td, func):
 
         args = td[test]["args"]
 
-        args = _recursive_replace(args, "<long_sequence_with_n>", ls_with_n, exact=True)
+        args = _recursive_replace(args, "<long_sequence_with_N>", ls_with_n, exact=True)
 
         result = do_call(func, args)
 
