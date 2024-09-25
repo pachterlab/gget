@@ -5863,7 +5863,7 @@
         "expected_result": "df.empty"
     },
     "test_enrichr_background": {
-        "type": "assert_equal",
+        "type": "code_defined",
         "args": {
             "genes": [
                 "ALB",
@@ -6084,7 +6084,7 @@
         ]
     },
     "test_enrichr_background_ensembl": {
-        "type": "assert_equal",
+        "type": "code_defined",
         "args": {
             "genes": [
                 "ENSG00000120053",
