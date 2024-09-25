@@ -322,6 +322,8 @@
             "max_ambiguous": 0
         },
         "expected_result": null,
-        "global_variables": {}
+        "global_variables": {
+            "number_ambiguous_position_mutations": 1
+        }
     }
 }
