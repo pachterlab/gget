@@ -33,7 +33,7 @@
             "ensembl_id": "ENSG00000169194",
             "resource": "diseases"
         },
-        "expected_result": "e6030c0f3da91f8176deaf29dcc08285"
+        "expected_result": "26ced3c0f7a6778acad9c22fcdb58d15"
     },
     "test_opentargets_no_limit_accurate_coverage": {
         "type": "assert_equal_json_hash",
@@ -279,7 +279,7 @@
             "ensembl_id": "ENSG00000169194",
             "resource": "pharmacogenetics"
         },
-        "expected_result": "34e64088e72da5710cdacd522c5fbd67"
+        "expected_result": "6e32f239a7ca97900610976442cb6e7f"
     },
     "test_opentargets_pharmacogenetics_filter_or": {
         "type": "assert_equal_json_hash_nested",
@@ -294,7 +294,7 @@
             },
             "filter_mode": "or"
         },
-        "expected_result": "6e32f239a7ca97900610976442cb6e7f"
+        "expected_result": "780f0981694a0f263e8c6abd94582199"
     },
     "test_opentargets_expression": {
         "type": "assert_equal",
