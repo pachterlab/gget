@@ -13,7 +13,8 @@ Return format: JSON (command-line) or string list (Python).
 
 **Positional argument**     
 `keywords`  
-Space-separated list of keywords to search for, e.g. <code>breast&nbsp;lung</code>.
+Space-separated list of keywords to search for, e.g. <code>breast&nbsp;lung</code>.  
+Python: Pass keywords as a list of strings.
 
 ### `plot` subcommand (Python: `gget.cbio_plot`)
 Plot cancer genomics heatmaps using data from cBioPortal.
@@ -89,7 +90,7 @@ gget cbio search esophag ovary ovarian
 ```python
 # Python
 import gget
-gget.cbio_search('esophag', 'ovary', 'ovarian')
+gget.cbio_search(['esophag', 'ovary', 'ovarian'])
 ```
 &rarr; Returns a list of studies with cancer types matching the keywords `esophag`, `ovary`, or `ovarian`.
 
