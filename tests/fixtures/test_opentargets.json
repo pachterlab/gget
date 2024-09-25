@@ -6,38 +6,26 @@
             "resource": "diseases",
             "limit": 5
         },
-        "expected_result": [
-            [
-                "EFO_0000274",
-                "atopic eczema",
-                "A chronic inflammatory genetically determined disease of the skin marked by increased ability to form reagin (IgE), with increased susceptibility to allergic rhinitis and asthma, and hereditary disposition to a lowered threshold for pruritus. It is manifested by lichenification, excoriation, and crusting, mainly on the flexural surfaces of the elbow and knee. In infants it is known as infantile eczema.",
-                0.6636434724183102
-            ],
-            [
-                "MONDO_0004979",
-                "asthma",
-                "A bronchial disease that is characterized by chronic inflammation and narrowing of the airways, which is caused by a combination of environmental and genetic factors resulting in recurring periods of wheezing (a whistling sound while breathing), chest tightness, shortness of breath, mucus production and coughing. The symptoms appear due to a variety of triggers such as allergens, irritants, respiratory infections, weather changes, exercise, stress, reflux disease, medications, foods and emotional anxiety.",
-                0.5436820890787305
-            ],
-            [
-                "HP_0000964",
-                "Eczematoid dermatitis",
-                "Eczema is a form of dermatitis that is characterized by scaly, pruritic, erythematous lesions located on flexural surfaces.",
-                0.5116116699305998
-            ],
-            [
-                "EFO_0005854",
-                "allergic rhinitis",
-                "Inflammation of the nasal mucous membranes caused by an IgE-mediated response to external allergens. The inflammation may also involve the mucous membranes of the sinuses, eyes, middle ear, and pharynx. Symptoms include sneezing, nasal congestion, rhinorrhea, and itching. It may lead to fatigue, drowsiness, and malaise thus causing impairment of the quality of life.",
-                0.48632862582122033
-            ],
-            [
-                "EFO_0000676",
-                "psoriasis",
-                "A common genetically determined, chronic, inflammatory skin disease characterized by rounded erythematous, dry, scaling patches. The lesions have a predilection for nails, scalp, genitalia, extensor surfaces, and the lumbosacral region. Accelerated epidermopoiesis is considered to be the fundamental pathologic feature in psoriasis.",
-                0.4338730716075263
-            ]
-        ]
+        "expected_result": [["EFO_0000274",
+  "atopic eczema",
+  "A chronic inflammatory genetically determined disease of the skin marked by increased ability to form reagin (IgE), with increased susceptibility to allergic rhinitis and asthma, and hereditary disposition to a lowered threshold for pruritus. It is manifested by lichenification, excoriation, and crusting, mainly on the flexural surfaces of the elbow and knee. In infants it is known as infantile eczema.",
+  0.6629154844877749],
+ ["MONDO_0004979",
+  "asthma",
+  "A bronchial disease that is characterized by chronic inflammation and narrowing of the airways, which is caused by a combination of environmental and genetic factors resulting in recurring periods of wheezing (a whistling sound while breathing), chest tightness, shortness of breath, mucus production and coughing. The symptoms appear due to a variety of triggers such as allergens, irritants, respiratory infections, weather changes, exercise, stress, reflux disease, medications, foods and emotional anxiety.",
+  0.5436820890787305],
+ ["HP_0000964",
+  "Eczematoid dermatitis",
+  "Eczema is a form of dermatitis that is characterized by scaly, pruritic, erythematous lesions located on flexural surfaces.",
+  0.5116116699305998],
+ ["EFO_0005854",
+  "allergic rhinitis",
+  "Inflammation of the nasal mucous membranes caused by an IgE-mediated response to external allergens. The inflammation may also involve the mucous membranes of the sinuses, eyes, middle ear, and pharynx. Symptoms include sneezing, nasal congestion, rhinorrhea, and itching. It may lead to fatigue, drowsiness, and malaise thus causing impairment of the quality of life.",
+  0.48632865622602156],
+ ["EFO_0000676",
+  "psoriasis",
+  "A common genetically determined, chronic, inflammatory skin disease characterized by rounded erythematous, dry, scaling patches. The lesions have a predilection for nails, scalp, genitalia, extensor surfaces, and the lumbosacral region. Accelerated epidermopoiesis is considered to be the fundamental pathologic feature in psoriasis.",
+  0.4344810418179078]]
     },
     "test_opentargets_no_limit": {
         "type": "assert_equal_json_hash",
@@ -45,7 +33,7 @@
             "ensembl_id": "ENSG00000169194",
             "resource": "diseases"
         },
-        "expected_result": "e6030c0f3da91f8176deaf29dcc08285"
+        "expected_result": "26ced3c0f7a6778acad9c22fcdb58d15"
     },
     "test_opentargets_no_limit_accurate_coverage": {
         "type": "assert_equal_json_hash",
@@ -55,7 +43,7 @@
             "verbose": false,
             "wrap_text": true
         },
-        "expected_result": "e6030c0f3da91f8176deaf29dcc08285"
+        "expected_result": "26ced3c0f7a6778acad9c22fcdb58d15"
     },
     "test_opentargets_no_specified_resource": {
         "type": "assert_equal",
@@ -63,41 +51,27 @@
             "ensembl_id": "ENSG00000169194",
             "limit": 5
         },
-        "expected_result": [
-            [
-                "EFO_0000274",
-                "atopic eczema",
-                "A chronic inflammatory genetically determined disease of the skin marked by increased ability to form reagin (IgE), with increased susceptibility to allergic rhinitis and asthma, and hereditary disposition to a lowered threshold for pruritus. It is manifested by lichenification, excoriation, and crusting, mainly on the flexural surfaces of the elbow and knee. In infants it is known as infantile eczema.",
-                0.6636434724183102
-            ],
-            [
-                "MONDO_0004979",
-                "asthma",
-                "A bronchial disease that is characterized by chronic inflammation and narrowing of the airways, which is caused by a combination of environmental and genetic factors resulting in recurring periods of wheezing (a whistling sound while breathing), chest tightness, shortness of breath, mucus production and coughing. The symptoms appear due to a variety of triggers such as allergens, irritants, respiratory infections, weather changes, exercise, stress, reflux disease, medications, foods and emotional anxiety.",
-                0.5436820890787305
-            ],
-            [
-                "HP_0000964",
-                "Eczematoid dermatitis",
-                "Eczema is a form of dermatitis that is characterized by scaly, pruritic, erythematous lesions located on flexural surfaces.",
-                0.5116116699305998
-            ],
-            [
-                "EFO_0005854",
-                "allergic rhinitis",
-                "Inflammation of the nasal mucous membranes caused by an IgE-mediated response to external allergens. The inflammation may also involve the mucous membranes of the sinuses, eyes, middle ear, and pharynx. Symptoms include sneezing, nasal congestion, rhinorrhea, and itching. It may lead to fatigue, drowsiness, and malaise thus causing impairment of the quality of life.",
-                0.48632862582122033
-            ],
-            [
-                "EFO_0000676",
-                "psoriasis",
-                "A common genetically determined, chronic, inflammatory skin disease characterized by rounded erythematous, dry, scaling patches. The lesions have a predilection for nails, scalp, genitalia, extensor surfaces, and the lumbosacral region. Accelerated epidermopoiesis is considered to be the fundamental pathologic feature in psoriasis.",
-                0.4338730716075263
-            ]
-        ]
+        "expected_result": [["EFO_0000274",
+  "atopic eczema",
+  "A chronic inflammatory genetically determined disease of the skin marked by increased ability to form reagin (IgE), with increased susceptibility to allergic rhinitis and asthma, and hereditary disposition to a lowered threshold for pruritus. It is manifested by lichenification, excoriation, and crusting, mainly on the flexural surfaces of the elbow and knee. In infants it is known as infantile eczema.",
+  0.6629154844877749],
+ ["MONDO_0004979",
+  "asthma",
+  "A bronchial disease that is characterized by chronic inflammation and narrowing of the airways, which is caused by a combination of environmental and genetic factors resulting in recurring periods of wheezing (a whistling sound while breathing), chest tightness, shortness of breath, mucus production and coughing. The symptoms appear due to a variety of triggers such as allergens, irritants, respiratory infections, weather changes, exercise, stress, reflux disease, medications, foods and emotional anxiety.",
+  0.5436820890787305],
+ ["HP_0000964",
+  "Eczematoid dermatitis",
+  "Eczema is a form of dermatitis that is characterized by scaly, pruritic, erythematous lesions located on flexural surfaces.",
+  0.5116116699305998],
+ ["EFO_0005854",
+  "allergic rhinitis",
+  "Inflammation of the nasal mucous membranes caused by an IgE-mediated response to external allergens. The inflammation may also involve the mucous membranes of the sinuses, eyes, middle ear, and pharynx. Symptoms include sneezing, nasal congestion, rhinorrhea, and itching. It may lead to fatigue, drowsiness, and malaise thus causing impairment of the quality of life.",
+  0.48632865622602156],
+ ["EFO_0000676",
+  "psoriasis",
+  "A common genetically determined, chronic, inflammatory skin disease characterized by rounded erythematous, dry, scaling patches. The lesions have a predilection for nails, scalp, genitalia, extensor surfaces, and the lumbosacral region. Accelerated epidermopoiesis is considered to be the fundamental pathologic feature in psoriasis.",
+  0.4344810418179078]]
     },
-
-
     "test_opentargets_drugs": {
         "type": "assert_equal",
         "args": {
@@ -154,7 +128,7 @@
             "ensembl_id": "ENSG00000169194",
             "resource": "drugs"
         },
-        "expected_result": "dcdd8421204bb3a273c8ca0b2de8d088"
+        "expected_result": "3b6c00635b1067e22a338b888ef99201"
     },
     "test_opentargets_drugs_filter": {
         "type": "assert_equal",
@@ -249,53 +223,30 @@
         "args": {
             "ensembl_id": "ENSG00000169194",
             "resource": "pharmacogenetics",
-            "limit": 2
+            "limit": 1
         },
         "expected_result": [
             {
-                "direct_target": false,
+                "rs_id": "rs1295686",
+                "genotype_id": "5_132660151_T_C,C",
+                "genotype": "CC",
+                "variant_consequence_id": "SO:0001627",
+                "variant_consequence_label": "intron_variant",
                 "drugs": [
                     {
                         "id": null,
                         "name": "hepatitis vaccines"
                     }
                 ],
+                "phenotype": "decreased risk for non-immune response",
+                "genotype_annotation": "Patients with the CC genotype may be at decreased risk for non-immune response to the hepatitis B vaccine, as compared to patients with the TT genotype. Other genetic and clinical factors may also influence risk of non-immune response in patients receiving the hepatitis B vaccine.",
+                "response_category": "efficacy",
+                "direct_target": false,
                 "evidence_level": "3",
-                "genotype": "TT",
-                "genotype_annotation": "Patients with the TT genotype may be at increased risk for non-immune response to the hepatitis B vaccine, as compared to patients with the CC genotype. Other genetic and clinical factors may also influence risk of non-immune response in patients receiving the hepatitis B vaccine.",
-                "genotype_id": "5_132660151_T_T,T",
+                "source": "pharmgkb",
                 "literature": [
                     "21111021"
-                ],
-                "phenotype": "increased risk for non-immune response to the hepatitis B vaccine",
-                "response_category": "efficacy",
-                "rs_id": "rs1295686",
-                "source": "pharmgkb",
-                "variant_consequence_id": "SO:0002073",
-                "variant_consequence_label": "no_sequence_alteration"
-            },
-            {
-                "direct_target": false,
-                "drugs": [
-                    {
-                        "id": "CHEMBL535",
-                        "name": "sunitinib"
-                    }
-                ],
-                "evidence_level": "3",
-                "genotype": "TT",
-                "genotype_annotation": "Patients with renal cell carcinoma and the TT genotype may have a decreased severity of drug-induced toxicity when administered sunitinib as compared to patients with the CC or CT genotypes. Other clinical and genetic factors may also influence severity of drug-induced toxicity in patients with renal cell carcinoma who are administered sunitinib.",
-                "genotype_id": "5_132657117_C_T,T",
-                "literature": [
-                    "26387812",
-                    "26387812"
-                ],
-                "phenotype": "decreased severity of drug-induced toxicity",
-                "response_category": "toxicity",
-                "rs_id": "rs1800925",
-                "source": "pharmgkb",
-                "variant_consequence_id": "SO:0001631",
-                "variant_consequence_label": "upstream_gene_variant"
+                ]
             }
         ]
     },
@@ -304,56 +255,22 @@
         "args": {
             "ensembl_id": "ENSG00000169194",
             "resource": "pharmacogenetics",
-            "limit": 2,
+            "limit": 1,
             "json": true
         },
-        "expected_result": [
-            {
-                "direct_target": false,
-                "drugs": [
-                    {
-                        "id": null,
-                        "name": "hepatitis vaccines"
-                    }
-                ],
-                "evidence_level": "3",
-                "genotype": "TT",
-                "genotype_annotation": "Patients with the TT genotype may be at increased risk for non-immune response to the hepatitis B vaccine, as compared to patients with the CC genotype. Other genetic and clinical factors may also influence risk of non-immune response in patients receiving the hepatitis B vaccine.",
-                "genotype_id": "5_132660151_T_T,T",
-                "literature": [
-                    "21111021"
-                ],
-                "phenotype": "increased risk for non-immune response to the hepatitis B vaccine",
-                "response_category": "efficacy",
-                "rs_id": "rs1295686",
-                "source": "pharmgkb",
-                "variant_consequence_id": "SO:0002073",
-                "variant_consequence_label": "no_sequence_alteration"
-            },
-            {
-                "direct_target": false,
-                "drugs": [
-                    {
-                        "id": "CHEMBL535",
-                        "name": "sunitinib"
-                    }
-                ],
-                "evidence_level": "3",
-                "genotype": "TT",
-                "genotype_annotation": "Patients with renal cell carcinoma and the TT genotype may have a decreased severity of drug-induced toxicity when administered sunitinib as compared to patients with the CC or CT genotypes. Other clinical and genetic factors may also influence severity of drug-induced toxicity in patients with renal cell carcinoma who are administered sunitinib.",
-                "genotype_id": "5_132657117_C_T,T",
-                "literature": [
-                    "26387812",
-                    "26387812"
-                ],
-                "phenotype": "decreased severity of drug-induced toxicity",
-                "response_category": "toxicity",
-                "rs_id": "rs1800925",
-                "source": "pharmgkb",
-                "variant_consequence_id": "SO:0001631",
-                "variant_consequence_label": "upstream_gene_variant"
-            }
-        ],
+        "expected_result": [{"rs_id": "rs1295686",
+  "genotype_id": "5_132660151_T_C,C",
+  "genotype": "CC",
+  "variant_consequence_id": "SO:0001627",
+  "variant_consequence_label": "intron_variant",
+  "drugs": [{"id": null, "name": "hepatitis vaccines"}],
+  "phenotype": "decreased risk for non-immune response",
+  "genotype_annotation": "Patients with the CC genotype may be at decreased risk for non-immune response to the hepatitis B vaccine, as compared to patients with the TT genotype. Other genetic and clinical factors may also influence risk of non-immune response in patients receiving the hepatitis B vaccine.",
+  "response_category": "efficacy",
+  "direct_target": false,
+  "evidence_level": "3",
+  "source": "pharmgkb",
+  "literature": ["21111021"]}],
         "__comment": "Same result as test_opentargets_pharmacogenetics"
     },
     "test_opentargets_pharmacogenetics_no_limit": {
@@ -362,88 +279,7 @@
             "ensembl_id": "ENSG00000169194",
             "resource": "pharmacogenetics"
         },
-        "expected_result": "34e64088e72da5710cdacd522c5fbd67"
-    },
-    "test_opentargets_pharmacogenetics_filter": {
-        "type": "assert_equal_nested",
-        "args": {
-            "ensembl_id": "ENSG00000169194",
-            "resource": "pharmacogenetics",
-            "filters": {
-                "drug_id": "CHEMBL535"
-            }
-        },
-        "expected_result": [
-            {
-                "direct_target": false,
-                "drugs": [
-                    {
-                        "id": "CHEMBL535",
-                        "name": "sunitinib"
-                    }
-                ],
-                "evidence_level": "3",
-                "genotype": "TT",
-                "genotype_annotation": "Patients with renal cell carcinoma and the TT genotype may have a decreased severity of drug-induced toxicity when administered sunitinib as compared to patients with the CC or CT genotypes. Other clinical and genetic factors may also influence severity of drug-induced toxicity in patients with renal cell carcinoma who are administered sunitinib.",
-                "genotype_id": "5_132657117_C_T,T",
-                "literature": [
-                    "26387812",
-                    "26387812"
-                ],
-                "phenotype": "decreased severity of drug-induced toxicity",
-                "response_category": "toxicity",
-                "rs_id": "rs1800925",
-                "source": "pharmgkb",
-                "variant_consequence_id": "SO:0001631",
-                "variant_consequence_label": "upstream_gene_variant"
-            },
-            {
-                "direct_target": false,
-                "drugs": [
-                    {
-                        "id": "CHEMBL535",
-                        "name": "sunitinib"
-                    }
-                ],
-                "evidence_level": "3",
-                "genotype": "CC",
-                "genotype_annotation": "Patients with renal cell carcinoma and the CC genotype may have a decreased severity of drug-induced toxicity when administered sunitinib as compared to patients with the TT genotype. Other clinical and genetic factors may also influence severity of drug-induced toxicity in patients with renal cell carcinoma who are administered sunitinib.",
-                "genotype_id": "5_132657117_C_C,C",
-                "literature": [
-                    "26387812",
-                    "26387812"
-                ],
-                "phenotype": "decreased severity of drug-induced toxicity",
-                "response_category": "toxicity",
-                "rs_id": "rs1800925",
-                "source": "pharmgkb",
-                "variant_consequence_id": "SO:0002073",
-                "variant_consequence_label": "no_sequence_alteration"
-            },
-            {
-                "direct_target": false,
-                "drugs": [
-                    {
-                        "id": "CHEMBL535",
-                        "name": "sunitinib"
-                    }
-                ],
-                "evidence_level": "3",
-                "genotype": "CT",
-                "genotype_annotation": "Patients with renal cell carcinoma and the CT genotype may have a decreased severity of drug-induced toxicity when administered sunitinib as compared to patients with the TT genotype. Other clinical and genetic factors may also influence severity of drug-induced toxicity in patients with renal cell carcinoma who are administered sunitinib.",
-                "genotype_id": "5_132657117_C_C,T",
-                "literature": [
-                    "26387812",
-                    "26387812"
-                ],
-                "phenotype": "decreased severity of drug-induced toxicity",
-                "response_category": "toxicity",
-                "rs_id": "rs1800925",
-                "source": "pharmgkb",
-                "variant_consequence_id": "SO:0001631",
-                "variant_consequence_label": "upstream_gene_variant"
-            }
-        ]
+        "expected_result": "6e32f239a7ca97900610976442cb6e7f"
     },
     "test_opentargets_pharmacogenetics_filter_or": {
         "type": "assert_equal_json_hash_nested",
@@ -458,10 +294,8 @@
             },
             "filter_mode": "or"
         },
-        "expected_result": "870d20f5746e90144ff986e800767b87"
+        "expected_result": "780f0981694a0f263e8c6abd94582199"
     },
-
-
     "test_opentargets_expression": {
         "type": "assert_equal",
         "args": {
@@ -526,7 +360,7 @@
             "ensembl_id": "ENSG00000169194",
             "resource": "expression"
         },
-        "expected_result": "192b5fceebfbb1cc7386cf319c264688"
+        "expected_result": "84e1616ab946979a1f847dd06f6d2e1d"
     },
     "test_opentargets_expression_filter": {
         "type": "assert_equal",
@@ -606,38 +440,32 @@
             "resource": "interactions",
             "limit": 2
         },
-        "expected_result": [
-            [
-                0.999,
-                3,
-                "string",
-                "ENSP00000304915",
-                "ENSG00000169194",
-                "IL13",
-                "unspecified role",
-                9606,
-                "ENSP00000379111",
-                "ENSG00000077238",
-                "IL4R",
-                "unspecified role",
-                9606
-            ],
-            [
-                0.999,
-                3,
-                "string",
-                "ENSP00000304915",
-                "ENSG00000169194",
-                "IL13",
-                "unspecified role",
-                9606,
-                "ENSP00000360730",
-                "ENSG00000131724",
-                "IL13RA1",
-                "unspecified role",
-                9606
-            ]
-        ]
+        "expected_result": [[0.999,
+  3,
+  "string",
+  "ENSP00000304915",
+  "ENSG00000169194",
+  "IL13",
+  "unspecified role",
+  9606,
+  "ENSP00000361004",
+  "ENSG00000123496",
+  "IL13RA2",
+  "unspecified role",
+  9606],
+ [0.999,
+  3,
+  "string",
+  "ENSP00000304915",
+  "ENSG00000169194",
+  "IL13",
+  "unspecified role",
+  9606,
+  "ENSP00000379111",
+  "ENSG00000077238",
+  "IL4R",
+  "unspecified role",
+  9606]]
     },
     "test_opentargets_interactions_no_limit": {
         "type": "assert_equal_json_hash",
@@ -645,7 +473,7 @@
             "ensembl_id": "ENSG00000169194",
             "resource": "interactions"
         },
-        "expected_result": "483362ee0e9454f16cde738a6dc4887c"
+        "expected_result": "04d9c233c90e024331b1c1357b945330"
     },
     "test_opentargets_interactions_simple_filter": {
         "type": "assert_equal",
@@ -657,36 +485,42 @@
                 "gene_b_id": "ENSG00000077238"
             }
         },
-        "expected_result": [
-            [
-                3,
-                "reactome",
-                "P35225",
-                "ENSG00000169194",
-                "IL13",
-                "unspecified role",
-                9606,
-                "P24394",
-                "ENSG00000077238",
-                "IL4R",
-                "unspecified role",
-                9606
-            ],
-            [
-                2,
-                "signor",
-                "P35225",
-                "ENSG00000169194",
-                "IL13",
-                "regulator",
-                9606,
-                "P24394",
-                "ENSG00000077238",
-                "IL4R",
-                "regulator target",
-                9606
-            ]
-        ]
+        "expected_result": [[1,
+  "intact",
+  "P35225",
+  "ENSG00000169194",
+  "IL13",
+  "unspecified role",
+  9606,
+  "P24394",
+  "ENSG00000077238",
+  "IL4R",
+  "unspecified role",
+  9606],
+ [2,
+  "signor",
+  "P35225",
+  "ENSG00000169194",
+  "IL13",
+  "regulator",
+  9606,
+  "P24394",
+  "ENSG00000077238",
+  "IL4R",
+  "regulator target",
+  9606],
+ [3,
+  "reactome",
+  "P35225",
+  "ENSG00000169194",
+  "IL13",
+  "unspecified role",
+  9606,
+  "P24394",
+  "ENSG00000077238",
+  "IL4R",
+  "unspecified role",
+  9606]]
     },
     "test_opentargets_interactions_complex_filter": {
         "type": "assert_equal",
@@ -703,85 +537,72 @@
             "filter_mode": "or",
             "limit": 5
         },
-        "expected_result": [
-            [
-                0.999,
-                3,
-                "string",
-                "ENSP00000304915",
-                "ENSG00000169194",
-                "IL13",
-                "unspecified role",
-                9606,
-                "ENSP00000379111",
-                "ENSG00000077238",
-                "IL4R",
-                "unspecified role",
-                9606
-            ],
-            [
-                0.961,
-                2,
-                "string",
-                "ENSP00000304915",
-                "ENSG00000169194",
-                "IL13",
-                "unspecified role",
-                9606,
-                "ENSP00000229135",
-                "ENSG00000111537",
-                "IFNG",
-                "unspecified role",
-                9606
-            ],
-            [
-                0.8,
-                9,
-                "intact",
-                "P35225",
-                "ENSG00000169194",
-                "IL13",
-                "unspecified role",
-                9606,
-                "Q14627",
-                "ENSG00000123496",
-                "IL13RA2",
-                "unspecified role",
-                9606
-            ],
-            [
-                0.74,
-                6,
-                "intact",
-                "P35225",
-                "ENSG00000169194",
-                "IL13",
-                "unspecified role",
-                9606,
-                "P78552",
-                "ENSG00000131724",
-                "IL13RA1",
-                "unspecified role",
-                9606
-            ],
-            [
-                0.4,
-                1,
-                "intact",
-                "P35225",
-                "ENSG00000169194",
-                "IL13",
-                "unspecified role",
-                9606,
-                "Q86XT9",
-                "ENSG00000149932",
-                "TMEM219",
-                "stimulator",
-                9606
-            ]
-        ]
+        "expected_result": [[0.999,
+  3,
+  "string",
+  "ENSP00000304915",
+  "ENSG00000169194",
+  "IL13",
+  "unspecified role",
+  9606,
+  "ENSP00000379111",
+  "ENSG00000077238",
+  "IL4R",
+  "unspecified role",
+  9606],
+ [0.961,
+  2,
+  "string",
+  "ENSP00000304915",
+  "ENSG00000169194",
+  "IL13",
+  "unspecified role",
+  9606,
+  "ENSP00000229135",
+  "ENSG00000111537",
+  "IFNG",
+  "unspecified role",
+  9606],
+ [0.8,
+  7,
+  "intact",
+  "P35225",
+  "ENSG00000169194",
+  "IL13",
+  "unspecified role",
+  9606,
+  "P78552",
+  "ENSG00000131724",
+  "IL13RA1",
+  "unspecified role",
+  9606],
+ [0.8,
+  9,
+  "intact",
+  "P35225",
+  "ENSG00000169194",
+  "IL13",
+  "unspecified role",
+  9606,
+  "Q14627",
+  "ENSG00000123496",
+  "IL13RA2",
+  "unspecified role",
+  9606],
+ [0.4,
+  1,
+  "intact",
+  "P35225",
+  "ENSG00000169194",
+  "IL13",
+  "unspecified role",
+  9606,
+  "Q86XT9",
+  "ENSG00000149932",
+  "TMEM219",
+  "stimulator",
+  9606]]
     },
-
 
     "test_error_opentargets_bad_resource": {
         "type": "error",
