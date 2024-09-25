@@ -9,13 +9,13 @@ logger = set_up_logger()
 
 def opentargets(
     ensembl_id,
-    resource = "diseases",
-    limit = None,
-    verbose = True,
-    wrap_text = False,
-    filters = None,
-    filter_mode = "and",
-    json = False
+    resource="diseases",
+    limit=None,
+    verbose=True,
+    wrap_text=False,
+    filters=None,
+    filter_mode="and",
+    json=False,
 ):
     """
     Query OpenTargets for data associated with a given Ensembl gene ID.
@@ -60,7 +60,14 @@ def opentargets(
     if filters is not None:
         filters = {k: v if isinstance(v, list) else [v] for k, v in filters.items()}
 
-    df: pd.DataFrame = _RESOURCES[resource](ensembl_id, limit=limit, verbose=verbose, wrap_text=wrap_text, filters=filters, filter_mode=filter_mode, )
+    df: pd.DataFrame = _RESOURCES[resource](
+        ensembl_id,
+        limit=limit,
+        verbose=verbose,
+        wrap_text=wrap_text,
+        filters=filters,
+        filter_mode=filter_mode,
+    )
 
     if json:
         return json_.loads(df.to_json(orient="records", force_ascii=False))
@@ -207,12 +214,12 @@ def _make_query_fun(
     df_schema,
     wrap_columns,
     limit_func,
-    is_rows_based_query = True,
-    sorter = None,
-    sort_reverse = False,
-    filter_ = lambda x: True,
-    converter = lambda x: None,
-    user_filter = None,
+    is_rows_based_query=True,
+    sorter=None,
+    sort_reverse=False,
+    filter_=lambda x: True,
+    converter=lambda x: None,
+    user_filter=None,
 ):
     """
     Make a query function for OpenTargets API.
@@ -243,11 +250,11 @@ def _make_query_fun(
 
     def fun(
         ensembl_id,
-        limit = None,
-        verbose = True,
-        wrap_text = False,
-        filters = None,
-        filter_mode = "and",
+        limit=None,
+        verbose=True,
+        wrap_text=False,
+        filters=None,
+        filter_mode="and",
     ):
         if limit_key is None:
             query_string = """
@@ -364,7 +371,7 @@ def _make_query_fun(
         rows = [row for row in rows if filter_(row)]
         converter(rows)
 
-        if actual_limit is not None: # just in case the converter changed the length
+        if actual_limit is not None:  # just in case the converter changed the length
             rows = rows[:actual_limit]
 
         df = json_list_to_df(

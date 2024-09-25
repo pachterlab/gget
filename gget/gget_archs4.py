@@ -4,6 +4,7 @@ import json as json_package
 import io
 
 from .utils import set_up_logger
+
 logger = set_up_logger()
 
 # Custom functions

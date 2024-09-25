@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+
 # from typing import Callable, Any, Optional, Union
 import pandas as pd
 import sys
@@ -70,9 +71,7 @@ def _assert_equal(name, td, func):
     return assert_equal
 
 
-def _assert_equal_na(
-    name, td, func
-):
+def _assert_equal_na(name, td, func):
     def assert_equal_na(self: unittest.TestCase):
         test = name
         expected_result = td[test]["expected_result"]
@@ -102,8 +101,7 @@ def _assert_none(name, td, func):
     return assert_none
 
 
-def _assert_equal_json_hash(
-    name, td, func):
+def _assert_equal_json_hash(name, td, func):
     def assert_equal_json_hash(self: unittest.TestCase):
         test = name
         expected_result = td[test]["expected_result"]
@@ -120,9 +118,7 @@ def _assert_equal_json_hash(
     return assert_equal_json_hash
 
 
-def _assert_equal_nested(
-    name, td, func
-):
+def _assert_equal_nested(name, td, func):
     def assert_equal_nested(self: unittest.TestCase):
         test = name
         expected_result = td[test]["expected_result"]
@@ -138,8 +134,7 @@ def _assert_equal_nested(
     return assert_equal_nested
 
 
-def _assert_equal_json_hash_nested(
-    name, td, func):
+def _assert_equal_json_hash_nested(name, td, func):
     def assert_equal_json_hash_nested(self: unittest.TestCase):
         test = name
         expected_result = td[test]["expected_result"]
@@ -205,8 +200,8 @@ _TYPES = {
 def from_json(
     test_dict,
     func,
-    custom_types = None,
-    pre_test = None,
+    custom_types=None,
+    pre_test=None,
 ):
     """
     Create a metaclass that will generate test methods from a (json-loaded) dictionary.

@@ -8,7 +8,7 @@ from .utils import set_up_logger, json_list_to_df
 logger = set_up_logger()
 
 
-def _bgee_species(gene_id: str, verbose = True):
+def _bgee_species(gene_id: str, verbose=True):
     """
     Get species ID from Bgee
     :param gene_id: Ensembl gene ID
@@ -43,8 +43,7 @@ def _bgee_species(gene_id: str, verbose = True):
     return species
 
 
-def _bgee_orthologs(
-    gene_id, json = False, verbose = True):
+def _bgee_orthologs(gene_id, json=False, verbose=True):
     """
     Get orthologs for a gene from Bgee
 
@@ -101,8 +100,7 @@ def _bgee_orthologs(
         return df
 
 
-def _bgee_expression(
-    gene_id, json = False, verbose = True):
+def _bgee_expression(gene_id, json=False, verbose=True):
     """
     Get expression data from Bgee
 
@@ -164,8 +162,8 @@ def _bgee_expression(
 def bgee(
     gene_id,
     type,
-    json = False,
-    verbose = True,
+    json=False,
+    verbose=True,
 ):
     """
     Get orthologs/expression data for a gene from Bgee (https://www.bgee.org/).

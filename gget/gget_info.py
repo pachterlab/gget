@@ -5,7 +5,14 @@ import requests
 from bs4 import BeautifulSoup
 
 # Custom functions
-from .utils import rest_query, get_uniprot_info, wrap_cols_func, get_pdb_ids, set_up_logger, post_query
+from .utils import (
+    rest_query,
+    get_uniprot_info,
+    wrap_cols_func,
+    get_pdb_ids,
+    set_up_logger,
+    post_query,
+)
 
 logger = set_up_logger()
 
@@ -121,7 +128,11 @@ def info(
             df_temp["ensembl_id"] = str(df_temp["id"])
 
     # second pass for ids that were not found in the initial query
-    ens_ids_clean_tmp = [ensembl_ID for ensembl_ID in ens_ids_clean if ensembl_ID not in results_dict.keys()]
+    ens_ids_clean_tmp = [
+        ensembl_ID
+        for ensembl_ID in ens_ids_clean
+        if ensembl_ID not in results_dict.keys()
+    ]
 
     if len(ens_ids_clean_tmp) > 0:
         # print(f"Second pass for ids: {ens_ids_clean_tmp}")
@@ -133,7 +144,9 @@ def info(
         for ensembl_ID, df_temp in results_dict_new.items():
             try:
                 # Add Ensembl ID with latest version number to df_temp
-                df_temp["ensembl_id"] = str(df_temp["id"]) + "." + str(df_temp["version"])
+                df_temp["ensembl_id"] = (
+                    str(df_temp["id"]) + "." + str(df_temp["version"])
+                )
             except KeyError:
                 # Just add Ensembl ID if no version found
                 df_temp["ensembl_id"] = str(df_temp["id"])
@@ -151,7 +164,9 @@ def info(
                 )
 
     # rewrite results to be in the input order
-    results_dict = {ensembl_ID: results_dict[ensembl_ID] for ensembl_ID in ens_ids_clean_2}
+    results_dict = {
+        ensembl_ID: results_dict[ensembl_ID] for ensembl_ID in ens_ids_clean_2
+    }
 
     master_dict.update(results_dict)
 

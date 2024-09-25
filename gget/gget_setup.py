@@ -8,6 +8,7 @@ import uuid
 from platform import python_version
 
 from .utils import set_up_logger
+
 logger = set_up_logger()
 
 from .compile import PACKAGE_PATH
@@ -15,7 +16,7 @@ from .constants import (
     ELM_INSTANCES_FASTA_DOWNLOAD,
     ELM_CLASSES_TSV_DOWNLOAD,
     ELM_INSTANCES_TSV_DOWNLOAD,
-    ELM_INTDOMAINS_TSV_DOWNLOAD
+    ELM_INTDOMAINS_TSV_DOWNLOAD,
 )
 
 ## Variables for elm module
@@ -134,7 +135,9 @@ def setup(module, verbose=True, out=None):
             elm_instances_fasta = os.path.join(elm_files_out, "elm_instances.fasta")
             elm_classes_tsv = os.path.join(elm_files_out, "elms_classes.tsv")
             elm_instances_tsv = os.path.join(elm_files_out, "elm_instances.tsv")
-            elm_intdomains_tsv = os.path.join(elm_files_out, "elm_interaction_domains.tsv")
+            elm_intdomains_tsv = os.path.join(
+                elm_files_out, "elm_interaction_domains.tsv"
+            )
 
             # Create folder for ELM files (if it does not exist)
             if not os.path.exists(elm_files_out):
@@ -158,7 +161,7 @@ def setup(module, verbose=True, out=None):
                 &&  curl -o {elm_instances_tsv} \"{ELM_INSTANCES_TSV_DOWNLOAD}\" \
                 &&  curl -o {elm_intdomains_tsv} \"{ELM_INTDOMAINS_TSV_DOWNLOAD}\"
                 """
-        
+
         else:
             command = f"""
                 curl -o '{elm_instances_fasta}' {ELM_INSTANCES_FASTA_DOWNLOAD} \

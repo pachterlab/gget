@@ -9,6 +9,7 @@ import uuid
 # Custom functions
 from .compile import compile_muscle, MUSCLE_PATH, PACKAGE_PATH
 from .utils import aa_colors, n_colors, create_tmp_fasta, set_up_logger
+
 logger = set_up_logger()
 
 # Path to precompiled muscle binary
@@ -50,7 +51,7 @@ def muscle(fasta, super5=False, out=None, verbose=True):
         fasta_path = create_tmp_fasta(fasta)
         abs_fasta_path = os.path.abspath(fasta_path)
         fasta_provided = False
-        
+
     # Get absolute path to output .afa file
     if out is None:
         # Create temporary .afa file
@@ -82,7 +83,9 @@ def muscle(fasta, super5=False, out=None, verbose=True):
         # Assign read, write, and execute permission to muscle binary
         with subprocess.Popen(
             # The double-quotation marks allow white spaces in muscle_path
-            f"chmod 755 '{muscle_path}'", shell=True, stderr=subprocess.PIPE 
+            f"chmod 755 '{muscle_path}'",
+            shell=True,
+            stderr=subprocess.PIPE,
         ) as process_1:
             stderr_1 = process_1.stderr.read().decode("utf-8")
             # Log the standard error if it is not empty
@@ -102,9 +105,13 @@ def muscle(fasta, super5=False, out=None, verbose=True):
     else:
         if super5:
             # The double-quotation marks allow white spaces in the path, but this does not work for Windows
-            command = f"'{muscle_path}' -super5 '{abs_fasta_path}' -output '{abs_out_path}'"
+            command = (
+                f"'{muscle_path}' -super5 '{abs_fasta_path}' -output '{abs_out_path}'"
+            )
         else:
-            command = f"'{muscle_path}' -align '{abs_fasta_path}' -output '{abs_out_path}'"
+            command = (
+                f"'{muscle_path}' -align '{abs_fasta_path}' -output '{abs_out_path}'"
+            )
 
     # Record MUSCLE align start
     start_time = time.time()

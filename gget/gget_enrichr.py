@@ -64,19 +64,19 @@ def clean_genes_list(genes_list):
 def enrichr(
     genes,
     database,
-    species = "human",
-    background_list = None,
-    background = False,
-    ensembl = False,
-    ensembl_bkg = False,
-    plot = False,
-    figsize = (10, 10),
-    ax = None,
-    kegg_out = None,
-    kegg_rank = 1,
-    json = False,
-    save = False,
-    verbose = True,
+    species="human",
+    background_list=None,
+    background=False,
+    ensembl=False,
+    ensembl_bkg=False,
+    plot=False,
+    figsize=(10, 10),
+    ax=None,
+    kegg_out=None,
+    kegg_rank=1,
+    json=False,
+    save=False,
+    verbose=True,
 ):
     """
     Perform an enrichment analysis on a list of genes using Enrichr (https://maayanlab.cloud/Enrichr/).
@@ -399,7 +399,7 @@ def enrichr(
         df = pd.DataFrame(enrichr_results[database], columns=columns)
 
     except KeyError:
-        if species=="human":
+        if species == "human":
             logger.error(
                 f"""
                 Database {database} not found. Go to https://maayanlab.cloud/{species_enrichr}/#libraries 

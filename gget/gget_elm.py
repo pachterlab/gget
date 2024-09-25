@@ -5,6 +5,7 @@ import json as json_package
 import re
 
 from .utils import get_uniprot_seqs, tsv_to_df, set_up_logger
+
 logger = set_up_logger()
 
 from .constants import UNIPROT_REST_API

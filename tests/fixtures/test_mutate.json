@@ -192,8 +192,18 @@
     "test_list_of_mutations": {
         "type": "assert_mutate",
         "args": {
-            "sequences": ["<long_sequence>", "<long_sequence>", "<long_sequence>", "<long_sequence>"],
-            "mutations": ["c.35G>A", "c.65G>A", "c.35del", "c.4_5insT"]
+            "sequences": [
+                "<long_sequence>",
+                "<long_sequence>",
+                "<long_sequence>",
+                "<long_sequence>"
+            ],
+            "mutations": [
+                "c.35G>A",
+                "c.65G>A",
+                "c.35del",
+                "c.4_5insT"
+            ]
         },
         "expected_result": "",
         "global_variables": {}

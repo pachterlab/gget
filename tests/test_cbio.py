@@ -12,11 +12,9 @@ with open("./tests/fixtures/test_cbio.json") as json_file:
     cb_dict = json.load(json_file)
 
 
-# def _sorted_search(args):
-#     return sorted(cbio_search(args))
-
-
-class TestCbioSearch(unittest.TestCase, metaclass=from_json(cb_search_dict, cbio_search)):
+class TestCbioSearch(
+    unittest.TestCase, metaclass=from_json(cb_search_dict, cbio_search)
+):
     pass  # all tests are loaded from json
 
 
@@ -25,7 +23,9 @@ def _cbio_download(name: str, td, func):
         test = name
         expected_result = td[test]["expected_result"]
 
-        if not isinstance(expected_result, dict) and not isinstance(expected_result, bool):
+        if not isinstance(expected_result, dict) and not isinstance(
+            expected_result, bool
+        ):
             raise ValueError("Expected result must be a dictionary or a boolean")
 
         result = do_call(func, td[test]["args"])
@@ -37,11 +37,21 @@ def _cbio_download(name: str, td, func):
                 with open(file_name, "rb") as f:
                     file_content = f.read()
                     file_hash = hashlib.md5(file_content).hexdigest()
-                    self.assertEqual(file_hash, expected_hash, f"File {file_name} does not match expected hash")
+                    self.assertEqual(
+                        file_hash,
+                        expected_hash,
+                        f"File {file_name} does not match expected hash",
+                    )
         else:
             self.assertFalse(result)
+
     return cbio_download
 
 
-class TestCbio(unittest.TestCase, metaclass=from_json(cb_dict, download_cbioportal_data, {"cbio_download": _cbio_download})):
+class TestCbio(
+    unittest.TestCase,
+    metaclass=from_json(
+        cb_dict, download_cbioportal_data, {"cbio_download": _cbio_download}
+    ),
+):
     pass  # all tests are loaded from json

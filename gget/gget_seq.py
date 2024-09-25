@@ -96,7 +96,7 @@ def seq(
 
             # noinspection PyTypeChecker
             results_list = post_query(server, endpoint, query)
-            results_dict = {v['query']: v for v in results_list if v is not None}
+            results_dict = {v["query"]: v for v in results_list if v is not None}
 
             for ensembl_ID, df_temp in results_dict.items():
                 # Delete superfluous entries
@@ -131,7 +131,9 @@ def seq(
                 results_dict = {ensembl_ID: {}}
 
                 # Get ID type (gene, transcript, ...) using gget info
-                info_df = info(ensembl_ID, verbose=False, pdb=False, ncbi=False, uniprot=False)
+                info_df = info(
+                    ensembl_ID, verbose=False, pdb=False, ncbi=False, uniprot=False
+                )
 
                 # Check if Ensembl ID was found
                 if isinstance(info_df, type(None)):
@@ -234,7 +236,9 @@ def seq(
 
             for ensembl_ID in ens_ids_clean:
                 # Get ID type (gene, transcript, ...) using gget info
-                info_df = info(ensembl_ID, verbose=False, pdb=False, ncbi=False, uniprot=False)
+                info_df = info(
+                    ensembl_ID, verbose=False, pdb=False, ncbi=False, uniprot=False
+                )
 
                 # Check that Ensembl ID was found
                 if isinstance(info_df, type(None)):
@@ -299,7 +303,9 @@ def seq(
 
             for ensembl_ID in ens_ids_clean:
                 # Get ID type (gene, transcript, ...) using gget info
-                info_df = info(ensembl_ID, verbose=False, pdb=False, ncbi=False, uniprot=False)
+                info_df = info(
+                    ensembl_ID, verbose=False, pdb=False, ncbi=False, uniprot=False
+                )
 
                 # Check that Ensembl ID was found
                 if isinstance(info_df, type(None)):

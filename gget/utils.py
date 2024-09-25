@@ -662,7 +662,9 @@ def post_query(server, endpoint, query):
     :return: server output
     """
 
-    r = requests.post(server + endpoint, json=query, headers={"Content-Type": "application/json"})
+    r = requests.post(
+        server + endpoint, json=query, headers={"Content-Type": "application/json"}
+    )
 
     if not r.ok:
         raise RuntimeError(
@@ -1032,9 +1034,7 @@ def remove_temp_files(files_to_delete):
             os.remove(file)
 
 
-def json_list_to_df(
-    json_list, columns
-) -> pd.DataFrame:
+def json_list_to_df(json_list, columns) -> pd.DataFrame:
     """
     Convert list of JSON objects to data frame.
 

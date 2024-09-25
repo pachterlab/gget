@@ -5434,8 +5434,6 @@
             ]
         ]
     },
-
-
     "test_enrichr_fly": {
         "type": "assert_equal",
         "args": {
@@ -5791,8 +5789,6 @@
             ]
         ]
     },
-
-
     "test_enrichr_bad_species": {
         "type": "error",
         "args": {
@@ -5850,13 +5846,13 @@
             ],
             "database": "KEGG_2019",
             "species": "fly",
-            "background_list": ["banana"]
+            "background_list": [
+                "banana"
+            ]
         },
         "expected_result": "ValueError",
         "expected_msg": "Background genes are only supported for species 'human' and 'mouse', not for species 'fly'. Please do not provide a value for 'background_list'."
     },
-
-
     "test_enrichr_bad_gene": {
         "type": "code_defined",
         "args": {

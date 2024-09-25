@@ -58,10 +58,12 @@ class CustomHelpFormatter(argparse.RawTextHelpFormatter):
             help_str += " (default: %(default)s)"
         return help_str
 
+
 def convert_to_list(*args):
     args_list = list(args)
     return args_list
-                
+
+
 def int_or_str(value):
     try:
         return int(value)

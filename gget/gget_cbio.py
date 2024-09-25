@@ -20,12 +20,13 @@ logger = set_up_logger()
 
 
 if not hasattr(pd.DataFrame, "map"):
-    logger.info("Old pandas version detected. Patching DataFrame.map to DataFrame.applymap")
+    logger.info(
+        "Old pandas version detected. Patching DataFrame.map to DataFrame.applymap"
+    )
     pd.DataFrame.map = pd.DataFrame.applymap
 
 
-def _ints_between(
-    start, end, max_count, min_count, verbose = False):
+def _ints_between(start, end, max_count, min_count, verbose=False):
     """
     Generate a list of integers between start and end (inclusive) with a maximum count of max_count and a minimum count min_count.
     The list is guaranteed to contain start and end, and the spacing between the numbers will be as even as possible.
@@ -84,8 +85,7 @@ def _describe_bytes(size):
     return f"{size:.2f} {unit}"
 
 
-def _download_file_from_git_lfs(
-    target_path: str, oid: str, size: int, verbose = False):
+def _download_file_from_git_lfs(target_path: str, oid: str, size: int, verbose=False):
     """
     Download a single object from Git LFS.
 
@@ -107,10 +107,14 @@ def _download_file_from_git_lfs(
 
         curl_command = [
             "curl",
-            "-X", "POST",
-            "-H", "Accept: application/vnd.git-lfs+json",
-            "-H", "Content-Type: application/json",
-            "-d", lfs_metadata_json,
+            "-X",
+            "POST",
+            "-H",
+            "Accept: application/vnd.git-lfs+json",
+            "-H",
+            "Content-Type: application/json",
+            "-d",
+            lfs_metadata_json,
             github_url,
         ]
 
@@ -139,7 +143,7 @@ def _download_file_from_git_lfs(
 
 
 class _LFSDownloadPlan:
-    def __init__(self, verbose = False):
+    def __init__(self, verbose=False):
         self.objects = []
         """(target_path, (oid, size))"""
 
@@ -168,9 +172,9 @@ class _LFSDownloadPlan:
 
 def download_cbioportal_data(
     study_ids,
-    verbose = False,
-    out_dir = None,
-    confirm_download = False,
+    verbose=False,
+    out_dir=None,
+    confirm_download=False,
 ) -> bool:
     """
     Download data from cBioPortal studies.
@@ -356,7 +360,7 @@ def cbio_search(key_words):
     return sorted(matching_study_ids)
 
 
-def _get_ensembl_gene_id(transcript_id: str, verbose = False):
+def _get_ensembl_gene_id(transcript_id: str, verbose=False):
     try:
         url = f"https://rest.ensembl.org/lookup/id/{transcript_id}?expand=1"
         response = requests.get(url, headers={"Content-Type": "application/json"})
@@ -379,14 +383,22 @@ def _get_ensembl_gene_id_bulk(transcript_ids):
 
     try:
         url = f"https://rest.ensembl.org/lookup/id/"
-        response = requests.post(url, json={"ids": transcript_ids}, headers={"Content-Type": "application/json"})
+        response = requests.post(
+            url,
+            json={"ids": transcript_ids},
+            headers={"Content-Type": "application/json"},
+        )
 
         if not response.ok:
             response.raise_for_status()
 
         data = response.json()
 
-        return {transcript_id: data[transcript_id].get("Parent") for transcript_id in transcript_ids if data[transcript_id]}
+        return {
+            transcript_id: data[transcript_id].get("Parent")
+            for transcript_id in transcript_ids
+            if data[transcript_id]
+        }
     except Exception as e:
         logger.error(f"Failed to fetch gene IDs from Ensembl: {e}")
         raise e
@@ -398,14 +410,20 @@ def _get_ensembl_gene_name_bulk(gene_ids):
 
     try:
         url = f"https://rest.ensembl.org/lookup/id/"
-        response = requests.post(url, json={"ids": gene_ids}, headers={"Content-Type": "application/json"})
+        response = requests.post(
+            url, json={"ids": gene_ids}, headers={"Content-Type": "application/json"}
+        )
 
         if not response.ok:
             response.raise_for_status()
 
         data = response.json()
 
-        return {gene_id: data[gene_id].get("display_name") for gene_id in gene_ids if data[gene_id]}
+        return {
+            gene_id: data[gene_id].get("display_name")
+            for gene_id in gene_ids
+            if data[gene_id]
+        }
     except Exception as e:
         logger.error(f"Failed to fetch gene names from Ensembl: {e}")
         raise e
@@ -423,7 +441,11 @@ def _get_valid_ensembl_gene_id(
 def _get_valid_ensembl_gene_id_bulk(df: pd.DataFrame):
     map_: Optional[dict[str, str]] = None
 
-    def f(row: pd.Series, transcript_column: str = "seq_ID", gene_column: str = "gene_name"):
+    def f(
+        row: pd.Series,
+        transcript_column: str = "seq_ID",
+        gene_column: str = "gene_name",
+    ):
         # logger.info(f"Row: {row}")
         nonlocal map_
         if map_ is None:
@@ -452,19 +474,27 @@ class _GeneAnalysis:
         self,
         study_ids,
         genes,
-        merge_type = "Symbol",
-        remove_non_ensembl_genes = False,
-        data_dir = "gget_cbio_cache",
-        figure_output_dir = "gget_cbio_figures",
+        merge_type="Symbol",
+        remove_non_ensembl_genes=False,
+        data_dir="gget_cbio_cache",
+        figure_output_dir="gget_cbio_figures",
     ):
         self.study_ids = study_ids
 
         ensembl_transcripts = [gene for gene in genes if gene.startswith("ENST")]
-        map_ = {k: v for k, v in _get_ensembl_gene_id_bulk(ensembl_transcripts).items() if v != "Unknown" and v is not None}
+        map_ = {
+            k: v
+            for k, v in _get_ensembl_gene_id_bulk(ensembl_transcripts).items()
+            if v != "Unknown" and v is not None
+        }
         genes = [map_.get(gene, gene) for gene in genes]
 
         ensembl_gene_ids = [gene for gene in genes if gene.startswith("ENSG")]
-        map_ = {k: v for k, v in _get_ensembl_gene_name_bulk(ensembl_gene_ids).items() if v != "Unknown" and v is not None}
+        map_ = {
+            k: v
+            for k, v in _get_ensembl_gene_name_bulk(ensembl_gene_ids).items()
+            if v != "Unknown" and v is not None
+        }
         self.genes = [map_.get(gene, gene) for gene in genes]
 
         self.merge_type = merge_type
@@ -542,7 +572,7 @@ class _GeneAnalysis:
             if series.isnull().all():
                 return np.nan
             else:
-                return ','.join(series.dropna().unique())
+                return ",".join(series.dropna().unique())
 
         if self.merge_type == _ENSEMBL:
             self.column_for_merging = "Ensembl_Gene_ID"
@@ -740,14 +770,14 @@ class _GeneAnalysis:
 
     def plot_heatmap(
         self,
-        stratification = "tissue",
-        filter_category = None,
-        filter_value = None,
-        variation_type = "mutation_occurrences",
-        dpi = 100,
-        show = False,
-        figure_filename = None,
-        figure_title = None
+        stratification="tissue",
+        filter_category=None,
+        filter_value=None,
+        variation_type="mutation_occurrences",
+        dpi=100,
+        show=False,
+        figure_filename=None,
+        figure_title=None,
     ):
         if variation_type == "cna_nonbinary" or variation_type == "Consequence":
             assert (
@@ -850,9 +880,7 @@ class _GeneAnalysis:
                     suffixes=("_sample", "_gene"),
                 )
 
-                if (
-                    stratification != "sample"
-                ):  # no filtering
+                if stratification != "sample":  # no filtering
                     df_for_heatmap_very_final: pd.DataFrame = (
                         merged_df.groupby([self.column_for_merging, stratification])[
                             variation_type
@@ -982,9 +1010,7 @@ class _GeneAnalysis:
             norm = TwoSlopeNorm(vmin=min_value, vcenter=0, vmax=max_value)
 
         elif variation_type == "Consequence":
-            consequences = list(
-                self.big_combined_df["Consequence"].unique()
-            )
+            consequences = list(self.big_combined_df["Consequence"].unique())
 
             colors_list = plt.get_cmap("tab20", len(consequences))(
                 range(len(consequences))
@@ -1125,19 +1151,19 @@ class _GeneAnalysis:
 def cbio_plot(
     study_ids,
     genes,
-    stratification = "tissue",
-    variation_type = "mutation_occurrences",
-    filter = None,
-    merge_type = "Symbol",
-    remove_non_ensembl_genes = False,
-    data_dir = "gget_cbio_cache",
-    figure_dir = "gget_cbio_figures",
-    figure_filename = None,
-    verbose = True,
-    confirm_download = False,
-    dpi = 100,
-    show = False,
-    figure_title = None,
+    stratification="tissue",
+    variation_type="mutation_occurrences",
+    filter=None,
+    merge_type="Symbol",
+    remove_non_ensembl_genes=False,
+    data_dir="gget_cbio_cache",
+    figure_dir="gget_cbio_figures",
+    figure_filename=None,
+    verbose=True,
+    confirm_download=False,
+    dpi=100,
+    show=False,
+    figure_title=None,
 ):
     """
     Plot a heatmap of given genes in the given studies.
@@ -1196,7 +1222,7 @@ def cbio_plot(
         dpi=dpi,
         show=show,
         figure_filename=figure_filename,
-        figure_title=figure_title
+        figure_title=figure_title,
     )
 
     del gene_analyzer

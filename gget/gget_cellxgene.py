@@ -1,5 +1,7 @@
 from .utils import set_up_logger
+
 logger = set_up_logger()
+
 
 def convert_to_list(lst):
     """
@@ -177,7 +179,9 @@ def cellxgene(
             )
 
         if gene:
-            var_value_filter = f"{'feature_id' if ensembl else 'feature_name'} in {gene}"
+            var_value_filter = (
+                f"{'feature_id' if ensembl else 'feature_name'} in {gene}"
+            )
         else:
             var_value_filter = None
 

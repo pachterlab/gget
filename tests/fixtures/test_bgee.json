@@ -190,8 +190,6 @@
             ]
         ]
     },
-
-
     "test_bgee_orthologs": {
         "type": "assert_equal",
         "args": {
@@ -677,8 +675,6 @@
             ]
         ]
     },
-
-
     "test_error_bgee_expression_no_exist": {
         "type": "error",
         "args": {
@@ -687,8 +683,6 @@
         },
         "expected_result": "RuntimeError"
     },
-
-
     "test_error_bgee_orthologs_no_exist": {
         "type": "error",
         "args": {
@@ -697,8 +691,6 @@
         },
         "expected_result": "RuntimeError"
     },
-
-
     "test_error_bgee_unknown_type": {
         "type": "error",
         "args": {
