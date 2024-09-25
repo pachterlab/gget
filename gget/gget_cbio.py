@@ -289,13 +289,12 @@ def _extract_study_name(name: str) -> str:
     return name
 
 
-def cbio_search(*key_words: str):
+def cbio_search(key_words):
     """
     Find cBioPortal study IDs by keyword.
 
     Args:
-
-    :param key_words:    list of keywords to search for
+    key_words           list of keywords to search for
 
     Return:
 
@@ -314,6 +313,9 @@ def cbio_search(*key_words: str):
             """
         )
         return []
+
+    if isinstance(key_words, str):
+        key_words = [key_words]
 
     api = SwaggerClient.from_url(
         "https://www.cbioportal.org/api/v2/api-docs",

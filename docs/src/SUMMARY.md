@@ -9,9 +9,11 @@
 
 # Manual
 * [gget alphafold](en/alphafold.md)  
-* [gget archs4](en/archs4.md)  
+* [gget archs4](en/archs4.md)
+* [gget bgee](en/bgee.md)
 * [gget blast](en/blast.md)  
-* [gget blat](en/blat.md)  
+* [gget blat](en/blat.md)
+* [gget cbio](en/cbio.md)
 * [gget cellxgene](en/cellxgene.md)  
 * [gget cosmic](en/cosmic.md)  
 * [gget diamond](en/diamond.md)  
@@ -20,15 +22,13 @@
 * [gget gpt](en/gpt.md)  
 * [gget info](en/info.md)  
 * [gget muscle](en/muscle.md)
-* [gget mutate](en/mutate.md)  
+* [gget mutate](en/mutate.md)
+* [gget opentargets](en/opentargets.md) 
 * [gget pdb](en/pdb.md)  
 * [gget ref](en/ref.md)  
 * [gget search](en/search.md)  
 * [gget setup](en/setup.md)  
-* [gget seq](en/seq.md)  
-* [gget opentargets](en/opentargets.md)  
-* [gget cbio](en/cbio.md)  
-* [gget bgee](en/bgee.md)
+* [gget seq](en/seq.md)   
 
 ---
 
