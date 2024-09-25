@@ -16,6 +16,7 @@
 - Other "behind the scenes" changes:
     - Unit tests reorganized to increase speed and decrease code
     - Requirements updated to [allow newer mysql-connector versions](https://github.com/pachterlab/gget/pull/159)
+    - [Support Numpy>= 2.0](https://github.com/pachterlab/gget/issues/157)
 
 **Version ≥ 0.28.6** (Jun 2, 2024):  
 - **New module: [`gget mutate`](./mutate.md)**
