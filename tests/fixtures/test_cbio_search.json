@@ -1,11 +1,12 @@
 {
     "test_cbio_search": {
         "type": "assert_equal",
-        "args": [
+        "args": {
+            "key_words": [
             "esophag",
             "ovary",
             "ovarian"
-        ],
+        ]},
         "expected_result": [
             "egc_tmucih_2015",
             "egc_msk_2017",
