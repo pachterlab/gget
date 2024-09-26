@@ -3,7 +3,7 @@
 Fetch orthology and gene expression data from [Bgee](https://www.bgee.org/) using Ensembl IDs.   
 Return format: JSON/CSV (command-line) or data frame (Python).
 
-> If you are specifically interested in human gene expression data, consider using [gget opentargets](./opentargets.md) instead.
+> If you are specifically interested in human gene expression data, consider using [gget opentargets](./opentargets.md) or [gget archs4](./archs4.md) instead.
 > **gget bgee** has less data, but supports more species.
 
 This module was written by [Sam Wagenaar](https://github.com/techno-sam).
