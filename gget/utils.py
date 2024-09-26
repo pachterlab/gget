@@ -21,6 +21,7 @@ from .constants import (
     ENSEMBL_FTP_URL_NV,
     ENS_TO_PDB_API,
     COSMIC_RELEASE_URL,
+    CODON_TABLE,
 )
 
 
@@ -64,6 +65,30 @@ def flatten(xss):
     Function to flatten a list of lists.
     """
     return [x for xs in xss for x in xs]
+
+
+def translate_nuc_to_prot(nuc_seq):
+    nucleotides = set("ATGCN")
+    if not set(nuc_seq) <= nucleotides:
+        logger.warning(f"Nucleotide sequence contains unknown (non-ATGCN) characters.")
+
+    protein_seq = []
+    for i in range(0, len(nuc_seq) - 2, 3):
+        codon = nuc_seq[i : i + 3]
+        if codon in CODON_TABLE:
+            protein_seq.append(CODON_TABLE[codon])
+        else:
+            protein_seq.append("X")
+    return "".join(protein_seq)
+
+
+def reverse_complement(seq):
+    try:
+        complement = {"A": "T", "T": "A", "C": "G", "G": "C", "N": "N", "-": "-"}
+        rev_comp = "".join(complement[base] for base in reversed(seq))
+    except KeyError as e:
+        raise KeyError(f"Nucleotide {e} not recognized.")
+    return rev_comp
 
 
 def get_latest_cosmic():

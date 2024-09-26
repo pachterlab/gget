@@ -7,7 +7,16 @@ import uuid
 import json as json_package
 
 from .compile import PACKAGE_PATH
-from .utils import tsv_to_df, create_tmp_fasta, remove_temp_files, set_up_logger
+
+from .utils import (
+    tsv_to_df,
+    create_tmp_fasta,
+    remove_temp_files,
+    set_up_logger,
+    read_fasta,
+    translate_nuc_to_prot,
+    reverse_complement,
+)
 
 logger = set_up_logger()
 
@@ -22,9 +31,63 @@ else:
     )
 
 
+def translate_seqs(query):
+    # Read nucleotide sequences
+    if "." in query:
+        headers, seqs = read_fasta(os.path.abspath(query))
+        filename = query.split(".")[0] + "_translated" + ".fa"
+    else:
+        if isinstance(query, str):
+            query = [query]
+        seqs = query
+        headers = [f"Seq{i}" for i in range(len(query))]
+
+        random_id = str(uuid.uuid4())
+        filename = f"tmp_{random_id}.fa"
+
+    # Translate to all six possible frames
+    trans_seqs = []
+    frame_headers = []
+    for i, seq in enumerate(seqs):
+
+        seq = seq.upper()
+        # Forward frames
+        frame1 = translate_nuc_to_prot(seq)
+        frame2 = translate_nuc_to_prot(seq[1:])
+        frame3 = translate_nuc_to_prot(seq[2:])
+
+
+        # Reverse complement frames
+        rev_seq = reverse_complement(seq)
+        frame4 = translate_nuc_to_prot(rev_seq)
+        frame5 = translate_nuc_to_prot(rev_seq[1:])
+        frame6 = translate_nuc_to_prot(rev_seq[2:])
+
+        # Collect translations and headers
+        trans_seqs.extend([frame1, frame2, frame3, frame4, frame5, frame6])
+        frame_headers.extend(
+            [
+                f"{headers[i]}_frame1",
+                f"{headers[i]}_frame2",
+                f"{headers[i]}_frame3",
+                f"{headers[i]}_frame4",
+                f"{headers[i]}_frame5",
+                f"{headers[i]}_frame6",
+            ]
+        )
+
+    # Write to fasta file
+    with open(filename, "w") as f:
+        for title, seq in zip(frame_headers, trans_seqs):
+            f.write(f">{title}\n{seq}\n")
+
+    return os.path.abspath(filename)
+
+
 def diamond(
     query,
     reference,
+    translate=False,
     diamond_db=None,
     sensitivity="very-sensitive",
     threads=1,
@@ -39,6 +102,8 @@ def diamond(
     Args:
     - query          Sequences (str or list) or path to FASTA file containing sequences to be aligned against the reference.
     - reference      Reference sequences (str or list) or path to FASTA file containing reference sequences.
+    - translate      Set to True when query sequences are nucleotide sequences. Query sequences will be translated to amino acids in
+                     all 6 possible reading frames. Default: False
     - diamond_db     Path to save DIAMOND database created from reference.
                      Default: None -> Temporary db file will be deleted after alignment or saved in 'out' if 'out' is provided.
     - sensitivity    Sensitivity of DIAMOND alignment.
@@ -74,8 +139,12 @@ def diamond(
 
     # Define paths to query/reference/db/output files
     files_to_delete = []
-    if "." in query:
+    if "." in query and translate is False:
         input_file = os.path.abspath(query)
+    elif translate is True:
+        input_file = translate_seqs(query)
+        if not "." in query:
+            files_to_delete.append(input_file)
     else:
         input_file = create_tmp_fasta(query)
         files_to_delete.append(input_file)
