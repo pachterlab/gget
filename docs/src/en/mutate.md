@@ -162,9 +162,34 @@ gget.mutate(["ATCGCTAAGCT", "TAGCTA"], "c.1_3inv", k=3)
 
 <br/><br/>
 
-**Pass in the genome mutation information as a `mutations` CSV (by having `seq_id_column` contain chromosome information, and `mut_column` contain mutation information with respect to genome coordinates), as well as the genome as the `sequences` file. Respect the transcript boundaries by merging in transcript start and end positions with the `gtf` argument set to the path to the gtf file, as well as the `gtf_transcript_id_column` specifying the name of the column containing transcript ID's corresponding to the gtf in the input `mutations` file. Optimize the length to maximize length while maintaining specificity of all k-mers with the `optimize_flanking_regions` argument. Create a CSV file with updated information including mutation type and output sequences with the `update_df argument`, stored to the path designated by `update_df_out`. Store the full sequences (i.e., the mutation in the context of the entire sequence of the corresponding `sequences` fasta file entry) with the `store_full_sequences` argument. Store translated amino acid sequences for each full mutation with the `translate` argument, with `translate_start` and `translate_end` specifying the names of the column in the input `mutations` file that contain the start and end sequence positions of the open reading frame, respectively:**  
+**Add mutations to an entire genome with extended output**  
+Main input:   
+- mutation information as a `mutations` CSV (by having `seq_id_column` contain chromosome information, and `mut_column` contain mutation information with respect to genome coordinates)  
+- the genome as the `sequences` file  
+
+Since we are passing the path to a gtf file to the `gtf` argument, transcript boundaries will be respected (the genome will be split into transcripts). `gtf_transcript_id_column` specifies the name of the column in `mutations` containing the transcript IDs corresponding to the transcript IDs in the `gtf` file.  
+
+The `optimize_flanking_regions` argument actives maximizing the length of the resulting mutation-containing sequences while maintaining specificity (no wildtype kmer will be retaie)
+
+`update_df` activates the creation of a new CSV file with updated information about each input and output sequence. This new CSV file will be saved as `update_df_out`. Since `store_full_sequences` is activated, this new CSV file will not only contain the output sequences (restricted in size by flanking regiong of size `k`), but also the complete input and output sequences. This allows us to observe the mutation in the context of the entire sequence. Lastly, we are also adding the translated versions of the complete sequences by adding the with the `translate` flag, so we can observe how the resulting amino acid sequence is changed. The `translate_start` and `translate_end` arguments specify the names of the columns in `mutations` that contain the start and end positions of the open reading frame (start and end positions for translating the nucleotide sequence to an amino acid sequence), respectively.  
+
 ```bash
-gget mutate genome_reference.fa -m mutations_input.csv -o mut_fasta.fa -k 4 -sic Chromosome -mic Mutation -gtf genome_annotation.gtf -gtic Ensembl_Transcript_ID -ofr -update_df -udf_o mutations_updated.csv -sfs -tr -ts Translate_Start -te Translate_End
+gget mutate \
+  -m mutations_input.csv \
+  -o mut_fasta.fa \
+  -k 4 \
+  -sic Chromosome \
+  -mic Mutation \
+  -gtf genome_annotation.gtf \
+  -gtic Ensembl_Transcript_ID \
+  -ofr \
+  -update_df \
+  -udf_o mutations_updated.csv \
+  -sfs \
+  -tr \
+  -ts Translate_Start \
+  -te Translate_End \
+  genome_reference.fa
 ```
 ```python
 # Python
