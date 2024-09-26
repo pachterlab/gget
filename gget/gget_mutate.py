@@ -431,7 +431,7 @@ def mutate(
     - optimize_flanking_regions    (True/False) Whether to remove nucleotides from either end of the mutant sequence to ensure (when possible)
                                    that the mutant sequence does not contain any k-mers also found in the wildtype/input sequence. Default: False
     - remove_seqs_with_wt_kmers    (True/False) Removes output sequences where at least one (k+1)-mer is also present in the wildtype/input sequence in the same region.
-                                   If optimize_flanking_regions=True, only sequences for which a wildtpye kmer is still present after optimization will be removed.
+                                   If optimize_flanking_regions=True, only sequences for which a wildtype kmer is still present after optimization will be removed.
                                    Default: False
     - max_ambiguous                (int) Maximum number of 'N' characters allowed in the output sequence. Default: None (no 'N' filter will be applied)
     - merge_identical              (True/False) Whether to merge identical mutant sequences in the output (identical sequences will be merged by concatenating the sequence

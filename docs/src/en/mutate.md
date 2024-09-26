@@ -78,7 +78,7 @@ Removes nucleotides from either end of the mutant sequence to ensure (when possi
 
 `-rswk` `--remove_seqs_with_wt_kmers`  
 Removes output sequences where at least one k-mer is also present in the wildtype/input sequence in the same region.  
-When used with `--optimize_flanking_regions`, only sequences for which a wildtpye kmer is still present after optimization will be removed.
+When used with `--optimize_flanking_regions`, only sequences for which a wildtype k-mer is still present after optimization will be removed.
 
 `-mio` `--merge_identical_off`          
 Do not merge identical mutant sequences in the output (by default, identical sequences will be merged by concatenating the sequence headers for all identical sequences).
@@ -169,7 +169,7 @@ Main input:
 
 Since we are passing the path to a gtf file to the `gtf` argument, transcript boundaries will be respected (the genome will be split into transcripts). `gtf_transcript_id_column` specifies the name of the column in `mutations` containing the transcript IDs corresponding to the transcript IDs in the `gtf` file.  
 
-The `optimize_flanking_regions` argument actives maximizing the length of the resulting mutation-containing sequences while maintaining specificity (no wildtype kmer will be retaie)
+The `optimize_flanking_regions` argument maximizes the length of the resulting mutation-containing sequences while maintaining specificity (no wildtype k-mer will be retained).
 
 `update_df` activates the creation of a new CSV file with updated information about each input and output sequence. This new CSV file will be saved as `update_df_out`. Since `store_full_sequences` is activated, this new CSV file will not only contain the output sequences (restricted in size by flanking regiong of size `k`), but also the complete input and output sequences. This allows us to observe the mutation in the context of the entire sequence. Lastly, we are also adding the translated versions of the complete sequences by adding the with the `translate` flag, so we can observe how the resulting amino acid sequence is changed. The `translate_start` and `translate_end` arguments specify the names of the columns in `mutations` that contain the start and end positions of the open reading frame (start and end positions for translating the nucleotide sequence to an amino acid sequence), respectively.  
 
