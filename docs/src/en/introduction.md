@@ -26,103 +26,39 @@ NOTE: The databases queried by `gget` are continuously being updated which somet
 
 This grid shows the `gget` core modules, each with a short description. Click on any module to access detailed documentation.
 
-<!-- Module Names and Descriptions -->
-{% set modules = [
-    {"name": "Module 1", "description": "Short description of Module 1", "link": "docs/module1.md"},
-    {"name": "Module 2", "description": "Short description of Module 2", "link": "docs/module2.md"},
-    {"name": "Module 3", "description": "Short description of Module 3", "link": "docs/module3.md"},
-    {"name": "Module 4", "description": "Short description of Module 4", "link": "docs/module4.md"},
-    {"name": "Module 5", "description": "Short description of Module 5", "link": "docs/module5.md"},
-    {"name": "Module 6", "description": "Short description of Module 6", "link": "docs/module6.md"},
-    {"name": "Module 7", "description": "Short description of Module 7", "link": "docs/module7.md"},
-    {"name": "Module 8", "description": "Short description of Module 8", "link": "docs/module8.md"},
-    {"name": "Module 9", "description": "Short description of Module 9", "link": "docs/module9.md"},
-    {"name": "Module 10", "description": "Short description of Module 10", "link": "docs/module10.md"},
-    {"name": "Module 11", "description": "Short description of Module 11", "link": "docs/module11.md"},
-    {"name": "Module 12", "description": "Short description of Module 12", "link": "docs/module12.md"},
-    {"name": "Module 13", "description": "Short description of Module 13", "link": "docs/module13.md"},
-    {"name": "Module 14", "description": "Short description of Module 14", "link": "docs/module14.md"},
-    {"name": "Module 15", "description": "Short description of Module 15", "link": "docs/module15.md"},
-    {"name": "Module 16", "description": "Short description of Module 16", "link": "docs/module16.md"},
-    {"name": "Module 17", "description": "Short description of Module 17", "link": "docs/module17.md"},
-    {"name": "Module 18", "description": "Short description of Module 18", "link": "docs/module18.md"},
-    {"name": "Module 19", "description": "Short description of Module 19", "link": "docs/module19.md"},
-    {"name": "Module 20", "description": "Short description of Module 20", "link": "docs/module20.md"}
-] %}
-
-<!-- Table Layout for Modules -->
 <table style="width:100%; table-layout:fixed;">
   <tr>
-    <td style="width:25%; padding:20px; text-align:center;">
-      <a href="{{ modules[0].link }}"><strong>{{ modules[0].name }}</strong></a><br>{{ modules[0].description }}
-    </td>
-    <td style="width:25%; padding:20px; text-align:center;">
-      <a href="{{ modules[1].link }}"><strong>{{ modules[1].name }}</strong></a><br>{{ modules[1].description }}
-    </td>
-    <td style="width:25%; padding:20px; text-align:center;">
-      <a href="{{ modules[2].link }}"><strong>{{ modules[2].name }}</strong></a><br>{{ modules[2].description }}
-    </td>
-    <td style="width:25%; padding:20px; text-align:center;">
-      <a href="{{ modules[3].link }}"><strong>{{ modules[3].name }}</strong></a><br>{{ modules[3].description }}
-    </td>
+    <td style="width:25%; padding:20px; text-align:center;"><a href="docs/module1.md"><strong>Module 1</strong></a><br>Short description of Module 1.</td>
+    <td style="width:25%; padding:20px; text-align:center;"><a href="docs/module2.md"><strong>Module 2</strong></a><br>Short description of Module 2.</td>
+    <td style="width:25%; padding:20px; text-align:center;"><a href="docs/module3.md"><strong>Module 3</strong></a><br>Short description of Module 3.</td>
+    <td style="width:25%; padding:20px; text-align:center;"><a href="docs/module4.md"><strong>Module 4</strong></a><br>Short description of Module 4.</td>
   </tr>
   <tr>
-    <td style="width:25%; padding:20px; text-align:center;">
-      <a href="{{ modules[4].link }}"><strong>{{ modules[4].name }}</strong></a><br>{{ modules[4].description }}
-    </td>
-    <td style="width:25%; padding:20px; text-align:center;">
-      <a href="{{ modules[5].link }}"><strong>{{ modules[5].name }}</strong></a><br>{{ modules[5].description }}
-    </td>
-    <td style="width:25%; padding:20px; text-align:center;">
-      <a href="{{ modules[6].link }}"><strong>{{ modules[6].name }}</strong></a><br>{{ modules[6].description }}
-    </td>
-    <td style="width:25%; padding:20px; text-align:center;">
-      <a href="{{ modules[7].link }}"><strong>{{ modules[7].name }}</strong></a><br>{{ modules[7].description }}
-    </td>
+    <td style="width:25%; padding:20px; text-align:center;"><a href="docs/module5.md"><strong>Module 5</strong></a><br>Short description of Module 5.</td>
+    <td style="width:25%; padding:20px; text-align:center;"><a href="docs/module6.md"><strong>Module 6</strong></a><br>Short description of Module 6.</td>
+    <td style="width:25%; padding:20px; text-align:center;"><a href="docs/module7.md"><strong>Module 7</strong></a><br>Short description of Module 7.</td>
+    <td style="width:25%; padding:20px; text-align:center;"><a href="docs/module8.md"><strong>Module 8</strong></a><br>Short description of Module 8.</td>
   </tr>
   <tr>
-    <td style="width:25%; padding:20px; text-align:center;">
-      <a href="{{ modules[8].link }}"><strong>{{ modules[8].name }}</strong></a><br>{{ modules[8].description }}
-    </td>
-    <td style="width:25%; padding:20px; text-align:center;">
-      <a href="{{ modules[9].link }}"><strong>{{ modules[9].name }}</strong></a><br>{{ modules[9].description }}
-    </td>
-    <td style="width:25%; padding:20px; text-align:center;">
-      <a href="{{ modules[10].link }}"><strong>{{ modules[10].name }}</strong></a><br>{{ modules[10].description }}
-    </td>
-    <td style="width:25%; padding:20px; text-align:center;">
-      <a href="{{ modules[11].link }}"><strong>{{ modules[11].name }}</strong></a><br>{{ modules[11].description }}
-    </td>
+    <td style="width:25%; padding:20px; text-align:center;"><a href="docs/module9.md"><strong>Module 9</strong></a><br>Short description of Module 9.</td>
+    <td style="width:25%; padding:20px; text-align:center;"><a href="docs/module10.md"><strong>Module 10</strong></a><br>Short description of Module 10.</td>
+    <td style="width:25%; padding:20px; text-align:center;"><a href="docs/module11.md"><strong>Module 11</strong></a><br>Short description of Module 11.</td>
+    <td style="width:25%; padding:20px; text-align:center;"><a href="docs/module12.md"><strong>Module 12</strong></a><br>Short description of Module 12.</td>
   </tr>
   <tr>
-    <td style="width:25%; padding:20px; text-align:center;">
-      <a href="{{ modules[12].link }}"><strong>{{ modules[12].name }}</strong></a><br>{{ modules[12].description }}
-    </td>
-    <td style="width:25%; padding:20px; text-align:center;">
-      <a href="{{ modules[13].link }}"><strong>{{ modules[13].name }}</strong></a><br>{{ modules[13].description }}
-    </td>
-    <td style="width:25%; padding:20px; text-align:center;">
-      <a href="{{ modules[14].link }}"><strong>{{ modules[14].name }}</strong></a><br>{{ modules[14].description }}
-    </td>
-    <td style="width:25%; padding:20px; text-align:center;">
-      <a href="{{ modules[15].link }}"><strong>{{ modules[15].name }}</strong></a><br>{{ modules[15].description }}
-    </td>
+    <td style="width:25%; padding:20px; text-align:center;"><a href="docs/module13.md"><strong>Module 13</strong></a><br>Short description of Module 13.</td>
+    <td style="width:25%; padding:20px; text-align:center;"><a href="docs/module14.md"><strong>Module 14</strong></a><br>Short description of Module 14.</td>
+    <td style="width:25%; padding:20px; text-align:center;"><a href="docs/module15.md"><strong>Module 15</strong></a><br>Short description of Module 15.</td>
+    <td style="width:25%; padding:20px; text-align:center;"><a href="docs/module16.md"><strong>Module 16</strong></a><br>Short description of Module 16.</td>
   </tr>
   <tr>
-    <td style="width:25%; padding:20px; text-align:center;">
-      <a href="{{ modules[16].link }}"><strong>{{ modules[16].name }}</strong></a><br>{{ modules[16].description }}
-    </td>
-    <td style="width:25%; padding:20px; text-align:center;">
-      <a href="{{ modules[17].link }}"><strong>{{ modules[17].name }}</strong></a><br>{{ modules[17].description }}
-    </td>
-    <td style="width:25%; padding:20px; text-align:center;">
-      <a href="{{ modules[18].link }}"><strong>{{ modules[18].name }}</strong></a><br>{{ modules[18].description }}
-    </td>
-    <td style="width:25%; padding:20px; text-align:center;">
-      <a href="{{ modules[19].link }}"><strong>{{ modules[19].name }}</strong></a><br>{{ modules[19].description }}
-    </td>
+    <td style="width:25%; padding:20px; text-align:center;"><a href="docs/module17.md"><strong>Module 17</strong></a><br>Short description of Module 17.</td>
+    <td style="width:25%; padding:20px; text-align:center;"><a href="docs/module18.md"><strong>Module 18</strong></a><br>Short description of Module 18.</td>
+    <td style="width:25%; padding:20px; text-align:center;"><a href="docs/module19.md"><strong>Module 19</strong></a><br>Short description of Module 19.</td>
+    <td style="width:25%; padding:20px; text-align:center;"><a href="docs/module20.md"><strong>Module 20</strong></a><br>Short description of Module 20.</td>
   </tr>
 </table>
+
 
 ### [More tutorials](https://github.com/pachterlab/gget_examples)
 
