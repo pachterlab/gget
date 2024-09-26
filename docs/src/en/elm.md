@@ -87,4 +87,6 @@ regex_df:
 |ELME000231        |DEG_APCC_DBOX_1   |APCC-binding Destruction motifs|DEG    |An RxxL-based motif that binds to the Cdh1 and Cdc20 components of APC/C thereby targeting the protein for destruction in a cell cycle dependent manner|SRVKLNIVR                   |Saccharomyces cerevisiae S288c|…  |
 |…                 |…                 |…                              |…      |…                                                                                                                                                      |…                           |…                             |…  |
 
-#### [More examples](https://github.com/pachterlab/gget_examples)
+# Additional tutorials
+[A point mutation in BRCA2 is carcinogenic due to the loss of a protein interaction motif](https://github.com/pachterlab/gget_examples/blob/main/gget_elm_BRCA2_example.ipynb)  
+[Filter `gget elm` results based on disordered protein regions](https://github.com/pachterlab/gget_examples/blob/main/gget_elm_IUPred3_tutorial.ipynb)
