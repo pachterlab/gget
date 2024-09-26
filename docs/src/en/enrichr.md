@@ -220,4 +220,5 @@ df |>
 	xlab("-log10(adjusted P value)")
 ```
 
-#### [More examples](https://github.com/pachterlab/gget_examples)
+# Tutorials
+[Using `gget enrichr` with background genes](https://github.com/pachterlab/gget_examples/blob/main/gget_enrichr_with_background_genes.ipynb)
