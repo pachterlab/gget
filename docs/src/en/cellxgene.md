@@ -1,6 +1,6 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python.  The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
 ## gget cellxgene 🍱  
-Query data from [CZ CELLxGENE Discover](https://cellxgene.cziscience.com/) using the [CZ CELLxGENE Discover Census](https://github.com/chanzuckerberg/cellxgene-census).  
+Query data from [CZ CELLxGENE Discover](https://cellxgene.cziscience.com/) using the [CZ CELLxGENE Discover Census](https://github.com/chanzuckerberg/cellxgene-census). [CZ CELLxGENE Discover](https://cellxgene.cziscience.com/) provides ready-to-use single-cell RNA sequencing count matrices for certain tissues/diseases/genes/etc.     
 
 Returns: An AnnData object containing the count matrix and metadata of single-cell RNA sequencing data from the defined tissues/genes/etc.  
 
