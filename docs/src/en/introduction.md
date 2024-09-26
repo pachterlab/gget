@@ -24,7 +24,7 @@ NOTE: The databases queried by `gget` are continuously being updated which somet
 
 # gget modules
 
-This grid shows the `gget` core modules, each with a short description. Click on any module to access detailed documentation.
+These are the `gget` core modules. Click on any module to access detailed documentation.
 
 <table style="width:100%; table-layout:fixed;">
   <tr>
