@@ -56,9 +56,6 @@ Estos son los módulos principales de `gget`. Haga clic en cualquier módulo par
   </tr>
 </table>
 
-
-### [Más tutoriales](https://github.com/pachterlab/gget_examples)
-
 <br>  
 
 Si usa `gget` en una publicación, por favor [cite*](cite.md):    
