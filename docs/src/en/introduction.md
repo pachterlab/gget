@@ -36,7 +36,7 @@ These are the `gget` core modules. Click on any module to access detailed docume
   <tr>
     <td style="width:25%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/en/blat.md"><strong>gget blat</strong></a><br>Find the genomic location of a nucleotide or amino acid sequence.</td>
     <td style="width:25%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/en/cbio.md"><strong>gget cbio</strong></a><br>Explore a gene's expression in the specified cancers.</td>
-    <td style="width:25%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/en/cellxgene.md"><strong>gget cellxgene</strong></a><br>Get ready-to-use single-cell RNA seq count matrices for certain tissues/disease/etc.</td>
+    <td style="width:25%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/en/cellxgene.md"><strong>gget cellxgene</strong></a><br>Get ready-to-use single-cell RNA seq count matrices from certain tissues/ diseases/ etc.</td>
     <td style="width:25%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/en/cosmic.md"><strong>gget cosmic</strong></a><br>Search for genes, mutations, and other factors associated with certain cancers.</td>
   </tr>
   <tr>
