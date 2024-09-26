@@ -1,5 +1,5 @@
 {
-    "test1": {
+    "test_blast_nt": {
         "type": "assert_equal",
         "args": {
             "sequence": "ATACTCAGTCACACAAGCCATAGCAGGAAACAGCGAGCTTGCAGCCTCACCGACGAGTCTCAACTAAAAGGGACTCCCGGAGCTAGGGGTGGGGACTCGGCCTCACACAGTGAGTGCCGG",
@@ -7,21 +7,21 @@
         },
         "expected_result": [
             [
-                "Homo sapiens genome assembly, chromosome: contig-692",
+                "Homo sapiens ATAC-STARR-seq lymphoblastoid active region 16974 (LOC129935398) on chromosome 2",
                 "Homo sapiens",
                 "human",
                 9606,
                 222,
                 222,
                 "100%",
-                2e-53,
+                5.999999999999999e-54,
                 "100.00%",
-                5668947,
-                "OZ168470.1"
+                460,
+                "NG_168413.1"
             ]
         ]
     },
-    "test2": {
+    "test_blast_nt_json": {
         "type": "assert_equal",
         "args": {
             "sequence": "ATACTCAGTCACACAAGCCATAGCAGGAAACAGCGAGCTTGCAGCCTCACCGACGAGTCTCAACTAAAAGGGACTCCCGGAGCTAGGGGTGGGGACTCGGCCTCACACAGTGAGTGCCGG",
@@ -30,35 +30,35 @@
         },
         "expected_result": [
             {
-                "Description": "Homo sapiens genome assembly, chromosome: contig-692",
+                "Description": "Homo sapiens ATAC-STARR-seq lymphoblastoid active region 16974 (LOC129935398) on chromosome 2",
                 "Scientific Name": "Homo sapiens",
                 "Common Name": "human",
                 "Taxid": 9606,
                 "Max Score": 222,
                 "Total Score": 222,
                 "Query Cover": "100%",
-                "E value": 2e-53,
+                "E value": 6e-54,
                 "Per. Ident": "100.00%",
-                "Acc. Len": 5668947,
-                "Accession": "OZ168470.1"
+                "Acc. Len": 460,
+                "Accession": "NG_168413.1"
             }
         ]
     },
-    "error_test1": {
+    "test_blast_bad_seq": {
         "type": "error",
         "args": {
             "sequence": "BANANA123"
         },
         "expected_result": "ValueError"
     },
-    "error_test2": {
+    "test_blast_bad_fasta": {
         "type": "error",
         "args": {
             "sequence": "banana.fa"
         },
         "expected_result": "FileNotFoundError"
     },
-    "error_test3": {
+    "test_blast_bad_program": {
         "type": "error",
         "args": {
             "sequence": "tests/fixtures/muscle_aa_test.txt",
@@ -67,7 +67,7 @@
         },
         "expected_result": "ValueError"
     },
-    "error_test4": {
+    "test_blast_db_missing": {
         "type": "error",
         "args": {
             "sequence": "tests/fixtures/muscle_aa_test.txt",
@@ -76,7 +76,7 @@
         },
         "expected_result": "ValueError"
     },
-    "error_test5": {
+    "test_blast_bad_db1": {
         "type": "error",
         "args": {
             "sequence": "tests/fixtures/muscle_aa_test.txt",
@@ -86,7 +86,7 @@
         },
         "expected_result": "ValueError"
     },
-    "error_test6": {
+    "test_blast_bad_db2": {
         "type": "error",
         "args": {
             "sequence": "tests/fixtures/muscle_aa_test.txt",

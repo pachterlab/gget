@@ -44,8 +44,8 @@ TURNS OFF creation of a modified version of the database for use with gget mutat
 Python: `gget_mutate` is True by default. Set `gget_mutate=False` to disable.  
 
 **Optional arguments (for downloading COSMIC databases)**  
-`-mc` `--mutation_class`
-'cancer' (default), 'cell_line', 'census', 'resistance', 'screen', or 'cancer_example'  
+`-mc` `--mutation_class`  
+'cancer' (default), 'cell_line', 'census', 'resistance', 'genome_screen', 'targeted_screen', or 'cancer_example'  
 Type of COSMIC database to download.  
 
 `-cv` `--cosmic_version`  
@@ -53,6 +53,12 @@ Version of the COSMIC database. Default: None -> Defaults to latest version.
 
 `-gv` `--grch_version`  
 Version of the human GRCh reference genome the COSMIC database was based on (37 or 38). Default: 37  
+
+`--keep_genome_info`
+Whether to keep genome information in the modified database for use with gget mutate. Default: False
+
+`--remove_duplicates`
+Whether to remove duplicate rows from the modified database for use with gget mutate. Default: False
 
 **Optional arguments (general)**  
 `-o` `--out`   

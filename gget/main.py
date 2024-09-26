@@ -1,6 +1,9 @@
 import argparse
 import sys
 from datetime import datetime
+from typing import Optional
+
+import pandas as pd
 
 # Get current date and time for alphafold default foldername
 dt_string = datetime.now().strftime("%Y_%m_%d-%H_%M")
@@ -34,6 +37,9 @@ from .gget_diamond import diamond
 from .gget_cosmic import cosmic
 from .gget_mutate import mutate
 from .gget_dataverse import dataverse
+from .gget_opentargets import opentargets, OPENTARGETS_RESOURCES
+from .gget_cbio import cbio_plot, cbio_search
+from .gget_bgee import bgee
 
 
 # Custom formatter for help messages that preserved the text formatting and adds the default value to the end of the help message
@@ -44,9 +50,26 @@ class CustomHelpFormatter(argparse.RawTextHelpFormatter):
             "%(default)" not in help_str
             and action.default is not argparse.SUPPRESS
             and action.default is not None
+            # default information can be deceptive or confusing for boolean flags.
+            # For example, `--quiet` says "Does not print progress information. (default: True)" even though
+            # the default action is to NOT be quiet (to the user, the default is False).
+            and not isinstance(action, argparse._StoreTrueAction)
+            and not isinstance(action, argparse._StoreFalseAction)
         ):
             help_str += " (default: %(default)s)"
         return help_str
+
+
+def convert_to_list(*args):
+    args_list = list(args)
+    return args_list
+
+
+def int_or_str(value):
+    try:
+        return int(value)
+    except ValueError:
+        return value
 
 
 def main():
@@ -155,7 +178,17 @@ def main():
         default=False,
         action="store_true",
         required=False,
-        help="Download FTPs to the current directory using curl.",
+        help="Download FTPs to the directory specified by --out_dir using curl.",
+    )
+    parser_ref.add_argument(
+        "-od",
+        "--out_dir",
+        type=str,
+        required=False,
+        help=(
+            "Path to the directory the FTPs will be saved in, e.g. path/to/directory.\n"
+            "Default: Current working directory."
+        ),
     )
     parser_ref.add_argument(
         "-o",
@@ -967,7 +1000,17 @@ def main():
         help=(
             "'pathway', 'transcription', 'ontology', 'diseases_drugs', 'celltypes', 'kinase_interactions'"
             "or any database listed at: https://maayanlab.cloud/Enrichr/#libraries"
+            " or the species-specific libraries listed in the documentation"
         ),
+    )
+    parser_enrichr.add_argument(
+        "-s",
+        "--species",
+        type=str,
+        choices=["human", "mouse", "fly", "yeast", "worm", "fish"],
+        default="human",
+        required=False,
+        help="Enrichr variant to query. Default: 'human'.",
     )
     parser_enrichr.add_argument(
         "-bkg_l",
@@ -976,7 +1019,7 @@ def main():
         nargs="*",
         default=None,
         required=False,
-        help="List of gene names/Ensembl IDs to be used as background genes.",
+        help="List of gene names/Ensembl IDs to be used as background genes. ONLY SUPPORTED FOR HUMAN/MOUSE SPECIES",
     )
     parser_enrichr.add_argument(
         "-bkg",
@@ -984,7 +1027,7 @@ def main():
         default=False,
         action="store_true",
         required=False,
-        help="If True, use set of >20,000 default background genes listed here: https://github.com/pachterlab/gget/blob/main/gget/constants/enrichr_bkg_genes.txt.",
+        help="If True, use set of >20,000 default background genes listed here: https://github.com/pachterlab/gget/blob/main/gget/constants/enrichr_bkg_genes.txt. ONLY SUPPORTED FOR HUMAN/MOUSE SPECIES",
     )
     parser_enrichr.add_argument(
         "-e",
@@ -1183,7 +1226,7 @@ def main():
     parser_setup.add_argument(
         "module",
         type=str,
-        choices=["alphafold", "gpt", "cellxgene", "elm"],
+        choices=["alphafold", "gpt", "cellxgene", "elm", "cbio"],
         help="gget module for which dependencies should be installed, e.g. 'alphafold'",
     )
 
@@ -1782,7 +1825,8 @@ def main():
             "cell_line",
             "census",
             "resistance",
-            "screen",
+            "genome_screen",
+            "targeted_screen",
             "cancer_example",
         ],
         default="cancer",
@@ -1816,6 +1860,20 @@ def main():
         help="Do NOT create a modified version of the database for use with gget mutate (only for use with --download_cosmic).",
     )
     parser_cosmic.add_argument(
+        "--keep_genome_info",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Whether to keep genome information (e.g. location of mutation in the genome) in the modified database for use with gget mutate (only for use with --download_cosmic).",
+    )
+    parser_cosmic.add_argument(
+        "--remove_duplicates",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Whether to remove duplicated rows from the modified database for use with gget mutate (only for use with --download_cosmic).",
+    )
+    parser_cosmic.add_argument(
         "-o",
         "--out",
         type=str,
@@ -1835,6 +1893,507 @@ def main():
         action="store_false",
         required=False,
         help="Do not print progress information.",
+    )
+
+    # mutate parser arguments
+    mutate_desc = "Mutate nucleotide sequences based on provided mutations."
+    parser_mutate = parent_subparsers.add_parser(
+        "mutate",
+        parents=[parent],
+        description=mutate_desc,
+        help=mutate_desc,
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
+    )
+    parser_mutate.add_argument(
+        "sequences",
+        type=str,
+        nargs="+",
+        help=(
+            "(str) Path to the fasta file containing the sequences to be mutated, e.g., 'seqs.fa'.\n"
+            "Sequence identifiers following the '>' character must correspond to the identifiers\n"
+            "in the seq_ID column of 'mutations'.\n"
+            "NOTE: Only string until first space or dot will be used as sequence identifier\n"
+            "- Version numbers of Ensembl IDs will be ignored.\n\n"
+            "Example:\n"
+            ">seq1 (or ENSG00000106443)\n"
+            "ACTGCGATAGACT\n"
+            ">seq2\n"
+            "AGATCGCTAG\n\n"
+            "Alternatively: Input sequence(s) as a string or list, e.g. 'AGCTAGCT' or 'ACTGCTAGCT' 'AGCTAGCT'."
+        ),
+    )
+    parser_mutate.add_argument(
+        "-m",
+        "--mutations",
+        type=str,
+        nargs="+",
+        required=True,
+        help=(
+            "Path to csv or tsv file (e.g., 'mutations.csv') containing information about the mutations in the following format:\n\n"
+            "| mutation             | mut_ID | seq_ID |\n"
+            "| c.1252C>T            | mut1   | seq1   | -> Apply mutation 1 to sequence 1\n"
+            "| c.2239_2253inv       | mut2   | seq2   | -> Apply mutation 2 to sequence 2\n"
+            "| c.2239_2253inv       | mut2   | seq3   | -> Apply mutation 2 to sequence 3\n"
+            "| c.2239_2253delinsAAT | mut3   | seq3   | -> Apply mutation 3 to sequence 3\n"
+            "| ...                  | ...    | ...    |\n\n"
+            "'mutation' = Column containing the mutations to be performed written in standard mutation annotation (see below)\n"
+            "'mut_ID' = Column containing an identifier for each mutation (optional)\n"
+            "'seq_ID' = Column containing the identifiers of the sequences to be mutated\n"
+            "(sequence IDs must correspond to the string following the > character in the input fasta; do NOT include spaces or dots)\n\n"
+            "Alternatively: Input mutation(s) as a string or list, e.g. 'c.2C>T' or 'c.2C>T' 'c.1A>C'\n\n"
+            "NOTE: Enclose individual mutation annotations in quotation marks to prevent terminal parsing errors.\n"
+            "If a list is passed, the number of mutations must equal the number of input sequences."
+        ),
+    )
+    parser_mutate.add_argument(
+        "-mc",
+        "--mut_column",
+        default="mutation",
+        type=str,
+        required=False,
+        help="Name of the column containing the mutations to be performed in 'mutations'.",
+    )
+    parser_mutate.add_argument(
+        "-sic",
+        "--seq_id_column",
+        default="seq_ID",
+        type=str,
+        required=False,
+        help="Name of the column containing the IDs of the sequences to be mutated in 'mutations'.",
+    )
+    parser_mutate.add_argument(
+        "-mic",
+        "--mut_id_column",
+        default=None,
+        type=str,
+        required=False,
+        help="Name of the column containing the IDs of each mutation in 'mutations'. Default: Same as 'mut_column'.",
+    )
+    parser_mutate.add_argument(
+        "-gtf",
+        "--gtf",
+        default=None,
+        type=str,
+        required=False,
+        help="Path to a .gtf file. When providing a genome fasta file as input for 'sequences', you can provide a .gtf file here and the input sequences will be defined according to the transcript boundaries, e.g. 'path/to/genome_annotation.gtf'.",
+    )
+    parser_mutate.add_argument(
+        "-gtic",
+        "--gtf_transcript_id_column",
+        default=None,
+        type=str,
+        required=False,
+        help="Column name in the input 'mutations' file containing the transcript ID. In this case, column 'seq_id_column' should contain the chromosome number. Required when 'gtf' is provided.",
+    )
+    parser_mutate.add_argument(
+        "-k",
+        "--k",
+        default=30,
+        type=int,
+        required=False,
+        help="Length of sequences flanking the mutation. If k > total length of the sequence, the entire sequence will be kept.",
+    )
+    parser_mutate.add_argument(
+        "-msl",
+        "--min_seq_len",
+        default=None,
+        type=int,
+        required=False,
+        help="Minimum length of the mutant output sequence, e.g. 100. Mutant sequences smaller than this will be dropped.",
+    )
+    parser_mutate.add_argument(
+        "-ma",
+        "--max_ambiguous",
+        default=None,
+        type=int,
+        required=False,
+        help="Maximum number of 'N' (or 'n') characters allowed in the output sequence, e.g. 10. Default: None (no ambiguous character filter will be applied).",
+    )
+    parser_mutate.add_argument(
+        "-ofr",
+        "--optimize_flanking_regions",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Removes nucleotides from either end of the mutant sequence to ensure (when possible) that the mutant sequence does not contain any k-mers also found in the wildtype/input sequence.",
+    )
+    parser_mutate.add_argument(
+        "-rswk",
+        "--remove_seqs_with_wt_kmers",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Removes output sequences where at least one k-mer is also present in the wildtype/input sequence in the same region. When used with `--optimize_flanking_regions`, only sequences for which a wildtpye kmer is still present after optimization will be removed.",
+    )
+    parser_mutate.add_argument(
+        "-mio",
+        "--merge_identical_off",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Do not merge identical mutant sequences in the output (by default, identical sequences will be merged by concatenating the sequence headers for all identical sequences).",
+    )
+    parser_mutate.add_argument(
+        "-udf",
+        "--update_df",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Updates the input `mutations` DataFrame to include additional columns with the mutation type, wildtype nucleotide sequence, and mutant nucleotide sequence (only valid if `mutations` is a .csv or .tsv file).",
+    )
+    parser_mutate.add_argument(
+        "-udf_o",
+        "--update_df_out",
+        default=None,
+        type=str,
+        required=False,
+        help="Path to output csv file containing the updated DataFrame, e.g. 'path/to/mutations_updated.csv'. Only valid when used with `--update_df`. Default: None -> the new csv file will be saved in the same directory as the `mutations` DataFrame with appendix '_updated'.",
+    )
+    parser_mutate.add_argument(
+        "--translate",
+        default=None,
+        action="store_true",
+        required=False,
+        help="Adds additional columns to the updated `mutations` DataFrame containing the wildtype and mutant amino acid sequences. Only valid when used with `--store_full_sequences`.",
+    )
+    parser_mutate.add_argument(
+        "-ts",
+        "--translate_start",
+        default=None,
+        type=int_or_str,
+        required=False,
+        help="(int or str) The position in the input nucleotide sequence to start translating, e.g. 5. If a string is provided, it should correspond to a column name in `mutations` containing the open reading frame start positions for each sequence/mutation. Only valid when used with `--translate`. Default: translates from the beginning of each sequence.",
+    )
+    parser_mutate.add_argument(
+        "--translate_end",
+        default=None,
+        type=int_or_str,
+        required=False,
+        help="(int or str) The position in the input nucleotide sequence to end translating, e.g. 35. If a string is provided, it should correspond to a column name in `mutations` containing the open reading frame end positions for each sequence/mutation. Only valid when used with `--translate`. Default: translates until the end of each sequence.",
+    )
+    parser_mutate.add_argument(
+        "-sfs",
+        "--store_full_sequences",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Includes the complete wildtype and mutant sequences in the updated `mutations` DataFrame (not just the sub-sequence with k-length flanks). Only valid when used with `--update_df`.",
+    )
+    parser_mutate.add_argument(
+        "-o",
+        "--out",
+        default=None,
+        type=str,
+        required=False,
+        help=(
+            "Path to output fasta file containing the mutated sequences, e.g., 'path/to/output_fasta.fa'.\n"
+            "Default: None -> returns a list of the mutated sequences to standard out.\n"
+            "The identifiers (following the '>') of the mutated sequences in the output fasta will be '>[seq_ID]_[mut_ID]'."
+        ),
+    )
+    parser_mutate.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Do not print progress information.",
+    )
+
+    ## opentargets parser arguments
+    opentargets_desc = (
+        "Query the Open Targets Platform with a gene for associated drugs, diseases, tractability stats,"
+        " pharmacogenetic responses, expression data, DepMap effects, and protein-protein interaction data."
+    )
+    parser_opentargets = parent_subparsers.add_parser(
+        "opentargets",
+        parents=[parent],
+        description=opentargets_desc,
+        help=opentargets_desc,
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
+    )
+    parser_opentargets.add_argument(
+        "ens_id",
+        type=str,
+        help="Ensembl gene ID, e.g. ENSG00000169194.",
+    )
+    parser_opentargets.add_argument(
+        "-r",
+        "--resource",
+        choices=OPENTARGETS_RESOURCES,
+        default="diseases",
+        type=str,
+        required=False,
+        help="Type of information to be returned.",
+    )
+    parser_opentargets.add_argument(
+        "-l",
+        "--limit",
+        default=None,
+        type=int,
+        required=False,
+        help="Limits the number of results, e.g. 10 (default: None). Note: Not compatible with the 'tractability' and 'depmap' resources",
+    )
+    parser_opentargets.add_argument(
+        "-o",
+        "--out",
+        type=str,
+        required=False,
+        help=(
+            "Path to the file the results will be saved in, e.g. path/to/directory/results.json.\n"
+            "Default: Standard out."
+        ),
+    )
+    # Filters
+    _filters = [
+        # flag, long flag,   filter name,            example,            valid resources
+        ("d", "disease", "disease ID", "EFO_0000274", ["drugs"]),
+        ("c", "drug", "drug ID", "CHEMBL1743081", ["pharmacogenetics"]),
+        ("t", "tissue", "tissue ID", "UBERON_0000473", ["expression", "depmap"]),
+        ("a", "anat_sys", "anatomical system", "nervous system", ["expression"]),
+        ("o", "organ", "organ", "brain", ["expression"]),
+        ("pa", "protein_a", "protein A ID", "ENSP00000304915", ["interactions"]),
+        ("pb", "protein_b", "protein B ID", "ENSP00000379111", ["interactions"]),
+        ("gb", "gene_b", "gene B ID", "ENSG00000077238", ["interactions"]),
+    ]
+    for flag, long_flag, filter_name, example, valid_resources in _filters:
+        help_text = f"Filter results by {filter_name}, e.g. '{example}'.\n"
+        if len(valid_resources) > 1:
+            quot = "'"
+            help_text += f"Only valid for the following resources: {', '.join([quot+vr+quot for vr in valid_resources])}."
+        else:
+            help_text += f"Only valid for the '{valid_resources[0]}' resource."
+        parser_opentargets.add_argument(
+            "-f" + flag,
+            "--filter_" + long_flag,
+            type=str,
+            required=False,
+            nargs="+",
+            default=None,
+            help=help_text,
+        )
+    # End Filters
+    parser_opentargets.add_argument(
+        "-csv",
+        "--csv",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Returns results in csv format instead of json.",
+    )
+    parser_opentargets.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Does not print progress information.",
+    )
+    parser_opentargets.add_argument(
+        "-or",
+        "--or",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Use OR instead of AND logic for multiple filter IDs.",
+    )
+
+    ## cbio parser arguments
+    cbio_desc = "Plot cancer genomics heatmaps using data from cBioPortal using Ensembl IDs or gene names"
+    parser_cbio = parent_subparsers.add_parser(
+        "cbio",
+        parents=[parent],
+        description=cbio_desc,
+        help=cbio_desc,
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
+    )
+    parser_cbio_subparsers = parser_cbio.add_subparsers(
+        dest="subcommand", help="Subcommand to execute."
+    )
+    parser_cbio_search = parser_cbio_subparsers.add_parser(
+        "search",
+        description="Search for genes in cBioPortal.",
+        help="Find cBioPortal study IDs by keyword.",
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
+    )
+    parser_cbio_search.add_argument(
+        "keywords",
+        type=str,
+        nargs="+",
+        help="Keywords to search for in cBioPortal.",
+    )
+    parser_cbio_plot = parser_cbio_subparsers.add_parser(
+        "plot",
+        description="Plot a heatmap of cancer genomics data.",
+        help="Plot a heatmap of cancer genomics data.",
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
+    )
+    parser_cbio_plot.add_argument(
+        "-s",
+        "--study_ids",
+        type=str,
+        nargs="+",
+        help="Space-separated list of cBioPortal study IDs, e.g. `msk_impact_2017 egc_msk_2023`",
+        required=True,
+    )
+    parser_cbio_plot.add_argument(
+        "-g",
+        "--genes",
+        type=str,
+        nargs="+",
+        help="Space-separated list of gene names or Ensembl IDs, e.g. `NOTCH3 ENSG00000108375`",
+        required=True,
+    )
+    parser_cbio_plot.add_argument(
+        "-st",
+        "--stratification",
+        type=str,
+        choices=["tissue", "cancer_type", "cancer_type_detailed", "study_id", "sample"],
+        help="Column to stratify the heatmap by.",
+        default="tissue",
+        required=False,
+    )
+    parser_cbio_plot.add_argument(
+        "-vt",
+        "--variation_type",
+        type=str,
+        choices=[
+            "mutation_occurrences",
+            "cna_nonbinary",
+            "sv_occurrences",
+            "cna_occurrences",
+            "Consequence",
+        ],
+        help="Type of variation to plot",
+        default="mutation_occurrences",
+        required=False,
+    )
+    parser_cbio_plot.add_argument(
+        "-f",
+        "--filter",
+        type=str,
+        default=None,
+        help="Filter the heatmap by a specific value in a specific column, e.g. `tissue:intestine`",
+        required=False,
+    )
+    parser_cbio_plot.add_argument(
+        "-dd",
+        "--data_dir",
+        type=str,
+        default="gget_cbio_cache",
+        help="Directory to store downloaded data (default: ./gget_cbio_cache)",
+        required=False,
+    )
+    parser_cbio_plot.add_argument(
+        "-fd",
+        "--figure_dir",
+        type=str,
+        default="gget_cbio_figures",
+        help="Directory to store generated figures (default: ./gget_cbio_figures)",
+        required=False,
+    )
+    parser_cbio_plot.add_argument(
+        "-fn",
+        "--filename",
+        type=str,
+        default=None,
+        help="Filename for the generated figure, relative to `figure_dir` (default: auto-generated)",
+        required=False,
+    )
+    parser_cbio_plot.add_argument(
+        "-t",
+        "--title",
+        type=str,
+        default=None,
+        help="Title for the generated figure (default: auto-generated)",
+        required=False,
+    )
+    parser_cbio_plot.add_argument(
+        "-dpi",
+        "--dpi",
+        type=int,
+        default=100,
+        help="DPI of the generated figures (default: 100)",
+        required=False,
+    )
+    parser_cbio_plot.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Does not print progress information.",
+    )
+    parser_cbio_plot.add_argument(
+        "-nc",
+        "--no_confirm",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Skip confirmation before downloading data.",
+    )
+    parser_cbio_plot.add_argument(
+        "-sh",
+        "--show",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Show the plot in a window",
+    )
+
+    ## bgee parser arguments
+    bgee_desc = "Query the Bgee database for orthology and gene expression data using Ensembl IDs."
+    parser_bgee = parent_subparsers.add_parser(
+        "bgee",
+        parents=[parent],
+        description=bgee_desc,
+        help=bgee_desc,
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
+    )
+    parser_bgee.add_argument(
+        "ens_id",
+        type=str,
+        help="Ensembl gene ID, e.g. ENSG00000169194 or ENSSSCG00000014725.",
+    )
+    parser_bgee.add_argument(
+        "-t",
+        "--type",
+        type=str,
+        choices=["orthologs", "expression"],
+        help="Type of information to be returned.",
+        required=True,
+    )
+    parser_bgee.add_argument(
+        "-o",
+        "--out",
+        type=str,
+        required=False,
+        help=(
+            "Path to the file the results will be saved in, e.g. path/to/directory/results.json.\n"
+            "Default: Standard out."
+        ),
+    )
+    parser_bgee.add_argument(
+        "-csv",
+        "--csv",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Returns results in csv format instead of json.",
+    )
+    parser_bgee.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Does not print progress information.",
     )
 
     ### Define return values
@@ -1884,6 +2443,10 @@ def main():
         "elm": parser_elm,
         "diamond": parser_diamond,
         "cosmic": parser_cosmic,
+        "mutate": parser_mutate,
+        "opentargets": parser_opentargets,
+        "cbio": parser_cbio,
+        "bgee": parser_bgee,
     }
 
     if len(sys.argv) == 2:
@@ -2066,10 +2629,23 @@ def main():
         mutate_results = mutate(
             sequences=seqs,
             mutations=muts,
+            gtf=args.gtf,
+            gtf_transcript_id_column=args.gtf_transcript_id_column,
             k=args.k,
             mut_column=args.mut_column,
             mut_id_column=args.mut_id_column,
             seq_id_column=args.seq_id_column,
+            min_seq_len=args.min_seq_len,
+            max_ambiguous=args.max_ambiguous,
+            optimize_flanking_regions=args.optimize_flanking_regions,
+            remove_seqs_with_wt_kmers=args.remove_seqs_with_wt_kmers,
+            merge_identical=args.merge_identical_off,
+            update_df=args.update_df,
+            update_df_out=args.update_df_out,
+            store_full_sequences=args.store_full_sequences,
+            translate=args.translate,
+            translate_start=args.translate_start,
+            translate_end=args.translate_end,
             out=args.out,
             verbose=args.quiet,
         )
@@ -2092,6 +2668,8 @@ def main():
             cosmic_version=args.cosmic_version,
             grch_version=args.grch_version,
             gget_mutate=args.gget_mutate,
+            keep_genome_info=args.keep_genome_info,
+            remove_duplicates=args.remove_duplicates,
             out=args.out,
             verbose=args.quiet,
         )
@@ -2314,33 +2892,23 @@ def main():
                     with open(args.out, "w") as tfile:
                         tfile.write("\n".join(ref_results))
 
-                    if args.download == True:
-                        # Download list of URLs
-                        for link in ref_results:
-                            # command = "wget " + link
-                            command = "curl -O " + link
-                            os.system(command)
-                #                     else:
-                #                         logger.info(
-                #                             "To download the FTPs to the current directory, add flag [-d]."
-                #                         )
-
                 # Print results if no directory specified
                 else:
                     # Print results
                     for ref_res in ref_results:
                         print(ref_res)
 
-                    if args.download == True:
-                        # Download list of URLs
-                        for link in ref_results:
-                            # command = "wget " + link
-                            command = "curl -O " + link
-                            os.system(command)
-            #                     else:
-            #                         logger.info(
-            #                             "To download the FTPs to the current directory, add flag [-d]."
-            #                         )
+                # Either way, download the files if download flag is set
+                if args.download:
+                    output_dir_part = ""
+                    if args.out_dir is not None and args.out_dir != "":
+                        output_dir_part = f'--output-dir "{args.out_dir}" '
+                        os.makedirs(args.out_dir, exist_ok=True)
+
+                    # Download list of URLs
+                    for link in ref_results:
+                        command = f"curl {output_dir_part}-O " + link
+                        os.system(command)
 
             # Print or save json file (ftp=False)
             else:
@@ -2352,37 +2920,23 @@ def main():
                     with open(args.out, "w", encoding="utf-8") as f:
                         json.dump(ref_results, f, ensure_ascii=False, indent=4)
 
-                    if args.download == True:
-                        # Download the URLs from the dictionary
-                        for link in ref_results:
-                            for sp in ref_results:
-                                for ftp_type in ref_results[sp]:
-                                    link = ref_results[sp][ftp_type]["ftp"]
-                                    #                                     command = "wget " + link
-                                    command = "curl -O " + link
-                                    os.system(command)
-                #                     else:
-                #                         logger.info(
-                #                             "To download the FTPs to the current directory, add flag [-d]."
-                #                         )
-
                 # Print results if no directory specified
                 else:
                     print(json.dumps(ref_results, ensure_ascii=False, indent=4))
 
-                    if args.download == True:
-                        # Download the URLs from the dictionary
-                        for link in ref_results:
-                            for sp in ref_results:
-                                for ftp_type in ref_results[sp]:
-                                    link = ref_results[sp][ftp_type]["ftp"]
-                                    #                                     command = "wget " + link
-                                    command = "curl -O " + link
-                                    os.system(command)
-    #                     else:
-    #                         logger.info(
-    #                             "To download the FTPs to the current directory, add flag [-d]."
-    #                         )
+                # Either way, download the files if download flag is set
+                if args.download:
+                    output_dir_part = ""
+                    if args.out_dir is not None and args.out_dir != "":
+                        output_dir_part = f'--output-dir "{args.out_dir}" '
+                        os.makedirs(args.out_dir, exist_ok=True)
+
+                    # Download the URLs from the dictionary
+                    for sp in ref_results:
+                        for ftp_type in ref_results[sp]:
+                            link = ref_results[sp][ftp_type]["ftp"]
+                            command = f"curl {output_dir_part}-O " + link
+                            os.system(command)
 
     ## search return
     if args.command == "search":
@@ -2491,6 +3045,7 @@ def main():
         # Submit Enrichr query
         enrichr_results = enrichr(
             genes=genes_clean_final,
+            species=args.species,
             background=args.background,
             background_list=bkg_genes_clean_final,
             database=args.database,
@@ -2503,7 +3058,7 @@ def main():
         )
 
         # Check if the function returned something
-        if not isinstance(enrichr_results, type(None)):
+        if enrichr_results is not None:
             # Save enrichr results if args.out specified
             if args.out and not args.csv:
                 # Create saving directory
@@ -2716,3 +3271,108 @@ def main():
             run_download=True,
             save_json=args.out + 'dataverse.json'
         )
+    ## opentargets return
+    if args.command == "opentargets":
+        flag_to_filter_id = {
+            "filter_disease": "disease_id",
+            "filter_drug": "drug_id",
+            "filter_tissue": "tissue_id",
+            "filter_anat_sys": "anatomical_system",
+            "filter_organ": "organ",
+            "filter_protein_a": "protein_a_id",
+            "filter_protein_b": "protein_b_id",
+            "filter_gene_b": "gene_b_id",
+        }
+        filters: Optional[dict[str, list[str]]] = {}
+
+        for flag, filter_id in flag_to_filter_id.items():
+            if getattr(args, flag) is not None:
+                filters[filter_id] = getattr(args, flag)
+
+        if len(filters) == 0:
+            filters = None
+
+        opentargets_results = opentargets(
+            ensembl_id=args.ens_id,
+            resource=args.resource,
+            limit=args.limit,
+            verbose=args.quiet,
+            filters=filters,
+            filter_mode="or" if getattr(args, "or") else "and",
+        )
+
+        if args.out is not None and args.out != "":
+            # Make saving directory
+            directory = os.path.dirname(args.out)
+            if directory != "":
+                os.makedirs(directory, exist_ok=True)
+
+            # Save json
+            with open(args.out, "w", encoding="utf-8") as f:
+                if args.csv:
+                    opentargets_results.to_csv(f, index=False)
+                else:
+                    opentargets_results.to_json(
+                        f, orient="records", force_ascii=False, indent=4
+                    )
+        else:
+            if args.csv:
+                opentargets_results.to_csv(sys.stdout, index=False)
+            else:
+                print(
+                    opentargets_results.to_json(
+                        orient="records", force_ascii=False, indent=4
+                    )
+                )
+
+    ## cbio return
+    if args.command == "cbio":
+        if args.subcommand == "search":
+            cbio_results = cbio_search(convert_to_list(*args.keywords))
+            print(json.dumps(cbio_results, ensure_ascii=False, indent=4))
+        elif args.subcommand == "plot":
+            cbio_plot(
+                args.study_ids,
+                args.genes,
+                stratification=args.stratification,
+                variation_type=args.variation_type,
+                filter=args.filter.split(":", 1) if args.filter else None,
+                data_dir=args.data_dir,
+                figure_dir=args.figure_dir,
+                dpi=args.dpi,
+                verbose=args.quiet,
+                confirm_download=not args.no_confirm,
+                show=args.show,
+                figure_filename=args.filename,
+                figure_title=args.title,
+            )
+
+    ## bgee return
+    if args.command == "bgee":
+        bgee_results: pd.DataFrame = bgee(
+            args.ens_id,
+            type=args.type,
+            verbose=args.quiet,
+        )
+
+        if args.out is not None and args.out != "":
+            # Make saving directory
+            directory = os.path.dirname(args.out)
+            if directory != "":
+                os.makedirs(directory, exist_ok=True)
+
+            # Save json
+            with open(args.out, "w", encoding="utf-8") as f:
+                if args.csv:
+                    bgee_results.to_csv(f, index=False)
+                else:
+                    bgee_results.to_json(
+                        f, orient="records", force_ascii=False, indent=4
+                    )
+        else:
+            if args.csv:
+                bgee_results.to_csv(sys.stdout, index=False)
+            else:
+                print(
+                    bgee_results.to_json(orient="records", force_ascii=False, indent=4)
+                )

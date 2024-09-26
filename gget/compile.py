@@ -5,6 +5,7 @@ import platform
 
 from .constants import MUSCLE_GITHUB_LINK
 from .utils import set_up_logger
+
 logger = set_up_logger()
 
 # Get absolute package path

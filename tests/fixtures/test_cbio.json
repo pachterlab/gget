@@ -1,0 +1,50 @@
+{
+    "test_cbio_download": {
+        "type": "cbio_download",
+        "args": {
+            "study_ids": [
+                "msk_impact_2017"
+            ],
+            "out_dir": "/tmp/test_cbio_download"
+        },
+        "expected_result": {
+            "/tmp/test_cbio_download/msk_impact_2017/clinical_patient.txt": "08caa5754ffcae79b39eecad37edf201",
+            "/tmp/test_cbio_download/msk_impact_2017/clinical_sample.txt": "7550a0468bb410a2bdef42bd27c5ad32",
+            "/tmp/test_cbio_download/msk_impact_2017/cna.txt": "e79f73232793853e808f69bd9d034125",
+            "/tmp/test_cbio_download/msk_impact_2017/mutations.txt": "35264fd2f43492f09a15f15516fbe1b4",
+            "/tmp/test_cbio_download/msk_impact_2017/sv.txt": "24ce260e03b417d47929f8fc34fc49a4"
+        }
+    },
+    "test_cbio_download_partially_existing_files": {
+        "type": "cbio_download",
+        "args": {
+            "study_ids": [
+                "msk_impact_2017",
+                "egc_msk_2023"
+            ],
+            "out_dir": "/tmp/test_cbio_download"
+        },
+        "expected_result": {
+            "/tmp/test_cbio_download/msk_impact_2017/clinical_patient.txt": "08caa5754ffcae79b39eecad37edf201",
+            "/tmp/test_cbio_download/msk_impact_2017/clinical_sample.txt": "7550a0468bb410a2bdef42bd27c5ad32",
+            "/tmp/test_cbio_download/msk_impact_2017/cna.txt": "e79f73232793853e808f69bd9d034125",
+            "/tmp/test_cbio_download/msk_impact_2017/mutations.txt": "35264fd2f43492f09a15f15516fbe1b4",
+            "/tmp/test_cbio_download/msk_impact_2017/sv.txt": "24ce260e03b417d47929f8fc34fc49a4",
+            "/tmp/test_cbio_download/egc_msk_2023/clinical_patient.txt": "6fbd67c0eca7a24fa6918f37c989033f",
+            "/tmp/test_cbio_download/egc_msk_2023/clinical_sample.txt": "a4423dfa78788df1b9f49fef31f282a9",
+            "/tmp/test_cbio_download/egc_msk_2023/cna.txt": "1acb67c06284754ee472402753e54263",
+            "/tmp/test_cbio_download/egc_msk_2023/mutations.txt": "be28497d2f95d933ad8e14a04adc2beb",
+            "/tmp/test_cbio_download/egc_msk_2023/sv.txt": "c1a0011480b533d2b659373ffd178c32"
+        }
+    },
+    "test_error_cbio_download": {
+        "type": "cbio_download",
+        "args": {
+            "study_ids": [
+                "non_existent_study_id"
+            ],
+            "out_dir": "/tmp/test_cbio_download"
+        },
+        "expected_result": false
+    }
+}

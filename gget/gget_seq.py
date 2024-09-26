@@ -1,7 +1,8 @@
 import numpy as np
 
 # Custom functions
-from .utils import rest_query, get_uniprot_seqs, set_up_logger
+from .utils import rest_query, get_uniprot_seqs, set_up_logger, post_query
+
 logger = set_up_logger()
 from .gget_info import info
 
@@ -85,43 +86,54 @@ def seq(
         master_dict = {}
 
         # Query REST APIs from https://rest.ensembl.org/
-        for ensembl_ID in ens_ids_clean:
-            # Create dict to save query results
-            results_dict = {ensembl_ID: {}}
 
-            # If isoforms False, just fetch sequences of passed Ensembl ID
-            if isoforms == False:
-                # sequence/id/ query: Request sequence by stable identifier
-                query = "sequence/id/" + ensembl_ID + "?"
+        # If isoforms False, just fetch sequences of passed Ensembl ID
+        if not isoforms:
+            actual_results_dict = {}
 
-                # Try if query valid
-                try:
-                    # Submit query; this will throw RuntimeError if ID not found
-                    df_temp = rest_query(server, query, content_type)
+            endpoint = "sequence/id/"
+            query = {"ids": ens_ids_clean}
 
-                    # Delete superfluous entries
-                    keys_to_delete = ["query", "id", "version", "molecule"]
-                    for key in keys_to_delete:
-                        # Pop keys, None -> do not raise an error if key to delete not found
-                        df_temp.pop(key, None)
+            # noinspection PyTypeChecker
+            results_list = post_query(server, endpoint, query)
+            results_dict = {v["query"]: v for v in results_list if v is not None}
 
-                    # Add results to main dict
-                    results_dict[ensembl_ID].update({"seq": df_temp})
+            for ensembl_ID, df_temp in results_dict.items():
+                # Delete superfluous entries
+                keys_to_delete = ["query", "id", "version", "molecule"]
+                for key in keys_to_delete:
+                    # Pop keys, None -> do not raise an error if key to delete not found
+                    df_temp.pop(key, None)
 
-                    if verbose:
-                        logger.info(
-                            f"Requesting nucleotide sequence of {ensembl_ID} from Ensembl."
-                        )
+                # Add results to main dict
+                actual_results_dict[ensembl_ID] = {"seq": df_temp}
 
-                except RuntimeError:
-                    logger.error(
-                        f"ID {ensembl_ID} not found. Please double-check spelling/arguments and try again."
+                if verbose:
+                    logger.info(
+                        f"Requesting nucleotide sequence of {ensembl_ID} from Ensembl."
                     )
 
-            # If isoforms true, fetch sequences of isoforms instead
-            if isoforms == True:
+            missing_ids = set(ens_ids_clean) - set(actual_results_dict.keys())
+
+            for missing in missing_ids:
+                logger.error(
+                    f"ID {missing} not found. Please double-check spelling/arguments and try again."
+                )
+
+            # Add results to master dict
+            master_dict.update(actual_results_dict)
+
+        # If isoforms true, fetch sequences of isoforms instead
+        # todo this could possibly be refactored to use bulk queries
+        else:
+            for ensembl_ID in ens_ids_clean:
+                # Create dict to save query results
+                results_dict = {ensembl_ID: {}}
+
                 # Get ID type (gene, transcript, ...) using gget info
-                info_df = info(ensembl_ID, verbose=False, pdb=False, ncbi=False, uniprot=False)
+                info_df = info(
+                    ensembl_ID, verbose=False, pdb=False, ncbi=False, uniprot=False
+                )
 
                 # Check if Ensembl ID was found
                 if isinstance(info_df, type(None)):
@@ -198,8 +210,8 @@ def seq(
                             "Please double-check spelling/arguments and try again."
                         )
 
-            # Add results to master dict
-            master_dict.update(results_dict)
+                # Add results to master dict
+                master_dict.update(results_dict)
 
         # Build FASTA file
         for ens_ID in master_dict:
@@ -224,7 +236,9 @@ def seq(
 
             for ensembl_ID in ens_ids_clean:
                 # Get ID type (gene, transcript, ...) using gget info
-                info_df = info(ensembl_ID, verbose=False, pdb=False, ncbi=False, uniprot=False)
+                info_df = info(
+                    ensembl_ID, verbose=False, pdb=False, ncbi=False, uniprot=False
+                )
 
                 # Check that Ensembl ID was found
                 if isinstance(info_df, type(None)):
@@ -289,7 +303,9 @@ def seq(
 
             for ensembl_ID in ens_ids_clean:
                 # Get ID type (gene, transcript, ...) using gget info
-                info_df = info(ensembl_ID, verbose=False, pdb=False, ncbi=False, uniprot=False)
+                info_df = info(
+                    ensembl_ID, verbose=False, pdb=False, ncbi=False, uniprot=False
+                )
 
                 # Check that Ensembl ID was found
                 if isinstance(info_df, type(None)):

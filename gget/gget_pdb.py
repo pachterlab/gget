@@ -3,6 +3,7 @@ from urllib.error import HTTPError
 import json
 
 from .utils import set_up_logger
+
 logger = set_up_logger()
 
 from .constants import RCSB_PDB_API

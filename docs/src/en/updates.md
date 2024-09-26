@@ -1,8 +1,27 @@
 ## ✨ What's new  
+**Version ≥ 0.29.0** (Sep 25, 2024):  
+- **New modules:**
+    - [`gget cbio`](cbio.md)
+    - [`gget opentargets`](opentargets.md)
+    - [`gget bgee`](bgee.md)
+- **[`gget enrichr`](./enrichr.md) now also supports species other than human (fly, yeast, worm, and fish) via [modEnrichR](https://maayanlab.cloud/modEnrichr/)**
+- [`gget mutate`](./mutate.md):  
+  `gget mutate` will now merge identical sequences in the final file by default. Mutation creation was vectorized to decrease runtime. Improved flanking sequence check for non-substitution mutations to make sure no wildtype kmer is retained in the mutation-containing sequence. Addition of several new arguments to customize sequence generation and output.
+- [`gget cosmic`](./cosmic.md):  
+  Added support for targeted as well as gene screens. The CSV file created for gget mutate now also contains protein mutation info.
+- [`gget ref`](./ref.md):  
+  Added out file option.
+- [`gget info`](./info.md) and [`gget seq`](./seq.md):  
+  Switched to Ensembl POST API to increase speed (nothing changes in front end).
+- Other "behind the scenes" changes:
+    - Unit tests reorganized to increase speed and decrease code
+    - Requirements updated to [allow newer mysql-connector versions](https://github.com/pachterlab/gget/pull/159)
+    - [Support Numpy>= 2.0](https://github.com/pachterlab/gget/issues/157)
+
 **Version ≥ 0.28.6** (Jun 2, 2024):  
 - **New module: [`gget mutate`](./mutate.md)**
 - [`gget cosmic`](./cosmic.md): You can now download entire COSMIC databases using the argument `download_cosmic` argument
-- [`gget ref`](./ref.md): Can now fetch the GRCh27 genome assembly using `species='human_grch37'`
+- [`gget ref`](./ref.md): Can now fetch the GRCh37 genome assembly using `species='human_grch37'`
 - [`gget search`](./search.md): Adjust access of human data to the structure of Ensembl release 112 (fixes [issue 129](https://github.com/pachterlab/gget/issues/129))
 
 ~~**Version ≥ 0.28.5** (May 29, 2024):~~ 

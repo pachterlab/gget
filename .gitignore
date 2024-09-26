@@ -29,6 +29,7 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+/gget/elm_files/
 
 # PyInstaller
 #  Usually these files are written by a python script from a template
@@ -130,3 +131,12 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# PyCharm
+/.idea/
+
+# mdbook documentation
+/docs/book/
+
+# Scratch directory
+/scratch/

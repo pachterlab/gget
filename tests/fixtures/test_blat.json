@@ -1,5 +1,5 @@
 {
-    "test1": {
+    "test_blat_nt": {
         "type": "assert_equal",
         "args": {
             "sequence": "ATGCTGAATTTATGCTGAATTTATGCTGAATTTATGCTGAATTT"
@@ -21,7 +21,7 @@
             ]
         ]
     },
-    "test2": {
+    "test_blat_nt_json": {
         "type": "assert_equal",
         "args": {
             "sequence": "CACACATCCGGTTCTTCCGGGAGCTAGGGG",
@@ -45,7 +45,7 @@
             }
         ]
     },
-    "test3": {
+    "test_blat_nt_DNA": {
         "type": "assert_equal",
         "args": {
             "sequence": "ATGCTGAATTTATGCTGAATTTATGCTGAATTTATGCTGAATTT",
@@ -68,7 +68,7 @@
             ]
         ]
     },
-    "test4": {
+    "test_blat_aa": {
         "type": "assert_equal",
         "args": {
             "sequence": "MLMPGPLRRALGQKFSIFPSVDHDSDDDSYEVLDLTEYARRHHWWNRLFGRNSGPVVEKYSVAT",
@@ -91,7 +91,7 @@
             ]
         ]
     },
-    "test5": {
+    "test_blat_aa_protein": {
         "type": "assert_equal",
         "args": {
             "sequence": "MLMPGPLRRALGQKFSIFPSVDHDSDDDSYEVLDLTEYARRHHWWNRLFGRNSGPVVEKYSVAT",
@@ -115,7 +115,7 @@
             ]
         ]
     },
-    "test6": {
+    "test_blat_nt_fasta": {
         "type": "assert_equal",
         "args": {
             "sequence": "tests/fixtures/muscle_nt_test.fa",
@@ -152,7 +152,7 @@
             ]
         ]
     },
-    "test7": {
+    "test_blat_nt_txt": {
         "type": "assert_equal",
         "args": {
             "sequence": "tests/fixtures/muscle_nt_test.txt",
@@ -189,56 +189,62 @@
             ]
         ]
     },
-    "none_test1": {
-        "type": "none",
+    "test_blat_nt_protein": {
+        "type": "assert_none",
         "args": {
             "sequence": "ATGCTGAATTTATGCTGAATTTATGCTGAATTTATGCTGAATTT",
             "seqtype": "protein",
             "assembly": "zebrafinch"
         },
-        "expected_result": null
+        "expected_result": null,
+        "msg": "DNA search in protein database is not None."
     },
-    "none_test2": {
-        "type": "none",
+    "test_blat_nt_RNA": {
+        "type": "assert_none",
         "args": {
             "sequence": "ATGCTGAATTTATGCTGAATTTATGCTGAATTTATGCTGAATTT",
             "seqtype": "translated%20RNA"
         },
-        "expected_result": null
+        "expected_result": null,
+        "msg": "DNA search in RNA database is not None."
     },
-    "none_test3": {
-        "type": "none",
+    "test_blat_nt_transDNA": {
+        "type": "assert_none",
         "args": {
             "sequence": "ATGCTGAATTTATGCTGAATTTATGCTGAATTTATGCTGAATTT",
             "seqtype": "translated%20DNA"
         },
-        "expected_result": null
+        "expected_result": null,
+        "msg": "DNA search in translated DNA database is not None."
     },
-    "none_test4": {
-        "type": "none",
+    "test_blat_aa_RNA": {
+        "type": "assert_none",
         "args": {
             "sequence": "MLMPGPLRRALGQKFSIFPSVDHDSDDDSYEVLDLTEYARRHHWWNRLFGRNSGPVVEKYSVAT",
             "seqtype": "translated%20RNA"
         },
-        "expected_result": null
+        "expected_result": null,
+        "msg": "DNA search in RNA database is not None."
     },
-    "none_test5": {
-        "type": "none",
+    "test_blat_bad_assembly": {
+        "type": "assert_none",
         "args": {
             "sequence": "MLMPGPLRRALGQKFSIFPSVDHDSDDDSYEVLDLTEYARRHHWWNRLFGRNSGPVVEKYSVAT",
             "seqtype": "DNA",
             "assembly": "banana"
         },
-        "expected_result": null
+        "expected_result": null,
+        "msg": "Invalid assembly result is not None."
     },
-    "none_test6": {
-        "type": "none",
+    "test_blat_shortseq": {
+        "type": "assert_none",
         "args": {
             "sequence": "MLMPGPLRRALGQ"
         },
-        "expected_result": null
+        "expected_result": null,
+        "msg": "Sequence too short result is not None."
     },
-    "error_test1": {
+    "test_blat_bad_seqtype": {
         "type": "error",
         "args": {
             "sequence": "MLMPGPLRRALGQKFSIFPSVDHDSDDDSYEVLDLTEYARRHHWWNRLFGRNSGPVVEKYSVAT",
@@ -246,7 +252,7 @@
         },
         "expected_result": "ValueError"
     },
-    "error_test2": {
+    "test_blat_bad_fileformat": {
         "type": "error",
         "args": {
             "sequence": "tests/fixtures/muscle_nt_test.banana",
@@ -255,14 +261,14 @@
         },
         "expected_result": "ValueError"
     },
-    "error_test3": {
+    "test_blat_bad_fasta": {
         "type": "error",
         "args": {
             "sequence": "banana.fa"
         },
         "expected_result": "FileNotFoundError"
     },
-    "error_test4": {
+    "test_blat_bad_txt": {
         "type": "error",
         "args": {
             "sequence": "banana.txt"

@@ -44,8 +44,8 @@ DESACTIVA la creación de una versión modificada de la base de datos para usar 
 Python: `gget_mutate` es Verdadero por defecto. Establezca `gget_mutate=False` para deshabilitar.
 
 **Parámetros opcionales (para descargar bases de datos COSMIC)**  
-`-mc` `--mutation_class`
-'cáncer' (predeterminado), 'línea_celular', 'censo', 'resistencia', 'pantalla' o 'ejemplo_cáncer'  
+`-mc` `--mutation_class`  
+'cancer' (predeterminado), 'cell_line', 'census', 'resistance', 'genome_screen', 'targeted_screen', o 'cancer_example'  
 Tipo de base de datos COSMIC para descargar.
 
 `-cv` `--cosmic_version`  
@@ -62,7 +62,7 @@ Predeterminado: None
 -> Cuando download_cosmic=True: La base de datos se descargará en el directorio de trabajo actual  
 
 **Banderas (generales)**  
-`-csv` `--csv`
+`-csv` `--csv`  
 Solo para Terminal. Produce los resultados en formato CSV.  
 Para Python, usa json=True para producir los resultados en formato JSON.
 

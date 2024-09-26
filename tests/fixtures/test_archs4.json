@@ -1,5 +1,5 @@
 {
-    "test1": {
+    "test_archs4_defaults": {
         "type": "assert_equal",
         "args": {
             "gene": "FUNDC1"
@@ -407,7 +407,7 @@
             ]
         ]
     },
-    "test2": {
+    "test_archs4_mouse": {
         "type": "assert_equal",
         "args": {
             "gene": "FUNDC1",
@@ -437,7 +437,7 @@
             ]
         ]
     },
-    "test3": {
+    "test_archs4_mouse_json": {
         "type": "assert_equal",
         "args": {
             "gene": "FUNDC1",
@@ -468,7 +468,7 @@
             }
         ]
     },
-    "test4": {
+    "test_archs4_mouse_json_ensembl": {
         "type": "assert_equal",
         "args": {
             "gene": "ENSG00000106443.4",
@@ -500,7 +500,7 @@
             }
         ]
     },
-    "test5": {
+    "test_archs4_tissue": {
         "type": "assert_equal",
         "args": {
             "gene": "fuNdC1",
@@ -1085,7 +1085,7 @@
             ]
         ]
     },
-    "test6": {
+    "test_archs4_tissue_json": {
         "type": "assert_equal",
         "args": {
             "gene": "fuNdC1",
@@ -1671,7 +1671,7 @@
             }
         ]
     },
-    "test7": {
+    "test_archs4_tissue_mouse": {
         "type": "assert_equal",
         "args": {
             "gene": "fuNdC1",
@@ -2153,7 +2153,7 @@
             ]
         ]
     },
-    "test8": {
+    "test_archs4_tissue_ensembl": {
         "type": "assert_equal",
         "args": {
             "gene": "ENSG00000106443",
@@ -2636,22 +2636,22 @@
             ]
         ]
     },
-    "none_test1": {
-        "type": "none",
+    "test_archs4_bad_ensembl": {
+        "type": "assert_none",
         "args": {
             "gene": "ENSG00000106443"
         },
         "expected_result": null
     },
-    "none_test2": {
-        "type": "none",
+    "test_archs4_bad_gene": {
+        "type": "assert_none",
         "args": {
             "gene": "BANANA"
         },
         "expected_result": null
     },
-    "none_test3": {
-        "type": "none",
+    "test_archs4_bad_gene_tissue": {
+        "type": "assert_none",
         "args": {
             "gene": "BANANA",
             "which": "tissue",
@@ -2659,7 +2659,7 @@
         },
         "expected_result": null
     },
-    "error_test1": {
+    "test_archs4_bad_which": {
         "type": "error",
         "args": {
             "gene": "OAS1",
@@ -2667,7 +2667,7 @@
         },
         "expected_result": "ValueError"
     },
-    "error_test2": {
+    "test_archs4_bad_species": {
         "type": "error",
         "args": {
             "gene": "OAS1",

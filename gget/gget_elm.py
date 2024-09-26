@@ -5,6 +5,7 @@ import json as json_package
 import re
 
 from .utils import get_uniprot_seqs, tsv_to_df, set_up_logger
+
 logger = set_up_logger()
 
 from .constants import UNIPROT_REST_API
@@ -387,7 +388,7 @@ def elm(
     ]
     for col in ortho_cols:
         if col not in ortho_df.columns:
-            ortho_df[col] = np.NaN
+            ortho_df[col] = np.nan
 
     ortho_df = ortho_df[ortho_cols]
     # Remove false positives and true negatives
@@ -486,7 +487,7 @@ def elm(
 
     for col in regex_cols:
         if col not in df_regex_matches.columns:
-            df_regex_matches[col] = np.NaN
+            df_regex_matches[col] = np.nan
 
     df_regex_matches = df_regex_matches[regex_cols]
     # Remove false positives and true negatives

@@ -8,6 +8,7 @@ import uuid
 from platform import python_version
 
 from .utils import set_up_logger
+
 logger = set_up_logger()
 
 from .compile import PACKAGE_PATH
@@ -15,7 +16,7 @@ from .constants import (
     ELM_INSTANCES_FASTA_DOWNLOAD,
     ELM_CLASSES_TSV_DOWNLOAD,
     ELM_INSTANCES_TSV_DOWNLOAD,
-    ELM_INTDOMAINS_TSV_DOWNLOAD
+    ELM_INTDOMAINS_TSV_DOWNLOAD,
 )
 
 ## Variables for elm module
@@ -41,6 +42,35 @@ PARAMS_DIR = os.path.join(PACKAGE_PATH, "bins/alphafold/")
 PARAMS_PATH = os.path.join(PARAMS_DIR, "params_temp.tar")
 
 
+def _install(package: str, import_name: str, verbose: bool = True):
+    if verbose:
+        logger.info(f"Installing {package} package (requires pip).")
+    command = f"pip install -q -U {package}"
+    with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
+        stderr = process.stderr.read().decode("utf-8")
+    # Exit system if the subprocess returned with an error
+    if process.wait() != 0:
+        if stderr:
+            # Log the standard error if it is not empty
+            sys.stderr.write(stderr)
+        logger.error(
+            f"{package} installation with pip (https://pypi.org/project/{package}) failed."
+        )
+        return
+
+    # Test installation
+    try:
+        exec(f"import {import_name}")
+
+        if verbose:
+            logger.info(f"{import_name} installed succesfully.")
+    except ImportError as e:
+        logger.error(
+            f"{package} installation with pip (https://pypi.org/project/{package}) failed. Import error:\n{e}"
+        )
+        return
+
+
 def setup(module, verbose=True, out=None):
     """
     Function to install third-party dependencies for a specified gget module.
@@ -48,13 +78,13 @@ def setup(module, verbose=True, out=None):
     Some modules require curl to be installed (https://everything.curl.dev/get).
 
     Args:
-    - module    (str) gget module for which dependencies should be installed, e.g. "alphafold", "cellxgene", "elm", or "gpt".
+    - module    (str) gget module for which dependencies should be installed, e.g. "alphafold", "cellxgene", "elm", "gpt", or "cbio".
     - verbose   True/False whether to print progress information. Default True.
     - out       (str) Path to directory to save downloaded files in (currently only applies when module='elm').
                 NOTE: Do not use this argument when downloading the files for use with 'gget.elm'.
                 Default None (files are saved in the gget installation directory).
     """
-    supported_modules = ["alphafold", "cellxgene", "elm", "gpt"]
+    supported_modules = ["alphafold", "cellxgene", "elm", "gpt", "cbio"]
     if module not in supported_modules:
         raise ValueError(
             f"'module' argument specified as {module}. Expected one of: {', '.join(supported_modules)}"
@@ -88,35 +118,10 @@ def setup(module, verbose=True, out=None):
             )
             return
 
-    if module == "cellxgene":
-        if verbose:
-            logger.info("Installing cellxgene-census package (requires pip).")
-        command = "pip install -q -U cellxgene-census"
-        with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
-            stderr = process.stderr.read().decode("utf-8")
-        # Exit system if the subprocess returned with an error
-        if process.wait() != 0:
-            if stderr:
-                # Log the standard error if it is not empty
-                sys.stderr.write(stderr)
-            logger.error(
-                "cellxgene-census installation with pip (https://pypi.org/project/cellxgene-census) failed."
-            )
-            return
+    elif module == "cellxgene":
+        _install("cellxgene-census", "cellxgene_census", verbose=verbose)
 
-        # Test installation
-        try:
-            import cellxgene_census
-
-            if verbose:
-                logger.info(f"cellxgene_census installed succesfully.")
-        except ImportError as e:
-            logger.error(
-                f"cellxgene-census installation with pip (https://pypi.org/project/cellxgene-census) failed. Import error:\n{e}"
-            )
-            return
-
-    if module == "elm":
+    elif module == "elm":
         if verbose:
             logger.info(
                 "ELM data can be downloaded & distributed for non-commercial use according to the following license: http://elm.eu.org/media/Elm_academic_license.pdf"
@@ -130,7 +135,9 @@ def setup(module, verbose=True, out=None):
             elm_instances_fasta = os.path.join(elm_files_out, "elm_instances.fasta")
             elm_classes_tsv = os.path.join(elm_files_out, "elms_classes.tsv")
             elm_instances_tsv = os.path.join(elm_files_out, "elm_instances.tsv")
-            elm_intdomains_tsv = os.path.join(elm_files_out, "elm_interaction_domains.tsv")
+            elm_intdomains_tsv = os.path.join(
+                elm_files_out, "elm_interaction_domains.tsv"
+            )
 
             # Create folder for ELM files (if it does not exist)
             if not os.path.exists(elm_files_out):
@@ -149,17 +156,17 @@ def setup(module, verbose=True, out=None):
         if platform.system() == "Windows":
             # The double-quotation marks allow white spaces in the path, but this does not work for Windows
             command = f"""
-                curl -o {elm_instances_fasta} \"{ELM_INSTANCES_FASTA_DOWNLOAD}\" \
-                &&  curl -o {elm_classes_tsv} \"{ELM_CLASSES_TSV_DOWNLOAD}\" \
-                &&  curl -o {elm_instances_tsv} \"{ELM_INSTANCES_TSV_DOWNLOAD}\" \
+                curl -o {elm_instances_fasta} \"{ELM_INSTANCES_FASTA_DOWNLOAD}\" \\
+                &&  curl -o {elm_classes_tsv} \"{ELM_CLASSES_TSV_DOWNLOAD}\" \\
+                &&  curl -o {elm_instances_tsv} \"{ELM_INSTANCES_TSV_DOWNLOAD}\" \\
                 &&  curl -o {elm_intdomains_tsv} \"{ELM_INTDOMAINS_TSV_DOWNLOAD}\"
                 """
-        
+
         else:
             command = f"""
-                curl -o '{elm_instances_fasta}' {ELM_INSTANCES_FASTA_DOWNLOAD} \
-                &&  curl -o '{elm_classes_tsv}' {ELM_CLASSES_TSV_DOWNLOAD} \
-                &&  curl -o '{elm_instances_tsv}' {ELM_INSTANCES_TSV_DOWNLOAD} \
+                curl -o '{elm_instances_fasta}' {ELM_INSTANCES_FASTA_DOWNLOAD} \\
+                &&  curl -o '{elm_classes_tsv}' {ELM_CLASSES_TSV_DOWNLOAD} \\
+                &&  curl -o '{elm_instances_tsv}' {ELM_INSTANCES_TSV_DOWNLOAD} \\
                 &&  curl -o '{elm_intdomains_tsv}' '{ELM_INTDOMAINS_TSV_DOWNLOAD}'
                 """
 
@@ -199,7 +206,7 @@ def setup(module, verbose=True, out=None):
         else:
             logger.error("ELM interactions domains file missing.")
 
-    if module == "alphafold":
+    elif module == "alphafold":
         if platform.system() == "Windows":
             logger.error(
                 "gget setup alphafold and gget alphafold are not supported on Windows OS."
@@ -276,17 +283,17 @@ def setup(module, verbose=True, out=None):
         # Pip install AlphaFold from local directory
         if platform.system() == "Darwin":
             command = """
-                git clone --branch main -q --branch {} {} {} \
-                && sed -i '' 's/\/tmp\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \
-                && sed -i '' 's/from absl import logging/from absl import logging\\\logging.set_verbosity(logging.WARNING)/g' {}/alphafold/data/tools/jackhmmer.py \
-                && pip install -q -r {}/requirements.txt \
+                git clone --branch main -q --branch {} {} {} \\
+                && sed -i '' 's/\\/tmp\\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \\
+                && sed -i '' '/from absl import logging/a logging.set_verbosity(logging.WARNING)' {}/alphafold/data/tools/jackhmmer.py \\
+                && pip install -q -r {}/requirements.txt \\
                 && pip install -q --no-dependencies {}
                 """.format(
                 ALPHAFOLD_GIT_REPO_VERSION,
                 ALPHAFOLD_GIT_REPO,
                 alphafold_folder,
                 os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace(
-                    "/", "\/"
+                    "/", "\\/"
                 ),  # Replace directory where jackhmmer database chunks will be saved
                 alphafold_folder,
                 alphafold_folder,
@@ -295,17 +302,17 @@ def setup(module, verbose=True, out=None):
             )
         else:
             command = """
-                git clone --branch main -q --branch {} {} {} \
-                && sed -i 's/\/tmp\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \
-                && sed -i 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' {}/alphafold/data/tools/jackhmmer.py \
-                && pip install -q -r {}/requirements.txt \
+                git clone --branch main -q --branch {} {} {} \\
+                && sed -i 's/\\/tmp\\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \\
+                && sed -i 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' {}/alphafold/data/tools/jackhmmer.py \\
+                && pip install -q -r {}/requirements.txt \\
                 && pip install -q --no-dependencies {}
                 """.format(
                 ALPHAFOLD_GIT_REPO_VERSION,
                 ALPHAFOLD_GIT_REPO,
                 alphafold_folder,
                 os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace(
-                    "/", "\/"
+                    "/", "\\/"
                 ),  # Replace directory where jackhmmer database chunks will be saved
                 alphafold_folder,
                 alphafold_folder,
@@ -358,8 +365,8 @@ def setup(module, verbose=True, out=None):
             PDBFIXER_VERSION = "v1.8.1"
 
         command = f"""
-            git clone -q --branch {PDBFIXER_VERSION} {PDBFIXER_GIT_REPO} {pdbfixer_folder} \
-            && pip install -q {pdbfixer_folder} \
+            git clone -q --branch {PDBFIXER_VERSION} {PDBFIXER_GIT_REPO} {pdbfixer_folder} \\
+            && pip install -q {pdbfixer_folder}
             """
 
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
@@ -400,14 +407,14 @@ def setup(module, verbose=True, out=None):
             if platform.system() == "Windows":
                 # The double-quotation marks allow white spaces in the path, but this does not work for Windows
                 command = f"""
-                    curl -# -o {PARAMS_PATH} {PARAMS_URL} \
-                    && tar --extract --file={PARAMS_PATH} --directory={PARAMS_DIR+'params/'} --preserve-permissions \
+                    curl -# -o {PARAMS_PATH} {PARAMS_URL} \\
+                    && tar --extract --file={PARAMS_PATH} --directory={PARAMS_DIR+'params/'} --preserve-permissions \\
                     && rm {PARAMS_PATH}
                     """
             else:
                 command = f"""
-                    curl -# -o '{PARAMS_PATH}' '{PARAMS_URL}' \
-                    && tar --extract --file='{PARAMS_PATH}' --directory='{PARAMS_DIR+'params/'}' --preserve-permissions \
+                    curl -# -o '{PARAMS_PATH}' '{PARAMS_URL}' \\
+                    && tar --extract --file='{PARAMS_PATH}' --directory='{PARAMS_DIR+'params/'}' --preserve-permissions \\
                     && rm '{PARAMS_PATH}'
                     """
 
@@ -428,3 +435,6 @@ def setup(module, verbose=True, out=None):
         else:
             if verbose:
                 logger.info("AlphaFold model parameters already downloaded.")
+
+    elif module == "cbio":
+        _install("bravado", "bravado", verbose=verbose)

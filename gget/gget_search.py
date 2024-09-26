@@ -15,6 +15,7 @@ from .utils import (
     find_nv_kingdom,
     set_up_logger,
 )
+
 logger = set_up_logger()
 
 from gget.constants import ENSEMBL_FTP_URL, ENSEMBL_FTP_URL_NV
@@ -162,12 +163,16 @@ def search(
                 "All available vertebrate databases can be found here:\n"
                 f"http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
             )
-        
+
         elif len(db) > 1 and "homo_sapiens" in species:
             db = f"homo_sapiens_core_{ens_rel}_38"
 
         # Check for ambiguous species matches in species other than mouse and human
-        elif len(db) > 1 and "mus_musculus" not in species and "homo_sapiens" not in species:
+        elif (
+            len(db) > 1
+            and "mus_musculus" not in species
+            and "homo_sapiens" not in species
+        ):
             logger.warning(
                 f"Species matches more than one database. Defaulting to first database: {db[0]}.\n"
                 "All available databases can be found here:\n"
@@ -205,7 +210,7 @@ def search(
                 database=db,
                 user="anonymous",
                 password="",
-                port=port
+                port=port,
             )
             connection_successful = True
             break
@@ -213,7 +218,7 @@ def search(
             last_exception = e
             # Continue to the next port if the connection is unsuccessful
             continue
-    
+
     # If none of the ports work, raise an error with the last exception encountered
     if not connection_successful:
         if "Access denied" in str(last_exception):

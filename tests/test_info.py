@@ -1,4 +1,5 @@
 import unittest
+import unittest.mock
 import pandas as pd
 import json
 from gget.gget_info import info
@@ -8,6 +9,7 @@ with open("./tests/fixtures/test_info.json") as json_file:
     info_dict = json.load(json_file)
 
 
+# todo convert to json loading once wormbase & flybase IDs are fixed. At that point, the json test framework will need a way to handle the ANY values
 class TestInfo(unittest.TestCase):
     maxDiff = None
 

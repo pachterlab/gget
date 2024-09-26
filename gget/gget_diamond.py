@@ -8,6 +8,7 @@ import json as json_package
 
 from .compile import PACKAGE_PATH
 from .utils import tsv_to_df, create_tmp_fasta, remove_temp_files, set_up_logger
+
 logger = set_up_logger()
 
 # Path to precompiled diamond binary

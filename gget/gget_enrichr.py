@@ -9,8 +9,8 @@ from matplotlib.ticker import MaxNLocator
 import textwrap
 
 from .constants import (
-    POST_ENRICHR_URL,
-    GET_ENRICHR_URL,
+    POST_ENRICHR_URLS,
+    GET_ENRICHR_URLS,
     POST_BACKGROUND_ID_ENRICHR_URL,
     GET_BACKGROUND_ENRICHR_URL,
 )
@@ -18,7 +18,9 @@ from .compile import PACKAGE_PATH
 from .gget_info import info
 
 from .utils import set_up_logger
+
 logger = set_up_logger()
+
 
 def ensembl_to_gene_names(ensembl_ids):
     """
@@ -26,14 +28,14 @@ def ensembl_to_gene_names(ensembl_ids):
     """
     genes_v2 = []
 
+    # Remove version number if passed
+    ensembl_ids = [gene_id.split(".")[0] for gene_id in ensembl_ids]
+
+    info_df = info(ensembl_ids, pdb=False, ncbi=False, uniprot=False, verbose=False)
+
     for gene_id in ensembl_ids:
-        # Remove version number if passed
-        gene_id = gene_id.split(".")[0]
-
-        info_df = info(gene_id, pdb=False, ncbi=False, uniprot=False, verbose=False)
-
         # Check if Ensembl ID was found
-        if isinstance(info_df, type(None)):
+        if gene_id not in info_df.index:
             logger.warning(
                 f"ID '{gene_id}' not found. Please double-check spelling/arguments."
             )
@@ -49,11 +51,12 @@ def ensembl_to_gene_names(ensembl_ids):
 
     return genes_v2
 
+
 def clean_genes_list(genes_list):
     # Remove any NaNs/Nones from the gene list
     genes_clean = []
     for gene in genes_list:
-        if not isinstance(gene, float) and not gene is None and not gene == "nan":
+        if not isinstance(gene, float) and gene is not None and gene != "nan":
             genes_clean.append(gene)
     return genes_clean
 
@@ -61,6 +64,7 @@ def clean_genes_list(genes_list):
 def enrichr(
     genes,
     database,
+    species="human",
     background_list=None,
     background=False,
     ensembl=False,
@@ -81,17 +85,24 @@ def enrichr(
     - genes             List of Entrez gene symbols to perform enrichment analysis on, passed as a list of strings, e.g. ['PHF14', 'RBM3', 'MSL1', 'PHF21A'].
                         Set 'ensembl = True' to input a list of Ensembl gene IDs, e.g. ['ENSG00000106443', 'ENSG00000102317', 'ENSG00000188895'].
     - database          Database to use as reference for the enrichment analysis.
-                        Supported shortcuts (and their default database):
+                        Supported shortcuts (and their default database), ONLY SUPPORTED FOR HUMAN/MOUSE SPECIES (other species must specify the full database name):
                         'pathway' (KEGG_2021_Human)
                         'transcription' (ChEA_2016)
                         'ontology' (GO_Biological_Process_2021)
                         'diseases_drugs' (GWAS_Catalog_2019)
                         'celltypes' (PanglaoDB_Augmented_2021)
                         'kinase_interactions' (KEA_2015)
-                        or any database listed under Gene-set Library at: https://maayanlab.cloud/Enrichr/#libraries
-    - background_list   List of gene names/Ensembl IDs to be used as background genes. (Default: None)
+                        or any database listed under Gene-set Library at: https://maayanlab.cloud/Enrichr/#libraries or the species-specific libraries listed below
+    - species           Enrichr species database to query. Options:
+                        'human' (default) [H. sapiens] - https://maayanlab.cloud/Enrichr/#libraries
+                        'mouse' [M. musculus] - equivalent to 'human'
+                        'fly' [D. melanogaster] - https://maayanlab.cloud/FlyEnrichr/#stats
+                        'yeast' [S. cerevisiae] - https://maayanlab.cloud/YeastEnrichr/#stats
+                        'worm' [C. elegans] - https://maayanlab.cloud/WormEnrichr/#stats
+                        'fish' [D. rerio] - https://maayanlab.cloud/FishEnrichr/#stats
+    - background_list   List of gene names/Ensembl IDs to be used as background genes. ONLY SUPPORTED FOR HUMAN/MOUSE SPECIES (Default: None)
     - background        If True, use set of > 20,000 default background genes listed here: https://github.com/pachterlab/gget/blob/main/gget/constants/enrichr_bkg_genes.txt.
-                        (Default: False)
+                        ONLY SUPPORTED FOR HUMAN/MOUSE SPECIES (Default: False)
     - ensembl           Define as 'True' if 'genes' is a list of Ensembl gene IDs. (Default: False)
     - ensembl_bkg       Define as 'True' if 'background_list' is a list of Ensembl gene IDs. (Default: False)
     - plot              True/False whether to provide a graphical overview of the first 15 results. (Default: False)
@@ -106,13 +117,58 @@ def enrichr(
     Returns a data frame with the Enrichr results.
     """
 
+    if species not in ["human", "mouse", "fly", "yeast", "worm", "fish"]:
+        raise ValueError(
+            f"Argument 'species' must be one of 'human', 'mouse', 'fly', 'yeast', 'worm', or 'fish'."
+        )
+
+    if species == "mouse":
+        species = "human"
+
+    species_enrichr = f"{species.capitalize()}Enrichr"
+    if species == "human":
+        species_enrichr = "Enrichr"
+
+    if species != "human":
+        if database in [
+            "pathway",
+            "transcription",
+            "ontology",
+            "diseases_drugs",
+            "celltypes",
+            "kinase_interactions",
+        ]:
+            raise ValueError(
+                f"Database '{database}' is not supported for species '{species}'."
+                f" Please select a database from the species-specific libraries listed at:"
+                f" https://maayanlab.cloud/{species_enrichr}/#stats."
+            )
+
+        if background:
+            raise ValueError(
+                f"Background genes are only supported for species 'human' and 'mouse', not for species '{species}'."
+                f" Please set 'background=False' or leave it unspecified."
+            )
+
+        if background_list:
+            raise ValueError(
+                f"Background genes are only supported for species 'human' and 'mouse', not for species '{species}'."
+                f" Please do not provide a value for 'background_list'."
+            )
+
     # Define database
     # All available libraries: https://maayanlab.cloud/Enrichr/#libraries
-    db_message = f"""
-    Please note that there might be a more appropriate database for your application. 
-    Go to https://maayanlab.cloud/Enrichr/#libraries for a full list of supported databases.
-    """
-    if not (type(background) == bool):
+    if species == "human":
+        db_message = f"""
+        Please note that there might be a more appropriate database for your application. 
+        Go to https://maayanlab.cloud/{species_enrichr}/#libraries for a full list of supported databases.
+        """
+    else:
+        db_message = f"""
+        Please note that there might be a more appropriate database for your application. 
+        Go to https://maayanlab.cloud/{species_enrichr}/#stats for a full list of supported databases.
+        """
+    if not isinstance(background, bool):
         raise ValueError(
             f"Argument`background` must be a boolean True/False. If you are adding a background list, use the argument `background_list` instead."
         )
@@ -122,48 +178,48 @@ def enrichr(
         database = "KEGG_2021_Human"
         if verbose:
             logger.info(
-                f"Performing Enichr analysis using database {database}. " + db_message
+                f"Performing Enrichr analysis using database {database}. " + db_message
             )
 
     elif database == "transcription":
         database = "ChEA_2016"
         if verbose:
             logger.info(
-                f"Performing Enichr analysis using database {database}. " + db_message
+                f"Performing Enrichr analysis using database {database}. " + db_message
             )
 
     elif database == "ontology":
         database = "GO_Biological_Process_2021"
         if verbose:
             logger.info(
-                f"Performing Enichr analysis using database {database}. " + db_message
+                f"Performing Enrichr analysis using database {database}. " + db_message
             )
 
     elif database == "diseases_drugs":
         database = "GWAS_Catalog_2019"
         if verbose:
             logger.info(
-                f"Performing Enichr analysis using database {database}. " + db_message
+                f"Performing Enrichr analysis using database {database}. " + db_message
             )
 
     elif database == "celltypes":
         database = "PanglaoDB_Augmented_2021"
         if verbose:
             logger.info(
-                f"Performing Enichr analysis using database {database}. " + db_message
+                f"Performing Enrichr analysis using database {database}. " + db_message
             )
 
     elif database == "kinase_interactions":
         database = "KEA_2015"
         if verbose:
             logger.info(
-                f"Performing Enichr analysis using database {database}. " + db_message
+                f"Performing Enrichr analysis using database {database}. " + db_message
             )
 
     else:
         database = database
         if verbose:
-            logger.info(f"Performing Enichr analysis using database {database}.")
+            logger.info(f"Performing Enrichr analysis using database {database}.")
 
     # To generate a KEGG pathway image, confirm that the database is a KEGG database and pykegg is installed
     if kegg_out:
@@ -181,7 +237,7 @@ def enrichr(
             return
 
     # If single gene passed as string, convert to list
-    if type(genes) == str:
+    if isinstance(genes, str):
         genes = [genes]
 
     ## Transform Ensembl IDs to gene symbols
@@ -202,7 +258,7 @@ def enrichr(
     if background_list and ensembl_bkg:
         background_list = ensembl_to_gene_names(background_list)
 
-    if not isinstance(background_list, type(None)):
+    if background_list is not None:
         if len(background_list) == 0 and ensembl:
             logger.error("No background gene symbols found for given Ensembl IDs.")
             return
@@ -212,7 +268,7 @@ def enrichr(
     if ensembl:
         if verbose:
             logger.info(
-                f"Performing Enichr analysis on the following gene symbols: {', '.join(genes_clean)}"
+                f"Performing Enrichr analysis on the following gene symbols: {', '.join(genes_clean)}"
             )
 
     # Join genes from list
@@ -228,7 +284,7 @@ def enrichr(
         "description": (None, "gget client gene list"),
     }
 
-    r1 = requests.post(POST_ENRICHR_URL, files=args_dict)
+    r1 = requests.post(POST_ENRICHR_URLS[species], files=args_dict)
 
     if not r1.ok:
         raise RuntimeError(
@@ -247,7 +303,7 @@ def enrichr(
     if background_list:
         if verbose:
             logger.info(
-                f"Performing Enichr analysis using user-defined background gene list."
+                f"Performing Enrichr analysis using user-defined background gene list."
             )
 
         if background:
@@ -290,11 +346,19 @@ def enrichr(
 
     # Submit query to Enrich using gene list and background genes list
     if not background_final:
-        query_string = f"?userListId={userListId}&backgroundType={database}"
-        r2 = requests.get(GET_ENRICHR_URL + query_string)
+        r2 = requests.get(
+            GET_ENRICHR_URLS[species],
+            params={"userListId": userListId, "backgroundType": database},
+        )
     else:
-        query_string = f"?userListId={userListId}&backgroundid={background_list_id}&backgroundType={database}"
-        r2 = requests.post(GET_BACKGROUND_ENRICHR_URL + query_string)
+        r2 = requests.post(
+            GET_BACKGROUND_ENRICHR_URL,
+            params={
+                "userListId": userListId,
+                "backgroundid": background_list_id,
+                "backgroundType": database,
+            },
+        )
 
     if not r2.ok:
         if background_final:
@@ -314,7 +378,9 @@ def enrichr(
                 """
             )
 
-    enrichr_results = r2.json()
+    # Replace inf values with "inf" string
+    response_text = r2.text.replace("Infinity", '"inf"')
+    enrichr_results = json_package.loads(response_text)
 
     ## Build data frame (standard return)
     # Define column names
@@ -335,12 +401,20 @@ def enrichr(
         df = pd.DataFrame(enrichr_results[database], columns=columns)
 
     except KeyError:
-        logger.error(
-            f"""
-            Database {database} not found. Go to https://maayanlab.cloud/Enrichr/#libraries 
-            for a full list of supported databases.
-            """
-        )
+        if species == "human":
+            logger.error(
+                f"""
+                Database {database} not found. Go to https://maayanlab.cloud/{species_enrichr}/#libraries 
+                for a full list of supported databases.
+                """
+            )
+        else:
+            logger.error(
+                f"""
+                Database {database} not found. Go to https://maayanlab.cloud/{species_enrichr}/#stats 
+                for a full list of supported databases.
+                """
+            )
         return
 
     # Drop last two columns ("Old p-value", "Old adjusted p-value")
@@ -478,7 +552,7 @@ def enrichr(
         plt.tight_layout()
 
         if save:
-            fig.savefig(
+            plt.savefig(
                 "gget_enrichr_results.png",
                 dpi=300,
                 bbox_inches="tight",

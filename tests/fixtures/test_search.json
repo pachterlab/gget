@@ -1,6 +1,6 @@
 {
-    "test1": {
-        "type": "assert_equal",
+    "test_search_gene_one_sw": {
+        "type": "assert_equal_na",
         "args": {
             "searchwords": "swiss",
             "species": "drosophila_melanogaster_core_110_10",
@@ -21,8 +21,8 @@
             ]
         ]
     },
-    "test2": {
-        "type": "assert_equal",
+    "test_search_gene_one_sw_json": {
+        "type": "assert_equal_na",
         "args": {
             "searchwords": "swiss",
             "species": "drosophila_melanogaster_core_110_10",
@@ -43,8 +43,8 @@
             }
         ]
     },
-    "test3": {
-        "type": "assert_equal",
+    "test_search_gene_two_sw_or": {
+        "type": "assert_equal_na",
         "args": {
             "searchwords": [
                 "swiss",
@@ -80,8 +80,8 @@
             ]
         ]
     },
-    "test4": {
-        "type": "assert_equal",
+    "test_search_gene_one_sw_limit": {
+        "type": "assert_equal_na",
         "args": {
             "searchwords": "fun",
             "species": "human",
@@ -127,8 +127,8 @@
             ]
         ]
     },
-    "test5": {
-        "type": "assert_equal",
+    "test_search_transcript_one_sw": {
+        "type": "assert_equal_na",
         "args": {
             "searchwords": "nep3",
             "species": "drosophila_melanogaster_core_110_10",
@@ -171,8 +171,8 @@
             ]
         ]
     },
-    "test6": {
-        "type": "assert_equal",
+    "test_search_transcript_two_sw_or": {
+        "type": "assert_equal_na",
         "args": {
             "searchwords": [
                 "SNORA71",
@@ -242,8 +242,8 @@
             ]
         ]
     },
-    "test7": {
-        "type": "assert_equal",
+    "test_search_transcript_two_sw_and": {
+        "type": "assert_equal_na",
         "args": {
             "searchwords": [
                 "SNORA71",
@@ -279,8 +279,8 @@
             ]
         ]
     },
-    "test8": {
-        "type": "assert_equal",
+    "test_search_gene_two_sw_limit": {
+        "type": "assert_equal_na",
         "args": {
             "searchwords": [
                 "SNORA71",
@@ -327,8 +327,8 @@
             ]
         ]
     },
-    "test9": {
-        "type": "assert_equal",
+    "test_search_gene_two_sw_and": {
+        "type": "assert_equal_na",
         "args": {
             "searchwords": [
                 "swiss",
@@ -353,8 +353,8 @@
             ]
         ]
     },
-    "test10": {
-        "type": "assert_equal",
+    "test_search_release": {
+        "type": "assert_equal_na",
         "args": {
             "searchwords": [
                 "ACE2"
@@ -414,8 +414,8 @@
             ]
         ]
     },
-    "test11": {
-        "type": "assert_equal",
+    "test_search_db": {
+        "type": "assert_equal_na",
         "args": {
             "searchwords": [
                 "hi"
@@ -459,8 +459,8 @@
             ]
         ]
     },
-    "test12": {
-        "type": "assert_equal",
+    "test_search_plant": {
+        "type": "assert_equal_na",
         "args": {
             "searchwords": [
                 "hi"
@@ -509,8 +509,8 @@
             ]
         ]
     },
-    "test13": {
-        "type": "assert_equal",
+    "test_search_plant_db": {
+        "type": "assert_equal_na",
         "args": {
             "searchwords": [
                 "CLF"
@@ -539,8 +539,8 @@
             ]
         ]
     },
-    "test14": {
-        "type": "assert_equal",
+    "test_search_octopus": {
+        "type": "assert_equal_na",
         "args": {
             "searchwords": "methi",
             "species": "octopus_bimaculoides",
@@ -560,7 +560,7 @@
             ]
         ]
     },
-    "error_test1": {
+    "test_search_gene_bad_species": {
         "type": "error",
         "args": {
             "searchwords": "fun",
@@ -571,7 +571,7 @@
         },
         "expected_result": "ValueError"
     },
-    "error_test2": {
+    "test_search_transcript_bad_species": {
         "type": "error",
         "args": {
             "searchwords": "fun",
@@ -582,7 +582,7 @@
         },
         "expected_result": "ValueError"
     },
-    "error_test3": {
+    "test_search_gene_bad_andor": {
         "type": "error",
         "args": {
             "searchwords": "fun",
@@ -593,7 +593,7 @@
         },
         "expected_result": "ValueError"
     },
-    "error_test4": {
+    "test_search_transcript_bad_andor": {
         "type": "error",
         "args": {
             "searchwords": "fun",

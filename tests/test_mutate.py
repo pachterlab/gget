@@ -1,153 +1,234 @@
+import json
+
+import pytest
 import unittest
+import gget
+import pandas as pd
+import os
+import tempfile
+from .from_json import from_json, do_call
 
-from gget.gget_mutate import (
-    create_mutant_sequence,
-    substitution_mutation,
-    deletion_mutation,
-    insertion_mutation,
-    delins_mutation,
-    duplication_mutation,
-    inversion_mutation,
+LONG_SEQUENCE = (
+    "CCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCCG"
 )
-
-# Length of flanking sequences
-k = 30
-
-
-# Test sequences
-def alphabet_sequence():
-    return "ABCDEFG"
+EXTRA_LONG_SEQUENCE = "CCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCCG"
+LONG_SEQUENCE_WITH_N = "CCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCCGCCCCNCCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCCG"
 
 
-def alphabet_sequence_long():
-    return (
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ"
+@pytest.fixture
+def create_temp_files():
+    # Create a temporary CSV file
+    temp_csv_file = tempfile.NamedTemporaryFile(delete=False, suffix=".csv")
+
+    # Data to write to CSV
+    mutation_list = ["c.35G>A", "c.65G>A", "c.35del", "c.4_5insT"]
+    protein_mutation_list = ["A12T", "A22T", "A12del", "A4_5insT"]
+    mut_ID_list = [
+        "GENE1_MUT1A_MUT1B",
+        "GENE1_MUT2A_MUT2B",
+        "GENE2_MUT1A_MUT1B",
+        "GENE3_MUT1A_MUT1B",
+    ]
+    seq_ID_list = ["ENST1", "ENST2", "ENST3", "ENST4"]
+
+    data = {
+        "mutation": mutation_list,
+        "mutation_aa": protein_mutation_list,
+        "mut_ID": mut_ID_list,
+        "seq_ID": seq_ID_list,
+    }
+
+    df = pd.DataFrame(data)
+    df.to_csv(temp_csv_file.name, index=False)
+
+    # Create a temporary FASTA file
+    sequence_list = [LONG_SEQUENCE for _ in range(len(mutation_list))]
+    temp_fasta_file = tempfile.NamedTemporaryFile(delete=False, suffix=".fasta")
+
+    with open(temp_fasta_file.name, "w") as fasta_file:
+        for seq_id, sequence in zip(seq_ID_list, sequence_list):
+            fasta_file.write(f">{seq_id}\n")
+            fasta_file.write(f"{sequence}\n")
+
+    yield temp_csv_file.name, temp_fasta_file.name
+
+    # Cleanup
+    os.remove(temp_csv_file.name)
+    os.remove(temp_fasta_file.name)
+
+
+def assert_global_variables_zero(
+    number_intronic_position_mutations=0,
+    number_posttranslational_region_mutations=0,
+    number_uncertain_mutations=0,
+    number_ambiguous_position_mutations=0,
+    number_index_errors=0,
+):
+    assert gget.gget_mutate.intronic_mutations == number_intronic_position_mutations
+    assert (
+        gget.gget_mutate.posttranslational_region_mutations
+        == number_posttranslational_region_mutations
+    )
+    assert gget.gget_mutate.uncertain_mutations == number_uncertain_mutations
+    assert (
+        gget.gget_mutate.ambiguous_position_mutations
+        == number_ambiguous_position_mutations
+    )
+    assert gget.gget_mutate.mut_idx_outside_seq == number_index_errors
+
+
+def _recursive_replace(v, old: str, new: str, exact=False):
+    if isinstance(v, str):
+        if exact:
+            if v == old:
+                return new
+            else:
+                return v
+        else:
+            return v.replace(old, new)
+    elif isinstance(v, dict):
+        return {
+            _recursive_replace(k, old, new, exact=exact): _recursive_replace(
+                v, old, new, exact=exact
+            )
+            for k, v in v.items()
+        }
+    elif isinstance(v, list):
+        return [_recursive_replace(v, old, new, exact=exact) for v in v]
+    else:
+        return v
+
+
+def _assert_mutate(name: str, td, func):
+    ls = LONG_SEQUENCE
+
+    def assert_mutate(self: unittest.TestCase):
+        # reset global variables
+        gget.gget_mutate.intronic_mutations = 0
+        gget.gget_mutate.posttranslational_region_mutations = 0
+        gget.gget_mutate.uncertain_mutations = 0
+        gget.gget_mutate.ambiguous_position_mutations = 0
+        gget.gget_mutate.mut_idx_outside_seq = 0
+
+        test = name
+        expected_result = td[test].get("expected_result", None)
+        global_variables = td[test].get("global_variables", {})
+
+        args = td[test]["args"]
+
+        args = _recursive_replace(args, "<long_sequence>", ls, exact=True)
+        # args = _recursive_replace(args, "<extra_long_sequence>", els, exact=True)
+        # args = _recursive_replace(args, "<long_sequence_with_n>", ls_with_n, exact=True)
+
+        result = do_call(func, args)
+
+        if expected_result:
+            self.assertEqual(result[0], expected_result)
+
+        assert_global_variables_zero(**global_variables)
+
+    return assert_mutate
+
+
+def _assert_mutate_N(name: str, td, func):
+    ls_with_n = LONG_SEQUENCE_WITH_N
+
+    def assert_mutate_N(self: unittest.TestCase):
+        # reset global variables
+        gget.gget_mutate.intronic_mutations = 0
+        gget.gget_mutate.posttranslational_region_mutations = 0
+        gget.gget_mutate.uncertain_mutations = 0
+        gget.gget_mutate.ambiguous_position_mutations = 0
+        gget.gget_mutate.mut_idx_outside_seq = 0
+
+        test = name
+        expected_result = td[test].get("expected_result", None)
+        global_variables = td[test].get("global_variables", {})
+
+        args = td[test]["args"]
+
+        args = _recursive_replace(args, "<long_sequence_with_N>", ls_with_n, exact=True)
+
+        result = do_call(func, args)
+
+        if expected_result:
+            self.assertEqual(result[0], expected_result)
+
+        assert_global_variables_zero(**global_variables)
+
+    return assert_mutate_N
+
+
+def _assert_mutate_long(name: str, td, func):
+    els = EXTRA_LONG_SEQUENCE
+
+    def assert_mutate_long(self: unittest.TestCase):
+        # reset global variables
+        gget.gget_mutate.intronic_mutations = 0
+        gget.gget_mutate.posttranslational_region_mutations = 0
+        gget.gget_mutate.uncertain_mutations = 0
+        gget.gget_mutate.ambiguous_position_mutations = 0
+        gget.gget_mutate.mut_idx_outside_seq = 0
+
+        test = name
+        expected_result = td[test].get("expected_result", None)
+        global_variables = td[test].get("global_variables", {})
+
+        args = td[test]["args"]
+
+        args = _recursive_replace(args, "<extra_long_sequence>", els, exact=True)
+        # args = _recursive_replace(args, "<long_sequence_with_n>", ls_with_n, exact=True)
+
+        result = do_call(func, args)
+
+        if expected_result:
+            self.assertEqual(result[0], expected_result)
+
+        assert_global_variables_zero(**global_variables)
+
+    return assert_mutate_long
+
+
+with open("./tests/fixtures/test_mutate.json") as json_file:
+    mutate_dict = json.load(json_file)
+
+
+class TestMutate(
+    unittest.TestCase,
+    metaclass=from_json(
+        mutate_dict,
+        gget.mutate,
+        {
+            "assert_mutate": _assert_mutate,
+            "assert_mutate_N": _assert_mutate_N,
+            "assert_mutate_long": _assert_mutate_long,
+        },
+    ),
+):
+    pass  # all tests are loaded from json
+
+
+# special tests that don't fit the json format
+def test_csv_of_mutations(create_temp_files):
+    mutation_temp_csv_file, sequence_temp_fasta_path = create_temp_files
+
+    result = gget.mutate(
+        sequences=sequence_temp_fasta_path, mutations=mutation_temp_csv_file
     )
 
+    assert result == [
+        "GCCCCACCCCGCCCCTCCCCGCCCCACCCCACCCCTCCCCGCCCCACCCCGCCCCTCCCCG",
+        "GCCCCTCCCCGCCCCACCCCGCCCCTCCCCACCCCACCCCG",
+        "GCCCCACCCCGCCCCTCCCCGCCCCACCCCCCCCTCCCCGCCCCACCCCGCCCCTCCCCG",
+        "CCCCTGCCCCACCCCGCCCCTCCCCGCCCCACCCC",
+    ]
 
-def create_test_row(mutation, sequence):
-    return {"mutation": mutation, "full_sequence": sequence}
+    assert_global_variables_zero()
 
 
-class TestMutate(unittest.TestCase):
-    def setUp(self):
-        self.alphabet_sequence = alphabet_sequence()
-        self.alphabet_sequence_long = alphabet_sequence_long()
+def test_mismatch_error():
+    gget.gget_mutate.mutate(sequences=LONG_SEQUENCE, mutations="c.2G>A")
 
-    def test_substitution(self):
-        test_row = create_test_row("c.3C>X", self.alphabet_sequence)
-        result = create_mutant_sequence(
-            test_row, substitution_mutation, kmer_flanking_length=k
-        )
-        assert result == "ABXDEFG", f"Expected ABXDEFG, got {result}"
+    assert gget.gget_mutate.cosmic_incorrect_wt_base == 1
 
-    def test_substitution_long(self):
-        test_row = create_test_row("c.35I>X", self.alphabet_sequence_long)
-        result = create_mutant_sequence(
-            test_row, substitution_mutation, kmer_flanking_length=k
-        )
-        assert (
-            result == "EFGHIJKLMNOPQRSTUVWXYZABCDEFGHXJKLMNOPQRSTUVWXYZABCDEFGHIJKLM"
-        ), f"Expected EFGHIJKLMNOPQRSTUVWXYZABCDEFGHXJKLMNOPQRSTUVWXYZABCDEFGHIJKLM, got {result}"
-
-    def test_multi_deletion(self):
-        test_row = create_test_row("c.3_6del", self.alphabet_sequence)
-        result = create_mutant_sequence(
-            test_row, deletion_mutation, kmer_flanking_length=k
-        )
-        assert result == "ABG", f"Expected ABG, got {result}"
-
-    def test_multi_deletion_long(self):
-        test_row = create_test_row("c.35_37del", self.alphabet_sequence_long)
-        result = create_mutant_sequence(
-            test_row, deletion_mutation, kmer_flanking_length=k
-        )
-        assert (
-            result == "EFGHIJKLMNOPQRSTUVWXYZABCDEFGHLMNOPQRSTUVWXYZABCDEFGHIJKLMNO"
-        ), f"Expected EFGHIJKLMNOPQRSTUVWXYZABCDEFGHLMNOPQRSTUVWXYZABCDEFGHIJKLMNO, got {result}"
-
-    def test_single_deletion(self):
-        test_row = create_test_row("c.3del", self.alphabet_sequence)
-        result = create_mutant_sequence(
-            test_row, deletion_mutation, kmer_flanking_length=k
-        )
-        assert result == "ABDEFG", f"Expected ABDEFG, got {result}"
-
-    def test_multi_delins(self):
-        test_row = create_test_row("c.3_6delinsXYZ", self.alphabet_sequence)
-        result = create_mutant_sequence(
-            test_row, delins_mutation, kmer_flanking_length=k
-        )
-        assert result == "ABXYZG", f"Expected ABXYZG, got {result}"
-
-    def test_multi_delins_long(self):
-        test_row = create_test_row("c.35_37delinsWXYZ", self.alphabet_sequence_long)
-        result = create_mutant_sequence(
-            test_row, delins_mutation, kmer_flanking_length=k
-        )
-        assert (
-            result == "EFGHIJKLMNOPQRSTUVWXYZABCDEFGHWXYZLMNOPQRSTUVWXYZABCDEFGHIJKLMNO"
-        ), f"Expected EFGHIJKLMNOPQRSTUVWXYZABCDEFGHWXYZLMNOPQRSTUVWXYZABCDEFGHIJKLMNO, got {result}"
-
-    def test_single_delins(self):
-        test_row = create_test_row("c.3delinsXYZ", self.alphabet_sequence)
-        result = create_mutant_sequence(
-            test_row, delins_mutation, kmer_flanking_length=k
-        )
-        assert result == "ABXYZDEFG", f"Expected ABXYZDEFG, got {result}"
-
-    def test_ins(self):
-        test_row = create_test_row("c.3_4insXYZ", self.alphabet_sequence)
-        result = create_mutant_sequence(
-            test_row, insertion_mutation, kmer_flanking_length=k
-        )
-        assert result == "ABCXYZDEFG", f"Expected ABCXYZDEFG, got {result}"
-
-    def test_ins_long(self):
-        test_row = create_test_row("c.35_36insPPP", self.alphabet_sequence_long)
-        result = create_mutant_sequence(
-            test_row, insertion_mutation, kmer_flanking_length=k
-        )
-        assert (
-            result == "EFGHIJKLMNOPQRSTUVWXYZABCDEFGHIPPPJKLMNOPQRSTUVWXYZABCDEFGHIJKLM"
-        ), f"Expected EFGHIJKLMNOPQRSTUVWXYZABCDEFGHIPPPJKLMNOPQRSTUVWXYZABCDEFGHIJKLM, got {result}"
-
-    def test_multi_dup(self):
-        test_row = create_test_row("c.3_5dup", self.alphabet_sequence)
-        result = create_mutant_sequence(
-            test_row, duplication_mutation, kmer_flanking_length=k
-        )
-        assert result == "ABCDECDEFG", f"Expected ABCDECDEFG, got {result}"
-
-    def test_multi_dup_long(self):
-        test_row = create_test_row("c.39_42dup", self.alphabet_sequence_long)
-        result = create_mutant_sequence(
-            test_row, duplication_mutation, kmer_flanking_length=k
-        )
-        assert (
-            result
-            == "IJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRST"
-        ), f"Expected IJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRST, got {result}"
-
-    def test_single_dup(self):
-        test_row = create_test_row("c.5dup", self.alphabet_sequence)
-        result = create_mutant_sequence(
-            test_row, duplication_mutation, kmer_flanking_length=k
-        )
-        assert result == "ABCDEEFG", f"Expected ABCDEEFG, got {result}"
-
-    # def test_inv(self):
-    #     test_row = create_test_row("c.3_4inv", self.alphabet_sequence)
-    #     result = create_mutant_sequence(
-    #         test_row, inversion_mutation, kmer_flanking_length=k
-    #     )
-    #     assert result == "ABDCEFG", f"Expected ABDCEFG, got {result}"
-
-    # def test_inv_long(self):
-    #     test_row = create_test_row("c.41_42inv", self.alphabet_sequence_long)
-    #     result = create_mutant_sequence(
-    #         test_row, inversion_mutation, kmer_flanking_length=k
-    #     )
-    #     assert (
-    #         result == "KLMNOPQRSTUVWXYZABCDEFGHIJKLMNPOQRSTUVWXYZABCDEFGHIJKLMNOPQRST"
-    #     ), f"Expected KLMNOPQRSTUVWXYZABCDEFGHIJKLMNPOQRSTUVWXYZABCDEFGHIJKLMNOPQRST, got {result}"
+    assert_global_variables_zero()

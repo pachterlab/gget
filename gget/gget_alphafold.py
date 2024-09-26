@@ -32,6 +32,7 @@ from ipywidgets import GridspecLayout
 from ipywidgets import Output
 
 from .utils import set_up_logger
+
 logger = set_up_logger()
 
 TQDM_BAR_FORMAT = (

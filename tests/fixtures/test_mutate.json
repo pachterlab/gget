@@ -1,0 +1,337 @@
+{
+    "test_single_substitution": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.35G>A",
+            "optimize_flanking_regions": true
+        },
+        "expected_result": "GCCCCACCCCGCCCCTCCCCGCCCCACCCCACCCCTCCCCGCCCCACCCCGCCCCTCCCCG",
+        "global_variables": {}
+    },
+    "test_single_substitution_near_right_end": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.65G>A",
+            "optimize_flanking_regions": true
+        },
+        "expected_result": "GCCCCTCCCCGCCCCACCCCGCCCCTCCCCACCCCACCCCG",
+        "global_variables": {}
+    },
+    "test_single_substitution_near_left_end": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.5G>A",
+            "optimize_flanking_regions": true
+        },
+        "expected_result": "CCCCACCCCACCCCGCCCCTCCCCGCCCCACCCCG",
+        "global_variables": {}
+    },
+    "test_single_deletion": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.35del",
+            "optimize_flanking_regions": true
+        },
+        "expected_result": "GCCCCACCCCGCCCCTCCCCGCCCCACCCCCCCCTCCCCGCCCCACCCCGCCCCTCCCCG",
+        "global_variables": {}
+    },
+    "test_multi_deletion": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.35_40del",
+            "optimize_flanking_regions": true
+        },
+        "expected_result": "GCCCCACCCCGCCCCTCCCCGCCCCACCCCCCCCGCCCCACCCCGCCCCTCCCCGCCCCA",
+        "global_variables": {}
+    },
+    "test_single_deletion_with_right_repeats": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.31del",
+            "optimize_flanking_regions": true
+        },
+        "expected_result": "CGCCCCACCCCGCCCCTCCCCGCCCCACCCGCCCCTCCCCGCCCCACCCCGCCCCTC",
+        "global_variables": {}
+    },
+    "test_single_deletion_with_left_repeats": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.34del",
+            "optimize_flanking_regions": true
+        },
+        "expected_result": "CGCCCCACCCCGCCCCTCCCCGCCCCACCCGCCCCTCCCCGCCCCACCCCGCCCCTC",
+        "global_variables": {}
+    },
+    "test_multi_deletion_with_right_repeats": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.31_32del",
+            "optimize_flanking_regions": true
+        },
+        "expected_result": "CCGCCCCACCCCGCCCCTCCCCGCCCCACCGCCCCTCCCCGCCCCACCCCGCCCCTCC",
+        "global_variables": {}
+    },
+    "test_single_insertion": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.4_5insT",
+            "optimize_flanking_regions": true
+        },
+        "expected_result": "CCCCTGCCCCACCCCGCCCCTCCCCGCCCCACCCC",
+        "global_variables": {}
+    },
+    "test_multi_insertion": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.65_66insTTTTT",
+            "optimize_flanking_regions": true
+        },
+        "expected_result": "CCCCTCCCCGCCCCACCCCGCCCCTCCCCGTTTTTCCCCACCCCG",
+        "global_variables": {}
+    },
+    "test_multi_insertion_with_left_repeats": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.20_21insCCAAA",
+            "optimize_flanking_regions": true
+        },
+        "expected_result": "CCCCGCCCCACCCCGCCCCTCCAAACCCCGCCCCACCCCGCCCCTCCCCGCCCCA",
+        "global_variables": {}
+    },
+    "test_single_delins": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.38delinsAAA",
+            "optimize_flanking_regions": true
+        },
+        "expected_result": "CCACCCCGCCCCTCCCCGCCCCACCCCGCCAAACTCCCCGCCCCACCCCGCCCCTCCCCGCCC",
+        "global_variables": {}
+    },
+    "test_multi_delins": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.38_40delinsAAA",
+            "optimize_flanking_regions": true
+        },
+        "expected_result": "CCACCCCGCCCCTCCCCGCCCCACCCCGCCAAACCCCGCCCCACCCCGCCCCTCCCCGCCCCA",
+        "global_variables": {}
+    },
+    "test_multi_delins_with_psuedo_left_repeats": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.36_37delinsAG",
+            "optimize_flanking_regions": true
+        },
+        "expected_result": "CCCCACCCCGCCCCTCCCCGCCCCACCCCGAGCCTCCCCGCCCCACCCCGCCCCTCCCCGCC",
+        "global_variables": {}
+    },
+    "test_multi_delins_with_true_left_repeats": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.36_37delinsAC",
+            "optimize_flanking_regions": true
+        },
+        "expected_result": "CCCCACCCCGCCCCTCCCCGCCCCACCCCGACCCTCCCCGCCCCACCCCGCCCCTCCCCGC",
+        "global_variables": {}
+    },
+    "test_multi_delins_with_true_right_repeats": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.36_37delinsCA",
+            "optimize_flanking_regions": true
+        },
+        "expected_result": "CCCACCCCGCCCCTCCCCGCCCCACCCCGCACCTCCCCGCCCCACCCCGCCCCTCCCCGCC",
+        "global_variables": {}
+    },
+    "test_single_dup": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.35dup",
+            "optimize_flanking_regions": true
+        },
+        "expected_result": "CCCCACCCCGCCCCTCCCCGCCCCACCCCGGCCCCTCCCCGCCCCACCCCGCCCCTCCCC",
+        "global_variables": {}
+    },
+    "test_multi_dup": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.35_37dup",
+            "optimize_flanking_regions": true
+        },
+        "expected_result": "CCACCCCGCCCCTCCCCGCCCCACCCCGCCGCCCCTCCCCGCCCCACCCCGCCCCTCC",
+        "global_variables": {}
+    },
+    "test_inversion_with_overlaps": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.35_38inv",
+            "optimize_flanking_regions": true
+        },
+        "expected_result": "CCCCACCCCGCCCCTCCCCGCCCCACCCCGGGCCTCCCCGCCCCACCCCGCCCCTCCCCGCC",
+        "global_variables": {}
+    },
+    "test_list_of_mutations": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": [
+                "<long_sequence>",
+                "<long_sequence>",
+                "<long_sequence>",
+                "<long_sequence>"
+            ],
+            "mutations": [
+                "c.35G>A",
+                "c.65G>A",
+                "c.35del",
+                "c.4_5insT"
+            ]
+        },
+        "expected_result": "",
+        "global_variables": {}
+    },
+    "test_intron_mutation_plus": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.20+3T>A",
+            "optimize_flanking_regions": true
+        },
+        "expected_result": null,
+        "global_variables": {
+            "number_intronic_position_mutations": 1
+        }
+    },
+    "test_intron_mutation_minus": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.20-3T>A",
+            "optimize_flanking_regions": true
+        },
+        "expected_result": null,
+        "global_variables": {
+            "number_intronic_position_mutations": 1
+        }
+    },
+    "test_posttranslational_mutation": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.20*5T>A",
+            "optimize_flanking_regions": true
+        },
+        "expected_result": null,
+        "global_variables": {
+            "number_posttranslational_region_mutations": 1
+        }
+    },
+    "test_uncertain_mutation": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.?",
+            "optimize_flanking_regions": true
+        },
+        "expected_result": null,
+        "global_variables": {
+            "number_uncertain_mutations": 1
+        }
+    },
+    "test_ambiguous_mutation": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.(20_28)del",
+            "optimize_flanking_regions": true
+        },
+        "expected_result": null,
+        "global_variables": {
+            "number_ambiguous_position_mutations": 1
+        }
+    },
+    "test_index_error": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.99999999C>A",
+            "optimize_flanking_regions": true
+        },
+        "expected_result": null,
+        "global_variables": {
+            "number_index_errors": 1
+        }
+    },
+    "test_large_k": {
+        "type": "assert_mutate_long",
+        "args": {
+            "sequences": "<extra_long_sequence>",
+            "mutations": "c.40T>G",
+            "optimize_flanking_regions": true,
+            "k": 54
+        },
+        "expected_result": "CCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCCGCCCCGCCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCC",
+        "global_variables": {}
+    },
+    "test_large_min_seq_length": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.35G>A",
+            "optimize_flanking_regions": true,
+            "min_seq_len": 100
+        },
+        "expected_result": null,
+        "global_variables": {}
+    },
+    "test_single_deletion_with_right_repeats_and_unoptimized_flanks": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.31del",
+            "optimize_flanking_regions": false
+        },
+        "expected_result": "CCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCGCCCCTCCCCGCCCCACCCCGCCCCTC",
+        "global_variables": {}
+    },
+    "test_single_deletion_with_right_repeats_and_removing_seqs_with_wt_kmers": {
+        "type": "assert_mutate",
+        "args": {
+            "sequences": "<long_sequence>",
+            "mutations": "c.31del",
+            "optimize_flanking_regions": false,
+            "remove_seqs_with_wt_kmers": true
+        },
+        "expected_result": null,
+        "global_variables": {}
+    },
+    "test_sequence_with_N": {
+        "type": "assert_mutate_N",
+        "args": {
+            "sequences": "<long_sequence_with_N>",
+            "mutations": "c.35G>A",
+            "optimize_flanking_regions": true,
+            "max_ambiguous": 0
+        },
+        "expected_result": null,
+        "global_variables": {}
+    }
+}
