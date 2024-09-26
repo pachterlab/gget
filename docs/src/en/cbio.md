@@ -33,20 +33,20 @@ Space-separated list of gene names or Ensembl IDs, e.g. <code>NOTCH3&nbsp;ENSG00
 `-st` `--stratification`    
 Column to stratify the data by. Default: `tissue`.  
 Options:
-- `tissue`
-- `cancer_type`
-- `cancer_type_detailed`
-- `study_id`
-- `sample`
+- tissue
+- cancer_type
+- cancer_type_detailed
+- study_id
+- sample
 
 `-vt` `--variation_type`    
 Type of variation to plot. Default: `mutation_occurrences`.     
 Options:
-- `mutation_occurrences`
-- `cna_nonbinary` Note: `stratification` must be `sample` for this option.
-- `sv_occurrences`
-- `cna_occurrences`
-- `Consequence` Note: `stratification` must be `sample` for this option.
+- mutation_occurrences
+- cna_nonbinary (Note: `stratification` must be 'sample' for this option)
+- sv_occurrences
+- cna_occurrences
+- Consequence (Note: `stratification` must be 'sample' for this option)
 
 `-f` `--filter`     
 Filter the data by a specific value in a specific column, e.g. `study_id:msk_impact_2017`   
