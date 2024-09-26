@@ -58,9 +58,6 @@ These are the `gget` core modules. Click on any module to access detailed docume
   </tr>
 </table>
 
-
-### [More tutorials](https://github.com/pachterlab/gget_examples)
-
 <br>  
 
 If you use `gget` in a publication, please [cite*](/gget/en/cite.md):    
