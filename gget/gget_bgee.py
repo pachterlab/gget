@@ -181,4 +181,4 @@ def bgee(
     elif type == "orthologs":
         return _bgee_orthologs(gene_id, json=json, verbose=verbose)
     else:
-        raise ValueError(f"Unknown type: {type}")
+        raise ValueError(f"Argument type should be 'expression' or 'orthologs', not '{type}'")
