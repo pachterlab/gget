@@ -193,7 +193,6 @@
     "test_bgee_orthologs": {
         "type": "assert_equal",
         "args": {
-            "type": "orthologs",
             "gene_id": "ENSOARG00000019163"
         },
         "expected_result": [
