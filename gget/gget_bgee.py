@@ -161,7 +161,7 @@ def _bgee_expression(gene_id, json=False, verbose=True):
 # noinspection PyShadowingBuiltins
 def bgee(
     gene_id,
-    type,
+    type="orthologs",
     json=False,
     verbose=True,
 ):
@@ -169,7 +169,7 @@ def bgee(
     Get orthologs/expression data for a gene from Bgee (https://www.bgee.org/).
 
     Args:
-    type        type of data to retrieve (expression or orthologs)
+    type        type of data to retrieve ('expression' or 'orthologs')
     gene_id     Ensembl gene ID
     json        return JSON instead of DataFrame
     verbose     log progress
