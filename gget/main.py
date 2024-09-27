@@ -2366,7 +2366,8 @@ def main():
         type=str,
         choices=["orthologs", "expression"],
         help="Type of information to be returned.",
-        required=True,
+        default="orthologs",
+        required=False,
     )
     parser_bgee.add_argument(
         "-o",
