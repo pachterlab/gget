@@ -1,5 +1,5 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
-## gget opentargets 🎯
+# gget opentargets 🎯
 Fetch associated diseases or drugs from [OpenTargets](https://platform.opentargets.org/) using Ensembl IDs.   
 Return format: JSON/CSV (command-line) or data frame (Python).  
 
