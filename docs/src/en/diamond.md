@@ -56,3 +56,10 @@ gget.diamond(["GGETISAWESQME", "ELVISISALIVE", "LQVEFRANKLIN", "PACHTERLABRQCKS"
 |Seq3           |Seq1             |100                |15              |15                |15    |0         |0           |1          |15       |1            |15         |2.01e-11|36.2     |
 
 #### [More examples](https://github.com/pachterlab/gget_examples)
+
+# References
+If you use `gget diamond` in a publication, please cite the following articles:   
+
+- Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
+
+- Buchfink, B., Xie, C. & Huson, D. Fast and sensitive protein alignment using DIAMOND. Nat Methods 12, 59–60 (2015). [https://doi.org/10.1038/nmeth.3176](https://doi.org/10.1038/nmeth.3176)
