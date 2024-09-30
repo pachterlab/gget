@@ -1,5 +1,5 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
-## gget muscle 🦾
+# gget muscle 🦾
 Align multiple nucleotide or amino acid sequences to each other using [Muscle5](https://www.drive5.com/muscle/).  
 Return format: ClustalW formatted standard out or aligned FASTA (.afa).  
 
