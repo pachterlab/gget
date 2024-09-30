@@ -23,6 +23,9 @@ Las entradas posibles son uno solo o una combinación de las siguientes (como li
 `-r` `--release`  
 Define el número de versión de Ensembl desde el que se obtienen los archivos, p. ej. 104. Default: latest Ensembl release.  
 
+`-od` `--out_dir`   
+Ruta al directorio donde se guardarán los archivos FTP, p. ruta/al/directorio/. Por defecto: directorio de trabajo actual.  
+
 `-o` `--out`   
 Ruta al archivo en el que se guardarán los resultados, p. ej. ruta/al/directorio/resultados.json. Por defecto: salida estándar (STDOUT).  
 Para Python, usa `save=True` para guardar los resultados en el directorio de trabajo actual.  
