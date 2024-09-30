@@ -1,5 +1,5 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python.  The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
-## gget cosmic 🪐
+# gget cosmic 🪐
 Search for genes, mutations, and other factors associated with cancer using the [COSMIC](https://cancer.sanger.ac.uk/cosmic) (Catalogue Of Somatic Mutations In Cancer) database.  
 Return format: JSON (command-line) or data frame/CSV (Python) when `download_cosmic=False`. When `download_cosmic=True`, downloads the requested database into the specified folder.    
 
