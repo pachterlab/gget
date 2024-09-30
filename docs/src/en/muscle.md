@@ -56,3 +56,11 @@ alv.view(msa)
 ```
 
 #### [More examples](https://github.com/pachterlab/gget_examples)
+
+# References
+If you use `gget muscle` in a publication, please cite the following articles:   
+
+- Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
+
+- Edgar RC (2021), MUSCLE v5 enables improved estimates of phylogenetic tree confidence by ensemble bootstrapping, bioRxiv 2021.06.20.449169. [https://doi.org/10.1101/2021.06.20.449169](https://doi.org/10.1101/2021.06.20.449169)
+
