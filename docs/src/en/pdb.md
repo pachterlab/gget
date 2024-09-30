@@ -1,5 +1,5 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
-## gget pdb 🔮
+# gget pdb 🔮
 Query [RCSB Protein Data Bank (PDB)](https://www.rcsb.org/) for the protein structure/metadata of a given PDB ID.  
 Return format: Resource 'pdb' is returned in PDB format. All other resources are returned in JSON format.  
 
