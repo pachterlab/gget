@@ -20,6 +20,19 @@ Admite cualquier base de datos enumerada [aquí](https://maayanlab.cloud/Enrichr
 'kinase_interactions'   (KEA_2015)  
   
 **Parámetros opcionales**  
+`-s` `--species`  
+Especies a utilizar como referencia para el análisis de enriquecimiento. (Predeterminado: human)
+Opciones:
+
+| Species  | Database list                                                     |
+|----------|-------------------------------------------------------------------|
+| `human`  | [Enrichr](https://maayanlab.cloud/Enrichr/#libraries)             |
+| `mouse`  | [Equivalente al humano](https://maayanlab.cloud/Enrichr/#libraries) |
+| `fly`    | [FlyEnrichr](https://maayanlab.cloud/FlyEnrichr/#stats)       |
+| `yeast`  | [YeastEnrichr](https://maayanlab.cloud/YeastEnrichr/#stats)   |
+| `worm`   | [WormEnrichr](https://maayanlab.cloud/WormEnrichr/#stats)     |
+| `fish`   | [FishEnrichr](https://maayanlab.cloud/FishEnrichr/#stats)     |
+
 `-bkg_l` `--background_list`  
 Lista de nombres cortos (símbolos) de genes de 'background' (de fondo/control), p. NSUN3 POLRMT NLRX1.  
 Alternativamente: usa la bandera `--ensembl_background` para ingresar IDs tipo Ensembl.  
