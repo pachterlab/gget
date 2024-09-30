@@ -1,4 +1,4 @@
-## ✨ What's new  
+# ✨ What's new  
 **Version ≥ 0.29.0** (Sep 25, 2024):  
 - **New modules:**
     - [`gget cbio`](cbio.md)
