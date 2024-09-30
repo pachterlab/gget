@@ -1,5 +1,5 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
-## gget cbio 📖
+# gget cbio 📖
 Plot cancer genomics heatmaps using data from [cBioPortal](https://www.cbioportal.org/) using Ensembl IDs or gene names.  
 
 This module was written by [Sam Wagenaar](https://github.com/techno-sam). 
