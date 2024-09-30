@@ -1,5 +1,5 @@
 > Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Las banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.   
-## gget cosmic 🪐
+# gget cosmic 🪐
 Busque genes, mutaciones, etc. asociados con cánceres utilizando la base de datos [COSMIC](https://cancer.sanger.ac.uk/cosmic) (Catálogo de mutaciones somáticas en cáncer).  
 Produce: JSON (línea de comandos) o marco de datos/CSV (Python) cuando `download_cosmic=False`. Cuando `download_cosmic=True`, descarga la base de datos solicitada en la carpeta especificada.  
 
