@@ -99,7 +99,7 @@ gget.cosmic(searchterm=None, download_cosmic=True)
 &rarr; Descargue la base de datos sobre cáncer de COSMIC de la última versión de COSMIC.  
 
 # Citar    
-Si utiliza `gget alphafold` en una publicación, favor de citar los siguientes artículos:
+Si utiliza `gget cosmic` en una publicación, favor de citar los siguientes artículos:
 
 - Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
 
