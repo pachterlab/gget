@@ -74,7 +74,7 @@ gget.blast("fasta.fa")
 #### [Más ejemplos](https://github.com/pachterlab/gget_examples)
 
 # Citar    
-Si utiliza `gget alphafold` en una publicación, favor de citar los siguientes artículos:
+Si utiliza `gget blast` en una publicación, favor de citar los siguientes artículos:
 
 - Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
 
