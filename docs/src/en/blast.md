@@ -1,5 +1,5 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python.  The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
-## gget blast 💥
+# gget blast 💥
 BLAST a nucleotide or amino acid sequence to any [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi) database.  
 Return format: JSON (command-line) or data frame/CSV (Python).
 
@@ -72,3 +72,10 @@ gget.blast("fasta.fa")
 &rarr; Returns the BLAST results of the first sequence contained in the fasta.fa file. 
 
 #### [More examples](https://github.com/pachterlab/gget_examples)
+
+# References
+If you use `gget alphafold` in a publication, please cite the following articles:   
+
+- Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
+
+- Altschul SF, Gish W, Miller W, Myers EW, Lipman DJ. Basic local alignment search tool. J Mol Biol. 1990 Oct 5;215(3):403-10. doi: 10.1016/S0022-2836(05)80360-2. PMID: 2231712.
