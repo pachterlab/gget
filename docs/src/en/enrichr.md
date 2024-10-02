@@ -23,8 +23,8 @@ NOTE: database shortcuts are not supported for species other than 'human' or 'mo
   
 **Optional arguments**  
 `-s` `--species`  
-Species to use as reference for the enrichment analysis. (Default: human)
-Options:
+Species to use as reference for the enrichment analysis. (Default: human)  
+Options:  
 
 | Species  | Database list                                                     |
 |----------|-------------------------------------------------------------------|
