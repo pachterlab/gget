@@ -21,8 +21,8 @@ Admite cualquier base de datos enumerada [aquí](https://maayanlab.cloud/Enrichr
   
 **Parámetros opcionales**  
 `-s` `--species`  
-Especies a utilizar como referencia para el análisis de enriquecimiento. (Predeterminado: human)
-Opciones:
+Especies a utilizar como referencia para el análisis de enriquecimiento. (Por defecto: human)  
+Opciones:  
 
 | Species  | Database list                                                     |
 |----------|-------------------------------------------------------------------|
