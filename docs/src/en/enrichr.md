@@ -1,5 +1,5 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
-## gget enrichr 💰
+# gget enrichr 💰
 Perform an enrichment analysis on a list of genes using [Enrichr](https://maayanlab.cloud/Enrichr/) or [modEnrichr](https://maayanlab.cloud/modEnrichr/).  
 Return format: JSON (command-line) or data frame/CSV (Python).
   
@@ -23,8 +23,8 @@ NOTE: database shortcuts are not supported for species other than 'human' or 'mo
   
 **Optional arguments**  
 `-s` `--species`  
-Species to use as reference for the enrichment analysis. (Default: human)
-Options:
+Species to use as reference for the enrichment analysis. (Default: human)  
+Options:  
 
 | Species  | Database list                                                     |
 |----------|-------------------------------------------------------------------|
@@ -222,3 +222,17 @@ df |>
 
 # Tutorials
 [Using `gget enrichr` with background genes](https://github.com/pachterlab/gget_examples/blob/main/gget_enrichr_with_background_genes.ipynb)
+
+# References
+If you use `gget enrichr` in a publication, please cite the following articles:   
+
+- Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
+
+- Chen EY, Tan CM, Kou Y, Duan Q, Wang Z, Meirelles GV, Clark NR, Ma'ayan A. Enrichr: interactive and collaborative HTML5 gene list enrichment analysis tool. BMC Bioinformatics. 2013; 128(14). [https://doi.org/10.1186/1471-2105-14-128 ](https://doi.org/10.1186/1471-2105-14-128) 
+
+- Kuleshov MV, Jones MR, Rouillard AD, Fernandez NF, Duan Q, Wang Z, Koplev S, Jenkins SL, Jagodnik KM, Lachmann A, McDermott MG, Monteiro CD, Gundersen GW, Ma'ayan A. Enrichr: a comprehensive gene set enrichment analysis web server 2016 update. Nucleic Acids Research. 2016; gkw377. doi: [10.1093/nar/gkw377](https://doi.org/10.1093/nar/gkw377) 
+
+- Xie Z, Bailey A, Kuleshov MV, Clarke DJB., Evangelista JE, Jenkins SL, Lachmann A, Wojciechowicz ML, Kropiwnicki E, Jagodnik KM, Jeon M, & Ma’ayan A. Gene set knowledge discovery with Enrichr. Current Protocols, 1, e90. 2021. doi: [10.1002/cpz1.90](https://doi.org/10.1002/cpz1.90).
+  
+If working with non-human/mouse datasets, please also cite:
+- Kuleshov MV, Diaz JEL, Flamholz ZN, Keenan AB, Lachmann A, Wojciechowicz ML, Cagan RL, Ma'ayan A. modEnrichr: a suite of gene set enrichment analysis tools for model organisms. Nucleic Acids Res. 2019 Jul 2;47(W1):W183-W190. doi: [10.1093/nar/gkz347](https://doi.org/10.1093/nar/gkz347). PMID: 31069376; PMCID: PMC6602483.

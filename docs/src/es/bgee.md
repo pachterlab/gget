@@ -1,51 +1,50 @@
-> Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
+
+> Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
 # gget bgee 🐝
-Fetch orthology and gene expression data from [Bgee](https://www.bgee.org/) using Ensembl IDs.   
-Return format: JSON/CSV (command-line) or data frame (Python).
 
-> If you are specifically interested in human gene expression data, consider using [gget opentargets](./opentargets.md) or [gget archs4](./archs4.md) instead.
-> **gget bgee** has less data, but supports more species.
+Obtenga datos de ortología y expresión genética de [Bgee](https://www.bgee.org/) utilizando IDs de Ensembl.  
+Resultado: JSON/CSV (línea de comandos) o marco de datos (Python).  
 
-This module was written by [Sam Wagenaar](https://github.com/techno-sam).
+> Si estás interesado específicamente en datos de expresión génica humana, considera usar [gget opentargets](./opentargets.md) o [gget archs4](./archs4.md) en su lugar. **gget bgee** tiene menos datos, pero admite más especies.
 
-**Positional argument**  
+Este módulo fue escrito por [Sam Wagenaar](https://github.com/techno-sam).
+
+**Argumento posicional**  
 `ens_id`  
-Ensembl gene ID, e.g. ENSG00000169194 or ENSSSCG00000014725.  
+ID de gen Ensembl, por ejemplo, ENSG00000169194 o ENSSSCG00000014725.  
 
-NOTE: Some of the species in [Bgee](https://www.bgee.org/) are not in Ensembl or Ensembl metazoa, and for those you can use NCBI gene IDs, e.g. 118215821 (a gene in _Anguilla anguilla_).
+NOTA: Algunas de las especies en [Bgee](https://www.bgee.org/) no están en Ensembl, y para ellas puede utilizar los ID de genes del NCBI, p. 118215821 (un gen en _Anguilla anguilla_).  
 
-**Required arguments**  
+**Argumentos requeridos**  
 `-t` `--type`  
-Type of data to fetch. Options: `orthologs`, `expression`.  
+Tipo de datos a obtener. Opciones: `orthologs`, `expression`.  
 
-**Optional arguments**  
-`-o` `--out`    
-Path to the JSON file the results will be saved in, e.g. path/to/directory/results.json. Default: Standard out.
+**Argumentos opcionales**  
+`-o` `--out`  
+Ruta al archivo JSON donde se guardarán los resultados, por ejemplo, path/to/directory/results.json. Por defecto: Salida estándar.
 
-**Flags**   
+**Banderas**  
 `-csv` `--csv`  
-Command-line only. Returns the output in CSV format, instead of JSON format.  
-Python: Use `json=True` to return output in JSON format.
+Solo en línea de comandos. Devuelve la salida en formato CSV, en lugar de formato JSON.  
+Python: Usa `json=True` para devolver la salida en formato JSON.
 
-`-q` `--quiet`   
-Command-line only. Prevents progress information from being displayed.  
-Python: Use `verbose=False` to prevent progress information from being displayed.
+`-q` `--quiet`  
+Solo en línea de comandos. Evita que se muestre la información de progreso.  
+Python: Usa `verbose=False` para evitar que se muestre la información de progreso.
   
-  
-### Examples
+### Ejemplos
 
-**Get orthologs for a gene**
+**Obtener ortólogos para un gen**
 
 ```bash
 gget bgee ENSSSCG00000014725 -t orthologs
 ```
-
 ```python
 import gget
 gget.bgee("ENSSSCG00000014725", type="orthologs")
 ```
 
-&rarr; Returns orthologs for the gene with Ensembl ID ENSSSCG00000014725.
+&rarr; Devuelve ortólogos para el gen con el ID de Ensembl ENSSSCG00000014725.
 
 | gene_id            | gene_name    | species_id | genus   | species    |
 |--------------------|--------------|------------|---------|------------|
@@ -58,7 +57,7 @@ gget.bgee("ENSSSCG00000014725", type="orthologs")
 
 <br/><br/>
 
-**Get gene expression data for a gene**
+**Obtener datos de expresión génica para un gen**
 
 ```bash
 gget bgee ENSSSCG00000014725 -t expression
@@ -68,7 +67,7 @@ import gget
 gget.bgee("ENSSSCG00000014725", type="expression")
 ```
 
-&rarr; Returns gene expression data for the gene with Ensembl ID ENSSSCG00000014725.
+&rarr; Devuelve datos de expresión génica para el gen con el ID de Ensembl ENSSSCG00000014725.
 
 | anat_entity_id | anat_entity_name            | score | score_confidence | expression_state |
 |----------------|-----------------------------|-------|------------------|------------------|
@@ -80,10 +79,10 @@ gget.bgee("ENSSSCG00000014725", type="expression")
 | ...            | ...                         | ...   | ...              | ...              |
 
     
-#### [More examples](https://github.com/pachterlab/gget_examples)
+#### [Más ejemplos](https://github.com/pachterlab/gget_examples)
 
-# References
-If you use `gget bgee` in a publication, please cite the following articles:   
+# Citar    
+Si utiliza `gget bgee` en una publicación, favor de citar los siguientes artículos:
 
 - Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
 

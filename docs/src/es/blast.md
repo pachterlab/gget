@@ -1,5 +1,5 @@
 > Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Las banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
-## gget blast 💥
+# gget blast 💥
 BLAST una secuencia de nucleótidos o aminoácidos a cualquier base de datos [BLAST](https://blast.ncbi.nlm.nih.gov/Blast.cgi).  
 Produce: Resultados en formato JSON (Terminal) o Dataframe/CSV (Python).  
 
@@ -72,3 +72,10 @@ gget.blast("fasta.fa")
 &rarr; Produce los resultados BLAST de la primera secuencia contenida en el archivo 'fasta.fa'.  
 
 #### [Más ejemplos](https://github.com/pachterlab/gget_examples)
+
+# Citar    
+Si utiliza `gget blast` en una publicación, favor de citar los siguientes artículos:
+
+- Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
+
+- Altschul SF, Gish W, Miller W, Myers EW, Lipman DJ. Basic local alignment search tool. J Mol Biol. 1990 Oct 5;215(3):403-10. doi: 10.1016/S0022-2836(05)80360-2. PMID: 2231712.

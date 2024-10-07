@@ -1,15 +1,11 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
-## gget elm 🎭
+# gget elm 🎭
 Locally predict Eukaryotic Linear Motifs from an amino acid sequence or UniProt Acc using data from the [ELM database](http://elm.eu.org/).   
 Return format: JSON (command-line) or data frame/CSV (Python). This module returns two data frames (or JSON formatted files) (see examples).  
 
 **ELM data can be downloaded & distributed for non-commercial use according to the [ELM Software License Agreement](http://elm.eu.org/media/Elm_academic_license.pdf).** 
 
 Before using `gget elm` for the first time, run `gget setup elm` (bash) / `gget.setup("elm")` (Python) once (also see [`gget setup`](setup.md)).   
-
-If you use `gget elm` in a publication, please cite:
-- Laura Luebbert, Chi Hoang, Manjeet Kumar, Lior Pachter, Fast and scalable querying of eukaryotic linear motifs with gget elm, _Bioinformatics_, 2024, btae095, [https://doi.org/10.1093/bioinformatics/btae095](https://doi.org/10.1093/bioinformatics/btae095)
-- Manjeet Kumar, _et al._, The Eukaryotic Linear Motif resource: 2022 release, _Nucleic Acids Research_, Volume 50, Issue D1, 7 January 2022, Pages D497–D508, [https://doi.org/10.1093/nar/gkab975](https://doi.org/10.1093/nar/gkab975)
 
 **Positional argument**  
 `sequence`  
@@ -93,3 +89,10 @@ regex_df:
 ### [🔗 A point mutation in BRCA2 is carcinogenic due to the loss of a protein interaction motif](https://github.com/pachterlab/gget_examples/blob/main/gget_elm_BRCA2_example.ipynb)  
   
 ### [🔗 Filter `gget elm` results based on disordered protein regions](https://github.com/pachterlab/gget_examples/blob/main/gget_elm_IUPred3_tutorial.ipynb)
+
+# References
+If you use `gget elm` in a publication, please cite the following articles:   
+
+- Laura Luebbert, Chi Hoang, Manjeet Kumar, Lior Pachter, Fast and scalable querying of eukaryotic linear motifs with gget elm, _Bioinformatics_, 2024, btae095, [https://doi.org/10.1093/bioinformatics/btae095](https://doi.org/10.1093/bioinformatics/btae095)
+
+- Manjeet Kumar, Sushama Michael, Jesús Alvarado-Valverde, Bálint Mészáros, Hugo Sámano‐Sánchez, András Zeke, Laszlo Dobson, Tamas Lazar, Mihkel Örd, Anurag Nagpal, Nazanin Farahi, Melanie Käser, Ramya Kraleti, Norman E Davey, Rita Pancsa, Lucía B Chemes, Toby J Gibson, The Eukaryotic Linear Motif resource: 2022 release, Nucleic Acids Research, Volume 50, Issue D1, 7 January 2022, Pages D497–D508, [https://doi.org/10.1093/nar/gkab975](https://doi.org/10.1093/nar/gkab975)

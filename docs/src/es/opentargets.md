@@ -1,92 +1,90 @@
-> Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
+> Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
 # gget opentargets 🎯
-Fetch associated diseases or drugs from [OpenTargets](https://platform.opentargets.org/) using Ensembl IDs.   
-Return format: JSON/CSV (command-line) or data frame (Python).  
+**Obtener enfermedades o fármacos asociados desde [OpenTargets](https://platform.opentargets.org/) usando IDs de Ensembl.**  
+Formato de salida: JSON/CSV (línea de comandos) o marco de datos (Python).  
 
-This module was written by [Sam Wagenaar](https://github.com/techno-sam).  
+Este módulo fue escrito por [Sam Wagenaar](https://github.com/techno-sam).  
 
-**Positional argument**  
+**Argumento posicional**  
 `ens_id`  
-Ensembl gene ID, e.g ENSG00000169194.
+ID de gen Ensembl, por ejemplo, ENSG00000169194.
 
-**Optional arguments**  
+**Argumentos opcionales**  
 `-r` `--resource`   
-Defines the type of information to return in the output. Default: 'diseases'.   
-Possible resources are:
+Define el tipo de información a devolver en la salida. Predeterminado: 'diseases' (enfermedades).   
+Los recursos posibles son:
 
-| Resource           | Return Value                                                      | Valid Filters                                     | Sources                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| Recurso            | Valor devuelto                                                    | Filtros válidos                                   | Fuentes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
 |--------------------|-------------------------------------------------------------------|---------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `diseases`         | Associated diseases                                               | None                                              | Various:<ul><li>[Open&nbsp;Targets](https://genetics.opentargets.org/)</li><li>[ChEMBL](https://www.ebi.ac.uk/chembl/)</li><li>[Europe&nbsp;PMC](http://europepmc.org/)</li></ul>etc.                                                                                                                                                                                                                                                                                                              |
-| `drugs`            | Associated drugs                                                  | `disease_id`                                      | [ChEMBL](https://www.ebi.ac.uk/chembl/)                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| `tractability`     | Tractability data                                                 | None                                              | [Open&nbsp;Targets](https://platform-docs.opentargets.org/target/tractability)                                                                                                                                                                                                                                                                                                                                                                                                                     |
-| `pharmacogenetics` | Pharmacogenetic responses                                         | `drug_id`                                         | [PharmGKB](https://www.pharmgkb.org/)                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
-| `expression`       | Gene expression data (by tissues, organs, and anatomical systems) | `tissue_id`<br/>`anatomical_system`<br/>`organ`   | <ul><li>[ExpressionAtlas](https://www.ebi.ac.uk/gxa/home)</li><li>[HPA](https://www.proteinatlas.org/)</li><li>[GTEx](https://www.gtexportal.org/home/)</li></ul>                                                                                                                                                                                                                                                                                                                                  |
-| `depmap`           | DepMap gene&rarr;disease-effect data.                             | `tissue_id`                                       | [DepMap&nbsp;Portal](https://depmap.org/portal/)                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
-| `interactions`     | Protein&rlarr;protein interactions                                | `protein_a_id`<br/>`protein_b_id`<br/>`gene_b_id` | <ul><li>[Open&nbsp;Targets](https://platform-docs.opentargets.org/target/molecular-interactions)</li><li>[IntAct](https://platform-docs.opentargets.org/target/molecular-interactions#intact)</li><li>[Signor](https://platform-docs.opentargets.org/target/molecular-interactions#signor)</li><li>[Reactome](https://platform-docs.opentargets.org/target/molecular-interactions#reactome)</li><li>[String](https://platform-docs.opentargets.org/target/molecular-interactions#string)</li></ul> |
+| `diseases`         | Enfermedades asociadas                                            | Ninguno                                           | Varias:<ul><li>[Open&nbsp;Targets](https://genetics.opentargets.org/)</li><li>[ChEMBL](https://www.ebi.ac.uk/chembl/)</li><li>[Europe&nbsp;PMC](http://europepmc.org/)</li></ul>etc.                                                                                                                                                                                                                                                                                                               |
+| `drugs`            | Fármacos asociados                                                | `disease_id`                                      | [ChEMBL](https://www.ebi.ac.uk/chembl/)                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `tractability`     | Datos de tractabilidad                                            | Ninguno                                           | [Open&nbsp;Targets](https://platform-docs.opentargets.org/target/tractability)                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| `pharmacogenetics` | Respuestas farmacogenéticas                                       | `drug_id`                                         | [PharmGKB](https://www.pharmgkb.org/)                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| `expression`       | Datos de expresión génica (por tejidos, órganos y sistemas anatómicos) | `tissue_id`<br/>`anatomical_system`<br/>`organ`   | <ul><li>[ExpressionAtlas](https://www.ebi.ac.uk/gxa/home)</li><li>[HPA](https://www.proteinatlas.org/)</li><li>[GTEx](https://www.gtexportal.org/home/)</li></ul>                                                                                                                                                                                                                                                                                                                                  |
+| `depmap`           | Datos de efecto gen&rarr;enfermedad en DepMap.                    | `tissue_id`                                       | [DepMap&nbsp;Portal](https://depmap.org/portal/)                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| `interactions`     | Interacciones proteína&rlarr;proteína                             | `protein_a_id`<br/>`protein_b_id`<br/>`gene_b_id` | <ul><li>[Open&nbsp;Targets](https://platform-docs.opentargets.org/target/molecular-interactions)</li><li>[IntAct](https://platform-docs.opentargets.org/target/molecular-interactions#intact)</li><li>[Signor](https://platform-docs.opentargets.org/target/molecular-interactions#signor)</li><li>[Reactome](https://platform-docs.opentargets.org/target/molecular-interactions#reactome)</li><li>[String](https://platform-docs.opentargets.org/target/molecular-interactions#string)</li></ul> |
 
 `-l` `--limit`  
-Limit the number of results, e.g 10. Default: No limit.     
-Note: Not compatible with the `tractability` and `depmap` resources.
+Limitar el número de resultados, por ejemplo, 10. Predeterminado: Sin límite.     
+Nota: No es compatible con los recursos `tractability` y `depmap`.
 
 `-o` `--out`    
-Path to the JSON file the results will be saved in, e.g. path/to/directory/results.json. Default: Standard out.  
-Python: `save=True` will save the output in the current working directory.
+Ruta al archivo JSON donde se guardarán los resultados, por ejemplo, path/to/directory/results.json. Predeterminado: Salida estándar.  
+Python: `save=True` guardará la salida en el directorio de trabajo actual.
 
-**Optional filter arguments**
+**Argumentos opcionales de filtrado**
 
 `-fd` `--filter_disease` `disease_id`  
-Filter by disease ID, e.g. 'EFO_0000274'. *Only valid for the `drugs` resource.*
+Filtrar por ID de enfermedad, por ejemplo, 'EFO_0000274'. *Válido solo para el recurso `drugs`.*
 
 `-fc` `--filter_drug` `drug_id`  
-Filter by drug ID, e.g. 'CHEMBL1743081'. *Only valid for the `pharmacogenetics` resource.*
+Filtrar por ID de fármaco, por ejemplo, 'CHEMBL1743081'. *Válido solo para el recurso `pharmacogenetics`.*
 
 `-ft` `--filter_tissue` `tissue_id`  
-Filter by tissue ID, e.g. 'UBERON_0000473'. *Only valid for the `expression` and `depmap` resources.*
+Filtrar por ID de tejido, por ejemplo, 'UBERON_0000473'. *Válido solo para los recursos `expression` y `depmap`.*
 
 `-fa` `--filter_anat_sys`  
-Filter by anatomical system, e.g. 'nervous system'. *Only valid for the `expression` resource.*
+Filtrar por sistema anatómico, por ejemplo, 'sistema nervioso'. *Válido solo para el recurso `expression`.*
 
 `-fo` `--filter_organ` `anatomical_system`  
-Filter by organ, e.g. 'brain'. *Only valid for the `expression` resource.*
+Filtrar por órgano, por ejemplo, 'cerebro'. *Válido solo para el recurso `expression`.*
 
 `-fpa` `--filter_protein_a` `protein_a_id`  
-Filter by the protein ID of the first protein in the interaction, e.g. 'ENSP00000304915'. *Only valid for the `interactions` resource.*
+Filtrar por ID de la primera proteína en la interacción, por ejemplo, 'ENSP00000304915'. *Válido solo para el recurso `interactions`.*
 
 `-fpb` `--filter_protein_b` `protein_b_id`  
-Filter by the protein ID of the second protein in the interaction, e.g. 'ENSP00000379111'. *Only valid for the `interactions` resource.*
+Filtrar por ID de la segunda proteína en la interacción, por ejemplo, 'ENSP00000379111'. *Válido solo para el recurso `interactions`.*
 
 `-fgb` `--filter_gene_b` `gene_b_id`  
-Filter by the gene ID of the second protein in the interaction, e.g. 'ENSG00000077238'. *Only valid for the `interactions` resource.*
+Filtrar por ID de gen de la segunda proteína en la interacción, por ejemplo, 'ENSG00000077238'. *Válido solo para el recurso `interactions`.*
 
 `filters`  
-Python only. A dictionary of filters, e.g.
+Solo para Python. Un diccionario de filtros, por ejemplo:
 ```python
 {'disease_id': ['EFO_0000274', 'HP_0000964']}
-```
 
 `filter_mode`  
-Python only. `filter_mode='or'` combines filters of different IDs with OR logic.
-`filter_mode='and'` combines filters of different IDs with AND logic (default).
+Solo para Python. `filter_mode='or'` combina filtros de diferentes IDs con lógica OR.  
+`filter_mode='and'` combina filtros de diferentes IDs con lógica AND (predeterminado).
 
-**Flags**   
+**Banderas**   
 `-csv` `--csv`  
-Command-line only. Returns the output in CSV format, instead of JSON format.
-Python: Use `json=True` to return output in JSON format.
+Solo en línea de comandos. Devuelve la salida en formato CSV, en lugar de formato JSON.  
+Python: Use `json=True` para devolver la salida en formato JSON.
 
 `-q` `--quiet`   
-Command-line only. Prevents progress information from being displayed.  
-Python: Use `verbose=False` to prevent progress information from being displayed. 
+Solo en línea de comandos. Evita que se muestre la información de progreso.  
+Python: Use `verbose=False` para evitar que se muestre la información de progreso. 
 
 `-or` `--or`  
-Command-line only. Filters are combined with OR logic. Default: AND logic.
+Solo en línea de comandos. Los filtros se combinan con lógica OR. Predeterminado: lógica AND.
 
 `wrap_text`  
-Python only. `wrap_text=True` displays data frame with wrapped text for easy reading (default: False).  
-  
-  
-### Examples
+Solo para Python. `wrap_text=True` muestra el marco de datos con texto ajustado para facilitar la lectura (predeterminado: False).
 
-**Get associated diseases for a specific gene:**   
+### Ejemplos
+
+**Obtenga enfermedades asociadas a un gen específico:**   
 ```bash
 gget opentargets ENSG00000169194 -r diseases -l 1
 ```
@@ -95,7 +93,7 @@ gget opentargets ENSG00000169194 -r diseases -l 1
 import gget
 gget.opentargets('ENSG00000169194', resource='diseases', limit=1)
 ```
-&rarr; Returns the top disease associated with the gene ENSG00000169194.
+&rarr; Devuelve la principal enfermedad asociada con el gen ENSG00000169194.
 
 | id            | name               | description                                                           | score            |
 |---------------|--------------------|-----------------------------------------------------------------------|------------------|
@@ -103,7 +101,7 @@ gget.opentargets('ENSG00000169194', resource='diseases', limit=1)
 
 <br/><br/>
 
-**Get associated drugs for a specific gene:**   
+**Obtener medicamentos asociados para un gen específico:**   
 ```bash
 gget opentargets ENSG00000169194 -r drugs -l 2
 ```
@@ -113,18 +111,18 @@ import gget
 gget.opentargets('ENSG00000169194', resource='drugs', limit=2)
 ```
 
-&rarr; Returns the top 2 drugs associated with the gene ENSG00000169194.
+&rarr; Devuelve los 2 principales medicamentos asociados con el gen ENSG00000169194.
 
 | id            | name         | type     | action_mechanism                    | description                                                  | synonyms                                           | trade_names           | disease_id  | disease_name                  | trial_phase | trial_status | trial_ids     | approved |
 |---------------|--------------|----------|-------------------------------------|--------------------------------------------------------------|----------------------------------------------------|-----------------------|-------------|-------------------------------|-------------|--------------|---------------|----------|
 | CHEMBL1743081 | TRALOKINUMAB | Antibody | Interleukin&#8209;13&nbsp;inhibitor | Antibody drug with a maximum clinical trial phase of IV ...  | ['CAT-354', 'Tralokinumab']                        | ['Adbry', 'Adtralza'] | EFO_0000274 | atopic&nbsp;eczema            | 4           |              | []            | True     |
 | CHEMBL4297864 | CENDAKIMAB   | Antibody | Interleukin&#8209;13&nbsp;inhibitor | Antibody drug with a maximum clinical trial phase of III ... | [ABT-308, Abt-308, CC-93538, Cendakimab, RPC-4046] | []                    | EFO_0004232 | eosinophilic&nbsp;esophagitis | 3           | Recruiting   | [NCT04991935] | False    |
 
-*Note: Returned `trial_ids` are [ClinicalTrials.gov](https://clinicaltrials.gov) identifiers*
+*Note: Los `trial_ids` devueltos son identificadores de [ClinicalTrials.gov](https://clinicaltrials.gov)*
 
 <br/><br/>
 
-**Get tractability data for a specific gene:**   
+**Obtenga datos de trazabilidad para un gen específico:**   
 ```bash
 gget opentargets ENSG00000169194 -r tractability
 ```
@@ -134,7 +132,7 @@ import gget
 gget.opentargets('ENSG00000169194', resource='tractability')
 ```
 
-&rarr; Returns tractability data for the gene ENSG00000169194.
+&rarr; Devuelve datos de trazabilidad para el gen ENSG00000169194.
 
 | label                 | modality       |
 |-----------------------|----------------|
@@ -146,7 +144,7 @@ gget.opentargets('ENSG00000169194', resource='tractability')
 
 <br/><br/>
 
-**Get pharmacogenetic responses for a specific gene:**
+**Obtenga respuestas farmacogenéticas para un gen específico:**
 ```bash
 gget opentargets ENSG00000169194 -r pharmacogenetics -l 1
 ```
@@ -156,17 +154,17 @@ import gget
 gget.opentargets('ENSG00000169194', resource='pharmacogenetics', limit=1)
 ```
 
-&rarr; Returns pharmacogenetic responses for the gene ENSG00000169194.
+&rarr; Devuelve respuestas farmacogenéticas para el gen ENSG00000169194.
 
 | rs_id     | genotype_id       | genotype | variant_consequence_id | variant_consequence_label | drugs                                                                                                                                   | phenotype                                                               | genotype_annotation                                                                                          | response_category | direct_target | evidence_level | source   | literature |
 |-----------|-------------------|----------|------------------------|---------------------------|-----------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|-------------------|---------------|----------------|----------|------------|
 | rs1295686 | 5_132660151_T_T,T | TT       | SO:0002073             | no_sequence_alteration    | &nbsp;&nbsp;&nbsp;&nbsp;id&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;name<br/>0&nbsp;&nbsp;None&nbsp;&nbsp;hepatitis&nbsp;vaccines | increased risk for non&#8209;immune response to the hepatitis B vaccine | Patients with the TT genotype may be at increased risk for non-immune response to the hepatitis B vaccine... | efficacy          | False         | 3              | pharmgkb | [21111021] |
 
-*Note: Returned `literature` ids are [Europe PMC](https://europepmc.org/article/med/) identifiers*
+*Note: Los identificadores de `literature` devueltos son identificadores de [PMC de Europa](https://europepmc.org/article/med/)*
 
 <br/><br/>
 
-**Get tissues where a gene is most expressed:**
+**Obtenga tejidos donde un gen se expresa más:**
 ```bash
 gget opentargets ENSG00000169194 -r expression -l 2
 ```
@@ -176,7 +174,7 @@ import gget
 gget.opentargets('ENSG00000169194', resource='expression', limit=2)
 ```
 
-&rarr; Returns the top 2 tissues where the gene ENSG00000169194 is most expressed.
+&rarr; Devuelve los 2 tejidos principales donde se expresa más el gen ENSG00000169194.
 
 | tissue_id      | tissue_name                           | rna_zscore | rna_value | rna_unit | rna_level | anatomical_systems                                                   | organs                                                 |
 |----------------|---------------------------------------|------------|-----------|----------|-----------|----------------------------------------------------------------------|--------------------------------------------------------|
@@ -185,7 +183,7 @@ gget.opentargets('ENSG00000169194', resource='expression', limit=2)
 
 <br/><br/>
 
-**Get DepMap gene-disease effect data for a specific gene:**
+**Obtenga datos sobre el efecto de la enfermedad genética de DepMap para un gen específico:**
 ```bash
 gget opentargets ENSG00000169194 -r depmap
 ```
@@ -195,7 +193,7 @@ import gget
 gget.opentargets('ENSG00000169194', resource='depmap')
 ```
 
-&rarr; Returns DepMap gene-disease effect data for the gene ENSG00000169194.
+&rarr; Devuelve datos del efecto de la enfermedad del gen DepMap para el gen ENSG00000169194.
 
 | depmap_id        | expression | effect   | tissue_id      | tissue_name | cell_line_name | disease_cell_line_id | disease_name         | mutation |
 |------------------|------------|----------|----------------|-------------|----------------|----------------------|----------------------|----------|
@@ -203,7 +201,7 @@ gget.opentargets('ENSG00000169194', resource='depmap')
 
 <br/><br/>
 
-**Get protein-protein interactions for a specific gene:**
+**Obtener interacciones proteína-proteína para un gen específico:**
 ```bash
 gget opentargets ENSG00000169194 -r interactions -l 2
 ```
@@ -213,7 +211,7 @@ import gget
 gget.opentargets('ENSG00000169194', resource='interactions', limit=2)
 ```
 
-&rarr; Returns the top 2 protein-protein interactions for the gene ENSG00000169194.
+&rarr; Devuelve las 2 interacciones proteína-proteína principales para el gen ENSG00000169194.
 
 | evidence_score | evidence_count | source_db | protein_a_id    | gene_a_id       | gene_a_symbol | role_a                | taxon_a | protein_b_id    | gene_b_id       | gene_b_symbol | role_b                | taxon_b |
 |----------------|----------------|-----------|-----------------|-----------------|---------------|-----------------------|---------|-----------------|-----------------|---------------|-----------------------|---------|
@@ -222,7 +220,7 @@ gget.opentargets('ENSG00000169194', resource='interactions', limit=2)
 
 <br/><br/>
 
-**Get protein-protein interactions for a specific gene, filtering by protein and gene IDs:**
+**Obtenga interacciones proteína-proteína para un gen específico, filtrando por ID de proteínas y genes:**
 ```bash
 gget opentargets ENSG00000169194 -r interactions -fpa P35225 --filter_gene_b ENSG00000077238
 ```
@@ -232,7 +230,7 @@ import gget
 gget.opentargets('ENSG00000169194', resource='interactions', filters={'protein_a_id': 'P35225', 'gene_b_id': 'ENSG00000077238'})
 ```
 
-&rarr; Returns protein-protein interactions for the gene ENSG00000169194, where the first protein is P35225 **and** the second gene is ENSG00000077238.
+&rarr; Devuelve interacciones proteína-proteína para el gen ENSG00000169194, donde la primera proteína es P35225 **y** el segundo gen es ENSG00000077238:
 
 | evidence_score | evidence_count | source_db | protein_a_id | gene_a_id       | gene_a_symbol | role_a                | taxon_a | protein_b_id | gene_b_id       | gene_b_symbol | role_b                | taxon_b |
 |----------------|----------------|-----------|--------------|-----------------|---------------|-----------------------|---------|--------------|-----------------|---------------|-----------------------|---------|
@@ -241,7 +239,7 @@ gget.opentargets('ENSG00000169194', resource='interactions', filters={'protein_a
 
 <br/><br/>
 
-**Get protein-protein interactions for a specific gene, filtering by protein or gene IDs:**
+**Obtenga interacciones proteína-proteína para un gen específico, filtrando por ID de proteína o gen:**
 ```bash
 gget opentargets ENSG00000169194 -r interactions -fpa P35225 --filter_gene_b ENSG00000077238 ENSG00000111537 --or -l 5
 ```
@@ -257,8 +255,7 @@ gget.opentargets(
 )
 ```
 
-&rarr; Returns protein-protein interactions for the gene ENSG00000169194, where the first protein is P35225 **or** the second gene is either ENSG00000077238 or ENSG00000111537.
-
+&rarr; Devuelve interacciones proteína-proteína para el gen ENSG00000169194, donde la primera proteína es P35225 **o** el segundo gen es ENSG00000077238 o ENSG00000111537.
 | evidence_score | evidence_count | source_db | protein_a_id    | gene_a_id       | gene_a_symbol | role_a                | taxon_a | protein_b_id    | gene_b_id       | gene_b_symbol | role_b                | taxon_b |
 |----------------|----------------|-----------|-----------------|-----------------|---------------|-----------------------|---------|-----------------|-----------------|---------------|-----------------------|---------|
 | 0.999          | 3              | string    | ENSP00000304915 | ENSG00000169194 | IL13          | unspecified&nbsp;role | 9606    | ENSP00000379111 | ENSG00000077238 | IL4R          | unspecified&nbsp;role | 9606    |
@@ -269,12 +266,11 @@ gget.opentargets(
 
 
     
-#### [More examples](https://github.com/pachterlab/gget_examples)
+#### [Más ejemplos](https://github.com/pachterlab/gget_examples)
 
-# References
-If you use `gget opentargets` in a publication, please cite the following articles:   
+# Citar    
+Si utiliza `gget opentargets` en una publicación, favor de citar los siguientes artículos:
 
 - Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
 
 - Ochoa D, Hercules A, Carmona M, Suveges D, Baker J, Malangone C, Lopez I, Miranda A, Cruz-Castillo C, Fumis L, Bernal-Llinares M, Tsukanov K, Cornu H, Tsirigos K, Razuvayevskaya O, Buniello A, Schwartzentruber J, Karim M, Ariano B, Martinez Osorio RE, Ferrer J, Ge X, Machlitt-Northen S, Gonzalez-Uriarte A, Saha S, Tirunagari S, Mehta C, Roldán-Romero JM, Horswell S, Young S, Ghoussaini M, Hulcoop DG, Dunham I, McDonagh EM. The next-generation Open Targets Platform: reimagined, redesigned, rebuilt. Nucleic Acids Res. 2023 Jan 6;51(D1):D1353-D1359. doi: [10.1093/nar/gkac1046](https://doi.org/10.1093/nar/gkac1046). PMID: 36399499; PMCID: PMC9825572.
-

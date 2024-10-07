@@ -1,5 +1,5 @@
 > Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
-## gget alphafold 🪢
+# gget alphafold 🪢
 Predice la estructura en 3D de cualquier proteína derivada de su secuencia de aminoácidos usando una versión simplificada del algoritmo [AlphaFold2](https://github.com/deepmind/alphafold) de [DeepMind](https://www.deepmind.com/), originalmente producido y publicado para [AlphaFold Colab](https://colab.research.google.com/github/deepmind/alphafold/blob/main/notebooks/AlphaFold.ipynb).  
 Resultado: Predicción de la estructura (en formato PDB) y el errór de alineación (en formato json).  
 
@@ -68,5 +68,19 @@ gget.pdb("2K42", save=True)
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/4qxGF1tbZ3I?si=mEqQ5oSnDYtg2OP7" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
-### [Ejemplo en Google Colab](https://github.com/pachterlab/gget_examplblob/main/gget_alphafold.ipynb)
-### [gget alphafold - preguntas más frecuentes](https://github.com/pachterlab/gget/discussions/39)
+# Tutoriales
+### [🔗 Google Colab tutorial](https://github.com/pachterlab/gget_examples/blob/main/gget_alphafold.ipynb)  
+
+### [🔗 Predicción de la estructura de proteínas con comparación con estructuras cristalinas relacionadas](https://github.com/pachterlab/gget_examples/blob/main/protein_structure_prediction_comparison.ipynb)
+
+### [🔗 gget alphafold - preguntas más frecuentes](https://github.com/pachterlab/gget/discussions/39)
+
+# Citar    
+Si utiliza `gget alphafold` en una publicación, favor de citar los siguientes artículos:
+
+- Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
+
+- Jumper, J., Evans, R., Pritzel, A. et al. Highly accurate protein structure prediction with AlphaFold. Nature 596, 583–589 (2021). [https://doi.org/10.1038/s41586-021-03819-2](https://doi.org/10.1038/s41586-021-03819-2)
+
+Y, si corresponde:   
+- Evans, R. et al. Protein complex prediction with AlphaFold-Multimer. bioRxiv 2021.10.04.463034; [https://doi.org/10.1101/2021.10.04.463034](https://doi.org/10.1101/2021.10.04.463034)

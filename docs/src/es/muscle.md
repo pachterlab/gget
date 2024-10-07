@@ -1,5 +1,5 @@
 > Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
-## gget muscle 🦾
+# gget muscle 🦾
 Alinea múltiples secuencias de nucleótidos o aminoácidos usando el algoritmo [Muscle5](https://www.drive5.com/muscle/).  
 Regresa: Salida estándar (STDOUT) en formato ClustalW o archivo de tipo 'aligned FASTA' (.afa).  
 
@@ -56,3 +56,10 @@ alv.view(msa)
 ```
 
 #### [More examples](https://github.com/pachterlab/gget_examples)
+
+# Citar    
+Si utiliza `gget muscle` en una publicación, favor de citar los siguientes artículos:
+
+- Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
+
+- Edgar RC (2021), MUSCLE v5 enables improved estimates of phylogenetic tree confidence by ensemble bootstrapping, bioRxiv 2021.06.20.449169. [https://doi.org/10.1101/2021.06.20.449169](https://doi.org/10.1101/2021.06.20.449169)
