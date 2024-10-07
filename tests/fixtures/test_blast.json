@@ -7,7 +7,7 @@
         },
         "expected_result": [
             [
-                "PREDICTED: Pan paniscus CASP8 and FADD like apoptosis regulator (CFLAR), transcript variant X12, mRNA",
+                "PREDICTED: Pan paniscus CASP8 and FADD like apoptosis regulator (CFLAR), transcript variant X12, misc_RNA",
                 "Pan paniscus",
                 "pygmy chimpanzee",
                 9597,
