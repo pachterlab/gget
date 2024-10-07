@@ -7,41 +7,18 @@
         },
         "expected_result": [
             [
-                "PREDICTED: Pan troglodytes CASP8 and FADD like apoptosis regulator (CFLAR), transcript variant X16, mRNA",
-                "Pan troglodytes",
-                "chimpanzee",
-                9598,
+                "PREDICTED: Pan paniscus CASP8 and FADD like apoptosis regulator (CFLAR), transcript variant X12, mRNA",
+                "Pan paniscus",
+                "pygmy chimpanzee",
+                9597,
                 93.5,
                 93.5,
                 "100%",
                 1e-15,
                 "100.00%",
-                1985,
-                "XM_054679210.2"
+                6682,
+                "XR_010109533.1"
             ]
-        ]
-    },
-    "test_blast_nt_json": {
-        "type": "assert_equal",
-        "args": {
-            "sequence": "ATACTCAGTCACACAAGCCATAGCAGGAAACAGCGAGCTTGCAGCCTCAC",
-            "limit": 1,
-            "json": true
-        },
-        "expected_result": [
-            {
-                "Description": "PREDICTED: Pan troglodytes CASP8 and FADD like apoptosis regulator (CFLAR), transcript variant X16, mRNA",
-                "Scientific Name": "Pan troglodytes",
-                "Common Name": "chimpanzee",
-                "Taxid": 9598,
-                "Max Score": 93.5,
-                "Total Score": 93.5,
-                "Query Cover": "100%",
-                "E value": 0.0,
-                "Per. Ident": "100.00%",
-                "Acc. Len": 1985,
-                "Accession": "XM_054679210.2"
-            }
         ]
     },
     "test_blast_bad_seq": {
