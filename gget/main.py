@@ -36,6 +36,7 @@ from .gget_elm import elm
 from .gget_diamond import diamond
 from .gget_cosmic import cosmic
 from .gget_mutate import mutate
+from .gget_dataverse import dataverse
 from .gget_opentargets import opentargets, OPENTARGETS_RESOURCES
 from .gget_cbio import cbio_plot, cbio_search
 from .gget_bgee import bgee
@@ -3263,6 +3264,14 @@ def main():
                 else:
                     print(json.dumps(pdb_results, ensure_ascii=False, indent=4))
 
+    ## dataverse return
+    if args.command == "dataverse":
+        dataverse(
+            data = args.json,
+            path = args.out,
+            run_download=True,
+            save_json=args.out + 'dataverse.json'
+        )
     ## opentargets return
     if args.command == "opentargets":
         flag_to_filter_id = {
