@@ -193,9 +193,25 @@ gget mutate \
 ```
 ```python
 # Python
-gget.mutate(sequences="genome_reference.fa", mutations="mutations_input.csv", out="mut_fasta.fa", k=4, seq_id_column="Chromosome", mut_column="Mutation", gtf="genome_annotation.gtf", gtf_transcript_id_column="Ensembl_Transcript_ID", optimize_flanking_regions=True, update_df=True, update_df_out="mutations_updated.csv", store_full_sequences=True, translate=True, translate_start="Translate_Start", translate_end="Translate_End")
+gget.mutate(
+  sequences="genome_reference.fa",
+  mutations="mutations_input.csv",
+  out="mut_fasta.fa",
+  k=4,
+  seq_id_column="Chromosome",
+  mut_column="Mutation",
+  gtf="genome_annotation.gtf",
+  gtf_transcript_id_column="Ensembl_Transcript_ID",
+  optimize_flanking_regions=True,
+  update_df=True,
+  update_df_out="mutations_updated.csv",
+  store_full_sequences=True,
+  translate=True,
+  translate_start="Translate_Start",
+  translate_end="Translate_End"
+)
 ```
-&rarr; Takes as input 'mutations_input.csv' file containing: 
+&rarr; Takes in a genome fasta ('genome_reference.fa') and gtf file ('genome_annotation.gtf') (these can be downloaded using [`gget ref`](ref.md)) as well as a 'mutations_input.csv' file containing: 
 ```
 | Chromosome | Mutation          | Ensembl_Transcript_ID  | Translate_Start | Translate_End |
 |------------|-------------------|------------------------|-----------------|---------------|
