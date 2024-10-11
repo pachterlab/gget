@@ -1871,7 +1871,19 @@ def main():
         action="store_true",
         required=False,
         help="Whether to remove duplicated rows from the modified database for use with gget mutate (only for use with --download_cosmic).",
-    )
+    ),
+    parser_cosmic.add_argument(
+        "--email",
+        type=str,
+        required=False,
+        help="Email for COSMIC login. Helpful for avoiding required input upon running gget COSMIC. Default: None",
+    ),
+    parser_cosmic.add_argument(
+        "--password",
+        type=str,
+        required=False,
+        help="Password for COSMIC login. Helpful for avoiding required input upon running gget COSMIC, but password will be stored in plain text in the script. Default: None",
+    ),
     parser_cosmic.add_argument(
         "-o",
         "--out",

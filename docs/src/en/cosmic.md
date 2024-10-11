@@ -60,6 +60,12 @@ Whether to keep genome information in the modified database for use with gget mu
 `--remove_duplicates`
 Whether to remove duplicate rows from the modified database for use with gget mutate. Default: False
 
+`--email`
+Email for COSMIC login. Helpful for avoiding required input upon running gget COSMIC. Default: None
+
+`--password`
+Password for COSMIC login. Helpful for avoiding required input upon running gget COSMIC, but password will be stored in plain text in the script. Default: None
+
 **Optional arguments (general)**  
 `-o` `--out`   
 Path to the file (or folder when downloading databases with the `download_cosmic` flag) the results will be saved in, e.g. 'path/to/results.json'.  
