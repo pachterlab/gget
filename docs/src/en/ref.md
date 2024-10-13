@@ -50,26 +50,6 @@ Python: Use `verbose=False` to prevent progress information from being displayed
   
   
 ### Examples
-**Use `gget ref` in combination with [kallisto | bustools](https://www.kallistobus.tools/kb_usage/kb_ref/) to build a reference index:**
-```bash
-kb ref -i INDEX -g T2G -f1 FASTA $(gget ref --ftp -w dna,gtf homo_sapiens)
-```
-&rarr; kb ref builds a reference index using the latest DNA and GTF files of species **Homo sapiens** passed to it by `gget ref`.  
-
-<br/><br/>
-
-**List all available genomes from Ensembl release 103:**  
-```bash
-gget ref --list_species -r 103
-```
-```python
-# Python
-gget.ref(species=None, list_species=True, release=103)
-```
-&rarr; Returns a list with all available genomes (checks if GTF and FASTAs are available) from Ensembl release 103.   
-(If no release is specified, `gget ref` will always return information from the latest Ensembl release.)  
-
-<br/><br/>
 
 **Get the genome reference for a specific species:**   
 ```bash
@@ -100,6 +80,31 @@ gget.ref("homo_sapiens", which=["gtf", "dna"])
     }
 }
 ```
+
+<br/><br/>
+
+**List all available genomes from Ensembl release 103:**  
+```bash
+gget ref --list_species -r 103
+```
+```python
+# Python
+gget.ref(species=None, list_species=True, release=103)
+```
+&rarr; Returns a list with all available genomes (checks if GTF and FASTAs are available) from Ensembl release 103.   
+(If no release is specified, `gget ref` will always return information from the latest Ensembl release.)  
+
+<br/><br/>
+
+**Use `gget ref` in combination with [kallisto | bustools](https://www.kallistobus.tools/kb_usage/kb_ref/) to build a reference index:**
+```bash
+kb ref \
+    -i index.idx \
+    -g t2g.txt \
+    -f1 fasta.fa \
+    $(gget ref --ftp -w dna,gtf homo_sapiens)
+```
+&rarr; kb ref builds a reference index using the latest DNA and GTF files of species **Homo sapiens** passed to it by `gget ref`.  
 
 #### [More examples](https://github.com/pachterlab/gget_examples)
 
