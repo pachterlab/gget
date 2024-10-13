@@ -4,7 +4,7 @@
         "args": {
             "sequences": "<long_sequence>",
             "mutations": "c.35G>A",
-            "optimize_flanking_regions": true
+            "k": 30
         },
         "expected_result": "GCCCCACCCCGCCCCTCCCCGCCCCACCCCACCCCTCCCCGCCCCACCCCGCCCCTCCCCG",
         "global_variables": {}
@@ -14,7 +14,7 @@
         "args": {
             "sequences": "<long_sequence>",
             "mutations": "c.65G>A",
-            "optimize_flanking_regions": true
+            "k": 30
         },
         "expected_result": "GCCCCTCCCCGCCCCACCCCGCCCCTCCCCACCCCACCCCG",
         "global_variables": {}
@@ -24,7 +24,7 @@
         "args": {
             "sequences": "<long_sequence>",
             "mutations": "c.5G>A",
-            "optimize_flanking_regions": true
+            "k": 30
         },
         "expected_result": "CCCCACCCCACCCCGCCCCTCCCCGCCCCACCCCG",
         "global_variables": {}
@@ -34,7 +34,7 @@
         "args": {
             "sequences": "<long_sequence>",
             "mutations": "c.35del",
-            "optimize_flanking_regions": true
+            "k": 30
         },
         "expected_result": "GCCCCACCCCGCCCCTCCCCGCCCCACCCCCCCCTCCCCGCCCCACCCCGCCCCTCCCCG",
         "global_variables": {}
@@ -44,7 +44,7 @@
         "args": {
             "sequences": "<long_sequence>",
             "mutations": "c.35_40del",
-            "optimize_flanking_regions": true
+            "k": 30
         },
         "expected_result": "GCCCCACCCCGCCCCTCCCCGCCCCACCCCCCCCGCCCCACCCCGCCCCTCCCCGCCCCA",
         "global_variables": {}
@@ -54,9 +54,9 @@
         "args": {
             "sequences": "<long_sequence>",
             "mutations": "c.31del",
-            "optimize_flanking_regions": true
+            "k": 30
         },
-        "expected_result": "CGCCCCACCCCGCCCCTCCCCGCCCCACCCGCCCCTCCCCGCCCCACCCCGCCCCTC",
+        "expected_result": "CCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCGCCCCTCCCCGCCCCACCCCGCCCCTC",
         "global_variables": {}
     },
     "test_single_deletion_with_left_repeats": {
@@ -64,9 +64,9 @@
         "args": {
             "sequences": "<long_sequence>",
             "mutations": "c.34del",
-            "optimize_flanking_regions": true
+            "k": 30
         },
-        "expected_result": "CGCCCCACCCCGCCCCTCCCCGCCCCACCCGCCCCTCCCCGCCCCACCCCGCCCCTC",
+        "expected_result": "CGCCCCACCCCGCCCCTCCCCGCCCCACCCGCCCCTCCCCGCCCCACCCCGCCCCTCCCC",
         "global_variables": {}
     },
     "test_multi_deletion_with_right_repeats": {
@@ -74,9 +74,9 @@
         "args": {
             "sequences": "<long_sequence>",
             "mutations": "c.31_32del",
-            "optimize_flanking_regions": true
+            "k": 30
         },
-        "expected_result": "CCGCCCCACCCCGCCCCTCCCCGCCCCACCGCCCCTCCCCGCCCCACCCCGCCCCTCC",
+        "expected_result": "CCCCGCCCCACCCCGCCCCTCCCCGCCCCACCGCCCCTCCCCGCCCCACCCCGCCCCTCC",
         "global_variables": {}
     },
     "test_single_insertion": {
@@ -84,7 +84,7 @@
         "args": {
             "sequences": "<long_sequence>",
             "mutations": "c.4_5insT",
-            "optimize_flanking_regions": true
+            "k": 30
         },
         "expected_result": "CCCCTGCCCCACCCCGCCCCTCCCCGCCCCACCCC",
         "global_variables": {}
@@ -94,7 +94,7 @@
         "args": {
             "sequences": "<long_sequence>",
             "mutations": "c.65_66insTTTTT",
-            "optimize_flanking_regions": true
+            "k": 30
         },
         "expected_result": "CCCCTCCCCGCCCCACCCCGCCCCTCCCCGTTTTTCCCCACCCCG",
         "global_variables": {}
@@ -104,7 +104,7 @@
         "args": {
             "sequences": "<long_sequence>",
             "mutations": "c.20_21insCCAAA",
-            "optimize_flanking_regions": true
+            "k": 30
         },
         "expected_result": "CCCCGCCCCACCCCGCCCCTCCAAACCCCGCCCCACCCCGCCCCTCCCCGCCCCA",
         "global_variables": {}
@@ -114,7 +114,7 @@
         "args": {
             "sequences": "<long_sequence>",
             "mutations": "c.38delinsAAA",
-            "optimize_flanking_regions": true
+            "k": 30
         },
         "expected_result": "CCACCCCGCCCCTCCCCGCCCCACCCCGCCAAACTCCCCGCCCCACCCCGCCCCTCCCCGCCC",
         "global_variables": {}
@@ -124,7 +124,7 @@
         "args": {
             "sequences": "<long_sequence>",
             "mutations": "c.38_40delinsAAA",
-            "optimize_flanking_regions": true
+            "k": 30
         },
         "expected_result": "CCACCCCGCCCCTCCCCGCCCCACCCCGCCAAACCCCGCCCCACCCCGCCCCTCCCCGCCCCA",
         "global_variables": {}
@@ -134,7 +134,7 @@
         "args": {
             "sequences": "<long_sequence>",
             "mutations": "c.36_37delinsAG",
-            "optimize_flanking_regions": true
+            "k": 30
         },
         "expected_result": "CCCCACCCCGCCCCTCCCCGCCCCACCCCGAGCCTCCCCGCCCCACCCCGCCCCTCCCCGCC",
         "global_variables": {}
@@ -144,9 +144,9 @@
         "args": {
             "sequences": "<long_sequence>",
             "mutations": "c.36_37delinsAC",
-            "optimize_flanking_regions": true
+            "k": 30
         },
-        "expected_result": "CCCCACCCCGCCCCTCCCCGCCCCACCCCGACCCTCCCCGCCCCACCCCGCCCCTCCCCGC",
+        "expected_result": "CCCCACCCCGCCCCTCCCCGCCCCACCCCGACCCTCCCCGCCCCACCCCGCCCCTCCCCGCC",
         "global_variables": {}
     },
     "test_multi_delins_with_true_right_repeats": {
@@ -154,9 +154,9 @@
         "args": {
             "sequences": "<long_sequence>",
             "mutations": "c.36_37delinsCA",
-            "optimize_flanking_regions": true
+            "k": 30
         },
-        "expected_result": "CCCACCCCGCCCCTCCCCGCCCCACCCCGCACCTCCCCGCCCCACCCCGCCCCTCCCCGCC",
+        "expected_result": "CCCCACCCCGCCCCTCCCCGCCCCACCCCGCACCTCCCCGCCCCACCCCGCCCCTCCCCGCC",
         "global_variables": {}
     },
     "test_single_dup": {
@@ -164,9 +164,9 @@
         "args": {
             "sequences": "<long_sequence>",
             "mutations": "c.35dup",
-            "optimize_flanking_regions": true
+            "k": 30
         },
-        "expected_result": "CCCCACCCCGCCCCTCCCCGCCCCACCCCGGCCCCTCCCCGCCCCACCCCGCCCCTCCCC",
+        "expected_result": "CCCCACCCCGCCCCTCCCCGCCCCACCCCGGCCCCTCCCCGCCCCACCCCGCCCCTCCCCG",
         "global_variables": {}
     },
     "test_multi_dup": {
@@ -174,9 +174,9 @@
         "args": {
             "sequences": "<long_sequence>",
             "mutations": "c.35_37dup",
-            "optimize_flanking_regions": true
+            "k": 30
         },
-        "expected_result": "CCACCCCGCCCCTCCCCGCCCCACCCCGCCGCCCCTCCCCGCCCCACCCCGCCCCTCC",
+        "expected_result": "CCACCCCGCCCCTCCCCGCCCCACCCCGCCGCCCCTCCCCGCCCCACCCCGCCCCTCCCCGCC",
         "global_variables": {}
     },
     "test_inversion_with_overlaps": {
@@ -184,9 +184,9 @@
         "args": {
             "sequences": "<long_sequence>",
             "mutations": "c.35_38inv",
-            "optimize_flanking_regions": true
+            "k": 30
         },
-        "expected_result": "CCCCACCCCGCCCCTCCCCGCCCCACCCCGGGCCTCCCCGCCCCACCCCGCCCCTCCCCGCC",
+        "expected_result": "GCCCCACCCCGCCCCTCCCCGCCCCACCCCGGGCCTCCCCGCCCCACCCCGCCCCTCCCCGCCC",
         "global_variables": {}
     },
     "test_list_of_mutations": {
@@ -213,7 +213,7 @@
         "args": {
             "sequences": "<long_sequence>",
             "mutations": "c.20+3T>A",
-            "optimize_flanking_regions": true
+            "k": 30
         },
         "expected_result": null,
         "global_variables": {
@@ -225,7 +225,7 @@
         "args": {
             "sequences": "<long_sequence>",
             "mutations": "c.20-3T>A",
-            "optimize_flanking_regions": true
+            "k": 30
         },
         "expected_result": null,
         "global_variables": {
@@ -237,7 +237,7 @@
         "args": {
             "sequences": "<long_sequence>",
             "mutations": "c.20*5T>A",
-            "optimize_flanking_regions": true
+            "k": 30
         },
         "expected_result": null,
         "global_variables": {
@@ -249,7 +249,7 @@
         "args": {
             "sequences": "<long_sequence>",
             "mutations": "c.?",
-            "optimize_flanking_regions": true
+            "k": 30
         },
         "expected_result": null,
         "global_variables": {
@@ -261,7 +261,7 @@
         "args": {
             "sequences": "<long_sequence>",
             "mutations": "c.(20_28)del",
-            "optimize_flanking_regions": true
+            "k": 30
         },
         "expected_result": null,
         "global_variables": {
@@ -273,7 +273,7 @@
         "args": {
             "sequences": "<long_sequence>",
             "mutations": "c.99999999C>A",
-            "optimize_flanking_regions": true
+            "k": 30
         },
         "expected_result": null,
         "global_variables": {
@@ -285,53 +285,9 @@
         "args": {
             "sequences": "<extra_long_sequence>",
             "mutations": "c.40T>G",
-            "optimize_flanking_regions": true,
-            "k": 54
+            "k": 30
         },
         "expected_result": "CCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCCGCCCCGCCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCC",
-        "global_variables": {}
-    },
-    "test_large_min_seq_length": {
-        "type": "assert_mutate",
-        "args": {
-            "sequences": "<long_sequence>",
-            "mutations": "c.35G>A",
-            "optimize_flanking_regions": true,
-            "min_seq_len": 100
-        },
-        "expected_result": null,
-        "global_variables": {}
-    },
-    "test_single_deletion_with_right_repeats_and_unoptimized_flanks": {
-        "type": "assert_mutate",
-        "args": {
-            "sequences": "<long_sequence>",
-            "mutations": "c.31del",
-            "optimize_flanking_regions": false
-        },
-        "expected_result": "CCCCGCCCCACCCCGCCCCTCCCCGCCCCACCCGCCCCTCCCCGCCCCACCCCGCCCCTC",
-        "global_variables": {}
-    },
-    "test_single_deletion_with_right_repeats_and_removing_seqs_with_wt_kmers": {
-        "type": "assert_mutate",
-        "args": {
-            "sequences": "<long_sequence>",
-            "mutations": "c.31del",
-            "optimize_flanking_regions": false,
-            "remove_seqs_with_wt_kmers": true
-        },
-        "expected_result": null,
-        "global_variables": {}
-    },
-    "test_sequence_with_N": {
-        "type": "assert_mutate_N",
-        "args": {
-            "sequences": "<long_sequence_with_N>",
-            "mutations": "c.35G>A",
-            "optimize_flanking_regions": true,
-            "max_ambiguous": 0
-        },
-        "expected_result": null,
         "global_variables": {}
     }
 }

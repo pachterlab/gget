@@ -328,23 +328,10 @@ def mutate(
     mut_column: str = "mutation",
     seq_id_column: str = "seq_ID",
     mut_id_column: Optional[str] = None,
-    gtf: Optional[str] = None,
-    gtf_transcript_id_column: Optional[str] = None,
-    k: int = 30,
-    min_seq_len: Optional[int] = None,
-    optimize_flanking_regions: bool = False,
-    remove_seqs_with_wt_kmers: bool = False,
-    max_ambiguous: Optional[int] = None,
-    merge_identical: bool = True,
-    merge_identical_rc: bool = True,
-    update_df: bool = False,
-    update_df_out: Optional[str] = None,
-    store_full_sequences: bool = False,
-    translate: bool = False,
-    translate_start: Union[int, str, None] = None,
-    translate_end: Union[int, str, None] = None,
+    k: Optional[int] = None,
     out: Optional[str] = None,
     verbose: bool = True,
+    **kwargs,
 ):
     """
     Takes in nucleotide sequences and mutations (in standard mutation annotation - see below)
@@ -397,7 +384,7 @@ def mutate(
                                    Required when 'gtf' is provided. Default: None
 
     Mutant sequence generation/filtering options:
-    - k                            (int) Length of sequences flanking the mutation. Default: 30.
+    - k                            (int) Length of sequences flanking the mutation. Default: None (take entire sequence).
                                    If k > total length of the sequence, the entire sequence will be kept.
     - min_seq_len                  (int) Minimum length of the mutant output sequence. Mutant sequences smaller than this will be dropped. 
                                    Default: None
@@ -435,10 +422,22 @@ def mutate(
 
     Saves mutated sequences in fasta format (or returns a list containing the mutated sequences if out=None).
     """
+
+    if kwargs.get("gtf") or kwargs.get("gtf_transcript_id_column") or kwargs.get("optimize_flanking_regions") or kwargs.get("remove_seqs_with_wt_kmers") or kwargs.get("min_seq_len") or kwargs.get("max_ambiguous") or kwargs.get("merge_identical") or kwargs.get("merge_identical_rc") or kwargs.get("update_df") or kwargs.get("update_df_out") or kwargs.get("store_full_sequences") or kwargs.get("translate") or kwargs.get("translate_start") or kwargs.get("translate_end"):
+        # print a log message and raise exception
+        logger.critical(
+            """
+            It appears that you are passing in arguments that are not supported anymore in gget mutate. For use of these arguments, please check out https://github.com/pachterlab/kvar.
+            """
+        )
+        raise NotImplementedError
  
     global intronic_mutations, posttranslational_region_mutations, unknown_mutations, uncertain_mutations, ambiguous_position_mutations, cosmic_incorrect_wt_base, mut_idx_outside_seq
 
     columns_to_keep = ["header", seq_id_column, mut_column, "mutation_type", "wt_sequence", "mutant_sequence"]
+
+    if k is None:
+        k = 999999999  # take entire sequence by default
 
     # Load input sequences and their identifiers from fasta file
     if "." in sequences:
@@ -565,10 +564,6 @@ def mutate(
 
     mutations = add_mutation_type(mutations, mut_column)
 
-    # Link sequences to their mutations using the sequence identifiers
-    if store_full_sequences:
-        mutations["wt_sequence_full"] = mutations[seq_id_column].map(seq_dict)
-
     # Handle sequences that were not found based on their sequence IDs
     seqs_not_found = mutations[~mutations[seq_id_column].isin(seq_dict.keys())]
     if 0 < len(seqs_not_found) < 20:
@@ -599,14 +594,16 @@ def mutate(
         )
 
     total_mutations = mutations.shape[0]
-
-    if mut_id_column is None:
-        mut_id_column = mut_column
-
     mutations["mutant_sequence"] = ""
-    mutations["header"] = (
-        ">" + mutations[seq_id_column] + ":" + mutations[mut_id_column]
-    )
+
+    if mut_id_column is not None:
+        mutations["header"] = (
+            ">" + mutations[mut_id_column]
+        )
+    else:
+        mutations["header"] = (
+            ">" + mutations[seq_id_column] + ":" + mutations[mut_column]
+        )
 
     # Calculate number of bad mutations
     uncertain_mutations = mutations[mut_column].str.contains(r"\?").sum()
@@ -682,11 +679,6 @@ def mutate(
     insertion_mask = mutations["mutation_type"] == "insertion"
     duplication_mask = mutations["mutation_type"] == "duplication"
     inversion_mask = mutations["mutation_type"] == "inversion"
-
-    if remove_seqs_with_wt_kmers:
-        long_duplications = ((duplication_mask) & ((mutations["end_mutation_position"] - mutations["start_mutation_position"]) >= k)).sum()
-        logger.info(f"Removing {long_duplications} duplications > k")
-        mutations = mutations[~((duplication_mask) & ((mutations['end_mutation_position'] - mutations['start_mutation_position']) >= k))]
 
     # Create a mask for all non-substitution mutations
     non_substitution_mask = (
@@ -783,40 +775,7 @@ def mutate(
         axis=1
     )  # don't forget to increment by 1 later on
 
-    if gtf is not None:        
-        assert (mutations_path.endswith(".csv") or mutations_path.endswith(".tsv")), "Mutations must be a CSV or TSV file"
-        if "start_transcript_position" not in mutations.columns and "end_transcript_position" not in mutations.columns:  #* currently hard-coded column names, but optionally can be changed to arguments later
-            mutations = merge_gtf_transcript_locations_into_cosmic_csv(mutations, gtf, gtf_transcript_id_column = gtf_transcript_id_column)
-            columns_to_keep.extend(["start_transcript_position", "end_transcript_position", "strand"])
-        else:
-            logger.warning("Transcript positions already present in the input mutations file. Skipping GTF file merging.")
-       
-        # adjust start_transcript_position to be 0-index
-        mutations["start_transcript_position"] -= 1
-        
-        mutations["start_kmer_position"] = mutations[["start_kmer_position", "start_transcript_position"]].max(axis=1)
-        mutations["end_kmer_position"] = mutations[["end_kmer_position", "end_transcript_position"]].min(axis=1)
-
     mut_apply = (lambda *args, **kwargs: mutations.progress_apply(*args, **kwargs)) if verbose else mutations.apply
-
-    if update_df and store_full_sequences:
-        # Extract flank sequences
-        if verbose:
-            tqdm.pandas(desc="Extracting full left flank sequences")
-        
-        mutations["left_flank_region_full"] = mut_apply(
-            lambda row: seq_dict[row[seq_id_column]][0 : row["start_mutation_position"]], axis=1
-        )  # ? vectorize
-
-        if verbose:
-            tqdm.pandas(desc="Extracting full right flank sequences")
-
-        mutations["right_flank_region_full"] = mut_apply(
-            lambda row: seq_dict[row[seq_id_column]][
-                row["end_mutation_position"] + 1 : row["sequence_length"]
-            ],
-            axis=1,
-        )  # ? vectorize
 
     if verbose:
         tqdm.pandas(desc="Extracting k-mer left flank sequences")
@@ -853,52 +812,8 @@ def mutate(
     # To what extend the beginning of i overlaps with the beginning of d --> shave up to that many nucleotides off the beginning of r1 until k - len(r1) ≥ extent of overlap
     # To what extend the end of i overlaps with the beginning of d --> shave up to that many nucleotides off the end of r2 until k - len(r2) ≥ extent of overlap
 
-    if optimize_flanking_regions:
-        # Apply the function for beginning of mut_nucleotides with right_flank_region
-        mutations.loc[
-            non_substitution_mask, "beginning_mutation_overlap_with_right_flank"
-        ] = mutations.loc[non_substitution_mask].apply(
-            calculate_beginning_mutation_overlap_with_right_flank, axis=1
-        )
-
-        # Apply the function for end of mut_nucleotides with left_flank_region
-        mutations.loc[non_substitution_mask, "end_mutation_overlap_with_left_flank"] = (
-            mutations.loc[non_substitution_mask].apply(
-                calculate_end_mutation_overlap_with_left_flank, axis=1
-            )
-        )
-
-        # Calculate k-len(flank) (see above instructions)
-        mutations.loc[non_substitution_mask, "k_minus_left_flank_length"] = (
-            k - mutations.loc[non_substitution_mask, "left_flank_region"].apply(len)
-        )
-        mutations.loc[non_substitution_mask, "k_minus_right_flank_length"] = (
-            k - mutations.loc[non_substitution_mask, "right_flank_region"].apply(len)
-        )
-
-        mutations.loc[non_substitution_mask, "updated_left_flank_start"] = np.maximum(
-            mutations.loc[
-                non_substitution_mask, "beginning_mutation_overlap_with_right_flank"
-            ]
-            - mutations.loc[non_substitution_mask, "k_minus_left_flank_length"],
-            0,
-        )
-        mutations.loc[non_substitution_mask, "updated_right_flank_end"] = np.maximum(
-            mutations.loc[non_substitution_mask, "end_mutation_overlap_with_left_flank"]
-            - mutations.loc[non_substitution_mask, "k_minus_right_flank_length"],
-            0,
-        )
-
-        mutations["updated_left_flank_start"] = (
-            mutations["updated_left_flank_start"].fillna(0).astype(int)
-        )
-        mutations["updated_right_flank_end"] = (
-            mutations["updated_right_flank_end"].fillna(0).astype(int)
-        )
-
-    else:
-        mutations["updated_left_flank_start"] = 0
-        mutations["updated_right_flank_end"] = 0
+    mutations["updated_left_flank_start"] = 0
+    mutations["updated_right_flank_end"] = 0
 
     # Create WT substitution k-mer sequences
     mutations.loc[substitution_mask, "wt_sequence"] = (
@@ -934,76 +849,12 @@ def mutate(
         axis=1,
     )
 
-    if remove_seqs_with_wt_kmers:
-        if verbose:
-            tqdm.pandas(desc="Removing mutant fragments that share a kmer with wt fragments")
-
-        mutations['wt_fragment_and_mutant_fragment_share_kmer'] = mut_apply(lambda row: wt_fragment_and_mutant_fragment_share_kmer(mutated_fragment=row['mutant_sequence'], wildtype_fragment=row['wt_sequence'], k=k+1), axis=1)
-
-        mutations_overlapping_with_wt = mutations['wt_fragment_and_mutant_fragment_share_kmer'].sum()
-
-        mutations = mutations[~mutations['wt_fragment_and_mutant_fragment_share_kmer']]
-
-
-    if update_df and store_full_sequences:
-        columns_to_keep.extend(["wt_sequence_full", "mutant_sequence_full"])
-
-        # Create full sequences (substitution and non-substitution)
-        mutations["mutant_sequence_full"] = (
-            mutations["left_flank_region_full"]
-            + mutations["mut_nucleotides"]
-            + mutations["right_flank_region_full"]
-        )
-
     # Calculate k-mer lengths and report the distribution
     mutations["mutant_sequence_kmer_length"] = mutations["mutant_sequence"].apply(
         lambda x: len(x) if pd.notna(x) else 0
     )
 
     max_length = mutations["mutant_sequence_kmer_length"].max()
-
-    if min_seq_len:
-        rows_less_than_minimum = (mutations["mutant_sequence_kmer_length"] < min_seq_len).sum()
-
-        mutations = mutations[
-            mutations["mutant_sequence_kmer_length"] >= min_seq_len
-        ]
-
-        if verbose:
-            logger.info(
-                f"Removed {rows_less_than_minimum} mutant kmers with length less than {min_seq_len}..."
-            )
-
-    if max_ambiguous is not None:
-        # Get number of 'N' or 'n' occuring in the sequence
-        mutations['num_N'] = mutations['mutant_sequence'].str.lower().str.count('n')
-        num_rows_with_N = (mutations['num_N'] > max_ambiguous).sum()
-        mutations = mutations[mutations['num_N'] <= max_ambiguous]
-    
-        if verbose:
-            logger.info(
-                f"Removed {num_rows_with_N} mutant kmers containing more than {max_ambiguous} 'N's..."
-            )
-        
-        # Drop the 'num_N' column after filtering
-        mutations = mutations.drop(columns=['num_N'])
-
-    try:
-        # Create bins of width 5 from 0 to max_length
-        bins = range(0, max_length + 6, 5)
-
-        # Bin the lengths and count the number of elements in each bin
-        binned_lengths = pd.cut(
-            mutations["mutant_sequence_kmer_length"], bins=bins, right=False
-        )
-        bin_counts = binned_lengths.value_counts().sort_index()
-
-        # Display the report
-        if verbose:
-            logger.debug("Report of the number of elements in each bin of width 5:")
-            logger.debug(bin_counts)
-    except Exception as e:
-        pass
 
     # split_cols = mutations[mut_id_column].str.split("_", n=1, expand=True)
 
@@ -1039,176 +890,12 @@ def mutate(
         {mut_idx_outside_seq} mutations with indices outside of the sequence length found ({mut_idx_outside_seq/total_mutations*100:.2f}%)
         """
 
-    if remove_seqs_with_wt_kmers:        
-        report += f"""{long_duplications} duplications longer than k found ({long_duplications/total_mutations*100:.2f}%)
-        {mutations_overlapping_with_wt} mutations with overlapping kmers found ({mutations_overlapping_with_wt/total_mutations*100:.2f}%)
-        """
-
-    if min_seq_len:
-        report += f"""{rows_less_than_minimum} mutations with fragment length < k found ({rows_less_than_minimum/total_mutations*100:.2f}%)
-        """
-
-    if max_ambiguous is not None:
-        report += f"""{num_rows_with_N} mutations with Ns found ({num_rows_with_N/total_mutations*100:.2f}%)
-        """
-
     if good_mutations != total_mutations:
         logger.warning(report)
     else:
         logger.info("All mutations correctly recorded")
 
-    if translate and update_df and store_full_sequences:
-        columns_to_keep.extend(["wt_sequence_aa_full", "mutant_sequence_aa_full"])
-
-        if not mutations_path:
-            assert (
-                type(translate_start) != str and type(translate_end) != str
-            ), "translate_start and translate_end must be integers when translating sequences (or default None)."
-            if translate_start is None:
-                translate_start = 0
-            if translate_end is None:
-                translate_end = mutations["sequence_length"][0]
-
-            # combined_df['ORF'] = combined_df[translate_start] % 3
-
-            if verbose:
-                tqdm.pandas(desc="Translating WT amino acid sequences")
-                mutations["wt_sequence_aa_full"] = mutations["wt_sequence_full"].progress_apply(
-                    lambda x: translate_sequence(
-                        x, start=translate_start, end=translate_end
-                    )
-                )
-            else:
-                mutations["wt_sequence_aa_full"] = mutations["wt_sequence_full"].apply(
-                    lambda x: translate_sequence(
-                        x, start=translate_start, end=translate_end
-                    )
-                )
-
-            if verbose:
-                tqdm.pandas(desc="Translating mutant amino acid sequences")
-
-                mutations["mutant_sequence_aa_full"] = mutations[
-                    "mutant_sequence_full"
-                ].progress_apply(
-                    lambda x: translate_sequence(
-                        x, start=translate_start, end=translate_end
-                    )
-                )
-            
-            else:
-                mutations["mutant_sequence_aa_full"] = mutations[
-                    "mutant_sequence_full"
-                ].apply(
-                    lambda x: translate_sequence(
-                        x, start=translate_start, end=translate_end
-                    )
-                )
-
-            print(
-                f"Translated mutated sequences: {mutations['wt_sequence_aa_full']}"
-            )
-        else:
-            if not translate_start:
-                translate_start = "translate_start"
-
-            if not translate_end:
-                translate_end = "translate_end"
-
-            if translate_start not in mutations.columns:
-                mutations["translate_start"] = 0
-
-            if translate_end not in mutations.columns:
-                mutations["translate_end"] = mutations["sequence_length"]
-
-            if verbose:
-                tqdm.pandas(desc="Translating WT amino acid sequences")
-
-            mutations["wt_sequence_aa_full"] = mut_apply(
-                lambda row: translate_sequence(
-                    row["wt_sequence_full"], row[translate_start], row[translate_end]
-                ),
-                axis=1,
-            )
-
-            if verbose:
-                tqdm.pandas(desc="Translating mutant amino acid sequences")
-            
-            mutations["mutant_sequence_aa_full"] = mut_apply(
-                lambda row: translate_sequence(
-                    row["mutant_sequence_full"],
-                    row[translate_start],
-                    row[translate_end],
-                ),
-                axis=1,
-            )
-
     mutations = mutations[columns_to_keep]
-
-    if merge_identical:
-        logger.info("Merging identical mutated sequences")
-
-        if merge_identical_rc:
-            mutations['mutant_sequence_rc'] = mutations['mutant_sequence'].apply(reverse_complement)
-
-            # Create a column that stores a sorted tuple of (mutant_sequence, mutant_sequence_rc)
-            mutations['mutant_sequence_and_rc_tuple'] = mutations.apply(
-                lambda row: tuple(sorted([row['mutant_sequence'], row['mutant_sequence_rc']])),
-                axis=1
-            )
-
-            # mutations = mutations.drop(columns=['mutant_sequence_rc'])
-
-            group_key = 'mutant_sequence_and_rc_tuple'
-            columns_not_to_semicolon_join = ['mutant_sequence', 'mutant_sequence_rc']
-        else:
-            group_key = 'mutant_sequence'
-            columns_not_to_semicolon_join = []
-        
-        if update_df:
-            logger.warning("Merging identical mutated sequences can take a while if update_df=True since it will concatenate all MCRSs too)")
-            mutations = (
-                mutations.groupby(group_key, sort=False)
-                .agg({col: 'first' if col in columns_not_to_semicolon_join else lambda x: ";".join(x.astype(str)) for col in mutations.columns})  # Concatenate values with semicolons
-                .reset_index(drop=merge_identical_rc)  # drop if merging by mutant_sequence_and_rc_tuple, but not if merging by mutant_sequence
-            )
-
-        else:
-            mutations_temp = (
-                mutations.groupby(group_key, sort=False, group_keys=False)["header"]
-                .apply(";".join)
-                .reset_index()
-            )
-
-            if merge_identical_rc:
-                mutations_temp = mutations_temp.merge(mutations[['mutant_sequence', group_key]], on=group_key, how="left")
-                mutations_temp = mutations_temp.drop_duplicates(subset='header')
-                mutations_temp.drop(columns=[group_key], inplace=True)
-            
-            mutations = mutations_temp
-
-        # apply remove_gt_after_semicolon to mutant_sequence
-        mutations["header"] = mutations["header"].apply(
-            remove_gt_after_semicolon
-        )
-
-        # Calculate the number of semicolons in each entry
-        mutations['semicolon_count'] = mutations['header'].str.count(';')
-
-        mutations['semicolon_count'] += 1
-
-        # Convert all 1 values to NaN
-        mutations['semicolon_count'] = mutations['semicolon_count'].replace(1, np.nan)
-
-        # Take the sum across all rows of the new column
-        total_semicolons = int(mutations['semicolon_count'].sum())
-
-        mutations = mutations.drop(columns=['semicolon_count'])
-
-        if verbose:
-            logger.info(
-                f"{total_semicolons} identical mutated sequences were merged (headers were combined and separated using a semicolon (;). Occurences of identical mutated sequences may be reduced by increasing k."
-            )
 
     empty_kmer_count = (mutations["mutant_sequence"] == "").sum()
     
@@ -1220,21 +907,6 @@ def mutate(
     mutations = mutations[mutations["mutant_sequence"] != ""]
 
     mutations['header'] = mutations['header'].str[1:]  # remove the > character
-
-    if update_df:
-        logger.info("Saving dataframe with updated mutation info...")
-        saved_updated_df = True
-        logger.warning("File size can be very large if the number of mutations is large.")
-        if not update_df_out:
-            if not mutations_path:
-                logger.warning("mutations_path must be provided if update_df is True and update_df_out is not provided.")
-                saved_updated_df = False
-            else:
-                base_name, ext = os.path.splitext(mutations_path)
-                update_df_out = f"{base_name}_updated{ext}"
-        if saved_updated_df:
-            mutations.to_csv(update_df_out, index=False)
-            print(f"Updated mutation info has been saved to {update_df_out}")
 
     mutations["fasta_format"] = (
         ">" + mutations["header"] + "\n" + mutations["mutant_sequence"] + "\n"
