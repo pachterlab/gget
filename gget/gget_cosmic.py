@@ -147,13 +147,16 @@ def select_reference(
 
     overwrite = True
     if os.path.exists(file_path):
-        proceed = (
-            input(
-                "The requested COSMIC database already exists at the destination. Would you like to overwrite the existing files (y/n)? "
+        if not email and not password:
+            proceed = (
+                input(
+                    "The requested COSMIC database already exists at the destination. Would you like to overwrite the existing files (y/n)? "
+                )
+                .strip()
+                .lower()
             )
-            .strip()
-            .lower()
-        )
+        else:
+            proceed = "yes"
         if proceed in ["yes", "y"]:
             overwrite = True
         else:
@@ -178,13 +181,16 @@ def select_reference(
 
         # Download full databases
         else:
-            proceed = (
-                input(
-                    "Downloading complete databases from COSMIC requires an account (https://cancer.sanger.ac.uk/cosmic/register; free for academic use, license for commercial use).\nWould you like to proceed (y/n)? "
+            if email and password:
+                proceed = "yes"
+            else:
+                proceed = (
+                    input(
+                        "Downloading complete databases from COSMIC requires an account (https://cancer.sanger.ac.uk/cosmic/register; free for academic use, license for commercial use).\nWould you like to proceed (y/n)? "
+                    )
+                    .strip()
+                    .lower()
                 )
-                .strip()
-                .lower()
-            )
             if proceed in ["yes", "y"]:
                 download_reference(download_link, tar_folder_path, file_path, verbose, email = email, password = password)
             else:
@@ -293,8 +299,8 @@ def cosmic(
                 f"Parameter 'mutation_class' must be one of the following: {', '.join(mut_class_allowed)}.\n"
             )
 
-        grch_allowed = [37, 38]
-        if grch_version not in grch_allowed:
+        grch_allowed = ['37', '38']
+        if str(grch_version) not in grch_allowed:
             raise ValueError(
                 f"Parameter 'grch_version' must be one of the following: {', '.join(grch_allowed)}.\n"
             )
@@ -530,7 +536,7 @@ def cosmic(
                 df = df.drop_duplicates(subset=["seq_ID", "mutation"], keep="first")
                 df = df.drop(columns=["non_na_count"])
 
-            mutate_csv_out = mutation_tsv_file.replace(".tsv", "_gget_mutate.csv")
+            mutate_csv_out = mutation_tsv_file.replace(".tsv", "_mutation_workflow.csv")
             df.to_csv(mutate_csv_out, index=False)
 
             if verbose:

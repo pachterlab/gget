@@ -20,9 +20,9 @@ logger = set_up_logger()
 
 
 if not hasattr(pd.DataFrame, "map"):
-    logger.info(
-        "Old pandas version detected. Patching DataFrame.map to DataFrame.applymap"
-    )
+    # logger.warning(
+    #     "Old pandas version detected. Patching DataFrame.map to DataFrame.applymap"
+    # )
     pd.DataFrame.map = pd.DataFrame.applymap
 
 
