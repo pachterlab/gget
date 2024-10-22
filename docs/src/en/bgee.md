@@ -9,8 +9,8 @@ Return format: JSON/CSV (command-line) or data frame (Python).
 This module was written by [Sam Wagenaar](https://github.com/techno-sam).
 
 **Positional argument**  
-`ens_id`  
-Ensembl gene ID, e.g. ENSG00000169194 or ENSSSCG00000014725.  
+`ens_ids`  
+One or more Ensembl gene IDs, e.g. ENSG00000169194 or ENSSSCG00000014725.  
 
 NOTE: Some of the species in [Bgee](https://www.bgee.org/) are not in Ensembl or Ensembl metazoa, and for those you can use NCBI gene IDs, e.g. 118215821 (a gene in _Anguilla anguilla_).
 
