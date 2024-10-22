@@ -162,6 +162,7 @@ def _bgee_expression(gene_ids, json=False, verbose=True):
             ("expression_state", "expressionState"),
         ],
     )
+
     df["score"] = df["score"].astype(float)
 
     if json:
@@ -194,9 +195,3 @@ def bgee(
         return _bgee_orthologs(gene_id, json=json, verbose=verbose)
     else:
         raise ValueError(f"Unknown type: {type}")
-
-
-# Test code
-if __name__ == "__main__":
-    result = _bgee_expression(["ENSBTAG00000047356"])
-    print(result)
