@@ -1216,5 +1216,714 @@
             "gene_id": "ENSBTAG00000047356"
         },
         "expected_result": "ValueError"
+    },
+    "test_bgee_expression_multiple": {
+        "type": "assert_equal",
+        "args": {
+            "type": "expression",
+            "gene_id": ["ENSBTAG00000047356", "ENSBTAG00000018317"]
+        },
+        "expected_result": [
+            [
+                "UBERON:0001017",
+                "central nervous system",
+                92.15,
+                "high",
+                "expressed"
+            ],
+            [
+              "UBERON:0002616",
+              "regional part of brain",
+              79.01,
+              "high",
+              "expressed"
+            ],
+            [
+              "BGEE:0000000",
+              "anatomical entity and cellular component",
+              89.12,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0002530",
+              "gland",
+              78.42,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0013702",
+              "body proper",
+              90.53,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0009854",
+              "digestive tract diverticulum",
+              90.42,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0002416",
+              "integumental system",
+              89.76,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000992",
+              "ovary",
+              93.84,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000014",
+              "zone of skin",
+              93.04,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000072",
+              "proximo-distal subdivision of respiratory tract",
+              89.26,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0001013",
+              "adipose tissue",
+              87.24,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000459",
+              "uterine wall",
+              91.88,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000483",
+              "epithelium",
+              92.96,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0001276",
+              "epithelium of stomach",
+              93.28,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000383",
+              "musculature of body",
+              93.12,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0003833",
+              "abdominal segment muscle",
+              94.77,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0002190",
+              "subcutaneous adipose tissue",
+              88.51,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000061",
+              "anatomical structure",
+              92.6,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0003984",
+              "uterine tube infundibulum",
+              91.54,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0003296",
+              "gland of diencephalon",
+              79.01,
+              "high",
+              "expressed"
+            ],
+            [
+              "CL:0000988",
+              "hematopoietic cell",
+              87.97,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0002107",
+              "liver",
+              87.39,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0013768",
+              "great vessel of heart",
+              89.29,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000992",
+              "ovary",
+              93.74,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000467",
+              "anatomical system",
+              89.14,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000970",
+              "eye",
+              89.23,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0010890",
+              "pelvic complex muscle",
+              92.81,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0002416",
+              "integumental system",
+              86.66,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000468",
+              "multicellular organism",
+              90.38,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0001378",
+              "rectus femoris",
+              94.84,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0001890",
+              "forebrain",
+              92.15,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0001375",
+              "semitendinosus",
+              92.71,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0001801",
+              "anterior segment of eyeball",
+              88.9,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000165",
+              "mouth",
+              92.88,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0002616",
+              "regional part of brain",
+              92.58,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0003309",
+              "floor plate of diencephalon",
+              93.87,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0004572",
+              "arterial system",
+              89.29,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0003133",
+              "reproductive organ",
+              91.76,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000916",
+              "abdomen",
+              91.21,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000467",
+              "anatomical system",
+              90.65,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000029",
+              "lymph node",
+              91.03,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0001739",
+              "laryngeal cartilage",
+              89.87,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000990",
+              "reproductive system",
+              90.7,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000483",
+              "epithelium",
+              94.15,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0002199",
+              "integument",
+              90.78,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000468",
+              "multicellular organism",
+              86.65,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0001199",
+              "mucosa of stomach",
+              94.57,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0007625",
+              "pigment epithelium of eye",
+              89.52,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0001630",
+              "muscle organ",
+              94.4,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0002416",
+              "integumental system",
+              93.04,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0002020",
+              "gray matter",
+              94.52,
+              "high",
+              "expressed"
+            ],
+            [
+              "CL:0000766",
+              "myeloid leukocyte",
+              90.77,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000072",
+              "proximo-distal subdivision of respiratory tract",
+              91.6,
+              "high",
+              "expressed"
+            ],
+            [
+              "CL:0002320",
+              "connective tissue cell",
+              91.04,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0010153",
+              "rumen papilla",
+              95.38,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000915",
+              "thoracic segment of trunk",
+              92.4,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0001295",
+              "endometrium",
+              92.48,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0001062",
+              "anatomical entity",
+              91.2,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000465",
+              "material anatomical entity",
+              90.66,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0001460",
+              "arm",
+              94.97,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000465",
+              "material anatomical entity",
+              87.12,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0002462",
+              "erector spinae muscle group",
+              93.35,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0005281",
+              "ventricular system of central nervous system",
+              93.9,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0002416",
+              "integumental system",
+              89.57,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000465",
+              "material anatomical entity",
+              90.97,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0001017",
+              "central nervous system",
+              92.23,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0001911",
+              "mammary gland",
+              91.16,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0004121",
+              "ectoderm-derived structure",
+              90.99,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000383",
+              "musculature of body",
+              94.64,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000978",
+              "leg",
+              92.73,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0010314",
+              "structure with developmental contribution from neural crest",
+              92.15,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000995",
+              "uterus",
+              95.6,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0001295",
+              "endometrium",
+              93.72,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0003929",
+              "digestive tract epithelium",
+              94.13,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0003101",
+              "male organism",
+              90.7,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0001911",
+              "mammary gland",
+              91.16,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0007271",
+              "appendage musculature",
+              93.99,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0001016",
+              "nervous system",
+              92.58,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000467",
+              "anatomical system",
+              90.72,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0018254",
+              "skeletal musculature",
+              94.21,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0007367",
+              "surface of tongue",
+              95.15,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0007362",
+              "omasum",
+              92.49,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0001801",
+              "anterior segment of eyeball",
+              88.9,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0003101",
+              "male organism",
+              90.7,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000392",
+              "longissimus muscle",
+              87.36,
+              "high",
+              "expressed"
+            ],
+            [
+              "CL:0011115",
+              "precursor cell",
+              90.77,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000992",
+              "ovary",
+              91.62,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0002075",
+              "viscus",
+              90.47,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000033",
+              "head",
+              91.49,
+              "high",
+              "expressed"
+            ],
+            [
+              "BGEE:0000000",
+              "anatomical entity and cellular component",
+              87.12,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000483",
+              "epithelium",
+              91.49,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0003897",
+              "axial muscle",
+              87.36,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0001015",
+              "musculature",
+              92.66,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0002190",
+              "subcutaneous adipose tissue",
+              88.51,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000995",
+              "uterus",
+              93.29,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000203",
+              "pallium",
+              91.81,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0002365",
+              "exocrine gland",
+              86.67,
+              "high",
+              "expressed"
+            ],
+            [
+              "CL:0002174",
+              "follicular cell of ovary",
+              91.39,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000081",
+              "metanephros",
+              87.11,
+              "high",
+              "expressed"
+            ],
+            [
+              "UBERON:0000019",
+              "camera-type eye",
+              88.9,
+              "high",
+              "expressed"
+            ]
+        ]
     }
 }
