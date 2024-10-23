@@ -6,6 +6,7 @@ Regresa: Resultados en formato JSON (Terminal) o Dataframe/CSV (Python).
 **Parámetro posicional**  
 `ens_ids`   
 Uno o más ID del tipo Ensembl.  
+NOTA: Proporcionar una lista de más de 1000 ID de Ensembl a la vez puede provocar un error del servidor (para procesar más de 1000 ID, divida la lista de ID en fragmentos de 1000 ID y ejecútelos por separado). 
 
 **Parámetros optionales**  
 `-o` `--out`   
