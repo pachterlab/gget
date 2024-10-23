@@ -5,7 +5,8 @@ Return format: JSON (command-line) or data frame/CSV (Python).
 
 **Positional argument**  
 `ens_ids`   
-One or more Ensembl IDs (WormBase and Flybase IDs are also supported).
+One or more Ensembl IDs (WormBase and Flybase IDs are also supported).  
+NOTE: Providing a list of more than 1,000 Ensembl IDs at once might result in a server error (to process more than 1,000 IDs, split the list of IDs into chunks of 1,000 IDs and run these separately).   
 
 **Optional arguments**  
 `-o` `--out`   
