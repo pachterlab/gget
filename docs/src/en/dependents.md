@@ -1,3 +1,5 @@
+![Heatmap in the form of a world map showing the number of active users of the gget website per country.](https://github.com/lauraluebbert/lauraluebbert/raw/main/gget_user_map.png)
+
 # 🧑‍🤝‍🧑 Dependents
 The following applications build on *gget*:
 - [Therapeutics Data Commons (TDC)](https://tdcommons.ai/)  
