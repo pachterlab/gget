@@ -32,6 +32,7 @@ Harvard's Artificial Intelligence for Medicine and Science lab.
 Also see: https://github.com/pachterlab/gget/network/dependents
  
 # 📃 Featured publications
+- David Bradley et al., [The fitness cost of spurious phosphorylation.](https://doi.org/10.1038/s44318-024-00200-7) *The EMBO Journal* (2024). DOI: 10.1038/s44318-024-00200-7
 - Mikael Nilsson et al., [Resolving thyroid lineage cell trajectories merging into a dual endocrine gland in mammals.](https://doi.org/10.21203/rs.3.rs-5278325/v1) *Nature Portfolio (under review)* (2024). DOI: 10.21203/rs.3.rs-5278325/v1
 - Avasthi P et al., [Repeat expansions associated with human disease are present in diverse organisms.](https://doi.org/10.57844/arcadia-e367-8b55) *Arcadia* (2024). DOI: 10.57844/arcadia-e367-8b55
 - Ibrahim Al Rayyes et al., [Single-Cell Transcriptomics Reveals the Molecular Logic Underlying Ca2+ Signaling Diversity in Human and Mouse Brain.](https://doi.org/10.1101/2024.04.26.591400) *bioRxiv* (2024). DOI: 10.1101/2024.04.26.591400
@@ -48,3 +49,6 @@ Also see: https://github.com/pachterlab/gget/network/dependents
 - Mingze Dong et al., [Deep identifiable modeling of single-cell atlases enables zero-shot query of cellular states.](https://doi.org/10.1101/2023.11.11.566161) *bioRxiv* (2023). DOI: 10.1101/2023.11.11.566161
 
 # 📰 News
+- Documentary short film about *gget*: https://youtu.be/cVR0k6Mt97o
+- Podcast episode for the Prototype Fund Public Interest Podcast about the importance of open-source software and its role in academic research (in German): https://public-interest-podcast.podigee.io/33-pips4e4
+- Prototype Fund announcement: https://prototypefund.de/project/gget-genomische-datenbanken/
