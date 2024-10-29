@@ -2,7 +2,7 @@
   Usuarios activos del sitio web de gget desde su creación:
 </h3>
 
-![Mapa de calor en forma de mapa mundial que muestra el número de usuarios activos del sitio web de gget por país.](https://github.com/lauraluebbert/lauraluebbert/raw/main/gget_user_map.png)
+[![Mapa de calor en forma de mapa mundial que muestra el número de usuarios activos del sitio web de gget por país.](https://github.com/lauraluebbert/lauraluebbert/raw/main/gget_user_map.png)](https://github.com/lauraluebbert/lauraluebbert)
 
 # 🧑‍🤝‍🧑 Dependientes
 Las siguientes aplicaciones se basan en *gget*:
