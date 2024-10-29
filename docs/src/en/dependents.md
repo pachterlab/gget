@@ -31,10 +31,20 @@ Harvard's Artificial Intelligence for Medicine and Science lab.
 
 Also see: https://github.com/pachterlab/gget/network/dependents
  
-# 📃 Publications
-- Kimberly Siletti et al., [Transcriptomic diversity of cell types across the adult human brain.](https://doi.org/10.1126/science.add7046) *Science* (2023). DOI: [10.1126/science.add7046](https://doi.org/10.1126/science.add7046)
-- Beatriz Beamud et al., [Genetic determinants of host tropism in Klebsiella phages.](https://doi.org/10.1016/j.celrep.2023.112048) *Cell Reports* (2023). DOI: [10.1016/j.celrep.2023.112048](https://doi.org/10.1016/j.celrep.2023.112048)
-- Nicola A. Kearns et al., [Generation and molecular characterization of human pluripotent stem cell-derived pharyngeal foregut endoderm.](https://doi.org/10.1016/j.devcel.2023.08.024) *Cell Reports* (2023). DOI: [10.1016/j.devcel.2023.08.024](https://doi.org/10.1016/j.devcel.2023.08.024)
-- https://www.nature.com/articles/s41589-022-01131-2
+# 📃 Featured publications
+- Mikael Nilsson et al., [Resolving thyroid lineage cell trajectories merging into a dual endocrine gland in mammals.](https://doi.org/10.21203/rs.3.rs-5278325/v1) *Nature Portfolio (under review)* (2024). DOI: 10.21203/rs.3.rs-5278325/v1
+- Avasthi P et al., [Repeat expansions associated with human disease are present in diverse organisms.](https://doi.org/10.57844/arcadia-e367-8b55) *Arcadia* (2024). DOI: 10.57844/arcadia-e367-8b55
+- Ibrahim Al Rayyes et al., [Single-Cell Transcriptomics Reveals the Molecular Logic Underlying Ca2+ Signaling Diversity in Human and Mouse Brain.](https://doi.org/10.1101/2024.04.26.591400) *bioRxiv* (2024). DOI: 10.1101/2024.04.26.591400
+- David R. Blair & Neil Risch. [Dissecting the Reduced Penetrance of Putative Loss-of-Function Variants in Population-Scale Biobanks.](https://doi.org/10.1101/2024.09.23.24314008) *medRxiv* (2024). DOI: 10.1101/2024.09.23.24314008
+- Shanmugampillai Jeyarajaguru Kabilan et al., [Molecular modelling approaches for the identification of potent Sodium-Glucose Cotransporter 2 inhibitors from Boerhavia diffusa for the potential treatment of chronic kidney disease.](https://doi.org/10.21203/rs.3.rs-4520611/v1) *Journal of Computer-Aided Molecular Design (under review)* (2024). DOI: 10.21203/rs.3.rs-4520611/v1
+- Joseph M Rich et al., [The impact of package selection and versioning on single-cell RNA-seq analysis.](https://pmc.ncbi.nlm.nih.gov/articles/PMC11014608/#:~:text=10.1101/2024.04.04.588111) *bioRxiv* (2024). DOI: 10.1101/2024.04.04.588111
+- Sanjay C. Nagi et al., [AnoPrimer: Primer Design in malaria vectors informed by range-wide genomic variation.](https://wellcomeopenresearch.org/articles/9-255/v1) *Wellcome Open Research* (2024).
+- Yasmin Makki Mohialden et al., [A survey of the most recent Python packages for use in biology.](http://dx.doi.org/10.48047/NQ.2023.21.2.NQ23029) *NeuroQuantology* (2023). DOI: 10.48047/NQ.2023.21.2.NQ23029 
+- Kimberly Siletti et al., [Transcriptomic diversity of cell types across the adult human brain.](https://doi.org/10.1126/science.add7046) *Science* (2023). DOI: 10.1126/science.add7046
+- Beatriz Beamud et al., [Genetic determinants of host tropism in Klebsiella phages.](https://doi.org/10.1016/j.celrep.2023.112048) *Cell Reports* (2023). DOI: 10.1016/j.celrep.2023.112048
+- Nicola A. Kearns et al., [Generation and molecular characterization of human pluripotent stem cell-derived pharyngeal foregut endoderm.](https://doi.org/10.1016/j.devcel.2023.08.024) *Cell Reports* (2023). DOI: 10.1016/j.devcel.2023.08.024
+- Jonathan Rosenski et al., [Predicting gene knockout effects from expression data.](https://link.springer.com/article/10.1186/s12920-023-01446-6) *BMC Medical Genomics* (2023). DOI: 10.1186/s12920-023-01446-6
+- Peter Overby et al., [Pharmacological or genetic inhibition of Scn9a protects beta-cells while reducing insulin secretion in type 1 diabetes.](https://doi.org/10.1101/2023.06.11.544521) *bioRxiv* (2023). DOI: 10.1101/2023.06.11.544521
+- Mingze Dong et al., [Deep identifiable modeling of single-cell atlases enables zero-shot query of cellular states.](https://doi.org/10.1101/2023.11.11.566161) *bioRxiv* (2023). DOI: 10.1101/2023.11.11.566161
 
 # 📰 News
