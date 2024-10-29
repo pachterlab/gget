@@ -2,6 +2,7 @@
 
 [Introduction](en/introduction.md)  
 [What's New?](en/updates.md)  
+[Dependents & News](en/dependents.md)  
 
 # User Guide
 * [Installation](en/installation.md)  
@@ -41,6 +42,7 @@
 # Español
 * [Introdución](es/introduction.md)  
 * [¡Lo más reciente!](es/updates.md)
+* [Dependientes y Noticias](es/dependents.md)   
 
 # Guía del usario
 * [Instalación](es/installation.md)  
