@@ -1,5 +1,5 @@
 <h3 align="center">
-  Active users of the gget website since its creation
+  Active users of the gget website since its creation:
 </h3>
 
 ![Heatmap in the form of a world map showing the number of active users of the gget website per country.](https://github.com/lauraluebbert/lauraluebbert/raw/main/gget_user_map.png)
