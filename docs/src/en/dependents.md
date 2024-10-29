@@ -12,10 +12,10 @@ Harvard's Artificial Intelligence for Medicine and Science lab.
 - [scPRINT](https://www.jkobject.com/scPRINT/)  
   scPRINT is a large transformer model built for the inference of gene networks (connections between genes explaining the cell's expression profile) from scRNAseq data ([preprint](https://www.biorxiv.org/content/10.1101/2024.07.29.605556v1)).
 - [AnoPrimer](https://sanjaynagi.github.io/AnoPrimer/landing-page.html)  
-  AnoPrimer is a python package for primer design in An. gambiae and An. funestus, whilst considering genetic variation in wild whole-genome sequenced specimens in malariagen_data.
+  AnoPrimer is a Python package for primer design in *An. gambiae* and *An. funestus*, whilst considering genetic variation in wild whole-genome sequenced specimens in malariagen_data.
 - [AvaTaR](https://github.com/zou-group/avatar)  
   Optimizing LLM Agents for Tool-Assisted Knowledge Retrieval (NeurIPS 2024) by James Zou Lab at Stanford University.
-- [GRLDrugProp](https://github.com/Madscba/GRLDrugProp)
+- [GRLDrugProp](https://github.com/Madscba/GRLDrugProp)  
   Graph representation learning for modelling drug properties.
 - Rust implementation of *gget*: [https://github.com/noamteyssier/ggetrs](https://github.com/noamteyssier/ggetrs)
 - [https://github.com/Superbio-ai/getbio](https://github.com/Superbio-ai/getbio)
