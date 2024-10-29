@@ -11,25 +11,25 @@ Harvard's Artificial Intelligence for Medicine and Science lab.
   A LLM powered chatbot for bioinformatics ([documentation](https://brad-bioinformatics-retrieval-augmented-data.readthedocs.io/en/latest/index.html), [project main page](https://brad-bioinformatics-retrieval-augmented-data.readthedocs.io/_/downloads/en/latest/pdf/)).
 - [scPRINT](https://www.jkobject.com/scPRINT/)  
   scPRINT is a large transformer model built for the inference of gene networks (connections between genes explaining the cell's expression profile) from scRNAseq data ([preprint](https://www.biorxiv.org/content/10.1101/2024.07.29.605556v1)).
-- [AnoPrimer](https://sanjaynagi.github.io/AnoPrimer/landing-page.html):  
+- [AnoPrimer](https://sanjaynagi.github.io/AnoPrimer/landing-page.html)  
   AnoPrimer is a python package for primer design in An. gambiae and An. funestus, whilst considering genetic variation in wild whole-genome sequenced specimens in malariagen_data.
 - [AvaTaR](https://github.com/zou-group/avatar)  
   Optimizing LLM Agents for Tool-Assisted Knowledge Retrieval (NeurIPS 2024) by James Zou Lab at Stanford University.
 - [GRLDrugProp](https://github.com/Madscba/GRLDrugProp)
   Graph representation learning for modelling drug properties.
-- Rust implementation of gget: https://github.com/noamteyssier/ggetrs
-- https://github.com/Superbio-ai/getbio
-- https://github.com/yonniejon/AchillesPrediction
-- https://github.com/ELELAB/cancermuts
-- https://github.com/Benoitdw/SNPrimer
-- https://github.com/louisjoecodes/a16z-hackathon-project
-- https://github.com/EvX57/BACE1-Drug-Discovery
-- https://github.com/vecerkovakaterina/hidden-genes-msc
-- https://github.com/vecerkovakaterina/llm_bioinfo_agent
-- https://github.com/greedjar74/upstage_AI_Lab
-- https://github.com/alphavector/all
+- Rust implementation of gget: [https://github.com/noamteyssier/ggetrs](https://github.com/noamteyssier/ggetrs)
+- [https://github.com/Superbio-ai/getbio](https://github.com/Superbio-ai/getbio)
+- [https://github.com/yonniejon/AchillesPrediction](https://github.com/yonniejon/AchillesPrediction)
+- [https://github.com/ELELAB/cancermuts](https://github.com/ELELAB/cancermuts)
+- [https://github.com/Benoitdw/SNPrimer](https://github.com/Benoitdw/SNPrimer)
+- [https://github.com/louisjoecodes/a16z-hackathon-project](https://github.com/louisjoecodes/a16z-hackathon-project)
+- [https://github.com/EvX57/BACE1-Drug-Discovery](https://github.com/EvX57/BACE1-Drug-Discovery)
+- [https://github.com/vecerkovakaterina/hidden-genes-msc](https://github.com/vecerkovakaterina/hidden-genes-msc)
+- [https://github.com/vecerkovakaterina/llm_bioinfo_agent](https://github.com/vecerkovakaterina/llm_bioinfo_agent)
+- [https://github.com/greedjar74/upstage_AI_Lab](https://github.com/greedjar74/upstage_AI_Lab)
+- [https://github.com/alphavector/all](https://github.com/alphavector/all)
 
-Also see: https://github.com/pachterlab/gget/network/dependents
+Also see: [https://github.com/pachterlab/gget/network/dependents](https://github.com/pachterlab/gget/network/dependents)
  
 # 📃 Featured publications
 - David Bradley et al., [The fitness cost of spurious phosphorylation.](https://doi.org/10.1038/s44318-024-00200-7) *The EMBO Journal* (2024). DOI: 10.1038/s44318-024-00200-7
@@ -49,6 +49,6 @@ Also see: https://github.com/pachterlab/gget/network/dependents
 - Mingze Dong et al., [Deep identifiable modeling of single-cell atlases enables zero-shot query of cellular states.](https://doi.org/10.1101/2023.11.11.566161) *bioRxiv* (2023). DOI: 10.1101/2023.11.11.566161
 
 # 📰 News
-- Documentary short film about *gget*: https://youtu.be/cVR0k6Mt97o
-- Podcast episode for the Prototype Fund Public Interest Podcast about the importance of open-source software and its role in academic research (in German): https://public-interest-podcast.podigee.io/33-pips4e4
-- Prototype Fund announcement: https://prototypefund.de/project/gget-genomische-datenbanken/
+- Documentary short film about *gget*: [https://youtu.be/cVR0k6Mt97o](https://youtu.be/cVR0k6Mt97o)
+- Podcast episode for the Prototype Fund Public Interest Podcast about the importance of open-source software and its role in academic research (in German): [https://public-interest-podcast.podigee.io/33-pips4e4](https://public-interest-podcast.podigee.io/33-pips4e4)
+- Prototype Fund announcement: [https://prototypefund.de/project/gget-genomische-datenbanken](https://prototypefund.de/project/gget-genomische-datenbanken/)
