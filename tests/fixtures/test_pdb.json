@@ -164,7 +164,7 @@
                     "kind": "Global Symmetry"
                 }
             ],
-            "rcsb_struct_symmetry_provenance_code": "biojava-7.0.1",
+            "rcsb_struct_symmetry_provenance_code": "biojava-7.1.1",
             "rcsb_struct_symmetry_lineage": [
                 {
                     "id": "Global Symmetry.Cyclic.C3",
