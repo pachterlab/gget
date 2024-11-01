@@ -2,22 +2,21 @@
     "test_blast_nt": {
         "type": "assert_equal",
         "args": {
-            "sequence": "ATACTCAGTCACACAAGCCATAGCAGGAAACAGCGAGCTTGCAGCCTCAC",
+            "sequence": "MSKGEELFTGVVPILVELDGDVNGQKFSVSGEGEGDATYGKL",
             "limit": 1
         },
         "expected_result": [
             [
-                "PREDICTED: Pan paniscus CASP8 and FADD like apoptosis regulator (CFLAR), transcript variant X12, mRNA",
-                "Pan paniscus",
-                "pygmy chimpanzee",
-                9597,
-                93.5,
-                93.5,
+                "GFP deletion mutant [synthetic construct]",
+                "synthetic construct",
+                32630,
+                84.0,
+                84.0,
                 "100%",
-                1e-15,
+                1e-19,
                 "100.00%",
-                6682,
-                "XR_010109533.1"
+                59,
+                "BAQ25552.1"
             ]
         ]
     },
