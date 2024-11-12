@@ -122,9 +122,11 @@ def diamond(
         output_w = output.replace("/", "\\")
 
     if translated:
-        diamond_program = "blastp"
-    else:
+        if verbose:
+            logger.info(f"Aligning nucleotide query to amino acid reference (blastx mode).")
         diamond_program = "blastx"
+    else:
+        diamond_program = "blastp"
 
     if platform.system() == "Windows":
         command = f"{DIAMOND} version \
