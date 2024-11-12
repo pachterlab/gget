@@ -1,7 +1,9 @@
 ## ✨ What's new  
 **Version ≥ 0.29.1** (XXX):  
 - [`gget bgee`](bgee.md):  
-  `type="orthologs"` is now the default, removing the need to specify the `type` argument when calling orthologs  
+  `type="orthologs"` is now the default, removing the need to specify the `type` argument when calling orthologs
+- [`gget diamond`](diamond.md):  
+  Now supports translated alignment of nucleotide sequences to amino acid reference sequences using the `--translated` flag.
 
 **Version ≥ 0.29.0** (Sep 25, 2024):  
 - **New modules:**
