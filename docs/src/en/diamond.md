@@ -10,6 +10,7 @@ Sequences (str or list) or path to FASTA file containing sequences to be aligned
 **Required arguments**  
 `-ref` `--reference`  
 Reference sequences (str or list) or path to FASTA file containing reference sequences.  
+Add the `--translated` flag (Python: `translated=True`) if reference sequences are amino acid sequences and query sequences are nucleotide sequences.  
 
 **Optional arguments**  
 `-db` `--diamond_db`  
@@ -30,6 +31,9 @@ Path to DIAMOND binary (str). Default: None -> Uses DIAMOND binary installed wit
 Path to the folder to save results in (str), e.g. "path/to/directory". Default: Standard out; temporary files are deleted.   
 
 **Flags**  
+`-x` `--translated`  
+Perform translated alignment of nucleotide sequences to amino acid reference sequences.  
+                     
 `-csv` `--csv`  
 Command-line only. Returns results in CSV format.  
 Python: Use `json=True` to return output in JSON format.  
