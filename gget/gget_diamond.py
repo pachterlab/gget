@@ -41,7 +41,7 @@ def diamond(
     - query          Sequences (str or list) or path to FASTA file containing sequences to be aligned against the reference.
     - reference      Reference sequences (str or list) or path to FASTA file containing reference sequences.
                      Set translated=True if reference sequences are amino acid sequences and query sequences are nucleotide sequences.
-    - translated     True/False whether to perform translated alignment of nucleotide sequences to an amino acid reference.
+    - translated     True/False whether to perform translated alignment of nucleotide sequences to amino acid reference sequences.
                      Default: False.
     - diamond_db     Path to save DIAMOND database created from reference.
                      Default: None -> Temporary db file will be deleted after alignment or saved in 'out' if 'out' is provided.
