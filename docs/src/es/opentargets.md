@@ -1,6 +1,6 @@
 > Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
 # gget opentargets 🎯
-**Obtener enfermedades o fármacos asociados desde [OpenTargets](https://platform.opentargets.org/) usando IDs de Ensembl.**  
+**Obtenga enfermedades o fármacos asociados con ciertos genes desde [OpenTargets](https://platform.opentargets.org/).**  
 Formato de salida: JSON/CSV (línea de comandos) o marco de datos (Python).  
 
 Este módulo fue escrito por [Sam Wagenaar](https://github.com/techno-sam).  
