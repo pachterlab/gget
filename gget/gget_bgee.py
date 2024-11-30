@@ -100,35 +100,47 @@ def _bgee_orthologs(gene_id, json=False, verbose=True):
         return df
 
 
-def _bgee_expression(gene_id, json=False, verbose=True):
+def _bgee_expression(gene_ids, json=False, verbose=True):
     """
     Get expression data from Bgee
 
     Args:
 
-    :param gene_id: Ensembl gene ID
+    :param gene_ids: Ensembl gene ID(s)
     :param json:    return JSON instead of DataFrame
     :param verbose: log progress
 
     Returns requested information as a DataFrame or JSON
     """
-    # must first obtain species
-    species = _bgee_species(gene_id, verbose=verbose)
+    # if single Ensembl ID passed as string, convert to list
+    if isinstance(gene_ids, str):
+        gene_ids = [gene_ids]
+
+    # make sure all gene IDs correspond to the same species
+    species_set = {_bgee_species(gene_id, verbose=verbose) for gene_id in gene_ids}
+    print(species_set)
+
+    if len(species_set) != 1:
+        raise RuntimeError("All gene_ids must be from a single species.")
+
+    # get the single species from the set
+    species = species_set.pop()
 
     if verbose:
-        logger.info(f"Getting expression data for gene {gene_id} from Bgee")
+        logger.info(f"Getting expression data for gene {', '.join(gene_ids)} from Bgee")
 
     # then obtain expression data
     response = requests.get(
         "https://bgee.org/api/",
         params={
             "display_type": "json",
-            "page": "gene",
-            "action": "expression",
-            "gene_id": gene_id,
+            "page": "data",
+            "action": "expr_calls",
+            "gene_id": gene_ids,
             "species_id": species,
             "cond_param": ["anat_entity", "cell_type"],
             "data_type": "all",
+            "get_results": "true",
         },
     )
 
@@ -138,7 +150,7 @@ def _bgee_expression(gene_id, json=False, verbose=True):
             "Please double-check the arguments and try again.\n"
         )
 
-    expression_data = response.json()["data"]["calls"]
+    expression_data = response.json()["data"]["expressionData"]["expressionCalls"]
 
     df = json_list_to_df(
         expression_data,
@@ -150,6 +162,7 @@ def _bgee_expression(gene_id, json=False, verbose=True):
             ("expression_state", "expressionState"),
         ],
     )
+
     df["score"] = df["score"].astype(float)
 
     if json:
