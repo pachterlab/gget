@@ -1338,7 +1338,7 @@ def mutate(
     # When out=None, return list of mutated seqs
     else:
         if update_df:
-            return mutations
+            return mutations[columns_to_keep]
         else:
             all_mut_seqs = []
             all_mut_seqs.extend(mutations["mutant_sequence"].values)
