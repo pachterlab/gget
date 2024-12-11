@@ -459,7 +459,7 @@ def mutate(
                                    The identifiers (following the '>') of the mutated sequences in the output fasta will be '>[seq_ID]_[mut_ID]'.
     - verbose                      (True/False) whether to print progress information. Default: True
 
-    Saves mutated sequences in fasta format (or returns a list containing the mutated sequences if out=None).
+    Saves mutated sequences in fasta format (or, if out=None: when update_df is True, returns the mutation dataframe, otherwise returns a list containing the mutated sequences).
     """
 
     global intronic_mutations, posttranslational_region_mutations, unknown_mutations, uncertain_mutations, ambiguous_position_mutations, cosmic_incorrect_wt_base, mut_idx_outside_seq
@@ -674,7 +674,7 @@ def mutate(
 
     if mutations.empty:
         logger.warning("No valid mutations found in the input.")
-        return []
+        return mutations if update_df else []
 
     # Split nucleotide positions into start and end positions
     split_positions = mutations["nucleotide_positions"].str.split("_", expand=True)
@@ -715,7 +715,7 @@ def mutate(
 
     if mutations.empty:
         logger.warning("No valid mutations found in the input.")
-        return []
+        return mutations if update_df else []
 
     # Create masks for each type of mutation
     mutations["wt_nucleotides_ensembl"] = None
@@ -791,7 +791,7 @@ def mutate(
 
     if mutations.empty:
         logger.warning("No valid mutations found in the input.")
-        return []
+        return mutations if update_df else []
 
     # Adjust the start and end positions for insertions
     mutations.loc[
@@ -1337,13 +1337,17 @@ def mutate(
 
     # When out=None, return list of mutated seqs
     else:
-        all_mut_seqs = []
-        all_mut_seqs.extend(mutations["mutant_sequence"].values)
-
-        # Remove empty strings from final list of mutated sequences
-        # (these are introduced when unknown mutations are encountered)
-        while "" in all_mut_seqs:
-            all_mut_seqs.remove("")
-
-        if len(all_mut_seqs) > 0:
-            return all_mut_seqs
+        if update_df:
+            return mutations
+        else:
+            all_mut_seqs = []
+            all_mut_seqs.extend(mutations["mutant_sequence"].values)
+    
+            # Remove empty strings from final list of mutated sequences
+            # (these are introduced when unknown mutations are encountered)
+            while "" in all_mut_seqs:
+                all_mut_seqs.remove("")
+    
+            if len(all_mut_seqs) > 0:
+                return all_mut_seqs
+            return []
