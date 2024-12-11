@@ -1312,9 +1312,9 @@ def mutate(
         )
         if not update_df_out:
             if not mutations_path:
-                logger.warning(
-                    "mutations_path must be provided if update_df is True and update_df_out is not provided."
-                )
+                # logger.warning(
+                #     "mutations_path must be provided if update_df is True and update_df_out is not provided."
+                # )
                 saved_updated_df = False
             else:
                 base_name, ext = os.path.splitext(mutations_path)
