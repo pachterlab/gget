@@ -472,7 +472,7 @@ def mutate(
         "wt_sequence",
         "mutant_sequence",
         "start_mutation_position",
-        "end_mutation_position
+        "end_mutation_position"
     ]
 
     # Load input sequences and their identifiers from fasta file
