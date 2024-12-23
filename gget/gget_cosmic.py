@@ -222,6 +222,9 @@ def cosmic(
     gget_mutate=True,
     keep_genome_info=False,
     remove_duplicates=False,
+    seq_id_column="seq_ID",
+    mutation_column="mutation",
+    mut_id_column="mutation_id",
     email=None,
     password=None,
     out=None,
@@ -268,6 +271,9 @@ def cosmic(
     - gget_mutate       (True/False) Whether to create a modified version of the database for use with gget mutate. Default: True
     - keep_genome_info  (True/False) Whether to keep genome information (e.g. location of mutation in the genome) in the modified database for use with gget mutate. Default: False
     - remove_duplicates (True/False) Whether to remove duplicate rows from the modified database for use with gget mutate. Default: False
+    - seq_id_column     (str) Name of the seq_id column in the csv file created by gget_mutate. Default: "seq_ID"
+    - mutation_column   (str) Name of the mutation column in the csv file created by gget_mutate. Default: "mutation"
+    - mut_id_column     (str) Name of the mutation_id column in the csv file created by gget_mutate. Default: "mutation_id"
     - email             (str) Email for COSMIC login. Helpful for avoiding required input upon running gget COSMIC. Default: None
     - password          (str) Password for COSMIC login. Helpful for avoiding required input upon running gget COSMIC, but password will be stored in plain text in the script. Default: None
 
@@ -535,6 +541,13 @@ def cosmic(
                 df = df.sort_values(by="non_na_count", ascending=False)
                 df = df.drop_duplicates(subset=["seq_ID", "mutation"], keep="first")
                 df = df.drop(columns=["non_na_count"])
+
+            if isinstance(seq_id_column, str) and seq_id_column != "seq_ID":
+                df.rename(columns={"seq_ID": seq_id_column}, inplace=True)
+            if isinstance(mutation_column, str) and mutation_column and mutation_column != "mutation":
+                df.rename(columns={"mutation": mutation_column}, inplace=True)
+            if isinstance(mut_id_column, str) and mut_id_column != "mutation_id":
+                df.rename(columns={"mutation_id": mut_id_column}, inplace=True)
 
             mutate_csv_out = mutation_tsv_file.replace(".tsv", "_mutation_workflow.csv")
             df.to_csv(mutate_csv_out, index=False)

@@ -60,6 +60,15 @@ Whether to keep genome information in the modified database for use with gget mu
 `--remove_duplicates`
 Whether to remove duplicate rows from the modified database for use with gget mutate. Default: False
 
+`--seq_id_column`
+(str) Name of the seq_id column in the csv file created by gget_mutate. Default: "seq_ID"
+
+`--mutation_column`
+(str) Name of the mutation column in the csv file created by gget_mutate. Default: "mutation"
+
+`--mut_id_column`
+(str) Name of the mutation_id column in the csv file created by gget_mutate. Default: "mutation_id"
+
 `--email`
 Email for COSMIC login. Helpful for avoiding required input upon running gget COSMIC. Default: None
 

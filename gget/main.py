@@ -1881,6 +1881,27 @@ def main():
         help="Whether to remove duplicated rows from the modified database for use with gget mutate (only for use with --download_cosmic).",
     ),
     parser_cosmic.add_argument(
+        "--seq_id_column",
+        default="seq_ID",
+        type=str,
+        required=False,
+        help="Whether to remove duplicated rows from the modified database for use with gget mutate (only for use with --download_cosmic).",
+    ),
+    parser_cosmic.add_argument(
+        "--mutation_column",
+        default="mutation",
+        type=str,
+        required=False,
+        help="Whether to remove duplicated rows from the modified database for use with gget mutate (only for use with --download_cosmic).",
+    ),
+    parser_cosmic.add_argument(
+        "--mut_id_column",
+        default="mutation_id",
+        type=str,
+        required=False,
+        help="Whether to remove duplicated rows from the modified database for use with gget mutate (only for use with --download_cosmic).",
+    ),
+    parser_cosmic.add_argument(
         "--email",
         type=str,
         required=False,
