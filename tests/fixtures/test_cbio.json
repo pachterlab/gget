@@ -9,7 +9,7 @@
         },
         "expected_result": {
             "/tmp/test_cbio_download/msk_impact_2017/clinical_patient.txt": "08caa5754ffcae79b39eecad37edf201",
-            "/tmp/test_cbio_download/msk_impact_2017/clinical_sample.txt": "7550a0468bb410a2bdef42bd27c5ad32",
+            "/tmp/test_cbio_download/msk_impact_2017/clinical_sample.txt": "8d49c13c7ae2f4d0e2fbccb5ebf78316",
             "/tmp/test_cbio_download/msk_impact_2017/cna.txt": "e79f73232793853e808f69bd9d034125",
             "/tmp/test_cbio_download/msk_impact_2017/mutations.txt": "35264fd2f43492f09a15f15516fbe1b4",
             "/tmp/test_cbio_download/msk_impact_2017/sv.txt": "24ce260e03b417d47929f8fc34fc49a4"
@@ -26,7 +26,7 @@
         },
         "expected_result": {
             "/tmp/test_cbio_download/msk_impact_2017/clinical_patient.txt": "08caa5754ffcae79b39eecad37edf201",
-            "/tmp/test_cbio_download/msk_impact_2017/clinical_sample.txt": "7550a0468bb410a2bdef42bd27c5ad32",
+            "/tmp/test_cbio_download/msk_impact_2017/clinical_sample.txt": "8d49c13c7ae2f4d0e2fbccb5ebf78316",
             "/tmp/test_cbio_download/msk_impact_2017/cna.txt": "e79f73232793853e808f69bd9d034125",
             "/tmp/test_cbio_download/msk_impact_2017/mutations.txt": "35264fd2f43492f09a15f15516fbe1b4",
             "/tmp/test_cbio_download/msk_impact_2017/sv.txt": "24ce260e03b417d47929f8fc34fc49a4",

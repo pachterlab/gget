@@ -109,8 +109,7 @@ gget cbio plot \
     -g AKT1 ALK FLT4 MAP3K1 MLL2 MLL3 NOTCH3 NOTCH4 PDCD1 RNF43 \
     -st tissue \
     -vt mutation_occurrences \
-    -dpi 200 \
-    -y
+    -dpi 200
 ```
 ```python
 # Python
@@ -137,8 +136,7 @@ gget cbio plot \
     -g AKT1 ALK FLT4 MAP3K1 MLL2 MLL3 NOTCH3 NOTCH4 PDCD1 RNF43 \
     -st sample \
     -vt Consequence \
-    -dpi 200 \
-    -y
+    -dpi 200
 ```
 ```python
 # Python
@@ -166,8 +164,7 @@ gget cbio plot \
     -st sample \
     -vt Consequence \
     -f tissue:intestine \
-    -dpi 200 \
-    -y
+    -dpi 200
 ```
 ```python
 # Python
@@ -197,7 +194,6 @@ gget cbio plot \
     -vt Consequence \
     -f tissue:intestine \
     -dpi 200 \
-    -y \
     -t "Intestinal Mutations" \
     -fn intestinal_mutations.png
 ```
