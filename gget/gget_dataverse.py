@@ -1,8 +1,7 @@
 import os
 import requests
 from tqdm import tqdm
-import urllib.request
-import json
+import pandas as pd
 from .utils import print_sys
 from .constants import DATAVERSE_GET_URL
 
@@ -59,67 +58,31 @@ def download_wrapper(entry, path, return_type=None):
         return url, filename
 
 
-def process_local_json(filename):
-    """Process a local JSON file.
+def dataverse(df, path, sep=","):
+    """download datasets from dataverse for a given dataframe
+    Input dataframe must have 'name', 'id', 'type' columns.
+    - 'name' is the dataset name for single file
+    - 'id' is the unique identifier for the file
+    - 'type' is the file type (e.g. csv, tsv, pkl)
 
     Args:
-        filename (str): The path to the local JSON file.
-    
-    Returns:
-        dict: The local JSON file information as a dictionary.
+        df (pd.DataFrame or str): the dataframe or path to the csv/tsv file
+        path (str): the path to save the dataset locally
     """
-    
-    f = open(filename, 'r')
-    data = json.load(f)
-
-    return data
-
-
-def process_remote_json(url, save=False):
-    """Process a remote JSON file.
-
-    Args:
-        url (str): The URL of the remote JSON file.
-        save (bool, optional): Whether to save the JSON file locally. Defaults to False.
-
-    Returns:
-        dict: The remote JSON file information as a dictionary.
-    """
-    response = urllib.request.urlopen(url)
-    data = json.loads(response.read())
-
-    # Save JSON
-    if save:
-        with open(save, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False)
-
-    return data
-
-
-def dataverse(data, path=None, run_download=False, save_json=None):
-    """process a json file including the dataverse datasets information and download the datasets
-
-    Args:
-        data (str or dict): list of datasets to download in JSON format. URL, path to a local file, or a python dictionary.
-        path (str, optional): the path to save the datasets. Defaults to None.
-        run_download (bool, optional): whether to download the datasets. Defaults to True.
-        save_json (str): path to save JSON file. Defaults to None.
-    """
-    if "https" in data or "http" in data:
-        data = process_remote_json(data, save=save_json)
-    elif type(data) == str and '.json' in data:
-        data = process_local_json(data)
-    elif type(data) == dict:
+    if type(df) == str:
+        if os.path.exists(df):
+            df = pd.read_csv(df, sep=sep)
+        else:
+            raise FileNotFoundError(f"File {df} not found")
+    elif type(df) == pd.DataFrame:
         pass
+    else:
+        raise ValueError("Input must be a pandas dataframe or a path to a csv / tsv file")
+    
+    print_sys(f"Searching for {len(df)} datafiles in dataverse ...")
 
-    if "datasets" not in data:
-        # TODO: Add more error handling
-        raise ValueError("The json file must include proper 'datasets' key")
-
-    if not path and not run_download:
-        pass
-    elif not path and run_download:
-        raise ValueError("Please provide a path to save the datasets and set run_download=True")
-    elif run_download:
-        for entry in data['datasets']:
-            download_wrapper(entry, path)
+    # run the download wrapper for each entry in the dataframe
+    for _, entry in df.iterrows():
+        download_wrapper(entry, path)
+    
+    print_sys(f"Download completed, saved to `{path}`.")
