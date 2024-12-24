@@ -39,7 +39,7 @@ from .gget_mutate import mutate
 from .gget_opentargets import opentargets, OPENTARGETS_RESOURCES
 from .gget_cbio import cbio_plot, cbio_search
 from .gget_bgee import bgee
-
+from .gget_dataverse import dataverse
 
 # Custom formatter for help messages that preserved the text formatting and adds the default value to the end of the help message
 class CustomHelpFormatter(argparse.RawTextHelpFormatter):
@@ -2335,6 +2335,32 @@ def main():
         help="Does not print progress information.",
     )
 
+    ## dataverse parser arguments
+    dataverse_desc = "Download datasets from the Dataverse repositories."
+    parser_dataverse = parent_subparsers.add_parser(
+        "dataverse",
+        parents=[parent],
+        description=dataverse_desc,
+        help=dataverse_desc,
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
+    )
+    parser_dataverse.add_argument(
+        "-o",
+        "--path",
+        type=str,
+        required=True,
+        help="Path to the directory the datasets will be saved in, e.g. 'path/to/directory'.",
+    )
+    parser_dataverse.add_argument(
+        "-t",
+        "--table",
+        type=str,
+        default=None,
+        required=False,
+        help="File containing the dataset IDs to download, e.g. 'datasets.tsv'.",
+    )
+    
     ### Define return values
     args = parent_parser.parse_args()
 
@@ -2386,6 +2412,7 @@ def main():
         "opentargets": parser_opentargets,
         "cbio": parser_cbio,
         "bgee": parser_bgee,
+        "dataverse": parser_dataverse,
     }
 
     if len(sys.argv) == 2:
@@ -3295,3 +3322,17 @@ def main():
                 print(
                     bgee_results.to_json(orient="records", force_ascii=False, indent=4)
                 )
+
+    ## dataverse return
+    if args.command == "dataverse":
+        # Define separator based on file extension
+        if '.csv' in args.table:
+            sep = ','
+        elif '.tsv' in args.table:
+            sep = '\t'
+        # Run gget dataverse function
+        dataverse(
+            df = args.table,
+            path = args.out,
+            sep = sep,
+        )
