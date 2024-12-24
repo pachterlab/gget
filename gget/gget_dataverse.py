@@ -2,6 +2,7 @@ import os
 import requests
 from tqdm import tqdm
 import pandas as pd
+import pandas as pd
 from .utils import print_sys
 from .constants import DATAVERSE_GET_URL
 

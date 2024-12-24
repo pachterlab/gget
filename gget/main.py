@@ -2363,36 +2363,6 @@ def main():
         help="File containing the dataset IDs to download, e.g. 'datasets.tsv'.",
     )
 
-    # dataverse parser arguments
-    dataverse_desc = "Collect datasets from Harvard Dataverse container using a defined JSON file"
-    parser_dataverse = parent_subparsers.add_parser(
-        "dataverse",
-        parents=[parent],
-        description=dataverse_desc,
-        help=dataverse_desc,
-        add_help=True,
-    )
-
-    parser_dataverse.add_argument(
-        "-j",
-        "--json",
-        default=None,
-        required=False,
-        help='URL link to JSON file including predefined list of datasets.'
-    )
-    
-    parser_dataverse.add_argument(
-        "-o",
-        "--out",
-        type=str,
-        required=False,
-        help=(
-            "Path to the file the results will be saved in, e.g. path/to/directory/\n"
-            "Default: Standard out."
-        ),
-    )
-
-
     ### Define return values
     args = parent_parser.parse_args()
 
@@ -2444,7 +2414,6 @@ def main():
         "opentargets": parser_opentargets,
         "cbio": parser_cbio,
         "bgee": parser_bgee,
-        "dataverse": parser_dataverse,
         "dataverse": parser_dataverse,
     }
 
@@ -3249,15 +3218,6 @@ def main():
                         json.dump(pdb_results, f, ensure_ascii=False, indent=4)
                 else:
                     print(json.dumps(pdb_results, ensure_ascii=False, indent=4))
-
-    ## dataverse return
-    if args.command == "dataverse":
-        dataverse(
-            data = args.json,
-            path = args.out,
-            run_download=True,
-            save_json=args.out + 'dataverse.json'
-        )
 
     ## dataverse return
     if args.command == "dataverse":
