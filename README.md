@@ -12,7 +12,7 @@
   
 ![alt text](https://github.com/pachterlab/gget/blob/main/figures/gget_overview.png?raw=true)
     
-If you use `gget` in a publication, please [cite*](https://pachterlab.github.io/gget/cite.html):    
+If you use `gget` in a publication, please [cite*](https://pachterlab.github.io/gget/en/cite.html):    
 ```
 Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. https://doi.org/10.1093/bioinformatics/btac836
 ```
