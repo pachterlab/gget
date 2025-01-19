@@ -22,6 +22,8 @@ Las siguientes aplicaciones se basan en *gget*:
   Optimización de Agentes de LLM para Recuperación de Conocimiento Asistida por Herramientas (NeurIPS 2024) por el laboratorio de James Zou en la Universidad de Stanford.
 - [GRLDrugProp](https://github.com/Madscba/GRLDrugProp)  
   Aprendizaje de representación de grafos para modelar propiedades de fármacos.
+- [MicrobioLink2](https://github.com/korcsmarosgroup/MicrobioLink2)  
+  Analiza el impacto de la interacción huésped-microbio en la señalización posterior en células y tejidos humanos.  
 - Implementación en Rust de gget: [https://github.com/noamteyssier/ggetrs](https://github.com/noamteyssier/ggetrs)
 - [https://github.com/Superbio-ai/getbio](https://github.com/Superbio-ai/getbio)
 - [https://github.com/yonniejon/AchillesPrediction](https://github.com/yonniejon/AchillesPrediction)
