@@ -23,6 +23,8 @@ Harvard's Artificial Intelligence for Medicine and Science lab.
   Optimizing LLM Agents for Tool-Assisted Knowledge Retrieval (NeurIPS 2024) by James Zou Lab at Stanford University.
 - [GRLDrugProp](https://github.com/Madscba/GRLDrugProp)  
   Graph representation learning for modelling drug properties.
+- [MicrobioLink2](https://github.com/korcsmarosgroup/MicrobioLink2)  
+  A computational tool that analyzes the impact of host-microbe interaction on downstream signaling in human cells and tissues.
 - Rust implementation of *gget*: [https://github.com/noamteyssier/ggetrs](https://github.com/noamteyssier/ggetrs)
 - [https://github.com/Superbio-ai/getbio](https://github.com/Superbio-ai/getbio)
 - [https://github.com/yonniejon/AchillesPrediction](https://github.com/yonniejon/AchillesPrediction)
