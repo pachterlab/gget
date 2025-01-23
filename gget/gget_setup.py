@@ -236,9 +236,9 @@ def setup(module, verbose=True, out=None):
                 Please install AlphaFold third-party dependency openmm by running the following command from the command line: 
                 For Python version < 3.10: 
                 'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' 
-                For Python version = 3.10: 
+                For Python version 3.10: 
                 'conda install -qy conda==24.1.2 && conda install -qy -c conda-forge openmm=7.7.0' 
-                For Python version >= 3.11: 
+                For Python version 3.11: 
                 'conda install -qy conda==24.11.1 && conda install -qy -c conda-forge openmm=8.0.0' 
                 (Recommendation: Follow with 'conda update -qy conda' to update conda to the latest version afterwards.)
                 """
