@@ -230,11 +230,16 @@ def setup(module, verbose=True, out=None):
         except ImportError as e:
             raise ImportError(
                 f"""
-                Trying to import openmm resulted in the following error:
+                Trying to import openmm resulted in the following error: 
                 {e}
 
-                Please install AlphaFold third-party dependency openmm v7.5.1 (or v7.7.0 for Python >= 3.10) by running the following command from the command line: 
-                'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1'   (or 'openmm=7.7.0' for Python >= 3.10)
+                Please install AlphaFold third-party dependency openmm by running the following command from the command line: 
+                For Python version < 3.10: 
+                'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' 
+                For Python version = 3.10: 
+                'conda install -qy conda==24.1.2 && conda install -qy -c conda-forge openmm=7.7.0' 
+                For Python version >= 3.11: 
+                'conda install -qy conda==24.11.1 && conda install -qy -c conda-forge openmm=8.0.0' 
                 (Recommendation: Follow with 'conda update -qy conda' to update conda to the latest version afterwards.)
                 """
             )
