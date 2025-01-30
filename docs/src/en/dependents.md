@@ -57,6 +57,7 @@ Also see: [https://github.com/pachterlab/gget/network/dependents](https://github
 - Mingze Dong et al., [Deep identifiable modeling of single-cell atlases enables zero-shot query of cellular states.](https://doi.org/10.1101/2023.11.11.566161) *bioRxiv* (2023). DOI: 10.1101/2023.11.11.566161
 
 # 📰 News
+- [`gget opentargets` release blog post by the Open Targets platform](https://blog.opentargets.org/case-study-gget/)
 - Documentary short film about *gget*: [https://youtu.be/cVR0k6Mt97o](https://youtu.be/cVR0k6Mt97o)
 - Podcast episode for the Prototype Fund Public Interest Podcast about the importance of open-source software and its role in academic research (in German): [https://public-interest-podcast.podigee.io/33-pips4e4](https://public-interest-podcast.podigee.io/33-pips4e4)
 - Prototype Fund announcement: [https://prototypefund.de/project/gget-genomische-datenbanken](https://prototypefund.de/project/gget-genomische-datenbanken/)
