@@ -4,7 +4,7 @@
 ```bash
 pip install --upgrade gget
 ```
-Alternativa:  
+Alternativa (aunque se prefiere la instalación usando `pip`):  
 ```bash
 conda install -c bioconda gget
 ```
