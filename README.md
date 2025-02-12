@@ -22,10 +22,6 @@ Read the article here: https://doi.org/10.1093/bioinformatics/btac836
 ```bash
 pip install --upgrade gget
 ```
-Alternative:
-```bash
-conda install -c bioconda gget
-```
 
 For use in Jupyter Lab / Google Colab:
 ```python
