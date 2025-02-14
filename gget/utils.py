@@ -86,6 +86,31 @@ def get_latest_cosmic():
     return int(soup.find("div", class_="news").get("id").split("v")[-1])
 
 
+def check_file_for_error_message(filepath, filename, download_path):
+    with open(filepath, "r", encoding="utf-8") as file:
+        content = file.read().strip()
+
+    # Define common error indicators
+    error_keywords = [
+        "Internal Server Error",
+        "Bad Gateway",
+        "Service Unavailable",
+        "502 Bad Gateway",
+        "500 Internal Server Error",
+    ]
+
+    # Check if the file contains an error message and raise ValueError + print error message if so
+    if any(keyword in content for keyword in error_keywords):
+        raise ValueError(
+            f"""
+            The {filename} downloaded from {download_path} 
+            contains an error message instead of valid data.\n
+            Error message:\n{content}\n
+            Please try again. If the problem persists, please report it here: https://github.com/pachterlab/gget/issues/new?template=issue_report.yml
+            """
+        )
+
+
 def read_fasta(fasta):
     """
     Args:

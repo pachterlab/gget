@@ -5,9 +5,8 @@ import sys
 import subprocess
 import platform
 import uuid
-from platform import python_version
 
-from .utils import set_up_logger
+from .utils import set_up_logger, check_file_for_error_message
 
 logger = set_up_logger()
 
@@ -183,28 +182,48 @@ def setup(module, verbose=True, out=None):
 
         # Check if files are present
         if os.path.exists(elm_instances_fasta):
+            # Check that file does not just contain an error message
+            check_file_for_error_message(
+                elm_instances_fasta,
+                "ELM instances fasta file",
+                ELM_INSTANCES_FASTA_DOWNLOAD,
+            )
             if verbose:
                 logger.info(f"ELM sequences file present.")
         else:
             logger.error("ELM FASTA file missing.")
 
         if os.path.exists(elm_classes_tsv):
+            # Check that file does not just contain an error message
+            check_file_for_error_message(
+                elm_classes_tsv, "ELM classes tsv file", ELM_CLASSES_TSV_DOWNLOAD
+            )
             if verbose:
                 logger.info("ELM classes file present.")
         else:
             logger.error("ELM classes file missing.")
 
         if os.path.exists(elm_instances_tsv):
+            # Check that file does not just contain an error message
+            check_file_for_error_message(
+                elm_instances_tsv, "ELM instances tsv file", ELM_INSTANCES_TSV_DOWNLOAD
+            )
             if verbose:
                 logger.info("ELM instances file present.")
         else:
             logger.error("ELM instances file missing.")
 
         if os.path.exists(elm_intdomains_tsv):
+            # Check that file does not just contain an error message
+            check_file_for_error_message(
+                elm_intdomains_tsv,
+                "ELM interaction domains tsv file",
+                ELM_INTDOMAINS_TSV_DOWNLOAD,
+            )
             if verbose:
-                logger.info("ELM interactions domains file present.")
+                logger.info("ELM interaction domains file present.")
         else:
-            logger.error("ELM interactions domains file missing.")
+            logger.error("ELM interaction domains file missing.")
 
     elif module == "alphafold":
         if platform.system() == "Windows":
