@@ -66,6 +66,9 @@ COSMIC_RELEASE_URL = "https://cancer.sanger.ac.uk/cosmic/release_notes"
 # OpenTargets API endpoint
 OPENTARGETS_GRAPHQL_API = "https://api.platform.opentargets.org/api/v4/graphql"
 
+# Harvard dataverse API server
+DATAVERSE_GET_URL = "https://dataverse.harvard.edu/api/access/datafile/"
+
 # CBIO data
 CBIO_CANCER_TYPE_TO_TISSUE_DICTIONARY = {
     "Acute Leukemias of Ambiguous Lineage": "leukemia",
