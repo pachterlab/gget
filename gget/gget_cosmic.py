@@ -102,6 +102,9 @@ def select_reference(
         contained_file = (
             f"CancerMutationCensus_AllData_v{cosmic_version}_GRCh{grch_version}.tsv"
         )
+        if str(cosmic_version) == "100":  # special treatment due to v2
+            download_link = download_link.replace(".tar&bucket=downloads", "_v2.tar&bucket=downloads")
+            tarred_folder += "_v2"
 
     elif mutation_class == "cell_line":
         download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{grch_version}/cell_lines/v{cosmic_version}/CellLinesProject_GenomeScreensMutant_Tsv_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
