@@ -204,15 +204,6 @@ def select_reference(
     return file_path, overwrite
 
 
-def convert_chromosome_value_to_int_when_possible(val):
-    try:
-        # Try to convert the value to a float, then to an int, and finally to a string
-        return str(int(float(val)))
-    except ValueError:
-        # If conversion fails, keep the value as it is
-        return val
-
-
 def cosmic(
     searchterm,
     entity="mutations",
@@ -390,10 +381,7 @@ def cosmic(
                     #     }
                     # )
 
-                    from gget.gget_mutate import (
-                        mutation_pattern,
-                        convert_chromosome_value_to_int_when_possible,
-                    )
+                    from gget.gget_mutate import mutation_pattern, convert_chromosome_value_to_int_when_possible
                     import numpy as np
 
                     # * uncomment to include strand information (tested not to be accurate for CMC)
