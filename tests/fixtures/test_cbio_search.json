@@ -17,6 +17,7 @@
             "egc_trap_ccr_msk_2023",
             "egc_trap_msk_2020",
             "esca_broad",
+            "esca_msk_2025",
             "esca_tcga",
             "esca_tcga_gdc",
             "esca_tcga_pan_can_atlas_2018",
