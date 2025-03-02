@@ -115,7 +115,7 @@ def convert_chromosome_value_to_int_when_possible(val):
         return str(int(float(val)))
     except ValueError:
         # If conversion fails, keep the value as it is
-        return val
+        return str(val)
 
 
 def merge_gtf_transcript_locations_into_cosmic_csv(

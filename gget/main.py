@@ -2623,6 +2623,11 @@ def main():
             gget_mutate=args.gget_mutate,
             keep_genome_info=args.keep_genome_info,
             remove_duplicates=args.remove_duplicates,
+            seq_id_column=args.seq_id_column,
+            mutation_column=args.mutation_column,
+            mut_id_column=args.mut_id_column,
+            email=args.email,
+            password=args.password,
             out=args.out,
             verbose=args.quiet,
         )

@@ -102,6 +102,11 @@ def select_reference(
         contained_file = (
             f"CancerMutationCensus_AllData_v{cosmic_version}_GRCh{grch_version}.tsv"
         )
+        if str(cosmic_version) == "100":  # special treatment due to v2
+            download_link = download_link.replace(".tar&bucket=downloads", "_v2.tar&bucket=downloads")
+            tarred_folder += "_v2"
+        elif str(cosmic_version) == "101":  # special treatment due to link difference - path=grch37 instead of path=GRCh37
+            download_link = download_link.replace(f"path=GRCh{grch_version}", f"path=grch{grch_version}")
 
     elif mutation_class == "cell_line":
         download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{grch_version}/cell_lines/v{cosmic_version}/CellLinesProject_GenomeScreensMutant_Tsv_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
@@ -199,15 +204,6 @@ def select_reference(
                 )
 
     return file_path, overwrite
-
-
-def convert_chromosome_value_to_int_when_possible(val):
-    try:
-        # Try to convert the value to a float, then to an int, and finally to a string
-        return str(int(float(val)))
-    except ValueError:
-        # If conversion fails, keep the value as it is
-        return val
 
 
 def cosmic(
@@ -387,10 +383,7 @@ def cosmic(
                     #     }
                     # )
 
-                    from gget.gget_mutate import (
-                        mutation_pattern,
-                        convert_chromosome_value_to_int_when_possible,
-                    )
+                    from gget.gget_mutate import mutation_pattern, convert_chromosome_value_to_int_when_possible
                     import numpy as np
 
                     # * uncomment to include strand information (tested not to be accurate for CMC)
