@@ -3,6 +3,7 @@ on:
   push:
     branches:
     - traffic
+  workflow_dispatch:
 
 jobs:
   build:
