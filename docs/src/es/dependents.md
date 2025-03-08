@@ -62,4 +62,4 @@ Ver también: [https://github.com/pachterlab/gget/network/dependents](https://gi
 - Anuncio del Prototype Fund: [https://prototypefund.de/project/gget-genomische-datenbanken](https://prototypefund.de/project/gget-genomische-datenbanken/)
 
 # 🚂 Tráfico del [repositorio de gget](https://github.com/pachterlab/gget/)
-![Gráficos que muestran los clones y las vistas acumuladas del repositorio gget de GitHub.](https://github.com/pachterlab/gget/blob/traffic/plots/gget_cumulative_clones_views.png)
+![Gráficos que muestran los clones y las vistas acumuladas del repositorio gget de GitHub.](https://raw.githubusercontent.com/pachterlab/gget/traffic/plots/gget_cumulative_clones_views.png)
