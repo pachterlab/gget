@@ -7,6 +7,8 @@ on:
     paths:
     - 'gget/**'
     - 'tests/**'
+  # Allow manual trigger
+  workflow_dispatch:
 
 jobs:
   build:
