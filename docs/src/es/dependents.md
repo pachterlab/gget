@@ -60,3 +60,6 @@ Ver también: [https://github.com/pachterlab/gget/network/dependents](https://gi
 - Documental corto sobre *gget*: [https://youtu.be/cVR0k6Mt97o](https://youtu.be/cVR0k6Mt97o)
 - Episodio de podcast para el Prototype Fund Public Interest Podcast sobre la importancia del software de código abierto y su papel en la investigación académica (en alemán): [https://public-interest-podcast.podigee.io/33-pips4e4](https://public-interest-podcast.podigee.io/33-pips4e4)
 - Anuncio del Prototype Fund: [https://prototypefund.de/project/gget-genomische-datenbanken](https://prototypefund.de/project/gget-genomische-datenbanken/)
+
+# 🚂 Tráfico del [repositorio de gget](https://github.com/pachterlab/gget/)
+![](https://github.com/pachterlab/gget/blob/traffic/plots/gget_cumulative_clones_views.png)
