@@ -63,4 +63,5 @@ Also see: [https://github.com/pachterlab/gget/network/dependents](https://github
 - Prototype Fund announcement: [https://prototypefund.de/project/gget-genomische-datenbanken](https://prototypefund.de/project/gget-genomische-datenbanken/)
 
 # 🚂 [gget repository](https://github.com/pachterlab/gget/) traffic
-![Plots showing the cumulative clones and views of the gget GitHub repository.](https://github.com/pachterlab/gget/blob/traffic/plots/gget_cumulative_clones_views.png)
+![Plots showing the cumulative clones and views of the gget GitHub repository.](https://raw.githubusercontent.com/pachterlab/gget/traffic/plots/gget_cumulative_clones_views.png)
+
