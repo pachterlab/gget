@@ -61,3 +61,6 @@ Also see: [https://github.com/pachterlab/gget/network/dependents](https://github
 - Documentary short film about *gget*: [https://youtu.be/cVR0k6Mt97o](https://youtu.be/cVR0k6Mt97o)
 - Podcast episode for the Prototype Fund Public Interest Podcast about the importance of open-source software and its role in academic research (in German): [https://public-interest-podcast.podigee.io/33-pips4e4](https://public-interest-podcast.podigee.io/33-pips4e4)
 - Prototype Fund announcement: [https://prototypefund.de/project/gget-genomische-datenbanken](https://prototypefund.de/project/gget-genomische-datenbanken/)
+
+# 🚂 [gget repository](https://github.com/pachterlab/gget/) traffic
+![](https://github.com/pachterlab/gget/blob/traffic/plots/gget_cumulative_clones_views.png)
