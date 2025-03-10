@@ -1,13 +1,13 @@
 name: Plot_traffic
 
 on:
-  push:
   # Trigger on pushes to traffic branch
+  push:
     branches:
       - traffic
   # Allow manual trigger
   workflow_dispatch:
-  # Triger when Traffic workflow finishes
+  # Trigger when Traffic workflow finishes
   workflow_run:
       workflows: ["Traffic"]
       types:
