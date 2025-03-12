@@ -16,15 +16,25 @@ jobs:
         fetch-depth: 0  # Fetch all history for all branches
 
     - name: Set backup filename
-      run: echo "BACKUP_FILE=${{ github.repository }}-backup-$(date +%F).tar.gz" >> $GITHUB_ENV
+      run: echo BACKUP_FILE=$(echo "${{ github.repository }}-backup-$(date +%F).tar.gz" | sed 's/\//-/g') >> $GITHUB_ENV
 
     - name: Create archive
       run: |
         tar -czf $BACKUP_FILE .
 
-    - name: Install rclone
+    - name: Check if backup file exists
       run: |
-        curl https://rclone.org/install.sh | sudo bash
+        if [ ! -f "$BACKUP_FILE" ]; then
+          echo "Backup file not created!"
+          exit 1
+        fi
+
+    - name: Log backup filename
+      run: echo "Backup file created: $BACKUP_FILE"
+    
+        - name: Install rclone
+          run: |
+            curl https://rclone.org/install.sh | sudo bash
 
     - name: Configure rclone
       run: |
