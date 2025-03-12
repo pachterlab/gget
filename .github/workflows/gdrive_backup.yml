@@ -29,9 +29,6 @@ jobs:
           exit 1
         fi
 
-    - name: Log backup filename
-      run: echo "Backup file created: $BACKUP_FILE"
-
     - name: Install rclone
       run: |
         curl https://rclone.org/install.sh | sudo bash
