@@ -59,9 +59,10 @@ jobs:
         run: |
           set -e
           rclone listremotes
-          rclone lsd gdrive:/
-        # rclone ls gdrive:{"15ra8gwFwa_8IZJ59wZ6iQs9mXVZrnOd"} || exit 1
-        # rclone copy "$BACKUP_FILE" gdrive:{"15ra8gwFwa_8IZJ59wZ6iQs9mXVZrnOd"} --verbose || exit 1
+          rclone lsd gdrive:/Shared\ with\ me
+          rclone ls gdrive:/Shared\ with\ me/GitHub_backups
+          rclone ls gdrive:{"15ra8gwFwa_8IZJ59wZ6iQs9mXVZrnOd-"} || exit 1
+          rclone copy "$BACKUP_FILE" gdrive:{"15ra8gwFwa_8IZJ59wZ6iQs9mXVZrnOd-"} --verbose || exit 1
 
       - name: Clean up
         run: |
