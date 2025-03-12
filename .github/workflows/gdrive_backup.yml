@@ -22,6 +22,7 @@ jobs:
         run: |
           tar --exclude='.git' \
               --exclude='.github' \
+              --exclude='credentials.json' \
               --exclude="$BACKUP_FILE" \
               --warning=no-file-changed \
               -cvzf "$BACKUP_FILE" . || [ $? -eq 1 ]
