@@ -20,7 +20,8 @@ jobs:
 
     - name: Create archive
       run: |
-        tar -czf "$BACKUP_FILE" .
+        # Exclude the .git directory, GitHub workflow temp files, and the tarball itself
+        tar --exclude='.git' --exclude='.github' --exclude="$BACKUP_FILE" --warning=no-file-changed -czf "$BACKUP_FILE" .
 
     - name: Check if backup file exists
       run: |
