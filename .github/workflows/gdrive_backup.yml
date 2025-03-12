@@ -39,21 +39,20 @@ jobs:
         with:
           name: "credentials.json"
           json: ${{ secrets.GDRIVE_BACKUP_CREDENTIALS }}
-          dir: '~/.config/rclone/'
       
       - name: Debug Validate credentials.json format
         run: |
-          if jq empty ~/.config/rclone/credentials.json > /dev/null 2>&1; then
+          if jq empty credentials.json > /dev/null 2>&1; then
             echo "JSON is valid."
           else
             echo "Invalid JSON format!"
             exit 1
           fi
-      
+
       - name: Install rclone
         run: |
           curl https://rclone.org/install.sh | sudo bash
-          
+
       - name: Configure rclone
         run: |
           mkdir -p ~/.config/rclone/
@@ -62,7 +61,7 @@ jobs:
             client_id "" \
             client_secret "" \
             scope "drive" \
-            service_account_file ~/.config/rclone/credentials.json \
+            service_account_file credentials.json \
             root_folder_id "" || exit 1
 
       - name: Upload to Google Drive
@@ -72,4 +71,4 @@ jobs:
       - name: Clean up
         run: |
           rm -f "$BACKUP_FILE"
-          rm -rf ~/.config/rclone/
+          rm -f credentials.json
