@@ -2,7 +2,7 @@ name: Backup gget Repo on Google Drive
 
 on:
   schedule:
-    - cron: '0 0 * * 0'  # Runs at midnight every Sunday
+    - cron: "0 0 * * 0"  # Runs at midnight every Sunday
   workflow_dispatch:
 
 jobs:
@@ -16,11 +16,11 @@ jobs:
         fetch-depth: 0  # Fetch all history for all branches
 
     - name: Set backup filename
-      run: echo BACKUP_FILE=$(echo "${{ github.repository }}-backup-$(date +%F).tar.gz" | sed 's/\//-/g') >> $GITHUB_ENV
+      run: echo "BACKUP_FILE=$(echo \"${{ github.repository }}-backup-$(date +%F).tar.gz\" | sed 's/\//-/g')" >> $GITHUB_ENV
 
     - name: Create archive
       run: |
-        tar -czf $BACKUP_FILE .
+        tar -czf "$BACKUP_FILE" .
 
     - name: Check if backup file exists
       run: |
@@ -31,7 +31,7 @@ jobs:
 
     - name: Log backup filename
       run: echo "Backup file created: $BACKUP_FILE"
-    
+
     - name: Install rclone
       run: |
         curl https://rclone.org/install.sh | sudo bash
