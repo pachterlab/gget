@@ -43,8 +43,11 @@ jobs:
         echo "${{ secrets.GDRIVE_CREDENTIALS }}" > ~/.config/rclone/credentials.json
         rclone config create gdrive drive \
           --config ~/.config/rclone/rclone.conf \
-          --service-account-file ~/.config/rclone/credentials.json \
-          --scope drive || exit 1
+          client_id "" \
+          client_secret "" \
+          scope "drive" \
+          service_account_file ~/.config/rclone/credentials.json \
+          root_folder_id "" || exit 1
 
     - name: Upload to Google Drive
       run: |
