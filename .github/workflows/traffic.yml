@@ -1,4 +1,4 @@
-name: Traffic
+name: Repo Traffic Back Up
 on:
   schedule: 
     # Runs every week
