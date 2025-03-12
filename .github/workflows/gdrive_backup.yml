@@ -18,18 +18,21 @@ jobs:
       - name: Set backup filename
         run: echo "BACKUP_FILE=$(echo \"${{ github.repository }}-backup-$(date +%F).tar.gz\" | sed 's/\//-/g')" >> $GITHUB_ENV
 
-      - name: Create archive
+      - name: Create backup archive
         run: |
           tar --exclude='.git' \
               --exclude='.github' \
               --exclude="$BACKUP_FILE" \
               --warning=no-file-changed \
-              -czf "$BACKUP_FILE" . || [ $? -eq 1 ]
-      
-      - name: Check if backup file exists
+              -cvzf "$BACKUP_FILE" . || [ $? -eq 1 ]
+
+      - name: Check if backup archive exists
         run: |
-          if [ ! -f "$BACKUP_FILE" ]; then
-            echo "Backup file not created!"
+          if [ -f "$BACKUP_FILE" ]; then
+            echo "Backup file found: $BACKUP_FILE"
+            ls -lh "$BACKUP_FILE"
+          else
+            echo "Backup file not found!"
             exit 1
           fi
 
@@ -51,7 +54,7 @@ jobs:
             --config ~/.config/rclone/rclone.conf \
             service_account_file credentials.json || exit 1
 
-      - name: Debug Test rclone connection
+      - name: Test rclone connection
         run: |
           rclone listremotes
           rclone lsd gdrive:/ || exit 1
