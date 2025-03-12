@@ -40,7 +40,7 @@ jobs:
     - name: Configure rclone
       run: |
         mkdir -p ~/.config/rclone/
-        echo "${{ secrets.GDRIVE_CREDENTIALS }}" > ~/.config/rclone/credentials.json
+        echo "${{ secrets.GDRIVE_BACKUP_CREDENTIALS }}" > ~/.config/rclone/credentials.json
         rclone config create gdrive drive \
           --config ~/.config/rclone/rclone.conf \
           client_id "" \
