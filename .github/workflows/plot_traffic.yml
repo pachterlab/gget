@@ -1,4 +1,4 @@
-name: Plot_traffic
+name: Plot Repo Traffic
 
 on:
   # Trigger on pushes to traffic branch
