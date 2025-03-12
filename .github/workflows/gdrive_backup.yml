@@ -9,66 +9,67 @@ jobs:
   backup:
     runs-on: ubuntu-latest
 
-    - name: Checkout all branches
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0  # Fetch all history for all branches
+    steps:
+      - name: Checkout all branches
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for all branches
 
-    - name: Set backup filename
-      run: echo "BACKUP_FILE=$(echo \"${{ github.repository }}-backup-$(date +%F).tar.gz\" | sed 's/\//-/g')" >> $GITHUB_ENV
+      - name: Set backup filename
+        run: echo "BACKUP_FILE=$(echo \"${{ github.repository }}-backup-$(date +%F).tar.gz\" | sed 's/\//-/g')" >> $GITHUB_ENV
 
-    - name: Create archive
-      run: |
-        tar --exclude='.git' \
-            --exclude='.github' \
-            --exclude="$BACKUP_FILE" \
-            --warning=no-file-changed \
-            -czf "$BACKUP_FILE" . || [ $? -eq 1 ]
-        
-    - name: Check if backup file exists
-      run: |
-        if [ ! -f "$BACKUP_FILE" ]; then
-          echo "Backup file not created!"
-          exit 1
-        fi
+      - name: Create archive
+        run: |
+          tar --exclude='.git' \
+              --exclude='.github' \
+              --exclude="$BACKUP_FILE" \
+              --warning=no-file-changed \
+              -czf "$BACKUP_FILE" . || [ $? -eq 1 ]
+      
+      - name: Check if backup file exists
+        run: |
+          if [ ! -f "$BACKUP_FILE" ]; then
+            echo "Backup file not created!"
+            exit 1
+          fi
 
-    - name: Create credentials.json
-      id: create-json
-      uses: jsdaniell/create-json@v1.2.3
-      with:
-        name: "credentials.json"
-        json: ${{ secrets.GDRIVE_BACKUP_CREDENTIALS }}
-        dir: '~/.config/rclone/'
-    
-    - name: Debug: Validate credentials.json format
-      run: |
-        if jq empty ~/.config/rclone/credentials.json > /dev/null 2>&1; then
-          echo "JSON is valid."
-        else
-          echo "Invalid JSON format!"
-          exit 1
-        fi
-    
-    - name: Install rclone
-      run: |
-        curl https://rclone.org/install.sh | sudo bash
-        
-    - name: Configure rclone
-      run: |
-        mkdir -p ~/.config/rclone/
-        rclone config create gdrive drive \
-          --config ~/.config/rclone/rclone.conf \
-          client_id "" \
-          client_secret "" \
-          scope "drive" \
-          service_account_file ~/.config/rclone/credentials.json \
-          root_folder_id "" || exit 1
+      - name: Create credentials.json
+        id: create-json
+        uses: jsdaniell/create-json@v1.2.3
+        with:
+          name: "credentials.json"
+          json: ${{ secrets.GDRIVE_BACKUP_CREDENTIALS }}
+          dir: '~/.config/rclone/'
+      
+      - name: Debug Validate credentials.json format
+        run: |
+          if jq empty ~/.config/rclone/credentials.json > /dev/null 2>&1; then
+            echo "JSON is valid."
+          else
+            echo "Invalid JSON format!"
+            exit 1
+          fi
+      
+      - name: Install rclone
+        run: |
+          curl https://rclone.org/install.sh | sudo bash
+          
+      - name: Configure rclone
+        run: |
+          mkdir -p ~/.config/rclone/
+          rclone config create gdrive drive \
+            --config ~/.config/rclone/rclone.conf \
+            client_id "" \
+            client_secret "" \
+            scope "drive" \
+            service_account_file ~/.config/rclone/credentials.json \
+            root_folder_id "" || exit 1
 
-    - name: Upload to Google Drive
-      run: |
-        rclone copy "$BACKUP_FILE" gdrive:/GitHub_backups || exit 1
+      - name: Upload to Google Drive
+        run: |
+          rclone copy "$BACKUP_FILE" gdrive:/GitHub_backups || exit 1
 
-    - name: Clean up
-      run: |
-        rm -f "$BACKUP_FILE"
-        rm -rf ~/.config/rclone/
+      - name: Clean up
+        run: |
+          rm -f "$BACKUP_FILE"
+          rm -rf ~/.config/rclone/
