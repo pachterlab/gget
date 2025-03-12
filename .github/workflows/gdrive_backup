@@ -1,0 +1,45 @@
+name: Backup gget Repo on Google Drive
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'  # Runs at midnight every Sunday
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout all branches
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch all history for all branches
+
+    - name: Set backup filename
+      run: echo "BACKUP_FILE=${{ github.repository }}-backup-$(date +%F).tar.gz" >> $GITHUB_ENV
+
+    - name: Create archive
+      run: |
+        tar -czf $BACKUP_FILE .
+
+    - name: Install rclone
+      run: |
+        curl https://rclone.org/install.sh | sudo bash
+
+    - name: Configure rclone
+      run: |
+        mkdir -p ~/.config/rclone/
+        echo "${{ secrets.GDRIVE_CREDENTIALS }}" > ~/.config/rclone/credentials.json
+        rclone config create gdrive drive \
+          --config ~/.config/rclone/rclone.conf \
+          --service-account-file ~/.config/rclone/credentials.json \
+          --scope drive || exit 1
+
+    - name: Upload to Google Drive
+      run: |
+        rclone copy "$BACKUP_FILE" gdrive:/GitHub_backups || exit 1
+
+    - name: Clean up
+      run: |
+        rm -f "$BACKUP_FILE"
+        rm -rf ~/.config/rclone/
