@@ -53,6 +53,15 @@ jobs:
           service_account_file ~/.config/rclone/credentials.json \
           root_folder_id "" || exit 1
 
+    - name: Validate credentials.json format
+      run: |
+        if jq empty ~/.config/rclone/credentials.json > /dev/null 2>&1; then
+          echo "JSON is valid."
+        else
+          echo "Invalid JSON format!"
+          exit 1
+        fi
+
     - name: Upload to Google Drive
       run: |
         rclone copy "$BACKUP_FILE" gdrive:/GitHub_backups || exit 1
