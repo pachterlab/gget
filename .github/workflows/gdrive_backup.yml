@@ -9,11 +9,6 @@ jobs:
   backup:
     runs-on: ubuntu-latest
 
-    steps:
-    - name: Debug GDRIVE_BACKUP_CREDENTIALS
-      run: |
-        echo "${{ secrets.GDRIVE_BACKUP_CREDENTIALS }}" | jq . || echo "Invalid JSON format!"
-
     - name: Checkout all branches
       uses: actions/checkout@v4
       with:
@@ -37,23 +32,15 @@ jobs:
           exit 1
         fi
 
-    - name: Install rclone
-      run: |
-        curl https://rclone.org/install.sh | sudo bash
-
-    - name: Configure rclone
-      run: |
-        mkdir -p ~/.config/rclone/
-        echo "${{ secrets.GDRIVE_BACKUP_CREDENTIALS }}" > ~/.config/rclone/credentials.json
-        rclone config create gdrive drive \
-          --config ~/.config/rclone/rclone.conf \
-          client_id "" \
-          client_secret "" \
-          scope "drive" \
-          service_account_file ~/.config/rclone/credentials.json \
-          root_folder_id "" || exit 1
-
-    - name: Validate credentials.json format
+    - name: Create credentials.json
+      id: create-json
+      uses: jsdaniell/create-json@v1.2.3
+      with:
+        name: "credentials.json"
+        json: ${{ secrets.GDRIVE_BACKUP_CREDENTIALS }}
+        dir: '~/.config/rclone/'
+    
+    - name: Debug: Validate credentials.json format
       run: |
         if jq empty ~/.config/rclone/credentials.json > /dev/null 2>&1; then
           echo "JSON is valid."
@@ -61,6 +48,21 @@ jobs:
           echo "Invalid JSON format!"
           exit 1
         fi
+    
+    - name: Install rclone
+      run: |
+        curl https://rclone.org/install.sh | sudo bash
+        
+    - name: Configure rclone
+      run: |
+        mkdir -p ~/.config/rclone/
+        rclone config create gdrive drive \
+          --config ~/.config/rclone/rclone.conf \
+          client_id "" \
+          client_secret "" \
+          scope "drive" \
+          service_account_file ~/.config/rclone/credentials.json \
+          root_folder_id "" || exit 1
 
     - name: Upload to Google Drive
       run: |
