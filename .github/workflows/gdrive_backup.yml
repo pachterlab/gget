@@ -25,7 +25,7 @@ jobs:
               --exclude='credentials.json' \
               --exclude="$BACKUP_FILE" \
               --warning=no-file-changed \
-              -cvzf "$BACKUP_FILE" . || [ $? -eq 1 ]
+              -czf "$BACKUP_FILE" . || [ $? -eq 1 ]
 
       - name: Check if backup archive exists
         run: |
@@ -55,14 +55,9 @@ jobs:
             --config ~/.config/rclone/rclone.conf \
             service_account_file credentials.json || exit 1
 
-      - name: Test connection and upload archive to Google Drive
+      - name: Upload archive to Google Drive
         run: |
-          set -e
-          rclone listremotes
-          rclone lsd gdrive: --drive-shared-with-me
-          rclone ls gdrive:/GitHub_backups --drive-shared-with-me
-          rclone ls gdrive:{"15ra8gwFwa_8IZJ59wZ6iQs9mXVZrnOd-"} || exit 1
-          rclone copy "$BACKUP_FILE" gdrive:{"15ra8gwFwa_8IZJ59wZ6iQs9mXVZrnOd-"} --verbose || exit 1
+          rclone copy "$BACKUP_FILE" gdrive:/GitHub_backups --drive-shared-with-me --verbose || exit 1
 
       - name: Clean up
         run: |
