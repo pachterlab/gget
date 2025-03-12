@@ -10,6 +10,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Debug GDRIVE_BACKUP_CREDENTIALS
+      run: |
+        echo "${{ secrets.GDRIVE_BACKUP_CREDENTIALS }}" | jq . || echo "Invalid JSON format!"
+
     - name: Checkout all branches
       uses: actions/checkout@v4
       with:
