@@ -19,8 +19,8 @@ jobs:
       run: echo "BACKUP_FILE=$(echo \"${{ github.repository }}-backup-$(date +%F).tar.gz\" | sed 's/\//-/g')" >> $GITHUB_ENV
 
     - name: Create archive
+      # Exclude the .git directory, GitHub workflow temp files, and the tarball itself
       run: |
-        # Exclude the .git directory, GitHub workflow temp files, and the tarball itself
         tar --exclude='.git' --exclude='.github' --exclude="$BACKUP_FILE" --warning=no-file-changed -czf "$BACKUP_FILE" .
 
     - name: Check if backup file exists
