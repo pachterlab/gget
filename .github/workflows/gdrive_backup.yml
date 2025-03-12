@@ -54,14 +54,12 @@ jobs:
             --config ~/.config/rclone/rclone.conf \
             service_account_file credentials.json || exit 1
 
-      - name: Test rclone connection
+      - name: Test connection and upload archive to Google Drive
         run: |
+          set -e
           rclone listremotes
-          rclone lsd gdrive:/ || exit 1
-
-      - name: Upload to Google Drive
-        run: |
-          rclone copy "$BACKUP_FILE" gdrive:/GitHub_backups || exit 1
+          rclone lsd gdrive:/GitHub_backups || exit 1
+          rclone copy "$BACKUP_FILE" gdrive:/GitHub_backups --verbose || exit 1
 
       - name: Clean up
         run: |
