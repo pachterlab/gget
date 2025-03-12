@@ -59,7 +59,7 @@ jobs:
         run: |
           set -e
           rclone listremotes
-          rclone lsd gdrive:/GitHub_backups || exit 1
+          rclone ls gdrive:/GitHub_backups || exit 1
           rclone copy "$BACKUP_FILE" gdrive:/GitHub_backups --verbose || exit 1
 
       - name: Clean up
