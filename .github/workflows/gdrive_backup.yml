@@ -10,22 +10,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout all branches
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Fetch all history for all branches
-
       - name: Set backup filename
         run: echo "BACKUP_FILE=$(echo \"${{ github.repository }}-backup-$(date +%F).tar.gz\" | sed 's/\//-/g')" >> $GITHUB_ENV
 
+      - name: Clone the repository (mirror all branches and history)
+        run: |
+          git clone --mirror https://github.com/${{ github.repository }}.git repo-mirror
+
       - name: Create backup archive
         run: |
-          tar --exclude='.git' \
-              --exclude='.github' \
-              --exclude='credentials.json' \
-              --exclude="$BACKUP_FILE" \
-              --warning=no-file-changed \
-              -czf "$BACKUP_FILE" . || [ $? -eq 1 ]
+          tar -czvf "$BACKUP_FILE" repo-mirror
 
       - name: Check if backup archive exists
         run: |
@@ -61,5 +55,6 @@ jobs:
 
       - name: Clean up
         run: |
+          rm -rf repo-mirror
           rm -f "$BACKUP_FILE"
           rm -f credentials.json
