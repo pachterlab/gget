@@ -151,12 +151,13 @@ def load_metadata(jsonl_file):
 def parse_date(date_str, verbose=False):
     """Parse various date formats into a standardized datetime object."""
     try:
-        date = parser.parse(date_str, default=datetime(1000, 1, 1))
-        return date
+        return parser.parse(date_str, default=datetime(1000, 1, 1))
     except (ValueError, TypeError):
         if verbose:
-            logger.warning(f"Invalid date detected: '{date_str}'. This filter/date will be ignored.")
-            logger.warning("Note: Please check for errors such as incorrect day values (e.g., June 31st does not exist) or typos in the date format.")
+            raise ValueError(
+                f"Invalid date detected: '{date_str}'. This filter/date will be ignored.\n"
+                "Note: Please check for errors such as incorrect day values (e.g., June 31st does not exist) or typos in the date format."
+            )
         return None
 
 
@@ -537,8 +538,8 @@ def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_fil
 def check_min_max(min, max, filtername, date=False):
     if min is not None and max is not None:
         if date:
-            min = parse_date(min, verbose=True)
-            max = parse_date(max, verbose=True)
+            min = parse_date(min)
+            max = parse_date(max)
         if min > max:
             raise ValueError(
                 f"Min value ({min}) cannot be greater than max value ({max}) for {filtername}."
