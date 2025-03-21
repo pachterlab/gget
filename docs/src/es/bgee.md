@@ -11,7 +11,7 @@ Este módulo fue escrito por [Sam Wagenaar](https://github.com/techno-sam).
 
 **Argumento posicional**  
 `ens_id`  
-ID de gen Ensembl, por ejemplo, ENSG00000169194 o ENSSSCG00000014725.  
+Uno o varios ID de gen Ensembl, por ejemplo, ENSG00000169194 o ENSSSCG00000014725.  
 
 NOTA: Algunas de las especies en [Bgee](https://www.bgee.org/) no están en Ensembl, y para ellas puede utilizar los ID de genes del NCBI, p. 118215821 (un gen en _Anguilla anguilla_).  
 
