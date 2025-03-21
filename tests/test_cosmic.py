@@ -59,7 +59,7 @@ class TestCosmicDownload(TestCaseBase):
 
         tarred_folder = f"{file_name}_Tsv_v{cosmic_version}_GRCh{grch_version}"
         contained_file = f"{file_name}_v{cosmic_version}_GRCh{grch_version}.tsv"
-        gm_file = f"{file_name}_v{cosmic_version}_GRCh{grch_version}_gget_mutate.csv"
+        gm_file = f"{file_name}_v{cosmic_version}_GRCh{grch_version}_mutation_workflow.csv"
 
         if mut_class == "cancer_example":
             tarred_folder = f"example_GRCh{grch_version}"
