@@ -14,11 +14,10 @@ Ensembl gene ID, e.g. ENSG00000169194 or ENSSSCG00000014725.
 
 NOTE: Some of the species in [Bgee](https://www.bgee.org/) are not in Ensembl or Ensembl metazoa, and for those you can use NCBI gene IDs, e.g. 118215821 (a gene in _Anguilla anguilla_).
 
-**Required arguments**  
-`-t` `--type`  
-Type of data to fetch. Options: `orthologs`, `expression`.  
-
 **Optional arguments**  
+`-t` `--type`  
+Type of data to fetch. Options: `orthologs` (default), `expression`.  
+
 `-o` `--out`    
 Path to the JSON file the results will be saved in, e.g. path/to/directory/results.json. Default: Standard out.
 
@@ -37,12 +36,12 @@ Python: Use `verbose=False` to prevent progress information from being displayed
 **Get orthologs for a gene**
 
 ```bash
-gget bgee ENSSSCG00000014725 -t orthologs
+gget bgee ENSSSCG00000014725
 ```
 
 ```python
 import gget
-gget.bgee("ENSSSCG00000014725", type="orthologs")
+gget.bgee("ENSSSCG00000014725")
 ```
 
 &rarr; Returns orthologs for the gene with Ensembl ID ENSSSCG00000014725.

@@ -5,9 +5,8 @@ import sys
 import subprocess
 import platform
 import uuid
-from platform import python_version
 
-from .utils import set_up_logger
+from .utils import set_up_logger, check_file_for_error_message
 
 logger = set_up_logger()
 
@@ -183,28 +182,48 @@ def setup(module, verbose=True, out=None):
 
         # Check if files are present
         if os.path.exists(elm_instances_fasta):
+            # Check that file does not just contain an error message
+            check_file_for_error_message(
+                elm_instances_fasta,
+                "ELM instances fasta file",
+                ELM_INSTANCES_FASTA_DOWNLOAD,
+            )
             if verbose:
                 logger.info(f"ELM sequences file present.")
         else:
             logger.error("ELM FASTA file missing.")
 
         if os.path.exists(elm_classes_tsv):
+            # Check that file does not just contain an error message
+            check_file_for_error_message(
+                elm_classes_tsv, "ELM classes tsv file", ELM_CLASSES_TSV_DOWNLOAD
+            )
             if verbose:
                 logger.info("ELM classes file present.")
         else:
             logger.error("ELM classes file missing.")
 
         if os.path.exists(elm_instances_tsv):
+            # Check that file does not just contain an error message
+            check_file_for_error_message(
+                elm_instances_tsv, "ELM instances tsv file", ELM_INSTANCES_TSV_DOWNLOAD
+            )
             if verbose:
                 logger.info("ELM instances file present.")
         else:
             logger.error("ELM instances file missing.")
 
         if os.path.exists(elm_intdomains_tsv):
+            # Check that file does not just contain an error message
+            check_file_for_error_message(
+                elm_intdomains_tsv,
+                "ELM interaction domains tsv file",
+                ELM_INTDOMAINS_TSV_DOWNLOAD,
+            )
             if verbose:
-                logger.info("ELM interactions domains file present.")
+                logger.info("ELM interaction domains file present.")
         else:
-            logger.error("ELM interactions domains file missing.")
+            logger.error("ELM interaction domains file missing.")
 
     elif module == "alphafold":
         if platform.system() == "Windows":
@@ -230,11 +249,16 @@ def setup(module, verbose=True, out=None):
         except ImportError as e:
             raise ImportError(
                 f"""
-                Trying to import openmm resulted in the following error:
+                Trying to import openmm resulted in the following error: 
                 {e}
 
-                Please install AlphaFold third-party dependency openmm v7.5.1 (or v7.7.0 for Python >= 3.10) by running the following command from the command line: 
-                'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1'   (or 'openmm=7.7.0' for Python >= 3.10)
+                Please install AlphaFold third-party dependency openmm by running the following command from the command line: 
+                For Python version < 3.10: 
+                'conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1' 
+                For Python version 3.10: 
+                'conda install -qy conda==24.1.2 && conda install -qy -c conda-forge openmm=7.7.0' 
+                For Python version 3.11: 
+                'conda install -qy conda==24.11.1 && conda install -qy -c conda-forge openmm=8.0.0' 
                 (Recommendation: Follow with 'conda update -qy conda' to update conda to the latest version afterwards.)
                 """
             )

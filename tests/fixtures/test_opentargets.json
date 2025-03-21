@@ -8,34 +8,34 @@
         },
         "expected_result": [
             [
-                "EFO_0000274",
-                "atopic eczema",
-                "A chronic inflammatory genetically determined disease of the skin marked by increased ability to form reagin (IgE), with increased susceptibility to allergic rhinitis and asthma, and hereditary disposition to a lowered threshold for pruritus. It is manifested by lichenification, excoriation, and crusting, mainly on the flexural surfaces of the elbow and knee. In infants it is known as infantile eczema.",
-                0.6629154844877749
+              "EFO_0000274",
+              "atopic eczema",
+              "A common chronic pruritic inflammatory skin disease with a strong genetic component. Onset typically occurs during the first 2 years of life.",
+              0.6993140228020157
             ],
             [
-                "MONDO_0004979",
-                "asthma",
-                "A bronchial disease that is characterized by chronic inflammation and narrowing of the airways, which is caused by a combination of environmental and genetic factors resulting in recurring periods of wheezing (a whistling sound while breathing), chest tightness, shortness of breath, mucus production and coughing. The symptoms appear due to a variety of triggers such as allergens, irritants, respiratory infections, weather changes, exercise, stress, reflux disease, medications, foods and emotional anxiety.",
-                0.5436820890787305
+              "MONDO_0004979",
+              "asthma",
+              "A bronchial disease that is characterized by chronic inflammation and narrowing of the airways, which is caused by a combination of environmental and genetic factors resulting in recurring periods of wheezing (a whistling sound while breathing), chest tightness, shortness of breath, mucus production and coughing. The symptoms appear due to a variety of triggers such as allergens, irritants, respiratory infections, weather changes, exercise, stress, reflux disease, medications, foods and emotional anxiety.",
+              0.6780711161785388
             ],
             [
-                "HP_0000964",
-                "Eczematoid dermatitis",
-                "Eczema is a form of dermatitis that is characterized by scaly, pruritic, erythematous lesions located on flexural surfaces.",
-                0.5116116699305998
+              "HP_0000964",
+              "Eczematoid dermatitis",
+              "Eczema is a form of dermatitis that is characterized by scaly, pruritic, erythematous lesions located on flexural surfaces.",
+              0.6148607200185839
             ],
             [
-                "EFO_0005854",
-                "allergic rhinitis",
-                "Inflammation of the nasal mucous membranes caused by an IgE-mediated response to external allergens. The inflammation may also involve the mucous membranes of the sinuses, eyes, middle ear, and pharynx. Symptoms include sneezing, nasal congestion, rhinorrhea, and itching. It may lead to fatigue, drowsiness, and malaise thus causing impairment of the quality of life.",
-                0.48632865622602156
+              "EFO_0005854",
+              "allergic rhinitis",
+              "Inflammation of the nasal mucous membranes caused by an IgE-mediated response to external allergens. The inflammation may also involve the mucous membranes of the sinuses, eyes, middle ear, and pharynx. Symptoms include sneezing, nasal congestion, rhinorrhea, and itching. It may lead to fatigue, drowsiness, and malaise thus causing impairment of the quality of life.",
+              0.5666922121972621
             ],
             [
-                "EFO_0000676",
-                "psoriasis",
-                "A common genetically determined, chronic, inflammatory skin disease characterized by rounded erythematous, dry, scaling patches. The lesions have a predilection for nails, scalp, genitalia, extensor surfaces, and the lumbosacral region. Accelerated epidermopoiesis is considered to be the fundamental pathologic feature in psoriasis.",
-                0.4344810418179078
+              "EFO_0000676",
+              "psoriasis",
+              "An autoimmune condition characterized by red, well-delineated plaques with silvery scales that are usually on the extensor surfaces and scalp. They can occasionally present with these manifestations: pustules; erythema and scaling in intertriginous areas, and erythroderma, that are often distributed on extensor surfaces and scalp.",
+              0.5492499302524128
             ]
         ]
     },
@@ -45,7 +45,7 @@
             "ensembl_id": "ENSG00000169194",
             "resource": "diseases"
         },
-        "expected_result": "26ced3c0f7a6778acad9c22fcdb58d15"
+        "expected_result": "7f1e7df47c19a375ad96bc72182439c6"
     },
     "test_opentargets_no_limit_accurate_coverage": {
         "type": "assert_equal_json_hash",
@@ -55,7 +55,7 @@
             "verbose": false,
             "wrap_text": true
         },
-        "expected_result": "26ced3c0f7a6778acad9c22fcdb58d15"
+        "expected_result": "7f1e7df47c19a375ad96bc72182439c6"
     },
     "test_opentargets_no_specified_resource": {
         "type": "assert_equal",
@@ -67,32 +67,32 @@
             [
                 "EFO_0000274",
                 "atopic eczema",
-                "A chronic inflammatory genetically determined disease of the skin marked by increased ability to form reagin (IgE), with increased susceptibility to allergic rhinitis and asthma, and hereditary disposition to a lowered threshold for pruritus. It is manifested by lichenification, excoriation, and crusting, mainly on the flexural surfaces of the elbow and knee. In infants it is known as infantile eczema.",
-                0.6629154844877749
+                "A common chronic pruritic inflammatory skin disease with a strong genetic component. Onset typically occurs during the first 2 years of life.",
+                0.6993140228020157
             ],
             [
                 "MONDO_0004979",
                 "asthma",
                 "A bronchial disease that is characterized by chronic inflammation and narrowing of the airways, which is caused by a combination of environmental and genetic factors resulting in recurring periods of wheezing (a whistling sound while breathing), chest tightness, shortness of breath, mucus production and coughing. The symptoms appear due to a variety of triggers such as allergens, irritants, respiratory infections, weather changes, exercise, stress, reflux disease, medications, foods and emotional anxiety.",
-                0.5436820890787305
+                0.6780711161785388
             ],
             [
                 "HP_0000964",
                 "Eczematoid dermatitis",
                 "Eczema is a form of dermatitis that is characterized by scaly, pruritic, erythematous lesions located on flexural surfaces.",
-                0.5116116699305998
+                0.6148607200185839
             ],
             [
                 "EFO_0005854",
                 "allergic rhinitis",
                 "Inflammation of the nasal mucous membranes caused by an IgE-mediated response to external allergens. The inflammation may also involve the mucous membranes of the sinuses, eyes, middle ear, and pharynx. Symptoms include sneezing, nasal congestion, rhinorrhea, and itching. It may lead to fatigue, drowsiness, and malaise thus causing impairment of the quality of life.",
-                0.48632865622602156
+                0.5666922121972621
             ],
             [
                 "EFO_0000676",
                 "psoriasis",
-                "A common genetically determined, chronic, inflammatory skin disease characterized by rounded erythematous, dry, scaling patches. The lesions have a predilection for nails, scalp, genitalia, extensor surfaces, and the lumbosacral region. Accelerated epidermopoiesis is considered to be the fundamental pathologic feature in psoriasis.",
-                0.4344810418179078
+                "An autoimmune condition characterized by red, well-delineated plaques with silvery scales that are usually on the extensor surfaces and scalp. They can occasionally present with these manifestations: pustules; erythema and scaling in intertriginous areas, and erythroderma, that are often distributed on extensor surfaces and scalp.",
+                0.5492499302524128
             ]
         ]
     },
@@ -152,7 +152,7 @@
             "ensembl_id": "ENSG00000169194",
             "resource": "drugs"
         },
-        "expected_result": "3b6c00635b1067e22a338b888ef99201"
+        "expected_result": "363c25aee8844bad615308620903a5fe"
     },
     "test_opentargets_drugs_filter": {
         "type": "assert_equal",
@@ -247,25 +247,25 @@
         },
         "expected_result": [
             {
-                "rs_id": "rs1295686",
-                "genotype_id": "5_132660151_T_C,C",
+                "rs_id": "rs1800925",
+                "genotype_id": "5_132657117_C_C,C",
                 "genotype": "CC",
-                "variant_consequence_id": "SO:0001627",
-                "variant_consequence_label": "intron_variant",
+                "variant_consequence_id": "SO:0002073",
+                "variant_consequence_label": "no_sequence_alteration",
                 "drugs": [
                     {
-                        "id": null,
-                        "name": "hepatitis vaccines"
+                        "id": "CHEMBL535",
+                        "name": "sunitinib"
                     }
                 ],
-                "phenotype": "decreased risk for non-immune response",
-                "genotype_annotation": "Patients with the CC genotype may be at decreased risk for non-immune response to the hepatitis B vaccine, as compared to patients with the TT genotype. Other genetic and clinical factors may also influence risk of non-immune response in patients receiving the hepatitis B vaccine.",
-                "response_category": "efficacy",
+                "phenotype": "decreased severity of drug-induced toxicity",
+                "genotype_annotation": "Patients with renal cell carcinoma and the CC genotype may have a decreased severity of drug-induced toxicity when administered sunitinib as compared to patients with the TT genotype. Other clinical and genetic factors may also influence severity of drug-induced toxicity in patients with renal cell carcinoma who are administered sunitinib.",
+                "response_category": "toxicity",
                 "direct_target": false,
                 "evidence_level": "3",
                 "source": "pharmgkb",
                 "literature": [
-                    "21111021"
+                    "26387812", "26387812"
                 ]
             }
         ]
@@ -280,25 +280,25 @@
         },
         "expected_result": [
             {
-                "rs_id": "rs1295686",
-                "genotype_id": "5_132660151_T_C,C",
+                "rs_id": "rs1800925",
+                "genotype_id": "5_132657117_C_C,C",
                 "genotype": "CC",
-                "variant_consequence_id": "SO:0001627",
-                "variant_consequence_label": "intron_variant",
+                "variant_consequence_id": "SO:0002073",
+                "variant_consequence_label": "no_sequence_alteration",
                 "drugs": [
                     {
-                        "id": null,
-                        "name": "hepatitis vaccines"
+                        "id": "CHEMBL535",
+                        "name": "sunitinib"
                     }
                 ],
-                "phenotype": "decreased risk for non-immune response",
-                "genotype_annotation": "Patients with the CC genotype may be at decreased risk for non-immune response to the hepatitis B vaccine, as compared to patients with the TT genotype. Other genetic and clinical factors may also influence risk of non-immune response in patients receiving the hepatitis B vaccine.",
-                "response_category": "efficacy",
+                "phenotype": "decreased severity of drug-induced toxicity",
+                "genotype_annotation": "Patients with renal cell carcinoma and the CC genotype may have a decreased severity of drug-induced toxicity when administered sunitinib as compared to patients with the TT genotype. Other clinical and genetic factors may also influence severity of drug-induced toxicity in patients with renal cell carcinoma who are administered sunitinib.",
+                "response_category": "toxicity",
                 "direct_target": false,
                 "evidence_level": "3",
                 "source": "pharmgkb",
                 "literature": [
-                    "21111021"
+                    "26387812", "26387812"
                 ]
             }
         ],
@@ -310,7 +310,7 @@
             "ensembl_id": "ENSG00000169194",
             "resource": "pharmacogenetics"
         },
-        "expected_result": "6e32f239a7ca97900610976442cb6e7f"
+        "expected_result": "89ed4433eeec76832d2ec077a036dafc"
     },
     "test_opentargets_pharmacogenetics_filter_or": {
         "type": "assert_equal_json_hash_nested",
@@ -325,7 +325,7 @@
             },
             "filter_mode": "or"
         },
-        "expected_result": "780f0981694a0f263e8c6abd94582199"
+        "expected_result": "68fbc63352befc7fde378efa60badd7d"
     },
     "test_opentargets_expression": {
         "type": "assert_equal",
@@ -391,7 +391,7 @@
             "ensembl_id": "ENSG00000169194",
             "resource": "expression"
         },
-        "expected_result": "84e1616ab946979a1f847dd06f6d2e1d"
+        "expected_result": "2bd586771648f936b7508c4f75f6d311"
     },
     "test_opentargets_expression_filter": {
         "type": "assert_equal",
@@ -427,7 +427,7 @@
             "ensembl_id": "ENSG00000169194",
             "resource": "depmap"
         },
-        "expected_result": "83de5c6bfee6e796bd5d68af1af702fc"
+        "expected_result": "1537cfa8c99b2b7f6c52fe8da86bbed2"
     },
     "test_opentargets_depmap_filter": {
         "type": "assert_equal",
@@ -441,22 +441,22 @@
         },
         "expected_result": [
             [
-                "ACH-000977",
-                -0.08063846,
+                "ACH-000956",
+                0.0,
+                0.20797996,
                 "UBERON_0002367",
                 "prostate gland",
-                "LNCaP clone FGC",
-                "SIDM00683",
+                "22Rv1",
                 "Prostate Adenocarcinoma"
             ],
             [
-                "ACH-000979",
-                -0.09671201,
+                "ACH-001422",
+                0.028569153,
+                0.08538722,
                 "UBERON_0002367",
                 "prostate gland",
-                "DU 145",
-                "SIDM00120",
-                "Prostate Adenocarcinoma"
+                "WPE1-NA22",
+                "Non-Cancerous"
             ]
         ]
     },
@@ -477,9 +477,9 @@
                 "IL13",
                 "unspecified role",
                 9606,
-                "ENSP00000361004",
-                "ENSG00000123496",
-                "IL13RA2",
+                "ENSP00000379111",
+                "ENSG00000077238",
+                "IL4R",
                 "unspecified role",
                 9606
             ],
@@ -492,9 +492,9 @@
                 "IL13",
                 "unspecified role",
                 9606,
-                "ENSP00000379111",
-                "ENSG00000077238",
-                "IL4R",
+                "ENSP00000360730",
+                "ENSG00000131724",
+                "IL13RA1",
                 "unspecified role",
                 9606
             ]
@@ -506,7 +506,7 @@
             "ensembl_id": "ENSG00000169194",
             "resource": "interactions"
         },
-        "expected_result": "04d9c233c90e024331b1c1357b945330"
+        "expected_result": "c7d985046336908f91c6cf174da458dd"
     },
     "test_opentargets_interactions_simple_filter": {
         "type": "assert_equal",
@@ -611,21 +611,6 @@
             ],
             [
                 0.8,
-                7,
-                "intact",
-                "P35225",
-                "ENSG00000169194",
-                "IL13",
-                "unspecified role",
-                9606,
-                "P78552",
-                "ENSG00000131724",
-                "IL13RA1",
-                "unspecified role",
-                9606
-            ],
-            [
-                0.8,
                 9,
                 "intact",
                 "P35225",
@@ -636,6 +621,21 @@
                 "Q14627",
                 "ENSG00000123496",
                 "IL13RA2",
+                "unspecified role",
+                9606
+            ],
+            [
+                0.8,
+                7,
+                "intact",
+                "P35225",
+                "ENSG00000169194",
+                "IL13",
+                "unspecified role",
+                9606,
+                "P78552",
+                "ENSG00000131724",
+                "IL13RA1",
                 "unspecified role",
                 9606
             ],

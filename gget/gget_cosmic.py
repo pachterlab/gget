@@ -26,11 +26,13 @@ def is_valid_email(email):
     return re.match(email_pattern, email) is not None
 
 
-def download_reference(download_link, tar_folder_path, file_path, verbose):
-    email = input("Please enter your COSMIC email: ")
+def download_reference(download_link, tar_folder_path, file_path, verbose, email = None, password = None):
+    if not email:
+        email = input("Please enter your COSMIC email: ")
     if not is_valid_email(email):
         raise ValueError("The email address is not valid.")
-    password = getpass.getpass("Please enter your COSMIC password: ")
+    if not password:
+        password = getpass.getpass("Please enter your COSMIC password: ")
 
     # Concatenate the email and password with a colon
     input_string = f"{email}:{password}\n"
@@ -81,7 +83,7 @@ def download_reference(download_link, tar_folder_path, file_path, verbose):
 
 
 def select_reference(
-    mutation_class, reference_dir, grch_version, cosmic_version, verbose
+    mutation_class, reference_dir, grch_version, cosmic_version, verbose, email = None, password = None
 ):
     # if mutation_class == "transcriptome":
     #     download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{grch_version}/cosmic/v{cosmic_version}/Cosmic_Genes_Fasta_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
@@ -100,6 +102,11 @@ def select_reference(
         contained_file = (
             f"CancerMutationCensus_AllData_v{cosmic_version}_GRCh{grch_version}.tsv"
         )
+        if str(cosmic_version) == "100":  # special treatment due to v2
+            download_link = download_link.replace(".tar&bucket=downloads", "_v2.tar&bucket=downloads")
+            tarred_folder += "_v2"
+        elif str(cosmic_version) == "101":  # special treatment due to link difference - path=grch37 instead of path=GRCh37
+            download_link = download_link.replace(f"path=GRCh{grch_version}", f"path=grch{grch_version}")
 
     elif mutation_class == "cell_line":
         download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{grch_version}/cell_lines/v{cosmic_version}/CellLinesProject_GenomeScreensMutant_Tsv_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
@@ -145,13 +152,16 @@ def select_reference(
 
     overwrite = True
     if os.path.exists(file_path):
-        proceed = (
-            input(
-                "The requested COSMIC database already exists at the destination. Would you like to overwrite the existing files (y/n)? "
+        if not email and not password:
+            proceed = (
+                input(
+                    "The requested COSMIC database already exists at the destination. Would you like to overwrite the existing files (y/n)? "
+                )
+                .strip()
+                .lower()
             )
-            .strip()
-            .lower()
-        )
+        else:
+            proceed = "yes"
         if proceed in ["yes", "y"]:
             overwrite = True
         else:
@@ -176,30 +186,24 @@ def select_reference(
 
         # Download full databases
         else:
-            proceed = (
-                input(
-                    "Downloading complete databases from COSMIC requires an account (https://cancer.sanger.ac.uk/cosmic/register; free for academic use, license for commercial use).\nWould you like to proceed (y/n)? "
+            if email and password:
+                proceed = "yes"
+            else:
+                proceed = (
+                    input(
+                        "Downloading complete databases from COSMIC requires an account (https://cancer.sanger.ac.uk/cosmic/register; free for academic use, license for commercial use).\nWould you like to proceed (y/n)? "
+                    )
+                    .strip()
+                    .lower()
                 )
-                .strip()
-                .lower()
-            )
             if proceed in ["yes", "y"]:
-                download_reference(download_link, tar_folder_path, file_path, verbose)
+                download_reference(download_link, tar_folder_path, file_path, verbose, email = email, password = password)
             else:
                 raise KeyboardInterrupt(
                     f"Database download canceled. Learn more about COSMIC at https://cancer.sanger.ac.uk/cosmic/download/cosmic."
                 )
 
     return file_path, overwrite
-
-
-def convert_chromosome_value_to_int_when_possible(val):
-    try:
-        # Try to convert the value to a float, then to an int, and finally to a string
-        return str(int(float(val)))
-    except ValueError:
-        # If conversion fails, keep the value as it is
-        return val
 
 
 def cosmic(
@@ -214,6 +218,11 @@ def cosmic(
     gget_mutate=True,
     keep_genome_info=False,
     remove_duplicates=False,
+    seq_id_column="seq_ID",
+    mutation_column="mutation",
+    mut_id_column="mutation_id",
+    email=None,
+    password=None,
     out=None,
     verbose=True,
 ):
@@ -258,6 +267,11 @@ def cosmic(
     - gget_mutate       (True/False) Whether to create a modified version of the database for use with gget mutate. Default: True
     - keep_genome_info  (True/False) Whether to keep genome information (e.g. location of mutation in the genome) in the modified database for use with gget mutate. Default: False
     - remove_duplicates (True/False) Whether to remove duplicate rows from the modified database for use with gget mutate. Default: False
+    - seq_id_column     (str) Name of the seq_id column in the csv file created by gget_mutate. Default: "seq_ID"
+    - mutation_column   (str) Name of the mutation column in the csv file created by gget_mutate. Default: "mutation"
+    - mut_id_column     (str) Name of the mutation_id column in the csv file created by gget_mutate. Default: "mutation_id"
+    - email             (str) Email for COSMIC login. Helpful for avoiding required input upon running gget COSMIC. Default: None
+    - password          (str) Password for COSMIC login. Helpful for avoiding required input upon running gget COSMIC, but password will be stored in plain text in the script. Default: None
 
     General args:
     - out             (str) Path to the file (or folder when downloading databases with the download_cosmic flag) the results will be saved in, e.g. 'path/to/results.json'.
@@ -287,8 +301,8 @@ def cosmic(
                 f"Parameter 'mutation_class' must be one of the following: {', '.join(mut_class_allowed)}.\n"
             )
 
-        grch_allowed = [37, 38]
-        if grch_version not in grch_allowed:
+        grch_allowed = ['37', '38']
+        if str(grch_version) not in grch_allowed:
             raise ValueError(
                 f"Parameter 'grch_version' must be one of the following: {', '.join(grch_allowed)}.\n"
             )
@@ -308,7 +322,7 @@ def cosmic(
 
         ## Download requested database
         mutation_tsv_file, overwrite = select_reference(
-            mutation_class, out, grch_version, cosmic_version, verbose
+            mutation_class, out, grch_version, cosmic_version, verbose, email = email, password = password
         )
 
         if gget_mutate and overwrite:
@@ -369,10 +383,7 @@ def cosmic(
                     #     }
                     # )
 
-                    from gget.gget_mutate import (
-                        mutation_pattern,
-                        convert_chromosome_value_to_int_when_possible,
-                    )
+                    from gget.gget_mutate import mutation_pattern, convert_chromosome_value_to_int_when_possible
                     import numpy as np
 
                     # * uncomment to include strand information (tested not to be accurate for CMC)
@@ -524,7 +535,14 @@ def cosmic(
                 df = df.drop_duplicates(subset=["seq_ID", "mutation"], keep="first")
                 df = df.drop(columns=["non_na_count"])
 
-            mutate_csv_out = mutation_tsv_file.replace(".tsv", "_gget_mutate.csv")
+            if isinstance(seq_id_column, str) and seq_id_column != "seq_ID":
+                df.rename(columns={"seq_ID": seq_id_column}, inplace=True)
+            if isinstance(mutation_column, str) and mutation_column and mutation_column != "mutation":
+                df.rename(columns={"mutation": mutation_column}, inplace=True)
+            if isinstance(mut_id_column, str) and mut_id_column != "mutation_id":
+                df.rename(columns={"mutation_id": mut_id_column}, inplace=True)
+
+            mutate_csv_out = mutation_tsv_file.replace(".tsv", "_mutation_workflow.csv")
             df.to_csv(mutate_csv_out, index=False)
 
             if verbose:

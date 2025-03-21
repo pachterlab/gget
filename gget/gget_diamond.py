@@ -25,6 +25,7 @@ else:
 def diamond(
     query,
     reference,
+    translated=False,
     diamond_db=None,
     sensitivity="very-sensitive",
     threads=1,
@@ -39,6 +40,9 @@ def diamond(
     Args:
     - query          Sequences (str or list) or path to FASTA file containing sequences to be aligned against the reference.
     - reference      Reference sequences (str or list) or path to FASTA file containing reference sequences.
+                     Set translated=True if reference sequences are amino acid sequences and query sequences are nucleotide sequences.
+    - translated     True/False whether to perform translated alignment of nucleotide sequences to amino acid reference sequences.
+                     Default: False.
     - diamond_db     Path to save DIAMOND database created from reference.
                      Default: None -> Temporary db file will be deleted after alignment or saved in 'out' if 'out' is provided.
     - sensitivity    Sensitivity of DIAMOND alignment.
@@ -117,15 +121,22 @@ def diamond(
         reference_file_w = reference_file.replace("/", "\\")
         output_w = output.replace("/", "\\")
 
+    if translated:
+        if verbose:
+            logger.info(f"Aligning nucleotide query to amino acid reference (blastx mode).")
+        diamond_program = "blastx"
+    else:
+        diamond_program = "blastp"
+
     if platform.system() == "Windows":
         command = f"{DIAMOND} version \
         && {DIAMOND_w} makedb --quiet --in {reference_file_w} --db {diamond_db_w} --threads {threads} \
-        && {DIAMOND_w} blastp --outfmt 6 qseqid sseqid pident qlen slen length mismatch gapopen qstart qend sstart send evalue bitscore \
+        && {DIAMOND_w} {diamond_program} --outfmt 6 qseqid sseqid pident qlen slen length mismatch gapopen qstart qend sstart send evalue bitscore \
             --quiet --query {input_file_w} --db {reference_file_w} --out {output_w} --{sensitivity} --threads {threads} --ignore-warnings"
     else:
         command = f"'{DIAMOND}' version \
         && '{DIAMOND}' makedb --quiet --in '{reference_file}' --db '{diamond_db}' --threads {threads} \
-        && '{DIAMOND}' blastp --outfmt 6 qseqid sseqid pident qlen slen length mismatch gapopen qstart qend sstart send evalue bitscore \
+        && '{DIAMOND}' {diamond_program} --outfmt 6 qseqid sseqid pident qlen slen length mismatch gapopen qstart qend sstart send evalue bitscore \
             --quiet --query '{input_file}' --db '{reference_file}' --out '{output}' --{sensitivity} --threads {threads} --ignore-warnings"
 
     # Run DIAMOND

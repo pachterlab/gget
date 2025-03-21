@@ -456,7 +456,15 @@ def main():
         type=str,
         nargs="+",
         required=True,
-        help="Reference sequences (str or list) or path to FASTA file containing reference sequences.",
+        help="Reference sequences (str or list) or path to FASTA file containing reference sequences. Add `-x` flag if reference sequences are amino acid sequences and query sequences are nucleotide sequences.",
+    )
+    parser_diamond.add_argument(
+        "-x",
+        "--translated",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Perform translated alignment of nucleotide sequences to amino acid reference sequences.",
     )
     parser_diamond.add_argument(
         "-db",
@@ -1871,7 +1879,40 @@ def main():
         action="store_true",
         required=False,
         help="Whether to remove duplicated rows from the modified database for use with gget mutate (only for use with --download_cosmic).",
-    )
+    ),
+    parser_cosmic.add_argument(
+        "--seq_id_column",
+        default="seq_ID",
+        type=str,
+        required=False,
+        help="Whether to remove duplicated rows from the modified database for use with gget mutate (only for use with --download_cosmic).",
+    ),
+    parser_cosmic.add_argument(
+        "--mutation_column",
+        default="mutation",
+        type=str,
+        required=False,
+        help="Whether to remove duplicated rows from the modified database for use with gget mutate (only for use with --download_cosmic).",
+    ),
+    parser_cosmic.add_argument(
+        "--mut_id_column",
+        default="mutation_id",
+        type=str,
+        required=False,
+        help="Whether to remove duplicated rows from the modified database for use with gget mutate (only for use with --download_cosmic).",
+    ),
+    parser_cosmic.add_argument(
+        "--email",
+        type=str,
+        required=False,
+        help="Email for COSMIC login. Helpful for avoiding required input upon running gget COSMIC. Default: None",
+    ),
+    parser_cosmic.add_argument(
+        "--password",
+        type=str,
+        required=False,
+        help="Password for COSMIC login. Helpful for avoiding required input upon running gget COSMIC, but password will be stored in plain text in the script. Default: None",
+    ),
     parser_cosmic.add_argument(
         "-o",
         "--out",
@@ -1970,114 +2011,12 @@ def main():
         help="Name of the column containing the IDs of each mutation in 'mutations'. Default: Same as 'mut_column'.",
     )
     parser_mutate.add_argument(
-        "-gtf",
-        "--gtf",
-        default=None,
-        type=str,
-        required=False,
-        help="Path to a .gtf file. When providing a genome fasta file as input for 'sequences', you can provide a .gtf file here and the input sequences will be defined according to the transcript boundaries, e.g. 'path/to/genome_annotation.gtf'.",
-    )
-    parser_mutate.add_argument(
-        "-gtic",
-        "--gtf_transcript_id_column",
-        default=None,
-        type=str,
-        required=False,
-        help="Column name in the input 'mutations' file containing the transcript ID. In this case, column 'seq_id_column' should contain the chromosome number. Required when 'gtf' is provided.",
-    )
-    parser_mutate.add_argument(
         "-k",
         "--k",
-        default=30,
-        type=int,
-        required=False,
-        help="Length of sequences flanking the mutation. If k > total length of the sequence, the entire sequence will be kept.",
-    )
-    parser_mutate.add_argument(
-        "-msl",
-        "--min_seq_len",
         default=None,
         type=int,
         required=False,
-        help="Minimum length of the mutant output sequence, e.g. 100. Mutant sequences smaller than this will be dropped.",
-    )
-    parser_mutate.add_argument(
-        "-ma",
-        "--max_ambiguous",
-        default=None,
-        type=int,
-        required=False,
-        help="Maximum number of 'N' (or 'n') characters allowed in the output sequence, e.g. 10. Default: None (no ambiguous character filter will be applied).",
-    )
-    parser_mutate.add_argument(
-        "-ofr",
-        "--optimize_flanking_regions",
-        default=False,
-        action="store_true",
-        required=False,
-        help="Removes nucleotides from either end of the mutant sequence to ensure (when possible) that the mutant sequence does not contain any k-mers also found in the wildtype/input sequence.",
-    )
-    parser_mutate.add_argument(
-        "-rswk",
-        "--remove_seqs_with_wt_kmers",
-        default=False,
-        action="store_true",
-        required=False,
-        help="Removes output sequences where at least one k-mer is also present in the wildtype/input sequence in the same region. When used with `--optimize_flanking_regions`, only sequences for which a wildtpye kmer is still present after optimization will be removed.",
-    )
-    parser_mutate.add_argument(
-        "-mio",
-        "--merge_identical_off",
-        default=True,
-        action="store_false",
-        required=False,
-        help="Do not merge identical mutant sequences in the output (by default, identical sequences will be merged by concatenating the sequence headers for all identical sequences).",
-    )
-    parser_mutate.add_argument(
-        "-udf",
-        "--update_df",
-        default=False,
-        action="store_true",
-        required=False,
-        help="Updates the input `mutations` DataFrame to include additional columns with the mutation type, wildtype nucleotide sequence, and mutant nucleotide sequence (only valid if `mutations` is a .csv or .tsv file).",
-    )
-    parser_mutate.add_argument(
-        "-udf_o",
-        "--update_df_out",
-        default=None,
-        type=str,
-        required=False,
-        help="Path to output csv file containing the updated DataFrame, e.g. 'path/to/mutations_updated.csv'. Only valid when used with `--update_df`. Default: None -> the new csv file will be saved in the same directory as the `mutations` DataFrame with appendix '_updated'.",
-    )
-    parser_mutate.add_argument(
-        "--translate",
-        default=None,
-        action="store_true",
-        required=False,
-        help="Adds additional columns to the updated `mutations` DataFrame containing the wildtype and mutant amino acid sequences. Only valid when used with `--store_full_sequences`.",
-    )
-    parser_mutate.add_argument(
-        "-ts",
-        "--translate_start",
-        default=None,
-        type=int_or_str,
-        required=False,
-        help="(int or str) The position in the input nucleotide sequence to start translating, e.g. 5. If a string is provided, it should correspond to a column name in `mutations` containing the open reading frame start positions for each sequence/mutation. Only valid when used with `--translate`. Default: translates from the beginning of each sequence.",
-    )
-    parser_mutate.add_argument(
-        "--translate_end",
-        default=None,
-        type=int_or_str,
-        required=False,
-        help="(int or str) The position in the input nucleotide sequence to end translating, e.g. 35. If a string is provided, it should correspond to a column name in `mutations` containing the open reading frame end positions for each sequence/mutation. Only valid when used with `--translate`. Default: translates until the end of each sequence.",
-    )
-    parser_mutate.add_argument(
-        "-sfs",
-        "--store_full_sequences",
-        default=False,
-        action="store_true",
-        required=False,
-        help="Includes the complete wildtype and mutant sequences in the updated `mutations` DataFrame (not just the sub-sequence with k-length flanks). Only valid when used with `--update_df`.",
+        help="Length of sequences flanking the mutation. If k is None or k > total length of the sequence, the entire sequence will be kept. Default: None",
     )
     parser_mutate.add_argument(
         "-o",
@@ -2366,7 +2305,8 @@ def main():
         type=str,
         choices=["orthologs", "expression"],
         help="Type of information to be returned.",
-        required=True,
+        default="orthologs",
+        required=False,
     )
     parser_bgee.add_argument(
         "-o",
@@ -2628,23 +2568,10 @@ def main():
         mutate_results = mutate(
             sequences=seqs,
             mutations=muts,
-            gtf=args.gtf,
-            gtf_transcript_id_column=args.gtf_transcript_id_column,
             k=args.k,
             mut_column=args.mut_column,
             mut_id_column=args.mut_id_column,
             seq_id_column=args.seq_id_column,
-            min_seq_len=args.min_seq_len,
-            max_ambiguous=args.max_ambiguous,
-            optimize_flanking_regions=args.optimize_flanking_regions,
-            remove_seqs_with_wt_kmers=args.remove_seqs_with_wt_kmers,
-            merge_identical=args.merge_identical_off,
-            update_df=args.update_df,
-            update_df_out=args.update_df_out,
-            store_full_sequences=args.store_full_sequences,
-            translate=args.translate,
-            translate_start=args.translate_start,
-            translate_end=args.translate_end,
             out=args.out,
             verbose=args.quiet,
         )
@@ -2669,6 +2596,11 @@ def main():
             gget_mutate=args.gget_mutate,
             keep_genome_info=args.keep_genome_info,
             remove_duplicates=args.remove_duplicates,
+            seq_id_column=args.seq_id_column,
+            mutation_column=args.mutation_column,
+            mut_id_column=args.mut_id_column,
+            email=args.email,
+            password=args.password,
             out=args.out,
             verbose=args.quiet,
         )
@@ -2794,6 +2726,7 @@ def main():
         diamond_results = diamond(
             query=args.query,
             reference=args.reference,
+            translated=args.translated,
             diamond_db=args.diamond_db,
             sensitivity=args.sensitivity,
             threads=args.threads,
