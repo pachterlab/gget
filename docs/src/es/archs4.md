@@ -1,5 +1,5 @@
 > Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no es especificado de otra manera. Las banderas son designadas como cierto o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede obtener desde Terminal con la bandera `-h` `--help`.  
-## gget archs4 🐁
+# gget archs4 🐁
 Encuentra los genes más correlacionados a un gen de interés, o bién, encuentra los tejidos donde un gen se expresa usando la base de datos [ARCHS4](https://maayanlab.cloud/archs4/).  
 Produce: Resultados en formato JSON (Terminal) o Dataframe/CSV (Python).  
 
@@ -76,3 +76,12 @@ Consulte [este tutorial](https://davetang.org/muse/2023/05/16/check-where-a-gene
 
 
 #### [Más ejemplos](https://github.com/pachterlab/gget_examples)  
+
+# Citar    
+Si utiliza `gget archs4` en una publicación, favor de citar los siguientes artículos:
+
+- Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
+
+- Lachmann A, Torre D, Keenan AB, Jagodnik KM, Lee HJ, Wang L, Silverstein MC, Ma’ayan A. Massive mining of publicly available RNA-seq data from human and mouse. Nature Communications 9. Article number: 1366 (2018), doi:10.1038/s41467-018-03751-6
+
+- Bray NL, Pimentel H, Melsted P and Pachter L, Near optimal probabilistic RNA-seq quantification, Nature Biotechnology 34, p 525--527 (2016). [https://doi.org/10.1038/nbt.3519](https://doi.org/10.1038/nbt.3519)

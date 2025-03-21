@@ -1,10 +1,10 @@
 [![pypi version](https://img.shields.io/pypi/v/gget)](https://pypi.org/project/gget)
 [![image](https://anaconda.org/bioconda/gget/badges/version.svg)](https://anaconda.org/bioconda/gget)
-## Instalación
+# Instalación
 ```bash
 pip install --upgrade gget
 ```
-Alternativa:  
+Alternativa (aunque se prefiere la instalación usando `pip`):  
 ```bash
 conda install -c bioconda gget
 ```

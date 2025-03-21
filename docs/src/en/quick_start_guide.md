@@ -1,4 +1,4 @@
-## 🪄 Quick start guide
+# 🪄 Quick start guide
 Command line:
 ```bash
 # Fetch all Homo sapiens reference and annotation FTPs from the latest Ensembl release
@@ -90,3 +90,4 @@ gget$archs4("ACE2", which="tissue")
 gget$pdb("1R42", save=TRUE)
 ```
 #### [More examples](https://github.com/pachterlab/gget_examples)
+

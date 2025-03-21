@@ -1,5 +1,5 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python.  The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
-## gget mutate 🧟
+# gget mutate 🧟
 Takes in nucleotide sequences and mutations (in [standard mutation annotation](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1867422/) and returns mutated versions of the input sequences according to the provided mutations.  
 Return format: Saves mutated sequences in FASTA format (or returns a list containing the mutated sequences if `out=None`).  
 
@@ -60,7 +60,6 @@ Name of the column containing the IDs of each mutation in `mutations`. Default: 
 `-k` `--k`  
 Length of sequences flanking the mutation. Default: 30.  
 If k > total length of the sequence, the entire sequence will be kept.  
-
                                   
 **Optional general arguments**  
 `-o` `--out`   
@@ -114,4 +113,8 @@ gget.mutate(["ATCGCTAAGCT", "TAGCTA"], "c.1_3inv", k=3)
 &rarr; Returns ['CTAGCT', 'GATCTA'].  
 
 
-<br/><br/>
+# References
+If you use `gget mutate` in a publication, please cite the following articles:   
+
+- Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
+
