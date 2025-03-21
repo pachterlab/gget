@@ -148,13 +148,15 @@ def load_metadata(jsonl_file):
     return metadata_dict
 
 
-def parse_date(date_str):
+def parse_date(date_str, verbose=False):
     """Parse various date formats into a standardized datetime object."""
     try:
         date = parser.parse(date_str, default=datetime(1000, 1, 1))
         return date
-
     except (ValueError, TypeError):
+        if verbose:
+            logger.warning(f"Invalid date detected: '{date_str}'. This filter/date will be ignored.")
+            logger.warning("Note: Please check for errors such as incorrect day values (e.g., June 31st does not exist) or typos in the date format.")
         return None
 
 
@@ -191,13 +193,13 @@ def filter_sequences(
 
     # Convert date filters to datetime objects
     min_collection_date = (
-        parse_date(min_collection_date) if min_collection_date else None
+        parse_date(min_collection_date, verbose=True) if min_collection_date else None
     )
     max_collection_date = (
-        parse_date(max_collection_date) if max_collection_date else None
+        parse_date(max_collection_date, verbose=True) if max_collection_date else None
     )
     # min_release_date = parse_date(min_release_date) if min_release_date else None
-    max_release_date = parse_date(max_release_date) if max_release_date else None
+    max_release_date = parse_date(max_release_date, verbose=True) if max_release_date else None
 
     # Read sequences from the .fna file
     filtered_sequences = []
@@ -535,8 +537,8 @@ def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_fil
 def check_min_max(min, max, filtername, date=False):
     if min is not None and max is not None:
         if date:
-            min = parse_date(min)
-            max = parse_date(max)
+            min = parse_date(min, verbose=True)
+            max = parse_date(max, verbose=True)
         if min > max:
             raise ValueError(
                 f"Min value ({min}) cannot be greater than max value ({max}) for {filtername}."
