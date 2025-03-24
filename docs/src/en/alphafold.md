@@ -1,13 +1,19 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
-## gget alphafold 🪢
+# gget alphafold 🪢
 Predict the 3D structure of a protein from its amino acid sequence using a simplified version of [DeepMind](https://www.deepmind.com/)’s [AlphaFold2](https://github.com/deepmind/alphafold) originally released and benchmarked for [AlphaFold Colab](https://colab.research.google.com/github/deepmind/alphafold/blob/main/notebooks/AlphaFold.ipynb).  
 Returns: Predicted structure (PDB) and alignment error (json).  
 
 Before using `gget alphafold` for the first time:  
-1. Install the third-party dependency openmm v7.5.1 (or v7.7.0 for Python >= 3.10) by running the following command from the command line:  
+1. Install the third-party dependency openmm by running the following command from the command line:  
+   For Python versions < 3.10:  
    `conda install -qy conda==4.13.0 && conda install -qy -c conda-forge openmm=7.5.1`  
-   (replace with `openmm=7.7.0` for Python >= 3.10)  
-   Recommendation: Follow with `conda update -qy conda` to update conda to the latest version afterwards.    
+   For Python version 3.10:  
+   `conda install -qy conda==24.1.2 && conda install -qy -c conda-forge openmm=7.7.0`  
+   For Python version 3.11:  
+   `conda install -qy conda==24.11.1 && conda install -qy -c conda-forge openmm=8.0.0`  
+  
+   Recommendation: Follow with `conda update -qy conda` to update conda to the latest version afterwards.
+   
 3. Run `gget setup alphafold` / `gget.setup("alphafold")` once (also see [`gget setup`](setup.md)). Running `gget setup alphafold` / `gget.setup("alphafold")` will download and install the latest version of AlphaFold2 hosted on the [AlphaFold GitHub Repo](https://github.com/deepmind/alphafold). You can rerun this command any time to update the software after a new AlphaFold release.    
 
 **Positional argument**  
@@ -67,5 +73,19 @@ gget.pdb("2K42", save=True)
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/4qxGF1tbZ3I?si=mEqQ5oSnDYtg2OP7" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
 
-### [Example in Google Colab](https://github.com/pachterlab/gget_examples/blob/main/gget_alphafold.ipynb)
-### [gget alphafold FAQ](https://github.com/pachterlab/gget/discussions/39)
+# Tutorials
+### [🔗 Google Colab tutorial](https://github.com/pachterlab/gget_examples/blob/main/gget_alphafold.ipynb)  
+
+### [🔗 Protein structure prediction with comparison to related crystal structures](https://github.com/pachterlab/gget_examples/blob/main/protein_structure_prediction_comparison.ipynb)
+
+### [🔗 gget alphafold FAQ](https://github.com/pachterlab/gget/discussions/39)
+
+# References
+If you use `gget alphafold` in a publication, please cite the following articles:   
+
+- Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
+
+- Jumper, J., Evans, R., Pritzel, A. et al. Highly accurate protein structure prediction with AlphaFold. Nature 596, 583–589 (2021). [https://doi.org/10.1038/s41586-021-03819-2](https://doi.org/10.1038/s41586-021-03819-2)
+
+And, if applicable:  
+- Evans, R. et al. Protein complex prediction with AlphaFold-Multimer. bioRxiv 2021.10.04.463034; [https://doi.org/10.1101/2021.10.04.463034](https://doi.org/10.1101/2021.10.04.463034)

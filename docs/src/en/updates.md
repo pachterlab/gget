@@ -17,7 +17,7 @@
     - [`gget cbio`](cbio.md)
     - [`gget opentargets`](opentargets.md)
     - [`gget bgee`](bgee.md)
-- **[`gget enrichr`](./enrichr.md) now also supports species other than human (fly, yeast, worm, and fish) via [modEnrichR](https://maayanlab.cloud/modEnrichr/)**
+- **[`gget enrichr`](./enrichr.md) now also supports species other than human and mouse (fly, yeast, worm, and fish) via [modEnrichR](https://maayanlab.cloud/modEnrichr/)**
 - [`gget mutate`](./mutate.md):  
   `gget mutate` will now merge identical sequences in the final file by default. Mutation creation was vectorized to decrease runtime. Improved flanking sequence check for non-substitution mutations to make sure no wildtype kmer is retained in the mutation-containing sequence. Addition of several new arguments to customize sequence generation and output.
 - [`gget cosmic`](./cosmic.md):  

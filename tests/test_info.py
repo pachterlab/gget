@@ -13,25 +13,25 @@ with open("./tests/fixtures/test_info.json") as json_file:
 class TestInfo(unittest.TestCase):
     maxDiff = None
 
-    # def test_info_WB_transcript(self):
-    #     test = "test2"
-    #     expected_result = info_dict[test]["expected_result"]
-    #     result_to_test = info(**info_dict[test]["args"])
-    #     # If result is a DataFrame, convert to list
-    #     if isinstance(result_to_test, pd.DataFrame):
-    #         result_to_test = result_to_test.dropna(axis=1).values.tolist()
+    def test_info_WB_transcript(self):
+        test = "test2"
+        expected_result = info_dict[test]["expected_result"]
+        result_to_test = info(**info_dict[test]["args"])
+        # If result is a DataFrame, convert to list
+        if isinstance(result_to_test, pd.DataFrame):
+            result_to_test = result_to_test.dropna(axis=1).values.tolist()
 
-    #     self.assertListEqual(result_to_test, expected_result)
+        self.assertListEqual(result_to_test, expected_result)
 
-    # def test_info_FB_gene(self):
-    #     test = "test3"
-    #     expected_result = info_dict[test]["expected_result"]
-    #     result_to_test = info(**info_dict[test]["args"])
-    #     # If result is a DataFrame, convert to list
-    #     if isinstance(result_to_test, pd.DataFrame):
-    #         result_to_test = result_to_test.dropna(axis=1).values.tolist()
+    def test_info_FB_gene(self):
+        test = "test3"
+        expected_result = info_dict[test]["expected_result"]
+        result_to_test = info(**info_dict[test]["args"])
+        # If result is a DataFrame, convert to list
+        if isinstance(result_to_test, pd.DataFrame):
+            result_to_test = result_to_test.dropna(axis=1).values.tolist()
 
-    #     self.assertListEqual(result_to_test, expected_result)
+        self.assertListEqual(result_to_test, expected_result)
 
     def test_info_gene(self):
         test = "test4"

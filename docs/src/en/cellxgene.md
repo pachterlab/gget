@@ -1,6 +1,6 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python.  The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
-## gget cellxgene 🍱  
-Query data from [CZ CELLxGENE Discover](https://cellxgene.cziscience.com/) using the [CZ CELLxGENE Discover Census](https://github.com/chanzuckerberg/cellxgene-census).  
+# gget cellxgene 🍱  
+Query data from [CZ CELLxGENE Discover](https://cellxgene.cziscience.com/) using the [CZ CELLxGENE Discover Census](https://github.com/chanzuckerberg/cellxgene-census). [CZ CELLxGENE Discover](https://cellxgene.cziscience.com/) provides ready-to-use single-cell RNA sequencing count matrices for certain tissues/diseases/genes/etc.     
 
 Returns: An AnnData object containing the count matrix and metadata of single-cell RNA sequencing data from the defined tissues/genes/etc.  
 
@@ -136,3 +136,11 @@ df
 &rarr; Returns only the metadata from ENSMUSG00000015405 (ACE2) expression datasets corresponding to mouse lung cells.  
 
 Also see: [https://chanzuckerberg.github.io/cellxgene-census/notebooks/api_demo/census_gget_demo.html](https://chanzuckerberg.github.io/cellxgene-census/notebooks/api_demo/census_gget_demo.html)
+
+# References
+If you use `gget cellxgene` in a publication, please cite the following articles:   
+
+- Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
+
+- Chanzuckerberg Initiative. (n.d.). CZ CELLxGENE Discover. Retrieved [insert date here], from [https://cellxgene.cziscience.com/](https://cellxgene.cziscience.com/)
+

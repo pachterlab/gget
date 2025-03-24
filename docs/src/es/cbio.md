@@ -1,91 +1,91 @@
-> Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
+> Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
 # gget cbio 📖
-Plot cancer genomics heatmaps using data from [cBioPortal](https://www.cbioportal.org/) using Ensembl IDs or gene names.  
 
-This module was written by [Sam Wagenaar](https://github.com/techno-sam). 
+Trazar mapas de calor de la genómica del cáncer utilizando datos de [cBioPortal](https://www.cbioportal.org/) con IDs de Ensembl o nombres de genes.  
 
-**Positional argument**  
+Este módulo fue escrito por [Sam Wagenaar](https://github.com/techno-sam).
+
+**Argumento posicional**  
 `subcommand`  
-Either `search` or `plot`
+O bien `search` o `plot`
 
-### `search` subcommand (Python: `gget.cbio_search`)
-Find cBioPortal study IDs by keyword.   
-Return format: JSON (command-line) or string list (Python).     
-**Note: This does not return studies with mixed cancer types.**
+### Subcomando `search` (Python: `gget.cbio_search`)
+Buscar IDs de estudios de cBioPortal por palabra clave.  
+Formato de retorno: JSON (línea de comandos) o lista de cadenas (Python).  
+**Nota: Esto no devuelve estudios con tipos de cáncer mixtos.**
 
-**Positional argument**     
+**Argumento posicional**  
 `keywords`  
-Space-separated list of keywords to search for, e.g. <code>breast&nbsp;lung</code>.  
-Python: Pass keywords as a list of strings.
+Lista de palabras clave separadas por espacios para buscar, por ejemplo <code>breast&nbsp;lung</code>.  
+Python: Pasa palabras clave como una lista de cadenas.
 
-### `plot` subcommand (Python: `gget.cbio_plot`)
-Plot cancer genomics heatmaps using data from cBioPortal.
-Return format: PNG (command-line and Python)
+### Subcomando `plot` (Python: `gget.cbio_plot`)
+Graficar mapas de calor de genómica del cáncer utilizando datos de cBioPortal.  
+Formato de retorno: PNG (línea de comandos y Python).
 
-**Required arguments**  
-`-s` `--study_ids`    
-Space-separated list of cBioPortal study IDs, e.g. <code>msk_impact_2017&nbsp;egc_msk_2023</code>.
+**Argumentos requeridos**  
+`-s` `--study_ids`  
+Lista separada por espacios de IDs de estudios de cBioPortal, por ejemplo, <code>msk_impact_2017&nbsp;egc_msk_2023</code>.
 
 `-g` `--genes`  
-Space-separated list of gene names or Ensembl IDs, e.g. <code>NOTCH3&nbsp;ENSG00000108375</code>.
+Lista separada por espacios de nombres de genes o IDs de Ensembl, por ejemplo, <code>NOTCH3&nbsp;ENSG00000108375</code>.
 
-**Optional arguments**  
-`-st` `--stratification`    
-Column to stratify the data by. Default: `tissue`.  
-Options:
+**Argumentos opcionales**  
+`-st` `--stratification`  
+Columna por la cual estratificar los datos. Predeterminado: `tissue`.  
+Opciones:
 - tissue
 - cancer_type
 - cancer_type_detailed
 - study_id
 - sample
 
-`-vt` `--variation_type`    
-Type of variation to plot. Default: `mutation_occurrences`.     
-Options:
+`-vt` `--variation_type`  
+Tipo de variación a graficar. Predeterminado: `mutation_occurrences`.  
+Opciones:
 - mutation_occurrences
-- cna_nonbinary (Note: `stratification` must be 'sample' for this option)
+- cna_nonbinary (Nota: la `stratification` debe ser 'sample' para esta opción)
 - sv_occurrences
 - cna_occurrences
-- Consequence (Note: `stratification` must be 'sample' for this option)
+- Consequence (Nota: la `stratification` debe ser 'sample' para esta opción)
 
-`-f` `--filter`     
-Filter the data by a specific value in a specific column, e.g. `study_id:msk_impact_2017`   
+`-f` `--filter`  
+Filtrar los datos por un valor específico en una columna específica, por ejemplo, `study_id:msk_impact_2017`.  
 Python: `filter=(column, value)`
 
 `-dd` `--data_dir`  
-Directory to store data files. Default: `./gget_cbio_cache`.
+Directorio para almacenar los archivos de datos. Predeterminado: `./gget_cbio_cache`.
 
-`-fd` `--figure_dir`    
-Directory to output figures. Default: `./gget_cbio_figures`.
+`-fd` `--figure_dir`  
+Directorio para las figuras de salida. Predeterminado: `./gget_cbio_figures`.
 
 `-fn` `--filename`  
-Filename for the output figure, relative to `figure_dir`. Default: auto-generated    
-Python: `figure_filename`
+Nombre del archivo de salida, relativo a `figure_dir`. Predeterminado: auto-generado.  
+Python: `figure_filename`.
 
 `-t` `--title`  
-Title for the output figure. Default: auto-generated  
-Python: `figure_title`
+Título para la figura de salida. Predeterminado: auto-generado.  
+Python: `figure_title`.
 
 `-dpi` `--dpi`  
-DPI of the output figure. Default: 100.
+DPI de la figura de salida. Predeterminado: 100.
 
-**Flags**   
+**Banderas**
 
-`-q` `--quiet`   
-Command-line only. Prevents progress information from being displayed.  
-Python: Use `verbose=False` to prevent progress information from being displayed. 
+`-q` `--quiet`  
+Solo en línea de comandos. Evita que se muestre la información de progreso.  
+Python: Usa `verbose=False` para evitar que se muestre la información de progreso.
 
-`-nc` `--no_confirm`     
-Command-line only. Skip download confirmation prompts.  
-Python: Use `confirm_download=True` to enable download confirmation prompts.
+`-nc` `--no_confirm`  
+Solo en línea de comandos. Omitir las confirmaciones de descarga.  
+Python: Usa `confirm_download=True` para habilitar las confirmaciones de descarga.
 
 `-sh` `--show`  
-Show the plot in a window (automatic in Jupyter notebooks).
-  
-  
-### Examples
+Mostrar la gráfica en una ventana (automático en notebooks de Jupyter).
 
-**Find all cBioPortal studies with cancer types matching specific keywords:**   
+### Ejemplos
+
+**Encontrar todos los estudios de cBioPortal con tipos de cáncer que coinciden con palabras clave específicas:**  
 ```bash
 gget cbio search esophag ovary ovarian
 ```
@@ -94,7 +94,7 @@ gget cbio search esophag ovary ovarian
 import gget
 gget.cbio_search(['esophag', 'ovary', 'ovarian'])
 ```
-&rarr; Returns a list of studies with cancer types matching the keywords `esophag`, `ovary`, or `ovarian`.
+&rarr; Devuelve una lista de estudios con tipos de cáncer que coinciden con las palabras clave `esophag`, `ovary`, o `ovarian`.
 
 ```
 ['egc_tmucih_2015', 'egc_msk_2017', ..., 'msk_spectrum_tme_2022']
@@ -102,7 +102,7 @@ gget.cbio_search(['esophag', 'ovary', 'ovarian'])
 
 <br/><br/>
 
-**Plot a heatmap of mutation occurrences for specific genes in a specific study:**   
+**Graficar un mapa de calor de ocurrencias de mutaciones para genes específicos en un estudio específico:**   
 ```bash
 gget cbio plot \
     -s msk_impact_2017 \
@@ -123,13 +123,13 @@ gget.cbio_plot(
 )
 ```
 
-&rarr; Saves a heatmap of mutation occurrences for the specified genes in the specified study to `./gget_cbio_figures/Heatmap_tissue.png`.
+&rarr; Guarda un mapa de calor de ocurrencias de mutaciones para los genes especificados en el estudio especificado en ./gget_cbio_figures/Heatmap_tissue.png.
 
 ![Heatmap](https://raw.githubusercontent.com/pachterlab/gget/f6b4465eecae0f07c71558f8f6e7b60d36c8d41a/docs/assets/gget_cbio_figure_1.png)
 
 <br/><br/>
 
-**Plot a heatmap of mutation types for specific genes in a specific study:**   
+**Graficar un mapa de calor de tipos de mutaciones para genes específicos en un estudio específico:**   
 ```bash
 gget cbio plot \
     -s msk_impact_2017 \
@@ -150,13 +150,13 @@ gget.cbio_plot(
 )
 ```
 
-&rarr; Saves a heatmap of mutation types for the specified genes in the specified study to `./gget_cbio_figures/Heatmap_sample.png`.
+&rarr; Guarda un mapa de calor de tipos de mutaciones para los genes especificados en el estudio especificado en ./gget_cbio_figures/Heatmap_sample.png.
 
 ![Heatmap](https://raw.githubusercontent.com/pachterlab/gget/f6b4465eecae0f07c71558f8f6e7b60d36c8d41a/docs/assets/gget_cbio_figure_2.png)
 
 <br/><br/>
 
-**Plot a heatmap of mutation types for specific genes in a specific study, filtering by tissue:**
+**Graficar un mapa de calor de tipos de mutaciones para genes específicos en un estudio específico, filtrando por tejido::**
 ```bash
 gget cbio plot \
     -s msk_impact_2017 \
@@ -179,13 +179,13 @@ gget.cbio_plot(
 )
 ```
 
-&rarr; Saves a heatmap of mutation types for the specified genes in the specified study, filtered by tissue, to `./gget_cbio_figures/Heatmap_sample_intestine.png`.
+&rarr;  Guarda un mapa de calor de tipos de mutaciones para los genes especificados en el estudio especificado, filtrado por tejido, en ./gget_cbio_figures/Heatmap_sample_intestine.png.
 
 ![Heatmap](https://raw.githubusercontent.com/pachterlab/gget/ef0e8334d87214c17cbac70713028e7b823bba49/docs/assets/gget_cbio_figure_3.png)
 
 <br/><br/>
 
-**Plot a heatmap with a custom title and filename:**
+**Graficar un mapa de calor con un título y nombre de archivo personalizados::**
 ```bash
 gget cbio plot \
     -s msk_impact_2017 \
@@ -212,14 +212,14 @@ gget.cbio_plot(
 )
 ```
 
-&rarr; Saves a heatmap of mutation types for the specified genes in the specified study, filtered by tissue, with the title "Intestinal Mutations" to `./gget_cbio_figures/intestinal_mutations.png`.
+&rarr; Guarda un mapa de calor de los tipos de mutaciones para los genes especificados en el estudio especificado, filtrado por tejido, con el título "Mutaciones intestinales" en ./gget_cbio_figures/intestinal_mutations.png.
 
 ![Heatmap](https://raw.githubusercontent.com/pachterlab/gget/b32c01efefd55d37c19034ce96a86826e30ae3e5/docs/assets/gget_cbio_figure_4.png)
     
-#### [More examples](https://github.com/pachterlab/gget_examples)
+#### [Más ejemplos](https://github.com/pachterlab/gget_examples)
 
-# References
-If you use `gget cbio` in a publication, please cite the following articles:   
+# Citar    
+Si utiliza `gget cbio` en una publicación, favor de citar los siguientes artículos:
 
 - Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
 
