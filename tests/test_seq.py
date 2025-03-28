@@ -1,12 +1,15 @@
 import unittest
 import pandas as pd
 import json
+import time
 from gget.gget_seq import seq
 
 # Load dictionary containing arguments and expected results
 with open("./tests/fixtures/test_seq.json") as json_file:
     seq_dict = json.load(json_file)
 
+# Sleep time in seconds (wait [sleep_time] seconds between server requests to avoid 502 errors for WB and FB IDs)
+sleep_time = 10
 
 # todo convert to json loading once wormbase & flybase IDs are fixed. At that point, the json test framework will need a way to handle the ANY values
 class TestSeq(unittest.TestCase):
@@ -21,6 +24,7 @@ class TestSeq(unittest.TestCase):
         test = "test2"
         expected_result = seq_dict[test]["expected_result"]
         result_to_test = seq(**seq_dict[test]["args"])
+        time.sleep(sleep_time)
 
         self.assertListEqual(result_to_test, expected_result)
 
@@ -28,6 +32,7 @@ class TestSeq(unittest.TestCase):
         test = "test3"
         expected_result = seq_dict[test]["expected_result"]
         result_to_test = seq(**seq_dict[test]["args"])
+        time.sleep(sleep_time)
 
         self.assertListEqual(result_to_test, expected_result)
 
@@ -35,6 +40,7 @@ class TestSeq(unittest.TestCase):
         test = "test4"
         expected_result = seq_dict[test]["expected_result"]
         result_to_test = seq(**seq_dict[test]["args"])
+        time.sleep(sleep_time)
 
         self.assertListEqual(result_to_test, expected_result)
 
