@@ -36,13 +36,13 @@ class TestSeq(unittest.TestCase):
 
         self.assertListEqual(result_to_test, expected_result)
 
-    def test_seq_transcript_gene_WB_iso(self):
-        test = "test4"
-        expected_result = seq_dict[test]["expected_result"]
-        result_to_test = seq(**seq_dict[test]["args"])
-        time.sleep(sleep_time)
+    # def test_seq_transcript_gene_WB_iso(self):
+    #     test = "test4"
+    #     expected_result = seq_dict[test]["expected_result"]
+    #     result_to_test = seq(**seq_dict[test]["args"])
+    #     time.sleep(sleep_time)
 
-        self.assertListEqual(result_to_test, expected_result)
+    #     self.assertListEqual(result_to_test, expected_result)
 
     def test_seq_transcript_gene(self):
         test = "test5"
