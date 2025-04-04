@@ -904,16 +904,20 @@ def cosmic(
 
         # Check if mutation_tsv_path exists
         if not mutation_tsv_path or not os.path.exists(mutation_tsv_path):
-            example_call = (
-                f"gget cosmic download_cosmic=True "
-                f"mutation_class={mutation_class} "
-                f"grch_version={grch_version} "
-                f"cosmic_version={cosmic_version or get_latest_cosmic()}"
-            )
+            example_call_python = f"gget.cosmic(download_cosmic=True, searchterm=None, mutation_class='{mutation_class}', grch_version={grch_version}, cosmic_version={cosmic_version or get_latest_cosmic()})"
+            example_call_bash = f"gget cosmic --download_cosmic --mutation_class {mutation_class} --grch_version {grch_version} --cosmic_version {cosmic_version or get_latest_cosmic()} None"
+            # example_call = (
+            #     f"gget cosmic download_cosmic=True "
+            #     f"searchterm=None "
+            #     f"mutation_class={mutation_class} "
+            #     f"grch_version={grch_version} "
+            #     f"cosmic_version={cosmic_version or get_latest_cosmic()}"
+            # )
             raise FileNotFoundError(
                 f"The provided mutation_tsv_path does not exist: '{mutation_tsv_path}'.\n"
                 f"Please run the following command first to download the appropriate COSMIC reference data:\n"
-                f"{example_call}\n"
+                f"Python: {example_call_python}\n"
+                f"Command line: {example_call_bash}\n"
             )
 
         dicts = query_local_cosmic(mutation_tsv_path, searchterm, entity, mutation_class, limit)
