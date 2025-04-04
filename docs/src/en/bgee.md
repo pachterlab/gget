@@ -6,11 +6,12 @@ Return format: JSON/CSV (command-line) or data frame (Python).
 > If you are specifically interested in human gene expression data, consider using [gget opentargets](./opentargets.md) or [gget archs4](./archs4.md) instead.
 > **gget bgee** has less data, but supports more species.
 
-This module was written by [Sam Wagenaar](https://github.com/techno-sam).
+This module was written by [Sam Wagenaar](https://github.com/techno-sam) with edits from [Kateřina Večerková](https://github.com/vecerkovakaterina).
 
 **Positional argument**  
-`ens_ids`  
-One or more Ensembl gene IDs, e.g. ENSG00000169194 or ENSSSCG00000014725.  
+`ens_id`  
+Ensembl gene ID, e.g. ENSG00000169194 or ENSSSCG00000014725.  
+When `type=expression` you can also input a list of multiple Ensembl IDs.  
 
 NOTE: Some of the species in [Bgee](https://www.bgee.org/) are not in Ensembl or Ensembl metazoa, and for those you can use NCBI gene IDs, e.g. 118215821 (a gene in _Anguilla anguilla_).
 
@@ -78,7 +79,28 @@ gget.bgee("ENSSSCG00000014725", type="expression")
 | UBERON:0002107 | liver                       | 99.27 | high             | expressed        |
 | ...            | ...                         | ...   | ...              | ...              |
 
-    
+<br/><br/>
+
+**Get gene expression data for multiple genes**
+
+```bash
+gget bgee ENSBTAG00000047356 ENSBTAG00000018317 -t expression
+```
+```python
+import gget
+gget.bgee(["ENSBTAG00000047356", "ENSBTAG00000018317"], type="expression")
+```
+
+&rarr; Returns gene expression data for the genes ENSBTAG00000047356 and ENSBTAG00000018317.
+
+| anat_entity_id | anat_entity_name            | score | score_confidence | expression_state |
+|----------------|-----------------------------|-------|------------------|------------------|
+| UBERON:0001017 | central nervous system      | 92.15 | high             | expressed        |
+| UBERON:0002616 | regional part of brain      | 79.01 | high             | expressed        |
+| BGEE:0000000   | anatomical entity and cellular component | 89.12 | high| expressed        |
+| ...            | ...                         | ...   | ...              | ...              |
+
+        
 #### [More examples](https://github.com/pachterlab/gget_examples)
 
 # References

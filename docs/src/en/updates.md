@@ -6,7 +6,8 @@
 - [`gget cosmic`](cosmic.md):  
   new arguments `email` and `password` were added to allow the user to manually enter their login credentials without required input for data download.
 - [`gget bgee`](bgee.md):  
-  `type="orthologs"` is now the default, removing the need to specify the `type` argument when calling orthologs
+  - `type="orthologs"` is now the default, removing the need to specify the `type` argument when calling orthologs
+  - Allow querying multiple genes at once.
 - [`gget diamond`](diamond.md):  
   Now supports translated alignment of nucleotide sequences to amino acid reference sequences using the `--translated` flag.
 - [`gget elm`](elm.md):   

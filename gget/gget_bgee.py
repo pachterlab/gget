@@ -55,6 +55,11 @@ def _bgee_orthologs(gene_id, json=False, verbose=True):
 
     Returns requested information as a DataFrame or JSON
     """
+    # if single Ensembl ID passed as string, convert to list
+    if isinstance(gene_id, list):
+        raise ValueError(
+            "One a single gene ID can be passed at a time for ortholog searches."
+        )
 
     # must first obtain species
     species = _bgee_species(gene_id, verbose=verbose)
@@ -100,28 +105,29 @@ def _bgee_orthologs(gene_id, json=False, verbose=True):
         return df
 
 
-def _bgee_expression(gene_ids, json=False, verbose=True):
+def _bgee_expression(gene_id, json=False, verbose=True):
     """
     Get expression data from Bgee
 
     Args:
 
-    :param gene_ids: Ensembl gene ID(s)
+    :param gene_id: Ensembl gene ID(s)
     :param json:    return JSON instead of DataFrame
     :param verbose: log progress
 
     Returns requested information as a DataFrame or JSON
     """
     # if single Ensembl ID passed as string, convert to list
-    if isinstance(gene_ids, str):
-        gene_ids = [gene_ids]
+    if isinstance(gene_id, str):
+        gene_ids = [gene_id]
+    else:
+        gene_ids = gene_id
 
     # make sure all gene IDs correspond to the same species
     species_set = {_bgee_species(gene_id, verbose=verbose) for gene_id in gene_ids}
-    print(species_set)
 
     if len(species_set) != 1:
-        raise RuntimeError("All gene_ids must be from a single species.")
+        raise RuntimeError("All Ensembl gene IDs must be from a single species.")
 
     # get the single species from the set
     species = species_set.pop()
@@ -194,4 +200,6 @@ def bgee(
     elif type == "orthologs":
         return _bgee_orthologs(gene_id, json=json, verbose=verbose)
     else:
-        raise ValueError(f"Argument type should be 'expression' or 'orthologs', not '{type}'")
+        raise ValueError(
+            f"Argument type should be 'expression' or 'orthologs', not '{type}'"
+        )

@@ -2297,7 +2297,8 @@ def main():
     parser_bgee.add_argument(
         "ens_id",
         type=str,
-        help="Ensembl gene ID, e.g. ENSG00000169194 or ENSSSCG00000014725.",
+        nargs='+',
+        help="Ensembl gene ID, e.g. ENSG00000169194 or ENSSSCG00000014725. When 'type=expression' you can also input multiple Ensembl IDs.",
     )
     parser_bgee.add_argument(
         "-t",
