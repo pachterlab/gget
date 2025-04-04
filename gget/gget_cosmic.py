@@ -376,7 +376,7 @@ def cosmic(
 
                         | mutation_class     | Description                                                                 | Available `entity` types                | Notes                                                                 |
                         |--------------------|-----------------------------------------------------------------------------|-----------------------------------------|-----------------------------------------------------------------------|
-                        | cancer             | Cancer Mutation Census (CMC) (most commonly used COSMIC mutation set)       | `mutations`, `genes`, `samples`, `cancer`, `tumour_site`, `pubmed`   | Only available for GRCh37. Most feature-rich schema.                 |
+                        | cancer             | Cancer Mutation Census (CMC) (most commonly used COSMIC mutation set)       | `mutations`, `genes`, `samples`, `cancer`, `tumour_site`, `pubmed`   | Only available for GRCh37. Most feature-rich schema.|
                         | cancer_example     | Example CMC subset provided for testing and demonstration                   | `mutations`, `genes`                    | Downloadable without login. Minimal dataset.                         |
                         | census             | COSMIC census of curated somatic mutations in known cancer genes            | `mutations`, `genes`, `pubmed`          | Smaller curated set of known drivers.                                |
                         | resistance         | Mutations associated with drug resistance                                   | `mutations`, `genes`                    | Helpful for pharmacogenomics research.                               |
