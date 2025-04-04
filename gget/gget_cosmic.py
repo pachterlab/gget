@@ -205,7 +205,7 @@ def select_reference(
 
     return file_path, overwrite
 
-def query_local_cosmic(mutation_tsv_path, searchterm, entity, mutation_class="cancer", limit=100):
+def query_local_cosmic(mutation_tsv_path, searchterm, entity, mutation_class, limit):
     """
     Search the local COSMIC mutation census file for matching entries.
     Supports different mutation_class file schemas.
@@ -916,7 +916,7 @@ def cosmic(
                 f"{example_call}\n"
             )
 
-        dicts = query_local_cosmic(mutation_tsv_path, searchterm, entity, limit)
+        dicts = query_local_cosmic(mutation_tsv_path, searchterm, entity, mutation_class, limit)
 
         corr_df = pd.DataFrame(dicts)
 
