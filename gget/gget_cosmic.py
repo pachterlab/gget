@@ -338,7 +338,7 @@ def cosmic(
     mutation_class=None,
     cosmic_version=None,
     grch_version=37,
-    gget_mutate=True,
+    gget_mutate=False,
     keep_genome_info=False,
     remove_duplicates=False,
     seq_id_column="seq_ID",
@@ -905,11 +905,11 @@ def cosmic(
         # Check if mutation_tsv_path exists
         if not mutation_tsv_path or not os.path.exists(mutation_tsv_path):
             example_call_python = f"gget.cosmic(download_cosmic=True, searchterm=None, mutation_class='{mutation_class}', grch_version={grch_version}, cosmic_version={cosmic_version or get_latest_cosmic()})"
-            example_call_bash = f"gget cosmic --download_cosmic --mutation_class {mutation_class} --grch_version {grch_version} --cosmic_version {cosmic_version or get_latest_cosmic()} None"
+            example_call_bash = f"gget cosmic --download_cosmic --mutation_class {mutation_class} --grch_version {grch_version} --cosmic_version {cosmic_version or get_latest_cosmic()}"
 
             raise FileNotFoundError(
                 f"The provided mutation_tsv_path does not exist: '{mutation_tsv_path}'.\n"
-                f"Please run the following command first to download the appropriate COSMIC reference data:\n"
+                f"Please run the following command first to download the appropriate COSMIC reference data (requires ~3 GB of disk space):\n"
                 f"Python: {example_call_python}\n"
                 f"Command line: {example_call_bash}\n"
             )
