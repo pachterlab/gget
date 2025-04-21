@@ -7,6 +7,8 @@ This module was originally written in part by [@AubakirovArman](https://github.c
 
 NOTE: License fees apply for the commercial use of COSMIC. You can read more about licensing COSMIC data [here](https://cancer.sanger.ac.uk/cosmic/license).  
 
+NOTE: When using this module for the first time, first download a COSMIC database to obtain `cosmic_tsv_path` (see examples below).  
+
 **Positional argument (for querying information)**  
 `searchterm`   
 Search term, which can be a mutation, or gene name (or Ensembl ID), or sample, etc.   
@@ -45,7 +47,7 @@ Type of COSMIC database to download:
 | cancer_example      | Example CMC subset provided for testing and demonstration                   | Downloadable without a COSMIC account. Minimal dataset.                            | 2.5 MB |
 | census              | COSMIC census of curated somatic mutations in known cancer genes            | Smaller curated set of known cancer drivers.                                       | 630 MB |
 | resistance          | Mutations associated with drug resistance                                   | Helpful for pharmacogenomics research.                                             | 1.6 MB |
-| cell_line           | Cell line project mutation data                                             | Sample metadata often available.                                                   |   |
+| cell_line           | Cell line project mutation data                                             | Sample metadata often available.                                                   | 2.7 GB |
 | genome_screen       | Mutations from genome screening efforts                                     | Includes less curated data, good for large-scale screens.                          |    |
 | targeted_screen     | Mutations from targeted screening panels                                    | Focused panel datasets, good for clinical settings.                                |   |
   
@@ -61,7 +63,7 @@ Email for COSMIC login. Helpful for avoiding required input upon running gget CO
 `--password`
 Password for COSMIC login. Helpful for avoiding required input upon running gget COSMIC, but password will be stored in plain text in the script. Default: None
 
-**Additional arguments for the `--gget_mutate` flag:**  
+**Additional arguments for the `--gget_mutate` flag**  
 `--keep_genome_info`
 Whether to keep genome information in the modified database for use with `gget mutate`. Default: False
 
@@ -96,14 +98,14 @@ Python: Use `verbose=False` to prevent progress information from being displayed
 # The download_cosmic command will ask for your COSMIC email and password and only needs to be run once
 gget cosmic --download_cosmic --mutation_class cancer
 
-gget cosmic EGFR --mutation_tsv_path 'CancerMutationCensus_AllData_Tsv_v101_GRCh37/CancerMutationCensus_AllData_v101_GRCh37.tsv'
+gget cosmic EGFR --cosmic_tsv_path 'CancerMutationCensus_AllData_Tsv_v101_GRCh37/CancerMutationCensus_AllData_v101_GRCh37.tsv'
 ```
 ```python
 # Python
 # The download_cosmic command will ask for your COSMIC email and password and only needs to be run once
 gget.cosmic(searchterm=None, download_cosmic=True, mutation_class="cancer")
 
-gget.cosmic("EGFR", mutation_tsv_path="CancerMutationCensus_AllData_Tsv_v101_GRCh37/CancerMutationCensus_AllData_v101_GRCh37.tsv")
+gget.cosmic("EGFR", cosmic_tsv_path="CancerMutationCensus_AllData_Tsv_v101_GRCh37/CancerMutationCensus_AllData_v101_GRCh37.tsv")
 ```
 
 &rarr; The first command downloads the requested COSMIC database of the latest COSMIC release into the current working directory. The second command searches the database for mutations associated with the 'EGFR' gene and returns results in the following format:
@@ -119,14 +121,14 @@ gget.cosmic("EGFR", mutation_tsv_path="CancerMutationCensus_AllData_Tsv_v101_GRC
 # The download_cosmic command will ask for your COSMIC email and password and only needs to be run once
 gget cosmic --download_cosmic --mutation_class census
 
-gget cosmic EGFR --mutation_tsv_path 'Cosmic_MutantCensus_Tsv_v101_GRCh37/Cosmic_MutantCensus_v101_GRCh37.tsv'
+gget cosmic EGFR --cosmic_tsv_path 'Cosmic_MutantCensus_Tsv_v101_GRCh37/Cosmic_MutantCensus_v101_GRCh37.tsv'
 ```
 ```python
 # Python
 # The download_cosmic command will ask for your COSMIC email and password and only needs to be run once
 gget.cosmic(searchterm=None, download_cosmic=True, mutation_class="cancer")
 
-gget.cosmic("EGFR", mutation_tsv_path="Cosmic_MutantCensus_Tsv_v101_GRCh37/Cosmic_MutantCensus_v101_GRCh37.tsv")
+gget.cosmic("EGFR", cosmic_tsv_path="Cosmic_MutantCensus_Tsv_v101_GRCh37/Cosmic_MutantCensus_v101_GRCh37.tsv")
 ```
 
 &rarr; The first command downloads the requested COSMIC database of the latest COSMIC release into the current working directory. The second command searches the database for mutations associated with the 'EGFR' gene and returns results in the following format:

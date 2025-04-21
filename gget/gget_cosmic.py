@@ -350,7 +350,7 @@ def cosmic(
                         | cancer_example     | Example CMC subset provided for testing and demonstration                   | Downloadable without a COSMIC account. Minimal dataset.                            | 2.5 MB |
                         | census             | COSMIC census of curated somatic mutations in known cancer genes            | Smaller curated set of known cancer drivers.                                       | 630 MB |
                         | resistance         | Mutations associated with drug resistance                                   | Helpful for pharmacogenomics research.                                             | 1.6 MB |
-                        | cell_line          | Cell Lines Project mutation data                                            | Sample metadata often available.                                                   |  |
+                        | cell_line          | Cell Lines Project mutation data                                            | Sample metadata often available.                                                   | 2.7 GB |
                         | genome_screen      | Mutations from genome screening efforts                                     | Includes less curated data, good for large-scale screens.                          |  |
                         | targeted_screen    | Mutations from targeted screening panels                                    | Focused panel datasets, good for clinical settings.                                |  |
 
