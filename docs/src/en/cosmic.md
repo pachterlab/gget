@@ -41,16 +41,15 @@ Creates a modified version of the COSMIC database for use with [`gget mutate`](m
 'cancer' (default), 'cancer_example', 'census', 'resistance', 'cell_line', 'genome_screen', or 'targeted_screen'  
 Type of COSMIC database to download:   
   
-| Mutation Class      | Description                                                                 | Notes                                                                              | Size   |
-|---------------------|-----------------------------------------------------------------------------|------------------------------------------------------------------------------------|--------|
-| cancer              | Cancer Mutation Census (CMC) (most commonly used COSMIC mutation set)       | Only available for GRCh37. Most feature-rich schema (takes the longest to search). | 2 GB   |
-| cancer_example      | Example CMC subset provided for testing and demonstration                   | Downloadable without a COSMIC account. Minimal dataset.                            | 2.5 MB |
-| census              | COSMIC census of curated somatic mutations in known cancer genes            | Smaller curated set of known cancer drivers.                                       | 630 MB |
-| resistance          | Mutations associated with drug resistance                                   | Helpful for pharmacogenomics research.                                             | 1.6 MB |
-| cell_line           | Cell line project mutation data                                             | Sample metadata often available.                                                   | 2.7 GB |
-| genome_screen       | Mutations from genome screening efforts                                     | Includes less curated data, good for large-scale screens.                          |    |
-| targeted_screen     | Mutations from targeted screening panels                                    | Focused panel datasets, good for clinical settings.                                |   |
-  
+| mutation_class  | Description                                                           | Notes                                                                              | Size   |
+|-----------------|-----------------------------------------------------------------------|------------------------------------------------------------------------------------|--------|
+| cancer          | Cancer Mutation Census (CMC) (most commonly used COSMIC mutation set) | Only available for GRCh37. Most feature-rich schema (takes the longest to search). | 2 GB   |
+| cancer_example  | Example CMC subset provided for testing and demonstration             | Downloadable without a COSMIC account. Minimal dataset.                            | 2.5 MB |
+| census          | COSMIC census of curated somatic mutations in known cancer genes      | Smaller curated set of known cancer drivers.                                       | 630 MB |
+| resistance      | Mutations associated with drug resistance                             | Helpful for pharmacogenomics research.                                             | 1.6 MB |
+| cell_line       | Cell Lines Project mutation data                                      | Sample metadata often available.                                                   | 2.7 GB |
+| genome_screen   | Mutations from genome screening efforts                               | Includes less curated data, good for large-scale screens.                          |  |
+| targeted_screen | Mutations from targeted screening panels                              | Focused panel datasets, good for clinical settings.                                |  |
 `-cv` `--cosmic_version`  
 Version of the COSMIC database. Default: None -> Defaults to latest version.  
 

@@ -1767,38 +1767,21 @@ def main():
         nargs="?",
         default=None,
         help=(
-            "Search term, which can be a mutation, gene name (or Ensembl ID), sample, etc.\n"
-            "Examples for the searchterm and entitity arguments:\n\n"
-            "| searchterm   | entity       |\n"
-            "|--------------|--------------|\n"
-            "| EGFR         | mutations    | -> Find mutations in the EGFR gene that are associated with cancer\n"
-            "| v600e        | mutations    | -> Find genes for which a v600e mutation is associated with cancer\n"
-            "| COSV57014428 | mutations    | -> Find mutations associated with this COSMIC mutations ID\n"
-            "| EGFR         | genes        | -> Get the number of samples, coding/simple mutations, and fusions observed in COSMIC for EGFR\n"
-            "| prostate     | cancer       | -> Get number of tested samples and mutations for prostate cancer\n"
-            "| prostate     | tumour_site  | -> Get number of tested samples, genes, mutations, fusions, etc. with 'prostate' as primary tissue site\n"
-            "| ICGC         | studies      | -> Get project code and descriptions for all studies from the ICGC (International Cancer Genome Consortium)\n"
-            "| EGFR         | pubmed       | -> Find PubMed publications on EGFR and cancer\n"
-            "| ICGC         | samples      | -> Get metadata on all samples from the ICGC (International Cancer Genome Consortium)\n"
-            "| COSS2907494  | samples      | -> Get metadata on this COSMIC sample ID (cancer type, tissue, # analyzed genes, # mutations, etc.)"
+            "Search term, which can be a mutation, gene name (or Ensembl ID), sample, etc."
+            "Examples: EGFR, ENST00000275493, c.650A>T, p.Q217L, COSV51765119, BT2012100223LNCTB (sample ID)"
         ),
     )
     parser_cosmic.add_argument(
-        "-e",
-        "--entity",
-        choices=[
-            "mutations",
-            "genes",
-            "cancer",
-            "tumour_site",
-            "studies",
-            "pubmed",
-            "samples",
-        ],
-        default="mutations",
+        "-ctp",
+        "--cosmic_tsv_path",
+        default=None,
         type=str,
         required=False,
-        help="Defines the type of the results to return.",
+        help=(
+            "Path to the COSMIC mutation tsv file, e.g. 'path/to/CancerMutationCensus_AllData_v101_GRCh37.tsv'.\n"
+            "This file is downloaded when downloading COSMIC databases using the arguments described above.\n"
+            "NOTE: This is a required argument when download_cosmic=False."
+        ),
     )
     parser_cosmic.add_argument(
         "-l",
@@ -1829,17 +1812,28 @@ def main():
         "--mutation_class",
         choices=[
             "cancer",
-            "cell_line",
+            "cancer_example",
             "census",
+            "cell_line",
             "resistance",
             "genome_screen",
             "targeted_screen",
-            "cancer_example",
         ],
-        default="cancer",
+        default=None,
         type=str,
         required=False,
-        help="Type of COSMIC database to download (only for use with --download_cosmic).",
+        help=(
+            "Type of COSMIC database (only for use with --download_cosmic). Default: 'cancer'. One of the following:\n"
+            "| mutation_class  | Description                                                           | Notes                                                                              | Size   |\n"
+            "|-----------------|-----------------------------------------------------------------------|------------------------------------------------------------------------------------|--------|\n"
+            "| cancer          | Cancer Mutation Census (CMC) (most commonly used COSMIC mutation set) | Only available for GRCh37. Most feature-rich schema (takes the longest to search). | 2 GB   |\n"
+            "| cancer_example  | Example CMC subset provided for testing and demonstration             | Downloadable without a COSMIC account. Minimal dataset.                            | 2.5 MB |\n"
+            "| census          | COSMIC census of curated somatic mutations in known cancer genes      | Smaller curated set of known cancer drivers.                                       | 630 MB |\n"
+            "| resistance      | Mutations associated with drug resistance                             | Helpful for pharmacogenomics research.                                             | 1.6 MB |\n"
+            "| cell_line       | Cell Lines Project mutation data                                      | Sample metadata often available.                                                   | 2.7 GB |\n"
+            "| genome_screen   | Mutations from genome screening efforts                               | Includes less curated data, good for large-scale screens.                          |  |\n"
+            "| targeted_screen | Mutations from targeted screening panels                              | Focused panel datasets, good for clinical settings.                                |  |"
+        ),
     )
     parser_cosmic.add_argument(
         "-cv",
@@ -1859,12 +1853,24 @@ def main():
         help="Version of the human GRCh reference genome (only for use with --download_cosmic).",
     )
     parser_cosmic.add_argument(
+        "--email",
+        type=str,
+        required=False,
+        help="Email for COSMIC login. Helpful for avoiding required input upon running gget COSMIC. Default: None",
+    )
+    parser_cosmic.add_argument(
+        "--password",
+        type=str,
+        required=False,
+        help="Password for COSMIC login. Helpful for avoiding required input upon running gget COSMIC, but password will be stored in plain text in the script. Default: None",
+    )
+    parser_cosmic.add_argument(
         "-gm",
         "--gget_mutate",
-        default=True,
-        action="store_false",
+        default=False,
+        action="store_true",
         required=False,
-        help="Do NOT create a modified version of the database for use with gget mutate (only for use with --download_cosmic).",
+        help="Create a modified version of the database for use with gget mutate (only for use with --download_cosmic).",
     )
     parser_cosmic.add_argument(
         "--keep_genome_info",
@@ -1879,40 +1885,28 @@ def main():
         action="store_true",
         required=False,
         help="Whether to remove duplicated rows from the modified database for use with gget mutate (only for use with --download_cosmic).",
-    ),
+    )
     parser_cosmic.add_argument(
         "--seq_id_column",
         default="seq_ID",
         type=str,
         required=False,
         help="Whether to remove duplicated rows from the modified database for use with gget mutate (only for use with --download_cosmic).",
-    ),
+    )
     parser_cosmic.add_argument(
         "--mutation_column",
         default="mutation",
         type=str,
         required=False,
         help="Whether to remove duplicated rows from the modified database for use with gget mutate (only for use with --download_cosmic).",
-    ),
+    )
     parser_cosmic.add_argument(
         "--mut_id_column",
         default="mutation_id",
         type=str,
         required=False,
         help="Whether to remove duplicated rows from the modified database for use with gget mutate (only for use with --download_cosmic).",
-    ),
-    parser_cosmic.add_argument(
-        "--email",
-        type=str,
-        required=False,
-        help="Email for COSMIC login. Helpful for avoiding required input upon running gget COSMIC. Default: None",
-    ),
-    parser_cosmic.add_argument(
-        "--password",
-        type=str,
-        required=False,
-        help="Password for COSMIC login. Helpful for avoiding required input upon running gget COSMIC, but password will be stored in plain text in the script. Default: None",
-    ),
+    )
     parser_cosmic.add_argument(
         "-o",
         "--out",
@@ -1921,7 +1915,7 @@ def main():
         default=None,
         help=(
             "Path to the file (or folder when downloading databases with the download_cosmic flag) the results will be saved in, e.g. path/to/results.json.\n"
-            "Default: None\n"
+            "Defaults: \n"
             "-> When download_cosmic=False: Results will be returned to standard out\n"
             "-> When download_cosmic=True: Database will be downloaded into current working directory"
         ),
@@ -2587,21 +2581,20 @@ def main():
         # Run gget cosmic function
         cosmic_results = cosmic(
             searchterm=args.searchterm,
-            entity=args.entity,
             limit=args.limit,
             json=args.csv,
             download_cosmic=args.download_cosmic,
             mutation_class=args.mutation_class,
             cosmic_version=args.cosmic_version,
             grch_version=args.grch_version,
+            email=args.email,
+            password=args.password,
             gget_mutate=args.gget_mutate,
             keep_genome_info=args.keep_genome_info,
             remove_duplicates=args.remove_duplicates,
             seq_id_column=args.seq_id_column,
             mutation_column=args.mutation_column,
             mut_id_column=args.mut_id_column,
-            email=args.email,
-            password=args.password,
             out=args.out,
             verbose=args.quiet,
         )
