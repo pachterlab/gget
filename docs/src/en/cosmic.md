@@ -18,7 +18,7 @@ NOTE: (Python only) Set to `None` when downloading COSMIC databases with `downlo
 **Required argument (for querying information)**  
 `-ctp` `--cosmic_tsv_path`   
 Path to the COSMIC database tsv file, e.g. 'path/to/CancerMutationCensus_AllData_v101_GRCh37.tsv'.  
-This file is downloaded when downloading COSMIC databases using the arguments described above.  
+This file is downloaded when downloading COSMIC databases using the arguments described below.  
 NOTE: This is a required argument when `download_cosmic=False`.  
 
 **Optional arguments (for querying information)**  
