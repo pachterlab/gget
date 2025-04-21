@@ -2581,6 +2581,7 @@ def main():
         # Run gget cosmic function
         cosmic_results = cosmic(
             searchterm=args.searchterm,
+            cosmic_tsv_path=args.cosmic_tsv_path,
             limit=args.limit,
             json=args.csv,
             download_cosmic=args.download_cosmic,
