@@ -49,7 +49,8 @@ Type of COSMIC database to download:
 | resistance      | Mutations associated with drug resistance                             | Helpful for pharmacogenomics research.                                             | 1.6 MB |
 | cell_line       | Cell Lines Project mutation data                                      | Sample metadata often available.                                                   | 2.7 GB |
 | genome_screen   | Mutations from genome screening efforts                               | Includes less curated data, good for large-scale screens.                          |  |
-| targeted_screen | Mutations from targeted screening panels                              | Focused panel datasets, good for clinical settings.                                |  |
+| targeted_screen | Mutations from targeted screening panels                              | Focused panel datasets, good for clinical settings.                                |  |  
+
 `-cv` `--cosmic_version`  
 Version of the COSMIC database. Default: None -> Defaults to latest version.  
 
