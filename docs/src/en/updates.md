@@ -4,8 +4,10 @@
   - gget mutate has been simplified to focus on taking as input a list of mutations and associated reference genome with corresponding annotation information, and produce as output the sequences with the mutation incorporated and a short region of surrounding context. For the full functionality of the previous version and how it integrates in the context of a novel variant screening pipeline, visit the varseek repository being developed by members of the gget team at https://github.com/pachterlab/varseek.git.
   - Added additional information to returned data frames as described here: https://github.com/pachterlab/gget/pull/169
 - [`gget cosmic`](cosmic.md):  
-  - New arguments `email` and `password` were added to allow the user to manually enter their login credentials without required input for data download.
-  - Default changed to `gget_mutate=False`
+  - Major restructuring of the `gget cosmic` module to adhere to new login requirements set by COSMIC
+  - New arguments `email` and `password` were added to allow the user to manually enter their login credentials without required input for data download
+  - Default changed: `gget_mutate=False`
+  - Deprecated argument: `entity`
 - [`gget bgee`](bgee.md):  
   - `type="orthologs"` is now the default, removing the need to specify the `type` argument when calling orthologs
   - Allow querying multiple genes at once.

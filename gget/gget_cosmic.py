@@ -205,226 +205,197 @@ def select_reference(
 
     return file_path, overwrite
 
-def query_local_cosmic(mutation_tsv_path, searchterm, entity, mutation_class, limit):
+
+def make_exact_match_mask(df, searchterm_lower, cols_to_check):
+    """
+    Build a boolean mask for rows where any of the specified columns match the search term exactly.
+    Handles special case for ACCESSION_NUMBER to match both with and without version.
+    Allows for columns in cols_to_check to be missing from the DataFrame.
+    """
+    temp_cols = []
+    conditions = []
+
+    for col in cols_to_check:
+        if col not in df.columns:
+            continue
+
+        if col in ("ACCESSION_NUMBER", "TRANSCRIPT_ACCESSION"):
+            # Lowercased full Ensembl accession
+            acc_col = "__accession_number"
+            df[acc_col] = df[col].astype(str).str.lower()
+            conditions.append(df[acc_col] == searchterm_lower)
+            temp_cols.append(acc_col)
+
+            # Lowercased Ensembl accession without version number
+            acc_nov_col = "__accession_number_no_version"
+            df[acc_nov_col] = df[col].astype(str).str.split(".").str[0].str.lower()
+            conditions.append(df[acc_nov_col] == searchterm_lower)
+            temp_cols.append(acc_nov_col)
+
+        else:
+            temp_col = f"__{col.replace(' ', '_').lower()}"
+            df[temp_col] = df[col].astype(str).str.lower()
+            conditions.append(df[temp_col] == searchterm_lower)
+            temp_cols.append(temp_col)
+
+    if not conditions:
+        missing = ", ".join(cols_to_check)
+        raise ValueError(f"None of the specified columns were found in the DataFrame: {missing}")
+
+    mask = conditions[0]
+    for cond in conditions[1:]:
+        mask |= cond
+
+    return mask
+
+
+def query_local_cosmic(cosmic_tsv_path, mutation_class, searchterm, limit):
     """
     Search the local COSMIC mutation census file for matching entries.
-    Supports different mutation_class file schemas.
     """
-    df = pd.read_csv(mutation_tsv_path, sep="\t", low_memory=False)
+    df = pd.read_csv(cosmic_tsv_path, sep="\t", low_memory=False)
+    searchterm_lower = searchterm.lower()
     results = []
 
-    searchterm_lower = searchterm.lower()
-
-    # === Cancer and cancer_example datasets ===
+    def match_and_limit(mask, extract_fn):
+        for _, row in df[mask].head(limit).iterrows():
+            results.append(extract_fn(row))
+    
     if mutation_class in ["cancer", "cancer_example"]:
-        if entity == "mutations":
-            for _, row in df.iterrows():
-                gene = row.get("GENE_NAME", "")
-                mutation_aa = row.get("Mutation AA", "")
-                mutation_cds = row.get("Mutation CDS", "")
-                mut_url = row.get("MUTATION_URL", "")
-                if (
-                    searchterm_lower in str(gene).lower()
-                    or searchterm_lower in str(mutation_aa).lower()
-                    or searchterm_lower in str(mutation_cds).lower()
-                    or searchterm_lower in str(mut_url).lower()
-                ):
-                    results.append({
-                        "Gene": gene,
-                        "Syntax": mutation_cds,
-                        "Alternate IDs": mut_url,
-                        "Canonical": mutation_aa
-                    })
-                if len(results) >= limit:
-                    break
 
-        elif entity == "genes":
-            grouped = df.groupby("GENE_NAME")
-            for gene, group in grouped:
-                if searchterm_lower in str(gene).lower():
-                    results.append({
-                        "Gene": gene,
-                        "Tested samples": "n/a",
-                        "Simple Mutations": len(group),
-                        "Fusions": "n/a",
-                        "Coding Mutations": "n/a"
-                    })
-                if len(results) >= limit:
-                    break
+        # Columns to check for search term
+        cols_to_check = [
+            "GENE_NAME", 
+            "ACCESSION_NUMBER", 
+            "LEGACY_MUTATION_ID", 
+            "Mutation CDS", 
+            "Mutation AA",
+            "GENOMIC_MUTATION_ID"
+            ]
+        mask = make_exact_match_mask(df, searchterm_lower, cols_to_check)
 
-    # === Census and resistance ===
-    elif mutation_class in ["census", "resistance"]:
-        if entity == "mutations":
-            for _, row in df.iterrows():
-                gene = row.get("GENE_SYMBOL", "")
-                cds = row.get("MUTATION_CDS", "")
-                aa = row.get("MUTATION_AA", "")
-                if (
-                    searchterm_lower in str(gene).lower()
-                    or searchterm_lower in str(cds).lower()
-                    or searchterm_lower in str(aa).lower()
-                ):
-                    results.append({
-                        "Gene": gene,
-                        "Syntax": cds,
-                        "Alternate IDs": row.get("MUTATION_ID", ""),
-                        "Canonical": aa
-                    })
-                if len(results) >= limit:
-                    break
+        match_and_limit(mask, lambda row: {
+            col.replace(" ", "_"): row[col]
+            for col in row.index
+            if not col.startswith("__")
+        })
 
-        elif entity == "genes":
-            grouped = df.groupby("GENE_SYMBOL")
-            for gene, group in grouped:
-                if searchterm_lower in str(gene).lower():
-                    results.append({
-                        "Gene": gene,
-                        "Tested samples": "n/a",
-                        "Simple Mutations": len(group),
-                        "Fusions": "n/a",
-                        "Coding Mutations": "n/a"
-                    })
-                if len(results) >= limit:
-                    break
+    elif mutation_class in ["census", "resistance", "cell_line", "genome_screen", "targeted_screen", "other"]:
+        # Columns to check for search term
+        cols_to_check = [
+            "GENE_SYMBOL",
+            "TRANSCRIPT_ACCESSION",
+            "COSMIC_GENE_ID",
+            "COSMIC_SAMPLE_ID",
+            "COSMIC_PHENOTYPE_ID",
+            "GENOMIC_MUTATION_ID",
+            "LEGACY_MUTATION_ID",
+            "SAMPLE_NAME",
+            "MUTATION_CDS", 
+            "MUTATION_AA", 
+            "MUTATION_ID",
+            "COSMIC_STUDY_ID"
+            ]
+        mask = make_exact_match_mask(df, searchterm_lower, cols_to_check)
 
-    # === Cell line / genome_screen / targeted_screen ===
-    elif mutation_class in ["cell_line", "genome_screen", "targeted_screen"]:
-        if entity == "mutations":
-            for _, row in df.iterrows():
-                gene = row.get("GENE_SYMBOL", "")
-                cds = row.get("MUTATION_CDS", "")
-                aa = row.get("MUTATION_AA", "")
-                if (
-                    searchterm_lower in str(gene).lower()
-                    or searchterm_lower in str(cds).lower()
-                    or searchterm_lower in str(aa).lower()
-                ):
-                    results.append({
-                        "Gene": gene,
-                        "Syntax": cds,
-                        "Alternate IDs": row.get("MUTATION_ID", ""),
-                        "Canonical": aa
-                    })
-                if len(results) >= limit:
-                    break
-
-        elif entity == "genes":
-            grouped = df.groupby("GENE_SYMBOL")
-            for gene, group in grouped:
-                if searchterm_lower in str(gene).lower():
-                    results.append({
-                        "Gene": gene,
-                        "Tested samples": "n/a",
-                        "Simple Mutations": len(group),
-                        "Fusions": "n/a",
-                        "Coding Mutations": "n/a"
-                    })
-                if len(results) >= limit:
-                    break
+        match_and_limit(mask, lambda row: {
+            col.replace(" ", "_"): row[col]
+            for col in row.index
+            if not col.startswith("__")
+        })
 
     else:
         raise ValueError(f"Unsupported mutation_class: {mutation_class}")
+    
+    if len(results) == 0:
+        raise ValueError(f"No results were found for searchterm '{searchterm}' and mutation_class '{mutation_class}' in COSMIC database file (cosmic_tsv_path) '{cosmic_tsv_path}'.")
 
     return results
 
 
 def cosmic(
     searchterm,
-    mutation_tsv_path=None,
-    entity="mutations",
+    cosmic_tsv_path=None,
     limit=100,
     json=False,
     download_cosmic=False,
     mutation_class=None,
     cosmic_version=None,
     grch_version=37,
+    email=None,
+    password=None,
     gget_mutate=False,
     keep_genome_info=False,
     remove_duplicates=False,
     seq_id_column="seq_ID",
     mutation_column="mutation",
     mut_id_column="mutation_id",
-    email=None,
-    password=None,
     out=None,
-    verbose=True,
+    verbose=True
 ):
     """
     Search for genes, mutations, etc associated with cancers using the COSMIC
     (Catalogue Of Somatic Mutations In Cancer) database
     (https://cancer.sanger.ac.uk/cosmic).
-    NOTE: Licence fees apply for the commercial use of COSMIC.
-    NOTE: Interacting with COSMIC requires an account (https://cancer.sanger.ac.uk/cosmic/register; free for academic use, license for commercial use)
-
-    Args for querying information about specific cancers/genes/etc:
-    - searchterm        (str) Search term, which can be a mutation, gene name (or Ensembl ID), sample, etc.
-                        Examples for the searchterm and entitity arguments:
-
-                        | searchterm   | entitity    |
-                        |--------------|-------------|
-                        | EGFR         | mutations   | -> Find mutations in the EGFR gene that are associated with cancer
-                        | v600e        | mutations   | -> Find genes for which a v600e mutation is associated with cancer
-                        | COSV57014428 | mutations   | -> Find mutations associated with this COSMIC mutations ID
-                        | EGFR         | genes       | -> Get the number of samples, coding/simple mutations, and fusions observed in COSMIC for EGFR
-
-                        NOTE: Set to None when downloading COSMIC databases with download_cosmic=True.
-    - mutation_tsv_path (str) Path to the COSMIC mutation tsv file, e.g. 'path/to/CancerMutationCensus_AllData_v101_GRCh37.tsv'.
-                        NOTE: This is a required argument when download_cosmic=False.
-    - entity            (str) Defines the type of the results to return. One of the following:
-                        'mutations' (default) or 'genes'
-    - mutation_class    (str) Type of COSMIC database. One of the following:
-
-                        | mutation_class     | Description                                                                 | Available `entity` types                | Notes                                                                 |
-                        |--------------------|-----------------------------------------------------------------------------|-----------------------------------------|-----------------------------------------------------------------------|
-                        | cancer             | Cancer Mutation Census (CMC) (most commonly used COSMIC mutation set)       | `mutations`, `genes`, `samples`, `cancer`, `tumour_site`, `pubmed`   | Only available for GRCh37. Most feature-rich schema.|
-                        | cancer_example     | Example CMC subset provided for testing and demonstration                   | `mutations`, `genes`                    | Downloadable without login. Minimal dataset.                         |
-                        | census             | COSMIC census of curated somatic mutations in known cancer genes            | `mutations`, `genes`, `pubmed`          | Smaller curated set of known drivers.                                |
-                        | resistance         | Mutations associated with drug resistance                                   | `mutations`, `genes`                    | Helpful for pharmacogenomics research.                               |
-                        | cell_line          | Cell line project mutation data                                             | `mutations`, `genes`, `samples`         | Sample metadata often available.                                     |
-                        | genome_screen      | Mutations from genome screening efforts                                     | `mutations`, `genes`                    | Includes less curated data, good for large-scale screens.            |
-                        | targeted_screen    | Mutations from targeted screening panels                                    | `mutations`, `genes`                    | Focused panel datasets, good for clinical settings.                  |
-                        | studies            | High-level metadata on COSMIC studies (e.g. ICGC projects)                  | `studies`                               | Not currently available in local TSVs. Needs API or separate file.   |
-
-                        Default: Best matching mutation_class for the provided entity is selected.
-    - limit             (int) Number of hits to return. Default: 100
-    - json              (True/False) If True, returns results in json format instead of data frame. Default: False
-
-    -> Returns a data frame with the requested results.
+    NOTE: Licence fees apply for the commercial use of COSMIC (https://www.cosmickb.org/licensing).
 
     Args for downloading COSMIC databases:
+    NOTE: Downloading COSMIC databases requires an account (https://cancer.sanger.ac.uk/cosmic/register).
     - download_cosmic   (True/False) whether to switch into database download mode. Default: False
-    - mutation_class    (str) Type of COSMIC database to download. One of the following:
-                        'cancer' (default), 'cell_line', 'census', 'resistance', 'genome_screen', 'targeted_screen', 'cancer_example'
+    - mutation_class    (str) Type of COSMIC database. Default: 'cancer'. One of the following:
+
+                        | mutation_class     | Description                                                                 | Notes                                                                              | Size   |
+                        |--------------------|-----------------------------------------------------------------------------|------------------------------------------------------------------------------------|--------|
+                        | cancer             | Cancer Mutation Census (CMC) (most commonly used COSMIC mutation set)       | Only available for GRCh37. Most feature-rich schema (takes the longest to search). | 2 GB   |
+                        | cancer_example     | Example CMC subset provided for testing and demonstration                   | Downloadable without a COSMIC account. Minimal dataset.                            | 2.5 MB |
+                        | census             | COSMIC census of curated somatic mutations in known cancer genes            | Smaller curated set of known cancer drivers.                                       | 630 MB |
+                        | resistance         | Mutations associated with drug resistance                                   | Helpful for pharmacogenomics research.                                             | 1.6 MB |
+                        | cell_line          | Cell Lines Project mutation data                                            | Sample metadata often available.                                                   |  |
+                        | genome_screen      | Mutations from genome screening efforts                                     | Includes less curated data, good for large-scale screens.                          |  |
+                        | targeted_screen    | Mutations from targeted screening panels                                    | Focused panel datasets, good for clinical settings.                                |  |
+
     - cosmic_version    (int) Version of the COSMIC database. Default: None -> Defaults to latest version.
     - grch_version      (int) Version of the human GRCh reference genome the COSMIC database was based on (37 or 38). Default: 37
-    - gget_mutate       (True/False) Whether to create a modified version of the database for use with gget mutate. Default: True
-    - keep_genome_info  (True/False) Whether to keep genome information (e.g. location of mutation in the genome) in the modified database for use with gget mutate. Default: False
-    - remove_duplicates (True/False) Whether to remove duplicate rows from the modified database for use with gget mutate. Default: False
-    - seq_id_column     (str) Name of the seq_id column in the csv file created by gget_mutate. Default: "seq_ID"
-    - mutation_column   (str) Name of the mutation column in the csv file created by gget_mutate. Default: "mutation"
-    - mut_id_column     (str) Name of the mutation_id column in the csv file created by gget_mutate. Default: "mutation_id"
     - email             (str) Email for COSMIC login. Helpful for avoiding required input upon running gget cosmic. Default: None
     - password          (str) Password for COSMIC login. Helpful for avoiding required input upon running gget cosmic, but password will be stored in plain text in the script. Default: None
+    - gget_mutate       (True/False) Whether to create a modified version of the database adjusted for use as input to 'gget mutate'. Default: False
+        - keep_genome_info  (True/False) Whether to keep genome information (e.g. location of mutation in the genome) in the modified database for use with 'gget mutate'. Default: False
+        - remove_duplicates (True/False) Whether to remove duplicate rows from the modified database for use with 'gget mutate'. Default: False
+        - seq_id_column     (str) Name of the seq_id column in the csv file created by 'gget_mutate'. Default: "seq_ID"
+        - mutation_column   (str) Name of the mutation column in the csv file created by 'gget_mutate'. Default: "mutation"
+        - mut_id_column     (str) Name of the mutation_id column in the csv file created by gget_mutate. Default: "mutation_id"
 
     -> Saves the requested database into the specified folder (or current working directory if out=None).
 
+    Args for querying information about specific cancers/genes/etc:
+    - searchterm        (str) Search term, which can be a mutation, gene name (or Ensembl ID), sample, etc.
+                        Examples: EGFR, ENST00000275493, c.650A>T, p.Q217L, COSV51765119, BT2012100223LNCTB (sample ID)
+                        NOTE: Set to None when downloading COSMIC databases with download_cosmic=True.
+    - cosmic_tsv_path (str) Path to the COSMIC mutation tsv file, e.g. 'path/to/CancerMutationCensus_AllData_v101_GRCh37.tsv'.
+                        This file is downloaded when downloading COSMIC databases using the arguments described above. 
+                        NOTE: This is a required argument when download_cosmic=False.
+    - limit             (int) Number of hits to return. Default: 100
+    - json              (True/False) If True, returns results in json format instead of data frame. Default: False
+
+    -> Returns a data frame (or json dictionary) with the requested results.
+
     General args:
     - out             (str) Path to the file (or folder when downloading databases with the download_cosmic flag) the results will be saved in, e.g. 'path/to/results.json'.
-                      Default:
+                      Defaults:
                       - When download_cosmic=False: Results will be returned to standard out
                       - When download_cosmic=True: Database will be downloaded into current working directory
     - verbose         (True/False) whether to print progress information. Default: True
     """
 
     if verbose:
-        logger.info("NOTE: Licence fees apply for the commercial use of COSMIC.")
+        logger.info("NOTE: Licence fees apply for the commercial use of COSMIC (https://www.cosmickb.org/licensing).")
 
     ## Database download
     if download_cosmic:
         if not mutation_class:
             mutation_class = "cancer"
             if verbose:
-                logger.info(f"No mutation_class provided. Defaulting to '{mutation_class}'.")
+                logger.info(f"No mutation_class provided. Defaulting to mutation_class '{mutation_class}'.")
 
         mut_class_allowed = [
             "cancer",
@@ -690,22 +661,22 @@ def cosmic(
                 )
 
     else:
-        # Check if 'entity' argument is valid
-        sps = [
-            "mutations",
-            "genes",
-            # "pubmed",
-            # "studies",
-            # "samples",
-            # "cancer",
-            # "tumour_site",
-        ]
-        if entity not in sps:
-            raise ValueError(
-                f"'entity' argument specified as {entity}. Expected one of: {', '.join(sps)}"
-            )
-        
         # Old code from when COSMIC was acccessible without an account:
+        # # Check if 'entity' argument is valid
+        # sps = [
+        #     "mutations",
+        #     "genes",
+        #     "pubmed",
+        #     "studies",
+        #     "samples",
+        #     "cancer",
+        #     "tumour_site",
+        # ]
+        # if entity not in sps:
+        #     raise ValueError(
+        #         f"'entity' argument specified as {entity}. Expected one of: {', '.join(sps)}"
+        #     )
+        
         # # Translate categories to match COSMIC data table IDs
         # if entity == "cancer":
         #     entity = "disease"
@@ -876,46 +847,32 @@ def cosmic(
         #             if limit < counter:
         #                 break
         
-        # Check mutation class
-        entity_to_mutation_class = {
-            "mutations": ["cancer", "cancer_example", "census", "resistance", "cell_line", "genome_screen", "targeted_screen"],
-            "genes": ["cancer", "cancer_example", "census", "resistance", "cell_line"],
-            # "samples": ["cell_line"],
-            # "cancer": [],
-            # "tumour_site": [],
-            # "pubmed": [],
-            # "studies": [],
-        }
-
-        compatible_classes = entity_to_mutation_class.get(entity, [])
-        if mutation_class:
-            if mutation_class not in compatible_classes:
-                raise ValueError(
-                    f"The provided mutation_class '{mutation_class}' is not compatible with entity '{entity}'. "
-                    f"Allowed mutation classes for '{entity}': {', '.join(compatible_classes)}"
-                )
-        else:
-            compatible_classes = entity_to_mutation_class.get(entity, [])
-            if not compatible_classes:
-                raise ValueError(f"Entity '{entity}' does not support local querying.")
-            mutation_class = compatible_classes[0]  # pick first as default (e.g. 'cancer')
-            if verbose:
-                logger.info(f"No mutation_class provided. Defaulting to '{mutation_class}' for entity '{entity}'.")
-
-        # Check if mutation_tsv_path exists
-        if not mutation_tsv_path or not os.path.exists(mutation_tsv_path):
+        # Check if cosmic_tsv_path exists
+        if not cosmic_tsv_path or not os.path.exists(cosmic_tsv_path):
             example_call_python = f"gget.cosmic(download_cosmic=True, searchterm=None, mutation_class='{mutation_class}', grch_version={grch_version}, cosmic_version={cosmic_version or get_latest_cosmic()})"
             example_call_bash = f"gget cosmic --download_cosmic --mutation_class {mutation_class} --grch_version {grch_version} --cosmic_version {cosmic_version or get_latest_cosmic()}"
 
             raise FileNotFoundError(
-                f"The provided mutation_tsv_path does not exist: '{mutation_tsv_path}'.\n"
-                f"Please run the following command first to download the appropriate COSMIC reference data (requires ~3 GB of disk space):\n"
+                f"The provided cosmic_tsv_path does not exist: '{cosmic_tsv_path}'.\n"
+                f"Please run the following command first to download the appropriate COSMIC database:\n"
                 f"Python: {example_call_python}\n"
                 f"Command line: {example_call_bash}\n"
             )
 
-        dicts = query_local_cosmic(mutation_tsv_path, searchterm, entity, mutation_class, limit)
+        if not mutation_class:
+            if "CancerMutationCensus_AllData" in cosmic_tsv_path:
+                mutation_class = "cancer"
+                if verbose:
+                    logger.info(f"No mutation_class provided. Defaulting to mutation_class '{mutation_class}'.")
+            else:
+                mutation_class = "other"
+                if verbose:
+                    logger.info(f"No mutation_class provided. Defaulting to mutation_class '{mutation_class}' (incapsulates all mutation classes except 'cancer' and 'cancer_example').")
 
+        # Query local COSMIC database
+        dicts = query_local_cosmic(cosmic_tsv_path, mutation_class, searchterm, limit)
+
+        # Return results
         corr_df = pd.DataFrame(dicts)
 
         if json:
@@ -926,7 +883,7 @@ def cosmic(
                 if directory != "":
                     os.makedirs(directory, exist_ok=True)
 
-                json_out = os.path.join(out, f"gget_cosmic_{entity}_{searchterm}.json")
+                json_out = os.path.join(out, f"gget_cosmic_{mutation_class}_{searchterm}.json")
                 with open(json_out, "w", encoding="utf-8") as f:
                     json_package.dump(results_dict, f, ensure_ascii=False, indent=4)
 
@@ -940,7 +897,7 @@ def cosmic(
                 if directory != "":
                     os.makedirs(directory, exist_ok=True)
 
-                df_out = os.path.join(out, f"gget_cosmic_{entity}_{searchterm}.csv")
+                df_out = os.path.join(out, f"gget_cosmic_{mutation_class}_{searchterm}.csv")
                 corr_df.to_csv(df_out, index=False)
 
             else:
