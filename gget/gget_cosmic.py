@@ -343,7 +343,7 @@ def cosmic(
     NOTE: Downloading COSMIC databases requires an account (https://cancer.sanger.ac.uk/cosmic/register).
     - download_cosmic   (True/False) whether to switch into database download mode. Default: False
     - mutation_class    (str) Type of COSMIC database. Default: 'cancer'. One of the following:
-    
+
                         | mutation_class  | Description                                                           | Notes                                                                              | Size   |
                         |-----------------|-----------------------------------------------------------------------|------------------------------------------------------------------------------------|--------|
                         | cancer          | Cancer Mutation Census (CMC) (most commonly used COSMIC mutation set) | Only available for GRCh37. Most feature-rich schema (takes the longest to search). | 2 GB   |
@@ -395,7 +395,7 @@ def cosmic(
         if not mutation_class:
             mutation_class = "cancer"
             if verbose:
-                logger.info(f"No mutation_class provided. Defaulting to mutation_class '{mutation_class}'.")
+                logger.info(f"No mutation_class provided. Defaulting to mutation_class '{mutation_class}' (also works for 'cancer_example').")
 
         mut_class_allowed = [
             "cancer",
