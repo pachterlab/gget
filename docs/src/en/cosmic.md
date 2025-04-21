@@ -93,7 +93,7 @@ Python: Use `verbose=False` to prevent progress information from being displayed
 
   
 ### Examples
-### Download the COSMIC "cancer" database and query information
+#### Download the COSMIC "cancer" database and query information
 ```bash
 # The download_cosmic command will ask for your COSMIC email and password and only needs to be run once
 gget cosmic --download_cosmic --cosmic_project cancer
@@ -116,7 +116,7 @@ gget.cosmic("EGFR", cosmic_tsv_path="CancerMutationCensus_AllData_Tsv_v101_GRCh3
 | EGFR | ENST00000275493.2 | oncogene | c.966C>T | p.G322= | ... |
 | ... | ... | ... | ... | ... | ... |
 
-### Download the COSMIC "census" database and query information
+#### Download the COSMIC "census" database and query information
 ```bash
 # The download_cosmic command will ask for your COSMIC email and password and only needs to be run once
 gget cosmic --download_cosmic --cosmic_project census
