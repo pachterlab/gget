@@ -63,7 +63,7 @@ class TestCosmicWorkflow(TestCaseBase, metaclass=from_json(cosmic_dict, cosmic, 
             cosmic(
                 searchterm=None,
                 download_cosmic=True,
-                mutation_class=mut_class,
+                cosmic_project=mut_class,
                 cosmic_version=version,
                 grch_version=grch_version,
                 gget_mutate=True,

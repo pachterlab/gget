@@ -8,6 +8,7 @@
   - Se añadieron nuevos argumentos `email` y `password` para permitir que el usuario introduzca manualmente sus credenciales sin necesidad de input adicional para la descarga de datos
   - Cambio por defecto: `gget_mutate=False`
   - Argumento en desuso: `entity`
+  - Argumento `mutation_class` ahora es `cosmic_project`
 - [`gget bgee`](bgee.md):  
   - `type="orthologs"` ahora es el valor por defecto, eliminando la necesidad de especificar el argumento `type` al consultar ortólogos
   - Se permite la consulta de múltiples genes a la vez.

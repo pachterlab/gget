@@ -37,11 +37,11 @@ Switches into database download mode.
 Creates a modified version of the COSMIC database for use with [`gget mutate`](mutate.md).  
 
 **Optional arguments (for downloading COSMIC databases)**  
-`-mc` `--mutation_class`  
+`-cp` `--cosmic_project`  
 'cancer' (default), 'cancer_example', 'census', 'resistance', 'cell_line', 'genome_screen', or 'targeted_screen'  
 Type of COSMIC database to download:   
   
-| mutation_class  | Description                                                           | Notes                                                                              | Size   |
+| cosmic_project  | Description                                                           | Notes                                                                              | Size   |
 |-----------------|-----------------------------------------------------------------------|------------------------------------------------------------------------------------|--------|
 | cancer          | Cancer Mutation Census (CMC) (most commonly used COSMIC mutation set) | Only available for GRCh37. Most feature-rich schema (takes the longest to search). | 2 GB   |
 | cancer_example  | Example CMC subset provided for testing and demonstration             | Downloadable without a COSMIC account. Minimal dataset.                            | 2.5 MB |
@@ -95,14 +95,14 @@ Python: Use `verbose=False` to prevent progress information from being displayed
 ### Download the COSMIC "cancer" database and query information
 ```bash
 # The download_cosmic command will ask for your COSMIC email and password and only needs to be run once
-gget cosmic --download_cosmic --mutation_class cancer
+gget cosmic --download_cosmic --cosmic_project cancer
 
 gget cosmic EGFR --cosmic_tsv_path 'CancerMutationCensus_AllData_Tsv_v101_GRCh37/CancerMutationCensus_AllData_v101_GRCh37.tsv'
 ```
 ```python
 # Python
 # The download_cosmic command will ask for your COSMIC email and password and only needs to be run once
-gget.cosmic(searchterm=None, download_cosmic=True, mutation_class="cancer")
+gget.cosmic(searchterm=None, download_cosmic=True, cosmic_project="cancer")
 
 gget.cosmic("EGFR", cosmic_tsv_path="CancerMutationCensus_AllData_Tsv_v101_GRCh37/CancerMutationCensus_AllData_v101_GRCh37.tsv")
 ```
@@ -118,14 +118,14 @@ gget.cosmic("EGFR", cosmic_tsv_path="CancerMutationCensus_AllData_Tsv_v101_GRCh3
 ### Download the COSMIC "census" database and query information
 ```bash
 # The download_cosmic command will ask for your COSMIC email and password and only needs to be run once
-gget cosmic --download_cosmic --mutation_class census
+gget cosmic --download_cosmic --cosmic_project census
 
 gget cosmic EGFR --cosmic_tsv_path 'Cosmic_MutantCensus_Tsv_v101_GRCh37/Cosmic_MutantCensus_v101_GRCh37.tsv'
 ```
 ```python
 # Python
 # The download_cosmic command will ask for your COSMIC email and password and only needs to be run once
-gget.cosmic(searchterm=None, download_cosmic=True, mutation_class="cancer")
+gget.cosmic(searchterm=None, download_cosmic=True, cosmic_project="cancer")
 
 gget.cosmic("EGFR", cosmic_tsv_path="Cosmic_MutantCensus_Tsv_v101_GRCh37/Cosmic_MutantCensus_v101_GRCh37.tsv")
 ```

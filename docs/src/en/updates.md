@@ -8,6 +8,7 @@
   - New arguments `email` and `password` were added to allow the user to manually enter their login credentials without required input for data download
   - Default changed: `gget_mutate=False`
   - Deprecated argument: `entity`
+  - Argument `mutation_class` is now `cosmic_project`
 - [`gget bgee`](bgee.md):  
   - `type="orthologs"` is now the default, removing the need to specify the `type` argument when calling orthologs
   - Allow querying multiple genes at once.

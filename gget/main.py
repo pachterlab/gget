@@ -1808,8 +1808,8 @@ def main():
         help="Switch into database download mode.",
     )
     parser_cosmic.add_argument(
-        "-mc",
-        "--mutation_class",
+        "-cp",
+        "--cosmic_project",
         choices=[
             "cancer",
             "cancer_example",
@@ -1824,7 +1824,7 @@ def main():
         required=False,
         help=(
             "Type of COSMIC database (only for use with --download_cosmic). Default: 'cancer'. One of the following:\n"
-            "| mutation_class  | Description                                                           | Notes                                                                              | Size   |\n"
+            "| cosmic_project  | Description                                                           | Notes                                                                              | Size   |\n"
             "|-----------------|-----------------------------------------------------------------------|------------------------------------------------------------------------------------|--------|\n"
             "| cancer          | Cancer Mutation Census (CMC) (most commonly used COSMIC mutation set) | Only available for GRCh37. Most feature-rich schema (takes the longest to search). | 2 GB   |\n"
             "| cancer_example  | Example CMC subset provided for testing and demonstration             | Downloadable without a COSMIC account. Minimal dataset.                            | 2.5 MB |\n"
@@ -2585,7 +2585,7 @@ def main():
             limit=args.limit,
             json=args.csv,
             download_cosmic=args.download_cosmic,
-            mutation_class=args.mutation_class,
+            cosmic_project=args.cosmic_project,
             cosmic_version=args.cosmic_version,
             grch_version=args.grch_version,
             email=args.email,
