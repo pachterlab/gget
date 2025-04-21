@@ -83,14 +83,14 @@ def download_reference(download_link, tar_folder_path, file_path, verbose, email
 
 
 def select_reference(
-    mutation_class, reference_dir, grch_version, cosmic_version, verbose, email = None, password = None
+    cosmic_project, reference_dir, grch_version, cosmic_version, verbose, email = None, password = None
 ):
-    # if mutation_class == "transcriptome":
+    # if cosmic_project == "transcriptome":
     #     download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{grch_version}/cosmic/v{cosmic_version}/Cosmic_Genes_Fasta_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
     #     tarred_folder = f"Cosmic_Genes_Fasta_v{cosmic_version}_GRCh{grch_version}"
     #     contained_file = f"Cosmic_Genes_v{cosmic_version}_GRCh{grch_version}.fasta"
 
-    if mutation_class == "cancer":
+    if cosmic_project == "cancer":
         if grch_version == 38:
             logger.error(
                 "CancerMutationCensus data is only available for GRCh37. Define grch_version=37."
@@ -108,17 +108,17 @@ def select_reference(
         elif str(cosmic_version) == "101":  # special treatment due to link difference - path=grch37 instead of path=GRCh37
             download_link = download_link.replace(f"path=GRCh{grch_version}", f"path=grch{grch_version}")
 
-    elif mutation_class == "cell_line":
+    elif cosmic_project == "cell_line":
         download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{grch_version}/cell_lines/v{cosmic_version}/CellLinesProject_GenomeScreensMutant_Tsv_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
         tarred_folder = f"CellLinesProject_GenomeScreensMutant_Tsv_v{cosmic_version}_GRCh{grch_version}"
         contained_file = f"CellLinesProject_GenomeScreensMutant_v{cosmic_version}_GRCh{grch_version}.tsv"
 
-    elif mutation_class == "census":
+    elif cosmic_project == "census":
         download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{grch_version}/cosmic/v{cosmic_version}/Cosmic_MutantCensus_Tsv_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
         tarred_folder = f"Cosmic_MutantCensus_Tsv_v{cosmic_version}_GRCh{grch_version}"
         contained_file = f"Cosmic_MutantCensus_v{cosmic_version}_GRCh{grch_version}.tsv"
 
-    elif mutation_class == "resistance":
+    elif cosmic_project == "resistance":
         download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{grch_version}/cosmic/v{cosmic_version}/Cosmic_ResistanceMutations_Tsv_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
         tarred_folder = (
             f"Cosmic_ResistanceMutations_Tsv_v{cosmic_version}_GRCh{grch_version}"
@@ -127,7 +127,7 @@ def select_reference(
             f"Cosmic_ResistanceMutations_v{cosmic_version}_GRCh{grch_version}.tsv"
         )
 
-    elif mutation_class == "genome_screen":
+    elif cosmic_project == "genome_screen":
         download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{grch_version}/cosmic/v{cosmic_version}/Cosmic_GenomeScreensMutant_Tsv_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
         tarred_folder = (
             f"Cosmic_GenomeScreensMutant_Tsv_v{cosmic_version}_GRCh{grch_version}"
@@ -136,13 +136,13 @@ def select_reference(
             f"Cosmic_GenomeScreensMutant_v{cosmic_version}_GRCh{grch_version}.tsv"
         )
 
-    elif mutation_class == "targeted_screen":
+    elif cosmic_project == "targeted_screen":
         download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{grch_version}/cosmic/v{cosmic_version}/Cosmic_CompleteTargetedScreensMutant_Tsv_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
         tarred_folder = f"Cosmic_CompleteTargetedScreensMutant_Tsv_v{cosmic_version}_GRCh{grch_version}"
         contained_file = f"Cosmic_CompleteTargetedScreensMutant_v{cosmic_version}_GRCh{grch_version}.tsv"
 
     # Only available for the latest COSMIC version
-    elif mutation_class == "cancer_example":
+    elif cosmic_project == "cancer_example":
         download_link = f"https://cog.sanger.ac.uk/cosmic-downloads-production/taster/example_grch{grch_version}.tar"
         tarred_folder = f"example_GRCh{grch_version}"
         contained_file = f"CancerMutationCensus_AllData_v{get_latest_cosmic()}_GRCh{grch_version}.tsv"
@@ -169,7 +169,7 @@ def select_reference(
 
     if overwrite:
         # Only the example database can be downloaded directly (without an account)
-        if mutation_class == "cancer_example":
+        if cosmic_project == "cancer_example":
             curl_command = [
                 "curl",
                 "-L",
@@ -206,99 +206,209 @@ def select_reference(
     return file_path, overwrite
 
 
+def make_exact_match_mask(df, searchterm_lower, cols_to_check):
+    """
+    Build a boolean mask for rows where any of the specified columns match the search term exactly.
+    Handles special case for ACCESSION_NUMBER to match both with and without version.
+    Allows for columns in cols_to_check to be missing from the DataFrame.
+    """
+    temp_cols = []
+    conditions = []
+
+    for col in cols_to_check:
+        if col not in df.columns:
+            continue
+
+        if col in ("ACCESSION_NUMBER", "TRANSCRIPT_ACCESSION"):
+            # Lowercased full Ensembl accession
+            acc_col = "__accession_number"
+            df[acc_col] = df[col].astype(str).str.lower()
+            conditions.append(df[acc_col] == searchterm_lower)
+            temp_cols.append(acc_col)
+
+            # Lowercased Ensembl accession without version number
+            acc_nov_col = "__accession_number_no_version"
+            df[acc_nov_col] = df[col].astype(str).str.split(".").str[0].str.lower()
+            conditions.append(df[acc_nov_col] == searchterm_lower)
+            temp_cols.append(acc_nov_col)
+
+        else:
+            temp_col = f"__{col.replace(' ', '_').lower()}"
+            df[temp_col] = df[col].astype(str).str.lower()
+            conditions.append(df[temp_col] == searchterm_lower)
+            temp_cols.append(temp_col)
+
+    if not conditions:
+        missing = ", ".join(cols_to_check)
+        raise ValueError(f"None of the specified columns were found in the DataFrame: {missing}")
+
+    mask = conditions[0]
+    for cond in conditions[1:]:
+        mask |= cond
+
+    return mask
+
+
+def query_local_cosmic(cosmic_tsv_path, cosmic_project, searchterm, limit):
+    """
+    Search the local COSMIC mutation census file for matching entries.
+    """
+    df = pd.read_csv(cosmic_tsv_path, sep="\t", low_memory=False)
+    searchterm_lower = searchterm.lower()
+    results = []
+
+    def match_and_limit(mask, extract_fn):
+        for _, row in df[mask].head(limit).iterrows():
+            results.append(extract_fn(row))
+    
+    if cosmic_project in ["cancer", "cancer_example"]:
+
+        # Columns to check for search term
+        cols_to_check = [
+            "GENE_NAME", 
+            "ACCESSION_NUMBER", 
+            "LEGACY_MUTATION_ID", 
+            "Mutation CDS", 
+            "Mutation AA",
+            "GENOMIC_MUTATION_ID"
+            ]
+        mask = make_exact_match_mask(df, searchterm_lower, cols_to_check)
+
+        match_and_limit(mask, lambda row: {
+            col.replace(" ", "_"): row[col]
+            for col in row.index
+            if not col.startswith("__")
+        })
+
+    elif cosmic_project in ["census", "resistance", "cell_line", "genome_screen", "targeted_screen", "other"]:
+        # Columns to check for search term
+        cols_to_check = [
+            "GENE_SYMBOL",
+            "TRANSCRIPT_ACCESSION",
+            "COSMIC_GENE_ID",
+            "COSMIC_SAMPLE_ID",
+            "COSMIC_PHENOTYPE_ID",
+            "GENOMIC_MUTATION_ID",
+            "LEGACY_MUTATION_ID",
+            "SAMPLE_NAME",
+            "MUTATION_CDS", 
+            "MUTATION_AA", 
+            "MUTATION_ID",
+            "COSMIC_STUDY_ID"
+            ]
+        mask = make_exact_match_mask(df, searchterm_lower, cols_to_check)
+
+        match_and_limit(mask, lambda row: {
+            col.replace(" ", "_"): row[col]
+            for col in row.index
+            if not col.startswith("__")
+        })
+
+    else:
+        raise ValueError(f"Unsupported cosmic_project: {cosmic_project}")
+    
+    if len(results) == 0:
+        raise ValueError(f"No results were found for searchterm '{searchterm}' and cosmic_project '{cosmic_project}' in COSMIC database file (cosmic_tsv_path) '{cosmic_tsv_path}'.")
+
+    return results
+
+
 def cosmic(
     searchterm,
-    entity="mutations",
+    cosmic_tsv_path=None,
     limit=100,
     json=False,
     download_cosmic=False,
-    mutation_class="cancer",
+    cosmic_project=None,
     cosmic_version=None,
     grch_version=37,
-    gget_mutate=True,
+    email=None,
+    password=None,
+    gget_mutate=False,
     keep_genome_info=False,
     remove_duplicates=False,
     seq_id_column="seq_ID",
     mutation_column="mutation",
     mut_id_column="mutation_id",
-    email=None,
-    password=None,
     out=None,
-    verbose=True,
+    verbose=True
 ):
     """
     Search for genes, mutations, etc associated with cancers using the COSMIC
     (Catalogue Of Somatic Mutations In Cancer) database
     (https://cancer.sanger.ac.uk/cosmic).
-    NOTE: Licence fees apply for the commercial use of COSMIC.
-
-    Args for querying information about specific cancers/genes/etc:
-    - searchterm      (str) Search term, which can be a mutation, gene name (or Ensembl ID), sample, etc.
-                      Examples for the searchterm and entitity arguments:
-
-                      | searchterm   | entitity    |
-                      |--------------|-------------|
-                      | EGFR         | mutations   | -> Find mutations in the EGFR gene that are associated with cancer
-                      | v600e        | mutations   | -> Find genes for which a v600e mutation is associated with cancer
-                      | COSV57014428 | mutations   | -> Find mutations associated with this COSMIC mutations ID
-                      | EGFR         | genes       | -> Get the number of samples, coding/simple mutations, and fusions observed in COSMIC for EGFR
-                      | prostate     | cancer      | -> Get number of tested samples and mutations for prostate cancer
-                      | prostate     | tumour_site | -> Get number of tested samples, genes, mutations, fusions, etc. with 'prostate' as primary tissue site
-                      | ICGC         | studies     | -> Get project code and descriptions for all studies from the ICGC (International Cancer Genome Consortium)
-                      | EGFR         | pubmed      | -> Find PubMed publications on EGFR and cancer
-                      | ICGC         | samples     | -> Get metadata on all samples from the ICGC (International Cancer Genome Consortium)
-                      | COSS2907494  | samples     | -> Get metadata on this COSMIC sample ID (cancer type, tissue, # analyzed genes, # mutations, etc.)
-
-                      NOTE: Set to None when downloading COSMIC databases with download_cosmic=True.
-    - entity          (str) Defines the type of the results to return. One of the following:
-                      'mutations' (default), 'genes', 'cancer', 'tumour_site', 'studies', 'pubmed', or 'samples'.
-    - limit           (int) Number of hits to return. Default: 100
-    - json            (True/False) If True, returns results in json format instead of data frame. Default: False
-
-    Returns a data frame with the requested results.
+    NOTE: Licence fees apply for the commercial use of COSMIC (https://www.cosmickb.org/licensing).
 
     Args for downloading COSMIC databases:
-    NOTE: Downloading complete databases from COSMIC requires an account (https://cancer.sanger.ac.uk/cosmic/register; free for academic use, license for commercial use)
+    NOTE: Downloading COSMIC databases requires an account (https://cancer.sanger.ac.uk/cosmic/register).
     - download_cosmic   (True/False) whether to switch into database download mode. Default: False
-    - mutation_class    (str) Type of COSMIC database to download. One of the following:
-                        'cancer' (default), 'cell_line', 'census', 'resistance', 'genome_screen', 'targeted_screen', 'cancer_example'
+    - cosmic_project    (str) Type of COSMIC database. Default: 'cancer'. One of the following:
+
+                        | cosmic_project  | Description                                                           | Notes                                                                              | Size   |
+                        |-----------------|-----------------------------------------------------------------------|------------------------------------------------------------------------------------|--------|
+                        | cancer          | Cancer Mutation Census (CMC) (most commonly used COSMIC mutation set) | Only available for GRCh37. Most feature-rich schema (takes the longest to search). | 2 GB   |
+                        | cancer_example  | Example CMC subset provided for testing and demonstration             | Downloadable without a COSMIC account. Minimal dataset.                            | 2.5 MB |
+                        | census          | COSMIC census of curated somatic mutations in known cancer genes      | Smaller curated set of known cancer drivers.                                       | 630 MB |
+                        | resistance      | Mutations associated with drug resistance                             | Helpful for pharmacogenomics research.                                             | 1.6 MB |
+                        | cell_line       | Cell Lines Project mutation data                                      | Sample metadata often available.                                                   | 2.7 GB |
+                        | genome_screen   | Mutations from genome screening efforts                               | Includes less curated data, good for large-scale screens.                          |  |
+                        | targeted_screen | Mutations from targeted screening panels                              | Focused panel datasets, good for clinical settings.                                |  |
+
     - cosmic_version    (int) Version of the COSMIC database. Default: None -> Defaults to latest version.
     - grch_version      (int) Version of the human GRCh reference genome the COSMIC database was based on (37 or 38). Default: 37
-    - gget_mutate       (True/False) Whether to create a modified version of the database for use with gget mutate. Default: True
-    - keep_genome_info  (True/False) Whether to keep genome information (e.g. location of mutation in the genome) in the modified database for use with gget mutate. Default: False
-    - remove_duplicates (True/False) Whether to remove duplicate rows from the modified database for use with gget mutate. Default: False
-    - seq_id_column     (str) Name of the seq_id column in the csv file created by gget_mutate. Default: "seq_ID"
-    - mutation_column   (str) Name of the mutation column in the csv file created by gget_mutate. Default: "mutation"
-    - mut_id_column     (str) Name of the mutation_id column in the csv file created by gget_mutate. Default: "mutation_id"
-    - email             (str) Email for COSMIC login. Helpful for avoiding required input upon running gget COSMIC. Default: None
-    - password          (str) Password for COSMIC login. Helpful for avoiding required input upon running gget COSMIC, but password will be stored in plain text in the script. Default: None
+    - email             (str) Email for COSMIC login. Helpful for avoiding required input upon running gget cosmic. Default: None
+    - password          (str) Password for COSMIC login. Helpful for avoiding required input upon running gget cosmic, but password will be stored in plain text in the script. Default: None
+    - gget_mutate       (True/False) Whether to create a modified version of the database adjusted for use as input to 'gget mutate'. Default: False
+        - keep_genome_info  (True/False) Whether to keep genome information (e.g. location of mutation in the genome) in the modified database for use with 'gget mutate'. Default: False
+        - remove_duplicates (True/False) Whether to remove duplicate rows from the modified database for use with 'gget mutate'. Default: False
+        - seq_id_column     (str) Name of the seq_id column in the csv file created by 'gget_mutate'. Default: "seq_ID"
+        - mutation_column   (str) Name of the mutation column in the csv file created by 'gget_mutate'. Default: "mutation"
+        - mut_id_column     (str) Name of the mutation_id column in the csv file created by gget_mutate. Default: "mutation_id"
+
+    -> Saves the requested database into the specified folder (or current working directory if out=None).
+
+    Args for querying information about specific cancers/genes/etc:
+    - searchterm        (str) Search term, which can be a mutation, gene name (or Ensembl ID), sample, etc.
+                        Examples: EGFR, ENST00000275493, c.650A>T, p.Q217L, COSV51765119, BT2012100223LNCTB (sample ID)
+                        NOTE: Set to None when downloading COSMIC databases with download_cosmic=True.
+    - cosmic_tsv_path   (str) Path to the COSMIC mutation tsv file, e.g. 'path/to/CancerMutationCensus_AllData_v101_GRCh37.tsv'.
+                        This file is downloaded when downloading COSMIC databases using the arguments described above. 
+                        NOTE: This is a required argument when download_cosmic=False.
+    - limit             (int) Number of hits to return. Default: 100
+    - json              (True/False) If True, returns results in json format instead of data frame. Default: False
+
+    -> Returns a data frame (or json dictionary) with the requested results.
 
     General args:
     - out             (str) Path to the file (or folder when downloading databases with the download_cosmic flag) the results will be saved in, e.g. 'path/to/results.json'.
-                      Default: None
-                      -> When download_cosmic=False: Results will be returned to standard out
-                      -> When download_cosmic=True: Database will be downloaded into current working directory
+                      Defaults:
+                      - When download_cosmic=False: Results will be returned to standard out
+                      - When download_cosmic=True: Database will be downloaded into current working directory
     - verbose         (True/False) whether to print progress information. Default: True
-
-    Saves the requested database into the specified folder (or current working directory if out=None).
     """
 
     if verbose:
-        logger.info("NOTE: Licence fees apply for the commercial use of COSMIC.")
+        logger.info("NOTE: Licence fees apply for the commercial use of COSMIC (https://www.cosmickb.org/licensing).")
 
     ## Database download
     if download_cosmic:
+        if not cosmic_project:
+            cosmic_project = "cancer"
+            if verbose:
+                logger.info(f"No cosmic_project provided. Defaulting to cosmic_project '{cosmic_project}' (also works for 'cancer_example').")
+
         mut_class_allowed = [
             "cancer",
             "cell_line",
             "census",
             "resistance",
-            "genome_screen" "targeted_screen",
+            "genome_screen",
+            "targeted_screen",
             "cancer_example",
         ]
-        if mutation_class not in mut_class_allowed:
+        if cosmic_project not in mut_class_allowed:
             raise ValueError(
-                f"Parameter 'mutation_class' must be one of the following: {', '.join(mut_class_allowed)}.\n"
+                f"Parameter 'cosmic_project' must be one of the following: {', '.join(mut_class_allowed)}.\n"
             )
 
         grch_allowed = ['37', '38']
@@ -322,7 +432,7 @@ def cosmic(
 
         ## Download requested database
         mutation_tsv_file, overwrite = select_reference(
-            mutation_class, out, grch_version, cosmic_version, verbose, email = email, password = password
+            cosmic_project, out, grch_version, cosmic_version, verbose, email = email, password = password
         )
 
         if gget_mutate and overwrite:
@@ -332,7 +442,7 @@ def cosmic(
                     "Creating modified mutations file for use with gget mutate..."
                 )
 
-            if mutation_class == "cancer" or mutation_class == "cancer_example":
+            if cosmic_project == "cancer" or cosmic_project == "cancer_example":
                 relevant_cols = [
                     "GENE_NAME",
                     "ACCESSION_NUMBER",
@@ -364,7 +474,7 @@ def cosmic(
             df = pd.read_csv(mutation_tsv_file, usecols=relevant_cols, sep="\t")
 
             # Get seq_ID and mutation columns
-            if mutation_class == "cancer" or mutation_class == "cancer_example":
+            if cosmic_project == "cancer" or cosmic_project == "cancer_example":
                 df["MUTATION_URL"] = df["MUTATION_URL"].str.extract(r"id=(\d+)")
                 df = df.rename(
                     columns={
@@ -551,191 +661,218 @@ def cosmic(
                 )
 
     else:
-        # Check if 'entity' argument is valid
-        sps = [
-            "mutations",
-            "pubmed",
-            "genes",
-            "studies",
-            "samples",
-            "cancer",
-            "tumour_site",
-        ]
-        if entity not in sps:
-            raise ValueError(
-                f"'entity' argument specified as {entity}. Expected one of: {', '.join(sps)}"
+        # Old code from when COSMIC was acccessible without an account:
+        # # Check if 'entity' argument is valid
+        # sps = [
+        #     "mutations",
+        #     "genes",
+        #     "pubmed",
+        #     "studies",
+        #     "samples",
+        #     "cancer",
+        #     "tumour_site",
+        # ]
+        # if entity not in sps:
+        #     raise ValueError(
+        #         f"'entity' argument specified as {entity}. Expected one of: {', '.join(sps)}"
+        #     )
+        
+        # # Translate categories to match COSMIC data table IDs
+        # if entity == "cancer":
+        #     entity = "disease"
+
+        # if entity == "tumour_site":
+        #     entity = "tumour"
+
+        # r = requests.get(
+        #     url=COSMIC_GET_URL + entity + "?q=" + searchterm + "&export=json"
+        # )
+
+        # # Check if the request returned an error (e.g. gene not found)
+        # if not r.ok:
+        #     raise RuntimeError(
+        #         f"COSMIC API request returned error {r.status_code}. "
+        #         "Please double-check the arguments and try again.\n"
+        #     )
+
+        # if r.text == "\n":
+        #     logger.warning(
+        #         f"searchterm = '{searchterm}' did not return any results with entity = '{entity}'. "
+        #         "Please double-check the arguments and try again.\n"
+        #     )
+        #     return None
+
+        # data = r.text.split("\n")
+        # dicts = {}
+        # counter = 1
+        # if entity == "mutations":
+        #     dicts = {"Gene": [], "Syntax": [], "Alternate IDs": [], "Canonical": []}
+        #     for i in data:
+        #         if len(i) > 2:
+        #             parsing_mutations = i.split("\t")
+        #             dicts["Gene"].append(parsing_mutations[0])
+        #             dicts["Syntax"].append(parsing_mutations[1])
+        #             dicts["Alternate IDs"].append(
+        #                 parsing_mutations[2].replace('" ', "").replace('"', "")
+        #             )
+        #             dicts["Canonical"].append(parsing_mutations[3])
+        #             counter = counter + 1
+        #             if limit < counter:
+        #                 break
+
+        # elif entity == "pubmed":
+        #     dicts = {"Pubmed": [], "Paper title": [], "Author": []}
+        #     for i in data:
+        #         if len(i) > 2:
+        #             parsing_mutations = i.split("\t")
+        #             dicts["Pubmed"].append(parsing_mutations[0])
+        #             dicts["Paper title"].append(
+        #                 parsing_mutations[1]
+        #                 .replace('" ', "")
+        #                 .replace('"', "")
+        #                 .capitalize()
+        #             )
+        #             dicts["Author"].append(
+        #                 parsing_mutations[2].replace('" ', "").replace('"', "")
+        #             )
+        #             counter = counter + 1
+        #             if limit < counter:
+        #                 break
+
+        # elif entity == "genes":
+        #     dicts = {
+        #         "Gene": [],
+        #         "Alternate IDs": [],
+        #         "Tested samples": [],
+        #         "Simple Mutations": [],
+        #         "Fusions": [],
+        #         "Coding Mutations": [],
+        #     }
+        #     for i in data:
+        #         if len(i) > 2:
+        #             parsing_mutations = i.split("\t")
+        #             dicts["Gene"].append(parsing_mutations[0])
+        #             dicts["Alternate IDs"].append(
+        #                 parsing_mutations[1].replace('" ', "").replace('"', "")
+        #             )
+        #             dicts["Tested samples"].append(parsing_mutations[2])
+        #             dicts["Simple Mutations"].append(parsing_mutations[3])
+        #             dicts["Fusions"].append(parsing_mutations[4])
+        #             dicts["Coding Mutations"].append(parsing_mutations[5])
+        #             counter = counter + 1
+        #             if limit < counter:
+        #                 break
+
+        # elif entity == "samples":
+        #     dicts = {
+        #         "Sample Name": [],
+        #         "Sites & Histologies": [],
+        #         "Analysed Genes": [],
+        #         "Mutations": [],
+        #         "Fusions": [],
+        #         "Structual variants": [],
+        #     }
+        #     for i in data:
+        #         if len(i) > 2:
+        #             parsing_mutations = i.split("\t")
+        #             dicts["Sample Name"].append(parsing_mutations[0])
+        #             dicts["Sites & Histologies"].append(
+        #                 parsing_mutations[1].replace(":", ", ")
+        #             )
+        #             dicts["Analysed Genes"].append(parsing_mutations[2])
+        #             dicts["Mutations"].append(parsing_mutations[3])
+        #             dicts["Fusions"].append(parsing_mutations[4])
+        #             dicts["Structual variants"].append(parsing_mutations[5])
+        #             counter = counter + 1
+        #             if limit < counter:
+        #                 break
+
+        # elif entity == "studies":
+        #     dicts = {
+        #         "Study Id": [],
+        #         "Project Code": [],
+        #         "Description": [],
+        #     }
+        #     for i in data:
+        #         if len(i) > 2:
+        #             parsing_mutations = i.split("\t")
+        #             dicts["Study Id"].append(parsing_mutations[0])
+        #             dicts["Project Code"].append(parsing_mutations[1])
+        #             dicts["Description"].append(parsing_mutations[2])
+        #             counter = counter + 1
+        #             if limit < counter:
+        #                 break
+
+        # elif entity == "disease":
+        #     dicts = {
+        #         "COSMIC classification": [],
+        #         "Paper description": [],
+        #         "Tested samples": [],
+        #         "Mutations": [],
+        #     }
+        #     for i in data:
+        #         if len(i) > 2:
+        #             parsing_mutations = i.split("\t")
+        #             dicts["COSMIC classification"].append(
+        #                 parsing_mutations[0].replace('" ', "").replace('"', "")
+        #             )
+        #             dicts["Paper description"].append(
+        #                 parsing_mutations[1].replace('" ', "").replace('"', "")
+        #             )
+        #             dicts["Tested samples"].append(parsing_mutations[2])
+        #             dicts["Mutations"].append(parsing_mutations[3])
+        #             counter = counter + 1
+        #             if limit < counter:
+        #                 break
+
+        # elif entity == "tumour":
+        #     dicts = {
+        #         "Primary Site": [],
+        #         "Tested sample": [],
+        #         "Analyzed genes": [],
+        #         "Mutations": [],
+        #         "Fusions": [],
+        #         "Structural variants": [],
+        #     }
+        #     for i in data:
+        #         if len(i) > 2:
+        #             parsing_mutations = i.split("\t")
+        #             dicts["Primary Site"].append(parsing_mutations[0])
+        #             dicts["Tested sample"].append(parsing_mutations[1])
+        #             dicts["Analyzed genes"].append(parsing_mutations[2])
+        #             dicts["Mutations"].append(parsing_mutations[3])
+        #             dicts["Fusions"].append(parsing_mutations[4])
+        #             dicts["Structural variants"].append(parsing_mutations[5])
+        #             counter = counter + 1
+        #             if limit < counter:
+        #                 break
+        
+        # Check if cosmic_tsv_path exists
+        if not cosmic_tsv_path or not os.path.exists(cosmic_tsv_path):
+            example_call_python = f"gget.cosmic(download_cosmic=True, searchterm=None, cosmic_project='{cosmic_project}', grch_version={grch_version}, cosmic_version={cosmic_version or get_latest_cosmic()})"
+            example_call_bash = f"gget cosmic --download_cosmic --cosmic_project {cosmic_project} --grch_version {grch_version} --cosmic_version {cosmic_version or get_latest_cosmic()}"
+
+            raise FileNotFoundError(
+                f"The provided cosmic_tsv_path does not exist: '{cosmic_tsv_path}'.\n"
+                f"Please run the following command first to download the appropriate COSMIC database:\n"
+                f"Python: {example_call_python}\n"
+                f"Command line: {example_call_bash}\n"
             )
 
-        # Translate categories to match COSMIC data table IDs
-        if entity == "cancer":
-            entity = "disease"
+        if not cosmic_project:
+            if "CancerMutationCensus_AllData" in cosmic_tsv_path:
+                cosmic_project = "cancer"
+                if verbose:
+                    logger.info(f"No cosmic_project provided. Defaulting to cosmic_project '{cosmic_project}'.")
+            else:
+                cosmic_project = "other"
+                if verbose:
+                    logger.info(f"No cosmic_project provided. Defaulting to cosmic_project '{cosmic_project}' (incapsulates all mutation classes except 'cancer' and 'cancer_example').")
 
-        if entity == "tumour_site":
-            entity = "tumour"
+        # Query local COSMIC database
+        dicts = query_local_cosmic(cosmic_tsv_path, cosmic_project, searchterm, limit)
 
-        r = requests.get(
-            url=COSMIC_GET_URL + entity + "?q=" + searchterm + "&export=json"
-        )
-
-        # Check if the request returned an error (e.g. gene not found)
-        if not r.ok:
-            raise RuntimeError(
-                f"COSMIC API request returned error {r.status_code}. "
-                "Please double-check the arguments and try again.\n"
-            )
-
-        if r.text == "\n":
-            logger.warning(
-                f"searchterm = '{searchterm}' did not return any results with entity = '{entity}'. "
-                "Please double-check the arguments and try again.\n"
-            )
-            return None
-
-        data = r.text.split("\n")
-        dicts = {}
-        counter = 1
-        if entity == "mutations":
-            dicts = {"Gene": [], "Syntax": [], "Alternate IDs": [], "Canonical": []}
-            for i in data:
-                if len(i) > 2:
-                    parsing_mutations = i.split("\t")
-                    dicts["Gene"].append(parsing_mutations[0])
-                    dicts["Syntax"].append(parsing_mutations[1])
-                    dicts["Alternate IDs"].append(
-                        parsing_mutations[2].replace('" ', "").replace('"', "")
-                    )
-                    dicts["Canonical"].append(parsing_mutations[3])
-                    counter = counter + 1
-                    if limit < counter:
-                        break
-
-        elif entity == "pubmed":
-            dicts = {"Pubmed": [], "Paper title": [], "Author": []}
-            for i in data:
-                if len(i) > 2:
-                    parsing_mutations = i.split("\t")
-                    dicts["Pubmed"].append(parsing_mutations[0])
-                    dicts["Paper title"].append(
-                        parsing_mutations[1]
-                        .replace('" ', "")
-                        .replace('"', "")
-                        .capitalize()
-                    )
-                    dicts["Author"].append(
-                        parsing_mutations[2].replace('" ', "").replace('"', "")
-                    )
-                    counter = counter + 1
-                    if limit < counter:
-                        break
-
-        elif entity == "genes":
-            dicts = {
-                "Gene": [],
-                "Alternate IDs": [],
-                "Tested samples": [],
-                "Simple Mutations": [],
-                "Fusions": [],
-                "Coding Mutations": [],
-            }
-            for i in data:
-                if len(i) > 2:
-                    parsing_mutations = i.split("\t")
-                    dicts["Gene"].append(parsing_mutations[0])
-                    dicts["Alternate IDs"].append(
-                        parsing_mutations[1].replace('" ', "").replace('"', "")
-                    )
-                    dicts["Tested samples"].append(parsing_mutations[2])
-                    dicts["Simple Mutations"].append(parsing_mutations[3])
-                    dicts["Fusions"].append(parsing_mutations[4])
-                    dicts["Coding Mutations"].append(parsing_mutations[5])
-                    counter = counter + 1
-                    if limit < counter:
-                        break
-
-        elif entity == "samples":
-            dicts = {
-                "Sample Name": [],
-                "Sites & Histologies": [],
-                "Analysed Genes": [],
-                "Mutations": [],
-                "Fusions": [],
-                "Structual variants": [],
-            }
-            for i in data:
-                if len(i) > 2:
-                    parsing_mutations = i.split("\t")
-                    dicts["Sample Name"].append(parsing_mutations[0])
-                    dicts["Sites & Histologies"].append(
-                        parsing_mutations[1].replace(":", ", ")
-                    )
-                    dicts["Analysed Genes"].append(parsing_mutations[2])
-                    dicts["Mutations"].append(parsing_mutations[3])
-                    dicts["Fusions"].append(parsing_mutations[4])
-                    dicts["Structual variants"].append(parsing_mutations[5])
-                    counter = counter + 1
-                    if limit < counter:
-                        break
-
-        elif entity == "studies":
-            dicts = {
-                "Study Id": [],
-                "Project Code": [],
-                "Description": [],
-            }
-            for i in data:
-                if len(i) > 2:
-                    parsing_mutations = i.split("\t")
-                    dicts["Study Id"].append(parsing_mutations[0])
-                    dicts["Project Code"].append(parsing_mutations[1])
-                    dicts["Description"].append(parsing_mutations[2])
-                    counter = counter + 1
-                    if limit < counter:
-                        break
-
-        elif entity == "disease":
-            dicts = {
-                "COSMIC classification": [],
-                "Paper description": [],
-                "Tested samples": [],
-                "Mutations": [],
-            }
-            for i in data:
-                if len(i) > 2:
-                    parsing_mutations = i.split("\t")
-                    dicts["COSMIC classification"].append(
-                        parsing_mutations[0].replace('" ', "").replace('"', "")
-                    )
-                    dicts["Paper description"].append(
-                        parsing_mutations[1].replace('" ', "").replace('"', "")
-                    )
-                    dicts["Tested samples"].append(parsing_mutations[2])
-                    dicts["Mutations"].append(parsing_mutations[3])
-                    counter = counter + 1
-                    if limit < counter:
-                        break
-
-        elif entity == "tumour":
-            dicts = {
-                "Primary Site": [],
-                "Tested sample": [],
-                "Analyzed genes": [],
-                "Mutations": [],
-                "Fusions": [],
-                "Structural variants": [],
-            }
-            for i in data:
-                if len(i) > 2:
-                    parsing_mutations = i.split("\t")
-                    dicts["Primary Site"].append(parsing_mutations[0])
-                    dicts["Tested sample"].append(parsing_mutations[1])
-                    dicts["Analyzed genes"].append(parsing_mutations[2])
-                    dicts["Mutations"].append(parsing_mutations[3])
-                    dicts["Fusions"].append(parsing_mutations[4])
-                    dicts["Structural variants"].append(parsing_mutations[5])
-                    counter = counter + 1
-                    if limit < counter:
-                        break
-
+        # Return results
         corr_df = pd.DataFrame(dicts)
 
         if json:
@@ -746,7 +883,7 @@ def cosmic(
                 if directory != "":
                     os.makedirs(directory, exist_ok=True)
 
-                json_out = os.path.join(out, f"gget_cosmic_{entity}_{searchterm}.json")
+                json_out = os.path.join(out, f"gget_cosmic_{cosmic_project}_{searchterm}.json")
                 with open(json_out, "w", encoding="utf-8") as f:
                     json_package.dump(results_dict, f, ensure_ascii=False, indent=4)
 
@@ -760,7 +897,7 @@ def cosmic(
                 if directory != "":
                     os.makedirs(directory, exist_ok=True)
 
-                df_out = os.path.join(out, f"gget_cosmic_{entity}_{searchterm}.csv")
+                df_out = os.path.join(out, f"gget_cosmic_{cosmic_project}_{searchterm}.csv")
                 corr_df.to_csv(df_out, index=False)
 
             else:

@@ -69,6 +69,8 @@ def opentargets(
         filter_mode=filter_mode,
     )
 
+    # df['score'].apply(lambda x: round(x, 10) if isinstance(x, float) else x)[0]
+
     if json:
         return json_.loads(df.to_json(orient="records", force_ascii=False))
     else:

@@ -1,4 +1,22 @@
 ## ✨ ¡Lo más reciente!  
+**Versión ≥ 0.29.1** (21 de abril de 2025):  
+- [`gget mutate`](mutate.md):  
+  - gget mutate se ha simplificado para enfocarse en recibir como entrada una lista de mutaciones y el genoma de referencia correspondiente con información de anotación asociada, y producir como salida las secuencias con la mutación incorporada y una región corta de contexto circundante. Para la funcionalidad completa de la versión anterior y cómo se integra en el contexto de un pipeline de análisis de variantes novedosas, visita el repositorio varseek que está siendo desarrollado por miembros del equipo de gget en https://github.com/pachterlab/varseek.git.
+  - Se añadió información adicional a los data frames retornados, como se describe aquí: https://github.com/pachterlab/gget/pull/169
+- [`gget cosmic`](cosmic.md):  
+  - Reestructuración importante del módulo `gget cosmic` para cumplir con los nuevos requisitos de inicio de sesión establecidos por COSMIC
+  - Se añadieron nuevos argumentos `email` y `password` para permitir que el usuario introduzca manualmente sus credenciales sin necesidad de input adicional para la descarga de datos
+  - Cambio por defecto: `gget_mutate=False`
+  - Argumento en desuso: `entity`
+  - Argumento `mutation_class` ahora es `cosmic_project`
+- [`gget bgee`](bgee.md):  
+  - `type="orthologs"` ahora es el valor por defecto, eliminando la necesidad de especificar el argumento `type` al consultar ortólogos
+  - Se permite la consulta de múltiples genes a la vez.
+- [`gget diamond`](diamond.md):  
+  - Ahora soporta alineamiento traducido de secuencias nucleotídicas contra secuencias de referencia de aminoácidos usando la opción `--translated`.
+- [`gget elm`](elm.md):   
+  - Mejorado el manejo de errores del servidor.
+
 **Versión ≥ 0.29.0** (25 de septiembre de 2024):  
 - **Nuevos módulos:**
     - [`gget cbio`](cbio.md)
