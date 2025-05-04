@@ -2,245 +2,135 @@
   "test_cosmic_defaults": {
     "type": "assert_equal",
     "args": {
-      "searchterm": "v600e"
-    },
-    "expected_result": [
-      [
-        "BRAF",
-        "c.1799T>A",
-        "BRAF c.1799T>A, BRAF p.V600E, BRAF 1799T>A, BRAF V600E, BRAF COSV56056643, BRAF COSM476",
-        "y"
-      ],
-      [
-        "BRAF",
-        "c.1799_1800del",
-        "BRAF c.1799_1800del, BRAF p.V600Efs*11, BRAF 1799_1800del, BRAF V600Efs*11, BRAF COSV56085831, BRAF COSM1168053",
-        "y"
-      ],
-      [
-        "BRAF",
-        "c.1799_1800delinsAA",
-        "BRAF c.1799_1800delinsAA, BRAF p.V600E, BRAF 1799_1800delinsAA, BRAF V600E, BRAF COSV56059110, BRAF COSM475",
-        "y"
-      ],
-      [
-        "BRAF",
-        "c.?",
-        "BRAF c.?, BRAF p.V600E, BRAF ?, BRAF V600E, BRAF COSV, BRAF COSM1131",
-        "y"
-      ],
-      [
-        "DUSP27",
-        "c.1799T>A",
-        "DUSP27 c.1799T>A, DUSP27 p.V600E, DUSP27 1799T>A, DUSP27 V600E, DUSP27 COSV54807118, DUSP27 COSM358260",
-        "y"
-      ],
-      [
-        "BAZ2A_ENST00000549884",
-        "c.1799T>A",
-        "BAZ2A_ENST00000549884 c.1799T>A, BAZ2A_ENST00000549884 p.V600E, BAZ2A_ENST00000549884 1799T>A, BAZ2A_ENST00000549884 V600E, BAZ2A_ENST00000549884 COSV51631953, BAZ2A_ENST00000549884 COSM6073024",
-        "n"
-      ],
-      [
-        "BRAF_ENST00000496384",
-        "c.1799T>A",
-        "BRAF_ENST00000496384 c.1799T>A, BRAF_ENST00000496384 p.V600E, BRAF_ENST00000496384 1799T>A, BRAF_ENST00000496384 V600E, BRAF_ENST00000496384 COSV56056643, BRAF_ENST00000496384 COSM476",
-        "n"
-      ],
-      [
-        "BRAF_ENST00000496384",
-        "c.1799_1800del",
-        "BRAF_ENST00000496384 c.1799_1800del, BRAF_ENST00000496384 p.V600Efs*11, BRAF_ENST00000496384 1799_1800del, BRAF_ENST00000496384 V600Efs*11, BRAF_ENST00000496384 COSV56085831, BRAF_ENST00000496384 COSM1168053",
-        "n"
-      ],
-      [
-        "BRAF_ENST00000496384",
-        "c.1799_1800delinsAA",
-        "BRAF_ENST00000496384 c.1799_1800delinsAA, BRAF_ENST00000496384 p.V600E, BRAF_ENST00000496384 1799_1800delinsAA, BRAF_ENST00000496384 V600E, BRAF_ENST00000496384 COSV56059110, BRAF_ENST00000496384 COSM475",
-        "n"
-      ],
-      [
-        "DUSP27_ENST00000271385",
-        "c.1799T>A",
-        "DUSP27_ENST00000271385 c.1799T>A, DUSP27_ENST00000271385 p.V600E, DUSP27_ENST00000271385 1799T>A, DUSP27_ENST00000271385 V600E, DUSP27_ENST00000271385 COSV54807118, DUSP27_ENST00000271385 COSM358260",
-        "n"
-      ],
-      [
-        "DUSP27_ENST00000443333",
-        "c.1799T>A",
-        "DUSP27_ENST00000443333 c.1799T>A, DUSP27_ENST00000443333 p.V600E, DUSP27_ENST00000443333 1799T>A, DUSP27_ENST00000443333 V600E, DUSP27_ENST00000443333 COSV54807118, DUSP27_ENST00000443333 COSM358260",
-        "n"
-      ],
-      [
-        "FMR1_ENST00000218200",
-        "c.1799T>A",
-        "FMR1_ENST00000218200 c.1799T>A, FMR1_ENST00000218200 p.V600E, FMR1_ENST00000218200 1799T>A, FMR1_ENST00000218200 V600E, FMR1_ENST00000218200 COSV54427979, FMR1_ENST00000218200 COSM756011",
-        "n"
-      ]
-    ]
-  },
-  "test_cosmic_limit_and_pubmet": {
-    "type": "assert_equal",
-    "args": {
-      "searchterm": "v600e",
-      "entity": "pubmed",
-      "limit": 2
-    },
-    "expected_result": [
-      [
-        "37546400",
-        "Advanced pulmonary sarcomatoid carcinoma patient harboring a braf lt sup gt v600e lt sup gt mutation responds to dabrafenib and trametinib a case report and literature review, an",
-        "Fang R,Gong J and Liao Z"
-      ],
-      [
-        "21882184",
-        "Association of the braf v600e mutation with prognostic factors and poor clinical outcome in papillary thyroid cancer a meta analysis, the",
-        "Kim TH,Park YJ,Lim JA,Ahn HY,Lee EK,Lee YJ,Kim KW,Hahn SK,Youn YK,Kim KH,Cho BY and Park do J"
-      ]
-    ]
-  },
-  "test_cosmic_json_and_genes": {
-    "type": "assert_equal",
-    "args": {
       "searchterm": "EGFR",
-      "entity": "genes",
-      "json": true
-    },
-    "expected_result": [
-      {
-        "Gene": "EGFR",
-        "Alternate IDs": "EGFR,ENST00000275493.6,EGFR,ENSP00000275493.2,Erlotinib,HKI-272,BIBW2992,Gefitinib,EGFR.html,NP_005219,NM_005228.3,ENSG00000146648.17,3236,131550,P00533,CCDS5514.1,1956,ERBB1,ERBB,COSG150",
-        "Tested samples": "215828",
-        "Simple Mutations": "32442",
-        "Fusions": "0",
-        "Coding Mutations": "32442"
-      },
-      {
-        "Gene": "EGFR_ENST00000454757",
-        "Alternate IDs": "EGFR_ENST00000454757,ENST00000454757.6,EGFR,ENSP00000395243.3,EGFR.html,NP_001333828.1,ENSG00000146648.17,3236,131550,1956,ERBB1,ERBB,COSG454757",
-        "Tested samples": "215828",
-        "Simple Mutations": "10498",
-        "Fusions": "0",
-        "Coding Mutations": "10498"
-      },
-      {
-        "Gene": "EGFR_ENST00000455089",
-        "Alternate IDs": "EGFR_ENST00000455089,ENST00000455089.5,EGFR,ENSP00000415559.1,EGFR.html,NP_001333826.1,NM_001346897.1,ENSG00000146648.17,3236,131550,1956,ERBB1,ERBB,COSG455089",
-        "Tested samples": "215828",
-        "Simple Mutations": "10240",
-        "Fusions": "0",
-        "Coding Mutations": "10240"
-      },
-      {
-        "Gene": "EGFR_ENST00000638463",
-        "Alternate IDs": "EGFR_ENST00000638463,ENST00000638463.1,EGFR,ENSP00000492462.1,EGFR.html,ENSG00000146648.17,3236,131550,1956,ERBB1,ERBB,COSG638463",
-        "Tested samples": "215827",
-        "Simple Mutations": "9649",
-        "Fusions": "0",
-        "Coding Mutations": "9649"
-      },
-      {
-        "Gene": "EGFR_ENST00000344576",
-        "Alternate IDs": "EGFR_ENST00000344576,ENST00000344576.6,EGFR,ENSP00000345973.2,EGFR.html,NP_958441,NM_201284.1,ENSG00000146648.17,3236,131550,P00533,CCDS5515.1,1956,ERBB1,ERBB,COSG90589",
-        "Tested samples": "215825",
-        "Simple Mutations": "2427",
-        "Fusions": "0",
-        "Coding Mutations": "2427"
-      },
-      {
-        "Gene": "EGFR_ENST00000342916",
-        "Alternate IDs": "EGFR_ENST00000342916,ENST00000342916.7,EGFR,ENSP00000342376.3,EGFR.html,NP_958439,NM_201282.1,ENSG00000146648.17,3236,131550,P00533,CCDS5516.1,1956,ERBB1,ERBB,COSG107618",
-        "Tested samples": "215825",
-        "Simple Mutations": "2288",
-        "Fusions": "0",
-        "Coding Mutations": "2288"
-      },
-      {
-        "Gene": "EGFR_ENST00000420316",
-        "Alternate IDs": "EGFR_ENST00000420316,ENST00000420316.6,EGFR,ENSP00000413843.2,EGFR.html,NP_958440,NM_201283.1,ENSG00000146648.17,3236,131550,P00533,CCDS47587.1,1956,ERBB1,ERBB,COSG420316",
-        "Tested samples": "215822",
-        "Simple Mutations": "1773",
-        "Fusions": "0",
-        "Coding Mutations": "1773"
-      },
-      {
-        "Gene": "RHBDF1",
-        "Alternate IDs": "RHBDF1,ENST00000262316.10,RHBDF1,ENSP00000262316.5,NP_071895,NM_022450.3,ENSG00000007384.15,20561,614403,Q96CC6,CCDS32344.1,64285,iRhom1,FLJ2235,EGFR-RS,Dist1,C16orf8,COSG67901",
-        "Tested samples": "49123",
-        "Simple Mutations": "589",
-        "Fusions": "0",
-        "Coding Mutations": "589"
-      }
-    ]
-  },
-  "test_cosmic_samples": {
-    "type": "assert_equal",
-    "args": {
-      "searchterm": "EGFR",
-      "entity": "samples"
+      "cosmic_tsv_path": "example_GRCh37/CancerMutationCensus_AllData_v101_GRCh37.tsv",
+      "limit": 5
     },
     "expected_result": [
       [
-        "P1_Pre-RAFi_EGFRi",
-        "Large intestine, carcinoma, adenocarcinoma",
-        "1224",
-        "1179",
-        "0",
-        "0"
-      ]
-    ]
-  },
-  "test_cosmic_studies": {
-    "type": "assert_equal",
-    "args": {
-      "searchterm": "THCA-SA",
-      "entity": "studies"
-    },
-    "expected_result": [
-      [
-        "589",
-        "THCA-SA",
-        "ICGC(THCA-SA) : Thyroid Cancer - SA"
-      ]
-    ]
-  },
-  "test_cosmic_cancer": {
-    "type": "assert_equal",
-    "args": {
-      "searchterm": "prostate",
-      "entity": "cancer",
-      "limit": 2
-    },
-    "expected_result": [
-      [
-        "haematopoietic and lymphoid tissue,lymphoid neoplasm",
-        "haematopoietic and lymphoid tissue,lymphoid neoplasm (prostate,lymphoma)",
-        "117882",
-        "1041146"
+        "EGFR",
+        "ENST00000275493.2",
+        "oncogene",
+        1,
+        "https://cancer.sanger.ac.uk/cosmic/mutation/overview?id=22513728",
+        "COSM6914964",
+        "c.650A>T",
+        "p.Q217L",
+        217,
+        217,
+        1,
+        "A",
+        "Q",
+        "Substitution",
+        "Substitution - Missense",
+        "SO:0001583",
+        "COSV51781531",
+        "7:55220260-55220260",
+        "7:55152567-55152567",
+        166797,
+        1,
+        0.129,
+        "Other"
       ],
       [
-        "prostate,carcinoma",
-        "prostate,carcinoma (prostate,neoplasm)",
-        "24634",
-        "794299"
-      ]
-    ]
-  },
-  "test_cosmic_tumour": {
-    "type": "assert_equal",
-    "args": {
-      "searchterm": "prostate",
-      "entity": "tumour_site",
-      "limit": 2
-    },
-    "expected_result": [
+        "EGFR",
+        "ENST00000275493.2",
+        "oncogene",
+        1,
+        "https://cancer.sanger.ac.uk/cosmic/mutation/overview?id=22493275",
+        "COSM7220077",
+        "c.966C>T",
+        "p.G322=",
+        322,
+        322,
+        2,
+        "C",
+        "G",
+        "Substitution",
+        "Substitution - coding silent",
+        "SO:1000057",
+        "COSV51775450",
+        "7:55223599-55223599",
+        "7:55155906-55155906",
+        49031,
+        2,
+        1.0,
+        "Other"
+      ],
       [
-        "prostate",
-        "25334",
-        "56007",
-        "2938196",
-        "2747",
-        "87143"
+        "EGFR",
+        "ENST00000275493.2",
+        "oncogene",
+        1,
+        "https://cancer.sanger.ac.uk/cosmic/mutation/overview?id=22496821",
+        "COSM1251019",
+        "c.3458G>T",
+        "p.S1153I",
+        1153,
+        1153,
+        2,
+        "G",
+        "S",
+        "Substitution",
+        "Substitution - Missense",
+        "SO:0001583",
+        "COSV51780707",
+        "7:55273135-55273135",
+        "7:55205442-55205442",
+        215828,
+        3,
+        0.002,
+        "Other"
+      ],
+      [
+        "EGFR",
+        "ENST00000275493.2",
+        "oncogene",
+        1,
+        "https://cancer.sanger.ac.uk/cosmic/mutation/overview?id=22488435",
+        "COSM24970",
+        "c.2239_2262del",
+        "p.L747_K754del",
+        747,
+        754,
+        137,
+        "TTAAGAGAAGCAACATCTCCGAAA",
+        "LREATSPK",
+        "Deletion",
+        "Deletion - In frame",
+        "SO:0001825",
+        "COSV51774751",
+        "7:55242469-55242492",
+        "7:55174776-55174799",
+        166797,
+        2,
+        1.0,
+        "Other"
+      ],
+      [
+        "EGFR",
+        "ENST00000275493.2",
+        "oncogene",
+        1,
+        "https://cancer.sanger.ac.uk/cosmic/mutation/overview?id=22555598",
+        "COSM9448596",
+        "c.3506A>G",
+        "p.N1169S",
+        1169,
+        1169,
+        2,
+        "A",
+        "N",
+        "Substitution",
+        "Substitution - Missense",
+        "SO:0001583",
+        "COSV104577175",
+        "7:55273183-55273183",
+        "7:55205490-55205490",
+        49031,
+        1,
+        0.018,
+        "Other"
       ]
     ]
   }

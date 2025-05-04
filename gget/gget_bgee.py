@@ -55,6 +55,11 @@ def _bgee_orthologs(gene_id, json=False, verbose=True):
 
     Returns requested information as a DataFrame or JSON
     """
+    # if single Ensembl ID passed as string, convert to list
+    if isinstance(gene_id, list):
+        raise ValueError(
+            "One a single gene ID can be passed at a time for ortholog searches."
+        )
 
     # must first obtain species
     species = _bgee_species(gene_id, verbose=verbose)
@@ -106,29 +111,42 @@ def _bgee_expression(gene_id, json=False, verbose=True):
 
     Args:
 
-    :param gene_id: Ensembl gene ID
+    :param gene_id: Ensembl gene ID(s)
     :param json:    return JSON instead of DataFrame
     :param verbose: log progress
 
     Returns requested information as a DataFrame or JSON
     """
-    # must first obtain species
-    species = _bgee_species(gene_id, verbose=verbose)
+    # if single Ensembl ID passed as string, convert to list
+    if isinstance(gene_id, str):
+        gene_ids = [gene_id]
+    else:
+        gene_ids = gene_id
+
+    # make sure all gene IDs correspond to the same species
+    species_set = {_bgee_species(gene_id, verbose=verbose) for gene_id in gene_ids}
+
+    if len(species_set) != 1:
+        raise RuntimeError("All Ensembl gene IDs must be from a single species.")
+
+    # get the single species from the set
+    species = species_set.pop()
 
     if verbose:
-        logger.info(f"Getting expression data for gene {gene_id} from Bgee")
+        logger.info(f"Getting expression data for gene {', '.join(gene_ids)} from Bgee")
 
     # then obtain expression data
     response = requests.get(
         "https://bgee.org/api/",
         params={
             "display_type": "json",
-            "page": "gene",
-            "action": "expression",
-            "gene_id": gene_id,
+            "page": "data",
+            "action": "expr_calls",
+            "gene_id": gene_ids,
             "species_id": species,
             "cond_param": ["anat_entity", "cell_type"],
             "data_type": "all",
+            "get_results": "true",
         },
     )
 
@@ -138,7 +156,7 @@ def _bgee_expression(gene_id, json=False, verbose=True):
             "Please double-check the arguments and try again.\n"
         )
 
-    expression_data = response.json()["data"]["calls"]
+    expression_data = response.json()["data"]["expressionData"]["expressionCalls"]
 
     df = json_list_to_df(
         expression_data,
@@ -150,6 +168,7 @@ def _bgee_expression(gene_id, json=False, verbose=True):
             ("expression_state", "expressionState"),
         ],
     )
+
     df["score"] = df["score"].astype(float)
 
     if json:
@@ -181,4 +200,6 @@ def bgee(
     elif type == "orthologs":
         return _bgee_orthologs(gene_id, json=json, verbose=verbose)
     else:
-        raise ValueError(f"Argument type should be 'expression' or 'orthologs', not '{type}'")
+        raise ValueError(
+            f"Argument type should be 'expression' or 'orthologs', not '{type}'"
+        )

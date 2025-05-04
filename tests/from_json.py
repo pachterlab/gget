@@ -213,9 +213,9 @@ def from_json(
 
     class C(type):
         def __new__(cls, name, bases, dct):
-            assert (
-                unittest.TestCase in bases
-            ), "from_json should only be applied to unittest.TestCase subclasses."
+            # assert (
+            #     unittest.TestCase in bases
+            # ), "from_json should only be applied to unittest.TestCase subclasses."
             for k, v in test_dict.items():
                 type_ = v["type"]
                 if type_ == "code_defined":

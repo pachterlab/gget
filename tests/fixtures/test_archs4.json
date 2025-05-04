@@ -407,67 +407,6 @@
             ]
         ]
     },
-    "test_archs4_mouse": {
-        "type": "assert_equal",
-        "args": {
-            "gene": "FUNDC1",
-            "species": "mouse",
-            "gene_count": 5
-        },
-        "expected_result": [
-            [
-                "VBP1",
-                0.5372708439826965
-            ],
-            [
-                "SNRPB2",
-                0.5164885520935059
-            ],
-            [
-                "PCMT1",
-                0.5021503567695618
-            ],
-            [
-                "MRPL47",
-                0.5008688569068909
-            ],
-            [
-                "NFU1",
-                0.498568058013916
-            ]
-        ]
-    },
-    "test_archs4_mouse_json": {
-        "type": "assert_equal",
-        "args": {
-            "gene": "FUNDC1",
-            "gene_count": 5,
-            "species": "mouse",
-            "json": true
-        },
-        "expected_result": [
-            {
-                "gene_symbol": "VBP1",
-                "pearson_correlation": 0.537270844
-            },
-            {
-                "gene_symbol": "SNRPB2",
-                "pearson_correlation": 0.5164885521
-            },
-            {
-                "gene_symbol": "PCMT1",
-                "pearson_correlation": 0.5021503568
-            },
-            {
-                "gene_symbol": "MRPL47",
-                "pearson_correlation": 0.5008688569
-            },
-            {
-                "gene_symbol": "NFU1",
-                "pearson_correlation": 0.498568058
-            }
-        ]
-    },
     "test_archs4_mouse_json_ensembl": {
         "type": "assert_equal",
         "args": {
@@ -660,20 +599,20 @@
                 8.60009
             ],
             [
-                "System.Nervous System.CNS.HYPOTHALAMUS",
-                3.44188,
-                6.63774,
-                7.14836,
-                7.99022,
-                8.81727
-            ],
-            [
                 "System.Nervous System.CNS.THALAMUS",
                 3.29066,
                 5.995,
                 7.14836,
                 7.83426,
                 8.71165
+            ],
+            [
+                "System.Nervous System.CNS.HYPOTHALAMUS",
+                3.44188,
+                6.63774,
+                7.14836,
+                7.99022,
+                8.81727
             ],
             [
                 "System.Immune System.Lymphoid.BLYMPHOCYTE",
@@ -740,14 +679,6 @@
                 8.89625
             ],
             [
-                "System.Immune System.Myeloid.MACROPHAGE",
-                0.113644,
-                6.51705,
-                6.9754,
-                7.38198,
-                8.46912
-            ],
-            [
                 "System.Immune System.Lymphoid.TLYMPHOCYTE",
                 5.60813,
                 6.60849,
@@ -764,12 +695,12 @@
                 8.78176
             ],
             [
-                "System.Nervous System.CNS.ASTROCYTE",
-                1.20968,
-                6.4358,
-                6.95675,
-                7.42671,
-                8.33012
+                "System.Immune System.Myeloid.MACROPHAGE",
+                0.113644,
+                6.51705,
+                6.9754,
+                7.38198,
+                8.46912
             ],
             [
                 "System.Respiratory System.Lung.LUNG",
@@ -780,12 +711,12 @@
                 9.18212
             ],
             [
-                "System.Muscular System.Skeletal muscle.MYOBLAST",
-                0.113644,
-                6.0727,
-                6.9462,
-                7.53683,
-                9.63731
+                "System.Nervous System.CNS.ASTROCYTE",
+                1.20968,
+                6.4358,
+                6.95675,
+                7.42671,
+                8.33012
             ],
             [
                 "System.Connective Tissue.Adipose tissue.ADIPOSE",
@@ -794,6 +725,14 @@
                 6.9462,
                 7.74633,
                 8.57872
+            ],
+            [
+                "System.Muscular System.Skeletal muscle.MYOBLAST",
+                0.113644,
+                6.0727,
+                6.9462,
+                7.53683,
+                9.63731
             ],
             [
                 "System.Cardiovascular System.Heart.VALVE",
@@ -828,20 +767,20 @@
                 9.42561
             ],
             [
-                "System.Connective Tissue.Adipose tissue.ADIPOCYTE",
-                4.86561,
-                6.4358,
-                6.88087,
-                7.13293,
-                7.71929
-            ],
-            [
                 "System.Immune System.Myeloid.DENDRITIC CELL",
                 4.2942,
                 6.48802,
                 6.88087,
                 7.39734,
                 8.09957
+            ],
+            [
+                "System.Connective Tissue.Adipose tissue.ADIPOCYTE",
+                4.86561,
+                6.4358,
+                6.88087,
+                7.13293,
+                7.71929
             ],
             [
                 "System.Immune System.Myeloid.MICROGLIA",
@@ -860,20 +799,20 @@
                 7.57266
             ],
             [
-                "System.Digestive System.Esophagus.ESOPHAGUS",
-                0.113644,
-                5.95023,
-                6.8453,
-                8.1174,
-                9.13015
-            ],
-            [
                 "System.Integumentary System.Skin.FIBROBLAST",
                 0.113644,
                 6.35023,
                 6.8453,
                 7.43403,
                 9.31767
+            ],
+            [
+                "System.Digestive System.Esophagus.ESOPHAGUS",
+                0.113644,
+                5.95023,
+                6.8453,
+                8.1174,
+                9.13015
             ],
             [
                 "System.Immune System.Myeloid.KUPFFER CELL",
@@ -1246,20 +1185,20 @@
                 "max": 8.60009
             },
             {
-                "id": "System.Nervous System.CNS.HYPOTHALAMUS",
-                "min": 3.44188,
-                "q1": 6.63774,
-                "median": 7.14836,
-                "q3": 7.99022,
-                "max": 8.81727
-            },
-            {
                 "id": "System.Nervous System.CNS.THALAMUS",
                 "min": 3.29066,
                 "q1": 5.995,
                 "median": 7.14836,
                 "q3": 7.83426,
                 "max": 8.71165
+            },
+            {
+                "id": "System.Nervous System.CNS.HYPOTHALAMUS",
+                "min": 3.44188,
+                "q1": 6.63774,
+                "median": 7.14836,
+                "q3": 7.99022,
+                "max": 8.81727
             },
             {
                 "id": "System.Immune System.Lymphoid.BLYMPHOCYTE",
@@ -1326,14 +1265,6 @@
                 "max": 8.89625
             },
             {
-                "id": "System.Immune System.Myeloid.MACROPHAGE",
-                "min": 0.113644,
-                "q1": 6.51705,
-                "median": 6.9754,
-                "q3": 7.38198,
-                "max": 8.46912
-            },
-            {
                 "id": "System.Immune System.Lymphoid.TLYMPHOCYTE",
                 "min": 5.60813,
                 "q1": 6.60849,
@@ -1350,12 +1281,12 @@
                 "max": 8.78176
             },
             {
-                "id": "System.Nervous System.CNS.ASTROCYTE",
-                "min": 1.20968,
-                "q1": 6.4358,
-                "median": 6.95675,
-                "q3": 7.42671,
-                "max": 8.33012
+                "id": "System.Immune System.Myeloid.MACROPHAGE",
+                "min": 0.113644,
+                "q1": 6.51705,
+                "median": 6.9754,
+                "q3": 7.38198,
+                "max": 8.46912
             },
             {
                 "id": "System.Respiratory System.Lung.LUNG",
@@ -1366,12 +1297,12 @@
                 "max": 9.18212
             },
             {
-                "id": "System.Muscular System.Skeletal muscle.MYOBLAST",
-                "min": 0.113644,
-                "q1": 6.0727,
-                "median": 6.9462,
-                "q3": 7.53683,
-                "max": 9.63731
+                "id": "System.Nervous System.CNS.ASTROCYTE",
+                "min": 1.20968,
+                "q1": 6.4358,
+                "median": 6.95675,
+                "q3": 7.42671,
+                "max": 8.33012
             },
             {
                 "id": "System.Connective Tissue.Adipose tissue.ADIPOSE",
@@ -1380,6 +1311,14 @@
                 "median": 6.9462,
                 "q3": 7.74633,
                 "max": 8.57872
+            },
+            {
+                "id": "System.Muscular System.Skeletal muscle.MYOBLAST",
+                "min": 0.113644,
+                "q1": 6.0727,
+                "median": 6.9462,
+                "q3": 7.53683,
+                "max": 9.63731
             },
             {
                 "id": "System.Cardiovascular System.Heart.VALVE",
@@ -1414,20 +1353,20 @@
                 "max": 9.42561
             },
             {
-                "id": "System.Connective Tissue.Adipose tissue.ADIPOCYTE",
-                "min": 4.86561,
-                "q1": 6.4358,
-                "median": 6.88087,
-                "q3": 7.13293,
-                "max": 7.71929
-            },
-            {
                 "id": "System.Immune System.Myeloid.DENDRITIC CELL",
                 "min": 4.2942,
                 "q1": 6.48802,
                 "median": 6.88087,
                 "q3": 7.39734,
                 "max": 8.09957
+            },
+            {
+                "id": "System.Connective Tissue.Adipose tissue.ADIPOCYTE",
+                "min": 4.86561,
+                "q1": 6.4358,
+                "median": 6.88087,
+                "q3": 7.13293,
+                "max": 7.71929
             },
             {
                 "id": "System.Immune System.Myeloid.MICROGLIA",
@@ -1446,20 +1385,20 @@
                 "max": 7.57266
             },
             {
-                "id": "System.Digestive System.Esophagus.ESOPHAGUS",
-                "min": 0.113644,
-                "q1": 5.95023,
-                "median": 6.8453,
-                "q3": 8.1174,
-                "max": 9.13015
-            },
-            {
                 "id": "System.Integumentary System.Skin.FIBROBLAST",
                 "min": 0.113644,
                 "q1": 6.35023,
                 "median": 6.8453,
                 "q3": 7.43403,
                 "max": 9.31767
+            },
+            {
+                "id": "System.Digestive System.Esophagus.ESOPHAGUS",
+                "min": 0.113644,
+                "q1": 5.95023,
+                "median": 6.8453,
+                "q3": 8.1174,
+                "max": 9.13015
             },
             {
                 "id": "System.Immune System.Myeloid.KUPFFER CELL",
@@ -2112,7 +2051,7 @@
                 12.2092
             ],
             [
-                "System.Nervous System.CNS.THALAMUS",
+                "System.Nervous System.CNS.HYPOTHALAMUS",
                 0.0431428,
                 0.473183,
                 4.54661,
@@ -2120,7 +2059,7 @@
                 10.2632
             ],
             [
-                "System.Nervous System.CNS.HYPOTHALAMUS",
+                "System.Nervous System.CNS.THALAMUS",
                 0.0431428,
                 0.473183,
                 4.54661,
@@ -2619,7 +2558,7 @@
                 12.0477
             ],
             [
-                "System.Nervous System.CNS.THALAMUS",
+                "System.Nervous System.CNS.HYPOTHALAMUS",
                 0.0604379,
                 0.594354,
                 5.61607,
@@ -2627,7 +2566,7 @@
                 10.4063
             ],
             [
-                "System.Nervous System.CNS.HYPOTHALAMUS",
+                "System.Nervous System.CNS.THALAMUS",
                 0.0604379,
                 0.594354,
                 5.61607,

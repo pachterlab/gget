@@ -20,7 +20,7 @@ logger = set_up_logger()
 
 
 if not hasattr(pd.DataFrame, "map"):
-    # logger.warning(
+    # logger.info(
     #     "Old pandas version detected. Patching DataFrame.map to DataFrame.applymap"
     # )
     pd.DataFrame.map = pd.DataFrame.applymap
@@ -298,7 +298,7 @@ def cbio_search(key_words):
     Find cBioPortal study IDs by keyword.
 
     Args:
-    key_words           list of keywords to search for
+    key_words           list of keywords to search for - use tissues related to tissue or cancer type of interest (e.g., esophag, ovarian, etc)
 
     Return:
 
@@ -711,29 +711,33 @@ class _GeneAnalysis:
                 "Sample Identifier column not found in the sample dataframe"
             )
 
+        columns_to_merge = [sample_identifier_column, "Cancer Type", "Cancer Type Detailed"]
+        for column in columns_to_merge:
+            if column not in sample_df.columns:
+                columns_to_merge.remove(column)
+        
         final_df = pd.merge(
             final_df,
-            sample_df[
-                [sample_identifier_column, "Cancer Type", "Cancer Type Detailed"]
-            ],
+            sample_df[columns_to_merge],
             left_on="Tumor_Sample_Barcode",
             right_on=sample_identifier_column,
             how="left",
         )
 
-        final_df.rename(
-            columns={
-                "Cancer Type": "cancer_type",
-                "Cancer Type Detailed": "cancer_type_detailed",
-            },
-            inplace=True,
-        )
+        if "Cancer Type" in final_df.columns:
+            final_df.rename(
+                columns={
+                    "Cancer Type": "cancer_type",
+                    "Cancer Type Detailed": "cancer_type_detailed",
+                },
+                inplace=True,
+            )
 
-        final_df["tissue"] = (
-            final_df["cancer_type"]
-            .map(CBIO_CANCER_TYPE_TO_TISSUE_DICTIONARY)
-            .fillna("unclassified")
-        )
+            final_df["tissue"] = (
+                final_df["cancer_type"]
+                .map(CBIO_CANCER_TYPE_TO_TISSUE_DICTIONARY)
+                .fillna("unclassified")
+            )
 
         # Drop the redundant SAMPLE_ID column
         final_df.drop(columns=[sample_identifier_column], inplace=True)
@@ -744,27 +748,31 @@ class _GeneAnalysis:
         dataframes = []
 
         for study_id in self.study_ids:
-            self.df_collection[study_id] = {}
+            try:
+                self.df_collection[study_id] = {}
 
-            # clean up data just in case (cut out comments)
-            filename = f"{self.data_dir}/{study_id}/mutations.txt"
+                # clean up data just in case (cut out comments)
+                filename = f"{self.data_dir}/{study_id}/mutations.txt"
 
-            with open(filename, "r") as file:
-                lines = file.readlines()
+                with open(filename, "r") as file:
+                    lines = file.readlines()
 
-            changed = False
-            while lines[0].startswith("#"):
-                lines.pop(0)
-                changed = True
+                changed = False
+                while lines[0].startswith("#"):
+                    lines.pop(0)
+                    changed = True
 
-            if changed:
-                logger.info(f"Stripped comments from {filename}")
-                # Write the remaining lines back to the file
-                with open(filename, "w") as file:
-                    file.writelines(lines)
+                if changed:
+                    logger.info(f"Stripped comments from {filename}")
+                    # Write the remaining lines back to the file
+                    with open(filename, "w") as file:
+                        file.writelines(lines)
 
-            final_df = self._create_single_study_dataframe(study_id=study_id)
-            dataframes.append(final_df)
+                final_df = self._create_single_study_dataframe(study_id=study_id)
+                dataframes.append(final_df)
+            except Exception as e:
+                logger.error(f"Error processing study {study_id}: {e}")
+                continue
 
         return pd.concat(dataframes, ignore_index=True)
 
@@ -807,17 +815,21 @@ class _GeneAnalysis:
                         self.big_combined_df[filter_category] == filter_value
                     ]
 
+                merge_on = list(set(merge_on).intersection(final_df.columns))
+
                 columns_to_keep_copy = self.columns_to_keep.copy()
 
-                unique_samples_info = final_df[
-                    [
-                        "Tumor_Sample_Barcode",
-                        "cancer_type",
-                        "cancer_type_detailed",
-                        "study_id",
-                        "tissue",
-                    ]
-                ].drop_duplicates()
+                expected_cols = {
+                    "Tumor_Sample_Barcode",
+                    "cancer_type",
+                    "cancer_type_detailed",
+                    "study_id",
+                    "tissue",
+                }
+                # Get only the columns that exist in final_df
+                available_cols = list(expected_cols.intersection(final_df.columns))
+
+                unique_samples_info = final_df[available_cols].drop_duplicates()
 
                 hugo_mask = final_df["Hugo_Symbol"].isin(
                     [gene for gene in (self.genes) if not gene.startswith("ENSG")]
@@ -1197,8 +1209,8 @@ def cbio_plot(
     if not download_cbioportal_data(
         study_ids, verbose=verbose, out_dir=data_dir, confirm_download=confirm_download
     ):
-        logger.error("Failed to download data")
-        return False
+        logger.error("Failed to download data. Continuing with available studies")
+        # return False
 
     if verbose:
         logger.info("Loading data")

@@ -25,6 +25,6 @@ import logging
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
 
-__version__ = "0.29.1"
+__version__ = "0.29.2"
 __author__ = "Laura Luebbert"
 __email__ = "lauralubbert@gmail.com"

@@ -178,7 +178,9 @@ def muscle(fasta, super5=False, out=None, verbose=True):
 
                 print(titles[idx], "\t", "".join(final_seq))
 
-        # Remove temporary .afa file (and temp .fa file if not provided by user)
+        # Remove temporary .afa file
         os.remove(abs_out_path)
-        if not fasta_provided:
-            os.remove(abs_fasta_path)
+
+    #  Remove temp .fa file if not provided by user
+    if not fasta_provided:
+        os.remove(abs_fasta_path)

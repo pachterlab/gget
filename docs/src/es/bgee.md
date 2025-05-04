@@ -7,11 +7,12 @@ Resultado: JSON/CSV (línea de comandos) o marco de datos (Python).
 
 > Si estás interesado específicamente en datos de expresión génica humana, considera usar [gget opentargets](./opentargets.md) o [gget archs4](./archs4.md) en su lugar. **gget bgee** tiene menos datos, pero admite más especies.
 
-Este módulo fue escrito por [Sam Wagenaar](https://github.com/techno-sam).
+Este módulo fue escrito por [Sam Wagenaar](https://github.com/techno-sam) con ediciones de [Kateřina Večerková](https://github.com/vecerkovakaterina).  
 
 **Argumento posicional**  
 `ens_id`  
 ID de gen Ensembl, por ejemplo, ENSG00000169194 o ENSSSCG00000014725.  
+Cuando `type=expression` también puedes pasar una lista de múltiples ID de Ensembl.  
 
 NOTA: Algunas de las especies en [Bgee](https://www.bgee.org/) no están en Ensembl, y para ellas puede utilizar los ID de genes del NCBI, p. 118215821 (un gen en _Anguilla anguilla_).  
 
@@ -76,6 +77,27 @@ gget.bgee("ENSSSCG00000014725", type="expression")
 | UBERON:0002190 | subcutaneous adipose tissue | 99.70 | high             | expressed        |
 | UBERON:0005316 | endocardial endothelium     | 99.61 | high             | expressed        |
 | UBERON:0002107 | liver                       | 99.27 | high             | expressed        |
+| ...            | ...                         | ...   | ...              | ...              |
+
+<br/><br/>
+
+**Obtener datos de expresión génica para múltiples genes**
+
+```bash
+gget bgee ENSBTAG00000047356 ENSBTAG00000018317 -t expression
+```
+```python
+import gget
+gget.bgee(["ENSBTAG00000047356", "ENSBTAG00000018317"], type="expression")
+```
+
+&rarr; Devuelve datos de expresión génica para los genes ENSBTAG00000047356 y ENSBTAG00000018317:   
+
+| anat_entity_id | anat_entity_name            | score | score_confidence | expression_state |
+|----------------|-----------------------------|-------|------------------|------------------|
+| UBERON:0001017 | central nervous system      | 92.15 | high             | expressed        |
+| UBERON:0002616 | regional part of brain      | 79.01 | high             | expressed        |
+| BGEE:0000000   | anatomical entity and cellular component | 89.12 | high             | expressed        |
 | ...            | ...                         | ...   | ...              | ...              |
 
     
