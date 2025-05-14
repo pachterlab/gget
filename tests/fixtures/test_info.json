@@ -277,16 +277,17 @@
     "test5": {
         "type": "assert_equal",
         "args": {
-            "ens_ids": [
-                "ENSMMUG00000021246.4"
-            ],
-            "ncbi": false
+            "ens_ids": "ENSMMUG00000021246.4"
+            "ncbi": false,
+            "uniprot": false
         },
         "expected_result": [
             [
                 "ENSMMUG00000021246.4",
                 "macaca_mulatta",
                 "Mmul_10",
+                "CCDC13",
+                "coiled-coil domain containing 13 [Source:UniProtKB Gene Name;Acc:G7MIX6]",
                 "Gene",
                 "protein_coding",
                 "ENSMMUT00000029894.4",
