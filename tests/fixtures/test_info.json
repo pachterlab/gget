@@ -277,7 +277,7 @@
     "test5": {
         "type": "assert_equal",
         "args": {
-            "ens_ids": "ENSMMUG00000021246.4"
+            "ens_ids": "ENSMMUG00000021246.4",
             "ncbi": false,
             "uniprot": false
         },
