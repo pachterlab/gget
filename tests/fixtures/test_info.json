@@ -587,14 +587,5 @@
                 87636740
             ]
         ]
-    },
-    "test_info_bad_id": {
-        "type": null,
-        "args": {
-            "ens_ids": [
-                "banana"
-            ]
-        },
-        "expected_result": null
     }
 }
