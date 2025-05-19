@@ -60,11 +60,15 @@ ____
 - Peter Overby et al., [Pharmacological or genetic inhibition of Scn9a protects beta-cells while reducing insulin secretion in type 1 diabetes.](https://doi.org/10.1101/2023.06.11.544521) *bioRxiv* (2023). DOI: 10.1101/2023.06.11.544521
 - Mingze Dong et al., [Deep identifiable modeling of single-cell atlases enables zero-shot query of cellular states.](https://doi.org/10.1101/2023.11.11.566161) *bioRxiv* (2023). DOI: 10.1101/2023.11.11.566161
 
+___
+
 # 📰 News
 - [`gget opentargets` release blog post by the Open Targets platform](https://blog.opentargets.org/case-study-gget/)
 - Documentary short film about *gget*: [https://youtu.be/cVR0k6Mt97o](https://youtu.be/cVR0k6Mt97o)
 - Podcast episode for the Prototype Fund Public Interest Podcast about the importance of open-source software and its role in academic research (in German): [https://public-interest-podcast.podigee.io/33-pips4e4](https://public-interest-podcast.podigee.io/33-pips4e4)
 - Prototype Fund announcement: [https://prototypefund.de/project/gget-genomische-datenbanken](https://prototypefund.de/project/gget-genomische-datenbanken/)
+
+___
 
 # 🚂 [gget repository](https://github.com/pachterlab/gget/) traffic
 ![Plots showing the cumulative clones and views of the gget GitHub repository.](https://raw.githubusercontent.com/pachterlab/gget/traffic/plots/gget_cumulative_clones_views.png)
