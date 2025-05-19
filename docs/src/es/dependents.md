@@ -1,11 +1,12 @@
-<h4 align="center">
-  Usuarios activos del sitio web de gget desde su creación:
-</h4>
+# 💡 Usuarios activos de este sitio web
 
 [![Mapa de calor en forma de mapa mundial que muestra el número de usuarios activos del sitio web de gget por país.](https://github.com/lauraluebbert/lauraluebbert/raw/main/gget_user_map.png)](https://github.com/lauraluebbert/lauraluebbert)
 
-# 🧑‍🤝‍🧑 Dependientes
-Las siguientes aplicaciones se basan en *gget*:
+Se actualiza automáticamente todos los días a las 16:00 UTC.
+___
+
+# 🧑‍🤝‍🧑 Programas dependientes
+Las siguientes aplicaciones usan *gget*:
 - [Therapeutics Data Commons (TDC)](https://tdcommons.ai/)  
   Base de inteligencia artificial para la ciencia terapéutica ([código fuente](https://github.com/mims-harvard/TDC), [artículo en Nat Chem Bio](https://www.nature.com/articles/s41589-022-01131-2)) del laboratorio de Inteligencia Artificial para Medicina y Ciencia de Harvard.
 - [BioDiscoveryAgent](https://github.com/snap-stanford/BioDiscoveryAgent)  
@@ -38,7 +39,9 @@ Las siguientes aplicaciones se basan en *gget*:
 
 Ver también: [https://github.com/pachterlab/gget/network/dependents](https://github.com/pachterlab/gget/network/dependents)
 
-# 📃 Publicaciones destacadas
+___
+
+# 📃 Publicaciones selectas
 - David Bradley et al., [The fitness cost of spurious phosphorylation.](https://doi.org/10.1038/s44318-024-00200-7) *The EMBO Journal* (2024). DOI: 10.1038/s44318-024-00200-7
 - Mikael Nilsson et al., [Resolving thyroid lineage cell trajectories merging into a dual endocrine gland in mammals.](https://doi.org/10.21203/rs.3.rs-5278325/v1) *Nature Portfolio (en revisión)* (2024). DOI: 10.21203/rs.3.rs-5278325/v1
 - Avasthi P et al., [Repeat expansions associated with human disease are present in diverse organisms.](https://doi.org/10.57844/arcadia-e367-8b55) *Arcadia* (2024). DOI: 10.57844/arcadia-e367-8b55
@@ -55,11 +58,15 @@ Ver también: [https://github.com/pachterlab/gget/network/dependents](https://gi
 - Peter Overby et al., [Pharmacological or genetic inhibition of Scn9a protects beta-cells while reducing insulin secretion in type 1 diabetes.](https://doi.org/10.1101/2023.06.11.544521) *bioRxiv* (2023). DOI: 10.1101/2023.06.11.544521
 - Mingze Dong et al., [Deep identifiable modeling of single-cell atlases enables zero-shot query of cellular states.](https://doi.org/10.1101/2023.11.11.566161) *bioRxiv* (2023). DOI: 10.1101/2023.11.11.566161
 
+___
+
 # 📰 Noticias
 - [`gget opentargets` publicación de la plataforma Open Targets](https://blog.opentargets.org/case-study-gget/)
 - Documental corto sobre *gget*: [https://youtu.be/cVR0k6Mt97o](https://youtu.be/cVR0k6Mt97o)
 - Episodio de podcast para el Prototype Fund Public Interest Podcast sobre la importancia del software de código abierto y su papel en la investigación académica (en alemán): [https://public-interest-podcast.podigee.io/33-pips4e4](https://public-interest-podcast.podigee.io/33-pips4e4)
 - Anuncio del Prototype Fund: [https://prototypefund.de/project/gget-genomische-datenbanken](https://prototypefund.de/project/gget-genomische-datenbanken/)
+
+___
 
 # 🚂 Tráfico del [repositorio de gget](https://github.com/pachterlab/gget/)
 ![Gráficos que muestran los clones y las vistas acumuladas del repositorio gget de GitHub.](https://raw.githubusercontent.com/pachterlab/gget/traffic/plots/gget_cumulative_clones_views.png)
