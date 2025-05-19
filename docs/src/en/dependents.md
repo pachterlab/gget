@@ -1,10 +1,12 @@
-<h4 align="center">
-  Active users of the gget website since its creation:
-</h4>
+# 💡 Active users of this documentation website
 
 [![Heatmap in the form of a world map showing the number of active users of the gget website per country.](https://github.com/lauraluebbert/lauraluebbert/raw/main/gget_user_map.png)](https://github.com/lauraluebbert/lauraluebbert)
 
-# 🧑‍🤝‍🧑 Dependents
+Automatically updates every day at 16:00 UTC.
+
+___
+
+# 🧑‍🤝‍🧑 Dependent software
 The following applications build on *gget*:
 - [Therapeutics Data Commons (TDC)](https://tdcommons.ai/)  
   Artificial intelligence foundation for therapeutic science ([source code](https://github.com/mims-harvard/TDC), [Nat Chem Bio paper](https://www.nature.com/articles/s41589-022-01131-2)) by 
@@ -38,7 +40,9 @@ Harvard's Artificial Intelligence for Medicine and Science lab.
 - [https://github.com/alphavector/all](https://github.com/alphavector/all)
 
 Also see: [https://github.com/pachterlab/gget/network/dependents](https://github.com/pachterlab/gget/network/dependents)
- 
+
+____
+
 # 📃 Featured publications
 - David Bradley et al., [The fitness cost of spurious phosphorylation.](https://doi.org/10.1038/s44318-024-00200-7) *The EMBO Journal* (2024). DOI: 10.1038/s44318-024-00200-7
 - Mikael Nilsson et al., [Resolving thyroid lineage cell trajectories merging into a dual endocrine gland in mammals.](https://doi.org/10.21203/rs.3.rs-5278325/v1) *Nature Portfolio (under review)* (2024). DOI: 10.21203/rs.3.rs-5278325/v1
