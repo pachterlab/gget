@@ -2,7 +2,7 @@
 
 [![Mapa de calor en forma de mapa mundial que muestra el número de usuarios activos del sitio web de gget por país.](https://github.com/lauraluebbert/lauraluebbert/raw/main/gget_user_map.png)](https://github.com/lauraluebbert/lauraluebbert)
 
-Ese mapa se actualiza automáticamente todos los días a las 16:00 UTC.
+Este mapa se actualiza automáticamente todos los días a las 16:00 UTC.
 ___
 
 # 🧑‍🤝‍🧑 Programas dependientes
