@@ -64,7 +64,6 @@ def _assert_equal(name, td, func):
         result_to_test = do_call(func, td[test]["args"])
         if test == "test_cosmic_defaults":  # special case for cosmic
             import numpy as np
-            pd.set_option('future.no_silent_downcasting', True)
             expected_result = pd.DataFrame(expected_result[0])
             expected_result = expected_result.replace({None: np.nan})
             # result_to_test.equals(expected_result)
