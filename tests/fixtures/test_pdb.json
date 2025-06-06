@@ -186,11 +186,7 @@
                     "name": "Cyclic",
                     "depth": 2
                 }
-            ],
-            "rcsb_latest_revision": {
-                "major_revision": 1,
-                "minor_revision": 5
-            }
+            ]
         }
     },
     "test2": {

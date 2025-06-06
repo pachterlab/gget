@@ -1,10 +1,12 @@
-<h4 align="center">
-  Active users of the gget website since its creation:
-</h4>
+# 💡 Active users of this documentation website
 
 [![Heatmap in the form of a world map showing the number of active users of the gget website per country.](https://github.com/lauraluebbert/lauraluebbert/raw/main/gget_user_map.png)](https://github.com/lauraluebbert/lauraluebbert)
 
-# 🧑‍🤝‍🧑 Dependents
+Automatically updates every day at 16:00 UTC.
+
+___
+
+# 🧑‍🤝‍🧑 Dependent software
 The following applications build on *gget*:
 - [Therapeutics Data Commons (TDC)](https://tdcommons.ai/)  
   Artificial intelligence foundation for therapeutic science ([source code](https://github.com/mims-harvard/TDC), [Nat Chem Bio paper](https://www.nature.com/articles/s41589-022-01131-2)) by 
@@ -38,7 +40,9 @@ Harvard's Artificial Intelligence for Medicine and Science lab.
 - [https://github.com/alphavector/all](https://github.com/alphavector/all)
 
 Also see: [https://github.com/pachterlab/gget/network/dependents](https://github.com/pachterlab/gget/network/dependents)
- 
+
+____
+
 # 📃 Featured publications
 - David Bradley et al., [The fitness cost of spurious phosphorylation.](https://doi.org/10.1038/s44318-024-00200-7) *The EMBO Journal* (2024). DOI: 10.1038/s44318-024-00200-7
 - Mikael Nilsson et al., [Resolving thyroid lineage cell trajectories merging into a dual endocrine gland in mammals.](https://doi.org/10.21203/rs.3.rs-5278325/v1) *Nature Portfolio (under review)* (2024). DOI: 10.21203/rs.3.rs-5278325/v1
@@ -56,11 +60,15 @@ Also see: [https://github.com/pachterlab/gget/network/dependents](https://github
 - Peter Overby et al., [Pharmacological or genetic inhibition of Scn9a protects beta-cells while reducing insulin secretion in type 1 diabetes.](https://doi.org/10.1101/2023.06.11.544521) *bioRxiv* (2023). DOI: 10.1101/2023.06.11.544521
 - Mingze Dong et al., [Deep identifiable modeling of single-cell atlases enables zero-shot query of cellular states.](https://doi.org/10.1101/2023.11.11.566161) *bioRxiv* (2023). DOI: 10.1101/2023.11.11.566161
 
+___
+
 # 📰 News
 - [`gget opentargets` release blog post by the Open Targets platform](https://blog.opentargets.org/case-study-gget/)
 - Documentary short film about *gget*: [https://youtu.be/cVR0k6Mt97o](https://youtu.be/cVR0k6Mt97o)
 - Podcast episode for the Prototype Fund Public Interest Podcast about the importance of open-source software and its role in academic research (in German): [https://public-interest-podcast.podigee.io/33-pips4e4](https://public-interest-podcast.podigee.io/33-pips4e4)
 - Prototype Fund announcement: [https://prototypefund.de/project/gget-genomische-datenbanken](https://prototypefund.de/project/gget-genomische-datenbanken/)
+
+___
 
 # 🚂 [gget repository](https://github.com/pachterlab/gget/) traffic
 ![Plots showing the cumulative clones and views of the gget GitHub repository.](https://raw.githubusercontent.com/pachterlab/gget/traffic/plots/gget_cumulative_clones_views.png)

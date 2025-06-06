@@ -121,4 +121,4 @@ gget$enrichr(list("ACE2", "AGT", "AGTR1", "ACE", "AGTRAP", "AGTR2", "ACE3P"), da
 gget$archs4("ACE2", which="tissue")
 gget$pdb("1R42", save=TRUE)
 ```
-#### [More examples](https://github.com/pachterlab/gget_examples)
+#### [More tutorials](https://github.com/pachterlab/gget_examples)
