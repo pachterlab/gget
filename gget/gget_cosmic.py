@@ -95,7 +95,7 @@ def select_reference(
             logger.error(
                 "CancerMutationCensus data is only available for GRCh37. Define grch_version=37."
             )
-        download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=GRCh{grch_version}/cmc/v{cosmic_version}/CancerMutationCensus_AllData_Tsv_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
+        download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{grch_version}/cmc/v{cosmic_version}/CancerMutationCensus_AllData_Tsv_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
         tarred_folder = (
             f"CancerMutationCensus_AllData_Tsv_v{cosmic_version}_GRCh{grch_version}"
         )
@@ -105,8 +105,8 @@ def select_reference(
         if str(cosmic_version) == "100":  # special treatment due to v2
             download_link = download_link.replace(".tar&bucket=downloads", "_v2.tar&bucket=downloads")
             tarred_folder += "_v2"
-        elif str(cosmic_version) == "101":  # special treatment due to link difference - path=grch37 instead of path=GRCh37
-            download_link = download_link.replace(f"path=GRCh{grch_version}", f"path=grch{grch_version}")
+        if str(cosmic_version) == "99" or str(cosmic_version) == "100":  # special treatment due to link difference - path=GRCh37 instead of path=grch37
+            download_link = download_link.replace(f"path=grch{grch_version}", f"path=GRCh{grch_version}")
 
     elif cosmic_project == "cell_line":
         download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{grch_version}/cell_lines/v{cosmic_version}/CellLinesProject_GenomeScreensMutant_Tsv_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
