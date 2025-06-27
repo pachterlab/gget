@@ -30,4 +30,4 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt && pip install -r dev-requirements.txt
       - name: Run tests
-        run: coverage run -m pytest -ra -v tests && coverage report --omit=main.py,tests*
+        run: pytest -ra -v --tb=long --maxfail=5 --durations=10 --cov=gget --cov-report=term-missing tests
