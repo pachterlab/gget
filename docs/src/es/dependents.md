@@ -7,6 +7,8 @@ ___
 
 # 🧑‍🤝‍🧑 Programas dependientes
 Las siguientes aplicaciones usan *gget*:
+- [Biomni](https://biomni.stanford.edu/)  
+  Un agente de inteligencia artificial biomédica de propósito general que se está desarrollando en Stanford y Genentech.
 - [Therapeutics Data Commons (TDC)](https://tdcommons.ai/)  
   Base de inteligencia artificial para la ciencia terapéutica ([código fuente](https://github.com/mims-harvard/TDC), [artículo en Nat Chem Bio](https://www.nature.com/articles/s41589-022-01131-2)) del laboratorio de Inteligencia Artificial para Medicina y Ciencia de Harvard.
 - [BioDiscoveryAgent](https://github.com/snap-stanford/BioDiscoveryAgent)  
