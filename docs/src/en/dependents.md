@@ -8,6 +8,8 @@ ___
 
 # 🧑‍🤝‍🧑 Dependent software
 The following applications build on *gget*:
+- [Biomni](https://biomni.stanford.edu/)  
+  A General-Purpose Biomedical AI Agent being developed at Stanford and Genentech.
 - [Therapeutics Data Commons (TDC)](https://tdcommons.ai/)  
   Artificial intelligence foundation for therapeutic science ([source code](https://github.com/mims-harvard/TDC), [Nat Chem Bio paper](https://www.nature.com/articles/s41589-022-01131-2)) by 
 Harvard's Artificial Intelligence for Medicine and Science lab.
