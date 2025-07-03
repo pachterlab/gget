@@ -1,4 +1,13 @@
 ## ✨ ¡Lo más reciente!  
+**Versión ≥ 0.29.2** (03 de julio de 2025):  
+- Ahora se puede instalar `gget` usando `uv pip install gget`
+  - Toda la metadata del paquete (versión, autor, descripción, etc.) ahora se gestiona en `setup.cfg` para una compatibilidad total con herramientas modernas como `uv`, `pip` y PyPI  
+  - `gget` ahora utiliza un `setup.py` mínimo y es completamente compatible con PEP 517/518
+- [`gget setup`](setup.md) intentará usar primero `uv pip install` por su velocidad y resolución moderna de dependencias, y recurrirá a `pip install` si `uv` falla o no está disponible  
+  - Se informa a los usuarios en cada paso qué instalador se está utilizando y si se realiza un reintento  
+  - **Nota**: Algunas dependencias científicas (por ejemplo, `cellxgene-census`) pueden no ser compatibles todavía con Python 3.12. Si encuentras errores de instalación, prueba usar Python 3.9 o 3.10. (La instalación con `pip` también podría funcionar en estos casos.)
+- Todas las dependencias requeridas ahora están listadas en `setup.cfg` bajo `install_requires` → Instalar gget con `pip install .` o `uv pip install .` instalará automáticamente todas las dependencias
+
 **Versión ≥ 0.29.1** (21 de abril de 2025):  
 - [`gget mutate`](mutate.md):  
   - gget mutate se ha simplificado para enfocarse en recibir como entrada una lista de mutaciones y el genoma de referencia correspondiente con información de anotación asociada, y producir como salida las secuencias con la mutación incorporada y una región corta de contexto circundante. Para la funcionalidad completa de la versión anterior y cómo se integra en el contexto de un pipeline de análisis de variantes novedosas, visita el repositorio varseek que está siendo desarrollado por miembros del equipo de gget en https://github.com/pachterlab/varseek.git.

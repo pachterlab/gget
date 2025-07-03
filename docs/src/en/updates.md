@@ -1,4 +1,13 @@
 ## ✨ What's new  
+**Version ≥ 0.29.2** (Jul 03, 2025):  
+- gget can now be installed using `uv pip install gget`
+  - All package metadata (version, author, description, etc.) is now managed in setup.cfg for full compatibility with modern tools like uv, pip, and PyPI
+  - gget now uses a minimal setup.py and is fully PEP 517/518 compatible
+- [`gget setup`](setup.md) will now try to use `uv pip install` first for speed and modern dependency resolution, and fall back onto `pip install` if uv fails or is not available
+  - Users are informed at each step which installer is being used and if a retry is happening
+  - Note: Some scientific dependencies (e.g., cellxgene-census) may not yet support Python 3.12. If you encounter installation errors, try using Python 3.9 or 3.10. (The pip installation might also still succeed in these cases.)
+- All required dependencies are now listed in setup.cfg under install_requires -> Installing gget with `pip install .` or `uv pip install .` will automatically install all dependencies
+
 **Version ≥ 0.29.1** (Apr 21, 2025):  
 - [`gget mutate`](mutate.md):  
   - gget mutate has been simplified to focus on taking as input a list of mutations and associated reference genome with corresponding annotation information, and produce as output the sequences with the mutation incorporated and a short region of surrounding context. For the full functionality of the previous version and how it integrates in the context of a novel variant screening pipeline, visit the varseek repository being developed by members of the gget team at https://github.com/pachterlab/varseek.git.

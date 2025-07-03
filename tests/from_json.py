@@ -62,10 +62,18 @@ def _assert_equal(name, td, func):
         test = name
         expected_result = td[test]["expected_result"]
         result_to_test = do_call(func, td[test]["args"])
+        if test == "test_cosmic_defaults":  # special case for cosmic
+            import numpy as np
+            expected_result = pd.DataFrame(expected_result[0])
+            expected_result = expected_result.replace({None: np.nan})
+            # result_to_test.equals(expected_result)
+            pd.testing.assert_frame_equal(result_to_test, expected_result)
+            return
+        
         # If result is a DataFrame, convert to list
         if isinstance(result_to_test, pd.DataFrame):
             result_to_test = result_to_test.dropna(axis=1).values.tolist()
-
+        
         self.assertEqual(result_to_test, expected_result)
 
     return assert_equal

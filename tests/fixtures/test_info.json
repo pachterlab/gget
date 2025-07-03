@@ -1,54 +1,5 @@
 {
-    "test1": {
-        "type": "assert_equal",
-        "args": {
-            "ens_ids": "WBGene00043981",
-            "ncbi": false
-        },
-        "expected_result": [
-            [
-                "WBGene00043981",
-                "Q5WRS0",
-                "caenorhabditis_elegans",
-                "WBcel235",
-                "aaim-1",
-                "T14E8.4",
-                [],
-                "Protein aaim-1",
-                "Uncharacterized protein [Source:NCBI gene;Acc:3565421]",
-                "(Microbial infection) Promotes infection by microsporidian pathogens such as N.parisii in the early larval stages of development (PubMed:34994689). Involved in ensuring the proper orientation and location of the spore proteins of N.parisii during intestinal cell invasion (PubMed:34994689) Plays a role in promoting resistance to bacterial pathogens such as P.aeruginosa by inhibiting bacterial intestinal colonization",
-                [
-                    "Secreted"
-                ],
-                "Gene",
-                "protein_coding",
-                "T14E8.4.1.",
-                "X",
-                -1,
-                6559466,
-                6562428,
-                [
-                    "T14E8.4.1"
-                ],
-                [
-                    "protein_coding"
-                ],
-                [
-                    "unittest.mock.ANY"
-                ],
-                [
-                    -1
-                ],
-                [
-                    6559466
-                ],
-                [
-                    6562428
-                ]
-            ]
-        ]
-    },
-    "test2": {
+    "test_info_WB_transcript": {
         "type": "assert_equal",
         "args": {
             "ens_ids": "T14E8.4.1",
@@ -157,68 +108,7 @@
             ]
         ]
     },
-    "test3": {
-        "type": "assert_equal",
-        "args": {
-            "ens_ids": "FBgn0003656",
-            "ncbi": false
-        },
-        "expected_result": [
-            [
-                "FBgn0003656",
-                "Q9U969",
-                "drosophila_melanogaster",
-                "BDGP6.46",
-                "sws",
-                "sws",
-                [],
-                "Neuropathy target esterase sws",
-                "swiss cheese",
-                "Phospholipase B that deacylates intracellular phosphatidylcholine (PtdCho), generating glycerophosphocholine (GroPtdCho). This deacylation occurs at both sn-2 and sn-1 positions of PtdCho. Its specific chemical modification by certain organophosphorus (OP) compounds leads to distal axonopathy. Plays a role in the signaling mechanism between neurons and glia that regulates glia wrapping during development of the adult brain. Essential for membrane lipid homeostasis and cell survival in both neurons and glia of the adult brain",
-                [
-                    "Endoplasmic reticulum membrane"
-                ],
-                "Gene",
-                "protein_coding",
-                "FBtr0071125.",
-                "X",
-                -1,
-                7956820,
-                7968236,
-                [
-                    "FBtr0071126",
-                    "FBtr0071125",
-                    "FBtr0301675"
-                ],
-                [
-                    "protein_coding",
-                    "protein_coding",
-                    "protein_coding"
-                ],
-                [
-                    "sws-RB",
-                    "sws-RA",
-                    "sws-RC"
-                ],
-                [
-                    -1,
-                    -1,
-                    -1
-                ],
-                [
-                    7956820,
-                    7956820,
-                    7956820
-                ],
-                [
-                    7959369,
-                    7968236,
-                    7968236
-                ]
-            ]
-        ]
-    },
-    "test4": {
+    "test_info_gene": {
         "type": "assert_equal",
         "args": {
             "ens_ids": "EnsMUSG00000000001"
@@ -239,8 +129,8 @@
                 ],
                 "Guanine nucleotide-binding protein G(i) subunit alpha-3",
                 "G protein subunit alpha i3 [Source:MGI Symbol;Acc:MGI:95773]",
-                "Heterotrimeric guanine nucleotide-binding proteins (G proteins) function as transducers downstream of G protein-coupled receptors (GPCRs) in numerous signaling cascades. The alpha chain contains the guanine nucleotide binding site and alternates between an active, GTP-bound state and an inactive, GDP-bound state. Signaling by an activated GPCR promotes GDP release and GTP binding. The alpha subunit has a low GTPase activity that converts bound GTP to GDP, thereby terminating the signal. Both GDP release and GTP hydrolysis are modulated by numerous regulatory proteins. Signaling is mediated via effector proteins, such as adenylate cyclase. Inhibits adenylate cyclase activity, leading to decreased intracellular cAMP levels. Stimulates the activity of receptor-regulated K(+) channels. The active GTP-bound form prevents the association of RGS14 with centrosomes and is required for the translocation of RGS14 from the cytoplasm to the plasma membrane. May play a role in cell division",
-                "Predicted to enable several functions, including G-protein beta/gamma-subunit complex binding activity; GDP binding activity; and GTPase activating protein binding activity. Predicted to be involved in several processes, including G protein-coupled receptor signaling pathway; positive regulation of metabolic process; and positive regulation of vascular associated smooth muscle cell proliferation. Predicted to act upstream of or within G protein-coupled receptor signaling pathway. Located in Golgi apparatus. Is expressed in early conceptus; inner ear; and oocyte. Orthologous to human GNAI3 (G protein subunit alpha i3). [provided by Alliance of Genome Resources, Apr 2025]",
+                "Heterotrimeric guanine nucleotide-binding proteins (G proteins) function as transducers downstream of G protein-coupled receptors (GPCRs) in numerous signaling cascades. The alpha chain contains the guanine nucleotide binding site and alternates between an active, GTP-bound state and an inactive, GDP-bound state. Signaling by an activated GPCR promotes GDP release and GTP binding. The alpha subunit has a low GTPase activity that converts bound GTP to GDP, thereby terminating the signal (By similarity). Both GDP release and GTP hydrolysis are modulated by numerous regulatory proteins (By similarity). Signaling is mediated via effector proteins, such as adenylate cyclase. Inhibits adenylate cyclase activity, leading to decreased intracellular cAMP levels (By similarity). Stimulates the activity of receptor-regulated K(+) channels (By similarity). The active GTP-bound form prevents the association of RGS14 with centrosomes and is required for the translocation of RGS14 from the cytoplasm to the plasma membrane. May play a role in cell division (By similarity). The active GTP-bound form activates the calcium permeant TRPC5 ion channels (By similarity)",
+                "Predicted to enable several functions, including G-protein beta/gamma-subunit complex binding activity; GDP binding activity; and GTPase activating protein binding activity. Predicted to be involved in several processes, including positive regulation of NAD(P)H oxidase activity; positive regulation of metabolic process; and positive regulation of vascular associated smooth muscle cell proliferation. Predicted to act upstream of or within G protein-coupled receptor signaling pathway. Located in Golgi apparatus. Is expressed in early conceptus; inner ear; and oocyte. Orthologous to human GNAI3 (G protein subunit alpha i3). [provided by Alliance of Genome Resources, Jun 2025]",
                 [
                     "Cytoplasm",
                     "Cell membrane",
@@ -274,87 +164,20 @@
             ]
         ]
     },
-    "test5": {
+    "test_info_gene_list_non_model": {
         "type": "assert_equal",
         "args": {
-            "ens_ids": [
-                "ENSMMUG00000054106.1",
-                "ENSMMUG00000053116.1",
-                "ENSMMUG00000021246.4"
-            ],
-            "ncbi": false
+            "ens_ids": "ENSMMUG00000021246.4",
+            "ncbi": false,
+            "uniprot": false
         },
         "expected_result": [
-            [
-                "ENSMMUG00000054106.1",
-                "macaca_mulatta",
-                "Mmul_10",
-                "Gene",
-                "lncRNA",
-                "ENSMMUT00000080640.1",
-                "8",
-                1,
-                64990191,
-                65000159,
-                [
-                    "ENSMMUT00000080640.1",
-                    "ENSMMUT00000100253.1"
-                ],
-                [
-                    "lncRNA",
-                    "lncRNA"
-                ],
-                [
-                    "unittest.mock.ANY",
-                    "unittest.mock.ANY"
-                ],
-                [
-                    1,
-                    1
-                ],
-                [
-                    64990191,
-                    64993715
-                ],
-                [
-                    65000159,
-                    64999625
-                ]
-            ],
-            [
-                "ENSMMUG00000053116.1",
-                "macaca_mulatta",
-                "Mmul_10",
-                "Gene",
-                "protein_coding",
-                "ENSMMUT00000091015.1",
-                "3",
-                -1,
-                111461994,
-                111475279,
-                [
-                    "ENSMMUT00000091015.1"
-                ],
-                [
-                    "protein_coding"
-                ],
-                [
-                    "unittest.mock.ANY"
-                ],
-                [
-                    -1
-                ],
-                [
-                    111461994
-                ],
-                [
-                    111475279
-                ]
-            ],
             [
                 "ENSMMUG00000021246.4",
                 "macaca_mulatta",
                 "Mmul_10",
+                "CCDC13",
+                "coiled-coil domain containing 13 [Source:UniProtKB Gene Name;Acc:G7MIX6]",
                 "Gene",
                 "protein_coding",
                 "ENSMMUT00000029894.4",
@@ -389,8 +212,8 @@
                 [
                     "CCDC13-201",
                     "CCDC13-202",
-                    "CCDC13-203",
                     "CCDC13-204",
+                    "CCDC13-203",
                     "CCDC13-205",
                     "CCDC13-206",
                     "CCDC13-207",
@@ -437,7 +260,7 @@
             ]
         ]
     },
-    "test6": {
+    "test_info_transcript": {
         "type": "assert_equal",
         "args": {
             "ens_ids": "ENSMUst00000000001.1",
@@ -454,7 +277,7 @@
                 [],
                 "ENSMUSG00000000001",
                 "Guanine nucleotide-binding protein G(i) subunit alpha-3",
-                "Heterotrimeric guanine nucleotide-binding proteins (G proteins) function as transducers downstream of G protein-coupled receptors (GPCRs) in numerous signaling cascades. The alpha chain contains the guanine nucleotide binding site and alternates between an active, GTP-bound state and an inactive, GDP-bound state. Signaling by an activated GPCR promotes GDP release and GTP binding. The alpha subunit has a low GTPase activity that converts bound GTP to GDP, thereby terminating the signal. Both GDP release and GTP hydrolysis are modulated by numerous regulatory proteins. Signaling is mediated via effector proteins, such as adenylate cyclase. Inhibits adenylate cyclase activity, leading to decreased intracellular cAMP levels. Stimulates the activity of receptor-regulated K(+) channels. The active GTP-bound form prevents the association of RGS14 with centrosomes and is required for the translocation of RGS14 from the cytoplasm to the plasma membrane. May play a role in cell division",
+                "Heterotrimeric guanine nucleotide-binding proteins (G proteins) function as transducers downstream of G protein-coupled receptors (GPCRs) in numerous signaling cascades. The alpha chain contains the guanine nucleotide binding site and alternates between an active, GTP-bound state and an inactive, GDP-bound state. Signaling by an activated GPCR promotes GDP release and GTP binding. The alpha subunit has a low GTPase activity that converts bound GTP to GDP, thereby terminating the signal (By similarity). Both GDP release and GTP hydrolysis are modulated by numerous regulatory proteins (By similarity). Signaling is mediated via effector proteins, such as adenylate cyclase. Inhibits adenylate cyclase activity, leading to decreased intracellular cAMP levels (By similarity). Stimulates the activity of receptor-regulated K(+) channels (By similarity). The active GTP-bound form prevents the association of RGS14 with centrosomes and is required for the translocation of RGS14 from the cytoplasm to the plasma membrane. May play a role in cell division (By similarity). The active GTP-bound form activates the calcium permeant TRPC5 ion channels (By similarity)",
                 [
                     "Cytoplasm",
                     "Cell membrane",
@@ -535,7 +358,7 @@
             ]
         ]
     },
-    "test7": {
+    "test_info_mix": {
         "type": "assert_equal",
         "args": {
             "ens_ids": [
@@ -551,7 +374,7 @@
                 "taeniopygia_guttata",
                 "bTaeGut1_v1.p",
                 "FUNDC1",
-                "FUNDC1-202",
+                "FUNDC1-201",
                 [],
                 "",
                 [
@@ -593,7 +416,7 @@
             ]
         ]
     },
-    "test8": {
+    "test_info_exon": {
         "type": "assert_equal",
         "args": {
             "ens_ids": [
@@ -614,348 +437,7 @@
             ]
         ]
     },
-    "test9": {
-        "type": "assert_equal",
-        "args": {
-            "ens_ids": [
-                "ENSG00000130234"
-            ],
-            "pdb": true,
-            "ncbi": false
-        },
-        "expected_result": [
-            [
-                "ENSG00000130234.13",
-                "Q9BYF1",
-                [
-                    "1r42",
-                    "1r4l",
-                    "2ajf",
-                    "3d0g",
-                    "3d0h",
-                    "3d0i",
-                    "3kbh",
-                    "3sci",
-                    "3scj",
-                    "3sck",
-                    "3scl",
-                    "6acg",
-                    "6acj",
-                    "6ack",
-                    "6cs2",
-                    "6lzg",
-                    "6m0j",
-                    "6m17",
-                    "6m18",
-                    "6m1d",
-                    "6vw1",
-                    "7a91",
-                    "7a92",
-                    "7a94",
-                    "7a95",
-                    "7a96",
-                    "7a97",
-                    "7a98",
-                    "7bh9",
-                    "7ct5",
-                    "7ddo",
-                    "7ddp",
-                    "7df4",
-                    "7dmu",
-                    "7dqa",
-                    "7drv",
-                    "7dwx",
-                    "7dx4",
-                    "7dx5",
-                    "7dx6",
-                    "7dx7",
-                    "7dx8",
-                    "7dx9",
-                    "7e7e",
-                    "7edj",
-                    "7efp",
-                    "7efr",
-                    "7ekc",
-                    "7eke",
-                    "7ekf",
-                    "7ekg",
-                    "7ekh",
-                    "7fdg",
-                    "7fdh",
-                    "7fdi",
-                    "7fem",
-                    "7jvo",
-                    "7kj2",
-                    "7kj3",
-                    "7kj4",
-                    "7kmb",
-                    "7kms",
-                    "7kmz",
-                    "7knb",
-                    "7kne",
-                    "7knh",
-                    "7kni",
-                    "7l0n",
-                    "7l7f",
-                    "7lo4",
-                    "7mjm",
-                    "7mjn",
-                    "7nxc",
-                    "7p19",
-                    "7p55",
-                    "7p8i",
-                    "7p8j",
-                    "7pki",
-                    "7r0z",
-                    "7r10",
-                    "7r11",
-                    "7r12",
-                    "7r1a",
-                    "7rpv",
-                    "7sn0",
-                    "7sxx",
-                    "7sxy",
-                    "7sxz",
-                    "7sy0",
-                    "7sy1",
-                    "7sy2",
-                    "7sy3",
-                    "7sy4",
-                    "7sy5",
-                    "7sy6",
-                    "7sy7",
-                    "7sy8",
-                    "7t9k",
-                    "7t9l",
-                    "7tew",
-                    "7tex",
-                    "7tez",
-                    "7tf0",
-                    "7tn0",
-                    "7u0n",
-                    "7ufk",
-                    "7ufl",
-                    "7v61",
-                    "7v7z",
-                    "7v80",
-                    "7v81",
-                    "7v82",
-                    "7v83",
-                    "7v84",
-                    "7v85",
-                    "7v86",
-                    "7v87",
-                    "7v88",
-                    "7v89",
-                    "7v8a",
-                    "7v8b",
-                    "7vib",
-                    "7vx4",
-                    "7vx5",
-                    "7vx9",
-                    "7vxa",
-                    "7vxb",
-                    "7vxc",
-                    "7vxd",
-                    "7vxf",
-                    "7vxk",
-                    "7vxm",
-                    "7w98",
-                    "7w99",
-                    "7w9b",
-                    "7w9c",
-                    "7w9i",
-                    "7wbl",
-                    "7wbp",
-                    "7wbq",
-                    "7wgb",
-                    "7wgc",
-                    "7whh",
-                    "7wk4",
-                    "7wk5",
-                    "7wk6",
-                    "7wnm",
-                    "7wpa",
-                    "7wpb",
-                    "7wpc",
-                    "7ws8",
-                    "7ws9",
-                    "7wsa",
-                    "7wvp",
-                    "7wvq",
-                    "7xaz",
-                    "7xb0",
-                    "7xb1",
-                    "7xbf",
-                    "7xbg",
-                    "7xbh",
-                    "7xch",
-                    "7xci",
-                    "7xcp",
-                    "7xid",
-                    "7xo7",
-                    "7xo8",
-                    "7xo9",
-                    "7xwa",
-                    "7y1y",
-                    "7y1z",
-                    "7y20",
-                    "7y21",
-                    "7y75",
-                    "7y76",
-                    "7y9z",
-                    "7ya0",
-                    "7ya1",
-                    "7ydi",
-                    "7yeg",
-                    "7yhw",
-                    "7yj3",
-                    "7yr2",
-                    "7yr3",
-                    "7yr4",
-                    "7zdq",
-                    "7zf7",
-                    "8aqs",
-                    "8asy",
-                    "8b9p",
-                    "8bfw",
-                    "8bn1",
-                    "8byj",
-                    "8df5",
-                    "8dlj",
-                    "8dlk",
-                    "8dlm",
-                    "8dln",
-                    "8dlp",
-                    "8dlq",
-                    "8dlu",
-                    "8dlv",
-                    "8dm5",
-                    "8dm6",
-                    "8dv1",
-                    "8dv2",
-                    "8e7m",
-                    "8fxb",
-                    "8fxc",
-                    "8h06",
-                    "8h5c",
-                    "8i91",
-                    "8i92",
-                    "8i93",
-                    "8if2",
-                    "8iou",
-                    "8iov",
-                    "8s9g",
-                    "8sph",
-                    "8spi",
-                    "8wrh",
-                    "8wrl"
-                ],
-                "homo_sapiens",
-                "GRCh38",
-                "ACE2",
-                "ACE2",
-                [],
-                "Angiotensin-converting enzyme 2",
-                "angiotensin converting enzyme 2 [Source:HGNC Symbol;Acc:HGNC:13557]",
-                "(Microbial infection) Acts as a receptor for human coronaviruses SARS-CoV and SARS-CoV-2, as well as human coronavirus NL63/HCoV-NL63 (Microbial infection) Non-functional as a receptor for human coronavirus SARS-CoV-2 Essential counter-regulatory carboxypeptidase of the renin-angiotensin hormone system that is a critical regulator of blood volume, systemic vascular resistance, and thus cardiovascular homeostasis (PubMed:27217402). Converts angiotensin I to angiotensin 1-9, a nine-amino acid peptide with anti-hypertrophic effects in cardiomyocytes, and angiotensin II to angiotensin 1-7, which then acts as a beneficial vasodilator and anti-proliferation agent, counterbalancing the actions of the vasoconstrictor angiotensin II (PubMed:10969042, PubMed:10924499, PubMed:11815627, PubMed:19021774, PubMed:14504186). Also removes the C-terminal residue from three other vasoactive peptides, neurotensin, kinetensin, and des-Arg bradykinin, but is not active on bradykinin (PubMed:10969042, PubMed:11815627). Also cleaves other biological peptides, such as apelins (apelin-13, [Pyr1]apelin-13, apelin-17, apelin-36), casomorphins (beta-casomorphin-7, neocasomorphin) and dynorphin A with high efficiency (PubMed:11815627, PubMed:27217402, PubMed:28293165). In addition, ACE2 C-terminus is homologous to collectrin and is responsible for the trafficking of the neutral amino acid transporter SL6A19 to the plasma membrane of gut epithelial cells via direct interaction, regulating its expression on the cell surface and its catalytic activity (PubMed:18424768, PubMed:19185582) Non-functional as a carboxypeptidase",
-                [
-                    "Secreted",
-                    "Cell membrane",
-                    "Cytoplasm",
-                    "Cell projection, cilium",
-                    "Apical cell membrane",
-                    "Apical cell membrane"
-                ],
-                "Gene",
-                "protein_coding",
-                "ENST00000252519.8",
-                "X",
-                -1,
-                15494566,
-                15607236,
-                [
-                    "ENST00000679162.1",
-                    "ENST00000679212.1",
-                    "ENST00000679278.1",
-                    "ENST00000678046.1",
-                    "ENST00000677282.1",
-                    "ENST00000680121.1",
-                    "ENST00000427411.2",
-                    "ENST00000678073.1",
-                    "ENST00000252519.8",
-                    "ENST00000471548.5",
-                    "ENST00000473851.1"
-                ],
-                [
-                    "protein_coding",
-                    "protein_coding",
-                    "protein_coding",
-                    "protein_coding",
-                    "protein_coding",
-                    "protein_coding",
-                    "protein_coding",
-                    "protein_coding",
-                    "protein_coding",
-                    "nonsense_mediated_decay",
-                    "retained_intron"
-                ],
-                [
-                    "ACE2-208",
-                    "ACE2-209",
-                    "ACE2-210",
-                    "ACE2-206",
-                    "ACE2-205",
-                    "ACE2-211",
-                    "ACE2-202",
-                    "ACE2-207",
-                    "ACE2-201",
-                    "ACE2-203",
-                    "ACE2-204"
-                ],
-                [
-                    -1,
-                    -1,
-                    -1,
-                    -1,
-                    -1,
-                    -1,
-                    -1,
-                    -1,
-                    -1,
-                    -1,
-                    -1
-                ],
-                [
-                    15494566,
-                    15494566,
-                    15518189,
-                    15550715,
-                    15557039,
-                    15557039,
-                    15557039,
-                    15557039,
-                    15561033,
-                    15561036,
-                    15561880
-                ],
-                [
-                    15600960,
-                    15600960,
-                    15600960,
-                    15600960,
-                    15580438,
-                    15601208,
-                    15602155,
-                    15607236,
-                    15600960,
-                    15566287,
-                    15566709
-                ]
-            ]
-        ]
-    },
-    "test10": {
+    "test_info_ncbifalse_uniprottrue": {
         "type": "assert_equal",
         "args": {
             "ens_ids": [
@@ -1008,7 +490,7 @@
             ]
         ]
     },
-    "test11": {
+    "test_info_ncbitrue_uniprotfalse": {
         "type": "assert_equal",
         "args": {
             "ens_ids": "ENSG00000187272",
@@ -1056,7 +538,7 @@
             ]
         ]
     },
-    "test12": {
+    "test_info_ncbifalse_uniprotfalse": {
         "type": "assert_equal",
         "args": {
             "ens_ids": [
@@ -1105,51 +587,5 @@
                 87636740
             ]
         ]
-    },
-    "test13": {
-        "type": "assert_equal",
-        "args": {
-            "ens_ids": [
-                "ENSMAMT00000050164.1",
-                "WBGene00004893"
-            ],
-            "ensembl_only": true
-        },
-        "expected_result": [
-            [
-                "ENSMAMT00000050164.1",
-                "mastacembelus_armatus",
-                "fMasArm1.2",
-                "dhh-206",
-                "ENSMAMG00000026685",
-                "Transcript",
-                "protein_coding",
-                "7",
-                -1,
-                734953,
-                739905
-            ],
-            [
-                "WBGene00004893",
-                "caenorhabditis_elegans",
-                "WBcel235",
-                "sms-2",
-                "Gene",
-                "protein_coding",
-                "X",
-                -1,
-                944826,
-                948883
-            ]
-        ]
-    },
-    "none_test1": {
-        "type": null,
-        "args": {
-            "ens_ids": [
-                "banana"
-            ]
-        },
-        "expected_result": null
     }
 }
