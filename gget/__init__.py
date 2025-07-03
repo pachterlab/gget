@@ -24,6 +24,7 @@ import logging
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
 
+
 # Get version number from the config file
 try:
     from importlib.metadata import version, PackageNotFoundError
@@ -34,6 +35,7 @@ try:
     __version__ = version("gget")
 except PackageNotFoundError:
     __version__ = "unknown"
+
 
 __author__ = "Laura Luebbert"
 __email__ = "lauralubbert@gmail.com"
