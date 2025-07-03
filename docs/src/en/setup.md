@@ -3,6 +3,8 @@
 
 Function to install/download third-party dependencies for a specified gget module.
 
+> **Note:** Some dependencies (e.g., `cellxgene-census`) may not support the latest Python versions. If you encounter installation errors try using an environment with an earlier Python version.
+
 **Positional argument**  
 `module`  
 gget module for which dependencies should be installed.  

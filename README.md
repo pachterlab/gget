@@ -20,6 +20,10 @@ Read the article here: https://doi.org/10.1093/bioinformatics/btac836
 
 # Installation
 ```bash
+uv pip install gget
+```
+or
+```bash
 pip install --upgrade gget
 ```
 
