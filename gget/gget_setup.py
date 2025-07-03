@@ -56,7 +56,7 @@ def _install(package: str, import_name: str, verbose: bool = True):
                 f"{package} installation with '{command}' (https://pypi.org/project/{package}) failed."
             )
             if pip_cmd == pip_cmds[-1]:
-                logger.error(f"All installation attempts for {package} have failed.")
+                logger.error(f"All installation attempts for {package} have failed. Note: Some dependencies (e.g., cellxgene-census) may not support the latest Python versions. If you encounter installation errors, try using an earlier Python version.")
                 return
             else:
                 if verbose:
@@ -74,7 +74,7 @@ def _install(package: str, import_name: str, verbose: bool = True):
             )
             # Retry with pip if import after uv installation failed
             if pip_cmd == pip_cmds[-1]:
-                logger.error(f"All installation attempts for {package} have failed.")
+                logger.error(f"All installation attempts for {package} have failed. Note: Some dependencies (e.g., cellxgene-census) may not support the latest Python versions. If you encounter installation errors, try using an earlier Python version.")
                 return
             else:
                 if verbose:
