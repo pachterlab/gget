@@ -42,32 +42,44 @@ PARAMS_PATH = os.path.join(PARAMS_DIR, "params_temp.tar")
 
 
 def _install(package: str, import_name: str, verbose: bool = True):
-    if verbose:
-        logger.info(f"Installing {package} package (requires pip).")
-    command = f"pip install -q -U {package}"
-    with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
-        stderr = process.stderr.read().decode("utf-8")
-    # Exit system if the subprocess returned with an error
-    if process.wait() != 0:
-        if stderr:
-            # Log the standard error if it is not empty
-            sys.stderr.write(stderr)
-        logger.error(
-            f"{package} installation with pip (https://pypi.org/project/{package}) failed."
-        )
-        return
-
-    # Test installation
-    try:
-        exec(f"import {import_name}")
-
+    pip_cmds = ["uv pip install", "pip install"] if shutil.which("uv") else ["pip install"]
+    for pip_cmd in pip_cmds:
+        command = f"{pip_cmd} -q -U {package}"
         if verbose:
-            logger.info(f"{import_name} installed succesfully.")
-    except ImportError as e:
-        logger.error(
-            f"{package} installation with pip (https://pypi.org/project/{package}) failed. Import error:\n{e}"
-        )
-        return
+            logger.info(f"Attempting to install {package} using: {command}")
+        with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
+            stderr = process.stderr.read().decode("utf-8")
+        if process.wait() != 0:
+            if stderr:
+                sys.stderr.write(stderr)
+            logger.error(
+                f"{package} installation with '{command}' (https://pypi.org/project/{package}) failed."
+            )
+            if pip_cmd == pip_cmds[-1]:
+                logger.error(f"All installation attempts for {package} have failed.")
+                return
+            else:
+                if verbose:
+                    logger.info(f"Retrying installation of {package} with next available installer.")
+                continue
+        # Test installation
+        try:
+            exec(f"import {import_name}")
+            if verbose:
+                logger.info(f"{import_name} installed successfully using {command}.")
+            return
+        except ImportError as e:
+            logger.error(
+                f"{package} installation with '{command}' (https://pypi.org/project/{package}) failed. Import error:\n{e}"
+            )
+            # Retry with pip if import after uv installation failed
+            if pip_cmd == pip_cmds[-1]:
+                logger.error(f"All installation attempts for {package} have failed.")
+                return
+            else:
+                if verbose:
+                    logger.info(f"Retrying installation of {package} with next available installer.")
+                continue
 
 
 def setup(module, verbose=True, out=None):
@@ -90,32 +102,7 @@ def setup(module, verbose=True, out=None):
         )
 
     if module == "gpt":
-        if verbose:
-            logger.info("Installing openai version <=0.28.1 (requires pip).")
-        command = "pip install -q -U 'openai<=0.28.1'"
-        with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
-            stderr = process.stderr.read().decode("utf-8")
-        # Exit system if the subprocess returned with an error
-        if process.wait() != 0:
-            if stderr:
-                # Log the standard error if it is not empty
-                sys.stderr.write(stderr)
-            logger.error(
-                "Installation of openai version <=0.28.1 with pip (https://pypi.org/project/openai) failed."
-            )
-            return
-
-        # Test installation
-        try:
-            import openai
-
-            if verbose:
-                logger.info(f"openai installed succesfully.")
-        except ImportError as e:
-            logger.error(
-                f"openai installation with pip (https://pypi.org/project/openai) failed. Import error:\n{e}"
-            )
-            return
+        _install("openai<=0.28.1", "openai", verbose=verbose)
 
     elif module == "cellxgene":
         _install("cellxgene-census", "cellxgene_census", verbose=verbose)
@@ -264,36 +251,13 @@ def setup(module, verbose=True, out=None):
             )
 
         ## Install py3Dmol
-        if verbose:
-            logger.info("Installing py3Dmol (requires pip).")
-        command = "pip install -q py3Dmol"
-        with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
-            stderr = process.stderr.read().decode("utf-8")
-        # Exit system if the subprocess returned with an error
-        if process.wait() != 0:
-            if stderr:
-                # Log the standard error if it is not empty
-                sys.stderr.write(stderr)
-            logger.error(
-                "py3Dmol installation with pip (https://pypi.org/project/py3Dmol) failed."
-            )
-            return
-
-        # Test installation
-        try:
-            import py3Dmol
-
-            if verbose:
-                logger.info(f"py3Dmol installed succesfully.")
-        except ImportError as e:
-            logger.error(
-                f"py3Dmol installation with pip (https://pypi.org/project/py3Dmol/) failed. Import error:\n{e}"
-            )
-            return
+        _install("py3Dmol", "py3Dmol", verbose=verbose)
 
         ## Install Alphafold if not already installed
         if verbose:
             logger.info("Installing AlphaFold from source (requires pip and git).")
+
+        pip_cmd = "uv pip install" if shutil.which("uv") else "pip install"
 
         ## Install AlphaFold and change jackhmmer directory where database chunks are saved in
         # Define AlphaFold folder name and location
@@ -310,8 +274,8 @@ def setup(module, verbose=True, out=None):
                 git clone --branch main -q --branch {} {} {} \\
                 && sed -i '' 's/\\/tmp\\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \\
                 && sed -i '' '/from absl import logging/a logging.set_verbosity(logging.WARNING)' {}/alphafold/data/tools/jackhmmer.py \\
-                && pip install -q -r {}/requirements.txt \\
-                && pip install -q --no-dependencies {}
+                && {pip_cmd} -q -r {}/requirements.txt \\
+                && {pip_cmd} -q --no-dependencies {}
                 """.format(
                 ALPHAFOLD_GIT_REPO_VERSION,
                 ALPHAFOLD_GIT_REPO,
@@ -329,8 +293,8 @@ def setup(module, verbose=True, out=None):
                 git clone --branch main -q --branch {} {} {} \\
                 && sed -i 's/\\/tmp\\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \\
                 && sed -i 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' {}/alphafold/data/tools/jackhmmer.py \\
-                && pip install -q -r {}/requirements.txt \\
-                && pip install -q --no-dependencies {}
+                && {pip_cmd} -q -r {}/requirements.txt \\
+                && {pip_cmd} -q --no-dependencies {}
                 """.format(
                 ALPHAFOLD_GIT_REPO_VERSION,
                 ALPHAFOLD_GIT_REPO,
@@ -390,7 +354,7 @@ def setup(module, verbose=True, out=None):
 
         command = f"""
             git clone -q --branch {PDBFIXER_VERSION} {PDBFIXER_GIT_REPO} {pdbfixer_folder} \\
-            && pip install -q {pdbfixer_folder}
+            && {pip_cmd} -q {pdbfixer_folder}
             """
 
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
