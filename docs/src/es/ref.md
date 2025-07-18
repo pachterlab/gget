@@ -1,6 +1,6 @@
 > Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
 # gget ref 📖
-Obtenga enlaces FTP y sus respectivos metadatos (o use la bandera `ftp` para regresar solo los enlaces) para referenciar genomas y anotaciones de [Ensembl](https://www.ensembl.org/).  
+Obtenga enlaces de descarga y metadatos para los genomas de referencia de [Ensembl](https://www.ensembl.org/).  
 Regresa: Resultados en formato JSON.  
 
 **Parámetro posicional**  

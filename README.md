@@ -1,6 +1,5 @@
 # gget
 [![pypi version](https://img.shields.io/pypi/v/gget)](https://pypi.org/project/gget)
-[![image](https://anaconda.org/bioconda/gget/badges/version.svg)](https://anaconda.org/bioconda/gget)
 [![Downloads](https://static.pepy.tech/personalized-badge/gget?period=total&units=international_system&left_color=grey&right_color=brightgreen&left_text=downloads)](https://pepy.tech/project/gget)
 [![Conda](https://img.shields.io/conda/dn/bioconda/gget?logo=Anaconda)](https://anaconda.org/bioconda/gget)
 [![license](https://img.shields.io/pypi/l/gget)](LICENSE)
@@ -19,6 +18,10 @@ Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference data
 Read the article here: https://doi.org/10.1093/bioinformatics/btac836  
 
 # Installation
+```bash
+uv pip install gget
+```
+or
 ```bash
 pip install --upgrade gget
 ```
@@ -121,4 +124,4 @@ gget$enrichr(list("ACE2", "AGT", "AGTR1", "ACE", "AGTRAP", "AGTR2", "ACE3P"), da
 gget$archs4("ACE2", which="tissue")
 gget$pdb("1R42", save=TRUE)
 ```
-#### [More examples](https://github.com/pachterlab/gget_examples)
+#### [More tutorials](https://github.com/pachterlab/gget_examples)

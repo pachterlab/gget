@@ -25,6 +25,18 @@ import logging
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
 
-__version__ = "0.29.2"
+
+# Get version number from the config file
+try:
+    from importlib.metadata import version, PackageNotFoundError
+except ImportError:
+    from importlib_metadata import version, PackageNotFoundError  # For Python <3.8
+
+try:
+    __version__ = version("gget")
+except PackageNotFoundError:
+    __version__ = "unknown"
+
+
 __author__ = "Laura Luebbert"
 __email__ = "lauralubbert@gmail.com"

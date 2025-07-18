@@ -3,6 +3,8 @@
 
 Función para instalar/descargar dependencias de terceros para un módulo de gget.  
 
+> **Nota:** Algunas dependencias (por ejemplo, `cellxgene-census`) pueden no ser compatibles con las versiones más recientes de Python. Si encuentras errores durante la instalación, intenta usar un entorno con una versión anterior de Python.
+
 **Parámetro posicional**  
 `module`   
 Módulo gget para el que se deben instalar las dependencias.  

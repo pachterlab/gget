@@ -1,15 +1,59 @@
 [![pypi version](https://img.shields.io/pypi/v/gget)](https://pypi.org/project/gget)
-[![image](https://anaconda.org/bioconda/gget/badges/version.svg)](https://anaconda.org/bioconda/gget)
+
 # Installation
+
+## You can use `uv` or `pip` to install gget:
+```bash
+uv pip install gget
+```
+or
 ```bash
 pip install --upgrade gget
 ```
-Alternative (though installation using `pip` is preferred):  
+
+## Recommended: Install in a clean environment
+
+We recommend using a virtual environment for a clean, conflict-free install. You can use `uv`, `venv`, or `conda`:
+
+**With [uv](https://github.com/astral-sh/uv):**
 ```bash
-conda install -c bioconda gget
+pip install uv  # if you don't have uv yet
+uv venv .venv
+source .venv/bin/activate
+
+uv pip install gget
 ```
-  
+
+**With pip and venv:**
+```bash
+python -m venv .venv
+source .venv/bin/activate
+
+pip install --upgrade gget
+```
+
+**With conda:**
+```bash
+conda create -n gget-env python=3.11
+conda activate gget-env
+
+pip install --upgrade gget
+```
+
+---
+
 For use in Jupyter Lab / Google Colab:
 ```python
 import gget
 ```
+
+---
+
+### Troubleshooting
+- If you see errors about missing dependencies, make sure you are using a clean environment and have the latest version of pip or uv.
+- If you previously installed gget system-wide, uninstall it with:
+  ```bash
+  pip uninstall gget
+  ```
+  or remove the executable from your system path.
+- If you continue to having trouble, please [reach out](https://github.com/pachterlab/gget/issues).
