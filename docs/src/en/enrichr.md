@@ -61,7 +61,7 @@ Python only. Pass a matplotlib axes object for plot customization. (Default: Non
 `-e` `--ensembl`   
 Add this flag if `genes` are given as Ensembl gene IDs.
 
-`-e_b` `--ensembl_background`  
+`-e_b` `--ensembl_bkg`  
 Add this flag if `background_list` are given as Ensembl gene IDs.
 
 `-bkg` `--background`  
