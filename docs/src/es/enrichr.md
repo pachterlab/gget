@@ -58,7 +58,7 @@ Solo para Python. Ingresa un objeto de ejes matplotlib para personalizar la visu
 `-e` `--ensembl`   
 Usa esta bandera si `genes` se ingresa como una lista de IDs tipo Ensembl.     
 
-`-e_b` `--ensembl_background`  
+`-e_b` `--ensembl_bkg`  
 Usa esta bandera si `background_list` se ingresa como una lista de IDs tipo Ensembl.  
 
 `-bkg` `--background`  
