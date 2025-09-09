@@ -1,7 +1,7 @@
 import json as json_package
 from json.decoder import JSONDecodeError
 import pandas as pd
-from urllib.request import urlopen
+from urllib import request
 
 from .utils import set_up_logger, read_fasta
 
