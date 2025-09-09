@@ -145,7 +145,7 @@ def blat(
             BLAT of seqtype '{seqtype}' using assembly '{database}' was unsuccesful. 
             Possible causes: 
             - Sequence possibly too short (required minimum: 20 characters). 
-            - Assembly possibly invalid. All available species with their respective assemblies are listed at https://genome.ucsc.edu/cgi-bin/hgBlat.
+            - Assembly possibly invalid. All available species with their respective assemblies are listed at https://genome.ucsc.edu/cgi-bin/hgBlat
             """
         )
         return
