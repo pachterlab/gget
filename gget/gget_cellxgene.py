@@ -69,7 +69,7 @@ def cellxgene(
     verbose=True,
     out=None,
 ):
-"""
+    """
     Query data from CZ CELLxGENE Discover (https://cellxgene.cziscience.com/) using the
     CZ CELLxGENE Discover Census (https://github.com/chanzuckerberg/cellxgene-census).
 
