@@ -122,7 +122,14 @@ def blat(
     url = f"https://genome.ucsc.edu/cgi-bin/hgBlat?userSeq={sequence}&type={seqtype}&db={database}&output=json"
 
     # Submit URL request
-    r = urlopen(url)
+    req = request.Request(
+            url,
+            headers={
+                "User-Agent": "gget"
+            }
+        )
+    r = request.urlopen(req)
+
     if r.status != 200:
         raise RuntimeError(
             f"HTTP response status code {r.status}. "
