@@ -1,4 +1,8 @@
 ## ✨ What's new  
+**Version ≥ 0.29.3** (Sep 09, 2025):  
+- [`gget blat`](blat.md): Update API request to new permissions.
+- [`gget cellxgene`](cellxgene.md): Improved argument handling; frontend unchanged.
+  
 **Version ≥ 0.29.2** (Jul 03, 2025):  
 - gget can now be installed using `uv pip install gget`
   - All package metadata (version, author, description, etc.) is now managed in setup.cfg for full compatibility with modern tools like uv, pip, and PyPI
