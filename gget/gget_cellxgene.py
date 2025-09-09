@@ -159,6 +159,17 @@ def cellxgene(
     # Convert all arguments to list
     args = convert_to_list(args)
 
+    # Ensure gene argument is a list and formatted correctly
+    if gene:
+        if isinstance(gene, str):
+            gene = [gene]
+        # Format gene names to match species conventions when not using Ensembl IDs
+        if not ensembl:
+            if species == "homo_sapiens":
+                gene = [g.upper() for g in gene]
+            elif species == "mus_musculus":
+                gene = [g.capitalize() for g in gene]
+
     # Define metadata filter
     if is_primary_data:
         obs_value_filter = f"is_primary_data == True"
