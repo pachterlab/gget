@@ -1,7 +1,7 @@
 ## ✨ What's new  
 **Version ≥ 0.29.3** (Sep 09, 2025):  
 - [`gget blat`](blat.md): Update API request to new permissions.
-- [`gget cellxgene`](cellxgene.md): Improved argument handling; frontend unchanged.
+- [`gget cellxgene`](cellxgene.md): Improved argument handling; frontend unchanged. Fixes [issue 181](https://github.com/pachterlab/gget/issues/181).
   
 **Version ≥ 0.29.2** (Jul 03, 2025):  
 - gget can now be installed using `uv pip install gget`
