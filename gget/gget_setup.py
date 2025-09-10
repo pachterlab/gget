@@ -261,7 +261,7 @@ def setup(module, verbose=True, out=None):
             logger.info("Installing AlphaFold from source (requires pip and git).")
 
         # pip_cmd = "uv pip install" if shutil.which("uv") else "pip install"
-        pip_cmd = f"{sys.executable} -m pip"
+        pip_cmd = f"{sys.executable} -m pip install"
 
         ## Install AlphaFold and change jackhmmer directory where database chunks are saved in
         # Define AlphaFold folder name and location
