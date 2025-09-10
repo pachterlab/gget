@@ -282,7 +282,7 @@ def setup(module, verbose=True, out=None):
                 git clone -q --branch {ALPHAFOLD_GIT_REPO_VERSION} {ALPHAFOLD_GIT_REPO} "{alphafold_folder}" \\
                 && sed -i '' 's/\\/tmp\\/ramdisk/{jack_dir}/g' "{alphafold_folder}/alphafold/data/tools/jackhmmer.py" \\
                 && sed -i '' '/from absl import logging/a logging.set_verbosity(logging.WARNING)' "{alphafold_folder}/alphafold/data/tools/jackhmmer.py" \\
-                && {pip_cmd} --upgrade --upgrade-strategy eager -r "{alphafold_folder}/requirements.txt" \\
+                && {pip_cmd} -r "{alphafold_folder}/requirements.txt" \\
                 && {pip_cmd} --no-dependencies "{alphafold_folder}"
             """
         else:
@@ -290,7 +290,7 @@ def setup(module, verbose=True, out=None):
                 git clone -q --branch {ALPHAFOLD_GIT_REPO_VERSION} {ALPHAFOLD_GIT_REPO} "{alphafold_folder}" \\
                 && sed -i 's/\\/tmp\\/ramdisk/{jack_dir}/g' "{alphafold_folder}/alphafold/data/tools/jackhmmer.py" \\
                 && sed -i 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' "{alphafold_folder}/alphafold/data/tools/jackhmmer.py" \\
-                && {pip_cmd} --upgrade --upgrade-strategy eager -r "{alphafold_folder}/requirements.txt" \\
+                && {pip_cmd} -r "{alphafold_folder}/requirements.txt" \\
                 && {pip_cmd} --no-dependencies "{alphafold_folder}"
             """
 
