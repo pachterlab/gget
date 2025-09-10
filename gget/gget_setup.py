@@ -470,6 +470,8 @@ def setup(module, verbose=True, out=None):
         except:
             PDBFIXER_VERSION = "v1.8.1"
 
+        pip_cmd = "uv pip install" if shutil.which("uv") else "pip install -q"
+
         command = f"""
             git clone -q --branch {PDBFIXER_VERSION} {PDBFIXER_GIT_REPO} {pdbfixer_folder} \\
             && {pip_cmd} {pdbfixer_folder}
