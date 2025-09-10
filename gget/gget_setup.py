@@ -293,8 +293,9 @@ def setup(module, verbose=True, out=None):
                 && {pip_cmd} --upgrade "numpy>=1.26,<2" "tensorflow-cpu>=2.17,<2.18" jax==0.4.26 jaxlib==0.4.26 \\
                 && {pip_cmd} --no-deps {alphafold_folder}
             """
-                # && {pip_cmd} -r "{alphafold_folder}/requirements.txt" \\
-                # && {pip_cmd} --no-dependencies "{alphafold_folder}"
+            # Previously:
+            # && {pip_cmd} -r "{alphafold_folder}/requirements.txt" \\
+            # && {pip_cmd} --no-dependencies "{alphafold_folder}"
 
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
             stderr = process.stderr.read().decode("utf-8")
