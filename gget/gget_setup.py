@@ -290,8 +290,7 @@ def setup(module, verbose=True, out=None):
                 git clone -q --branch {ALPHAFOLD_GIT_REPO_VERSION} {ALPHAFOLD_GIT_REPO} "{alphafold_folder}" \\
                 && sed -i 's/\\/tmp\\/ramdisk/{jack_dir}/g' "{alphafold_folder}/alphafold/data/tools/jackhmmer.py" \\
                 && sed -i 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' "{alphafold_folder}/alphafold/data/tools/jackhmmer.py" \\
-                && {pip_cmd} -v --upgrade "numpy>=1.26,<2" "tensorflow-cpu>=2.17,<2.18" \\
-                && {pip_cmd} -v --upgrade --upgrade-strategy eager -r "{alphafold_folder}/requirements.txt" \\
+                && {pip_cmd} -v -r "{alphafold_folder}/requirements.txt" \\
                 && {pip_cmd} -v --no-dependencies "{alphafold_folder}"
             """
 
