@@ -284,20 +284,19 @@ def setup(module, verbose=True, out=None):
             "filelock>=3.12",
             "jax==0.4.26",
             "jaxlib==0.4.26",
-            # jax-triton & triton aren’t needed on CPU-only Colab; comment back in if you really need them
-            # "jax-triton>=0.2,<0.3",
+            # "jax-triton>=0.2,<0.3",    # jax-triton & triton aren’t needed on CPU-only use
             "jaxtyping>=0.2.30",
             "jmp>=0.0.4",
+            "ml-collections>=0.1,<1",
             "ml-dtypes>=0.3.1,<0.6",
-            "numpy>=1.26,<2",          # keeps TF 2.17 CPU happy
+            "numpy>=1.26,<2",            # keeps TF 2.17 CPU happy
             "opt-einsum>=3.4,<4",
             "pillow>=10,<12",
-            # rdkit pulls heavy wheels and may force newer numpy; skip unless needed:
-            # "rdkit-pypi",
+            # "rdkit-pypi",              # rdkit pulls heavy wheels and may force newer numpy; skip unless needed
             "scipy>=1.10,<2",
             "tabulate>=0.9",
             "tqdm>=4.65",
-            # "triton>=3,<4",           # only if you enable jax-triton above
+            # "triton>=3,<4",            # only if you enable jax-triton above
             "typeguard>=2.13,<3",
             "zstandard>=0.21,<0.24",
         ]
