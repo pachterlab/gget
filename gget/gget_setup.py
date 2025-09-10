@@ -82,7 +82,7 @@ def _install(package: str, import_name: str, verbose: bool = True):
                 continue
 
 
-def setup(module, verbose=True, out=None):
+def setup(module, verbose=True, out=None, jack_dir=None):
     """
     Function to install third-party dependencies for a specified gget module.
     Some modules require pip to be installed (https://pip.pypa.io/en/stable/installation).
@@ -94,6 +94,10 @@ def setup(module, verbose=True, out=None):
     - out       (str) Path to directory to save downloaded files in (currently only applies when module='elm').
                 NOTE: Do not use this argument when downloading the files for use with 'gget.elm'.
                 Default None (files are saved in the gget installation directory).
+   
+   Optional arguments when module='alphafold':
+   - jack_dir  (str) Directory to use for jackhmmer temporary files (only applies to module='alphafold').
+                Default: '~/tmp/jackhmmer/' (see below).
     """
     supported_modules = ["alphafold", "cellxgene", "elm", "gpt", "cbio"]
     if module not in supported_modules:
@@ -265,52 +269,29 @@ def setup(module, verbose=True, out=None):
             PACKAGE_PATH, "tmp_alphafold_" + str(uuid.uuid4())
         )
 
+        # Set jack_dir
+        jack_dir = os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace("/", "\\/")
+
         # Clone AlphaFold github repo
         # Replace directory where jackhmmer database chunks will be saved
         # Insert "logging.set_verbosity(logging.WARNING)" to mute all info loggers
         # Pip install AlphaFold from local directory
         if platform.system() == "Darwin":
-            command = """
-                git clone --branch main -q --branch {} {} {} \\
-                && sed -i '' 's/\\/tmp\\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \\
-                && sed -i '' '/from absl import logging/a logging.set_verbosity(logging.WARNING)' {}/alphafold/data/tools/jackhmmer.py \\
-                && {} -q -r {}/requirements.txt \\
-                && {} -q --no-dependencies {}
-                """.format(
-                ALPHAFOLD_GIT_REPO_VERSION,
-                ALPHAFOLD_GIT_REPO,
-                alphafold_folder,
-                os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace(
-                    "/", "\\/"
-                ),  # Replace directory where jackhmmer database chunks will be saved
-                alphafold_folder,
-                alphafold_folder,
-                alphafold_folder,
-                alphafold_folder,
-                pip_cmd,
-                pip_cmd
-            )
+            command = f"""
+                git clone -q --branch {ALPHAFOLD_GIT_REPO_VERSION} {ALPHAFOLD_GIT_REPO} "{alphafold_folder}" \\
+                && sed -i '' 's/\\/tmp\\/ramdisk/{jack_dir}/g' "{alphafold_folder}/alphafold/data/tools/jackhmmer.py" \\
+                && sed -i '' '/from absl import logging/a logging.set_verbosity(logging.WARNING)' "{alphafold_folder}/alphafold/data/tools/jackhmmer.py" \\
+                && {pip_cmd} -q -r "{alphafold_folder}/requirements.txt" \\
+                && {pip_cmd} -q --no-dependencies "{alphafold_folder}"
+            """
         else:
-            command = """
-                git clone --branch main -q --branch {} {} {} \\
-                && sed -i 's/\\/tmp\\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \\
-                && sed -i 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' {}/alphafold/data/tools/jackhmmer.py \\
-                && {} -q -r {}/requirements.txt \\
-                && {} -q --no-dependencies {}
-                """.format(
-                ALPHAFOLD_GIT_REPO_VERSION,
-                ALPHAFOLD_GIT_REPO,
-                alphafold_folder,
-                os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace(
-                    "/", "\\/"
-                ),  # Replace directory where jackhmmer database chunks will be saved
-                alphafold_folder,
-                alphafold_folder,
-                alphafold_folder,
-                alphafold_folder,
-                pip_cmd,
-                pip_cmd
-            )
+            command = f"""
+                git clone -q --branch {ALPHAFOLD_GIT_REPO_VERSION} {ALPHAFOLD_GIT_REPO} "{alphafold_folder}" \\
+                && sed -i 's/\\/tmp\\/ramdisk/{jack_dir}/g' "{alphafold_folder}/alphafold/data/tools/jackhmmer.py" \\
+                && sed -i 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' "{alphafold_folder}/alphafold/data/tools/jackhmmer.py" \\
+                && {pip_cmd} -q -r "{alphafold_folder}/requirements.txt" \\
+                && {pip_cmd} -q --no-dependencies "{alphafold_folder}"
+            """
 
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
             stderr = process.stderr.read().decode("utf-8")
