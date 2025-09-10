@@ -279,7 +279,7 @@ def setup(module, verbose=True, out=None):
         # Core AlphaFold dependencies (Colab/CPU friendly set)
         alphafold_deps = [
             "absl-py>=2.1,<3",
-            "dm-haiku==0.0.12",
+            "dm-haiku<=0.0.12",          # dont upgrade to avoid clash with jax
             "dm-tree>=0.1.8",
             "filelock>=3.12",
             "jax==0.4.26",
@@ -292,6 +292,7 @@ def setup(module, verbose=True, out=None):
             "numpy>=1.26,<2",            # keeps TF 2.17 CPU happy
             "opt-einsum>=3.4,<4",
             "pillow>=10,<12",
+            "protobuf<4",
             # "rdkit-pypi",              # rdkit pulls heavy wheels and may force newer numpy; skip unless needed
             "scipy>=1.10,<2",
             "tabulate>=0.9",
