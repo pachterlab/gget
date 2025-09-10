@@ -177,7 +177,7 @@
                 "macaca_mulatta",
                 "Mmul_10",
                 "CCDC13",
-                "coiled-coil domain containing 13 [Source:UniProtKB Gene Name;Acc:G7MIX6]",
+                "coiled-coil domain containing 13 [Source:UniProtKB Gene Name;Acc:F7D2F4]",
                 "Gene",
                 "protein_coding",
                 "ENSMMUT00000029894.4",
@@ -388,7 +388,7 @@
                 107526965
             ],
             [
-                "ENSG00000169174.13",
+                "ENSG00000169174.14",
                 "Q8NBP7",
                 "homo_sapiens",
                 "GRCh38",

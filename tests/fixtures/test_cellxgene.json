@@ -1,5 +1,5 @@
 {
-    "test1": {
+    "test_cellxgene_adata": {
         "type": "assert_equal",
         "args": {
             "cell_type": [
@@ -25,6 +25,7 @@
                 "tissue_general",
                 "tissue",
                 "cell_type",
+                "disease",
                 "is_primary_data"
             ],
             "var": [
@@ -35,7 +36,7 @@
             ]
         }
     },
-    "test2": {
+    "test_cellxgene_metadata": {
         "type": "assert_equal",
         "args": {
             "gene": "ENSMUSG00000015405",
@@ -54,6 +55,7 @@
                 "lung",
                 "lung",
                 "mesenchymal stem cell",
+                "normal",
                 true
             ],
             [
@@ -64,6 +66,7 @@
                 "lung",
                 "lung",
                 "progenitor cell",
+                "normal",
                 true
             ],
             [
@@ -74,6 +77,7 @@
                 "lung",
                 "lung",
                 "mesenchymal cell",
+                "normal",
                 true
             ],
             [
@@ -84,6 +88,7 @@
                 "lung",
                 "lung",
                 "mesenchymal stem cell",
+                "normal",
                 true
             ],
             [
@@ -94,6 +99,7 @@
                 "lung",
                 "lung",
                 "mesenchymal cell",
+                "normal",
                 true
             ],
             [
@@ -104,6 +110,7 @@
                 "lung",
                 "lung",
                 "mesenchymal stem cell",
+                "normal",
                 true
             ],
             [
@@ -114,6 +121,7 @@
                 "lung",
                 "lung",
                 "mesothelial cell of visceral pleura",
+                "normal",
                 true
             ],
             [
@@ -124,6 +132,7 @@
                 "lung",
                 "lung",
                 "mesenchymal stem cell",
+                "normal",
                 true
             ],
             [
@@ -134,6 +143,7 @@
                 "lung",
                 "lung",
                 "mesenchymal stem cell",
+                "normal",
                 true
             ],
             [
@@ -144,6 +154,7 @@
                 "lung",
                 "lung",
                 "progenitor cell",
+                "normal",
                 true
             ],
             [
@@ -154,6 +165,7 @@
                 "lung",
                 "lung",
                 "mesenchymal cell",
+                "normal",
                 true
             ],
             [
@@ -164,6 +176,7 @@
                 "lung",
                 "lung",
                 "mesenchymal stem cell",
+                "normal",
                 true
             ],
             [
@@ -174,6 +187,7 @@
                 "lung",
                 "lung",
                 "aortic smooth muscle cell",
+                "normal",
                 true
             ],
             [
@@ -184,6 +198,7 @@
                 "lung",
                 "lung",
                 "mesenchymal stem cell",
+                "normal",
                 true
             ],
             [
@@ -194,6 +209,7 @@
                 "lung",
                 "lung",
                 "mesenchymal stem cell",
+                "normal",
                 true
             ],
             [
@@ -204,6 +220,7 @@
                 "lung",
                 "lung",
                 "mesenchymal stem cell",
+                "normal",
                 true
             ],
             [
@@ -214,6 +231,7 @@
                 "lung",
                 "lung",
                 "aortic smooth muscle cell",
+                "normal",
                 true
             ],
             [
@@ -224,6 +242,7 @@
                 "lung",
                 "lung",
                 "mesenchymal stem cell",
+                "normal",
                 true
             ],
             [
@@ -234,6 +253,7 @@
                 "lung",
                 "lung",
                 "mesenchymal stem cell",
+                "normal",
                 true
             ],
             [
@@ -244,6 +264,7 @@
                 "lung",
                 "lung",
                 "mesenchymal cell",
+                "normal",
                 true
             ],
             [
@@ -254,6 +275,7 @@
                 "lung",
                 "lung",
                 "mesenchymal stem cell",
+                "normal",
                 true
             ],
             [
@@ -264,6 +286,7 @@
                 "lung",
                 "lung",
                 "mesenchymal stem cell",
+                "normal",
                 true
             ],
             [
@@ -274,6 +297,7 @@
                 "lung",
                 "lung",
                 "mesenchymal stem cell",
+                "normal",
                 true
             ],
             [
@@ -284,6 +308,7 @@
                 "lung",
                 "lung",
                 "mesenchymal stem cell",
+                "normal",
                 true
             ],
             [
@@ -294,6 +319,7 @@
                 "lung",
                 "lung",
                 "mesenchymal stem cell",
+                "normal",
                 true
             ]
         ]
