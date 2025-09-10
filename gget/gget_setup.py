@@ -46,8 +46,8 @@ PARAMS_PATH = os.path.join(PARAMS_DIR, "params_temp.tar")
 def _install(package: str, import_name: str, verbose: bool = True):
     pip_cmds = ["uv pip install", "pip install"] if shutil.which("uv") else ["pip install"]
     for pip_cmd in pip_cmds:
-        quiet_flag = "-q" if pip_cmd.startswith("pip ") else ""
-        command = f"{pip_cmd} {quiet_flag} -U {package}"
+        quiet_flag = "-q " if pip_cmd.startswith("pip ") else ""
+        command = f"{pip_cmd} {quiet_flag}-U {package}"
         if verbose:
             logger.info(f"Attempting to install {package} using: {command}")
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
@@ -282,7 +282,7 @@ def setup(module, verbose=True, out=None):
                 git clone -q --branch {ALPHAFOLD_GIT_REPO_VERSION} {ALPHAFOLD_GIT_REPO} "{alphafold_folder}" \\
                 && sed -i '' 's/\\/tmp\\/ramdisk/{jack_dir}/g' "{alphafold_folder}/alphafold/data/tools/jackhmmer.py" \\
                 && sed -i '' '/from absl import logging/a logging.set_verbosity(logging.WARNING)' "{alphafold_folder}/alphafold/data/tools/jackhmmer.py" \\
-                && {pip_cmd} -r --upgrade --upgrade-strategy eager "{alphafold_folder}/requirements.txt" \\
+                && {pip_cmd} --upgrade --upgrade-strategy eager -r "{alphafold_folder}/requirements.txt" \\
                 && {pip_cmd} --no-dependencies "{alphafold_folder}"
             """
         else:
@@ -290,7 +290,7 @@ def setup(module, verbose=True, out=None):
                 git clone -q --branch {ALPHAFOLD_GIT_REPO_VERSION} {ALPHAFOLD_GIT_REPO} "{alphafold_folder}" \\
                 && sed -i 's/\\/tmp\\/ramdisk/{jack_dir}/g' "{alphafold_folder}/alphafold/data/tools/jackhmmer.py" \\
                 && sed -i 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' "{alphafold_folder}/alphafold/data/tools/jackhmmer.py" \\
-                && {pip_cmd} -r --upgrade --upgrade-strategy eager "{alphafold_folder}/requirements.txt" \\
+                && {pip_cmd} --upgrade --upgrade-strategy eager -r "{alphafold_folder}/requirements.txt" \\
                 && {pip_cmd} --no-dependencies "{alphafold_folder}"
             """
 
