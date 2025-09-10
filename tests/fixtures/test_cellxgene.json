@@ -1,5 +1,5 @@
 {
-    "test_cellxgene": {
+    "test_cellxgene_adata": {
         "type": "assert_equal",
         "args": {
             "cell_type": [
