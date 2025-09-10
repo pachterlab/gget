@@ -1,7 +1,6 @@
 import unittest
 import os
 import pathlib as pl
-from parameterized import parameterized
 import pandas as pd
 import json
 import time
