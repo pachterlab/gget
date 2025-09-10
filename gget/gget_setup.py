@@ -279,7 +279,7 @@ def setup(module, verbose=True, out=None):
         # Core AlphaFold dependencies (Colab/CPU friendly set)
         alphafold_deps = [
             "absl-py>=2.1,<3",
-            "dm-haiku>=0.0.12",
+            "dm-haiku==0.0.12",
             "dm-tree>=0.1.8",
             "filelock>=3.12",
             "jax==0.4.26",
