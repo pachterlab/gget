@@ -302,13 +302,13 @@ def setup(module, verbose=True, out=None):
         ]
 
         try:
-            # 1) Clone
+            # Clone AlphaFold github repo
             subprocess.run(
                 ["git", "clone", "-q", "--branch", ALPHAFOLD_GIT_REPO_VERSION, ALPHAFOLD_GIT_REPO, alphafold_folder],
                 check=True,
             )
 
-            # 2) Patch jackhmmer.py in Python
+            # Patch jackhmmer.py
             jack_py = os.path.join(alphafold_folder, "alphafold", "data", "tools", "jackhmmer.py")
             with open(jack_py, "r", encoding="utf-8") as f:
                 txt = f.read()
@@ -324,15 +324,19 @@ def setup(module, verbose=True, out=None):
             with open(jack_py, "w", encoding="utf-8") as f:
                 f.write(txt)
 
-            # 3) Base deps first (NumPy/TF/JAX in a known good combo)
-            base_line = f'{pip_upgrade} "numpy>=1.26,<2" "tensorflow-cpu>=2.17,<2.18"'
-            subprocess.run(base_line, check=True, shell=True)
+            # Base deps first (NumPy/TF/JAX in a known good combo)
+            subprocess.run(
+                [*pip_upgrade.split(), "numpy>=1.26,<2", "tensorflow-cpu>=2.17,<2.18"],
+                check=True
+            )
 
-            # 4) The rest of the deps
-            dep_line = f"{pip_upgrade} " + " ".join(alphafold_deps)
-            subprocess.run(dep_line, check=True, shell=True)
+            # The rest of the deps
+            subprocess.run(
+                [*pip_upgrade.split(), *alphafold_deps],
+                check=True
+            )
 
-            # 5) Install AF itself without bringing in its pinned requirements
+            # Install AF itself without bringing in its pinned requirements
             subprocess.run(f'{pip_nodeps} "{alphafold_folder}"', check=True, shell=True)
 
         except subprocess.CalledProcessError as e:
