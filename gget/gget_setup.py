@@ -274,8 +274,8 @@ def setup(module, verbose=True, out=None):
                 git clone --branch main -q --branch {} {} {} \\
                 && sed -i '' 's/\\/tmp\\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \\
                 && sed -i '' '/from absl import logging/a logging.set_verbosity(logging.WARNING)' {}/alphafold/data/tools/jackhmmer.py \\
-                && {pip_cmd} -q -r {}/requirements.txt \\
-                && {pip_cmd} -q --no-dependencies {}
+                && {} -q -r {}/requirements.txt \\
+                && {} -q --no-dependencies {}
                 """.format(
                 ALPHAFOLD_GIT_REPO_VERSION,
                 ALPHAFOLD_GIT_REPO,
@@ -287,14 +287,16 @@ def setup(module, verbose=True, out=None):
                 alphafold_folder,
                 alphafold_folder,
                 alphafold_folder,
+                pip_cmd,
+                pip_cmd
             )
         else:
             command = """
                 git clone --branch main -q --branch {} {} {} \\
                 && sed -i 's/\\/tmp\\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \\
                 && sed -i 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' {}/alphafold/data/tools/jackhmmer.py \\
-                && {pip_cmd} -q -r {}/requirements.txt \\
-                && {pip_cmd} -q --no-dependencies {}
+                && {} -q -r {}/requirements.txt \\
+                && {} -q --no-dependencies {}
                 """.format(
                 ALPHAFOLD_GIT_REPO_VERSION,
                 ALPHAFOLD_GIT_REPO,
@@ -306,6 +308,8 @@ def setup(module, verbose=True, out=None):
                 alphafold_folder,
                 alphafold_folder,
                 alphafold_folder,
+                pip_cmd,
+                pip_cmd
             )
 
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
