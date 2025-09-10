@@ -46,7 +46,8 @@ PARAMS_PATH = os.path.join(PARAMS_DIR, "params_temp.tar")
 def _install(package: str, import_name: str, verbose: bool = True):
     pip_cmds = ["uv pip install", "pip install"] if shutil.which("uv") else ["pip install"]
     for pip_cmd in pip_cmds:
-        command = f"{pip_cmd} -q -U {package}"
+        quiet_flag = "-q" if pip_cmd.startswith("pip ") else ""
+        command = f"{pip_cmd} {quiet_flag} -U {package}"
         if verbose:
             logger.info(f"Attempting to install {package} using: {command}")
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
@@ -260,8 +261,7 @@ def setup(module, verbose=True, out=None):
         if verbose:
             logger.info("Installing AlphaFold from source (requires pip and git).")
 
-        pip_cmd = "uv pip install" if shutil.which("uv") else "pip install"
-        # pip_cmd = f"{sys.executable} -m pip install"
+        pip_cmd = "uv pip install" if shutil.which("uv") else "pip install -q"
 
         ## Install AlphaFold and change jackhmmer directory where database chunks are saved in
         # Define AlphaFold folder name and location
@@ -282,16 +282,16 @@ def setup(module, verbose=True, out=None):
                 git clone -q --branch {ALPHAFOLD_GIT_REPO_VERSION} {ALPHAFOLD_GIT_REPO} "{alphafold_folder}" \\
                 && sed -i '' 's/\\/tmp\\/ramdisk/{jack_dir}/g' "{alphafold_folder}/alphafold/data/tools/jackhmmer.py" \\
                 && sed -i '' '/from absl import logging/a logging.set_verbosity(logging.WARNING)' "{alphafold_folder}/alphafold/data/tools/jackhmmer.py" \\
-                && {pip_cmd} -q -r "{alphafold_folder}/requirements.txt" \\
-                && {pip_cmd} -q --no-dependencies "{alphafold_folder}"
+                && {pip_cmd} -r "{alphafold_folder}/requirements.txt" \\
+                && {pip_cmd} --no-dependencies "{alphafold_folder}"
             """
         else:
             command = f"""
                 git clone -q --branch {ALPHAFOLD_GIT_REPO_VERSION} {ALPHAFOLD_GIT_REPO} "{alphafold_folder}" \\
                 && sed -i 's/\\/tmp\\/ramdisk/{jack_dir}/g' "{alphafold_folder}/alphafold/data/tools/jackhmmer.py" \\
                 && sed -i 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' "{alphafold_folder}/alphafold/data/tools/jackhmmer.py" \\
-                && {pip_cmd} -v -r "{alphafold_folder}/requirements.txt" \\
-                && {pip_cmd} -v --no-dependencies "{alphafold_folder}"
+                && {pip_cmd} -r "{alphafold_folder}/requirements.txt" \\
+                && {pip_cmd} --no-dependencies "{alphafold_folder}"
             """
 
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
@@ -340,7 +340,7 @@ def setup(module, verbose=True, out=None):
 
         command = f"""
             git clone -q --branch {PDBFIXER_VERSION} {PDBFIXER_GIT_REPO} {pdbfixer_folder} \\
-            && {pip_cmd} -q {pdbfixer_folder}
+            && {pip_cmd} {pdbfixer_folder}
             """
 
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
