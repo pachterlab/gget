@@ -273,6 +273,30 @@ def setup(module, verbose=True, out=None):
         # Set jack_dir
         jack_dir = os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace("/", "\\/")
 
+        # Core AlphaFold dependencies (patched, minimal Colab-friendly set)
+        alphafold_deps = [
+            "absl-py>=2.1,<3",
+            "dm-haiku>=0.0.13",
+            "dm-tree>=0.1.8",
+            "filelock>=3.12",
+            "jax==0.4.26",
+            "jaxlib==0.4.26",
+            "jax-triton>=0.2,<0.3",
+            "jaxtyping>=0.2.30",
+            "jmp>=0.0.4",
+            "ml-dtypes>=0.3.1,<0.6",
+            "numpy>=1.26,<3",
+            "opt-einsum>=3.4,<4",
+            "pillow>=10,<12",
+            "rdkit-pypi",       # use rdkit-pypi instead of source builds
+            "scipy>=1.10,<2",
+            "tabulate>=0.9",
+            "tqdm>=4.65",
+            "triton>=3,<4",
+            "typeguard>=2.13,<3",
+            "zstandard>=0.21,<0.24",
+        ]
+
         # Clone AlphaFold github repo
         # Replace directory where jackhmmer database chunks will be saved
         # Insert "logging.set_verbosity(logging.WARNING)" to mute all info loggers
@@ -290,7 +314,7 @@ def setup(module, verbose=True, out=None):
                 git clone -q --branch {ALPHAFOLD_GIT_REPO_VERSION} {ALPHAFOLD_GIT_REPO} "{alphafold_folder}" \\
                 && sed -i 's/\\/tmp\\/ramdisk/{jack_dir}/g' "{alphafold_folder}/alphafold/data/tools/jackhmmer.py" \\
                 && sed -i 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' "{alphafold_folder}/alphafold/data/tools/jackhmmer.py" \\
-                && {pip_cmd} --upgrade "numpy>=1.26,<2" "tensorflow-cpu>=2.17,<2.18" jax==0.4.26 jaxlib==0.4.26 \\
+                && {pip_cmd} --upgrade numpy>=1.26,<2 tensorflow-cpu>=2.17,<2.18 {" ".join(alphafold_deps)} \\
                 && {pip_cmd} --no-deps {alphafold_folder}
             """
             # Previously:
