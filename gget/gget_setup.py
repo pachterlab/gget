@@ -261,19 +261,22 @@ def setup(module, verbose=True, out=None):
         if verbose:
             logger.info("Installing AlphaFold from source (requires pip and git).")
 
-        pip_cmd = "uv pip install" if shutil.which("uv") else "pip install -q"
+        # Prefer uv when present for network robustness; use pip for flags uv lacks
+        have_uv = shutil.which("uv") is not None
+        pip_upgrade = "uv pip install --upgrade" if have_uv else "pip install -q --upgrade"
+        pip_nodeps = "pip install -q --no-deps"  # uv lacks --no-deps
+        os.environ.setdefault("UV_HTTP_TIMEOUT", "300")
 
-        ## Install AlphaFold and change jackhmmer directory where database chunks are saved in
         # Define AlphaFold folder name and location
         alphafold_folder = os.path.join(
             tempfile.gettempdir(), f"tmp_alphafold_{uuid.uuid4()}"
         )
         pathlib.Path(alphafold_folder).mkdir(parents=True, exist_ok=True)
 
-        # Set jack_dir
-        jack_dir = os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace("/", "\\/")
+        # Clean (unescaped) jackhmmer cache dir; we’ll patch file contents via Python
+        jack_dir = os.path.expanduser(f"~/tmp/jackhmmer/{UUID}")
 
-        # Core AlphaFold dependencies (patched, minimal Colab-friendly set)
+        # Core AlphaFold dependencies (Colab/CPU friendly set)
         alphafold_deps = [
             "absl-py>=2.1,<3",
             "dm-haiku>=0.0.13",
@@ -281,67 +284,166 @@ def setup(module, verbose=True, out=None):
             "filelock>=3.12",
             "jax==0.4.26",
             "jaxlib==0.4.26",
-            "jax-triton>=0.2,<0.3",
+            # jax-triton & triton aren’t needed on CPU-only Colab; comment back in if you really need them
+            # "jax-triton>=0.2,<0.3",
             "jaxtyping>=0.2.30",
             "jmp>=0.0.4",
             "ml-dtypes>=0.3.1,<0.6",
-            "numpy>=1.26,<3",
+            "numpy>=1.26,<2",          # keeps TF 2.17 CPU happy
             "opt-einsum>=3.4,<4",
             "pillow>=10,<12",
-            "rdkit-pypi",       # use rdkit-pypi instead of source builds
+            # rdkit pulls heavy wheels and may force newer numpy; skip unless needed:
+            # "rdkit-pypi",
             "scipy>=1.10,<2",
             "tabulate>=0.9",
             "tqdm>=4.65",
-            "triton>=3,<4",
+            # "triton>=3,<4",           # only if you enable jax-triton above
             "typeguard>=2.13,<3",
             "zstandard>=0.21,<0.24",
         ]
 
-        # Clone AlphaFold github repo
-        # Replace directory where jackhmmer database chunks will be saved
-        # Insert "logging.set_verbosity(logging.WARNING)" to mute all info loggers
-        # Pip install AlphaFold from local directory
-        if platform.system() == "Darwin":
-            command = f"""
-                git clone -q --branch {ALPHAFOLD_GIT_REPO_VERSION} {ALPHAFOLD_GIT_REPO} "{alphafold_folder}" \\
-                && sed -i '' 's/\\/tmp\\/ramdisk/{jack_dir}/g' "{alphafold_folder}/alphafold/data/tools/jackhmmer.py" \\
-                && sed -i '' '/from absl import logging/a logging.set_verbosity(logging.WARNING)' "{alphafold_folder}/alphafold/data/tools/jackhmmer.py" \\
-                && {pip_cmd} -r "{alphafold_folder}/requirements.txt" \\
-                && {pip_cmd} --no-dependencies "{alphafold_folder}"
-            """
-        else:
-            command = f"""
-                git clone -q --branch {ALPHAFOLD_GIT_REPO_VERSION} {ALPHAFOLD_GIT_REPO} "{alphafold_folder}" \\
-                && sed -i 's/\\/tmp\\/ramdisk/{jack_dir}/g' "{alphafold_folder}/alphafold/data/tools/jackhmmer.py" \\
-                && sed -i 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' "{alphafold_folder}/alphafold/data/tools/jackhmmer.py" \\
-                && {pip_cmd} --upgrade numpy>=1.26,<2 tensorflow-cpu>=2.17,<2.18 {" ".join(alphafold_deps)} \\
-                && {pip_cmd} --no-deps "{alphafold_folder}"
-            """
-            # Previously:
-            # && {pip_cmd} -r "{alphafold_folder}/requirements.txt" \\
-            # && {pip_cmd} --no-dependencies "{alphafold_folder}"
+        try:
+            # 1) Clone
+            subprocess.run(
+                ["git", "clone", "-q", "--branch", ALPHAFOLD_GIT_REPO_VERSION, ALPHAFOLD_GIT_REPO, alphafold_folder],
+                check=True,
+            )
 
-        with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
-            stderr = process.stderr.read().decode("utf-8")
-        # Exit system if the subprocess returned with an error
-        if process.wait() != 0:
-            if stderr:
-                # Log the standard error if it is not empty
-                sys.stderr.write(stderr)
+            # 2) Patch jackhmmer.py in Python
+            jack_py = os.path.join(alphafold_folder, "alphafold", "data", "tools", "jackhmmer.py")
+            with open(jack_py, "r", encoding="utf-8") as f:
+                txt = f.read()
+
+            txt = txt.replace("/tmp/ramdisk", jack_dir)
+            if "logging.set_verbosity(logging.WARNING)" not in txt:
+                txt = txt.replace(
+                    "from absl import logging",
+                    "from absl import logging\nlogging.set_verbosity(logging.WARNING)",
+                    1,
+                )
+
+            with open(jack_py, "w", encoding="utf-8") as f:
+                f.write(txt)
+
+            # 3) Base deps first (NumPy/TF/JAX in a known good combo)
+            base_line = f'{pip_upgrade} "numpy>=1.26,<2" "tensorflow-cpu>=2.17,<2.18"'
+            subprocess.run(base_line, check=True, shell=True)
+
+            # 4) The rest of the deps
+            dep_line = f"{pip_upgrade} " + " ".join(alphafold_deps)
+            subprocess.run(dep_line, check=True, shell=True)
+
+            # 5) Install AF itself without bringing in its pinned requirements
+            subprocess.run(f'{pip_nodeps} "{alphafold_folder}"', check=True, shell=True)
+
+        except subprocess.CalledProcessError as e:
             logger.error("AlphaFold installation failed.")
+            # Show any captured stderr from our last step, if available
+            try:
+                sys.stderr.write(str(e) + "\n")
+            except Exception:
+                pass
+            shutil.rmtree(alphafold_folder, ignore_errors=True)
             return
 
-        # Remove cloned directory
+        # Clean up checkout
         shutil.rmtree(alphafold_folder, ignore_errors=True)
 
         try:
             import alphafold as AlphaFold
-
             if verbose:
-                logger.info(f"AlphaFold installed succesfully.")
+                logger.info("AlphaFold installed succesfully.")
         except ImportError as e:
             logger.error(f"AlphaFold installation failed. Import error:\n{e}")
             return
+
+
+    #     if verbose:
+    #         logger.info("Installing AlphaFold from source (requires pip and git).")
+
+    #     pip_cmd = "uv pip install" if shutil.which("uv") else "pip install -q"
+
+    #     ## Install AlphaFold and change jackhmmer directory where database chunks are saved in
+    #     # Define AlphaFold folder name and location
+    #     alphafold_folder = os.path.join(
+    #         tempfile.gettempdir(), f"tmp_alphafold_{uuid.uuid4()}"
+    #     )
+    #     pathlib.Path(alphafold_folder).mkdir(parents=True, exist_ok=True)
+
+    #     # Set jack_dir
+    #     jack_dir = os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace("/", "\\/")
+
+    #    # Core AlphaFold dependencies (Colab/CPU friendly set)
+    #     alphafold_deps = [
+    #         "absl-py>=2.1,<3",
+    #         "dm-haiku>=0.0.13",
+    #         "dm-tree>=0.1.8",
+    #         "filelock>=3.12",
+    #         "jax==0.4.26",
+    #         "jaxlib==0.4.26",
+    #         # jax-triton & triton aren’t needed on CPU-only Colab; comment back in if you really need them
+    #         # "jax-triton>=0.2,<0.3",
+    #         "jaxtyping>=0.2.30",
+    #         "jmp>=0.0.4",
+    #         "ml-dtypes>=0.3.1,<0.6",
+    #         "numpy>=1.26,<2",          # keeps TF 2.17 CPU happy
+    #         "opt-einsum>=3.4,<4",
+    #         "pillow>=10,<12",
+    #         # rdkit pulls heavy wheels and may force newer numpy; skip unless needed:
+    #         # "rdkit-pypi",
+    #         "scipy>=1.10,<2",
+    #         "tabulate>=0.9",
+    #         "tqdm>=4.65",
+    #         # "triton>=3,<4",           # only if you enable jax-triton above
+    #         "typeguard>=2.13,<3",
+    #         "zstandard>=0.21,<0.24",
+    #     ]
+
+    #     # Clone AlphaFold github repo
+    #     # Replace directory where jackhmmer database chunks will be saved
+    #     # Insert "logging.set_verbosity(logging.WARNING)" to mute all info loggers
+    #     # Pip install AlphaFold from local directory
+    #     if platform.system() == "Darwin":
+    #         command = f"""
+    #             git clone -q --branch {ALPHAFOLD_GIT_REPO_VERSION} {ALPHAFOLD_GIT_REPO} "{alphafold_folder}" \\
+    #             && sed -i '' 's/\\/tmp\\/ramdisk/{jack_dir}/g' "{alphafold_folder}/alphafold/data/tools/jackhmmer.py" \\
+    #             && sed -i '' '/from absl import logging/a logging.set_verbosity(logging.WARNING)' "{alphafold_folder}/alphafold/data/tools/jackhmmer.py" \\
+    #             && {pip_cmd} -r "{alphafold_folder}/requirements.txt" \\
+    #             && {pip_cmd} --no-dependencies "{alphafold_folder}"
+    #         """
+    #     else:
+    #         command = f"""
+    #             git clone -q --branch {ALPHAFOLD_GIT_REPO_VERSION} {ALPHAFOLD_GIT_REPO} "{alphafold_folder}" \\
+    #             && sed -i 's/\\/tmp\\/ramdisk/{jack_dir}/g' "{alphafold_folder}/alphafold/data/tools/jackhmmer.py" \\
+    #             && sed -i 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' "{alphafold_folder}/alphafold/data/tools/jackhmmer.py" \\
+    #             && {pip_cmd} --upgrade numpy>=1.26,<2 tensorflow-cpu>=2.17,<2.18 {" ".join(alphafold_deps)} \\
+    #             && {pip_cmd} --no-deps "{alphafold_folder}"
+    #         """
+    #         # Previously:
+    #         # && {pip_cmd} -r "{alphafold_folder}/requirements.txt" \\
+    #         # && {pip_cmd} --no-dependencies "{alphafold_folder}"
+
+    #     with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
+    #         stderr = process.stderr.read().decode("utf-8")
+    #     # Exit system if the subprocess returned with an error
+    #     if process.wait() != 0:
+    #         if stderr:
+    #             # Log the standard error if it is not empty
+    #             sys.stderr.write(stderr)
+    #         logger.error("AlphaFold installation failed.")
+    #         return
+
+        # # Remove cloned directory
+        # shutil.rmtree(alphafold_folder, ignore_errors=True)
+
+        # try:
+        #     import alphafold as AlphaFold
+
+        #     if verbose:
+        #         logger.info(f"AlphaFold installed succesfully.")
+        # except ImportError as e:
+        #     logger.error(f"AlphaFold installation failed. Import error:\n{e}")
+        #     return
 
         ## Append AlphaFold to path
         alphafold_path = os.path.abspath(os.path.dirname(AlphaFold.__file__))
