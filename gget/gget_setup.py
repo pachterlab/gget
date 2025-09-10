@@ -5,6 +5,8 @@ import sys
 import subprocess
 import platform
 import uuid
+import tempfile
+import pathlib
 
 from .utils import set_up_logger, check_file_for_error_message
 
@@ -82,7 +84,7 @@ def _install(package: str, import_name: str, verbose: bool = True):
                 continue
 
 
-def setup(module, verbose=True, out=None, jack_dir=None):
+def setup(module, verbose=True, out=None):
     """
     Function to install third-party dependencies for a specified gget module.
     Some modules require pip to be installed (https://pip.pypa.io/en/stable/installation).
@@ -94,10 +96,6 @@ def setup(module, verbose=True, out=None, jack_dir=None):
     - out       (str) Path to directory to save downloaded files in (currently only applies when module='elm').
                 NOTE: Do not use this argument when downloading the files for use with 'gget.elm'.
                 Default None (files are saved in the gget installation directory).
-   
-   Optional arguments when module='alphafold':
-   - jack_dir  (str) Directory to use for jackhmmer temporary files (only applies to module='alphafold').
-                Default: '~/tmp/jackhmmer/' (see below).
     """
     supported_modules = ["alphafold", "cellxgene", "elm", "gpt", "cbio"]
     if module not in supported_modules:
@@ -221,6 +219,7 @@ def setup(module, verbose=True, out=None, jack_dir=None):
             logger.error(
                 "gget setup alphafold and gget alphafold are not supported on Windows OS."
             )
+            return
 
         ## Ask user to install openmm if not already installed
         try:
@@ -261,13 +260,15 @@ def setup(module, verbose=True, out=None, jack_dir=None):
         if verbose:
             logger.info("Installing AlphaFold from source (requires pip and git).")
 
-        pip_cmd = "uv pip install" if shutil.which("uv") else "pip install"
+        # pip_cmd = "uv pip install" if shutil.which("uv") else "pip install"
+        pip_cmd = f"{sys.executable} -m pip"
 
         ## Install AlphaFold and change jackhmmer directory where database chunks are saved in
         # Define AlphaFold folder name and location
         alphafold_folder = os.path.join(
-            PACKAGE_PATH, "tmp_alphafold_" + str(uuid.uuid4())
+            tempfile.gettempdir(), f"tmp_alphafold_{uuid.uuid4()}"
         )
+        pathlib.Path(alphafold_folder).mkdir(parents=True, exist_ok=True)
 
         # Set jack_dir
         jack_dir = os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace("/", "\\/")
@@ -304,7 +305,7 @@ def setup(module, verbose=True, out=None, jack_dir=None):
             return
 
         # Remove cloned directory
-        shutil.rmtree(alphafold_folder)
+        shutil.rmtree(alphafold_folder, ignore_errors=True)
 
         try:
             import alphafold as AlphaFold
@@ -325,7 +326,7 @@ def setup(module, verbose=True, out=None, jack_dir=None):
             logger.info("Installing pdbfixer from source (requires pip and git).")
 
         pdbfixer_folder = os.path.join(
-            PACKAGE_PATH, "tmp_pdbfixer_" + str(uuid.uuid4())
+            tempfile.gettempdir(), f"tmp_pdbfixer_{uuid.uuid4()}"
         )
 
         try:
@@ -356,7 +357,7 @@ def setup(module, verbose=True, out=None, jack_dir=None):
         shutil.rmtree(pdbfixer_folder)
 
         # Check if pdbfixer was installed successfully
-        command = "pip list | grep pdbfixer"
+        command = f"{sys.executable} -m pip list | grep pdbfixer"
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
         pdb_out, err = process.communicate()
 
