@@ -1,5 +1,5 @@
 ## ✨ What's new  
-**Version ≥ 0.29.3** (Sep 09, 2025):  
+**Version ≥ 0.29.3** (Sep 11, 2025):  
 - [`gget blat`](blat.md): Updated API request to new permissions.
 - [`gget pdb`](pdb.md): Added wwpdb mirror; falls back to rcsb if wwpdb fails.
 - [`gget cellxgene`](cellxgene.md): Improved argument handling; frontend unchanged. Fixes [issue 181](https://github.com/pachterlab/gget/issues/181).
