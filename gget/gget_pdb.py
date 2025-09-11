@@ -57,13 +57,13 @@ def pdb(pdb_id, resource="pdb", identifier=None, save=False):
     if resource == "assembly" and identifier is None:
         raise ValueError("Please define assembly ID (e.g. '1') as 'identifier'.")
 
-    need_entitiy_id = [
+    need_entity_id = [
         "branched_entity",
         "nonpolymer_entity",
         "polymer_entity",
         "uniprot",
     ]
-    if resource in need_entitiy_id and identifier is None:
+    if resource in need_entity_id and identifier is None:
         raise ValueError("Please define entity ID (e.g. '1') as 'identifier'.")
 
     need_chain_id = [
@@ -114,7 +114,7 @@ def pdb(pdb_id, resource="pdb", identifier=None, save=False):
             logger.error(
                 f"{resource} for {pdb_id} assembly {identifier} was not found. Please double-check arguments and try again."
             )
-        elif resource in need_entitiy_id:
+        elif resource in need_entity_id:
             logger.error(
                 f"{resource} for {pdb_id} entity {identifier} was not found. Please double-check arguments and try again."
             )
