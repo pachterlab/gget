@@ -82,14 +82,27 @@ def pdb(pdb_id, resource="pdb", identifier=None, save=False):
         else:
             url = f"{RCSB_PDB_API}{resource}/{pdb_id}"
 
+        urls = [url]  # only one option for JSON resources
     else:
-        # URL to request PDB file
-        url = f"https://files.rcsb.org/download/{pdb_id}.pdb"
+        # Try wwPDB first, then RCSB as fallback
+        urls = [
+            f"https://files.wwpdb.org/download/{pdb_id}.pdb",
+            f"https://files.rcsb.org/download/{pdb_id}.pdb",
+        ]
 
-    # Submit URL request
-    try:
-        r = urlopen(url)
-    except HTTPError:
+    # Submit URL request with fallback logic
+    r = None
+    last_error = None
+    for url in urls:
+        try:
+            r = urlopen(url)
+            if r.status == 200:
+                break
+        except HTTPError as e:
+            last_error = e
+            continue
+
+    if r is None or r.status != 200:
         if resource == "assembly":
             logger.error(
                 f"{resource} for {pdb_id} assembly {identifier} was not found. Please double-check arguments and try again."
@@ -107,12 +120,6 @@ def pdb(pdb_id, resource="pdb", identifier=None, save=False):
                 f"{resource} for {pdb_id} was not found. Please double-check arguments and try again."
             )
         return
-
-    if r.status != 200:
-        raise RuntimeError(
-            f"The RCSB PDB server responded with status code: {r.status}. "
-            "Please double-check arguments and try again.\n"
-        )
 
     if resource != "pdb":
         # Read json formatted results
