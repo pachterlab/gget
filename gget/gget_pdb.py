@@ -93,16 +93,23 @@ def pdb(pdb_id, resource="pdb", identifier=None, save=False):
     # Submit URL request with fallback logic
     r = None
     last_error = None
+    code = None
     for url in urls:
         try:
             r = urlopen(url)
-            if r.status == 200:
+
+            # Get status code (in a way that is stable across Python versions)
+            code = getattr(r, "status", None)
+            if code is None:
+                code = r.getcode()
+
+            if code == 200:
                 break
         except HTTPError as e:
             last_error = e
             continue
 
-    if r is None or r.status != 200:
+    if r is None or code != 200:
         if resource == "assembly":
             logger.error(
                 f"{resource} for {pdb_id} assembly {identifier} was not found. Please double-check arguments and try again."
