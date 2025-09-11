@@ -1,5 +1,5 @@
 ## ✨ ¡Lo más reciente!  
-**Versión ≥ 0.29.3** (9 de septiembre de 2025):  
+**Versión ≥ 0.29.3** (11 de septiembre de 2025):  
 - [`gget blat`](blat.md): Actualiza la solicitud a la API para los nuevos permisos.
 - [`gget pdb`](pdb.md): Agregado el sitio web de `wwpdb`, retrocede a `rcsb` si las solicitudes fallan.  
 - [`gget cellxgene`](cellxgene.md): Mejora el manejo de argumentos; el frontend no cambia.
