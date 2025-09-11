@@ -130,9 +130,14 @@ def blat(
         )
     r = request.urlopen(req)
 
-    if r.status != 200:
+    # Get status code (in a way that is stable across Python versions)
+    code = getattr(r, "status", None)
+    if code is None:
+        code = r.getcode()
+
+    if code != 200:
         raise RuntimeError(
-            f"HTTP response status code {r.status}. "
+            f"HTTP response status code {code}. "
             "Please double-check arguments and try again.\n"
         )
 

@@ -1,8 +1,9 @@
 ## ✨ What's new  
-**Version ≥ 0.29.3** (Sep 09, 2025):  
-- [`gget blat`](blat.md): Update API request to new permissions.
+**Version ≥ 0.29.3** (Sep 11, 2025):  
+- [`gget blat`](blat.md): Updated API request to new permissions.
+- [`gget pdb`](pdb.md): Added wwpdb mirror; falls back to rcsb if wwpdb fails.
 - [`gget cellxgene`](cellxgene.md): Improved argument handling; frontend unchanged. Fixes [issue 181](https://github.com/pachterlab/gget/issues/181).
-- [`gget setup`](setup.md)/[`gget alphafold`](alphafold.md): Fix pip_cmd bug in gget.setup("alphafold")
+- [`gget setup`](setup.md)/[`gget alphafold`](alphafold.md): Fixed pip_cmd bug in gget.setup("alphafold")
   
 **Version ≥ 0.29.2** (Jul 03, 2025):  
 - gget can now be installed using `uv pip install gget`

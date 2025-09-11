@@ -1559,7 +1559,7 @@ def main():
         help=(
             "List of metadata columns to return (stored in .obs).\n"
             "For more options see: https://api.cellxgene.cziscience.com/curation/ui/#/ -> Schemas -> dataset.\n"
-            "Default: ["dataset_id", "assay", "suspension_type", "sex", "tissue_general", "tissue", "cell_type", "disease"]"
+            "Default: ['dataset_id', 'assay', 'suspension_type', 'sex', 'tissue_general', 'tissue', 'cell_type', 'disease']"
         ),
     )
     parser_cellxgene.add_argument(
