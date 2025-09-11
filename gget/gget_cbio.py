@@ -130,7 +130,7 @@ def _download_file_from_git_lfs(target_path: str, oid: str, size: int, verbose=F
         session.mount("http://", HTTPAdapter(max_retries=retries))
         session.mount("https://", HTTPAdapter(max_retries=retries))
 
-        response = session.get(href, timeout=30)
+        response = session.get(href)
 
         if not response.ok:
             logger.error(f"Failed to download object {oid} to {target_path}")
@@ -229,7 +229,12 @@ def download_cbioportal_data(
                 # URL to be downloaded
                 url = f"https://raw.githubusercontent.com/cBioPortal/datahub/master/public/{study_id}/data_{file_type}.txt"
 
-                response = requests.get(url)
+                session = requests.Session()
+                retries = Retry(total=5, backoff_factor=1, status_forcelist=[429, 500, 502, 503, 504])
+                session.mount("http://", HTTPAdapter(max_retries=retries))
+                session.mount("https://", HTTPAdapter(max_retries=retries))
+
+                response = session.get(url, timeout=30)
 
                 if not response.ok:
                     logger.error(
