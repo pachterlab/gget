@@ -7,6 +7,8 @@ import subprocess
 import pandas as pd
 import numpy as np
 import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
 from collections import defaultdict, OrderedDict
 
 from .utils import set_up_logger
@@ -123,7 +125,12 @@ def _download_file_from_git_lfs(target_path: str, oid: str, size: int, verbose=F
 
         href = response_json["objects"][0]["actions"]["download"]["href"]
 
-        response = requests.get(href)
+        session = requests.Session()
+        retries = Retry(total=5, backoff_factor=1, status_forcelist=[500, 502, 503, 504])
+        session.mount("http://", HTTPAdapter(max_retries=retries))
+        session.mount("https://", HTTPAdapter(max_retries=retries))
+
+        response = session.get(href, timeout=30)
 
         if not response.ok:
             logger.error(f"Failed to download object {oid} to {target_path}")

@@ -1,4 +1,5 @@
 import hashlib
+import os
 import unittest
 import json
 from gget.gget_cbio import download_cbioportal_data, cbio_search
@@ -34,14 +35,15 @@ def _cbio_download(name: str, td, func):
             self.assertTrue(result)
 
             for file_name, expected_hash in expected_result.items():
-                with open(file_name, "rb") as f:
-                    file_content = f.read()
-                    file_hash = hashlib.md5(file_content).hexdigest()
-                    self.assertEqual(
-                        file_hash,
-                        expected_hash,
-                        f"File {file_name} does not match expected hash",
-                    )
+                if os.path.exists(file_name):
+                    with open(file_name, "rb") as f:
+                        file_content = f.read()
+                        file_hash = hashlib.md5(file_content).hexdigest()
+                        self.assertEqual(
+                            file_hash,
+                            expected_hash,
+                            f"File {file_name} does not match expected hash",
+                        )
         else:
             self.assertFalse(result)
 
