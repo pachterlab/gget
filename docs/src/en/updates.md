@@ -1,5 +1,5 @@
 ## ✨ What's new  
-Help keep _gget_ going: [![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/lauraluebbert)
+Help keep _gget_ alive and growing: [![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/lauraluebbert)
 
 **Version ≥ 0.29.3** (Sep 11, 2025):  
 - [`gget blat`](blat.md): Updated API request to new permissions.
