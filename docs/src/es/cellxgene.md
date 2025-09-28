@@ -11,7 +11,8 @@ Antes de usar `gget cellxgene` por primera vez, corre `gget setup cellxgene` / `
 
 `-g` `--gene`  
 Str o lista de genes de interés o ID(s) tipo Ensembl. Por defecto: None (ninguno).  
-Atención: Utilice la bandera `-e / --ensembl` (Python: `ensembl=True`) cuando ingrese ID(s) tipo Ensembl.    
+Atención: Utilice la bandera `-e / --ensembl` (Python: `ensembl=True`) cuando ingrese ID(s) tipo Ensembl.   
+Atención: ¡Los símbolos de genes distinguen mayúsculas y minúsculas! Usa la capitalización canónica al pasar símbolos de genes; p. ej., ‘PAX7’ (humano), ‘Pax7’ (ratón).  
 Ver https://cellxgene.cziscience.com/gene-expression para ejemplos de genes.  
 
 `-cv` `--census_version`  

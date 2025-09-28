@@ -1536,8 +1536,9 @@ def main():
         required=False,
         default=None,
         help=(
-            "Str or space-separated list of gene name(s) or Ensembl ID(s), e.g. ACE2 SLC5A1 or ENSG00000130234 ENSG00000100170"
-            "NOTE: Set ensembl=True when providing Ensembl ID(s) instead of gene name(s)."
+            "Str or space-separated list of gene name(s) or Ensembl ID(s), e.g. ACE2 SLC5A1 or ENSG00000130234 ENSG00000100170\n"
+            "NOTE: Set ensembl=True when providing Ensembl ID(s) instead of gene name(s).\n"
+            "NOTE: Gene symbols are case sensitive! Use canonical casing, e.g., 'PAX7' (human), 'Pax7' (mouse)."
         ),
     )
     parser_cellxgene.add_argument(
@@ -1554,18 +1555,11 @@ def main():
         type=str,
         nargs="+",
         required=False,
-        default=[
-            "dataset_id",
-            "assay",
-            "suspension_type",
-            "sex",
-            "tissue_general",
-            "tissue",
-            "cell_type",
-        ],
+        default=None,
         help=(
             "List of metadata columns to return (stored in .obs).\n"
-            "For more options see: https://api.cellxgene.cziscience.com/curation/ui/#/ -> Schemas -> dataset"
+            "For more options see: https://api.cellxgene.cziscience.com/curation/ui/#/ -> Schemas -> dataset.\n"
+            "Default: ['dataset_id', 'assay', 'suspension_type', 'sex', 'tissue_general', 'tissue', 'cell_type', 'disease']"
         ),
     )
     parser_cellxgene.add_argument(

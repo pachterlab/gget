@@ -1,4 +1,10 @@
 ## ✨ ¡Lo más reciente!  
+**Versión ≥ 0.29.3** (11 de septiembre de 2025):  
+- [`gget blat`](blat.md): Actualiza la solicitud a la API para los nuevos permisos.
+- [`gget pdb`](pdb.md): Agregado el sitio web de `wwpdb`, retrocede a `rcsb` si las solicitudes fallan.  
+- [`gget cellxgene`](cellxgene.md): Mejora el manejo de argumentos; el frontend no cambia.
+- [`gget setup`](setup.md)/[`gget alphafold`](alphafold.md): Corrige el error pip_cmd en `gget.setup("alphafold")`.
+  
 **Versión ≥ 0.29.2** (03 de julio de 2025):  
 - Ahora se puede instalar `gget` usando `uv pip install gget`
   - Toda la metadata del paquete (versión, autor, descripción, etc.) ahora se gestiona en `setup.cfg` para una compatibilidad total con herramientas modernas como `uv`, `pip` y PyPI  
