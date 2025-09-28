@@ -32,17 +32,6 @@ def clean_cols(x):
         return x
 
 
-def clean_cols(x):
-    if isinstance(x, list):
-        unique_list = list(set(x))
-        if len(unique_list) == 1:
-            return unique_list[0]
-        else:
-            return unique_list
-    else:
-        return x
-
-
 def search(
     searchwords,
     species,
