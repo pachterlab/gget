@@ -1,9 +1,10 @@
-# Standard library imports for file operations, regex, JSON handling, and dates
 import os
 import re
 import json
-import logging     # For logging level checks
+import time          # For adding delays between requests
+import logging       # For logging level checks
 import shutil        # For directory operations  
+import subprocess    # For executing external commands
 import traceback     # For error traceback logging
 import pandas as pd  # For data manipulation and CSV output
 import requests      # For HTTP requests to NCBI API
@@ -13,15 +14,12 @@ from dateutil import parser  # For flexible date parsing
 
 # Internal imports for logging, unique ID generation, and FASTA parsing
 from .utils import set_up_logger, FastaIO
+from .constants import NCBI_API_BASE, NCBI_EUTILS_BASE
 
 # Set up logger for this module
 logger = set_up_logger()
-
-from .gget_setup import UUID
-
-# NCBI Datasets API base URL - Version 2 API endpoint
-NCBI_API_BASE = "https://api.ncbi.nlm.nih.gov/datasets/v2"
-
+timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+random_suffix = os.urandom(4).hex() # random suffix for naming uniqueness
 
 def fetch_virus_metadata(
     virus,
@@ -31,7 +29,7 @@ def fetch_virus_metadata(
     annotated=None,
     complete_only=None,
     min_release_date=None,
-    refseq_only=False,
+    refseq_only=None,
 ):
     """
     Fetch virus metadata using NCBI Datasets API.
@@ -64,7 +62,7 @@ def fetch_virus_metadata(
         logger.debug("Using accession endpoint for virus: %s", virus)
         params = {}
     else:
-        # For taxon names/IDs (e.g., 'SARS-CoV-2', 'coronaviridae'), use the taxon endpoint  
+        # For taxon names/IDs (e.g., 'Zika Virus', 'influenza'), use the taxon endpoint  
         url = f"{NCBI_API_BASE}/virus/taxon/{virus}/dataset_report"
         logger.debug("Using taxon endpoint for virus: %s", virus)
         params = {}
@@ -114,7 +112,12 @@ def fetch_virus_metadata(
     page_count = 0        # Track number of pages processed for logging
     
     # Main pagination loop - continue until all pages are retrieved
-    while True:
+    loop = True
+    # Retry logic for handling intermittent server issues
+    max_retries = 3
+    retry_delay = 2.0  # Start with 2 second delay
+    last_exception = None
+    while loop:
         page_count += 1
         logger.debug("Fetching page %d of results...", page_count)
         
@@ -122,51 +125,104 @@ def fetch_virus_metadata(
         if page_token:
             params['page_token'] = page_token
             
-        try:
-            # Make the HTTP GET request to the NCBI API
-            logger.debug("Making API request to: %s", url)
-            logger.debug("Request parameters: %s", params)
-            response = requests.get(url, params=params, timeout=30)
-            
-            # Raise an exception if the HTTP request failed (4xx or 5xx status codes)
-            response.raise_for_status()
-            
-            # Parse the JSON response
-            data = response.json()
-            logger.debug("Received response with %d bytes", len(response.content))
-            
-            # Extract the virus reports from the response
-            reports = data.get('reports', [])
-            logger.debug("Page %d contains %d virus records", page_count, len(reports))
-            
-            # Add this page's reports to our complete collection
-            all_reports.extend(reports)
-            
-            # Check if there are more pages to retrieve
-            next_page_token = data.get('next_page_token')
-            if not next_page_token:
-                logger.debug("No more pages available, pagination complete")
+        for attempt in range(max_retries):
+            try:
+                # Make the HTTP GET request to the NCBI API  
+                logger.debug("Making API request to: %s (attempt %d/%d)", url, attempt + 1, max_retries)
+                logger.debug("Request parameters: %s", params)
+                response = requests.get(url, params=params, timeout=30)
+                logger.debug("Explicit URL request sent: %s", response.url)
+                
+                # Raise an exception if the HTTP request failed (4xx or 5xx status codes)
+                response.raise_for_status()
+                
+                # Parse the JSON response
+                data = response.json()
+                logger.debug("Received response with %d bytes", len(response.content))
+                
+                # Extract the virus reports from the response
+                reports = data.get('reports', [])
+                logger.debug("Page %d contains %d virus records", page_count, len(reports))
+                
+                # Add this page's reports to our complete collection
+                all_reports.extend(reports)
+                
+                # Check if there are more pages to retrieve
+                next_page_token = data.get('next_page_token')
+                if not next_page_token:
+                    logger.debug("No more pages available, pagination complete")
+                    loop = False
+                    break
+                
+                # Set up for the next page
+                page_token = next_page_token
+                logger.debug("Next page token received, continuing pagination...")
+                
+                # If we got here, the request succeeded, so break out of retry loop
                 break
+                
+            except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError) as e:
+                last_exception = e
+                # Check if this is a retryable error (5xx server errors or connection issues)
+                is_retryable = False
+                if isinstance(e, requests.exceptions.ConnectionError):
+                    is_retryable = True
+                elif isinstance(e, requests.exceptions.HTTPError) and hasattr(e, 'response') and e.response:
+                    # Check if it's a 5xx server error
+                    is_retryable = 500 <= e.response.status_code < 600
+                
+                if attempt < max_retries - 1 and is_retryable:
+                    logger.warning("Request failed (attempt %d/%d): %s. Retrying in %.1f seconds...", 
+                                 attempt + 1, max_retries, e, retry_delay)
+                    time.sleep(retry_delay)
+                    retry_delay *= 1.5  # Exponential backoff
+                    continue
+                else:
+                    # Either we've exhausted retries or this is a non-retryable error
+                    # Break out of retry loop and handle the error below
+                    break
             
-            # Set up for the next page
-            page_token = next_page_token
-            logger.debug("Next page token received, continuing pagination...")
-            
-        except requests.exceptions.Timeout as e:
-            # Handle timeout errors specifically
-            raise RuntimeError(f"Request timed out while fetching virus metadata: {e}") from e
-        except requests.exceptions.ConnectionError as e:
-            # Handle connection errors (network issues, DNS failures, etc.)
-            raise RuntimeError(f"Connection error while fetching virus metadata: {e}") from e
-        except requests.exceptions.HTTPError as e:
-            # Handle HTTP errors (404, 500, etc.)
-            raise RuntimeError(f"HTTP error while fetching virus metadata: {e}") from e
-        except requests.exceptions.RequestException as e:
-            # Handle any other request-related errors
-            raise RuntimeError(f"Failed to fetch virus metadata: {e}") from e
-        except json.JSONDecodeError as e:
-            # Handle JSON parsing errors
-            raise RuntimeError(f"Failed to parse API response as JSON: {e}") from e
+            except (requests.exceptions.Timeout, requests.exceptions.RequestException) as e:
+                last_exception = e
+                # For timeout and other request exceptions, don't retry
+                break
+        
+        # If we have an exception to handle, process it with the original error handling logic
+        if last_exception:
+            if isinstance(last_exception, requests.exceptions.Timeout):
+                # Handle timeout errors with specific guidance for known problematic filters
+                error_msg = f"Request timed out while fetching virus metadata: {last_exception}"
+                if geographic_location:
+                    error_msg += (
+                        f"\n\n🔧 TIMEOUT LIKELY DUE TO GEOGRAPHIC FILTER: "
+                        f"The combination of '{virus}' + geographic location '{geographic_location}' "
+                        f"is known to cause server timeouts. Try removing the geographic_location parameter "
+                        f"and filter the results manually after download."
+                    )
+                raise RuntimeError(error_msg) from last_exception
+                
+            elif isinstance(last_exception, requests.exceptions.ConnectionError):
+                # Handle connection errors (network issues, DNS failures, etc.)
+                raise RuntimeError(f"Connection error while fetching virus metadata: {last_exception}") from last_exception
+                
+            elif isinstance(last_exception, requests.exceptions.HTTPError):
+                # Handle HTTP errors with specific guidance for known issues
+                error_msg = f"HTTP error while fetching virus metadata: {last_exception}"
+                
+                # Check for specific server error patterns
+                if "500" in str(last_exception):
+                    error_msg += (
+                        f"\n\n🔧 SERVER ERROR DETECTED: "
+                        f"NCBI's API is experiencing temporary server-side issues. "
+                        f"This is not a problem with your query. Try again in a few minutes, "
+                        f"or consider using more specific filters to reduce the dataset size."
+                    )
+                raise RuntimeError(error_msg) from last_exception
+                
+            else:
+                # Handle any other request-related errors
+                raise RuntimeError(f"Failed to fetch virus metadata: {last_exception}") from last_exception
+
     
     # Log the final results summary
     logger.info("Successfully retrieved %d virus records from NCBI API across %d pages", 
@@ -175,211 +231,356 @@ def fetch_virus_metadata(
     return all_reports
 
 
-def download_virus_sequences(
-    virus,
-    accession=False,
-    host=None,
-    geographic_location=None,
-    annotated=None,
-    complete_only=None,
-    min_release_date=None,
-    outdir=None,
-):
+def is_sars_cov2_query(virus, accession=False):
     """
-    Download virus genome sequences using NCBI Datasets API.
+    Check if the query is for SARS-CoV-2 to determine if optimized cached downloads should be used.
     
-    This function downloads the actual sequence data (FASTA files) for viruses
-    matching the specified criteria. The sequences are returned as a ZIP archive
-    containing FASTA files and associated metadata.
+    NCBI provides optimized cached data packages for SARS-CoV-2 that are faster and more reliable
+    than the general API endpoints. This function detects SARS-CoV-2 queries so we can use
+    the optimized download method.
     
     Args:
         virus (str): Virus taxon name/ID or accession number
         accession (bool): Whether virus parameter is an accession number
-        host (str): Host organism name filter
-        geographic_location (str): Geographic location filter
-        annotated (bool): Filter for annotated genomes only
-        complete_only (bool): Filter for complete genomes only
-        min_release_date (str): Minimum release date filter (YYYY-MM-DD format)
+        
+    Returns:
+        bool: True if this is a SARS-CoV-2 query that should use cached downloads
+    """
+    if accession:
+        # When in accession mode, let the user explicitly set is_sars_cov2=True
+        # rather than trying to detect it
+        return False
+    
+    # Check for common SARS-CoV-2 identifiers in taxon names
+    virus_lower = virus.lower().replace('-', '').replace('_', '').replace(' ', '')
+    sars_cov2_identifiers = {
+        'sarscov2', 'sars2', '2697049', 'sarscov', 'severeacuterespiratorysyndromecoronavirus2',
+        'covid19', 'covid', 'coronavirusdisease', 'ncov', 'hcov19'
+    }
+    
+    # Check if the query matches any SARS-CoV-2 identifier
+    for identifier in sars_cov2_identifiers:
+        if identifier in virus_lower:
+            logger.debug("Detected SARS-CoV-2 query: %s matches %s", virus, identifier)
+            return True
+    
+    logger.debug("Not a SARS-CoV-2 query: %s", virus)
+    return False
+
+
+def download_sars_cov2_optimized(
+    host=None,
+    complete_only=None,
+    annotated=None,
+    outdir=None,
+    lineage=None,
+    accession=None,
+    use_accession=False,
+):
+    """
+    Download SARS-CoV-2 sequences using NCBI's optimized cached data packages.
+    
+    NCBI provides pre-computed, highly compressed cached packages for SARS-CoV-2
+    that offer faster and more reliable downloads than the general API endpoints.
+    This function uses the datasets CLI to download these optimized packages with
+    hierarchical fallback from specific to general cached files.
+    
+    Download strategies (in order of precedence):
+    1. If use_accession=True: Direct accession download using accession endpoint
+    2. If use_accession=False:
+       a. Specific lineage + complete + host filters using taxon endpoint
+       b. Complete genomes only using taxon endpoint
+       c. All SARS-CoV-2 genomes using taxon endpoint (default fallback)
+    
+    Args:
+        host (str): Host organism filter (optimized for 'human', others handled in post-processing)
+        complete_only (bool): Whether to download only complete genomes
+        annotated (bool): Whether to download only annotated genomes  
         outdir (str): Output directory for downloaded files
+        lineage (str): SARS-CoV-2 lineage filter (e.g., 'B.1.1.7', 'P.1')
+        accession (str): Specific SARS-CoV-2 accession or taxon ID
+        use_accession (bool): Whether to use the accession endpoint (True) or taxon endpoint (False)
         
     Returns:
         str: Path to the downloaded ZIP file containing sequences and metadata
         
     Raises:
-        RuntimeError: If the download request fails
+        RuntimeError: If the datasets CLI is not available or download fails
     """
     
-    # Choose the appropriate download endpoint based on query type
-    if accession:
-        # For accession-based downloads, use the accession-specific endpoint
-        url = f"{NCBI_API_BASE}/virus/accession/{virus}/genome/download"
-        logger.debug("Using accession download endpoint for virus: %s", virus)
-        
-        # For accession downloads, use GET with query parameters
-        params = {}
-        
-        # Apply the same filters as used in metadata fetching
-        if host:
-            # Filter by host organism, replacing underscores with spaces
-            params['filter.host'] = host.replace('_', ' ')
-            logger.debug("Applied host filter for download: %s", host)
-        
-        if geographic_location:
-            # Filter by geographic location, replacing underscores with spaces
-            params['filter.geo_location'] = geographic_location.replace('_', ' ')
-            logger.debug("Applied geographic location filter for download: %s", geographic_location)
-            
-        if annotated is True:
-            # Only download sequences that have annotation data
-            params['filter.annotated_only'] = 'true'
-            logger.debug("Applied annotated-only filter for download")
-            
-        if complete_only:
-            # Only download complete genome sequences
-            params['filter.complete_only'] = 'true'
-            logger.debug("Applied complete-only filter for download")
-            
-        if min_release_date:
-            # Filter by minimum release date in ISO format
-            params['filter.released_since'] = f"{min_release_date}T00:00:00.000Z"
-            logger.debug("Applied minimum release date filter for download: %s", min_release_date)
-        
-        # Include genomic sequences in the download package
-        # This ensures we get the actual FASTA sequences, not just metadata
-        params['include_annotation_type'] = 'GENOME_FASTA'
-        logger.debug("Requesting genomic FASTA sequences in download")
-        
-        try:
-            logger.info("Initiating download request for accession: %s", virus)
-            # Make the download request with extended timeout for large files
-            response = requests.get(url, params=params, timeout=300)
-            
-            # Check if the request was successful
-            response.raise_for_status()
-            
-            # Determine output directory - use current working directory if not specified
-            if not outdir:
-                outdir = os.getcwd()
-                logger.debug("No output directory specified, using current directory: %s", outdir)
-            
-            # Create a unique filename for the downloaded ZIP file
-            zip_path = os.path.join(outdir, f"ncbi_virus_{virus}_{UUID}.zip")
-            logger.debug("Saving download to: %s", zip_path)
-            
-            # Write the downloaded content to the ZIP file
-            with open(zip_path, 'wb') as f:
-                f.write(response.content)
-                
-            logger.info("Successfully downloaded virus dataset to: %s (size: %d bytes)", 
-                       zip_path, len(response.content))
-            return zip_path
-            
-        except requests.exceptions.Timeout as e:
-            # Handle timeout errors - downloads can take a long time for large datasets
-            raise RuntimeError(f"Download request timed out for virus sequences: {e}") from e
-        except requests.exceptions.ConnectionError as e:
-            # Handle connection errors during download
-            raise RuntimeError(f"Connection error during virus sequence download: {e}") from e
-        except requests.exceptions.HTTPError as e:
-            # Handle HTTP errors during download
-            raise RuntimeError(f"HTTP error during virus sequence download: {e}") from e
-        except requests.exceptions.RequestException as e:
-            # Handle any other request-related errors during download
-            raise RuntimeError(f"Failed to download virus sequences: {e}") from e
-        except IOError as e:
-            # Handle file I/O errors when saving the ZIP file
-            raise RuntimeError(f"Failed to save downloaded file: {e}") from e
-    
+    # Determine filter specificity for logging
+    filter_count = sum(1 for param in [host, complete_only, annotated, lineage] if param is not None)
+    if filter_count > 0:
+        logger.info("Attempting SARS-CoV-2 cached download with %d specific filters", filter_count)
     else:
-        # For taxon-based downloads, use the taxon-specific endpoint
-        url = f"{NCBI_API_BASE}/virus/taxon/{virus}/genome/download"
-        logger.debug("Using taxon download endpoint for virus: %s", virus)
+        logger.info("Attempting general SARS-CoV-2 cached download (no specific filters)")
+    
+    # Determine output directory
+    if not outdir:
+        outdir = os.getcwd()
+        logger.debug("No output directory specified, using current directory: %s", outdir)
+    
+    # Ensure output directory exists
+    os.makedirs(outdir, exist_ok=True)
+    logger.debug("Output directory ready: %s", outdir)
+    
+    # Create descriptive filename with timestamp and random suffix
+    zip_filename = f"sars_cov_2_{timestamp}_{random_suffix}.zip"
+    zip_path = os.path.join(outdir, zip_filename)
+    
+    # Define which filters are available for this download
+    logger.debug("Available filters for SARS-CoV-2 download:")
+    if complete_only:
+        logger.debug("- complete-only filter")
+    if lineage:
+        logger.debug("- lineage filter: %s", lineage)
+    if host:
+        logger.debug("- host filter: %s", host)
+    if annotated:
+        logger.debug("- annotated filter")
+    
+    # Define fallback strategies in order of preference
+    strategies = []
+    
+    if use_accession:
+        # Strategy 1: Direct accession download
+        cmd1 = ["datasets", "download", "virus", "genome", "accession", accession]
+        cmd1.extend(["--filename", zip_path])
+        strategies.append(("Strategy 1 (direct accession)", cmd1, [f"accession={accession}"]))
+    elif lineage or complete_only or host or annotated:
+        # Strategy 1: Try with specific filters using taxon endpoint
+        cmd1 = ["datasets", "download", "virus", "genome", "taxon", "SARS-CoV-2"]
+        filters1 = []
         
-        # Build query parameters with the same filters
-        params = {}
-        
-        if host:
-            # Filter by host organism name
-            params['filter.host'] = host.replace('_', ' ')
-            logger.debug("Applied host filter for download: %s", host)
-        
-        if geographic_location:
-            # Filter by geographic location
-            params['filter.geo_location'] = geographic_location.replace('_', ' ')
-            logger.debug("Applied geographic location filter for download: %s", geographic_location)
-            
-        if annotated is True:
-            # Only download annotated sequences
-            params['filter.annotated_only'] = 'true'
-            logger.debug("Applied annotated-only filter for download")
-            
         if complete_only:
-            # Only download complete genomes
-            params['filter.complete_only'] = 'true'
-            logger.debug("Applied complete-only filter for download")
-            
-        if min_release_date:
-            # Filter by minimum release date
-            params['filter.released_since'] = f"{min_release_date}T00:00:00.000Z"
-            logger.debug("Applied minimum release date filter for download: %s", min_release_date)
+            cmd1.append("--complete-only")
+            filters1.append("complete-only")
         
-        # Include genomic sequences in the download package
-        params['include_annotation_type'] = 'GENOME_FASTA'
-        logger.debug("Requesting genomic FASTA sequences in download")
+        if lineage:
+            cmd1.extend(["--lineage", lineage])
+            filters1.append(f"lineage={lineage}")
+
+        if host:
+            cmd1.extend(["--host", host])
+            filters1.append(f"host={host}")
+        
+        if annotated:
+            cmd1.append("--annotated")
+            filters1.append("annotated")
+
+        cmd1.extend(["--filename", zip_path])
+        strategies.append(("Strategy 1 (specific filters)", cmd1, filters1))
+    
+    # Strategy 2: Try complete-only and host if it was requested (without lineage)
+    if complete_only and host and lineage:  # Only add this if we had lineage in strategy 1
+        cmd2 = ["datasets", "download", "virus", "genome", "taxon", "SARS-CoV-2", "--complete-only", "--host", host, "--filename", zip_path]
+        strategies.append(("Strategy 2 (complete-only and host)", cmd2, ["complete-only", f"host={host}"]))
+
+    # Strategy 3: Try complete-only if it was requested
+    if complete_only and (host or lineage):  
+        cmd3 = ["datasets", "download", "virus", "genome", "taxon", "SARS-CoV-2", "--complete-only", "--filename", zip_path]
+        strategies.append(("Strategy 3 (complete-only)", cmd3, ["complete-only"]))
+
+    # Strategy 4: Try host if it was requested 
+    if host and (complete_only or lineage):  
+        cmd4 = ["datasets", "download", "virus", "genome", "taxon", "SARS-CoV-2", "--host", host, "--filename", zip_path]
+        strategies.append(("Strategy 4 (host)", cmd4, [f"host={host}"]))
+
+    # Strategy 5: Try lineage if it was requested 
+    if lineage and (complete_only or host):  
+        cmd5 = ["datasets", "download", "virus", "genome", "taxon", "SARS-CoV-2", "--lineage", lineage, "--filename", zip_path]
+        strategies.append(("Strategy 5 (lineage)", cmd5, [f"lineage={lineage}"]))
+
+    # Strategy 6: General SARS-CoV-2 package (no filters)
+    cmd6 = ["datasets", "download", "virus", "genome", "taxon", "SARS-CoV-2", "--filename", zip_path]
+    strategies.append(("Strategy 6 (general package)", cmd6, []))
+
+    # Try each strategy in order
+    last_error = None
+    
+    for strategy_name, cmd, applied_filters in strategies:
+        logger.info("🔄 Trying %s...", strategy_name)
+        
+        if applied_filters:
+            logger.debug("Applied filters: %s", ", ".join(applied_filters))
+        else:
+            logger.debug("No specific filters applied")
+        
+        logger.debug("Command: %s", " ".join(cmd))
         
         try:
-            logger.info("Initiating download request for taxon: %s", virus)
-            # Make the download request with extended timeout
-            response = requests.get(url, params=params, timeout=300)
+            # Log the exact command being executed
+            cmd_str = " ".join(cmd)
+            logger.info("📋 Executing command: %s", cmd_str)
+
+            # Start with capturing just stderr to check progress
+            process = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                cwd=outdir
+            )
             
-            # Check if the request was successful
-            response.raise_for_status()
+            # Track time and last progress
+            start_time = time.time()
+            last_progress = start_time
+            last_stderr = ""
             
-            # Determine output directory
-            if not outdir:
-                outdir = os.getcwd()
-                logger.debug("No output directory specified, using current directory: %s", outdir)
-            
-            # Create a unique filename for the downloaded ZIP file
-            zip_path = os.path.join(outdir, f"ncbi_virus_{virus}_{UUID}.zip")
-            logger.debug("Saving download to: %s", zip_path)
-            
-            # Write the downloaded content to the ZIP file
-            with open(zip_path, 'wb') as f:
-                f.write(response.content)
+            while True:
+                # Check if process has finished
+                retcode = process.poll()
+                if retcode is not None:
+                    break
+                    
+                # Read stderr without blocking
+                stderr = process.stderr.readline()
+                if stderr:
+                    last_stderr = stderr
+                    # Common progress indicators in datasets tool output:
+                    progress_indicators = ['%', '=', 'downloading', 'fetching', 'MB', 'GB', 'bytes']
+                    
+                    # Log the stderr for debugging
+                    logger.debug("Progress output: %s", stderr.strip())
+                    
+                    # If we see any progress indicator, update the last_progress time
+                    if any(indicator.lower() in stderr.lower() for indicator in progress_indicators):
+                        last_progress = time.time()
+                        logger.debug("Progress detected, updating last_progress time")
                 
-            logger.info("Successfully downloaded virus dataset to: %s (size: %d bytes)", 
-                       zip_path, len(response.content))
-            return zip_path
+                # Check timeout conditions:
+                # 1. Less than 30 minutes total time, continue
+                # 2. If more than 30 mins but progress in last 5 mins, continue
+                # 3. Otherwise, timeout
+                current_time = time.time()
+                total_time = current_time - start_time
+                time_since_progress = current_time - last_progress
+                
+                if total_time > 1800 and time_since_progress > 300:  # 30 mins total and 5 mins no progress
+                    process.kill()
+                    raise subprocess.TimeoutExpired(cmd, 1800)
+                
+                time.sleep(0.1)  # Prevent CPU spin
             
-        except requests.exceptions.Timeout as e:
-            # Handle timeout errors during download
-            raise RuntimeError(f"Download request timed out for virus sequences: {e}") from e
-        except requests.exceptions.ConnectionError as e:
-            # Handle connection errors during download
-            raise RuntimeError(f"Connection error during virus sequence download: {e}") from e
-        except requests.exceptions.HTTPError as e:
-            # Handle HTTP errors during download
-            raise RuntimeError(f"HTTP error during virus sequence download: {e}") from e
-        except requests.exceptions.RequestException as e:
-            # Handle any other request-related errors during download
-            raise RuntimeError(f"Failed to download virus sequences: {e}") from e
-        except IOError as e:
-            # Handle file I/O errors when saving the ZIP file
-            raise RuntimeError(f"Failed to save downloaded file: {e}") from e
+            stdout, stderr = process.communicate()
+            result = subprocess.CompletedProcess(
+                args=cmd,
+                returncode=retcode,
+                stdout=stdout,
+                stderr=stderr
+            )
+            
+            # Check if the command was successful
+            if result.returncode == 0 and os.path.exists(zip_path):
+                file_size = os.path.getsize(zip_path)
+                logger.info("✅ %s successful: %s (%.2f MB)", 
+                           strategy_name, os.path.basename(zip_path), file_size / 1024 / 1024)
+                
+                # Log any important output from the datasets CLI
+                if result.stdout:
+                    logger.debug("datasets CLI output: %s", result.stdout.strip())
+                
+                # Check which filters from the original request weren't applied in this strategy
+                requested_filters = []
+                if complete_only: requested_filters.append("complete-only")
+                if lineage: requested_filters.append(f"lineage={lineage}")
+                if host: requested_filters.append(f"host={host}")
+                if annotated: requested_filters.append("annotated")
+                
+                missing_filters = [f for f in requested_filters if f not in applied_filters]
+                if missing_filters:
+                    logger.warning("⚠️ Some requested filters were not applied in successful strategy:")
+                    logger.warning("   Filters applied: %s", ", ".join(applied_filters) if applied_filters else "none")
+                    logger.warning("   Filters missing: %s", ", ".join(missing_filters))
+                    logger.warning("   These filters will need to be applied through post-processing")
+                
+                return zip_path
+            else:
+                # Strategy failed, prepare error message
+                error_msg = f"{strategy_name} failed with return code {result.returncode}"
+                if result.stderr:
+                    error_msg += f": {result.stderr.strip()}"
+                logger.warning("❌ %s", error_msg)
+                last_error = error_msg
+                
+                # If this was an accession download that failed, provide specific guidance
+                if use_accession:
+                    error_msg = (
+                        f"Failed to download SARS-CoV-2 sequence for accession '{accession}'. "
+                        f"Please verify that this is a valid SARS-CoV-2 accession number. "
+                        f"If you're not sure if this is a SARS-CoV-2 sequence, try without setting is_sars_cov2=True."
+                    )
+                    raise RuntimeError(error_msg)
+                
+                # Clean up failed download file if it exists
+                if os.path.exists(zip_path):
+                    try:
+                        os.remove(zip_path)
+                    except OSError:
+                        pass
+                continue # Try next strategy
+                
+        except subprocess.TimeoutExpired:
+            error_msg = f"{strategy_name} timed out after 30 minutes"
+            logger.warning("❌ %s", error_msg)
+            last_error = error_msg
+            continue
+            
+        except subprocess.CalledProcessError as e:
+            error_msg = f"{strategy_name} execution failed: {e}"
+            logger.warning("❌ %s", error_msg)
+            last_error = error_msg
+            continue
+            
+        except FileNotFoundError as e:
+            # datasets CLI not found - this is a critical error, don't continue
+            raise RuntimeError(
+                "datasets CLI not found. Please install NCBI datasets CLI tools. "
+                "Installation guide: https://www.ncbi.nlm.nih.gov/datasets/docs/v2/command-line-tools/download-and-install/"
+            ) from e
+            
+        except Exception as e:
+            error_msg = f"{strategy_name} unexpected error: {e}"
+            logger.warning("❌ %s", error_msg)
+            last_error = error_msg
+            continue
+    
+    logger.warning("🚨 All cached download strategies failed. Last error: %s", last_error)
+    
+    # Provide helpful guidance
+    guidance_messages = [
+        "🔧 TROUBLESHOOTING SUGGESTIONS:",
+        "1. Check your internet connection",
+        "2. Verify datasets CLI is properly installed and updated",
+        "3. Try running the command manually to see detailed error messages:",
+        f"   datasets download virus genome taxon SARS-CoV-2 --filename test.zip",
+        "4. NCBI servers may be temporarily unavailable - try again later",
+        "5. Consider using the general API method by removing SARS-CoV-2 specific terms from your query"
+    ]
+    
+    for msg in guidance_messages:
+        logger.info(msg)
+    
+    # Raise error with the last failure details
+    raise RuntimeError(
+        f"All SARS-CoV-2 cached download strategies failed. "
+        f"Last error: {last_error}. "
+        f"Consider using the general API method instead by modifying your virus query to avoid SARS-CoV-2 detection. Use Taxon ID without is_sars_cov2 flag instead."
+    )
 
 
-def download_sequences_by_accessions(accessions, outdir=None):
+def download_sequences_by_accessions(accessions, outdir=None, batch_size=200):
     """
     Download virus genome sequences for a specific list of accession numbers.
     
     This function downloads sequences for a pre-filtered list of accessions,
-    using NCBI E-utilities API since the Datasets API virus endpoint only
-    provides metadata, not actual sequence data.
+    using NCBI E-utilities API with batching to avoid URL length limitations.
+    Large requests are automatically split into smaller batches.
     
     Args:
         accessions (list): List of accession numbers to download
         outdir (str): Output directory for downloaded files
+        batch_size (int): Maximum number of accessions per batch (default: 200)
         
     Returns:
         str: Path to the downloaded FASTA file containing sequences
@@ -401,16 +602,27 @@ def download_sequences_by_accessions(accessions, outdir=None):
         logger.debug("No output directory specified, using current directory: %s", outdir)
     
     # Create output FASTA file path
-    fasta_path = os.path.join(outdir, f"virus_sequences_{UUID}.fasta")
+    fasta_path = os.path.join(outdir, f"virus_sequences_{timestamp}_{random_suffix}.fasta")
     logger.debug("Saving sequences to: %s", fasta_path)
     
-    # Use NCBI E-utilities to fetch FASTA sequences
-    # This is more reliable for getting actual sequence data
-    base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
+    # Use NCBI E-utilities to fetch FASTA sequences with batching
+    # base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
+    
+    # If we have many accessions, split into batches to avoid URL length limits
+    if len(accessions) > batch_size:
+        logger.info("Large request detected (%d accessions). Using batch processing with batch size %d", 
+                   len(accessions), batch_size)
+        return _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_size)
+    
+    # For smaller requests, use single request
+    return _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE, fasta_path)
+
+
+def _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE, fasta_path):
+    """Download sequences in a single E-utilities request."""
     
     # Build accession string (E-utils supports comma-separated IDs)
     accession_string = ",".join(accessions)
-    
     params = {
         'db': 'nucleotide',
         'id': accession_string,
@@ -420,10 +632,10 @@ def download_sequences_by_accessions(accessions, outdir=None):
     
     try:
         logger.info("Initiating E-utilities request for %d accessions", len(accessions))
-        logger.debug("E-utilities URL: %s", base_url)
+        logger.debug("E-utilities URL: %s", NCBI_EUTILS_BASE)
         
         # Make the request with extended timeout for large datasets
-        response = requests.get(base_url, params=params, timeout=300)
+        response = requests.get(NCBI_EUTILS_BASE, params=params, timeout=300)
         
         # Check if the request was successful
         response.raise_for_status()
@@ -442,35 +654,125 @@ def download_sequences_by_accessions(accessions, outdir=None):
             
         logger.info("Successfully saved sequences to: %s (%.2f MB)", 
                    fasta_path, len(response.text.encode('utf-8')) / 1024 / 1024)
-        
         return fasta_path
         
     except requests.exceptions.RequestException as e:
         logger.error("E-utilities request failed: %s", e)
+        
+        # Check for specific URL length error
+        if "414" in str(e) or "Request-URI Too Long" in str(e):
+            logger.info("URL too long error detected. Retrying with batch processing...")
+            # Retry with smaller batches
+            return _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_size=100)
         raise RuntimeError(f"Failed to download virus sequences via E-utilities: {e}") from e
     except IOError as e:
         logger.error("Failed to save FASTA file: %s", e)
         raise RuntimeError(f"Failed to save downloaded sequences: {e}") from e
 
 
-def unzip_file(zip_file_path, extract_to_path):
-    """
-    Unzips a ZIP file to a specified directory.
+def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_size):
+    """Download sequences using multiple batched E-utilities requests."""
     
-    This function extracts all contents from a ZIP archive to the specified
-    destination directory. It creates the destination directory if it doesn't exist.
-
-    Args:
-        zip_file_path (str): Path to the ZIP file to extract
-        extract_to_path (str): Directory where the contents should be extracted
+    # Split accessions into batches
+    batches = [accessions[i:i + batch_size] for i in range(0, len(accessions), batch_size)]
+    logger.info("Downloading %d accessions in %d batches of size %d", 
+               len(accessions), len(batches), batch_size)
+    
+    all_sequences = []
+    total_downloaded = 0
+    
+    for batch_num, batch_accessions in enumerate(batches, 1):
+        logger.info("Processing batch %d/%d (%d accessions)", 
+                   batch_num, len(batches), len(batch_accessions))
         
-    Raises:
-        zipfile.BadZipFile: If the ZIP file is corrupted or invalid
-        PermissionError: If there are insufficient permissions to create directories or files
-        FileNotFoundError: If the ZIP file doesn't exist
-    """
-    # Create the extraction directory if it doesn't exist
-    # exist_ok=True prevents errors if the directory already exists
+        # Build accession string for this batch
+        accession_string = ",".join(batch_accessions)
+        params = {
+            'db': 'nucleotide',
+            'id': accession_string,
+            'rettype': 'fasta',
+            'retmode': 'text'
+        }
+        
+        try:
+            # Make the request with timeout
+            response = requests.get(NCBI_EUTILS_BASE, params=params, timeout=300)
+            response.raise_for_status()
+            
+            # Verify we got FASTA data
+            if not response.text.strip().startswith('>'):
+                logger.warning("Batch %d returned invalid FASTA data: %s", 
+                             batch_num, response.text[:100])
+                continue
+            
+            # Count sequences in this batch
+            batch_sequence_count = response.text.count('>')
+            total_downloaded += batch_sequence_count
+            
+            # Store sequences from this batch
+            all_sequences.append(response.text)
+            
+            logger.info("Batch %d: Downloaded %d sequences (%.2f MB)", 
+                       batch_num, batch_sequence_count, 
+                       len(response.text.encode('utf-8')) / 1024 / 1024)
+            
+            # Add small delay between requests to be respectful to NCBI servers
+            if batch_num < len(batches):  # Don't delay after the last batch
+                time.sleep(0.5)
+                
+        except requests.exceptions.RequestException as e:
+            logger.error("Batch %d failed: %s", batch_num, e)
+            
+            # Check for URL length error even in batch mode
+            if "414" in str(e) and batch_size > 50:
+                logger.warning("URL still too long for batch size %d. Retrying batch %d with smaller size...", 
+                             batch_size, batch_num)
+                # Recursively retry this batch with smaller size by splitting it further
+                temp_batch_path = f"temp_batch_{batch_num}.fasta"
+                try:
+                    _download_sequences_batched(
+                        batch_accessions, NCBI_EUTILS_BASE, temp_batch_path, batch_size // 2
+                    )
+                    # Read the temporary file and add to all_sequences
+                    with open(temp_batch_path, 'r', encoding='utf-8') as f:
+                        batch_content = f.read()
+                        all_sequences.append(batch_content)
+                        # Count sequences in this recovered batch
+                        recovered_count = batch_content.count('>')
+                        total_downloaded += recovered_count
+                        logger.info("Recovered batch %d with smaller size: %d sequences", 
+                                   batch_num, recovered_count)
+                    os.remove(temp_batch_path)  # Clean up temp file
+                except Exception as file_error:
+                    logger.warning("Failed to recover batch %d with smaller size: %s", batch_num, file_error)
+                    continue
+            else:
+                logger.warning("Batch %d failed and will be skipped: %s", batch_num, e)
+                continue
+    
+    if not all_sequences:
+        raise RuntimeError("All batches failed. No sequences were downloaded.")
+    
+    # Combine all sequences and write to output file
+    try:
+        with open(fasta_path, 'w', encoding='utf-8') as f:
+            for sequence_data in all_sequences:
+                f.write(sequence_data)
+                if not sequence_data.endswith('\n'):
+                    f.write('\n')  # Ensure proper line endings between batches
+        
+        file_size = os.path.getsize(fasta_path)
+        logger.info("Successfully saved %d sequences to: %s (%.2f MB)", 
+                   total_downloaded, fasta_path, file_size / 1024 / 1024)
+        return fasta_path
+        
+    except IOError as e:
+        logger.error("Failed to save combined FASTA file: %s", e)
+        raise RuntimeError(f"Failed to save downloaded sequences: {e}") from e
+
+
+def unzip_file(zip_file_path, extract_to_path):
+    """Unzips a ZIP file to a specified directory."""
     os.makedirs(extract_to_path, exist_ok=True)
     logger.debug("Created extraction directory: %s", extract_to_path)
     
@@ -527,42 +829,23 @@ def load_metadata_from_api_reports(api_reports):
             # Transform API report format to match expected internal metadata format
             # Map API fields to expected internal field names with appropriate defaults
             metadata = {
-                # Basic sequence information
                 "accession": accession,
                 "length": report.get("length"),  # Sequence length in nucleotides
                 "geneCount": report.get("gene_count"),  # Number of genes annotated
-                
-                # Sequence completeness status (complete, partial, etc.)
-                "completeness": report.get("completeness_status", "").lower(),
-                
-                # Host organism information
+                "completeness": report.get("completeness_status", "").lower(), # Completeness status (e.g., complete, partial)
                 "host": report.get("host", {}),  # Host organism details
                 "isLabHost": report.get("host", {}).get("is_lab_host", False),  # Lab-passaged flag
                 "labHost": report.get("host", {}).get("is_lab_host", False),  # Alternative field name
-                
-                # Geographic and location information
                 "location": report.get("geo_location", {}),  # Geographic location details
-                
-                # Submission and database information
                 "submitter": report.get("submitters", [{}])[0] if report.get("submitters") else {},
                 "sourceDatabase": report.get("source_database", ""),  # GenBank, RefSeq, etc.
-                
-                # Isolate and virus information
                 "isolate": report.get("isolate", {}),  # Sample/isolate details
                 "virus": report.get("virus", {}),  # Virus taxonomy and classification
-                
-                # Annotation status
                 "isAnnotated": report.get("is_annotated", False),  # Whether sequence is annotated
-                
-                # Release and submission dates
                 "releaseDate": report.get("release_date", ""),  # When sequence was released
-                
-                # Associated database records
                 "sraAccessions": report.get("sra_accessions", []),  # SRA read data accessions
                 "bioprojects": report.get("bioprojects", []),  # Associated BioProject IDs
                 "biosample": report.get("biosample"),  # BioSample ID
-                
-                # Protein and peptide counts
                 "proteinCount": report.get("protein_count"),  # Number of proteins
                 "maturePeptideCount": report.get("mature_peptide_count"),  # Number of mature peptides
             }
@@ -584,7 +867,6 @@ def load_metadata_from_api_reports(api_reports):
                 processed_count, skipped_count)
     
     return metadata_dict
-
 
 
 def parse_date(date_str, filtername="", verbose=False):
@@ -636,12 +918,16 @@ def parse_date(date_str, filtername="", verbose=False):
             return None
 
 
-# !!! TO-DO: Find ways to filter pre-download so you don't have to download a ton of seqs just to filter after
 def filter_sequences(
     fna_file,
     metadata_dict,
     min_seq_length=None,
     max_seq_length=None,
+    max_ambiguous_chars=None,
+    has_proteins=None,
+    proteins_complete=False,
+    # The following parameters are kept for backwards compatibility but are ignored
+    # as they should have been applied by filter_metadata_only already
     min_gene_count=None,
     max_gene_count=None,
     nuc_completeness=None,
@@ -649,98 +935,48 @@ def filter_sequences(
     host_taxid=None,
     lab_passaged=None,
     geographic_region=None,
-    # geographic_location=None,
     submitter_country=None,
     min_collection_date=None,
     max_collection_date=None,
     annotated=None,
     source_database=None,
-    # min_release_date=None,
     max_release_date=None,
     min_mature_peptide_count=None,
     max_mature_peptide_count=None,
     min_protein_count=None,
     max_protein_count=None,
-    max_ambiguous_chars=None,
-    has_proteins=None,
-    proteins_complete=False,
 ):
     """
-    Filter sequences based on various metadata criteria.
+    Apply sequence-dependent filters to downloaded sequences.
     
-    This function applies post-download filtering to virus sequences based on
-    metadata criteria that couldn't be applied at the API level. It reads
-    sequences from a FASTA file and applies multiple filters sequentially.
+    This function only applies filters that require the actual sequence data:
+    - Sequence length checks
+    - Ambiguous character counting
+    - Protein/feature analysis if required
+    
+    Note: All metadata-only filters should have been applied by filter_metadata_only
+    before downloading sequences. The metadata-related parameters are kept for
+    backwards compatibility but are ignored.
     
     Args:
-        fna_file (str): Path to the FASTA file containing virus sequences
+        fna_file (str): Path to FASTA file containing sequences
         metadata_dict (dict): Dictionary mapping accession numbers to metadata
         min_seq_length (int): Minimum sequence length filter
         max_seq_length (int): Maximum sequence length filter
-        min_gene_count (int): Minimum number of genes filter
-        max_gene_count (int): Maximum number of genes filter
-        nuc_completeness (str): Completeness status filter ('complete' or 'partial')
-        host (str): Host organism name filter
-        host_taxid (str): Host taxonomy ID filter
-        lab_passaged (bool): Lab passaging status filter
-        geographic_region (str): Geographic region filter
-        submitter_country (str): Submitter country filter
-        min_collection_date (str): Minimum collection date filter
-        max_collection_date (str): Maximum collection date filter
-        annotated (bool): Annotation status filter
-        source_database (str): Source database filter
-        max_release_date (str): Maximum release date filter
-        min_mature_peptide_count (int): Minimum mature peptide count filter
-        max_mature_peptide_count (int): Maximum mature peptide count filter
-        min_protein_count (int): Minimum protein count filter
-        max_protein_count (int): Maximum protein count filter
-        max_ambiguous_chars (int): Maximum number of 'N' characters allowed
-        has_proteins (str/list): Required proteins/genes/segments
-        proteins_complete (bool): Whether required proteins must be marked complete
+        max_ambiguous_chars (int): Maximum number of ambiguous nucleotides allowed
+        has_proteins (str/list): Required proteins/genes filter
+        proteins_complete (bool): Whether proteins must be complete
+        
+        Other parameters are kept for backwards compatibility but are ignored as
+        they should have been applied by filter_metadata_only already.
         
     Returns:
         tuple: (filtered_sequences, filtered_metadata, protein_headers)
-               - filtered_sequences: List of FastaRecord objects that passed filters
-               - filtered_metadata: List of metadata dictionaries for filtered sequences
-               - protein_headers: List of protein/segment information from headers
-               Returns (None, None, None) if no sequences pass the filters
     """
-
-    logger.info("Starting sequence filtering process...")
-    logger.debug("Applying filters: seq_length(%s-%s), gene_count(%s-%s), completeness(%s), "
-                "host(%s), host_taxid(%s), lab_passaged(%s), geo_region(%s), "
-                "submitter_country(%s), collection_date(%s-%s), annotated(%s), "
-                "source_db(%s), max_release_date(%s), peptide_count(%s-%s), "
-                "protein_count(%s-%s), max_ambiguous(%s), has_proteins(%s), proteins_complete(%s)",
-                min_seq_length, max_seq_length, min_gene_count, max_gene_count,
-                nuc_completeness, host, host_taxid, lab_passaged, geographic_region,
-                submitter_country, min_collection_date, max_collection_date,
-                annotated, source_database, max_release_date, min_mature_peptide_count,
-                max_mature_peptide_count, min_protein_count, max_protein_count,
-                max_ambiguous_chars, has_proteins, proteins_complete)
-
-    # Convert date filters to datetime objects for proper comparison
-    # Use verbose=True to provide detailed error messages for date parsing failures
-    min_collection_date = (
-        parse_date(min_collection_date, filtername="min_collection_date", verbose=True) 
-        if min_collection_date else None
-    )
-    max_collection_date = (
-        parse_date(max_collection_date, filtername="max_collection_date", verbose=True) 
-        if max_collection_date else None
-    )
-    max_release_date = (
-        parse_date(max_release_date, filtername="max_release_date", verbose=True) 
-        if max_release_date else None
-    )
+    logger.info("Applying sequence-dependent filters...")
+    logger.debug("Sequence filters: length(%s-%s), max_ambiguous=%s, proteins=%s, complete=%s",
+                min_seq_length, max_seq_length, max_ambiguous_chars, has_proteins, proteins_complete)
     
-    if min_collection_date:
-        logger.debug("Parsed min_collection_date: %s", min_collection_date)
-    if max_collection_date:
-        logger.debug("Parsed max_collection_date: %s", max_collection_date)
-    if max_release_date:
-        logger.debug("Parsed max_release_date: %s", max_release_date)
-
     # Initialize lists to store filtered results
     filtered_sequences = []    # Will store FastaRecord objects that pass filters
     filtered_metadata = []     # Will store corresponding metadata dictionaries
@@ -748,432 +984,95 @@ def filter_sequences(
     
     # Counters for logging filter statistics
     total_sequences = 0
-    sequences_with_metadata = 0
     filter_stats = {
-        'no_metadata': 0,
         'seq_length': 0,
-        'gene_count': 0,
-        'completeness': 0,
-        'host': 0,
-        'host_taxid': 0,
-        'lab_passaged': 0,
-        'geographic_region': 0,
-        'submitter_country': 0,
-        'collection_date': 0,
-        'annotated': 0,
-        'source_database': 0,
-        'release_date': 0,
-        'mature_peptide_count': 0,
-        'protein_count': 0,
         'ambiguous_chars': 0,
-        'has_proteins': 0,
+        'proteins': 0
     }
 
     # Read and process sequences from the FASTA file
     logger.info("Reading sequences from FASTA file: %s", fna_file)
     for record in FastaIO.parse(fna_file, "fasta"):
         total_sequences += 1
+        record_passes = True
         
-        # Extract accession number from the sequence ID (first part before any spaces)
-        accession = record.id.split(" ")[0]
-        logger.debug("Processing sequence %d: %s", total_sequences, accession)
-
-        # Check if metadata exists for this accession number
-        metadata = metadata_dict.get(accession)
-        if metadata is None:
-            filter_stats['no_metadata'] += 1
-            logger.warning("No metadata found for sequence %s. Sequence will be dropped.", accession)
+        # Get sequence length
+        seq_length = len(record.seq)
+        
+        # Apply sequence length filters
+        if min_seq_length is not None and seq_length < min_seq_length:
+            filter_stats['seq_length'] += 1
+            record_passes = False
             continue
-        
-        sequences_with_metadata += 1
-
-        # Apply filters sequentially - each filter can exclude the sequence
-        # If any filter fails, we continue to the next sequence
-        
-        # FILTER 1: Sequence length filters
-        if min_seq_length is not None or max_seq_length is not None:
-            sequence_length = metadata.get("length")
-            if sequence_length is None:
-                logger.debug("Skipping %s: missing length metadata", accession)
-                filter_stats['seq_length'] += 1
-                continue  # Skip if length metadata is missing
-                
-            if min_seq_length is not None and sequence_length < min_seq_length:
-                logger.debug("Skipping %s: length %d < min %d", accession, sequence_length, min_seq_length)
-                filter_stats['seq_length'] += 1
-                continue
-                
-            if max_seq_length is not None and sequence_length > max_seq_length:
-                logger.debug("Skipping %s: length %d > max %d", accession, sequence_length, max_seq_length)
-                filter_stats['seq_length'] += 1
-                continue
-
-        # FILTER 2: Gene count filters
-        if min_gene_count is not None or max_gene_count is not None:
-            gene_count = metadata.get("geneCount")
-            if gene_count is None:
-                logger.debug("Skipping %s: missing gene count metadata", accession)
-                filter_stats['gene_count'] += 1
-                continue
-                
-            if min_gene_count is not None and gene_count < min_gene_count:
-                logger.debug("Skipping %s: gene count %d < min %d", accession, gene_count, min_gene_count)
-                filter_stats['gene_count'] += 1
-                continue
-                
-            if max_gene_count is not None and gene_count > max_gene_count:
-                logger.debug("Skipping %s: gene count %d > max %d", accession, gene_count, max_gene_count)
-                filter_stats['gene_count'] += 1
-                continue
-
-        # FILTER 3: Nucleotide completeness filter
-        if nuc_completeness is not None:
-            completeness_status = metadata.get("completeness")
-            if completeness_status is None:
-                logger.debug("Skipping %s: missing completeness metadata", accession)
-                filter_stats['completeness'] += 1
-                continue
-                
-            if completeness_status.lower() != nuc_completeness.lower():
-                logger.debug("Skipping %s: completeness '%s' != required '%s'", 
-                           accession, completeness_status, nuc_completeness)
-                filter_stats['completeness'] += 1
-                continue
-
-        # FILTER 4: Host organism name filter
-        if host is not None:
-            # Convert host organism name to lowercase with underscores for comparison
-            host_organism = "_".join(
-                metadata.get("host", {}).get("organismName", "").split(" ")
-            ).lower()
             
-            if not host_organism:
-                logger.debug("Skipping %s: missing host organism name", accession)
-                filter_stats['host'] += 1
-                continue
-                
-            if host_organism != host.lower():
-                logger.debug("Skipping %s: host '%s' != required '%s'", 
-                           accession, host_organism, host.lower())
-                filter_stats['host'] += 1
-                continue
-
-        # FILTER 5: Host taxonomy ID filter
-        if host_taxid is not None:
-            host_lineage = metadata.get("host", {}).get("lineage", [])
-            if not host_lineage:
-                logger.debug("Skipping %s: missing host lineage metadata", accession)
-                filter_stats['host_taxid'] += 1
-                continue
-                
-            # Extract all taxonomy IDs from the host lineage
-            host_lineage_taxids = {lineage["taxId"] for lineage in host_lineage}
+        if max_seq_length is not None and seq_length > max_seq_length:
+            filter_stats['seq_length'] += 1
+            record_passes = False
+            continue
             
-            if host_taxid not in host_lineage_taxids:
-                logger.debug("Skipping %s: host taxid %s not in lineage %s", 
-                           accession, host_taxid, host_lineage_taxids)
-                filter_stats['host_taxid'] += 1
-                continue
-
-        # FILTER 6: Lab passaging status filter
-        if lab_passaged is True:
-            # Only include sequences that have been lab-passaged
-            from_lab = metadata.get("isLabHost")
-            if not from_lab:
-                logger.debug("Skipping %s: not lab-passaged (required)", accession)
-                filter_stats['lab_passaged'] += 1
-                continue
-
-        if lab_passaged is False:
-            # Only include sequences that have NOT been lab-passaged
-            from_lab = metadata.get("isLabHost")
-            if from_lab:
-                logger.debug("Skipping %s: is lab-passaged (excluded)", accession)
-                filter_stats['lab_passaged'] += 1
-                continue
-
-        # FILTER 7: Geographic region filter
-        if geographic_region is not None:
-            # Convert geographic region to lowercase with underscores for comparison
-            location = "_".join(
-                metadata.get("location", {}).get("geographicRegion", "").split(" ")
-            ).lower()
-            
-            if not location:
-                logger.debug("Skipping %s: missing geographic region", accession)
-                filter_stats['geographic_region'] += 1
-                continue
-                
-            if location != geographic_region.lower():
-                logger.debug("Skipping %s: geographic region '%s' != required '%s'", 
-                           accession, location, geographic_region.lower())
-                filter_stats['geographic_region'] += 1
-                continue
-
-        # FILTER 8: Submitter country filter
-        if submitter_country is not None:
-            # Convert submitter country to lowercase with underscores for comparison
-            submitter_country_value = "_".join(
-                metadata.get("submitter", {}).get("country", "").split(" ")
-            ).lower()
-            
-            if not submitter_country_value:
-                logger.debug("Skipping %s: missing submitter country", accession)
-                filter_stats['submitter_country'] += 1
-                continue
-                
-            if submitter_country_value != submitter_country.lower():
-                logger.debug("Skipping %s: submitter country '%s' != required '%s'", 
-                           accession, submitter_country_value, submitter_country.lower())
-                filter_stats['submitter_country'] += 1
-                continue
-
-        # FILTER 9: Collection date range filter
-        if min_collection_date is not None or max_collection_date is not None:
-            date_str = metadata.get("isolate", {}).get("collectionDate", "")
-            
-            # Parse the collection date
-            date = parse_date(date_str)
-            
-            if date_str is None or date is None:
-                logger.debug("Skipping %s: missing or invalid collection date '%s'", accession, date_str)
-                filter_stats['collection_date'] += 1
-                continue
-                
-            if min_collection_date and date < min_collection_date:
-                logger.debug("Skipping %s: collection date %s < min %s", 
-                           accession, date, min_collection_date)
-                filter_stats['collection_date'] += 1
-                continue
-                
-            if max_collection_date and date > max_collection_date:
-                logger.debug("Skipping %s: collection date %s > max %s", 
-                           accession, date, max_collection_date)
-                filter_stats['collection_date'] += 1
-                continue
-
-        # FILTER 10: Annotation status filter (for annotated=False only)
-        # Note: annotated=True filter is applied when API datasets call is made
-        if annotated is False:
-            annotated_value = metadata.get("isAnnotated")
-            if annotated_value:
-                logger.debug("Skipping %s: sequence is annotated (excluded)", accession)
-                filter_stats['annotated'] += 1
-                continue
-
-        # FILTER 11: Source database filter
-        if source_database is not None:
-            source_db = metadata.get("sourceDatabase", "").lower()
-            if not source_db:
-                logger.debug("Skipping %s: missing source database", accession)
-                filter_stats['source_database'] += 1
-                continue
-                
-            if source_db != source_database.lower():
-                logger.debug("Skipping %s: source database '%s' != required '%s'", 
-                           accession, source_db, source_database.lower())
-                filter_stats['source_database'] += 1
-                continue
-
-        # FILTER 12: Maximum release date filter
-        # Note: minimum release date filter is applied at the API level
-        if max_release_date is not None:
-            release_date_str = metadata.get("releaseDate")
-            
-            if not release_date_str:
-                logger.debug("Skipping %s: missing release date", accession)
-                filter_stats['release_date'] += 1
-                continue
-                
-            # Parse release date (remove time component if present)
-            release_date_value = parse_date(release_date_str.split("T")[0])
-            
-            if release_date_value is None:
-                logger.debug("Skipping %s: invalid release date '%s'", accession, release_date_str)
-                filter_stats['release_date'] += 1
-                continue
-                
-            if release_date_value > max_release_date:
-                logger.debug("Skipping %s: release date %s > max %s", 
-                           accession, release_date_value, max_release_date)
-                filter_stats['release_date'] += 1
-                continue
-
-        # FILTER 13: Mature peptide count filters
-        if min_mature_peptide_count is not None or max_mature_peptide_count is not None:
-            mature_peptide_count = metadata.get("maturePeptideCount")
-            
-            if mature_peptide_count is None:
-                logger.debug("Skipping %s: missing mature peptide count", accession)
-                filter_stats['mature_peptide_count'] += 1
-                continue
-                
-            if (min_mature_peptide_count is not None and 
-                mature_peptide_count < min_mature_peptide_count):
-                logger.debug("Skipping %s: mature peptide count %d < min %d", 
-                           accession, mature_peptide_count, min_mature_peptide_count)
-                filter_stats['mature_peptide_count'] += 1
-                continue
-                
-            if (max_mature_peptide_count is not None and 
-                mature_peptide_count > max_mature_peptide_count):
-                logger.debug("Skipping %s: mature peptide count %d > max %d", 
-                           accession, mature_peptide_count, max_mature_peptide_count)
-                filter_stats['mature_peptide_count'] += 1
-                continue
-
-        # FILTER 14: Protein count filters
-        if min_protein_count is not None or max_protein_count is not None:
-            protein_count = metadata.get("proteinCount")
-            
-            if protein_count is None:
-                logger.debug("Skipping %s: missing protein count", accession)
-                filter_stats['protein_count'] += 1
-                continue
-                
-            if min_protein_count is not None and protein_count < min_protein_count:
-                logger.debug("Skipping %s: protein count %d < min %d", 
-                           accession, protein_count, min_protein_count)
-                filter_stats['protein_count'] += 1
-                continue
-                
-            if max_protein_count is not None and protein_count > max_protein_count:
-                logger.debug("Skipping %s: protein count %d > max %d", 
-                           accession, protein_count, max_protein_count)
-                filter_stats['protein_count'] += 1
-                continue
-
-        # FILTER 15: Ambiguous nucleotide character filter
-        # Filter out sequences containing too many 'N' or 'n' characters (ambiguous nucleotides)
+        # Count ambiguous characters (N's)
         if max_ambiguous_chars is not None:
-            sequence_str = str(record.seq)
-            # Count both uppercase and lowercase 'N' characters
-            n_count = sequence_str.upper().count("N")
-
-            if n_count > max_ambiguous_chars:
-                logger.debug("Skipping %s: ambiguous chars %d > max %d", 
-                           accession, n_count, max_ambiguous_chars)
+            ambiguous_count = record.seq.upper().count('N')
+            if ambiguous_count > max_ambiguous_chars:
                 filter_stats['ambiguous_chars'] += 1
+                record_passes = False
                 continue
-
-        # FILTER 16: Required proteins/genes/segments filter
-        # Check if requested proteins/segments are present based on sequence header labels
-        if has_proteins is not None:
-            # Convert single protein to list for consistent processing
-            if isinstance(has_proteins, str):
-                has_proteins = [has_proteins]
                 
-            try:
-                # Extract protein/segment information from the FASTA header
-                if metadata.get("isolate", {}).get("name"):
-                    # If isolate name is available, use everything after it in the header
-                    prot_header = record.description.split(
-                        metadata.get("isolate", {}).get("name")
-                    )[-1]
-                else:
-                    # If sample name was not added to metadata,
-                    # search the whole header for protein/segment names
-                    prot_header = record.description
-                    
-                # Split header into segments for protein searching
-                prot_parts = prot_header.split(";")
-
-                # Check that all required proteins are present
-                skip_outer_loop = False
-                for protein in has_proteins:
-                    # Create case-insensitive regex for each protein with flexible quote handling
-                    regex = rf"(?i)\b['\",]?\(?{protein}\)?['\",]?\b"
-
-                    if proteins_complete:
-                        # Only keep sequences where proteins are marked as "complete"
-                        if not any(
-                            re.search(regex, part) and "complete" in part
-                            for part in prot_parts
-                        ):
-                            logger.debug("Skipping %s: protein '%s' not marked complete", accession, protein)
-                            skip_outer_loop = True
-                            break
-                    else:
-                        # Just check for presence of the protein, regardless of completeness
-                        if not any(re.search(regex, part) for part in prot_parts):
-                            logger.debug("Skipping %s: protein '%s' not found", accession, protein)
-                            skip_outer_loop = True
-                            break
-                            
-                if skip_outer_loop:
-                    filter_stats['has_proteins'] += 1
-                    continue
-
-            except (AttributeError, KeyError, IndexError) as e:
-                logger.warning(
-                    "The 'has_proteins' filter could not be applied to sequence %s due to the following error:\n%s", 
-                    record.id, e
-                )
-                filter_stats['has_proteins'] += 1
-                continue
-
-        # If we reach this point, the sequence has passed all filters
-        # Extract protein/segment information from the sequence header for output
-        try:
-            if metadata.get("isolate", {}).get("name"):
-                # Use everything after the isolate name as protein/segment description
-                prot_header = record.description.split(
-                    metadata.get("isolate", {}).get("name")
-                )[-1]
-            else:
-                # If sample name was not added to metadata,
-                # use the whole header as protein/segment description
-                prot_header = record.description
-        except (AttributeError, KeyError, IndexError):
-            # Handle cases where header parsing fails
-            prot_header = pd.NA
-            logger.debug("Could not extract protein header for %s", accession)
-
-        # Add the sequence and its metadata to the results
-        protein_headers.append(prot_header)
-        filtered_sequences.append(record)
-        filtered_metadata.append(metadata)
+        # TODO: Add protein feature analysis if required (has_proteins/proteins_complete)
         
-        logger.debug("Sequence %s passed all filters", accession)
+        # If sequence passed all filters, keep it and its metadata
+        if record_passes:
+            filtered_sequences.append(record)
+            filtered_metadata.append(metadata_dict.get(record.id, {}))
 
+    # Log filtering results
+    logger.info("Sequence filter results:")
+    logger.info("- Total sequences processed: %d", total_sequences)
+    logger.info("- Failed length filter: %d", filter_stats['seq_length'])
+    logger.info("- Failed ambiguous char filter: %d", filter_stats['ambiguous_chars'])
+    logger.info("- Failed protein requirements: %d", filter_stats['proteins'])
+    logger.info("- Sequences passing all filters: %d", len(filtered_sequences))
+    
+    return filtered_sequences, filtered_metadata, protein_headers
+    
     # Log comprehensive filtering statistics
-    num_seqs = len(filtered_sequences)
-    logger.info("Filtering complete:")
-    logger.info("  Total sequences processed: %d", total_sequences)
-    logger.info("  Sequences with metadata: %d", sequences_with_metadata)
-    logger.info("  Sequences passing all filters: %d", num_seqs)
+    # num_seqs = len(filtered_sequences)
+    # logger.info("Filtering complete:")
+    # logger.info("  Total sequences processed: %d", total_sequences)
+    # logger.info("  Sequences with metadata: %d", sequences_with_metadata)
+    # logger.info("  Sequences passing all filters: %d", num_seqs)
     
-    # Log detailed filter statistics if any sequences were filtered out
-    total_filtered = sum(filter_stats.values())
-    if total_filtered > 0:
-        logger.info("Filter statistics (sequences excluded):")
-        for filter_name, count in filter_stats.items():
-            if count > 0:
-                logger.info("  %s: %d sequences", filter_name, count)
+    # # Log detailed filter statistics if any sequences were filtered out
+    # total_filtered = sum(filter_stats.values())
+    # if total_filtered > 0:
+    #     logger.info("Filter statistics (sequences excluded):")
+    #     for filter_name, count in filter_stats.items():
+    #         if count > 0:
+    #             logger.info("  %s: %d sequences", filter_name, count)
     
-    # Validate results and return
-    if num_seqs > 0:
-        # Perform consistency checks
-        if num_seqs != len(filtered_metadata):
-            logger.warning(
-                "Number of sequences (%d) and number of metadata entries (%d) do not match.", 
-                num_seqs, len(filtered_metadata)
-            )
-        if num_seqs != len(protein_headers):
-            logger.warning(
-                "Number of sequences (%d) and number of protein headers (%d) do not match.", 
-                num_seqs, len(protein_headers)
-            )
+    # # Validate results and return
+    # if num_seqs > 0:
+    #     # Perform consistency checks
+    #     if num_seqs != len(filtered_metadata):
+    #         logger.warning(
+    #             "Number of sequences (%d) and number of metadata entries (%d) do not match.", 
+    #             num_seqs, len(filtered_metadata)
+    #         )
+    #     if num_seqs != len(protein_headers):
+    #         logger.warning(
+    #             "Number of sequences (%d) and number of protein headers (%d) do not match.", 
+    #             num_seqs, len(protein_headers)
+    #         )
             
-        logger.debug(
-            "Final counts - sequences: %d, metadata: %d, protein headers: %d", 
-            num_seqs, len(filtered_metadata), len(protein_headers)
-        )
+    #     logger.debug(
+    #         "Final counts - sequences: %d, metadata: %d, protein headers: %d", 
+    #         num_seqs, len(filtered_metadata), len(protein_headers)
+    #     )
         
-        return filtered_sequences, filtered_metadata, protein_headers
-    else:
-        logger.warning("No sequences passed the provided filters.")
-        return None, None, None
+    #     return filtered_sequences, filtered_metadata, protein_headers
+    # else:
+    #     logger.warning("No sequences passed the provided filters.")
+    #     return None, None, None
 
 
 def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_file):
@@ -1782,6 +1681,7 @@ def ncbi_virus(
     min_collection_date=None,
     max_collection_date=None,
     annotated=None,
+    refseq_only=False,
     source_database=None,
     min_release_date=None,
     max_release_date=None,
@@ -1790,7 +1690,9 @@ def ncbi_virus(
     min_protein_count=None,
     max_protein_count=None,
     max_ambiguous_chars=None,
-):
+    is_sars_cov2=False,
+    lineage=None,
+    ):
     """
     Download a virus genome dataset from the NCBI Virus database (https://www.ncbi.nlm.nih.gov/labs/virus/).
 
@@ -1805,17 +1707,8 @@ def ncbi_virus(
     logger.info("Starting NCBI virus data retrieval process...")
     logger.info("Query parameters: virus='%s', accession=%s, outfolder='%s'", 
                 virus, accession, outfolder)
-    logger.debug("Applied filters: host=%s, seq_length=(%s-%s), gene_count=(%s-%s), "
-                "completeness=%s, annotated=%s, lab_passaged=%s, geo_region=%s, "
-                "geo_location=%s, submitter_country=%s, collection_date=(%s-%s), "
-                "source_db=%s, release_date=(%s-%s), protein_count=(%s-%s), "
-                "peptide_count=(%s-%s), max_ambiguous=%s, has_proteins=%s, proteins_complete=%s",
-                host, min_seq_length, max_seq_length, min_gene_count, max_gene_count,
-                nuc_completeness, annotated, lab_passaged, geographic_region,
-                geographic_location, submitter_country, min_collection_date, max_collection_date,
-                source_database, min_release_date, max_release_date, min_protein_count,
-                max_protein_count, min_mature_peptide_count, max_mature_peptide_count,
-                max_ambiguous_chars, has_proteins, proteins_complete)
+    logger.debug("Applied filters: host=%s, seq_length=(%s-%s), gene_count=(%s-%s), completeness=%s, annotated=%s, refseq_only=%s, lab_passaged=%s, geo_region=%s, geo_location=%s, submitter_country=%s, collection_date=(%s-%s), source_db=%s, release_date=(%s-%s), protein_count=(%s-%s), peptide_count=(%s-%s), max_ambiguous=%s, has_proteins=%s, proteins_complete=%s",
+    host, min_seq_length, max_seq_length, min_gene_count, max_gene_count, nuc_completeness, annotated, refseq_only, lab_passaged, geographic_region, geographic_location, submitter_country, min_collection_date, max_collection_date,source_database, min_release_date, max_release_date, min_protein_count, max_protein_count, min_mature_peptide_count, max_mature_peptide_count, max_ambiguous_chars, has_proteins, proteins_complete)
 
     # SECTION 1: INPUT VALIDATION
     # Validate and normalize input arguments before proceeding
@@ -1845,6 +1738,12 @@ def ncbi_virus(
         raise TypeError(
             "Argument 'proteins_complete' must be a boolean (True or False)."
         )
+
+    if refseq_only is not None and not isinstance(refseq_only, bool):
+        raise TypeError(
+            "Argument 'refseq_only' must be a boolean (True or False)."
+        )
+    
     
     # Convert integer virus identifiers to strings for API compatibility
     if isinstance(virus, int):
@@ -1894,33 +1793,169 @@ def ncbi_virus(
     os.makedirs(outfolder, exist_ok=True)
     logger.debug("Output folder ready: %s", outfolder)
     
+    # SECTION 2.5: SARS-CoV-2 CACHED DATA PROCESSING
+    # For SARS-CoV-2 queries, use cached data packages with hierarchical fallback
+    if is_sars_cov2 or is_sars_cov2_query(virus, accession):
+        logger.info("=" * 60)
+        logger.info("DETECTED SARS-CoV-2 QUERY - USING CACHED DATA PACKAGES")
+        logger.info("=" * 60)
+        logger.info("SARS-CoV-2 queries will use NCBI's optimized cached data packages")
+        logger.info("with hierarchical fallback from specific to general cached files.")
+        
+        # Use the download_sars_cov2_optimized function which handles fallback strategies internally
+        params = {
+            'host': host,
+            'complete_only': (nuc_completeness == "complete"),
+            'annotated': annotated,
+            'outdir': outfolder,
+            'lineage': lineage,
+            'accession': virus,  # Pass the virus parameter as either accession or taxon
+            'use_accession': accession  # Tell the function whether to use accession or taxon endpoint
+        }
+            
+        zip_file = download_sars_cov2_optimized(**params)
+            
+        if zip_file and os.path.exists(zip_file):
+            # Extract directory path should come from the zip file name to match what download_sars_cov2_optimized uses
+            extract_dir = os.path.splitext(zip_file)[0]
+            unzip_file(zip_file, extract_dir)
+            
+            # Process the cached download
+            if os.path.exists(extract_dir):
+                logger.info("🔬 PROCESSING CACHED DATA...")
+                logger.info("Extracted cached data to: %s", extract_dir)
+            
+            # Process cached data pipeline
+            try:
+                # 1. Find FASTA and metadata files in extracted directory
+                fasta_files = []
+                metadata_files = []
+                
+                for root, dirs, files in os.walk(extract_dir):
+                    for file in files:
+                        file_path = os.path.join(root, file)
+                        if file.endswith(('.fasta', '.fa', '.fna')):
+                            fasta_files.append(file_path)
+                        elif file.endswith(('.json', '.jsonl', '.csv')):
+                            metadata_files.append(file_path)
+                
+                # Process all available FASTA files
+                all_cached_sequences = []
+                for fasta_file in fasta_files:
+                    try:
+                        sequences = list(FastaIO.parse(fasta_file, "fasta"))
+                        all_cached_sequences.extend(sequences)
+                        logger.info("Loaded %d sequences from %s", len(sequences), fasta_file)
+                    except Exception as e:
+                        logger.warning("Failed to load FASTA file %s: %s", fasta_file, e)
+                        continue
+                
+                if not all_cached_sequences:
+                    logger.warning("No valid sequences found in cached data. Falling back to API workflow.")
+                    raise RuntimeError("No valid sequences found in cached data")
+                
+                # 3. For cached data, create minimal metadata (accession-based)
+                cached_metadata = []
+                for seq in all_cached_sequences:
+                    # Extract basic info from FASTA header
+                    metadata = {
+                        'accession': seq.id.split('.')[0],  # Remove version if present
+                        'description': seq.description,
+                        'length': len(seq.seq),
+                        'source': 'cached_data'
+                    }
+                    cached_metadata.append(metadata)
+                
+                logger.info("Created basic metadata for %d cached sequences", len(cached_metadata))
+                
+                # 4. Apply basic filtering to cached data
+                # Note: Some filters may not work fully with cached data due to limited metadata
+                logger.info("Applying basic filters to cached data...")
+                
+                # Apply sequence length filters if specified
+                if min_seq_length is not None or max_seq_length is not None:
+                    filtered_seqs = []
+                    filtered_meta = []
+                    for seq, meta in zip(all_cached_sequences, cached_metadata):
+                        seq_len = len(seq.seq)
+                        if min_seq_length is not None and seq_len < min_seq_length:
+                            continue
+                        if max_seq_length is not None and seq_len > max_seq_length:
+                            continue
+                        filtered_seqs.append(seq)
+                        filtered_meta.append(meta)
+                    all_cached_sequences = filtered_seqs
+                    cached_metadata = filtered_meta
+                    logger.info("After length filtering: %d sequences remain", len(all_cached_sequences))
+                
+                # Apply accession filter if specified
+                if accession and isinstance(accession, (list, tuple)):
+                    accession_set = set(str(acc).upper() for acc in accession)
+                    filtered_seqs = []
+                    filtered_meta = []
+                    for seq, meta in zip(all_cached_sequences, cached_metadata):
+                        if meta['accession'].upper() in accession_set:
+                            filtered_seqs.append(seq)
+                            filtered_meta.append(meta)
+                    all_cached_sequences = filtered_seqs
+                    cached_metadata = filtered_meta
+                    logger.info("After accession filtering: %d sequences remain", len(all_cached_sequences))
+                
+                # 5. Save filtered cached results
+                if all_cached_sequences:
+                    logger.info("🎉 CACHED DATA PROCESSING SUCCESSFUL!")
+                    logger.info("Using %d sequences from cached data", len(all_cached_sequences))
+                    
+                    # Save FASTA sequences
+                    output_fasta_path = os.path.join(outfolder, f"{virus}_sequences.fasta")
+                    FastaIO.write(all_cached_sequences, output_fasta_path, "fasta")
+                    logger.info("Saved cached sequences to: %s", output_fasta_path)
+                    
+                    # Save metadata CSV
+                    if cached_metadata:
+                        output_csv_path = os.path.join(outfolder, f"{virus}_metadata.csv")
+                        import pandas as pd
+                        df = pd.DataFrame(cached_metadata)
+                        df.to_csv(output_csv_path, index=False)
+                        logger.info("Saved cached metadata to: %s", output_csv_path)
+                    
+                    logger.info("✅ Cached data processing completed successfully!")
+                    return output_fasta_path  # Return early with cached results
+                else:
+                    logger.warning("No sequences remain after filtering cached data")
+                    raise RuntimeError("No sequences passed the filter criteria")
+                    
+            except Exception as cache_error:
+                logger.warning("Cached data processing failed: %s", cache_error)
+                logger.info("Proceeding with regular API workflow...")
+                logger.info("=" * 60)
+    
     # Create temporary directory for intermediate processing
     # This will be cleaned up at the end regardless of success or failure
-    temp_dir = os.path.join(outfolder, f"tmp_{UUID}")
+    temp_dir = os.path.join(outfolder, f"tmp_{timestamp}_{random_suffix}")
     os.makedirs(temp_dir, exist_ok=True)
     logger.debug("Created temporary processing directory: %s", temp_dir)
     
     try:
         # SECTION 3: METADATA RETRIEVAL
         logger.info("=" * 60)
-        logger.info("STEP 1: Fetching virus metadata from NCBI API")
+        logger.info("STEP 2: Fetching virus metadata from NCBI API")
         logger.info("=" * 60)
-        logger.debug("Applying server-side filters: host=%s, geo_location=%s, annotated=%s, complete_only=%s, min_release_date=%s",
-                     host, geographic_location, annotated, False, min_release_date)
 
-        # Note: The API only supports annotated=True filter (annotated_only), not annotated=False
-        # For annotated=False, we get all records and filter locally
-        # Note: We don't apply complete_only at API level as it's too restrictive - filter locally instead
         api_annotated_filter = annotated if annotated is True else None
+        api_complete_filter = True if nuc_completeness=="complete" else False
+
+        logger.debug("Applying server-side filters: host=%s, geo_location=%s, annotated=%s, complete_only=%s, min_release_date=%s, refseq_only=%s", host, geographic_location, annotated, api_complete_filter, min_release_date, refseq_only)
         
         api_reports = fetch_virus_metadata(
             virus,
             accession=accession,
             host=host,
             geographic_location=geographic_location,
-            annotated=api_annotated_filter,  # Only pass True to API, not False
-            complete_only=False,  # Don't filter at API level - too restrictive
+            annotated=api_annotated_filter,
+            complete_only=api_complete_filter,
             min_release_date=min_release_date,
+            refseq_only=refseq_only,
         )
 
         if not api_reports:
@@ -1949,7 +1984,7 @@ def ncbi_virus(
 
         # SECTION 4: METADATA-ONLY FILTERING
         logger.info("=" * 60)
-        logger.info("STEP 2: Applying metadata-only filters")
+        logger.info("STEP 3: Applying metadata-only filters")
         logger.info("=" * 60)
 
         filters = {
@@ -1957,9 +1992,7 @@ def ncbi_virus(
             "max_seq_length": max_seq_length,
             "min_gene_count": min_gene_count,
             "max_gene_count": max_gene_count,
-            # Apply completeness filter locally since API filter is too restrictive
             "nuc_completeness": nuc_completeness,
-            # host already applied server-side when provided, so skip if it was applied at API level
             "host": None if host else None,
             "host_taxid": host_taxid,
             "lab_passaged": lab_passaged,
@@ -1967,8 +2000,7 @@ def ncbi_virus(
             "submitter_country": submitter_country,
             "min_collection_date": min_collection_date,
             "max_collection_date": max_collection_date,
-            # Only apply annotated filter locally if it wasn't applied at API level
-            "annotated": annotated if annotated is False else None,  # API can't filter False, only True
+            "annotated": None if annotated else None, 
             "source_database": source_database,
             "max_release_date": max_release_date,
             "min_mature_peptide_count": min_mature_peptide_count,
@@ -2004,9 +2036,9 @@ def ncbi_virus(
         except Exception as e:
             logger.warning("Failed to save filtered metadata JSONL: %s", e)
 
-        # SECTION 5: DOWNLOAD SEQUENCES FOR FILTERED ACCESSIONS ONLY
+        # SECTION 4: DOWNLOAD SEQUENCES FOR FILTERED ACCESSIONS ONLY
         logger.info("=" * 60)
-        logger.info("STEP 3: Downloading sequences for filtered accessions")
+        logger.info("STEP 4: Downloading sequences for filtered accessions")
         logger.info("=" * 60)
 
         fna_file = download_sequences_by_accessions(filtered_accessions, outdir=temp_dir)
@@ -2014,9 +2046,9 @@ def ncbi_virus(
             raise RuntimeError(f"Download failed: FASTA file not found at {fna_file}")
         logger.info("Downloaded FASTA file: %s (%.2f MB)", fna_file, os.path.getsize(fna_file) / 1024 / 1024)
 
-        # SECTION 6: SEQUENCE-DEPENDENT FILTERING AND SAVING
+        # SECTION 5: SEQUENCE-DEPENDENT FILTERING AND SAVING
         logger.info("=" * 60)
-        logger.info("STEP 4: Applying sequence-dependent filters and saving results")
+        logger.info("STEP 5: Applying sequence-dependent filters and saving results")
         logger.info("=" * 60)
 
         # Restrict metadata to filtered accessions only
@@ -2088,11 +2120,116 @@ def ncbi_virus(
 
     except Exception as e:
         # Handle any unexpected errors during processing
-        logger.error("An error occurred during virus data processing: %s", e)
-        logger.error("Error type: %s", type(e).__name__)
-        if logger.getEffectiveLevel() <= logging.DEBUG:
-            import traceback
-            logger.debug("Full traceback:\n%s", traceback.format_exc())
+        error_msg = str(e)
+        
+        # Check if this is a server-side issue that we can provide guidance for
+        if any(indicator in error_msg.lower() for indicator in ['timeout', '500 server error', 'internal server error']):
+            logger.error("=" * 80)
+            logger.error("❌ SERVER-SIDE ERROR DETECTED")
+            logger.error("=" * 80)
+            logger.error("The NCBI API is experiencing server-side issues.")
+            logger.error("This is not a problem with your query or parameters.")
+            logger.error("")
+            logger.error("Error details: %s", e)
+            logger.error("")
+            
+            # Provide alternative commands based on the problematic parameters
+            if geographic_location:
+                logger.error("🔧 SUGGESTED SOLUTION:")
+                logger.error("The geographic location filter appears to be causing server issues.")
+                logger.error("Try running without the geographic filter and filter manually afterward:")
+                logger.error("")
+                
+                # Build alternative command
+                virus_clean = virus.replace(' ', '_').replace('/', '_')
+                cmd_parts = [f"gget.ncbi_virus('{virus}'"]
+                
+                # Add all non-problematic filters
+                if host:
+                    cmd_parts.append(f"host='{host}'")
+                if min_seq_length:
+                    cmd_parts.append(f"min_seq_length={min_seq_length}")
+                if max_seq_length:
+                    cmd_parts.append(f"max_seq_length={max_seq_length}")
+                if min_gene_count:
+                    cmd_parts.append(f"min_gene_count={min_gene_count}")
+                if max_gene_count:
+                    cmd_parts.append(f"max_gene_count={max_gene_count}")
+                if nuc_completeness:
+                    cmd_parts.append(f"nuc_completeness='{nuc_completeness}'")
+                if annotated is not None:
+                    cmd_parts.append(f"annotated={annotated}")
+                if lab_passaged is not None:
+                    cmd_parts.append(f"lab_passaged={lab_passaged}")
+                if min_collection_date:
+                    cmd_parts.append(f"min_collection_date='{min_collection_date}'")
+                if max_collection_date:
+                    cmd_parts.append(f"max_collection_date='{max_collection_date}'")
+                if source_database:
+                    cmd_parts.append(f"source_database='{source_database}'")
+                if min_release_date:
+                    cmd_parts.append(f"min_release_date='{min_release_date}'")
+                if max_release_date:
+                    cmd_parts.append(f"max_release_date='{max_release_date}'")
+                if max_ambiguous_chars is not None:
+                    cmd_parts.append(f"max_ambiguous_chars={max_ambiguous_chars}")
+                if has_proteins:
+                    if isinstance(has_proteins, list):
+                        cmd_parts.append(f"has_proteins={has_proteins}")
+                    else:
+                        cmd_parts.append(f"has_proteins='{has_proteins}'")
+                
+                cmd_parts.append(f"outfolder='{virus_clean}_data'")
+                
+                alternative_cmd = ", ".join(cmd_parts) + ")"
+                logger.error("📋 ALTERNATIVE COMMAND:")
+                logger.error("  %s", alternative_cmd)
+                logger.error("")
+                logger.error("After download completes, filter the output CSV file by the")
+                logger.error("'Geographic Location' column to get sequences from '%s'.", geographic_location)
+            
+            elif any(x in virus.lower() for x in ['sars-cov-2', 'covid', 'influenza']) and not host:
+                logger.error("🔧 SUGGESTED SOLUTION:")
+                logger.error("Large datasets like '%s' may cause server timeouts.", virus)
+                logger.error("Try adding a host filter to reduce the dataset size:")
+                logger.error("")
+                
+                # Build alternative command with host filter
+                virus_clean = virus.replace(' ', '_').replace('/', '_')
+                cmd_parts = [f"gget.ncbi_virus('{virus}'", "host='human'"]
+                
+                # Add existing filters
+                if min_seq_length:
+                    cmd_parts.append(f"min_seq_length={min_seq_length}")
+                if max_seq_length:
+                    cmd_parts.append(f"max_seq_length={max_seq_length}")
+                if nuc_completeness:
+                    cmd_parts.append(f"nuc_completeness='{nuc_completeness}'")
+                if annotated is not None:
+                    cmd_parts.append(f"annotated={annotated}")
+                
+                cmd_parts.append(f"outfolder='{virus_clean}_data'")
+                
+                alternative_cmd = ", ".join(cmd_parts) + ")"
+                logger.error("📋 ALTERNATIVE COMMAND:")
+                logger.error("  %s", alternative_cmd)
+            
+            else:
+                logger.error("🔧 SUGGESTED SOLUTIONS:")
+                logger.error("1. Wait a few minutes and try again (server issues are often temporary)")
+                logger.error("2. Try using more specific filters to reduce dataset size")
+                logger.error("3. Use host='human' filter if studying human pathogens")
+                logger.error("4. Add date range filters to limit the time period")
+            
+            logger.error("=" * 80)
+        else:
+            # For non-server errors, show the original error message
+            logger.error("An error occurred during virus data processing: %s", e)
+            logger.error("Error type: %s", type(e).__name__)
+            if logger.getEffectiveLevel() <= logging.DEBUG:
+                import traceback
+                logger.debug("Full traceback:\n%s", traceback.format_exc())
+        
         raise
         
     finally:
@@ -2108,3 +2245,8 @@ def ncbi_virus(
                 logger.warning("Failed to clean up temporary directory %s: %s", temp_dir, e)
         
         logger.info("NCBI virus data retrieval process completed.")
+
+
+if __name__ == "__main__":
+    # Main module entry point
+    pass
