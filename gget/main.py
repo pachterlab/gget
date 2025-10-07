@@ -39,6 +39,7 @@ from .gget_mutate import mutate
 from .gget_opentargets import opentargets, OPENTARGETS_RESOURCES
 from .gget_cbio import cbio_plot, cbio_search
 from .gget_bgee import bgee
+from .gget_ncbi_virus import ncbi_virus
 
 
 # Custom formatter for help messages that preserved the text formatting and adds the default value to the end of the help message
@@ -2330,6 +2331,224 @@ def main():
         help="Does not print progress information.",
     )
 
+    ## gget ncbi_virus subparser
+    ncbi_virus_desc = "Download virus genome datasets and associated GenBank metadata from the NCBI Virus database."
+    parser_ncbi_virus = parent_subparsers.add_parser(
+        "ncbi_virus",
+        parents=[parent],
+        description=ncbi_virus_desc,
+        help=ncbi_virus_desc,
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
+    )
+    # ncbi_virus parser arguments
+    parser_ncbi_virus.add_argument(
+        "virus",
+        type=str,
+        help="Virus taxon name/ID to query, e.g. 'SARS-CoV-2', 'covid', 'influenza', or taxon ID '2697049'.",
+    )
+    parser_ncbi_virus.add_argument(
+        "-a",
+        "--accession",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Treat the virus argument as an accession number instead of a taxon name.",
+    )
+    parser_ncbi_virus.add_argument(
+        "-o",
+        "--out",
+        type=str,
+        required=False,
+        help=(
+            "Path to the output folder where results will be saved, e.g. path/to/directory.\n"
+            "Default: Current working directory."
+        ),
+    )
+    parser_ncbi_virus.add_argument(
+        "--host",
+        type=str,
+        required=False,
+        help="Host organism filter, e.g. 'human', 'mouse'. Use underscores for multi-word hosts.",
+    )
+    parser_ncbi_virus.add_argument(
+        "--min_seq_length",
+        type=int,
+        required=False,
+        help="Minimum sequence length filter (in base pairs).",
+    )
+    parser_ncbi_virus.add_argument(
+        "--max_seq_length",
+        type=int,
+        required=False,
+        help="Maximum sequence length filter (in base pairs).",
+    )
+    parser_ncbi_virus.add_argument(
+        "--min_gene_count",
+        type=int,
+        required=False,
+        help="Minimum number of genes filter.",
+    )
+    parser_ncbi_virus.add_argument(
+        "--max_gene_count",
+        type=int,
+        required=False,
+        help="Maximum number of genes filter.",
+    )
+    parser_ncbi_virus.add_argument(
+        "--nuc_completeness",
+        type=str,
+        choices=["complete", "partial"],
+        required=False,
+        help="Nucleotide completeness filter: 'complete' or 'partial'.",
+    )
+    parser_ncbi_virus.add_argument(
+        "--has_proteins",
+        type=str,
+        nargs="+",
+        required=False,
+        help="Filter for sequences containing specific proteins/genes/segments, e.g. 'spike' 'nucleocapsid'.",
+    )
+    parser_ncbi_virus.add_argument(
+        "--proteins_complete",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Require that specified proteins are marked as complete.",
+    )
+    parser_ncbi_virus.add_argument(
+        "--host_taxid",
+        type=str,
+        required=False,
+        help="Host taxonomy ID filter.",
+    )
+    parser_ncbi_virus.add_argument(
+        "--lab_passaged",
+        type=lambda x: x.lower() == 'true',
+        required=False,
+        help="Lab passaging status filter: 'true' or 'false'.",
+    )
+    parser_ncbi_virus.add_argument(
+        "--geographic_region",
+        type=str,
+        required=False,
+        help="Geographic region filter, e.g. 'Europe', 'Asia'.",
+    )
+    parser_ncbi_virus.add_argument(
+        "--geographic_location",
+        type=str,
+        required=False,
+        help="Specific geographic location filter, e.g. 'Germany', 'California'.",
+    )
+    parser_ncbi_virus.add_argument(
+        "--submitter_country",
+        type=str,
+        required=False,
+        help="Submitter country filter.",
+    )
+    parser_ncbi_virus.add_argument(
+        "--min_collection_date",
+        type=str,
+        required=False,
+        help="Minimum collection date filter (YYYY-MM-DD format).",
+    )
+    parser_ncbi_virus.add_argument(
+        "--max_collection_date",
+        type=str,
+        required=False,
+        help="Maximum collection date filter (YYYY-MM-DD format).",
+    )
+    parser_ncbi_virus.add_argument(
+        "--annotated",
+        type=lambda x: x.lower() == 'true',
+        required=False,
+        help="Annotation status filter: 'true' or 'false'.",
+    )
+    parser_ncbi_virus.add_argument(
+        "--refseq_only",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Only fetch RefSeq genomes. If not set, both RefSeq and GenBank genomes will be fetched.",
+    )
+    parser_ncbi_virus.add_argument(
+        "--source_database",
+        type=str,
+        choices=["genbank", "refseq"],
+        required=False,
+        help="Source database filter: 'genbank' or 'refseq'.",
+    )
+    parser_ncbi_virus.add_argument(
+        "--min_release_date",
+        type=str,
+        required=False,
+        help="Minimum release date filter (YYYY-MM-DD format).",
+    )
+    parser_ncbi_virus.add_argument(
+        "--max_release_date",
+        type=str,
+        required=False,
+        help="Maximum release date filter (YYYY-MM-DD format).",
+    )
+    parser_ncbi_virus.add_argument(
+        "--min_mature_peptide_count",
+        type=int,
+        required=False,
+        help="Minimum mature peptide count filter.",
+    )
+    parser_ncbi_virus.add_argument(
+        "--max_mature_peptide_count",
+        type=int,
+        required=False,
+        help="Maximum mature peptide count filter.",
+    )
+    parser_ncbi_virus.add_argument(
+        "--min_protein_count",
+        type=int,
+        required=False,
+        help="Minimum protein count filter.",
+    )
+    parser_ncbi_virus.add_argument(
+        "--max_protein_count",
+        type=int,
+        required=False,
+        help="Maximum protein count filter.",
+    )
+    parser_ncbi_virus.add_argument(
+        "--max_ambiguous_chars",
+        type=int,
+        required=False,
+        help="Maximum number of ambiguous nucleotide characters ('N') allowed.",
+    )
+    parser_ncbi_virus.add_argument(
+        "--lineage",
+        type=str,
+        required=False,
+        help="Virus lineage filter (e.g., for SARS-CoV-2: 'B.1.1.7', 'P.1').",
+    )
+    parser_ncbi_virus.add_argument(
+        "--genbank_metadata",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Also fetch detailed GenBank metadata for the sequences that pass all filters. The metadata will be saved in a separate CSV file.",
+    )
+    parser_ncbi_virus.add_argument(
+        "--genbank_batch_size",
+        default=200,
+        type=int,
+        required=False,
+        help="Maximum number of accessions to fetch in each GenBank metadata request. Smaller batches are slower but more reliable for large datasets. Only used when --genbank_metadata is True. Default: 200",
+    )
+    parser_ncbi_virus.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Does not print progress information.",
+    )
+
     ### Define return values
     args = parent_parser.parse_args()
 
@@ -2358,7 +2577,7 @@ def main():
         parent_parser.print_help(sys.stderr)
         sys.exit(1)
 
-    # Show  module specific help if only module but no further arguments are given
+    # Show module specific help if only module but no further arguments are given
     command_to_parser = {
         "ref": parser_ref,
         "search": parser_gget,
@@ -2381,6 +2600,7 @@ def main():
         "opentargets": parser_opentargets,
         "cbio": parser_cbio,
         "bgee": parser_bgee,
+        "ncbi_virus": parser_ncbi_virus,
     }
 
     if len(sys.argv) == 2:
@@ -3295,3 +3515,39 @@ def main():
                 print(
                     bgee_results.to_json(orient="records", force_ascii=False, indent=4)
                 )
+
+    ## ncbi_virus return
+    if args.command == "ncbi_virus":
+        ncbi_virus(
+            virus=args.virus,
+            accession=args.accession,
+            outfolder=args.out,
+            host=args.host,
+            min_seq_length=args.min_seq_length,
+            max_seq_length=args.max_seq_length,
+            min_gene_count=args.min_gene_count,
+            max_gene_count=args.max_gene_count,
+            nuc_completeness=args.nuc_completeness,
+            has_proteins=args.has_proteins,
+            proteins_complete=args.proteins_complete,
+            host_taxid=args.host_taxid,
+            lab_passaged=args.lab_passaged,
+            geographic_region=args.geographic_region,
+            geographic_location=args.geographic_location,
+            submitter_country=args.submitter_country,
+            min_collection_date=args.min_collection_date,
+            max_collection_date=args.max_collection_date,
+            annotated=args.annotated,
+            refseq_only=args.refseq_only,
+            source_database=args.source_database,
+            min_release_date=args.min_release_date,
+            max_release_date=args.max_release_date,
+            min_mature_peptide_count=args.min_mature_peptide_count,
+            max_mature_peptide_count=args.max_mature_peptide_count,
+            min_protein_count=args.min_protein_count,
+            max_protein_count=args.max_protein_count,
+            max_ambiguous_chars=args.max_ambiguous_chars,
+            lineage=args.lineage,
+            genbank_metadata=args.genbank_metadata,
+            genbank_batch_size=args.genbank_batch_size,
+        )
