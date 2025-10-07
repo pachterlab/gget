@@ -1283,6 +1283,498 @@ def check_min_max(min_val, max_val, filtername, date=False):
         logger.debug("Min/max validation passed for %s", filtername)
 
 
+def fetch_genbank_metadata(accessions, batch_size=200, delay=0.5):
+    """
+    Fetch detailed GenBank metadata for a list of accession numbers using NCBI E-utilities.
+    
+    This function provides an optimized alternative to Biopython's approach for retrieving
+    GenBank information. It uses NCBI's E-utilities API directly with HTTP requests to
+    fetch GenBank records in XML format, then parses them using Python's built-in XML
+    library to extract comprehensive metadata.
+    
+    Key advantages over Biopython approach:
+    - No external dependencies beyond standard library
+    - Batch processing for improved performance
+    - Structured output suitable for CSV/analysis
+    - Respectful rate limiting for NCBI servers
+    - Comprehensive error handling and logging
+    
+    Extracted metadata includes:
+    - Basic sequence information (organism, length, definition)
+    - Collection metadata (date, location, host, strain)
+    - Publication references (authors, titles, journals, PubMed IDs)
+    - Database information (create/update dates, comments)
+    - Taxonomic classification
+    - Assembly information
+    
+    Args:
+        accessions (list): List of accession numbers to fetch GenBank data for
+        batch_size (int): Maximum number of accessions per API request (default: 200)
+                         Recommended range: 50-500 depending on server load
+        delay (float): Delay in seconds between batch requests (default: 0.5)
+                      Helps avoid overloading NCBI servers
+        
+    Returns:
+        dict: Dictionary mapping accession numbers to GenBank metadata dictionaries
+              Key: accession number (str) 
+              Value: dictionary with structure:
+                     {
+                         'accession': str,
+                         'genbank_data': {
+                             'organism': str,
+                             'sequence_length': int,
+                             'collection_date': str,
+                             'country': str,
+                             'host': str,
+                             'references': [{'title': str, 'authors': str, ...}],
+                             ... (20+ additional fields)
+                         }
+                     }
+              
+    Raises:
+        RuntimeError: If API requests fail or XML parsing encounters errors
+        ValueError: If no accessions are provided
+        
+    Example:
+        >>> accessions = ['NC_045512.2', 'MN908947.3']
+        >>> genbank_data = fetch_genbank_metadata(accessions)
+        >>> print(genbank_data['NC_045512.2']['genbank_data']['organism'])
+        'Severe acute respiratory syndrome coronavirus 2'
+    """
+    
+    if not accessions:
+        raise ValueError("No accessions provided for GenBank metadata retrieval")
+    
+    logger.info("Fetching GenBank metadata for %d accessions using E-utilities", len(accessions))
+    logger.debug("First 5 accessions: %s", accessions[:5])
+    
+    # Dictionary to store all metadata results
+    all_metadata = {}
+    
+    # Split accessions into batches to avoid URL length limits and server overload
+    if len(accessions) > batch_size:
+        batches = [accessions[i:i + batch_size] for i in range(0, len(accessions), batch_size)]
+        logger.info("Processing %d accessions in %d batches of size %d", 
+                   len(accessions), len(batches), batch_size)
+    else:
+        batches = [accessions]
+        logger.info("Processing %d accessions in 1 batch", len(accessions))
+    
+    # Process each batch
+    for batch_num, batch_accessions in enumerate(batches, 1):
+        logger.info("Processing GenBank batch %d/%d (%d accessions)", 
+                   batch_num, len(batches), len(batch_accessions))
+        
+        try:
+            # Fetch GenBank XML data using E-utilities efetch
+            batch_metadata = _fetch_genbank_batch(batch_accessions)
+            all_metadata.update(batch_metadata)
+            
+            logger.info("Batch %d: Successfully retrieved metadata for %d accessions", 
+                       batch_num, len(batch_metadata))
+            
+            # Add delay between requests to be respectful to NCBI servers
+            if batch_num < len(batches) and delay > 0:
+                logger.debug("Adding %.1f second delay before next batch", delay)
+                time.sleep(delay)
+                
+        except Exception as e:
+            logger.error("Batch %d failed: %s", batch_num, e)
+            # Continue with remaining batches rather than failing completely
+            continue
+    
+    logger.info("GenBank metadata retrieval complete: %d/%d accessions processed", 
+                len(all_metadata), len(accessions))
+    
+    if not all_metadata:
+        logger.warning("No GenBank metadata was successfully retrieved")
+    
+    return all_metadata
+
+
+def _fetch_genbank_batch(accessions):
+    """
+    Fetch GenBank metadata for a single batch of accessions.
+    
+    Args:
+        accessions (list): List of accession numbers for this batch
+        
+    Returns:
+        dict: Dictionary mapping accession numbers to metadata dictionaries
+        
+    Raises:
+        RuntimeError: If the E-utilities request fails or XML parsing fails
+    """
+    
+    # Build E-utilities efetch URL for GenBank XML format
+    # base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
+    accession_string = ",".join(accessions)
+    
+    params = {
+        'db': 'nucleotide',           # Nucleotide database (includes virus sequences)
+        'id': accession_string,       # Comma-separated accession numbers
+        'rettype': 'gb',              # GenBank format
+        'retmode': 'xml',             # XML output for structured parsing
+        'tool': 'gget',               # Identify our application
+        'email': 'gget@example.com'   # Required by NCBI guidelines
+    }
+    
+    try:
+        logger.debug("Making E-utilities request for %d accessions", len(accessions))
+        logger.debug("Request URL: %s", NCBI_EUTILS_BASE)
+        logger.debug("Request parameters: %s", {k: v[:50] + '...' if len(str(v)) > 50 else v for k, v in params.items()})
+        
+        # Make the HTTP request with extended timeout for large batches
+        response = requests.get(NCBI_EUTILS_BASE, params=params, timeout=300)
+        response.raise_for_status()
+        
+        # Verify we got XML data
+        if not response.text.strip().startswith('<?xml') and not response.text.strip().startswith('<'):
+            raise RuntimeError(f"Invalid XML response: {response.text[:200]}")
+        
+        logger.debug("Received XML response: %d characters", len(response.text))
+        
+        # Parse the GenBank XML and extract metadata
+        metadata_dict = _parse_genbank_xml(response.text)
+        
+        logger.debug("Successfully parsed metadata for %d records", len(metadata_dict))
+        return metadata_dict
+        
+    except requests.exceptions.RequestException as e:
+        logger.error("E-utilities request failed: %s", e)
+        raise RuntimeError(f"Failed to fetch GenBank metadata via E-utilities: {e}") from e
+    except Exception as e:
+        logger.error("GenBank XML parsing failed: %s", e)
+        raise RuntimeError(f"Failed to parse GenBank XML response: {e}") from e
+
+
+def _parse_genbank_xml(xml_content):
+    """
+    Parse GenBank XML response and extract relevant metadata fields.
+    
+    This function processes the GenBank XML format returned by E-utilities efetch
+    and extracts key metadata including collection dates, geographic information,
+    host details, publication references, and sequence features.
+    
+    Args:
+        xml_content (str): Raw XML content from E-utilities efetch
+        
+    Returns:
+        dict: Dictionary mapping accession numbers to metadata dictionaries
+        
+    Note:
+        Uses xml.etree.ElementTree for parsing to avoid external dependencies.
+        The GenBank XML schema is documented by NCBI and contains structured
+        information about sequence records.
+    """
+    
+    import xml.etree.ElementTree as ET
+    
+    try:
+        # Parse the XML content
+        root = ET.fromstring(xml_content)
+        logger.debug("XML parsing successful, root element: %s", root.tag)
+        
+    except ET.ParseError as e:
+        logger.error("XML parsing failed: %s", e)
+        logger.debug("XML content preview: %s", xml_content[:500])
+        raise RuntimeError(f"Invalid XML format in GenBank response: {e}") from e
+    
+    metadata_dict = {}
+    
+    # Process each GenBank sequence record in the XML
+    for gbseq in root.findall('.//GBSeq'):
+        try:
+            # Extract accession number as the primary key
+            accession_elem = gbseq.find('GBSeq_accession-version')
+            if accession_elem is None:
+                accession_elem = gbseq.find('GBSeq_primary-accession')
+            
+            if accession_elem is None:
+                logger.warning("Skipping GenBank record without accession number")
+                continue
+                
+            accession = accession_elem.text
+            logger.debug("Processing GenBank record: %s", accession)
+            
+            # Initialize metadata dictionary for this record
+            metadata = {
+                'accession': accession,
+                'genbank_data': {}  # Store GenBank-specific fields
+            }
+            
+            # Extract basic sequence information
+            length_elem = gbseq.find('GBSeq_length')
+            metadata['genbank_data']['sequence_length'] = int(length_elem.text) if length_elem is not None else None
+            
+            organism_elem = gbseq.find('GBSeq_organism')
+            metadata['genbank_data']['organism'] = organism_elem.text if organism_elem is not None else ""
+            
+            definition_elem = gbseq.find('GBSeq_definition')
+            metadata['genbank_data']['definition'] = definition_elem.text if definition_elem is not None else ""
+            
+            # Extract taxonomy information
+            taxonomy_elem = gbseq.find('GBSeq_taxonomy')
+            metadata['genbank_data']['taxonomy'] = taxonomy_elem.text if taxonomy_elem is not None else ""
+            
+            # Extract creation and update dates
+            create_date_elem = gbseq.find('GBSeq_create-date')
+            metadata['genbank_data']['create_date'] = create_date_elem.text if create_date_elem is not None else ""
+            
+            update_date_elem = gbseq.find('GBSeq_update-date')
+            metadata['genbank_data']['update_date'] = update_date_elem.text if update_date_elem is not None else ""
+            
+            # Extract references (publications)
+            references = []
+            for ref in gbseq.findall('.//GBReference'):
+                ref_data = {}
+                
+                title_elem = ref.find('GBReference_title')
+                ref_data['title'] = title_elem.text if title_elem is not None else ""
+                
+                authors_elem = ref.find('GBReference_authors')
+                ref_data['authors'] = authors_elem.text if authors_elem is not None else ""
+                
+                journal_elem = ref.find('GBReference_journal')
+                ref_data['journal'] = journal_elem.text if journal_elem is not None else ""
+                
+                pubmed_elem = ref.find('GBReference_pubmed')
+                ref_data['pubmed_id'] = pubmed_elem.text if pubmed_elem is not None else ""
+                
+                if any(ref_data.values()):  # Only add if we got some reference data
+                    references.append(ref_data)
+            
+            metadata['genbank_data']['references'] = references
+            
+            # Extract features (collection_date, geographic location, host, etc.)
+            features_data = {}
+            
+            for feature in gbseq.findall('.//GBFeature'):
+                feature_key_elem = feature.find('GBFeature_key')
+                if feature_key_elem is None:
+                    continue
+                    
+                feature_key = feature_key_elem.text
+                
+                # Extract qualifiers for this feature
+                feature_qualifiers = {}
+                for qual in feature.findall('.//GBQualifier'):
+                    qual_name_elem = qual.find('GBQualifier_name')
+                    qual_value_elem = qual.find('GBQualifier_value')
+                    
+                    if qual_name_elem is not None and qual_value_elem is not None:
+                        qual_name = qual_name_elem.text
+                        qual_value = qual_value_elem.text
+                        feature_qualifiers[qual_name] = qual_value
+                
+                if feature_qualifiers:
+                    features_data[feature_key] = feature_qualifiers
+            
+            # Extract specific fields of interest from source feature
+            source_feature = features_data.get('source', {})
+            
+            metadata['genbank_data']['collection_date'] = source_feature.get('collection_date', '')
+            metadata['genbank_data']['country'] = source_feature.get('country', '')
+            metadata['genbank_data']['geographic_location'] = source_feature.get('geo_loc_name', '')
+            metadata['genbank_data']['host'] = source_feature.get('host', '')
+            metadata['genbank_data']['isolation_source'] = source_feature.get('isolation_source', '')
+            metadata['genbank_data']['strain'] = source_feature.get('strain', '')
+            metadata['genbank_data']['isolate'] = source_feature.get('isolate', '')
+            metadata['genbank_data']['collected_by'] = source_feature.get('collected_by', '')
+            metadata['genbank_data']['specimen_voucher'] = source_feature.get('specimen_voucher', '')
+            
+            # Store all features for potential future use
+            metadata['genbank_data']['all_features'] = features_data
+            
+            # Extract comment field (often contains additional metadata)
+            comment_elem = gbseq.find('GBSeq_comment')
+            comment_text = comment_elem.text if comment_elem is not None else ""
+            metadata['genbank_data']['comment'] = comment_text
+            
+            # Parse assembly name from comment if present (used in some studies)
+            assembly_name = ""
+            if comment_text:
+                import re
+                assembly_match = re.search(r'Assembly Name :: (\S+)', comment_text)
+                if assembly_match:
+                    assembly_name = assembly_match.group(1)
+            metadata['genbank_data']['assembly_name'] = assembly_name
+            
+            # Store the metadata for this accession
+            metadata_dict[accession] = metadata
+            
+            logger.debug("Extracted GenBank metadata for %s: organism=%s, collection_date=%s, country=%s", 
+                        accession, 
+                        metadata['genbank_data']['organism'],
+                        metadata['genbank_data']['collection_date'],
+                        metadata['genbank_data']['country'])
+            
+        except Exception as e:
+            logger.warning("Failed to parse GenBank record %s: %s", 
+                          accession if 'accession' in locals() else 'unknown', e)
+            continue
+    
+    logger.info("Successfully parsed GenBank metadata for %d records", len(metadata_dict))
+    return metadata_dict
+
+
+def save_genbank_metadata_to_csv(genbank_metadata, output_file, virus_metadata=None):
+    """
+    Save GenBank metadata to a human-readable CSV file.
+    
+    This function creates a comprehensive CSV file containing GenBank-specific metadata
+    that complements the standard virus metadata. The output includes collection dates,
+    geographic information, host details, publication references, and other fields
+    extracted from GenBank records.
+    
+    Args:
+        genbank_metadata (dict): Dictionary mapping accessions to GenBank metadata
+        output_file (str): Path to the output CSV file
+        virus_metadata (list, optional): List of virus metadata dictionaries to merge
+        
+    Note:
+        The CSV format is designed to be easily readable and compatible with
+        downstream analysis tools. Complex nested data (like references) is
+        flattened into separate columns or JSON-encoded strings.
+    """
+    
+    logger.info("Preparing GenBank metadata for CSV output...")
+    logger.debug("Processing %d GenBank records", len(genbank_metadata))
+    
+    # Define the column order for the GenBank metadata CSV
+    # Prioritize the most commonly used and important fields
+    columns = [
+        # Basic identifiers
+        "accession",
+        "organism",
+        "definition",
+        "sequence_length",
+        
+        # Collection and geographic information
+        "collection_date",
+        "country",
+        "geographic_location",
+        "strain",
+        "isolate",
+        
+        # Host and source information
+        "host",
+        "isolation_source",
+        "collected_by",
+        "specimen_voucher",
+        
+        # Database and version information
+        "create_date",
+        "update_date",
+        "assembly_name",
+        
+        # Taxonomic information
+        "taxonomy",
+        
+        # Publication information
+        "first_author",
+        "first_title",
+        "first_journal",
+        "first_pubmed_id",
+        "reference_count",
+        
+        # Additional metadata
+        "comment",
+    ]
+    
+    logger.debug("Using column order: %s", columns)
+    
+    # Prepare data for DataFrame creation
+    data_for_df = []
+    
+    for accession, metadata in genbank_metadata.items():
+        logger.debug("Processing GenBank metadata for accession: %s", accession)
+        
+        genbank_data = metadata.get('genbank_data', {})
+        
+        # Extract publication information (use first reference if available)
+        references = genbank_data.get('references', [])
+        first_ref = references[0] if references else {}
+        
+        # Build the row dictionary
+        row = {
+            "accession": accession,
+            "organism": genbank_data.get('organism', ''),
+            "definition": genbank_data.get('definition', ''),
+            "sequence_length": genbank_data.get('sequence_length', ''),
+            
+            "collection_date": genbank_data.get('collection_date', ''),
+            "country": genbank_data.get('country', ''),
+            "geographic_location": genbank_data.get('geographic_location', ''),
+            "strain": genbank_data.get('strain', ''),
+            "isolate": genbank_data.get('isolate', ''),
+            
+            "host": genbank_data.get('host', ''),
+            "isolation_source": genbank_data.get('isolation_source', ''),
+            "collected_by": genbank_data.get('collected_by', ''),
+            "specimen_voucher": genbank_data.get('specimen_voucher', ''),
+            
+            "create_date": genbank_data.get('create_date', ''),
+            "update_date": genbank_data.get('update_date', ''),
+            "assembly_name": genbank_data.get('assembly_name', ''),
+            
+            "taxonomy": genbank_data.get('taxonomy', ''),
+            
+            "first_author": first_ref.get('authors', ''),
+            "first_title": first_ref.get('title', ''),
+            "first_journal": first_ref.get('journal', ''),
+            "first_pubmed_id": first_ref.get('pubmed_id', ''),
+            "reference_count": len(references),
+            
+            "comment": genbank_data.get('comment', ''),
+        }
+        
+        data_for_df.append(row)
+    
+    logger.info("Creating DataFrame with %d rows and %d columns", len(data_for_df), len(columns))
+    
+    # Create DataFrame with the specified column order
+    df = pd.DataFrame(data_for_df, columns=columns)
+    
+    # If virus metadata is provided, try to merge it
+    if virus_metadata:
+        logger.info("Merging with virus metadata (%d records)", len(virus_metadata))
+        try:
+            # Create virus metadata DataFrame
+            virus_df = pd.DataFrame(virus_metadata)
+            if 'accession' in virus_df.columns:
+                # Merge on accession number
+                df = pd.merge(df, virus_df, on='accession', how='left', suffixes=('_genbank', '_virus'))
+                logger.info("Successfully merged GenBank and virus metadata")
+            else:
+                logger.warning("Cannot merge: virus metadata missing 'accession' column")
+        except Exception as e:
+            logger.warning("Failed to merge GenBank and virus metadata: %s", e)
+    
+    # Write DataFrame to CSV file
+    try:
+        df.to_csv(output_file, index=False, encoding='utf-8')
+        logger.info("GenBank metadata saved to: %s", output_file)
+        logger.info("CSV file contains %d rows and %d columns", len(df), len(df.columns))
+        
+        # Log some summary statistics
+        non_empty_collection_dates = df['collection_date'].astype(str).str.strip().ne('').sum()
+        non_empty_countries = df['country'].astype(str).str.strip().ne('').sum()
+        non_empty_hosts = df['host'].astype(str).str.strip().ne('').sum()
+        
+        logger.info("GenBank metadata summary:")
+        logger.info("  Records with collection dates: %d/%d (%.1f%%)", 
+                   non_empty_collection_dates, len(df), 100 * non_empty_collection_dates / len(df))
+        logger.info("  Records with country information: %d/%d (%.1f%%)", 
+                   non_empty_countries, len(df), 100 * non_empty_countries / len(df))
+        logger.info("  Records with host information: %d/%d (%.1f%%)", 
+                   non_empty_hosts, len(df), 100 * non_empty_hosts / len(df))
+        
+    except Exception as e:
+        logger.error("Failed to save GenBank metadata CSV: %s", e)
+        raise RuntimeError(f"Failed to save GenBank metadata to {output_file}: {e}") from e
+    
+
 def filter_metadata_only(
     metadata_dict,
     min_seq_length=None,
@@ -1692,6 +2184,8 @@ def ncbi_virus(
     max_ambiguous_chars=None,
     is_sars_cov2=False,
     lineage=None,
+    genbank_metadata=False,
+    genbank_batch_size=200,
     ):
     """
     Download a virus genome dataset from the NCBI Virus database (https://www.ncbi.nlm.nih.gov/labs/virus/).
@@ -1703,12 +2197,55 @@ def ncbi_virus(
     3) Apply metadata-only filters locally
     4) Download sequences for the filtered accession list only
     5) Apply sequence-dependent filters and save outputs
+    6) Optionally fetch detailed GenBank metadata and save to CSV
+    
+    Args:
+        virus (str): Virus taxon name/ID or accession number
+        accession (bool): Whether virus parameter is an accession number
+        outfolder (str): Output directory for files
+        host (str): Host organism name filter
+        min_seq_length (int): Minimum sequence length filter
+        max_seq_length (int): Maximum sequence length filter
+        min_gene_count (int): Minimum gene count filter
+        max_gene_count (int): Maximum gene count filter
+        nuc_completeness (str): Nucleotide completeness filter ('complete' or 'partial')
+        has_proteins (str/list): Required proteins/genes filter
+        proteins_complete (bool): Whether proteins must be complete
+        host_taxid (int): Host taxonomy ID filter
+        lab_passaged (bool): Lab passaging status filter
+        geographic_region (str): Geographic region filter
+        geographic_location (str): Geographic location filter
+        submitter_country (str): Submitter country filter
+        min_collection_date (str): Minimum collection date filter (YYYY-MM-DD)
+        max_collection_date (str): Maximum collection date filter (YYYY-MM-DD)
+        annotated (bool): Annotation status filter
+        source_database (str): Source database filter
+        min_release_date (str): Minimum release date filter (YYYY-MM-DD)
+        max_release_date (str): Maximum release date filter (YYYY-MM-DD)
+        min_mature_peptide_count (int): Minimum mature peptide count filter
+        max_mature_peptide_count (int): Maximum mature peptide count filter
+        min_protein_count (int): Minimum protein count filter
+        max_protein_count (int): Maximum protein count filter
+        max_ambiguous_chars (int): Maximum ambiguous nucleotide character filter
+        lineage (str): Virus lineage filter (SARS-CoV-2 specific)
+        genbank_metadata (bool): Whether to fetch detailed GenBank metadata (default: False)
+        genbank_batch_size (int): Batch size for GenBank API requests (default: 200)
+        is_sars_cov2 (bool): Flag to indicate if the accession is for SARS-CoV-2, enabling optimized download method (default: False)
+
+    Returns:
+        None: Files are saved to the output directory
+        
+    Note:
+        When genbank_metadata=True, an additional CSV file with detailed GenBank
+        metadata will be saved alongside the standard output files. This includes
+        collection dates, geographic information, host details, publication
+        references, and other fields extracted from GenBank records.
     """
     logger.info("Starting NCBI virus data retrieval process...")
     logger.info("Query parameters: virus='%s', accession=%s, outfolder='%s'", 
                 virus, accession, outfolder)
-    logger.debug("Applied filters: host=%s, seq_length=(%s-%s), gene_count=(%s-%s), completeness=%s, annotated=%s, refseq_only=%s, lab_passaged=%s, geo_region=%s, geo_location=%s, submitter_country=%s, collection_date=(%s-%s), source_db=%s, release_date=(%s-%s), protein_count=(%s-%s), peptide_count=(%s-%s), max_ambiguous=%s, has_proteins=%s, proteins_complete=%s",
-    host, min_seq_length, max_seq_length, min_gene_count, max_gene_count, nuc_completeness, annotated, refseq_only, lab_passaged, geographic_region, geographic_location, submitter_country, min_collection_date, max_collection_date,source_database, min_release_date, max_release_date, min_protein_count, max_protein_count, min_mature_peptide_count, max_mature_peptide_count, max_ambiguous_chars, has_proteins, proteins_complete)
+    logger.debug("Applied filters: host=%s, seq_length=(%s-%s), gene_count=(%s-%s), completeness=%s, annotated=%s, refseq_only=%s, lab_passaged=%s, geo_region=%s, geo_location=%s, submitter_country=%s, collection_date=(%s-%s), source_db=%s, release_date=(%s-%s), protein_count=(%s-%s), peptide_count=(%s-%s), max_ambiguous=%s, has_proteins=%s, proteins_complete=%s, genbank_metadata=%s, genbank_batch_size=%s",
+    host, min_seq_length, max_seq_length, min_gene_count, max_gene_count, nuc_completeness, annotated, refseq_only, lab_passaged, geographic_region, geographic_location, submitter_country, min_collection_date, max_collection_date,source_database, min_release_date, max_release_date, min_protein_count, max_protein_count, min_mature_peptide_count, max_mature_peptide_count, max_ambiguous_chars, has_proteins, proteins_complete, genbank_metadata, genbank_batch_size)
 
     # SECTION 1: INPUT VALIDATION
     # Validate and normalize input arguments before proceeding
@@ -1744,6 +2281,26 @@ def ncbi_virus(
             "Argument 'refseq_only' must be a boolean (True or False)."
         )
     
+    # Validate GenBank metadata parameters
+    if genbank_metadata is not None and not isinstance(genbank_metadata, bool):
+        raise TypeError(
+            "Argument 'genbank_metadata' must be a boolean (True or False)."
+        )
+    
+    if genbank_batch_size is not None:
+        if not isinstance(genbank_batch_size, int) or genbank_batch_size <= 0:
+            raise ValueError(
+                "Argument 'genbank_batch_size' must be a positive integer."
+            )
+        if genbank_batch_size > 500:
+            logger.warning("Large genbank_batch_size (%d) may cause API timeouts. Consider using smaller batches.", genbank_batch_size)
+    
+    # Log GenBank metadata configuration
+    if genbank_metadata:
+        logger.info("GenBank metadata retrieval enabled (batch_size=%d)", genbank_batch_size)
+    else:
+        logger.debug("GenBank metadata retrieval disabled")
+
     
     # Convert integer virus identifiers to strings for API compatibility
     if isinstance(virus, int):
@@ -2091,6 +2648,55 @@ def ncbi_virus(
                 logger.error("Failed to save CSV metadata file: %s", e)
                 raise
 
+            # SECTION 6: GENBANK METADATA RETRIEVAL (OPTIONAL)
+            if genbank_metadata:
+                logger.info("=" * 60)
+                logger.info("STEP 6: Fetching detailed GenBank metadata")
+                logger.info("=" * 60)
+                logger.info("GenBank metadata retrieval requested - fetching detailed information...")
+                
+                try:
+                    # Extract accession numbers from filtered sequences
+                    final_accessions = []
+                    for seq_record in filtered_sequences:
+                        acc = seq_record.id.split()[0] if hasattr(seq_record, 'id') else str(seq_record)
+                        if acc:
+                            final_accessions.append(acc)
+                    
+                    if final_accessions:
+                        logger.info("Fetching GenBank metadata for %d sequences...", len(final_accessions))
+                        
+                        # Fetch GenBank metadata
+                        genbank_data = fetch_genbank_metadata(
+                            accessions=list(set(final_accessions)),  # Remove duplicates
+                            batch_size=genbank_batch_size,
+                            delay=0.5  # Be respectful to NCBI servers
+                        )
+                        
+                        if genbank_data:
+                            # Save GenBank metadata to CSV
+                            genbank_csv_path = os.path.join(outfolder, f"{virus_clean}_genbank_metadata.csv")
+                            save_genbank_metadata_to_csv(
+                                genbank_metadata=genbank_data,
+                                output_file=genbank_csv_path,
+                                virus_metadata=filtered_metadata_final
+                            )
+                            
+                            logger.info("✓ GenBank metadata CSV saved: %s (%.2f MB)", 
+                                       genbank_csv_path, os.path.getsize(genbank_csv_path) / 1024 / 1024)
+                        else:
+                            logger.warning("No GenBank metadata was retrieved")
+                    else:
+                        logger.warning("No accession numbers found for GenBank metadata lookup")
+                        
+                except Exception as genbank_error:
+                    logger.error("GenBank metadata retrieval failed: %s", genbank_error)
+                    logger.warning("Continuing without GenBank metadata - standard output files are still available")
+                    # Don't raise the error - continue with the rest of the process
+                
+                logger.info("GenBank metadata processing completed")
+
+
             # SECTION 10: FINAL SUMMARY
             # Provide comprehensive summary of the results
             logger.info("=" * 60)
@@ -2105,6 +2711,12 @@ def ncbi_virus(
             logger.info("  📄 Sequences (FASTA): %s", os.path.basename(output_fasta_file))
             logger.info("  📊 Metadata (CSV):    %s", os.path.basename(output_metadata_csv))
             logger.info("  🔧 Metadata (JSONL):  %s", os.path.basename(output_metadata_jsonl))
+
+            # Check if GenBank metadata CSV was created
+            genbank_csv_path = os.path.join(outfolder, f"{virus_clean}_genbank_metadata.csv")
+            if genbank_metadata and os.path.exists(genbank_csv_path):
+                logger.info("  🧬 GenBank metadata:  %s", os.path.basename(genbank_csv_path))
+
             logger.info("=" * 60)
         else:
             logger.warning("=" * 60)
@@ -2245,6 +2857,283 @@ def ncbi_virus(
                 logger.warning("Failed to clean up temporary directory %s: %s", temp_dir, e)
         
         logger.info("NCBI virus data retrieval process completed.")
+
+
+def fetch_virus_with_genbank_metadata(
+    virus,
+    accession=False,
+    host=None,
+    geographic_location=None,
+    annotated=None,
+    complete_only=None,
+    min_release_date=None,
+    refseq_only=False,
+    outdir=None,
+    save_genbank_csv=True,
+    genbank_batch_size=200,
+    **kwargs
+):
+    """
+    Fetch virus data and detailed GenBank metadata in a single integrated workflow.
+    
+    This function combines the standard virus metadata retrieval with comprehensive
+    GenBank metadata extraction. It provides a complete picture of each virus sequence
+    including collection dates, geographic information, host details, publication
+    references, and other fields from GenBank records.
+    
+    Args:
+        virus (str): Virus taxon name/ID or accession number
+        accession (bool): Whether virus parameter is an accession number
+        host (str): Host organism name filter
+        geographic_location (str): Geographic location filter
+        annotated (bool): Filter for annotated genomes only
+        complete_only (bool): Filter for complete genomes only
+        min_release_date (str): Minimum release date filter (YYYY-MM-DD format)
+        refseq_only (bool): Limit to RefSeq genomes only
+        outdir (str): Output directory for files
+        save_genbank_csv (bool): Whether to save GenBank metadata to CSV
+        genbank_batch_size (int): Batch size for GenBank API requests
+        **kwargs: Additional filtering parameters passed to the main virus function
+        
+    Returns:
+        tuple: (filtered_sequences, filtered_metadata, genbank_metadata, output_files)
+            - filtered_sequences: List of sequence records that passed filters
+            - filtered_metadata: List of virus metadata dictionaries
+            - genbank_metadata: Dictionary of detailed GenBank metadata
+            - output_files: Dictionary with paths to generated output files
+            
+    Raises:
+        RuntimeError: If virus data retrieval or GenBank fetching fails
+        
+    Example:
+        >>> sequences, metadata, genbank_data, files = fetch_virus_with_genbank_metadata(
+        ...     virus="SARS-CoV-2",
+        ...     complete_only=True,
+        ...     host="human",
+        ...     outdir="./output"
+        ... )
+        >>> print(f"Retrieved {len(sequences)} sequences with GenBank metadata")
+        >>> print(f"GenBank CSV saved to: {files['genbank_csv']}")
+    """
+    
+    logger.info("=== INTEGRATED VIRUS + GENBANK METADATA RETRIEVAL ===")
+    logger.info("Virus query: %s (accession: %s)", virus, accession)
+    logger.info("Filters: host=%s, location=%s, complete=%s, annotated=%s, refseq=%s", 
+                host, geographic_location, complete_only, annotated, refseq_only)
+    
+    # Determine output directory
+    if not outdir:
+        outdir = os.getcwd()
+        logger.info("Using current directory for output: %s", outdir)
+    else:
+        os.makedirs(outdir, exist_ok=True)
+        logger.info("Using specified output directory: %s", outdir)
+    
+    output_files = {}
+    
+    try:
+        # STEP 1: Fetch standard virus data using the main function
+        logger.info("🦠 STEP 1: Fetching virus sequences and metadata...")
+        
+        # Create a temporary output directory for ncbi_virus function
+        virus_temp_dir = os.path.join(outdir, f"temp_{virus.replace(' ', '_')}")
+        os.makedirs(virus_temp_dir, exist_ok=True)
+        
+        # Call the main virus retrieval function with all parameters
+        # Note: ncbi_virus saves files but doesn't return data, so we need to read the files
+        ncbi_virus(
+            virus=virus,
+            accession=accession,
+            outfolder=virus_temp_dir,  # Note: parameter name is 'outfolder' not 'outdir'
+            host=host,
+            geographic_location=geographic_location,
+            annotated=annotated,
+            nuc_completeness='complete' if complete_only else None,
+            min_release_date=min_release_date,
+            **kwargs
+        )
+        
+        # Read the generated files from ncbi_virus
+        virus_name_clean = virus.replace(' ', '_').replace('/', '_').replace('-', '_')
+        expected_fasta = None
+        expected_csv = None
+        expected_jsonl = None
+        
+        # Look for output files with various naming patterns
+        for filename in os.listdir(virus_temp_dir):
+            if filename.endswith('.fasta'):
+                expected_fasta = os.path.join(virus_temp_dir, filename)
+            elif filename.endswith('_metadata.csv'):
+                expected_csv = os.path.join(virus_temp_dir, filename)
+            elif filename.endswith('_metadata.jsonl'):
+                expected_jsonl = os.path.join(virus_temp_dir, filename)
+        
+        if not expected_fasta or not expected_csv:
+            available_files = os.listdir(virus_temp_dir) if os.path.exists(virus_temp_dir) else []
+            logger.error("Required output files not found in %s", virus_temp_dir)
+            logger.error("Available files: %s", available_files)
+            raise RuntimeError("ncbi_virus function did not generate expected output files")
+        
+        # Read sequences from FASTA file
+        logger.info("Reading sequences from: %s", expected_fasta)
+        filtered_sequences = list(FastaIO.parse(expected_fasta, "fasta"))
+        
+        # Read metadata from CSV file (convert back to list of dictionaries)
+        logger.info("Reading metadata from: %s", expected_csv)
+        import pandas as pd
+        metadata_df = pd.read_csv(expected_csv)
+        filtered_metadata = metadata_df.to_dict('records')
+        
+        if not filtered_sequences or not filtered_metadata:
+            logger.warning("No virus sequences retrieved - skipping GenBank metadata fetch")
+            return None, None, {}, output_files
+        
+        logger.info("✓ Retrieved %d virus sequences with metadata", len(filtered_sequences))
+        
+        # STEP 2: Extract accession numbers for GenBank lookup
+        logger.info("🔍 STEP 2: Extracting accession numbers for GenBank lookup...")
+        
+        # Get accession numbers from the filtered sequences
+        accession_numbers = []
+        for seq_record in filtered_sequences:
+            # Extract accession from sequence ID (usually the first part before spaces)
+            acc = seq_record.id.split()[0] if hasattr(seq_record, 'id') else str(seq_record)
+            if acc:
+                accession_numbers.append(acc)
+        
+        if not accession_numbers:
+            logger.warning("No accession numbers found in sequence records")
+            return filtered_sequences, filtered_metadata, {}, output_files
+        
+        logger.info("✓ Found %d unique accession numbers", len(set(accession_numbers)))
+        logger.debug("Sample accessions: %s", accession_numbers[:5])
+        
+        # STEP 3: Fetch detailed GenBank metadata
+        logger.info("📚 STEP 3: Fetching detailed GenBank metadata...")
+        
+        genbank_metadata = fetch_genbank_metadata(
+            accessions=list(set(accession_numbers)),  # Remove duplicates
+            batch_size=genbank_batch_size,
+            delay=0.5  # Be respectful to NCBI servers
+        )
+        
+        logger.info("✓ Retrieved GenBank metadata for %d accessions", len(genbank_metadata))
+        
+        # STEP 4: Save GenBank metadata to CSV if requested
+        if save_genbank_csv and genbank_metadata:
+            logger.info("💾 STEP 4: Saving GenBank metadata to CSV...")
+            
+            genbank_csv_path = os.path.join(outdir, f"{virus}_genbank_metadata.csv")
+            save_genbank_metadata_to_csv(
+                genbank_metadata=genbank_metadata,
+                output_file=genbank_csv_path,
+                virus_metadata=filtered_metadata
+            )
+            
+            output_files['genbank_csv'] = genbank_csv_path
+            logger.info("✓ GenBank metadata saved to: %s", genbank_csv_path)
+        
+        # STEP 5: Create summary report
+        logger.info("📊 STEP 5: Generating summary report...")
+        
+        _log_integration_summary(
+            virus=virus,
+            num_sequences=len(filtered_sequences),
+            num_virus_metadata=len(filtered_metadata),
+            num_genbank_metadata=len(genbank_metadata),
+            output_files=output_files
+        )
+        
+        logger.info("🎉 INTEGRATION COMPLETE: All data successfully retrieved and processed")
+        
+        return filtered_sequences, filtered_metadata, genbank_metadata, output_files
+        
+    except Exception as e:
+        logger.error("❌ INTEGRATION FAILED: %s", e)
+        logger.error("Error occurred during integrated virus + GenBank retrieval")
+        
+        if logger.getEffectiveLevel() <= logging.DEBUG:
+            import traceback
+            logger.debug("Full traceback:\n%s", traceback.format_exc())
+        
+        # Provide helpful troubleshooting guidance
+        logger.error("TROUBLESHOOTING SUGGESTIONS:")
+        logger.error("1. Check internet connection and NCBI server availability")
+        logger.error("2. Verify virus query parameters are correct")
+        logger.error("3. Try reducing batch size for GenBank requests")
+        logger.error("4. Check output directory permissions")
+        
+        raise RuntimeError(f"Integrated virus + GenBank metadata retrieval failed: {e}") from e
+
+
+def _log_integration_summary(virus, num_sequences, num_virus_metadata, num_genbank_metadata, output_files):
+    """Log a comprehensive summary of the integration results."""
+    
+    logger.info("=" * 80)
+    logger.info("INTEGRATION SUMMARY REPORT")
+    logger.info("=" * 80)
+    logger.info("Query: %s", virus)
+    logger.info("Sequences retrieved: %d", num_sequences)
+    logger.info("Virus metadata records: %d", num_virus_metadata)
+    logger.info("GenBank metadata records: %d", num_genbank_metadata)
+    
+    if output_files:
+        logger.info("Output files generated:")
+        for file_type, file_path in output_files.items():
+            logger.info("  %s: %s", file_type, file_path)
+    
+    # Calculate data completeness metrics
+    if num_genbank_metadata > 0 and num_virus_metadata > 0:
+        coverage = min(num_genbank_metadata / num_virus_metadata, 1.0) * 100
+        logger.info("GenBank metadata coverage: %.1f%%", coverage)
+        
+        if coverage < 90:
+            logger.info("ℹ️  Note: Some sequences may not have complete GenBank metadata")
+            logger.info("   This is normal for newer sequences or specific databases")
+    
+    logger.info("=" * 80)
+
+
+# Example usage and integration helper
+# def example_genbank_integration():
+#     """
+#     Example demonstrating how to use the integrated GenBank metadata functionality.
+    
+#     This function shows the recommended workflow for retrieving both virus sequence
+#     data and detailed GenBank metadata in a single operation.
+#     """
+    
+#     # Example 1: SARS-CoV-2 with GenBank metadata
+#     print("Example 1: SARS-CoV-2 sequences with GenBank metadata")
+#     sequences, virus_meta, genbank_meta, files = fetch_virus_with_genbank_metadata(
+#         virus="SARS-CoV-2",
+#         complete_only=True,
+#         host="human",
+#         outdir="./sars_cov2_output",
+#         save_genbank_csv=True
+#     )
+    
+#     print(f"Retrieved {len(sequences)} sequences")
+#     print(f"GenBank CSV: {files.get('genbank_csv', 'Not saved')}")
+    
+#     # Example 2: Specific accession with GenBank details
+#     print("\nExample 2: Specific accession with GenBank details")
+#     sequences, virus_meta, genbank_meta, files = fetch_virus_with_genbank_metadata(
+#         virus="NC_045512.2",
+#         accession=True,
+#         outdir="./reference_output",
+#         save_genbank_csv=True
+#     )
+    
+#     # Show sample GenBank metadata
+#     if genbank_meta:
+#         sample_acc = list(genbank_meta.keys())[0]
+#         sample_data = genbank_meta[sample_acc]['genbank_data']
+#         print(f"Sample GenBank data for {sample_acc}:")
+#         print(f"  Collection date: {sample_data.get('collection_date', 'Not available')}")
+#         print(f"  Country: {sample_data.get('country', 'Not available')}")
+#         print(f"  Host: {sample_data.get('host', 'Not available')}")
+#         print(f"  Reference count: {len(sample_data.get('references', []))}")
 
 
 if __name__ == "__main__":
