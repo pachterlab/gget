@@ -7,14 +7,60 @@ The `gget.ncbi_virus()` function implements an optimized 6-step workflow for ret
 ## Architecture
 
 ```
-┌─────────────────────┐    ┌──────────────────────┐    ┌─────────────────────┐
-│   User Input        │    │   API Metadata       │    │   Filtered Results  │
-│                     │    │                      │    │                     │
-│ • Virus taxon/acc   │ -> │ • NCBI Datasets API  │ -> │ • FASTA sequences   │
-│ • Host filters      │    │ • GenBank API        │    │ • CSV metadata      │
-│ • Date constraints  │    │ • Pagination support │    │ • GenBank metadata  │
-│ • Quality filters   │    │ • Server-side filter │    │ • JSONL metadata    │
-└─────────────────────┘    └──────────────────────┘    └─────────────────────┘
+┌─────────────────────────────┐
+│           Users             │
+│                             │
+│  • Virus Query (Taxon/Acc)  │
+│  • Filter Criteria          │
+│    (Host, Dates, Length...) │
+│  • Output Flags             │
+│    (`--genbank_metadata`)   │
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│   API & Pre-Filtering       │
+│                             │
+│  • Calls NCBI Datasets API  │
+│  • Applies server-side      │
+│    filters (host, refseq)   │
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
+│ Local Metadata Filtering &  │
+│     Sequence Acquisition    │
+│                             │
+│  • Applies remaining local  │
+│    filters (date ranges,    │
+│    gene counts, etc.)       │
+│  • Generates final list of  │
+│    accession numbers        │
+│  • Downloads FASTA sequences│
+│    via E-utilities API      │
+└──────────────┬──────────────┘
+               │
+   ┌───────────┴──────────────────────────────────────────┐
+   │                                                      │
+   ▼                                                      ▼
+┌─────────────────────────────┐      ┌───────────────────────────────────┐
+│   Final Processing          │      │   GenBank Sideload (Optional)     │
+│                             │      │                                   │
+│  • Applies sequence-level   │      │ • Uses final accession list to    │
+│    filters (e.g., max N's)  │      │   fetch detailed GenBank records  │
+│  • Formats standard metadata│      │   via E-utilities API             │
+└──────────────┬──────────────┘      └──────────────────┬────────────────┘
+               │                                        │
+               └──────────────────┬─────────────────────┘
+                                  │
+                                  ▼
+                    ┌───────────────────────────────┐
+                    │            Results            │
+                    │                               │
+                    │  • _sequences.fasta           │
+                    │  • _metadata.csv & .jsonl     │
+                    │  • _genbank_metadata.csv      │
+                    └───────────────────────────────┘
 ```
 
 ## Workflow Steps
