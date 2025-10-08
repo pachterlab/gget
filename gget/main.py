@@ -2472,6 +2472,13 @@ def main():
         help="Only fetch RefSeq genomes. If not set, both RefSeq and GenBank genomes will be fetched.",
     )
     parser_ncbi_virus.add_argument(
+        "--is_sars_cov2",
+        default=False,
+        action="store_true",
+        required=False,
+        help="When using SARS-CoV-2 accessions, use this tag so the code optimizes in using the correct SARS-CoV-2 pathway.",
+    )
+    parser_ncbi_virus.add_argument(
         "--source_database",
         type=str,
         choices=["genbank", "refseq"],
@@ -3539,6 +3546,7 @@ def main():
             max_collection_date=args.max_collection_date,
             annotated=args.annotated,
             refseq_only=args.refseq_only,
+            is_sars_cov2=args.is_sars_cov2,
             source_database=args.source_database,
             min_release_date=args.min_release_date,
             max_release_date=args.max_release_date,
