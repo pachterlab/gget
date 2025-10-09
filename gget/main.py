@@ -2349,7 +2349,7 @@ def main():
     )
     parser_ncbi_virus.add_argument(
         "-a",
-        "--accession",
+        "--is_accession",
         default=False,
         action="store_true",
         required=False,
@@ -2369,7 +2369,7 @@ def main():
         "--host",
         type=str,
         required=False,
-        help="Host organism filter, e.g. 'human', 'mouse'. Use underscores for multi-word hosts.",
+        help="Host organism name (scientific or common) at any taxonomic rank or NCBI Taxonomy ID filter, e.g. 'human', 'mouse', '1335626'. Place in quotation marks if multiple words.",
     )
     parser_ncbi_virus.add_argument(
         "--min_seq_length",
@@ -2416,29 +2416,29 @@ def main():
         required=False,
         help="Require that specified proteins are marked as complete.",
     )
-    parser_ncbi_virus.add_argument(
-        "--host_taxid",
-        type=str,
-        required=False,
-        help="Host taxonomy ID filter.",
-    )
+    # parser_ncbi_virus.add_argument(
+    #     "--host_taxid",
+    #     type=str,
+    #     required=False,
+    #     help="Host taxonomy ID filter.",
+    # )
     parser_ncbi_virus.add_argument(
         "--lab_passaged",
         type=lambda x: x.lower() == 'true',
         required=False,
         help="Lab passaging status filter: 'true' or 'false'.",
     )
-    parser_ncbi_virus.add_argument(
-        "--geographic_region",
-        type=str,
-        required=False,
-        help="Geographic region filter, e.g. 'Europe', 'Asia'.",
-    )
+    # parser_ncbi_virus.add_argument(
+    #     "--geographic_region",
+    #     type=str,
+    #     required=False,
+    #     help="Geographic region filter, e.g. 'Europe', 'Asia'.",
+    # )
     parser_ncbi_virus.add_argument(
         "--geographic_location",
         type=str,
         required=False,
-        help="Specific geographic location filter, e.g. 'Germany', 'California'.",
+        help="Specific geographic location filter (country or continent), e.g. 'Germany', 'Asia'.",
     )
     parser_ncbi_virus.add_argument(
         "--submitter_country",
@@ -3527,7 +3527,7 @@ def main():
     if args.command == "ncbi_virus":
         ncbi_virus(
             virus=args.virus,
-            accession=args.accession,
+            is_accession=args.is_accession,
             outfolder=args.out,
             host=args.host,
             min_seq_length=args.min_seq_length,
@@ -3537,9 +3537,9 @@ def main():
             nuc_completeness=args.nuc_completeness,
             has_proteins=args.has_proteins,
             proteins_complete=args.proteins_complete,
-            host_taxid=args.host_taxid,
+            # host_taxid=args.host_taxid,
             lab_passaged=args.lab_passaged,
-            geographic_region=args.geographic_region,
+            # geographic_region=args.geographic_region,
             geographic_location=args.geographic_location,
             submitter_country=args.submitter_country,
             min_collection_date=args.min_collection_date,
