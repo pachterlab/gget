@@ -2410,24 +2410,12 @@ def main():
         required=False,
         help="Require that specified proteins are marked as complete.",
     )
-    # parser_ncbi_virus.add_argument(
-    #     "--host_taxid",
-    #     type=str,
-    #     required=False,
-    #     help="Host taxonomy ID filter.",
-    # )
     parser_ncbi_virus.add_argument(
         "--lab_passaged",
         type=lambda x: x.lower() == 'true',
         required=False,
         help="Lab passaging status filter: 'true' or 'false'.",
     )
-    # parser_ncbi_virus.add_argument(
-    #     "--geographic_region",
-    #     type=str,
-    #     required=False,
-    #     help="Geographic region filter, e.g. 'Europe', 'Asia'.",
-    # )
     parser_ncbi_virus.add_argument(
         "--geographic_location",
         type=str,
@@ -3531,9 +3519,7 @@ def main():
             nuc_completeness=args.nuc_completeness,
             has_proteins=args.has_proteins,
             proteins_complete=args.proteins_complete,
-            # host_taxid=args.host_taxid,
             lab_passaged=args.lab_passaged,
-            # geographic_region=args.geographic_region,
             geographic_location=args.geographic_location,
             submitter_country=args.submitter_country,
             min_collection_date=args.min_collection_date,

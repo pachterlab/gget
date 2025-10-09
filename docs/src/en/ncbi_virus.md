@@ -78,7 +78,7 @@ Filter by the country of the sequence submitter.
 Filter by SARS-CoV-2 lineage (e.g. 'B.1.1.7', 'P.1').
 
 **Flags**
-`--accession`
+`--is_accession`
 Flag to indicate that the `virus` positional argument is an accession number.
 
 `--refseq_only`
