@@ -26,6 +26,7 @@ def fetch_virus_metadata(
     accession=False,
     host=None,
     geographic_location=None,
+    # geographic_region=None,
     annotated=None,
     complete_only=None,
     min_release_date=None,
@@ -93,7 +94,7 @@ def fetch_virus_metadata(
         # Filter by geographic location, replacing underscores with spaces for API compatibility
         params['filter.geo_location'] = geographic_location.replace('_', ' ')
         logger.debug("Applied geographic location filter: %s", geographic_location)
-        
+
     if min_release_date:
         # Convert date to ISO format expected by the API (YYYY-MM-DDTHH:MM:SS.sssZ)
         params['filter.released_since'] = f"{min_release_date}T00:00:00.000Z"
@@ -832,11 +833,12 @@ def load_metadata_from_api_reports(api_reports):
                 "accession": accession,
                 "length": report.get("length"),  # Sequence length in nucleotides
                 "geneCount": report.get("gene_count"),  # Number of genes annotated
-                "completeness": report.get("completeness_status", "").lower(), # Completeness status (e.g., complete, partial)
+                "completeness": report.get("completeness", "").lower(), # Completeness status (e.g., complete, partial)
                 "host": report.get("host", {}),  # Host organism details
                 "isLabHost": report.get("host", {}).get("is_lab_host", False),  # Lab-passaged flag
                 "labHost": report.get("host", {}).get("is_lab_host", False),  # Alternative field name
-                "location": report.get("geo_location", {}),  # Geographic location details
+                "location": report.get("location", {}).get("geographic_location", pd.NA),  # Geographic location details
+                "region": report.get("location", {}).get("geographic_region", pd.NA),  # Broad region
                 "submitter": report.get("submitters", [{}])[0] if report.get("submitters") else {},
                 "sourceDatabase": report.get("source_database", ""),  # GenBank, RefSeq, etc.
                 "isolate": report.get("isolate", {}),  # Sample/isolate details
@@ -852,11 +854,13 @@ def load_metadata_from_api_reports(api_reports):
             
             # Store the metadata using accession as the key
             metadata_dict[accession] = metadata
+            # logger.debug("Loaded metadata for accession: %s", accession)
+            # logger.debug("Metadata details: %s", metadata)
             
             logger.debug("Processed metadata for accession: %s (length: %s, host: %s)", 
                         accession, 
                         metadata.get("length"), 
-                        metadata.get("host", {}).get("organismName", "Unknown"))
+                        metadata.get("host", {}).get("organism_name", "Unknown"))
             
         else:
             # Skip reports without accession numbers
@@ -921,36 +925,15 @@ def parse_date(date_str, filtername="", verbose=False):
 def filter_sequences(
     fna_file,
     metadata_dict,
-    min_seq_length=None,
-    max_seq_length=None,
     max_ambiguous_chars=None,
     has_proteins=None,
     proteins_complete=False,
-    # The following parameters are kept for backwards compatibility but are ignored
-    # as they should have been applied by filter_metadata_only already
-    min_gene_count=None,
-    max_gene_count=None,
-    nuc_completeness=None,
-    host=None,
-    host_taxid=None,
-    lab_passaged=None,
-    geographic_region=None,
-    submitter_country=None,
-    min_collection_date=None,
-    max_collection_date=None,
-    annotated=None,
-    source_database=None,
-    max_release_date=None,
-    min_mature_peptide_count=None,
-    max_mature_peptide_count=None,
-    min_protein_count=None,
-    max_protein_count=None,
+    # **kwargs,
 ):
     """
     Apply sequence-dependent filters to downloaded sequences.
     
     This function only applies filters that require the actual sequence data:
-    - Sequence length checks
     - Ambiguous character counting
     - Protein/feature analysis if required
     
@@ -961,21 +944,16 @@ def filter_sequences(
     Args:
         fna_file (str): Path to FASTA file containing sequences
         metadata_dict (dict): Dictionary mapping accession numbers to metadata
-        min_seq_length (int): Minimum sequence length filter
-        max_seq_length (int): Maximum sequence length filter
         max_ambiguous_chars (int): Maximum number of ambiguous nucleotides allowed
         has_proteins (str/list): Required proteins/genes filter
         proteins_complete (bool): Whether proteins must be complete
-        
-        Other parameters are kept for backwards compatibility but are ignored as
-        they should have been applied by filter_metadata_only already.
         
     Returns:
         tuple: (filtered_sequences, filtered_metadata, protein_headers)
     """
     logger.info("Applying sequence-dependent filters...")
-    logger.debug("Sequence filters: length(%s-%s), max_ambiguous=%s, proteins=%s, complete=%s",
-                min_seq_length, max_seq_length, max_ambiguous_chars, has_proteins, proteins_complete)
+    logger.debug("Sequence filters: max_ambiguous=%s, proteins=%s, complete=%s",
+                max_ambiguous_chars, has_proteins, proteins_complete)
     
     # Initialize lists to store filtered results
     filtered_sequences = []    # Will store FastaRecord objects that pass filters
@@ -997,18 +975,18 @@ def filter_sequences(
         record_passes = True
         
         # Get sequence length
-        seq_length = len(record.seq)
+        # seq_length = len(record.seq)
         
-        # Apply sequence length filters
-        if min_seq_length is not None and seq_length < min_seq_length:
-            filter_stats['seq_length'] += 1
-            record_passes = False
-            continue
+        # # Apply sequence length filters
+        # if min_seq_length is not None and seq_length < min_seq_length:
+        #     filter_stats['seq_length'] += 1
+        #     record_passes = False
+        #     continue
             
-        if max_seq_length is not None and seq_length > max_seq_length:
-            filter_stats['seq_length'] += 1
-            record_passes = False
-            continue
+        # if max_seq_length is not None and seq_length > max_seq_length:
+        #     filter_stats['seq_length'] += 1
+        #     record_passes = False
+        #     continue
             
         # Count ambiguous characters (N's)
         if max_ambiguous_chars is not None:
@@ -1141,29 +1119,31 @@ def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_fil
         
         # Extract and process geographic location information
         # The API returns nested geographic information that needs to be flattened
-        location_info = metadata.get("location", {})
+        # logger.debug("Raw metadata for record %d: %s", i+1, metadata)
+        # location_info = metadata.get("location", {})
+        # logger.debug("Raw location info: %s", location_info)
         
         # Filter out empty values and reverse the order for hierarchical display
-        location_values = [v for v in location_info.values() if v and v != ""]
-        location_values.reverse()
+        # location_values = [v for v in location_info.values() if v and v != ""]
+        # location_values.reverse()
         
         # Create a colon-separated geographic string (e.g., "Africa:South Africa:Cape Town")
-        geo_info = ":".join(location_values) if location_values else pd.NA
+        # geo_info = ":".join(location_values) if location_values else pd.NA
         
         # Extract geographic region (broadest level, e.g., "Africa", "Europe")
-        try:
-            geo_region = location_values[0] if location_values else pd.NA
-        except IndexError:
-            geo_region = pd.NA
+        # try:
+        #     geo_region = location_values[0] if location_values else pd.NA
+        # except IndexError:
+        #     geo_region = pd.NA
             
         # Extract specific geographic location (e.g., "South Africa", "Germany")
-        try:
-            geo_loc = location_values[1] if len(location_values) > 1 else pd.NA
-        except IndexError:
-            geo_loc = pd.NA
+        # try:
+        #     geo_loc = location_values[1] if len(location_values) > 1 else pd.NA
+        # except IndexError:
+        #     geo_loc = pd.NA
 
-        logger.debug("Geographic info for record %d: region=%s, location=%s, full=%s", 
-                    i+1, geo_region, geo_loc, geo_info)
+        # logger.debug("Geographic info for record %d: region=%s, location=%s, full=%s", 
+        #             i+1, geo_region, geo_loc, geo_info)
 
         # Build the row dictionary with all required columns
         # Use pd.NA for missing values to ensure proper CSV handling
@@ -1192,9 +1172,11 @@ def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_fil
             "Proteins/Segments": protein_headers[i] if i < len(protein_headers) else pd.NA,
             
             # Geographic information
-            "Geographic Region": geo_region,
-            "Geographic Location": geo_loc,
-            "Geo String": geo_info,
+            # "Geographic Region": geo_region,
+            # "Geographic Location": geo_loc,
+            "Geographic Region": metadata.get("region", pd.NA),
+            "Geographic Location": metadata.get("location", pd.NA),
+            # "Geo String": geo_info,
             
             # Host information
             "Host": metadata.get("host", {}).get("organismName", pd.NA),
@@ -1782,14 +1764,10 @@ def filter_metadata_only(
     min_gene_count=None,
     max_gene_count=None,
     nuc_completeness=None,
-    host=None,
-    host_taxid=None,
     lab_passaged=None,
-    geographic_region=None,
     submitter_country=None,
     min_collection_date=None,
     max_collection_date=None,
-    annotated=None,
     source_database=None,
     max_release_date=None,
     min_mature_peptide_count=None,
@@ -1797,9 +1775,9 @@ def filter_metadata_only(
     min_protein_count=None,
     max_protein_count=None,
     # Sequence-dependent filters are deferred
-    max_ambiguous_chars=None,
-    has_proteins=None,
-    proteins_complete=False,
+    # max_ambiguous_chars=None,
+    # has_proteins=None,
+    # proteins_complete=False,
 ):
     """
     Filter metadata records based on metadata-only criteria.
@@ -1821,14 +1799,12 @@ def filter_metadata_only(
     
     logger.info("Starting metadata-only filtering process...")
     logger.debug("Applying metadata-only filters: seq_length(%s-%s), gene_count(%s-%s), "
-                "completeness(%s), host(%s), host_taxid(%s), lab_passaged(%s), "
-                "geo_region(%s), submitter_country(%s), collection_date(%s-%s), "
-                "annotated(%s), source_db(%s), max_release_date(%s), "
+                "completeness(%s), lab_passaged(%s), "
+                "submitter_country(%s), collection_date(%s-%s), source_db(%s), max_release_date(%s), "
                 "peptide_count(%s-%s), protein_count(%s-%s)",
                 min_seq_length, max_seq_length, min_gene_count, max_gene_count,
-                nuc_completeness, host, host_taxid, lab_passaged, geographic_region,
-                submitter_country, min_collection_date, max_collection_date,
-                annotated, source_database, max_release_date, 
+                nuc_completeness, lab_passaged,
+                submitter_country, min_collection_date, max_collection_date, source_database, max_release_date, 
                 min_mature_peptide_count, max_mature_peptide_count,
                 min_protein_count, max_protein_count)
     
@@ -1863,13 +1839,10 @@ def filter_metadata_only(
         'seq_length': 0,
         'gene_count': 0,
         'completeness': 0,
-        'host': 0,
-        'host_taxid': 0,
         'lab_passaged': 0,
-        'geographic_region': 0,
+        # 'geographic_region': 0,
         'submitter_country': 0,
         'collection_date': 0,
-        'annotated': 0,
         'source_database': 0,
         'release_date': 0,
         'mature_peptide_count': 0,
@@ -1921,7 +1894,7 @@ def filter_metadata_only(
                 continue
 
         # FILTER 3: Nucleotide completeness filter
-        if nuc_completeness is not None:
+        if nuc_completeness is not None and not nuc_completeness.lower() == "complete":
             completeness_status = metadata.get("completeness")
             if completeness_status is None:
                 logger.debug("Skipping %s: missing completeness metadata", accession)
@@ -1934,40 +1907,7 @@ def filter_metadata_only(
                 filter_stats['completeness'] += 1
                 continue
 
-        # FILTER 4: Host organism name filter
-        if host is not None:
-            host_organism = "_".join(
-                metadata.get("host", {}).get("organismName", "").split(" ")
-            ).lower()
-            
-            if not host_organism:
-                logger.debug("Skipping %s: missing host organism name", accession)
-                filter_stats['host'] += 1
-                continue
-                
-            if host_organism != host.lower():
-                logger.debug("Skipping %s: host '%s' != required '%s'", 
-                           accession, host_organism, host.lower())
-                filter_stats['host'] += 1
-                continue
-
-        # FILTER 5: Host taxonomy ID filter
-        if host_taxid is not None:
-            host_lineage = metadata.get("host", {}).get("lineage", [])
-            if not host_lineage:
-                logger.debug("Skipping %s: missing host lineage metadata", accession)
-                filter_stats['host_taxid'] += 1
-                continue
-                
-            host_lineage_taxids = {lineage["taxId"] for lineage in host_lineage}
-            
-            if host_taxid not in host_lineage_taxids:
-                logger.debug("Skipping %s: host taxid %s not in lineage %s", 
-                           accession, host_taxid, host_lineage_taxids)
-                filter_stats['host_taxid'] += 1
-                continue
-
-        # FILTER 6: Lab passaging status filter
+        # FILTER 4: Lab passaging status filter
         if lab_passaged is True:
             from_lab = metadata.get("isLabHost")
             if not from_lab:
@@ -1982,24 +1922,7 @@ def filter_metadata_only(
                 filter_stats['lab_passaged'] += 1
                 continue
 
-        # FILTER 7: Geographic region filter
-        if geographic_region is not None:
-            location = "_".join(
-                metadata.get("location", {}).get("geographicRegion", "").split(" ")
-            ).lower()
-            
-            if not location:
-                logger.debug("Skipping %s: missing geographic region", accession)
-                filter_stats['geographic_region'] += 1
-                continue
-                
-            if location != geographic_region.lower():
-                logger.debug("Skipping %s: geographic region '%s' != required '%s'", 
-                           accession, location, geographic_region.lower())
-                filter_stats['geographic_region'] += 1
-                continue
-
-        # FILTER 8: Submitter country filter
+        # FILTER 5: Submitter country filter
         if submitter_country is not None:
             submitter_country_value = "_".join(
                 metadata.get("submitter", {}).get("country", "").split(" ")
@@ -2016,7 +1939,7 @@ def filter_metadata_only(
                 filter_stats['submitter_country'] += 1
                 continue
 
-        # FILTER 9: Collection date range filter
+        # FILTER 6: Collection date range filter
         if min_collection_date is not None or max_collection_date is not None:
             date_str = metadata.get("isolate", {}).get("collectionDate", "")
             
@@ -2039,15 +1962,7 @@ def filter_metadata_only(
                 filter_stats['collection_date'] += 1
                 continue
 
-        # FILTER 10: Annotation status filter (for annotated=False only)
-        if annotated is False:
-            annotated_value = metadata.get("isAnnotated")
-            if annotated_value:
-                logger.debug("Skipping %s: sequence is annotated (excluded)", accession)
-                filter_stats['annotated'] += 1
-                continue
-
-        # FILTER 11: Source database filter
+        # FILTER 7: Source database filter
         if source_database is not None:
             source_db = metadata.get("sourceDatabase", "").lower()
             if not source_db:
@@ -2061,7 +1976,7 @@ def filter_metadata_only(
                 filter_stats['source_database'] += 1
                 continue
 
-        # FILTER 12: Maximum release date filter
+        # FILTER 8: Maximum release date filter
         if max_release_date is not None:
             release_date_str = metadata.get("releaseDate")
             
@@ -2083,7 +1998,7 @@ def filter_metadata_only(
                 filter_stats['release_date'] += 1
                 continue
 
-        # FILTER 13: Mature peptide count filters
+        # FILTER 9: Mature peptide count filters
         if min_mature_peptide_count is not None or max_mature_peptide_count is not None:
             mature_peptide_count = metadata.get("maturePeptideCount")
             
@@ -2106,7 +2021,7 @@ def filter_metadata_only(
                 filter_stats['mature_peptide_count'] += 1
                 continue
 
-        # FILTER 14: Protein count filters
+        # FILTER 10: Protein count filters
         if min_protein_count is not None or max_protein_count is not None:
             protein_count = metadata.get("proteinCount")
             
@@ -2147,15 +2062,15 @@ def filter_metadata_only(
             if count > 0:
                 logger.info("  %s: %d records", filter_name, count)
     
-    if max_ambiguous_chars is not None or has_proteins is not None:
-        logger.info("Note: Sequence-dependent filters (max_ambiguous_chars, has_proteins) will be applied after download")
+    # if max_ambiguous_chars is not None or has_proteins is not None:
+    #     logger.info("Note: Sequence-dependent filters (max_ambiguous_chars, has_proteins) will be applied after download")
     
     return filtered_accessions, filtered_metadata_list
 
 
 def ncbi_virus(
     virus,
-    accession=False,
+    is_accession=False,
     outfolder=None,
     host=None,
     min_seq_length=None,
@@ -2165,9 +2080,9 @@ def ncbi_virus(
     nuc_completeness=None,
     has_proteins=None,
     proteins_complete=False,
-    host_taxid=None,
+    # host_taxid=None,
     lab_passaged=None,
-    geographic_region=None,
+    # geographic_region=None,
     geographic_location=None,
     submitter_country=None,
     min_collection_date=None,
@@ -2201,7 +2116,7 @@ def ncbi_virus(
     
     Args:
         virus (str): Virus taxon name/ID or accession number
-        accession (bool): Whether virus parameter is an accession number
+        is_accession (bool): Whether virus parameter is an accession number
         outfolder (str): Output directory for files
         host (str): Host organism name filter
         min_seq_length (int): Minimum sequence length filter
@@ -2211,9 +2126,7 @@ def ncbi_virus(
         nuc_completeness (str): Nucleotide completeness filter ('complete' or 'partial')
         has_proteins (str/list): Required proteins/genes filter
         proteins_complete (bool): Whether proteins must be complete
-        host_taxid (int): Host taxonomy ID filter
         lab_passaged (bool): Lab passaging status filter
-        geographic_region (str): Geographic region filter
         geographic_location (str): Geographic location filter
         submitter_country (str): Submitter country filter
         min_collection_date (str): Minimum collection date filter (YYYY-MM-DD)
@@ -2242,10 +2155,10 @@ def ncbi_virus(
         references, and other fields extracted from GenBank records.
     """
     logger.info("Starting NCBI virus data retrieval process...")
-    logger.info("Query parameters: virus='%s', accession=%s, outfolder='%s'", 
-                virus, accession, outfolder)
-    logger.debug("Applied filters: host=%s, seq_length=(%s-%s), gene_count=(%s-%s), completeness=%s, annotated=%s, refseq_only=%s, lab_passaged=%s, geo_region=%s, geo_location=%s, submitter_country=%s, collection_date=(%s-%s), source_db=%s, release_date=(%s-%s), protein_count=(%s-%s), peptide_count=(%s-%s), max_ambiguous=%s, has_proteins=%s, proteins_complete=%s, genbank_metadata=%s, genbank_batch_size=%s",
-    host, min_seq_length, max_seq_length, min_gene_count, max_gene_count, nuc_completeness, annotated, refseq_only, lab_passaged, geographic_region, geographic_location, submitter_country, min_collection_date, max_collection_date,source_database, min_release_date, max_release_date, min_protein_count, max_protein_count, min_mature_peptide_count, max_mature_peptide_count, max_ambiguous_chars, has_proteins, proteins_complete, genbank_metadata, genbank_batch_size)
+    logger.info("Query parameters: virus='%s', is_accession=%s, outfolder='%s'", 
+                virus, is_accession, outfolder)
+    logger.debug("Applied filters: host=%s, seq_length=(%s-%s), gene_count=(%s-%s), completeness=%s, annotated=%s, refseq_only=%s, lab_passaged=%s, geo_location=%s, submitter_country=%s, collection_date=(%s-%s), source_db=%s, release_date=(%s-%s), protein_count=(%s-%s), peptide_count=(%s-%s), max_ambiguous=%s, has_proteins=%s, proteins_complete=%s, genbank_metadata=%s, genbank_batch_size=%s",
+    host, min_seq_length, max_seq_length, min_gene_count, max_gene_count, nuc_completeness, annotated, refseq_only, lab_passaged, geographic_location, submitter_country, min_collection_date, max_collection_date,source_database, min_release_date, max_release_date, min_protein_count, max_protein_count, min_mature_peptide_count, max_mature_peptide_count, max_ambiguous_chars, has_proteins, proteins_complete, genbank_metadata, genbank_batch_size)
 
     # SECTION 1: INPUT VALIDATION
     # Validate and normalize input arguments before proceeding
@@ -2279,6 +2192,12 @@ def ncbi_virus(
     if refseq_only is not None and not isinstance(refseq_only, bool):
         raise TypeError(
             "Argument 'refseq_only' must be a boolean (True or False)."
+        )
+
+    if is_accession is not None and not isinstance(is_accession, bool):
+        accession = is_accession
+        raise TypeError(
+            "Argument 'is_accession' must be a boolean (True or False)."
         )
     
     # Validate GenBank metadata parameters
@@ -2352,7 +2271,7 @@ def ncbi_virus(
     
     # SECTION 2.5: SARS-CoV-2 CACHED DATA PROCESSING
     # For SARS-CoV-2 queries, use cached data packages with hierarchical fallback
-    if is_sars_cov2 or is_sars_cov2_query(virus, accession):
+    if is_sars_cov2 or is_sars_cov2_query(virus, is_accession):
         logger.info("=" * 60)
         logger.info("DETECTED SARS-CoV-2 QUERY - USING CACHED DATA PACKAGES")
         logger.info("=" * 60)
@@ -2367,7 +2286,7 @@ def ncbi_virus(
             'outdir': outfolder,
             'lineage': lineage,
             'accession': virus,  # Pass the virus parameter as either accession or taxon
-            'use_accession': accession  # Tell the function whether to use accession or taxon endpoint
+            'use_accession': is_accession  # Tell the function whether to use accession or taxon endpoint
         }
             
         zip_file = download_sars_cov2_optimized(**params)
@@ -2494,7 +2413,7 @@ def ncbi_virus(
     logger.debug("Created temporary processing directory: %s", temp_dir)
     
     try:
-        # SECTION 3: METADATA RETRIEVAL
+        # SECTION 3: METADATA RETRIEVAL WHILE APPLYING SERVER-SIDE FILTERS
         logger.info("=" * 60)
         logger.info("STEP 2: Fetching virus metadata from NCBI API")
         logger.info("=" * 60)
@@ -2506,9 +2425,10 @@ def ncbi_virus(
         
         api_reports = fetch_virus_metadata(
             virus,
-            accession=accession,
+            accession=is_accession,
             host=host,
             geographic_location=geographic_location,
+            # geographic_region=geographic_region,
             annotated=api_annotated_filter,
             complete_only=api_complete_filter,
             min_release_date=min_release_date,
@@ -2549,34 +2469,42 @@ def ncbi_virus(
             "max_seq_length": max_seq_length,
             "min_gene_count": min_gene_count,
             "max_gene_count": max_gene_count,
-            "nuc_completeness": nuc_completeness,
-            "host": None if host else None,
-            "host_taxid": host_taxid,
+            "nuc_completeness": nuc_completeness, #only for partial cases
             "lab_passaged": lab_passaged,
-            "geographic_region": geographic_region,
             "submitter_country": submitter_country,
             "min_collection_date": min_collection_date,
             "max_collection_date": max_collection_date,
-            "annotated": None if annotated else None, 
             "source_database": source_database,
             "max_release_date": max_release_date,
             "min_mature_peptide_count": min_mature_peptide_count,
             "max_mature_peptide_count": max_mature_peptide_count,
             "min_protein_count": min_protein_count,
             "max_protein_count": max_protein_count,
-            # deferred filters are still passed (function will defer them)
-            "max_ambiguous_chars": max_ambiguous_chars,
-            "has_proteins": has_proteins,
-            "proteins_complete": proteins_complete,
         }
 
-        filtered_accessions, filtered_metadata = filter_metadata_only(
-            metadata_dict, **filters
+        all_none_except_nuc = all(
+            v is None for k, v in filters.items() if k != "nuc_completeness"
         )
 
-        if not filtered_accessions:
-            logger.warning("No sequences passed metadata-only filters. Skipping sequence download.")
-            return
+        if all_none_except_nuc and filters["nuc_completeness"]!="partial":
+            logger.info("No metadata-only filters specified, skipping this step.")
+            filtered_accessions = list(metadata_dict.keys())
+            # logger.debug("All accessions from metadata hereeee: %d", len(filtered_accessions))
+            # logger.debug(filtered_accessions)
+            filtered_metadata = list(metadata_dict.values())
+            # logger.debug("All metadata from metadata hereeee: %d", len(filtered_metadata))
+            # logger.debug(filtered_metadata)
+            logger.info("All %d sequences will proceed to sequence download", len(filtered_accessions))
+        else:
+            filtered_accessions, filtered_metadata = filter_metadata_only(metadata_dict, **filters)
+            if not filtered_accessions:
+                logger.warning("No sequences passed metadata-only filters. Skipping sequence download.")
+                return
+            # logger.debug("Filtered accessions hereeee!!!: %d", len(filtered_accessions))
+            # logger.debug(filtered_accessions)
+            # logger.debug("Filtered metadata hereeee!!!: %d", len(filtered_metadata))
+            # logger.debug(filtered_metadata)
+
 
         # Prepare output file paths
         output_fasta_file = os.path.join(outfolder, f"{virus_clean}_sequences.fasta")
@@ -2593,7 +2521,7 @@ def ncbi_virus(
         except Exception as e:
             logger.warning("Failed to save filtered metadata JSONL: %s", e)
 
-        # SECTION 4: DOWNLOAD SEQUENCES FOR FILTERED ACCESSIONS ONLY
+        # SECTION 5: DOWNLOAD SEQUENCES FOR FILTERED ACCESSIONS ONLY
         logger.info("=" * 60)
         logger.info("STEP 4: Downloading sequences for filtered accessions")
         logger.info("=" * 60)
@@ -2603,19 +2531,36 @@ def ncbi_virus(
             raise RuntimeError(f"Download failed: FASTA file not found at {fna_file}")
         logger.info("Downloaded FASTA file: %s (%.2f MB)", fna_file, os.path.getsize(fna_file) / 1024 / 1024)
 
-        # SECTION 5: SEQUENCE-DEPENDENT FILTERING AND SAVING
+        # SECTION 6: SEQUENCE-DEPENDENT FILTERING AND SAVING
         logger.info("=" * 60)
         logger.info("STEP 5: Applying sequence-dependent filters and saving results")
         logger.info("=" * 60)
 
-        # Restrict metadata to filtered accessions only
-        filtered_metadata_dict = {acc: metadata_dict[acc] for acc in filtered_accessions}
+        filters_seq={
+            "max_ambiguous_chars": max_ambiguous_chars,
+            "has_proteins": has_proteins,
+            "proteins_complete": proteins_complete,
+        }
 
-        filtered_sequences, filtered_metadata_final, protein_headers = filter_sequences(
-            fna_file,
-            filtered_metadata_dict,
-            **filters,
+        all_none_except_nuc = all(
+            v is None for k, v in filters_seq.items() if k != "nuc_completeness"
         )
+
+        if all_none_except_nuc:
+            logger.info("No sequence-dependent filters specified, skipping this step.")
+            filtered_sequences = list(FastaIO.parse(fna_file, "fasta"))
+            filtered_metadata_final = filtered_metadata  # No change to metadata
+            protein_headers = []
+            logger.info("All %d downloaded sequences will be saved", len(filtered_sequences))
+        else:
+            # Restrict metadata to filtered accessions only
+            filtered_metadata_dict = {acc: metadata_dict[acc] for acc in filtered_accessions}
+
+            filtered_sequences, filtered_metadata_final, protein_headers = filter_sequences(
+                fna_file,
+                filtered_metadata_dict,
+                **filters_seq,
+            )
 
         if filtered_sequences:
             logger.info("Saving %d filtered sequences and their metadata...", len(filtered_sequences))
@@ -2648,56 +2593,58 @@ def ncbi_virus(
                 logger.error("Failed to save CSV metadata file: %s", e)
                 raise
 
-            # SECTION 6: GENBANK METADATA RETRIEVAL (OPTIONAL)
-            if genbank_metadata:
-                logger.info("=" * 60)
-                logger.info("STEP 6: Fetching detailed GenBank metadata")
-                logger.info("=" * 60)
-                logger.info("GenBank metadata retrieval requested - fetching detailed information...")
+        # SECTION 7: GENBANK METADATA RETRIEVAL (OPTIONAL)
+        logger.info("=" * 60)
+        logger.info("STEP 6: Fetching detailed GenBank metadata")
+        logger.info("=" * 60)
+        logger.info("GenBank metadata retrieval requested - fetching detailed information...")
+            
+        if genbank_metadata:
+            try:
+                # Extract accession numbers from filtered sequences
+                final_accessions = []
+                for seq_record in filtered_sequences:
+                    acc = seq_record.id.split()[0] if hasattr(seq_record, 'id') else str(seq_record)
+                    if acc:
+                        final_accessions.append(acc)
                 
-                try:
-                    # Extract accession numbers from filtered sequences
-                    final_accessions = []
-                    for seq_record in filtered_sequences:
-                        acc = seq_record.id.split()[0] if hasattr(seq_record, 'id') else str(seq_record)
-                        if acc:
-                            final_accessions.append(acc)
+                if final_accessions:
+                    logger.info("Fetching GenBank metadata for %d sequences...", len(final_accessions))
                     
-                    if final_accessions:
-                        logger.info("Fetching GenBank metadata for %d sequences...", len(final_accessions))
-                        
-                        # Fetch GenBank metadata
-                        genbank_data = fetch_genbank_metadata(
-                            accessions=list(set(final_accessions)),  # Remove duplicates
-                            batch_size=genbank_batch_size,
-                            delay=0.5  # Be respectful to NCBI servers
+                    # Fetch GenBank metadata
+                    genbank_data = fetch_genbank_metadata(
+                        accessions=list(set(final_accessions)),  # Remove duplicates
+                        batch_size=genbank_batch_size,
+                        delay=0.5  # Be respectful to NCBI servers
+                    )
+                    
+                    if genbank_data:
+                        # Save GenBank metadata to CSV
+                        genbank_csv_path = os.path.join(outfolder, f"{virus_clean}_genbank_metadata.csv")
+                        save_genbank_metadata_to_csv(
+                            genbank_metadata=genbank_data,
+                            output_file=genbank_csv_path,
+                            virus_metadata=filtered_metadata_final
                         )
                         
-                        if genbank_data:
-                            # Save GenBank metadata to CSV
-                            genbank_csv_path = os.path.join(outfolder, f"{virus_clean}_genbank_metadata.csv")
-                            save_genbank_metadata_to_csv(
-                                genbank_metadata=genbank_data,
-                                output_file=genbank_csv_path,
-                                virus_metadata=filtered_metadata_final
-                            )
-                            
-                            logger.info("✓ GenBank metadata CSV saved: %s (%.2f MB)", 
-                                       genbank_csv_path, os.path.getsize(genbank_csv_path) / 1024 / 1024)
-                        else:
-                            logger.warning("No GenBank metadata was retrieved")
+                        logger.info("✓ GenBank metadata CSV saved: %s (%.2f MB)", 
+                                    genbank_csv_path, os.path.getsize(genbank_csv_path) / 1024 / 1024)
                     else:
-                        logger.warning("No accession numbers found for GenBank metadata lookup")
-                        
-                except Exception as genbank_error:
-                    logger.error("GenBank metadata retrieval failed: %s", genbank_error)
-                    logger.warning("Continuing without GenBank metadata - standard output files are still available")
-                    # Don't raise the error - continue with the rest of the process
-                
-                logger.info("GenBank metadata processing completed")
+                        logger.warning("No GenBank metadata was retrieved")
+                else:
+                    logger.warning("No accession numbers found for GenBank metadata lookup")
+                    
+            except Exception as genbank_error:
+                logger.error("GenBank metadata retrieval failed: %s", genbank_error)
+                logger.warning("Continuing without GenBank metadata - standard output files are still available")
+                # Don't raise the error - continue with the rest of the process
+            
+            logger.info("GenBank metadata processing completed")
+        else:
+            logger.info("GenBank metadata retrieval not requested, skipping this step")
 
-
-            # SECTION 10: FINAL SUMMARY
+        if filtered_sequences:
+            # SECTION 8: FINAL SUMMARY
             # Provide comprehensive summary of the results
             logger.info("=" * 60)
             logger.info("PROCESS COMPLETED SUCCESSFULLY")
@@ -2845,7 +2792,7 @@ def ncbi_virus(
         raise
         
     finally:
-        # SECTION 11: CLEANUP
+        # SECTION 9: CLEANUP
         # Always clean up temporary files, regardless of success or failure
         logger.debug("Performing cleanup...")
         if os.path.exists(temp_dir):
