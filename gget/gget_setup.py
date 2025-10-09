@@ -5,6 +5,8 @@ import sys
 import subprocess
 import platform
 import uuid
+import tempfile
+import pathlib
 
 from .utils import set_up_logger, check_file_for_error_message
 
@@ -44,7 +46,8 @@ PARAMS_PATH = os.path.join(PARAMS_DIR, "params_temp.tar")
 def _install(package: str, import_name: str, verbose: bool = True):
     pip_cmds = ["uv pip install", "pip install"] if shutil.which("uv") else ["pip install"]
     for pip_cmd in pip_cmds:
-        command = f"{pip_cmd} -q -U {package}"
+        quiet_flag = "-q " if pip_cmd.startswith("pip ") else ""
+        command = f"{pip_cmd} {quiet_flag}-U {package}"
         if verbose:
             logger.info(f"Attempting to install {package} using: {command}")
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
@@ -217,6 +220,7 @@ def setup(module, verbose=True, out=None):
             logger.error(
                 "gget setup alphafold and gget alphafold are not supported on Windows OS."
             )
+            return
 
         ## Ask user to install openmm if not already installed
         try:
@@ -257,75 +261,102 @@ def setup(module, verbose=True, out=None):
         if verbose:
             logger.info("Installing AlphaFold from source (requires pip and git).")
 
-        pip_cmd = "uv pip install" if shutil.which("uv") else "pip install"
+        # Prefer uv when present for network robustness; use pip for flags uv lacks
+        have_uv = shutil.which("uv") is not None
+        pip_upgrade = "uv pip install --upgrade" if have_uv else "pip install -q --upgrade"
+        pip_nodeps = "pip install -q --no-deps"  # uv lacks --no-deps
+        os.environ.setdefault("UV_HTTP_TIMEOUT", "300")
 
-        ## Install AlphaFold and change jackhmmer directory where database chunks are saved in
         # Define AlphaFold folder name and location
         alphafold_folder = os.path.join(
-            PACKAGE_PATH, "tmp_alphafold_" + str(uuid.uuid4())
+            tempfile.gettempdir(), f"tmp_alphafold_{uuid.uuid4()}"
         )
+        pathlib.Path(alphafold_folder).mkdir(parents=True, exist_ok=True)
 
-        # Clone AlphaFold github repo
-        # Replace directory where jackhmmer database chunks will be saved
-        # Insert "logging.set_verbosity(logging.WARNING)" to mute all info loggers
-        # Pip install AlphaFold from local directory
-        if platform.system() == "Darwin":
-            command = """
-                git clone --branch main -q --branch {} {} {} \\
-                && sed -i '' 's/\\/tmp\\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \\
-                && sed -i '' '/from absl import logging/a logging.set_verbosity(logging.WARNING)' {}/alphafold/data/tools/jackhmmer.py \\
-                && {pip_cmd} -q -r {}/requirements.txt \\
-                && {pip_cmd} -q --no-dependencies {}
-                """.format(
-                ALPHAFOLD_GIT_REPO_VERSION,
-                ALPHAFOLD_GIT_REPO,
-                alphafold_folder,
-                os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace(
-                    "/", "\\/"
-                ),  # Replace directory where jackhmmer database chunks will be saved
-                alphafold_folder,
-                alphafold_folder,
-                alphafold_folder,
-                alphafold_folder,
-            )
-        else:
-            command = """
-                git clone --branch main -q --branch {} {} {} \\
-                && sed -i 's/\\/tmp\\/ramdisk/{}/g' {}/alphafold/data/tools/jackhmmer.py \\
-                && sed -i 's/from absl import logging/from absl import logging\\\nlogging.set_verbosity(logging.WARNING)/g' {}/alphafold/data/tools/jackhmmer.py \\
-                && {pip_cmd} -q -r {}/requirements.txt \\
-                && {pip_cmd} -q --no-dependencies {}
-                """.format(
-                ALPHAFOLD_GIT_REPO_VERSION,
-                ALPHAFOLD_GIT_REPO,
-                alphafold_folder,
-                os.path.expanduser(f"~/tmp/jackhmmer/{UUID}").replace(
-                    "/", "\\/"
-                ),  # Replace directory where jackhmmer database chunks will be saved
-                alphafold_folder,
-                alphafold_folder,
-                alphafold_folder,
-                alphafold_folder,
+        # Clean (unescaped) jackhmmer cache dir; we’ll patch file contents via Python
+        jack_dir = os.path.expanduser(f"~/tmp/jackhmmer/{UUID}")
+
+        # Core AlphaFold dependencies (Colab/CPU friendly set)
+        alphafold_deps = [
+            "absl-py>=2.1,<3",
+            "dm-haiku<=0.0.12",          # dont upgrade to avoid clash with jax
+            "dm-tree>=0.1.8",
+            "filelock>=3.12",
+            "jax==0.4.26",
+            "jaxlib==0.4.26",
+            # "jax-triton>=0.2,<0.3",    # jax-triton & triton aren’t needed on CPU-only use
+            "jaxtyping>=0.2.30",
+            "jmp>=0.0.4",
+            "ml-collections>=0.1,<1",
+            "ml-dtypes>=0.3.1,<0.6",
+            "numpy>=1.26,<2",            # keeps TF 2.17 CPU happy
+            "opt-einsum>=3.4,<4",
+            "pillow>=10,<12",
+            "protobuf<4",
+            # "rdkit-pypi",              # rdkit pulls heavy wheels and may force newer numpy; skip unless needed
+            "scipy>=1.10,<2",
+            "tabulate>=0.9",
+            "tqdm>=4.65",
+            # "triton>=3,<4",            # only if you enable jax-triton above
+            "typeguard>=2.13,<3",
+            "zstandard>=0.21,<0.24",
+        ]
+
+        try:
+            # Clone AlphaFold github repo
+            subprocess.run(
+                ["git", "clone", "-q", "--branch", ALPHAFOLD_GIT_REPO_VERSION, ALPHAFOLD_GIT_REPO, alphafold_folder],
+                check=True,
             )
 
-        with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
-            stderr = process.stderr.read().decode("utf-8")
-        # Exit system if the subprocess returned with an error
-        if process.wait() != 0:
-            if stderr:
-                # Log the standard error if it is not empty
-                sys.stderr.write(stderr)
+            # Patch jackhmmer.py
+            jack_py = os.path.join(alphafold_folder, "alphafold", "data", "tools", "jackhmmer.py")
+            with open(jack_py, "r", encoding="utf-8") as f:
+                txt = f.read()
+
+            txt = txt.replace("/tmp/ramdisk", jack_dir)
+            if "logging.set_verbosity(logging.WARNING)" not in txt:
+                txt = txt.replace(
+                    "from absl import logging",
+                    "from absl import logging\nlogging.set_verbosity(logging.WARNING)",
+                    1,
+                )
+
+            with open(jack_py, "w", encoding="utf-8") as f:
+                f.write(txt)
+
+            # Base deps first (NumPy/TF/JAX in a known good combo)
+            subprocess.run(
+                [*pip_upgrade.split(), "numpy>=1.26,<2", "tensorflow-cpu>=2.17,<2.18"],
+                check=True
+            )
+
+            # The rest of the deps
+            subprocess.run(
+                [*pip_upgrade.split(), *alphafold_deps],
+                check=True
+            )
+
+            # Install AF itself without bringing in its pinned requirements
+            subprocess.run(f'{pip_nodeps} "{alphafold_folder}"', check=True, shell=True)
+
+        except subprocess.CalledProcessError as e:
             logger.error("AlphaFold installation failed.")
+            # Show any captured stderr from our last step, if available
+            try:
+                sys.stderr.write(str(e) + "\n")
+            except Exception:
+                pass
+            shutil.rmtree(alphafold_folder, ignore_errors=True)
             return
 
-        # Remove cloned directory
-        shutil.rmtree(alphafold_folder)
+        # Clean up checkout
+        shutil.rmtree(alphafold_folder, ignore_errors=True)
 
         try:
             import alphafold as AlphaFold
-
             if verbose:
-                logger.info(f"AlphaFold installed succesfully.")
+                logger.info("AlphaFold installed succesfully.")
         except ImportError as e:
             logger.error(f"AlphaFold installation failed. Import error:\n{e}")
             return
@@ -340,7 +371,7 @@ def setup(module, verbose=True, out=None):
             logger.info("Installing pdbfixer from source (requires pip and git).")
 
         pdbfixer_folder = os.path.join(
-            PACKAGE_PATH, "tmp_pdbfixer_" + str(uuid.uuid4())
+            tempfile.gettempdir(), f"tmp_pdbfixer_{uuid.uuid4()}"
         )
 
         try:
@@ -352,9 +383,11 @@ def setup(module, verbose=True, out=None):
         except:
             PDBFIXER_VERSION = "v1.8.1"
 
+        pip_cmd = "uv pip install" if shutil.which("uv") else "pip install -q"
+
         command = f"""
             git clone -q --branch {PDBFIXER_VERSION} {PDBFIXER_GIT_REPO} {pdbfixer_folder} \\
-            && {pip_cmd} -q {pdbfixer_folder}
+            && {pip_cmd} {pdbfixer_folder}
             """
 
         with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
@@ -371,7 +404,7 @@ def setup(module, verbose=True, out=None):
         shutil.rmtree(pdbfixer_folder)
 
         # Check if pdbfixer was installed successfully
-        command = "pip list | grep pdbfixer"
+        command = f"{sys.executable} -m pip list | grep pdbfixer"
         process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
         pdb_out, err = process.communicate()
 

@@ -12,7 +12,8 @@ Choice of 'homo_sapiens' or 'mus_musculus'. Default: 'homo_sapiens'.
 
 `-g` `--gene`  
  Str or list of gene name(s) or Ensembl ID(s). Default: None.  
- NOTE: Use `-e / --ensembl` (Python: `ensembl=True`) when providing Ensembl ID(s) instead of gene name(s).  
+ NOTE: Use `-e / --ensembl` (Python: `ensembl=True`) when providing Ensembl ID(s) instead of gene name(s).   
+ NOTE: Gene symbols are case sensitive! Use canonical casing when passing gene symbols, e.g., 'PAX7' (human), 'Pax7' (mouse).  
  See https://cellxgene.cziscience.com/gene-expression for examples of available genes.  
 
  `-cv` `--census_version`  

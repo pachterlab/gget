@@ -1,7 +1,7 @@
 import json as json_package
 from json.decoder import JSONDecodeError
 import pandas as pd
-from urllib.request import urlopen
+from urllib import request
 
 from .utils import set_up_logger, read_fasta
 
@@ -122,10 +122,22 @@ def blat(
     url = f"https://genome.ucsc.edu/cgi-bin/hgBlat?userSeq={sequence}&type={seqtype}&db={database}&output=json"
 
     # Submit URL request
-    r = urlopen(url)
-    if r.status != 200:
+    req = request.Request(
+            url,
+            headers={
+                "User-Agent": "gget"
+            }
+        )
+    r = request.urlopen(req)
+
+    # Get status code (in a way that is stable across Python versions)
+    code = getattr(r, "status", None)
+    if code is None:
+        code = r.getcode()
+
+    if code != 200:
         raise RuntimeError(
-            f"HTTP response status code {r.status}. "
+            f"HTTP response status code {code}. "
             "Please double-check arguments and try again.\n"
         )
 
@@ -138,7 +150,7 @@ def blat(
             BLAT of seqtype '{seqtype}' using assembly '{database}' was unsuccesful. 
             Possible causes: 
             - Sequence possibly too short (required minimum: 20 characters). 
-            - Assembly possibly invalid. All available species with their respective assemblies are listed at https://genome.ucsc.edu/cgi-bin/hgBlat.
+            - Assembly possibly invalid. All available species with their respective assemblies are listed at https://genome.ucsc.edu/cgi-bin/hgBlat
             """
         )
         return

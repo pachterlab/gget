@@ -57,13 +57,13 @@ def pdb(pdb_id, resource="pdb", identifier=None, save=False):
     if resource == "assembly" and identifier is None:
         raise ValueError("Please define assembly ID (e.g. '1') as 'identifier'.")
 
-    need_entitiy_id = [
+    need_entity_id = [
         "branched_entity",
         "nonpolymer_entity",
         "polymer_entity",
         "uniprot",
     ]
-    if resource in need_entitiy_id and identifier is None:
+    if resource in need_entity_id and identifier is None:
         raise ValueError("Please define entity ID (e.g. '1') as 'identifier'.")
 
     need_chain_id = [
@@ -82,19 +82,39 @@ def pdb(pdb_id, resource="pdb", identifier=None, save=False):
         else:
             url = f"{RCSB_PDB_API}{resource}/{pdb_id}"
 
+        urls = [url]  # only one option for JSON resources
     else:
-        # URL to request PDB file
-        url = f"https://files.rcsb.org/download/{pdb_id}.pdb"
+        # Try wwPDB first, then RCSB as fallback
+        urls = [
+            f"https://files.wwpdb.org/download/{pdb_id}.pdb",
+            f"https://files.rcsb.org/download/{pdb_id}.pdb",
+        ]
 
-    # Submit URL request
-    try:
-        r = urlopen(url)
-    except HTTPError:
+    # Submit URL request with fallback logic
+    r = None
+    last_error = None
+    code = None
+    for url in urls:
+        try:
+            r = urlopen(url)
+
+            # Get status code (in a way that is stable across Python versions)
+            code = getattr(r, "status", None)
+            if code is None:
+                code = r.getcode()
+
+            if code == 200:
+                break
+        except HTTPError as e:
+            last_error = e
+            continue
+
+    if r is None or code != 200:
         if resource == "assembly":
             logger.error(
                 f"{resource} for {pdb_id} assembly {identifier} was not found. Please double-check arguments and try again."
             )
-        elif resource in need_entitiy_id:
+        elif resource in need_entity_id:
             logger.error(
                 f"{resource} for {pdb_id} entity {identifier} was not found. Please double-check arguments and try again."
             )
@@ -107,12 +127,6 @@ def pdb(pdb_id, resource="pdb", identifier=None, save=False):
                 f"{resource} for {pdb_id} was not found. Please double-check arguments and try again."
             )
         return
-
-    if r.status != 200:
-        raise RuntimeError(
-            f"The RCSB PDB server responded with status code: {r.status}. "
-            "Please double-check arguments and try again.\n"
-        )
 
     if resource != "pdb":
         # Read json formatted results
