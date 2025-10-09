@@ -1,3 +1,159 @@
+> Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python.  The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
+# gget ncbi\_virus 🧬
+
+Download virus sequences and associated metadata from the [NCBI Virus database](https://www.ncbi.nlm.nih.gov/labs/virus/). `gget ncbi_virus` applies server-side and local filters to efficiently download customized datasets.
+Return format: FASTA, CSV, and JSONL files saved to an output folder.
+
+**Positional argument**
+`virus`
+Virus taxon name (e.g. 'Zika virus'), taxon ID (e.g. 2697049), or accession number (e.g. 'NC\_045512.2').
+
+**Optional arguments**
+
+### Output arguments
+
+`-o` `--outfolder`
+Path to the folder where results will be saved. Default: current working directory.
+Python: `outfolder="path/to/folder"`
+
+### Host filters
+
+`--host`
+Filter by host organism name (e.g. 'human', 'Aedes aegypti').
+
+`--host_taxid`
+Filter by host taxonomy ID.
+
+### Sequence & Gene filters
+
+`--nuc_completeness`
+Filter by nucleotide completeness. One of: 'complete' or 'partial'.
+
+`--min_seq_length`
+Filter by minimum sequence length.
+
+`--max_seq_length`
+Filter by maximum sequence length.
+
+`--min_gene_count`
+Filter by minimum number of genes.
+
+`--max_gene_count`
+Filter by maximum number of genes.
+
+`--min_protein_count`
+Filter by minimum number of proteins.
+
+`--max_protein_count`
+Filter by maximum number of proteins.
+
+`--max_ambiguous_chars`
+Filter by maximum number of ambiguous nucleotide characters (N's).
+
+### Date filters
+
+`--min_collection_date`
+Filter by minimum sample collection date (YYYY-MM-DD).
+
+`--max_collection_date`
+Filter by maximum sample collection date (YYYY-MM-DD).
+
+`--min_release_date`
+Filter by minimum sequence release date (YYYY-MM-DD).
+
+`--max_release_date`
+Filter by maximum sequence release date (YYYY-MM-DD).
+
+### Location & Submitter filters
+
+`--geographic_location`
+Filter by geographic location of sample collection (e.g. 'USA', 'Asia').
+
+`--submitter_country`
+Filter by the country of the sequence submitter.
+
+### SARS-CoV-2 specific filters
+
+`--lineage`
+Filter by SARS-CoV-2 lineage (e.g. 'B.1.1.7', 'P.1').
+
+**Flags**
+`--accession`
+Flag to indicate that the `virus` positional argument is an accession number.
+
+`--refseq_only`
+Flag to limit search to RefSeq genomes only (higher quality, curated sequences).
+
+`--is_sars_cov2`
+Flag to use NCBI's optimized cached data packages for a SARS-CoV-2 accession number. This provides faster and more reliable downloads.
+
+`--genbank_metadata`
+Flag to fetch and save additional detailed metadata from GenBank, including collection dates, host details, and publication references, in a separate `_genbank_metadata.csv` file.
+
+`--annotated`
+Flag to only return sequences that have been annotated with gene/protein information.
+
+`--lab_passaged`
+In Python, set `lab_passaged=True` to fetch only lab-passaged samples, or `lab_passaged=False` to exclude them. In the command-line, the `--lab_passaged` flag corresponds to `lab_passaged=True`.
+
+`--proteins_complete`
+Flag to only include sequences where all annotated proteins are complete.
+
+`-q` `--quiet`
+Command-line only. Prevents progress information from being displayed.
+Python: Use `verbose=False` to prevent progress information from being displayed.
+
+### Example
+
+```bash
+gget ncbi_virus "Zika virus" --nuc_completeness complete --host human --out zika_data
+```
+
+```python
+# Python
+gget.ncbi_virus(
+    "Zika virus",
+    nuc_completeness="complete",
+    host="human",
+    outfolder="zika_data"
+)
+```
+
+→ Downloads complete Zika virus genomes from human hosts. Results are saved in the `zika_data` folder as `Zika_virus_sequences.fasta`, `Zika_virus_metadata.csv`, and `Zika_virus_metadata.jsonl`.
+
+The metadata CSV file will look like this:
+
+| accession | Organism Name | GenBank/RefSeq | Release date | Length | Nuc Completeness | Geographic Location | Host | ... |
+|---|---|---|---|---|---|---|---|---|
+| KX198135.1 | Zika virus | GenBank | 2016-05-18 | 10807 | complete | Americas:Haiti | Homo sapiens | ... |
+| . . . | . . . | . . . | . . . | . . . | . . . | . . . | . . . | ... |
+
+<br><br>
+**Download a specific SARS-CoV-2 reference genome using its accession number:**
+
+```bash
+gget ncbi_virus NC_045512.2 --accession --is_sars_cov2
+```
+
+```python
+# Python
+gget.ncbi_virus("NC_045512.2", accession=True, is_sars_cov2=True)
+```
+
+→ Uses the optimized download method for SARS-CoV-2 to fetch the reference genome and its metadata.
+
+#### [More examples](https://github.com/pachterlab/gget_examples)
+
+# References
+
+If you use `gget ncbi_virus` in a publication, please cite the following articles:
+
+  - Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
+
+  - O’Leary, N.A., Cox, E., Holmes, J.B. et al (2024). Exploring and retrieving sequence and metadata for species across the tree of life with NCBI Datasets. Sci Data 11, 732. [https://doi.org/10.1038/s41597-024-03571-y](https://doi.org/10.1038/s41597-024-03571-y)
+
+
+
 # NCBI Virus Retrieval Workflow
 
 ## Overview
