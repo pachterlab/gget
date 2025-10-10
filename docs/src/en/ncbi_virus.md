@@ -21,9 +21,6 @@ Python: `outfolder="path/to/folder"`
 `--host`
 Filter by host organism name (e.g. 'human', 'Aedes aegypti').
 
-`--host_taxid`
-Filter by host taxonomy ID.
-
 ### Sequence & Gene filters
 
 `--nuc_completeness`
