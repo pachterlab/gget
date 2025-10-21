@@ -11,6 +11,7 @@ import requests      # For HTTP requests to NCBI API
 import zipfile       # For extracting downloaded ZIP files
 from datetime import datetime
 from dateutil import parser  # For flexible date parsing
+import xml.etree.ElementTree as ET # For XML parsing
 
 # Internal imports for logging, unique ID generation, and FASTA parsing
 from .utils import set_up_logger, FastaIO
@@ -1174,7 +1175,7 @@ def check_min_max(min_val, max_val, filtername, date=False):
         logger.debug("Min/max validation passed for %s", filtername)
 
 
-def fetch_genbank_metadata(accessions, batch_size=200, delay=0.5):
+def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_path, batch_size=200, delay=0.5):
     """
     Fetch detailed GenBank metadata for a list of accession numbers using NCBI E-utilities.
     
@@ -1241,6 +1242,7 @@ def fetch_genbank_metadata(accessions, batch_size=200, delay=0.5):
     
     # Dictionary to store all metadata results
     all_metadata = {}
+    all_xml_text = ""
     
     # Split accessions into batches to avoid URL length limits and server overload
     if len(accessions) > batch_size:
@@ -1258,8 +1260,9 @@ def fetch_genbank_metadata(accessions, batch_size=200, delay=0.5):
         
         try:
             # Fetch GenBank XML data using E-utilities efetch
-            batch_metadata = _fetch_genbank_batch(batch_accessions)
+            batch_metadata, batch_xml_text = _fetch_genbank_batch(batch_accessions)
             all_metadata.update(batch_metadata)
+            all_xml_text += batch_xml_text
             
             logger.info("Batch %d: Successfully retrieved metadata for %d accessions", 
                        batch_num, len(batch_metadata))
@@ -1277,7 +1280,13 @@ def fetch_genbank_metadata(accessions, batch_size=200, delay=0.5):
     
     logger.info("GenBank metadata retrieval complete: %d/%d accessions processed", 
                 len(all_metadata), len(accessions))
-    
+
+    if all_xml_text:
+        logger.debug("Saving full GenBank XML and CSV data to: %s and %s", genbank_full_xml_path, genbank_full_csv_path)
+        _save_genbank_xml_and_csv(all_xml_text, genbank_full_xml_path, genbank_full_csv_path)
+    else:
+        logger.warning("No GenBank XML content retrieved to save")
+
     if not all_metadata:
         logger.warning("No GenBank metadata was successfully retrieved")
     
@@ -1307,8 +1316,9 @@ def _fetch_genbank_batch(accessions):
         'id': accession_string,       # Comma-separated accession numbers
         'rettype': 'gb',              # GenBank format
         'retmode': 'xml',             # XML output for structured parsing
-        'tool': 'gget',               # Identify our application
-        'email': 'gget@example.com'   # Required by NCBI guidelines
+        # 'tool': 'gget',               # Identify our application
+        # 'email': 'gget@example.com'   # Required by NCBI guidelines
+        'complexity': 0,               # Requesting the entire blob of data content to be returned
     }
     
     try:
@@ -1318,6 +1328,7 @@ def _fetch_genbank_batch(accessions):
         
         # Make the HTTP request with extended timeout for large batches
         response = requests.get(NCBI_EUTILS_BASE, params=params, timeout=300)
+        logger.debug("explicit URL requested: %s", response.url)
         response.raise_for_status()
         
         # Verify we got XML data
@@ -1328,22 +1339,85 @@ def _fetch_genbank_batch(accessions):
         
         # Parse the GenBank XML and extract metadata
         metadata_dict = _parse_genbank_xml(response.text)
+        # save_genbank_xml_and_csv(response.text, genbank_full_xml_path, genbank_full_csv_path)
         
-        logger.debug("Successfully parsed metadata for %d records", len(metadata_dict))
-        return metadata_dict
+        logger.debug("✅ Successfully parsed metadata for %d records", len(metadata_dict))
+        return metadata_dict, response.text
         
     except requests.exceptions.RequestException as e:
         logger.error("❌ E-utilities request failed: %s", e)
-        raise RuntimeError(f"❌ Failed to fetch GenBank metadata via E-utilities: {e}") from e
+        raise RuntimeError(f"Failed to fetch GenBank metadata via E-utilities: {e}") from e
     except Exception as e:
         logger.error("❌ GenBank XML parsing failed: %s", e)
-        raise RuntimeError(f"❌ Failed to parse GenBank XML response: {e}") from e
+        raise RuntimeError(f"Failed to parse GenBank XML response: {e}") from e
+
+
+def _flatten_xml(element, parent_path=''):
+    """Recursively flatten an XML element into a list of dictionaries."""
+    rows = []
+    tag_path = f"{parent_path}/{element.tag}" if parent_path else element.tag
+    
+    # Base data for this element (include attributes)
+    base = {f"{tag_path}@{k}": v for k, v in element.attrib.items()}
+    
+    # If element has text (and it's not just whitespace)
+    text = (element.text or '').strip()
+    if text:
+        base[f"{tag_path}#text"] = text
+    
+    # If element has no children, return this row
+    if not list(element):
+        rows.append(base)
+        return rows
+    
+    # Otherwise, recursively process children
+    for child in element:
+        for child_row in _flatten_xml(child, tag_path):
+            # Merge base and child data
+            row = base.copy()
+            row.update(child_row)
+            rows.append(row)
+    return rows
+
+
+def _save_genbank_xml_and_csv(xml_content, xml_file_name, csv_file_name):
+    """
+    Save GenBank XML content and flattened CSV representation.
+    
+    Args:
+        xml_content (str): Raw XML content from E-utilities efetch
+    """
+    try:
+        # Parse the XML content
+        root = ET.fromstring(xml_content)
+        logger.debug("✅ XML parsing successful, root element: %s", root.tag)
+
+        logger.debug("Saving GenBank XML content to file: %s", xml_file_name)
+        with open(xml_file_name, "w", encoding="utf-8") as f:
+            f.write(xml_content)
+        logger.debug("✅ Saved GenBank XML content to: %s", xml_file_name)
+
+        logger.debug("Saving the loss-less genbank information into a CSV if the flag is set.")
+        # logger.debug("keep_temp is set to =%s", keep_temp)
+        # if keep_temp:
+        logger.debug("Flattening and saving GenBank XML to CSV: %s", csv_file_name)
+        # Flatten the XML recursively to save as a loss-less CSV file
+        flat_data = _flatten_xml(root)
+        df = pd.DataFrame(flat_data)
+        df.to_csv(csv_file_name, index=False, encoding='utf-8')
+        logger.debug("✅ Saved GenBank data in a loss-less csv file to: %s", csv_file_name)
+        # else:
+        #     logger.debug("Skipping saving GenBank CSV as keep_temp is set to False.")
+
+    except ET.ParseError as e:
+        logger.error("❌ XML parsing failed: %s", e)
+        logger.debug("XML content preview: %s", xml_content[:500])
+        raise RuntimeError(f"Invalid XML format in GenBank response: {e}") from e
 
 
 def _parse_genbank_xml(xml_content):
     """
-    Parse GenBank XML response and extract relevant metadata fields.
-    
+    Parse GenBank XML response and extract high-level metadata fields.
     This function processes the GenBank XML format returned by E-utilities efetch
     and extracts key metadata including collection dates, geographic information,
     host details, publication references, and sequence features.
@@ -1360,13 +1434,11 @@ def _parse_genbank_xml(xml_content):
         information about sequence records.
     """
     
-    import xml.etree.ElementTree as ET
-    
+    # Parse the XML content
     try:
-        # Parse the XML content
         root = ET.fromstring(xml_content)
-        logger.debug("XML parsing successful, root element: %s", root.tag)
-        
+        logger.debug("✅ XML parsing successful, root element: %s", root.tag)
+
     except ET.ParseError as e:
         logger.error("❌ XML parsing failed: %s", e)
         logger.debug("XML content preview: %s", xml_content[:500])
@@ -1466,7 +1538,6 @@ def _parse_genbank_xml(xml_content):
             source_feature = features_data.get('source', {})
             
             metadata['genbank_data']['collection_date'] = source_feature.get('collection_date', '')
-            metadata['genbank_data']['country'] = source_feature.get('country', '')
             metadata['genbank_data']['geographic_location'] = source_feature.get('geo_loc_name', '')
             metadata['genbank_data']['host'] = source_feature.get('host', '')
             metadata['genbank_data']['isolation_source'] = source_feature.get('isolation_source', '')
@@ -1486,7 +1557,6 @@ def _parse_genbank_xml(xml_content):
             # Parse assembly name from comment if present (used in some studies)
             assembly_name = ""
             if comment_text:
-                import re
                 assembly_match = re.search(r'Assembly Name :: (\S+)', comment_text)
                 if assembly_match:
                     assembly_name = assembly_match.group(1)
@@ -1495,18 +1565,18 @@ def _parse_genbank_xml(xml_content):
             # Store the metadata for this accession
             metadata_dict[accession] = metadata
             
-            logger.debug("Extracted GenBank metadata for %s: organism=%s, collection_date=%s, country=%s", 
+            logger.debug("Extracted GenBank metadata for %s: organism=%s, collection_date=%s, geographic_location=%s", 
                         accession, 
                         metadata['genbank_data']['organism'],
                         metadata['genbank_data']['collection_date'],
-                        metadata['genbank_data']['country'])
+                        metadata['genbank_data']['geographic_location'])
             
         except Exception as e:
             logger.warning("❌ Failed to parse GenBank record %s: %s", 
                           accession if 'accession' in locals() else 'unknown', e)
             continue
     
-    logger.info("Successfully parsed GenBank metadata for %d records", len(metadata_dict))
+    logger.info("✅ Successfully parsed GenBank metadata for %d records", len(metadata_dict))
     return metadata_dict
 
 
@@ -1637,7 +1707,7 @@ def save_genbank_metadata_to_csv(genbank_metadata, output_file, virus_metadata=N
             if 'accession' in virus_df.columns:
                 # Merge on accession number
                 df = pd.merge(df, virus_df, on='accession', how='left', suffixes=('_genbank', '_virus'))
-                logger.info("Successfully merged GenBank and virus metadata")
+                logger.info("✅ Successfully merged GenBank and virus metadata")
             else:
                 logger.warning("Cannot merge: virus metadata missing 'accession' column")
         except Exception as e:
@@ -1646,22 +1716,8 @@ def save_genbank_metadata_to_csv(genbank_metadata, output_file, virus_metadata=N
     # Write DataFrame to CSV file
     try:
         df.to_csv(output_file, index=False, encoding='utf-8')
-        logger.info("GenBank metadata saved to: %s", output_file)
-        logger.info("CSV file contains %d rows and %d columns", len(df), len(df.columns))
-        
-        # Log some summary statistics
-        non_empty_collection_dates = df['collection_date'].astype(str).str.strip().ne('').sum()
-        non_empty_countries = df['country'].astype(str).str.strip().ne('').sum()
-        non_empty_hosts = df['host'].astype(str).str.strip().ne('').sum()
-        
-        logger.info("GenBank metadata summary:")
-        logger.info("  Records with collection dates: %d/%d (%.1f%%)", 
-                   non_empty_collection_dates, len(df), 100 * non_empty_collection_dates / len(df))
-        logger.info("  Records with country information: %d/%d (%.1f%%)", 
-                   non_empty_countries, len(df), 100 * non_empty_countries / len(df))
-        logger.info("  Records with host information: %d/%d (%.1f%%)", 
-                   non_empty_hosts, len(df), 100 * non_empty_hosts / len(df))
-        
+        logger.info("✅ Merged GenBank metadata successfully saved to: %s", output_file)
+        logger.info("CSV file contains %d rows and %d columns", len(df), len(df.columns)) 
     except Exception as e:
         logger.error("❌ Failed to save GenBank metadata CSV: %s", e)
         raise RuntimeError(f"❌ Failed to save GenBank metadata to {output_file}: {e}") from e
@@ -1989,6 +2045,7 @@ def ncbi_virus(
     max_collection_date=None,
     annotated=None,
     refseq_only=False,
+    keep_temp=False,
     source_database=None,
     min_release_date=None,
     max_release_date=None,
@@ -2044,6 +2101,8 @@ def ncbi_virus(
         genbank_metadata (bool): Whether to fetch detailed GenBank metadata (default: False)
         genbank_batch_size (int): Batch size for GenBank API requests (default: 200)
         is_sars_cov2 (bool): Flag to indicate if the accession is for SARS-CoV-2, enabling optimized download method (default: False)
+        keep_temp (bool): Flag to indicate if all output files should be saved, including intermediate files (default: False)
+        refseq_only (bool): Whether to restrict to RefSeq sequences only
 
     Returns:
         None: Files are saved to the output directory
@@ -2057,8 +2116,8 @@ def ncbi_virus(
     logger.info("Starting NCBI virus data retrieval process...")
     logger.info("Query parameters: virus='%s', is_accession=%s, outfolder='%s'", 
                 virus, is_accession, outfolder)
-    logger.debug("Applied filters: host=%s, seq_length=(%s-%s), gene_count=(%s-%s), completeness=%s, annotated=%s, refseq_only=%s, lab_passaged=%s, geo_location=%s, submitter_country=%s, collection_date=(%s-%s), source_db=%s, release_date=(%s-%s), protein_count=(%s-%s), peptide_count=(%s-%s), max_ambiguous=%s, has_proteins=%s, proteins_complete=%s, genbank_metadata=%s, genbank_batch_size=%s",
-    host, min_seq_length, max_seq_length, min_gene_count, max_gene_count, nuc_completeness, annotated, refseq_only, lab_passaged, geographic_location, submitter_country, min_collection_date, max_collection_date,source_database, min_release_date, max_release_date, min_protein_count, max_protein_count, min_mature_peptide_count, max_mature_peptide_count, max_ambiguous_chars, has_proteins, proteins_complete, genbank_metadata, genbank_batch_size)
+    logger.debug("Applied filters: host=%s, seq_length=(%s-%s), gene_count=(%s-%s), completeness=%s, annotated=%s, refseq_only=%s, keep_temp=%s, lab_passaged=%s, geo_location=%s, submitter_country=%s, collection_date=(%s-%s), source_db=%s, release_date=(%s-%s), protein_count=(%s-%s), peptide_count=(%s-%s), max_ambiguous=%s, has_proteins=%s, proteins_complete=%s, genbank_metadata=%s, genbank_batch_size=%s",
+    host, min_seq_length, max_seq_length, min_gene_count, max_gene_count, nuc_completeness, annotated, refseq_only, keep_temp, lab_passaged, geographic_location, submitter_country, min_collection_date, max_collection_date,source_database, min_release_date, max_release_date, min_protein_count, max_protein_count, min_mature_peptide_count, max_mature_peptide_count, max_ambiguous_chars, has_proteins, proteins_complete, genbank_metadata, genbank_batch_size)
 
     # SECTION 1: INPUT VALIDATION AND OUTPUT DIRECTORY SETUP
     # Validate and normalize input arguments before proceeding
@@ -2095,6 +2154,11 @@ def ncbi_virus(
     if refseq_only is not None and not isinstance(refseq_only, bool):
         raise TypeError(
             "Argument 'refseq_only' must be a boolean (True or False)."
+        )
+    
+    if keep_temp is not None and not isinstance(keep_temp, bool):
+        raise TypeError(
+            "Argument 'keep_temp' must be a boolean (True or False)."
         )
 
     if is_accession is not None and not isinstance(is_accession, bool):
@@ -2160,10 +2224,12 @@ def ncbi_virus(
 
     logger.info("Input validation completed successfully")
 
+    virus_clean = virus.replace(' ', '_').replace('/', '_')
     # Create and prepare output directory structure
     if outfolder is None:
-        outfolder = os.getcwd()
-        logger.info("No output folder specified, using current working directory: %s", outfolder)
+        currentfolder = os.getcwd()
+        outfolder = f"{currentfolder}/{virus_clean}_{timestamp}"
+        logger.info("No output folder specified, creating a subdirectory in current directory: %s", outfolder)
     else:
         logger.info("Using specified output folder: %s", outfolder)
     
@@ -2287,14 +2353,13 @@ def ncbi_virus(
                     logger.info("Using %d sequences from cached data", len(all_cached_sequences))
                     
                     # Save FASTA sequences
-                    output_fasta_path = os.path.join(outfolder, f"{virus}_sequences.fasta")
+                    output_fasta_path = os.path.join(outfolder, f"{virus_clean}_sequences.fasta")
                     FastaIO.write(all_cached_sequences, output_fasta_path, "fasta")
                     logger.info("Saved cached sequences to: %s", output_fasta_path)
                     
                     # Save metadata CSV
                     if cached_metadata:
-                        output_csv_path = os.path.join(outfolder, f"{virus}_metadata.csv")
-                        import pandas as pd
+                        output_csv_path = os.path.join(outfolder, f"{virus_clean}_metadata.csv")
                         df = pd.DataFrame(cached_metadata)
                         df.to_csv(output_csv_path, index=False)
                         logger.info("Saved cached metadata to: %s", output_csv_path)
@@ -2351,7 +2416,6 @@ def ncbi_virus(
         logger.info("Processed metadata for %d sequences", len(metadata_dict))
 
         # Save the raw API metadata (server-side filtered) before local filtering
-        virus_clean = virus.replace(' ', '_').replace('/', '_')
         output_api_metadata_jsonl = os.path.join(outfolder, f"{virus_clean}_api_metadata.jsonl")
         logger.debug("Writing API metadata to JSONL file: %s", output_api_metadata_jsonl)
         try:
@@ -2507,13 +2571,16 @@ def ncbi_virus(
                 if final_accessions:
                     logger.info("Fetching GenBank metadata for %d sequences...", len(final_accessions))
                     
+                    genbank_full_xml_path = os.path.join(outfolder, f"{virus_clean}_genbank_metadata_full_xml_data.xml")
+                    genbank_full_csv_path = os.path.join(outfolder, f"{virus_clean}_genbank_metadata_full_csv_data.csv")
+
                     # Fetch GenBank metadata
                     genbank_data = fetch_genbank_metadata(
                         accessions=list(set(final_accessions)),  # Remove duplicates
+                        genbank_full_xml_path=genbank_full_xml_path, genbank_full_csv_path=genbank_full_csv_path,
                         batch_size=genbank_batch_size,
                         delay=0.5  # Be respectful to NCBI servers
                     )
-                    
                     if genbank_data:
                         # Save GenBank metadata to CSV
                         genbank_csv_path = os.path.join(outfolder, f"{virus_clean}_genbank_metadata.csv")
@@ -2522,7 +2589,6 @@ def ncbi_virus(
                             output_file=genbank_csv_path,
                             virus_metadata=filtered_metadata_final
                         )
-                        
                         logger.info("✅ GenBank metadata CSV saved: %s (%.2f MB)", 
                                     genbank_csv_path, os.path.getsize(genbank_csv_path) / 1024 / 1024)
                     else:
@@ -2552,13 +2618,16 @@ def ncbi_virus(
             logger.info("")
             logger.info("Output files saved to: %s", outfolder)
             logger.info("  📄 Sequences (FASTA): %s", os.path.basename(output_fasta_file))
-            logger.info("  📊 Metadata (CSV):    %s", os.path.basename(output_metadata_csv))
+            if not genbank_metadata:
+                logger.info("  📊 Metadata (CSV):    %s", os.path.basename(output_metadata_csv))
             logger.info("  🔧 Metadata (JSONL):  %s", os.path.basename(output_metadata_jsonl))
 
             # Check if GenBank metadata CSV was created
-            genbank_csv_path = os.path.join(outfolder, f"{virus_clean}_genbank_metadata.csv")
-            if genbank_metadata and os.path.exists(genbank_csv_path):
-                logger.info("  🧬 GenBank metadata:  %s", os.path.basename(genbank_csv_path))
+            if genbank_metadata and os.path.exists(genbank_csv_path) and os.path.exists(genbank_full_xml_path):
+                logger.info("  📊 Metadata (including Genbank information):  %s", os.path.basename(genbank_csv_path))
+                logger.info("  🧬 GenBank-only full XML:      %s", os.path.basename(genbank_full_xml_path))
+                if keep_temp and os.path.exists(genbank_full_csv_path):
+                    logger.info("  🧬 GenBank-only full CSV (readable XML format):      %s", os.path.basename(genbank_full_csv_path))
 
             logger.info("=" * 60)
         else:
@@ -2596,7 +2665,6 @@ def ncbi_virus(
                 logger.error("")
                 
                 # Build alternative command
-                virus_clean = virus.replace(' ', '_').replace('/', '_')
                 cmd_parts = [f"gget.ncbi_virus('{virus}'"]
                 
                 # Add all non-problematic filters
@@ -2650,7 +2718,6 @@ def ncbi_virus(
                 logger.error("")
                 
                 # Build alternative command with host filter
-                virus_clean = virus.replace(' ', '_').replace('/', '_')
                 cmd_parts = [f"gget.ncbi_virus('{virus}'", "host='human'"]
                 
                 # Add existing filters
@@ -2682,7 +2749,6 @@ def ncbi_virus(
             logger.error("An error occurred during virus data processing: %s", e)
             logger.error("Error type: %s", type(e).__name__)
             if logger.getEffectiveLevel() <= logging.DEBUG:
-                import traceback
                 logger.debug("Full traceback:\n%s", traceback.format_exc())
         
         raise
@@ -2691,13 +2757,22 @@ def ncbi_virus(
         # SECTION 10: CLEANUP
         # Always clean up temporary files, regardless of success or failure
         logger.debug("Performing cleanup...")
-        if os.path.exists(temp_dir):
+        if os.path.exists(temp_dir) and keep_temp is False and os.path.exists(output_metadata_csv) and os.path.exists(output_api_metadata_jsonl):
             try:
-                import shutil
                 shutil.rmtree(temp_dir)
+                os.remove(output_api_metadata_jsonl)
+                if genbank_metadata:
+                    os.remove(output_metadata_csv)
                 logger.debug("✅ Cleaned up temporary directory: %s", temp_dir)
             except Exception as e:
                 logger.warning("❌ Failed to clean up temporary directory %s: %s", temp_dir, e)
+        elif keep_temp:
+            logger.debug("Preserving temporary directory as per user request: %s", temp_dir)
+            shutil.move(output_api_metadata_jsonl, os.path.join(temp_dir, os.path.basename(output_api_metadata_jsonl)))
+            if genbank_metadata and os.path.exists(genbank_csv_path):
+                shutil.move(output_metadata_csv, os.path.join(temp_dir, os.path.basename(output_metadata_csv)))
+                
+                
         
         logger.info("NCBI virus data retrieval process completed.")
 
@@ -2787,7 +2862,7 @@ def fetch_virus_with_genbank_metadata(
         ncbi_virus(
             virus=virus,
             accession=accession,
-            outfolder=virus_temp_dir,  # Note: parameter name is 'outfolder' not 'outdir'
+            outfolder=virus_temp_dir,
             host=host,
             geographic_location=geographic_location,
             annotated=annotated,
@@ -2811,7 +2886,7 @@ def fetch_virus_with_genbank_metadata(
             elif filename.endswith('_metadata.jsonl'):
                 expected_jsonl = os.path.join(virus_temp_dir, filename)
         
-        if not expected_fasta or not expected_csv:
+        if not expected_fasta or not expected_csv or not expected_jsonl:
             available_files = os.listdir(virus_temp_dir) if os.path.exists(virus_temp_dir) else []
             logger.error("Required output files not found in %s", virus_temp_dir)
             logger.error("Available files: %s", available_files)
@@ -2823,7 +2898,6 @@ def fetch_virus_with_genbank_metadata(
         
         # Read metadata from CSV file (convert back to list of dictionaries)
         logger.info("Reading metadata from: %s", expected_csv)
-        import pandas as pd
         metadata_df = pd.read_csv(expected_csv)
         filtered_metadata = metadata_df.to_dict('records')
         
@@ -2896,7 +2970,6 @@ def fetch_virus_with_genbank_metadata(
         logger.error("Error occurred during integrated virus + GenBank retrieval")
         
         if logger.getEffectiveLevel() <= logging.DEBUG:
-            import traceback
             logger.debug("Full traceback:\n%s", traceback.format_exc())
         
         # Provide helpful troubleshooting guidance
