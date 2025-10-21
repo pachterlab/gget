@@ -2454,6 +2454,13 @@ def main():
         help="Only fetch RefSeq genomes. If not set, both RefSeq and GenBank genomes will be fetched.",
     )
     parser_ncbi_virus.add_argument(
+        "--keep_temp",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Save all output files, including intermediate files.",
+    )
+    parser_ncbi_virus.add_argument(
         "--is_sars_cov2",
         default=False,
         action="store_true",
@@ -3526,6 +3533,7 @@ def main():
             max_collection_date=args.max_collection_date,
             annotated=args.annotated,
             refseq_only=args.refseq_only,
+            keep_temp=args.keep_temp,
             is_sars_cov2=args.is_sars_cov2,
             source_database=args.source_database,
             min_release_date=args.min_release_date,
