@@ -1262,14 +1262,6 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
             # Fetch GenBank XML data using E-utilities efetch
             batch_metadata, batch_xml_text = _fetch_genbank_batch(batch_accessions)
             all_metadata.update(batch_metadata)
-            # all_xml_text += batch_xml_text + "\n"
-
-            # with open("all_batches.xml", "w", encoding="utf-8") as f:
-            #     f.write("<AllGBSets>\n")
-            #     for line in batch_xml_text.splitlines():
-            #         if not (line.strip().startswith("<?xml") or line.strip().startswith("<!DOCTYPE")):
-            #             f.write(line + "\n")
-            #     f.write("</AllGBSets>\n")
 
             # Clean XML before concatenating
             cleaned_lines = []
@@ -1370,34 +1362,6 @@ def _fetch_genbank_batch(accessions):
     except Exception as e:
         logger.error("❌ GenBank XML parsing failed: %s", e)
         raise RuntimeError(f"Failed to parse GenBank XML response: {e}") from e
-
-
-def _flatten_xml(element, parent_path=''):
-    """Recursively flatten an XML element into a list of dictionaries."""
-    rows = []
-    tag_path = f"{parent_path}/{element.tag}" if parent_path else element.tag
-    
-    # Base data for this element (include attributes)
-    base = {f"{tag_path}@{k}": v for k, v in element.attrib.items()}
-    
-    # If element has text (and it's not just whitespace)
-    text = (element.text or '').strip()
-    if text:
-        base[f"{tag_path}#text"] = text
-    
-    # If element has no children, return this row
-    if not list(element):
-        rows.append(base)
-        return rows
-    
-    # Otherwise, recursively process children
-    for child in element:
-        for child_row in _flatten_xml(child, tag_path):
-            # Merge base and child data
-            row = base.copy()
-            row.update(child_row)
-            rows.append(row)
-    return rows
 
 
 def _local_name(tag):
@@ -1508,15 +1472,7 @@ def _save_genbank_xml_and_csv(xml_content, xml_file_name, csv_file_name):
         xml_content (str): Raw XML content from E-utilities efetch
     """
     try:
-        # Parse the XML content
-        # logger.debug("HEEEEEEEEERRRREEEEEE..................Parsing GenBank XML content for saving")
-        # logger.debug(xml_content)
-        # logger.debug("............................. ................ this is next: ET.fromstring (xml_content).............................. .........................")
-        # logger.debug(ET.fromstring(xml_content))
-
-        # logger.debug("............................making root next ...........................................................................")
         root = ET.fromstring(xml_content)
-        # logger.debug(root)
         logger.debug("✅ XML parsing successful, root element: %s", root.tag)
 
         logger.debug("Saving GenBank XML content to file: %s", xml_file_name)
@@ -1525,20 +1481,9 @@ def _save_genbank_xml_and_csv(xml_content, xml_file_name, csv_file_name):
         logger.debug("✅ Saved GenBank XML content to: %s", xml_file_name)
 
         logger.debug("Saving the loss-less genbank information into a CSV if the flag is set.")
-        # logger.debug("keep_temp is set to =%s", keep_temp)
-        # if keep_temp:
         logger.debug("Reformatting to extract important data from GenBank XML to save as CSV: %s", csv_file_name)
-        # Flatten the XML recursively to save as a loss-less CSV file
-        # flat_data = _flatten_xml(root)
-
         _genbank_xml_to_csv(xml_file_name, csv_file_name)
-
-        # df = pd.DataFrame(flat_data)
-        # csv_file_name = csv_file_name + "_old.csv"
-        # df.to_csv(csv_file_name, index=False, encoding='utf-8')
         logger.debug("✅ Saved GenBank data in a loss-less csv file to: %s", csv_file_name)
-        # else:
-        #     logger.debug("Skipping saving GenBank CSV as keep_temp is set to False.")
 
     except ET.ParseError as e:
         logger.error("❌ XML parsing failed: %s", e)
@@ -2524,9 +2469,10 @@ def ncbi_virus(
 
     # File names which will be referenced later
     genbank_csv_path = os.path.join(outfolder, f"{virus_clean}_genbank_metadata.csv")
-    genbank_full_xml_path = os.path.join(outfolder, f"{virus_clean}_genbank_metadata_full_xml_data.xml")
-    genbank_full_csv_path = os.path.join(outfolder, f"{virus_clean}_genbank_metadata_full_csv_data.csv")
-    
+    genbank_full_xml_path = os.path.join(outfolder, f"{virus_clean}_genbank_metadata_full.xml")
+    genbank_full_csv_path = os.path.join(outfolder, f"{virus_clean}_genbank_metadata_full.csv")
+    output_api_metadata_jsonl = os.path.join(outfolder, f"{virus_clean}_api_metadata.jsonl")
+
     try:
     # SECTION 3: METADATA RETRIEVAL WHILE APPLYING SERVER-SIDE FILTERS
         logger.info("=" * 60)
@@ -2562,7 +2508,6 @@ def ncbi_virus(
         logger.info("Processed metadata for %d sequences", len(metadata_dict))
 
         # Save the raw API metadata (server-side filtered) before local filtering
-        output_api_metadata_jsonl = os.path.join(outfolder, f"{virus_clean}_api_metadata.jsonl")
         logger.debug("Writing API metadata to JSONL file: %s", output_api_metadata_jsonl)
         try:
             with open(output_api_metadata_jsonl, "w", encoding="utf-8") as f:
@@ -2772,7 +2717,7 @@ def ncbi_virus(
             if genbank_metadata and os.path.exists(genbank_csv_path) and os.path.exists(genbank_full_xml_path):
                 logger.info("  📊 Metadata (including Genbank information):  %s", os.path.basename(genbank_csv_path))
                 logger.info("  🧬 GenBank-only full XML:      %s", os.path.basename(genbank_full_xml_path))
-                if keep_temp and os.path.exists(genbank_full_csv_path):
+                if os.path.exists(genbank_full_csv_path):
                     logger.info("  🧬 GenBank-only full CSV (readable XML format):      %s", os.path.basename(genbank_full_csv_path))
 
             logger.info("=" * 60)
@@ -2913,7 +2858,7 @@ def ncbi_virus(
                 logger.debug("✅ Cleaned up temporary directory: %s", temp_dir)
             except Exception as e:
                 logger.warning("❌ Failed to clean up temporary directory %s: %s", temp_dir, e)
-        elif keep_temp:
+        elif keep_temp and os.path.exists(output_api_metadata_jsonl):
             logger.debug("Preserving temporary directory as per user request: %s", temp_dir)
             shutil.move(output_api_metadata_jsonl, os.path.join(temp_dir, os.path.basename(output_api_metadata_jsonl)))
             if genbank_metadata and os.path.exists(genbank_csv_path):
