@@ -2347,7 +2347,7 @@ def main():
         default=False,
         action="store_true",
         required=False,
-        help="Treat the virus argument as an accession number instead of a taxon name.",
+        help="Treat the virus argument as an accession number instead of a taxon name, e.g. 'NM_001744', 'NP_001735'.",
     )
     parser_ncbi_virus.add_argument(
         "-o",
@@ -2454,6 +2454,7 @@ def main():
         help="Only fetch RefSeq genomes. If not set, both RefSeq and GenBank genomes will be fetched.",
     )
     parser_ncbi_virus.add_argument(
+        "-kt",
         "--keep_temp",
         default=False,
         action="store_true",
@@ -2523,6 +2524,7 @@ def main():
         help="Virus lineage filter (e.g., for SARS-CoV-2: 'B.1.1.7', 'P.1').",
     )
     parser_ncbi_virus.add_argument(
+        "-g",
         "--genbank_metadata",
         default=False,
         action="store_true",
