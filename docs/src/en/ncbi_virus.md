@@ -44,8 +44,18 @@ Filter by minimum number of proteins.
 `--max_protein_count`
 Filter by maximum number of proteins.
 
+`--min_mature_peptide_count`
+Filter by minimum number of mature peptides.
+
+`--max_mature_peptide_count`
+Filter by maximum number of mature peptides.
+
 `--max_ambiguous_chars`
 Filter by maximum number of ambiguous nucleotide characters (N's).
+
+`--has_proteins`
+Filter for sequences containing specific proteins or genes (e.g. 'spike', 'ORF1ab'). Can be a single protein name or a list of protein names.
+Python: `has_proteins="spike"` or `has_proteins=["spike", "ORF1ab"]`
 
 ### Date filters
 
@@ -69,6 +79,9 @@ Filter by geographic location of sample collection (e.g. 'USA', 'Asia').
 `--submitter_country`
 Filter by the country of the sequence submitter.
 
+`--source_database`
+Filter by source database. One of: 'genbank' or 'refseq'.
+
 ### SARS-CoV-2 specific filters
 
 `--lineage`
@@ -82,10 +95,17 @@ Flag to indicate that the `virus` positional argument is an accession number.
 Flag to limit search to RefSeq genomes only (higher quality, curated sequences).
 
 `--is_sars_cov2`
-Flag to use NCBI's optimized cached data packages for a SARS-CoV-2 accession number. This provides faster and more reliable downloads.
+Flag to use NCBI's optimized cached data packages for a SARS-CoV-2 query. This provides faster and more reliable downloads. The system can auto-detect SARS-CoV-2 queries, but this flag ensures the optimization is used.
+
+`--is_alphainfluenza`
+Flag to use NCBI's optimized cached data packages for an Alphainfluenza (Influenza A virus) query. This provides faster and more reliable downloads for large Influenza A datasets. The system can auto-detect Alphainfluenza queries, but this flag ensures the optimization is used.
 
 `--genbank_metadata`
 Flag to fetch and save additional detailed metadata from GenBank, including collection dates, host details, and publication references, in a separate `_genbank_metadata.csv` file.
+
+`--genbank_batch_size`
+Batch size for GenBank metadata API requests. Default: 200. Larger batches are faster but may be more prone to timeouts.
+Python: `genbank_batch_size=200`
 
 `--annotated`
 Flag to only return sequences that have been annotated with gene/protein information.
@@ -95,6 +115,9 @@ In Python, set `lab_passaged=True` to fetch only lab-passaged samples, or `lab_p
 
 `--proteins_complete`
 Flag to only include sequences where all annotated proteins are complete.
+
+`--keep_temp`
+Flag to keep all intermediate/temporary files generated during processing. By default, only final output files are retained.
 
 `-q` `--quiet`
 Command-line only. Prevents progress information from being displayed.
@@ -138,6 +161,20 @@ gget.ncbi_virus("NC_045512.2", accession=True, is_sars_cov2=True)
 ```
 
 → Uses the optimized download method for SARS-CoV-2 to fetch the reference genome and its metadata.
+
+<br><br>
+**Download Influenza A virus sequences with optimized caching:**
+
+```bash
+gget ncbi_virus "Influenza A virus" --host human --nuc_completeness complete --is_alphainfluenza
+```
+
+```python
+# Python
+gget.ncbi_virus("Influenza A virus", host="human", nuc_completeness="complete", is_alphainfluenza=True)
+```
+
+→ Uses NCBI's cached data packages for Alphainfluenza to download complete Influenza A genomes from human hosts much faster than the standard API method.
 
 #### [More examples](https://github.com/pachterlab/gget_examples)
 
@@ -226,7 +263,7 @@ The `gget.ncbi_virus()` function implements an optimized 6-step workflow for ret
   - Check filter parameter ranges and formats
   - Set up output directory structure
   - Configure logging based on verbosity level
-  - Check for SARS-CoV-2 optimization opportunities
+  - Check for SARS-CoV-2 or Alphainfluenza optimization opportunities
 
 ### Step 2: Metadata Retrieval
 - **Function**: `fetch_virus_metadata()`
@@ -283,7 +320,12 @@ The `gget.ncbi_virus()` function implements an optimized 6-step workflow for ret
 ncbi_virus()
 ├── is_sars_cov2_query()
 │   └── SARS-CoV-2 detection logic
+├── is_alphainfluenza_query()
+│   └── Alphainfluenza detection logic
 ├── download_sars_cov2_optimized()  [For SARS-CoV-2 queries]
+│   ├── NCBI datasets CLI calls
+│   └── Cached package downloads
+├── download_alphainfluenza_optimized()  [For Alphainfluenza queries]
 │   ├── NCBI datasets CLI calls
 │   └── Cached package downloads
 ├── fetch_virus_metadata()
@@ -331,10 +373,11 @@ ncbi_virus()
 - Stream handling for large downloads
 - Rate limiting and retry mechanisms
 
-### 4. **SARS-CoV-2 Optimization**
-- Special handling for SARS-CoV-2 queries using NCBI's cached data packages
-- Automatic detection and fallback to standard API
-- Optimized GenBank metadata retrieval for SARS-CoV-2
+### 4. **Optimized Cached Downloads**
+- Special handling for SARS-CoV-2 and Alphainfluenza queries using NCBI's cached data packages
+- Automatic detection or explicit flags (`--is_sars_cov2`, `--is_alphainfluenza`)
+- Hierarchical fallback strategies to standard API if cached download fails
+- Significantly faster downloads for large datasets
 
 ### 5. **Efficient Data Structures**
 - Accession-based dictionaries for O(1) lookups
