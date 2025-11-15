@@ -2339,6 +2339,8 @@ def main():
     parser_ncbi_virus.add_argument(
         "virus",
         type=str,
+        nargs="?",
+        default=None,
         help="Virus taxon name/ID to query, e.g. 'SARS-CoV-2', 'covid', 'influenza', or taxon ID '2697049'.",
     )
     parser_ncbi_virus.add_argument(
@@ -2469,6 +2471,13 @@ def main():
         help="When using SARS-CoV-2 accessions, use this tag so the code optimizes in using the correct SARS-CoV-2 pathway.",
     )
     parser_ncbi_virus.add_argument(
+        "--is_alphainfluenza",
+        default=False,
+        action="store_true",
+        required=False,
+        help="When querying Alphainfluenza (Influenza A), use this tag so the code optimizes by using NCBI's cached data packages for faster downloads.",
+    )
+    parser_ncbi_virus.add_argument(
         "--source_database",
         type=str,
         choices=["genbank", "refseq"],
@@ -2530,6 +2539,13 @@ def main():
         action="store_true",
         required=False,
         help="Also fetch detailed GenBank metadata for the sequences that pass all filters. The metadata will be saved in a separate CSV file.",
+    )
+    parser_ncbi_virus.add_argument(
+        "--download_all_accessions",
+        default=False,
+        action="store_true",
+        required=False,
+        help=argparse.SUPPRESS,
     )
     parser_ncbi_virus.add_argument(
         "--genbank_batch_size",
@@ -3537,6 +3553,7 @@ def main():
             refseq_only=args.refseq_only,
             keep_temp=args.keep_temp,
             is_sars_cov2=args.is_sars_cov2,
+            is_alphainfluenza=args.is_alphainfluenza,
             source_database=args.source_database,
             min_release_date=args.min_release_date,
             max_release_date=args.max_release_date,
@@ -3548,4 +3565,5 @@ def main():
             lineage=args.lineage,
             genbank_metadata=args.genbank_metadata,
             genbank_batch_size=args.genbank_batch_size,
+            download_all_accessions=args.download_all_accessions,
         )
