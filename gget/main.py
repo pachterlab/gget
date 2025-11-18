@@ -2545,7 +2545,7 @@ def main():
         default=False,
         action="store_true",
         required=False,
-        help=argparse.SUPPRESS,
+        help="Download ALL virus accessions from NCBI (entire Viruses taxonomy). WARNING: This is an extremely large dataset that can take many hours and require significant disk space. When set, the virus argument is ignored.",
     )
     parser_ncbi_virus.add_argument(
         "--genbank_batch_size",
