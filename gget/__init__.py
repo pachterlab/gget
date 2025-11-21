@@ -19,8 +19,10 @@ from .gget_mutate import mutate
 from .gget_opentargets import opentargets
 from .gget_cbio import cbio_plot, cbio_search
 from .gget_bgee import bgee
+from .gget_8cubedb import specificity, psi_block, gene_expression
 
 import logging
+
 # Mute numexpr threads info
 logging.getLogger("numexpr").setLevel(logging.WARNING)
 
