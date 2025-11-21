@@ -473,16 +473,112 @@
 #     assert result == expected_result, f"Expected {expected_result}, but got {result}"
 
 
-# # def test_opentargets_drugs_no_limit():
-# #     result = gget.opentargets(
-# #         ensembl_id = "ENSG00000169194",
-# #         resource = "drugs",
-# #     )
+# def test_opentargets_drugs_no_limit():
+#     result = gget.opentargets(
+#         ensembl_id = "ENSG00000169194",
+#         resource = "drugs",
+#     )
 
-# #     if isinstance(result, pd.DataFrame):
-# #         result = result.dropna(axis=1).values.tolist()
+#     if isinstance(result, pd.DataFrame):
+#         result = result.dropna(axis=1).values.tolist()
 
-# #     result = json.dumps(result)
-# #     result = hashlib.md5(result.encode()).hexdigest()
+#     result = json.dumps(result)
+#     result = hashlib.md5(result.encode()).hexdigest()
 
-# #     assert result == '872ca75cba98a2383e4fd116682ffe2b'
+#     assert result == '872ca75cba98a2383e4fd116682ffe2b'
+
+
+
+# def test_opentargets_depmap_filter():
+#     result = gget.opentargets(
+#         ensembl_id = "ENSG00000169194",
+#         resource = "depmap",
+#         filters = {"tissue_id": "UBERON_0002367"},
+#         limit = 2
+#     )
+
+#     if isinstance(result, pd.DataFrame):
+#         result = result.dropna(axis=1).values.tolist()
+
+#     expected_result = [
+#         [
+#             "ACH-000979",
+#             0.034343917,
+#             -0.14336789,
+#             "UBERON_0002367",
+#             "prostate gland",
+#             "DU 145",
+#             "SIDM00120",
+#             "Prostate Adenocarcinoma"
+#         ],
+#         [
+#             "ACH-000115",
+#             0.03794162,
+#             -0.082284026,
+#             "UBERON_0002367",
+#             "prostate gland",
+#             "VCaP",
+#             "SIDM01077",
+#             "Prostate Adenocarcinoma"
+#         ]
+#     ]
+
+#     assert result == expected_result, f"Expected {expected_result}, but got {result}"
+
+
+# def test_opentargets_interactions_simple_filter():
+#     result = gget.opentargets(
+#         ensembl_id="ENSG00000169194",
+#         resource="interactions",
+#         filters={"protein_a_id": "P35225", "gene_b_id": "ENSG00000077238"},
+#     )
+
+#     if isinstance(result, pd.DataFrame):
+#         result = result.dropna(axis=1).values.tolist()
+
+#     expected_result = [
+#         [
+#             1,
+#             "intact",
+#             "P35225",
+#             "ENSG00000169194",
+#             "IL13",
+#             "unspecified role",
+#             9606,
+#             "P24394",
+#             "ENSG00000077238",
+#             "IL4R",
+#             "unspecified role",
+#             9606
+#         ],
+#         [
+#             3,
+#             "reactome",
+#             "P35225",
+#             "ENSG00000169194",
+#             "IL13",
+#             "unspecified role",
+#             9606,
+#             "P24394",
+#             "ENSG00000077238",
+#             "IL4R",
+#             "unspecified role",
+#             9606
+#         ],
+#         [
+#             2,
+#             "signor",
+#             "P35225",
+#             "ENSG00000169194",
+#             "IL13",
+#             "regulator",
+#             9606,
+#             "P24394",
+#             "ENSG00000077238",
+#             "IL4R",
+#             "regulator target",
+#             9606
+#         ]
+#     ]
+
+#     assert result == expected_result, f"Expected {expected_result}, but got {result}"

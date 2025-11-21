@@ -1,4 +1,6 @@
 ## ✨ ¡Lo más reciente!  
+Ayuda a mantener _gget_: [![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/lauraluebbert)
+
 **Versión ≥ 0.29.3** (11 de septiembre de 2025):  
 - [`gget blat`](blat.md): Actualiza la solicitud a la API para los nuevos permisos.
 - [`gget pdb`](pdb.md): Agregado el sitio web de `wwpdb`, retrocede a `rcsb` si las solicitudes fallan.  
