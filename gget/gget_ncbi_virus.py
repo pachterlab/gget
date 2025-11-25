@@ -316,6 +316,247 @@ def is_alphainfluenza_query(virus, accession=False):
     return False
 
 
+def _monitor_subprocess_with_progress(process, cmd, timeout=1800, progress_timeout=300):
+    """
+    Monitor a subprocess with progress tracking and timeout handling.
+    
+    This helper function monitors a running subprocess, checking for progress
+    indicators in stderr output. It implements a two-tier timeout strategy:
+    - Overall timeout: Maximum total execution time
+    - Progress timeout: Maximum time without seeing progress
+    
+    Args:
+        process: subprocess.Popen instance to monitor
+        cmd (list): Command that was executed (for error reporting)
+        timeout (int): Maximum total execution time in seconds (default: 1800 = 30 min)
+        progress_timeout (int): Maximum time without progress in seconds (default: 300 = 5 min)
+        
+    Returns:
+        subprocess.CompletedProcess: Result of the completed process
+        
+    Raises:
+        subprocess.TimeoutExpired: If timeout conditions are met
+    """
+    start_time = time.time()
+    last_progress = start_time
+    
+    while True:
+        # Check if process has finished
+        retcode = process.poll()
+        if retcode is not None:
+            break
+            
+        # Read stderr without blocking
+        stderr = process.stderr.readline()
+        if stderr:
+            # Common progress indicators in datasets tool output
+            progress_indicators = ['%', '=', 'downloading', 'fetching', 'MB', 'GB', 'bytes']
+            
+            # Log the stderr for debugging
+            logger.debug("Progress output: %s", stderr.strip())
+            
+            # If we see any progress indicator, update the last_progress time
+            if any(indicator.lower() in stderr.lower() for indicator in progress_indicators):
+                last_progress = time.time()
+                logger.debug("Progress detected, updating last_progress time")
+        
+        # Check timeout conditions:
+        # 1. Less than total timeout, continue
+        # 2. If more than total timeout but progress in last progress_timeout, continue
+        # 3. Otherwise, timeout
+        current_time = time.time()
+        total_time = current_time - start_time
+        time_since_progress = current_time - last_progress
+        
+        if total_time > timeout and time_since_progress > progress_timeout:
+            process.kill()
+            raise subprocess.TimeoutExpired(cmd, timeout)
+        
+        time.sleep(0.1)  # Prevent CPU spin
+    
+    stdout, stderr = process.communicate()
+    return subprocess.CompletedProcess(
+        args=cmd,
+        returncode=retcode,
+        stdout=stdout,
+        stderr=stderr
+    )
+
+
+def _download_optimized_cached(
+    virus_type,
+    strategies,
+    zip_path,
+    outdir,
+    use_accession=False,
+    accession=None,
+    requested_filters=None
+):
+    """
+    Execute optimized cached download strategies with fallback.
+    
+    This is a generic implementation of the hierarchical fallback download pattern
+    used for both SARS-CoV-2 and Alphainfluenza. It tries each strategy in order
+    until one succeeds, with comprehensive error handling and logging.
+    
+    Args:
+        virus_type (str): Type of virus for error messages ('SARS-CoV-2', 'Alphainfluenza', etc.)
+        strategies (list): List of tuples (strategy_name, cmd, applied_filters)
+        zip_path (str): Path where ZIP file should be saved
+        outdir (str): Output directory for download
+        use_accession (bool): Whether using accession-based download
+        accession (str): Accession number if using accession-based download
+        requested_filters (dict): Dictionary of originally requested filters for comparison
+        
+    Returns:
+        str: Path to the successfully downloaded ZIP file
+        
+    Raises:
+        RuntimeError: If all strategies fail or datasets CLI is not available
+        
+    Example:
+        >>> strategies = [
+        ...     ("Strategy 1 (specific)", ["datasets", "download", ...], ["complete-only"]),
+        ...     ("Strategy 2 (general)", ["datasets", "download", ...], [])
+        ... ]
+        >>> zip_file = _download_optimized_cached(
+        ...     "SARS-CoV-2", strategies, "/path/to/output.zip", "/output/dir"
+        ... )
+    """
+    
+    last_error = None
+    
+    for strategy_name, cmd, applied_filters in strategies:
+        logger.info("🔄 Trying %s...", strategy_name)
+        
+        if applied_filters:
+            logger.debug("Applied filters: %s", ", ".join(applied_filters))
+        else:
+            logger.debug("No specific filters applied")
+        
+        logger.debug("Command: %s", " ".join(cmd))
+        
+        try:
+            # Log the exact command being executed
+            cmd_str = " ".join(cmd)
+            logger.info("📋 Executing command: %s", cmd_str)
+
+            # Start subprocess for progress monitoring
+            # Note: We don't use cwd=outdir because the command already includes full paths
+            process = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True
+            )
+            
+            # Monitor progress with timeout handling using helper function
+            result = _monitor_subprocess_with_progress(process, cmd)
+            
+            # Check if the command was successful
+            if result.returncode == 0 and os.path.exists(zip_path):
+                file_size = os.path.getsize(zip_path)
+                logger.info("✅ %s successful: %s (%.2f MB)", 
+                           strategy_name, os.path.basename(zip_path), file_size / 1024 / 1024)
+                
+                # Log any important output from the datasets CLI
+                if result.stdout:
+                    logger.debug("datasets CLI output: %s", result.stdout.strip())
+                
+                # Check which filters from the original request weren't applied in this strategy
+                if requested_filters:
+                    requested_filter_list = []
+                    for key, value in requested_filters.items():
+                        if value is not None and value is not False:
+                            if isinstance(value, bool):
+                                requested_filter_list.append(key)
+                            else:
+                                requested_filter_list.append(f"{key}={value}")
+                    
+                    missing_filters = [f for f in requested_filter_list if f not in applied_filters]
+                    if missing_filters:
+                        logger.warning("⚠️ Some requested filters were not applied in successful strategy:")
+                        logger.warning("   Filters applied: %s", ", ".join(applied_filters) if applied_filters else "none")
+                        logger.warning("   Filters missing: %s", ", ".join(missing_filters))
+                        logger.warning("   These filters will need to be applied through post-processing")
+                
+                return zip_path
+            else:
+                # Strategy failed, prepare error message
+                error_msg = f"❌ {strategy_name} failed with return code {result.returncode}"
+                if result.stderr:
+                    error_msg += f": {result.stderr.strip()}"
+                logger.warning("❌ %s", error_msg)
+                last_error = error_msg
+                
+                # If this was an accession download that failed, provide specific guidance
+                if use_accession:
+                    error_msg = (
+                        f"❌ Failed to download {virus_type} sequence for accession '{accession}'. "
+                        f"Please verify that this is a valid {virus_type} accession number. "
+                        f"If you're not sure, try without the is_{virus_type.lower().replace('-', '_').replace(' ', '_')} flag."
+                    )
+                    raise RuntimeError(error_msg)
+                
+                # Clean up failed download file if it exists
+                if os.path.exists(zip_path):
+                    try:
+                        os.remove(zip_path)
+                    except OSError:
+                        pass
+                continue # Try next strategy
+                
+        except subprocess.TimeoutExpired:
+            error_msg = f"{strategy_name} timed out after 30 minutes"
+            logger.warning("❌ %s", error_msg)
+            last_error = error_msg
+            continue
+            
+        except subprocess.CalledProcessError as e:
+            error_msg = f"{strategy_name} execution failed: {e}"
+            logger.warning("❌ %s", error_msg)
+            last_error = error_msg
+            continue
+            
+        except FileNotFoundError as e:
+            # datasets CLI not found - this is a critical error, don't continue
+            raise RuntimeError(
+                "datasets CLI not found. Please install NCBI datasets CLI tools. "
+                "Installation guide: https://www.ncbi.nlm.nih.gov/datasets/docs/v2/command-line-tools/download-and-install/"
+            ) from e
+            
+        except Exception as e:
+            error_msg = f"{strategy_name} unexpected error: {e}"
+            logger.warning("❌ %s", error_msg)
+            last_error = error_msg
+            continue
+    
+    # All strategies failed
+    logger.warning("🚨 All cached download strategies failed. Last error: %s", last_error)
+    
+    # Provide helpful guidance based on virus type
+    example_taxon = "SARS-CoV-2" if "sars" in virus_type.lower() else virus_type
+    guidance_messages = [
+        "🔧 TROUBLESHOOTING SUGGESTIONS:",
+        "1. Check your internet connection",
+        "2. Verify datasets CLI is properly installed and updated",
+        "3. Try running the command manually to see detailed error messages:",
+        f"   datasets download virus genome taxon \"{example_taxon}\" --filename test.zip",
+        "4. NCBI servers may be temporarily unavailable - try again later",
+        f"5. Consider using the general API method by removing {virus_type} specific terms from your query"
+    ]
+    
+    for msg in guidance_messages:
+        logger.info(msg)
+    
+    # Raise error with the last failure details
+    raise RuntimeError(
+        f"❌ All {virus_type} cached download strategies failed. "
+        f"Last error: {last_error}. "
+        f"Consider using the general API method instead."
+    )
+
+
 def download_sars_cov2_optimized(
     host=None,
     complete_only=None,
@@ -443,177 +684,22 @@ def download_sars_cov2_optimized(
     cmd6 = ["datasets", "download", "virus", "genome", "taxon", "SARS-CoV-2", "--filename", zip_path]
     strategies.append(("Strategy 6 (general package)", cmd6, []))
 
-    # Try each strategy in order
-    last_error = None
+    # Use the common download function with all strategies
+    requested_filters_dict = {
+        'complete-only': complete_only,
+        'lineage': lineage,
+        'host': host,
+        'annotated': annotated
+    }
     
-    for strategy_name, cmd, applied_filters in strategies:
-        logger.info("🔄 Trying %s...", strategy_name)
-        
-        if applied_filters:
-            logger.debug("Applied filters: %s", ", ".join(applied_filters))
-        else:
-            logger.debug("No specific filters applied")
-        
-        logger.debug("Command: %s", " ".join(cmd))
-        
-        try:
-            # Log the exact command being executed
-            cmd_str = " ".join(cmd)
-            logger.info("📋 Executing command: %s", cmd_str)
-
-            # Start with capturing just stderr to check progress
-            process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                cwd=outdir
-            )
-            
-            # Track time and last progress
-            start_time = time.time()
-            last_progress = start_time
-            last_stderr = ""
-            
-            while True:
-                # Check if process has finished
-                retcode = process.poll()
-                if retcode is not None:
-                    break
-                    
-                # Read stderr without blocking
-                stderr = process.stderr.readline()
-                if stderr:
-                    last_stderr = stderr
-                    # Common progress indicators in datasets tool output:
-                    progress_indicators = ['%', '=', 'downloading', 'fetching', 'MB', 'GB', 'bytes']
-                    
-                    # Log the stderr for debugging
-                    logger.debug("Progress output: %s", stderr.strip())
-                    
-                    # If we see any progress indicator, update the last_progress time
-                    if any(indicator.lower() in stderr.lower() for indicator in progress_indicators):
-                        last_progress = time.time()
-                        logger.debug("Progress detected, updating last_progress time")
-                
-                # Check timeout conditions:
-                # 1. Less than 30 minutes total time, continue
-                # 2. If more than 30 mins but progress in last 5 mins, continue
-                # 3. Otherwise, timeout
-                current_time = time.time()
-                total_time = current_time - start_time
-                time_since_progress = current_time - last_progress
-                
-                if total_time > 1800 and time_since_progress > 300:  # 30 mins total and 5 mins no progress
-                    process.kill()
-                    raise subprocess.TimeoutExpired(cmd, 1800)
-                
-                time.sleep(0.1)  # Prevent CPU spin
-            
-            stdout, stderr = process.communicate()
-            result = subprocess.CompletedProcess(
-                args=cmd,
-                returncode=retcode,
-                stdout=stdout,
-                stderr=stderr
-            )
-            
-            # Check if the command was successful
-            if result.returncode == 0 and os.path.exists(zip_path):
-                file_size = os.path.getsize(zip_path)
-                logger.info("✅ %s successful: %s (%.2f MB)", 
-                           strategy_name, os.path.basename(zip_path), file_size / 1024 / 1024)
-                
-                # Log any important output from the datasets CLI
-                if result.stdout:
-                    logger.debug("datasets CLI output: %s", result.stdout.strip())
-                
-                # Check which filters from the original request weren't applied in this strategy
-                requested_filters = []
-                if complete_only: requested_filters.append("complete-only")
-                if lineage: requested_filters.append(f"lineage={lineage}")
-                if host: requested_filters.append(f"host={host}")
-                if annotated: requested_filters.append("annotated")
-                
-                missing_filters = [f for f in requested_filters if f not in applied_filters]
-                if missing_filters:
-                    logger.warning("⚠️ Some requested filters were not applied in successful strategy:")
-                    logger.warning("   Filters applied: %s", ", ".join(applied_filters) if applied_filters else "none")
-                    logger.warning("   Filters missing: %s", ", ".join(missing_filters))
-                    logger.warning("   These filters will need to be applied through post-processing")
-                
-                return zip_path
-            else:
-                # Strategy failed, prepare error message
-                error_msg = f"❌ {strategy_name} failed with return code {result.returncode}"
-                if result.stderr:
-                    error_msg += f": {result.stderr.strip()}"
-                logger.warning("❌ %s", error_msg)
-                last_error = error_msg
-                
-                # If this was an accession download that failed, provide specific guidance
-                if use_accession:
-                    error_msg = (
-                        f"❌ Failed to download SARS-CoV-2 sequence for accession '{accession}'. "
-                        f"Please verify that this is a valid SARS-CoV-2 accession number. "
-                        f"If you're not sure if this is a SARS-CoV-2 sequence, try without setting is_sars_cov2=True."
-                    )
-                    raise RuntimeError(error_msg)
-                
-                # Clean up failed download file if it exists
-                if os.path.exists(zip_path):
-                    try:
-                        os.remove(zip_path)
-                    except OSError:
-                        pass
-                continue # Try next strategy
-                
-        except subprocess.TimeoutExpired:
-            error_msg = f"{strategy_name} timed out after 30 minutes"
-            logger.warning("❌ %s", error_msg)
-            last_error = error_msg
-            continue
-            
-        except subprocess.CalledProcessError as e:
-            error_msg = f"{strategy_name} execution failed: {e}"
-            logger.warning("❌ %s", error_msg)
-            last_error = error_msg
-            continue
-            
-        except FileNotFoundError as e:
-            # datasets CLI not found - this is a critical error, don't continue
-            raise RuntimeError(
-                "datasets CLI not found. Please install NCBI datasets CLI tools. "
-                "Installation guide: https://www.ncbi.nlm.nih.gov/datasets/docs/v2/command-line-tools/download-and-install/"
-            ) from e
-            
-        except Exception as e:
-            error_msg = f"{strategy_name} unexpected error: {e}"
-            logger.warning("❌ %s", error_msg)
-            last_error = error_msg
-            continue
-    
-    logger.warning("🚨 All cached download strategies failed. Last error: %s", last_error)
-    
-    # Provide helpful guidance
-    guidance_messages = [
-        "🔧 TROUBLESHOOTING SUGGESTIONS:",
-        "1. Check your internet connection",
-        "2. Verify datasets CLI is properly installed and updated",
-        "3. Try running the command manually to see detailed error messages:",
-        f"   datasets download virus genome taxon SARS-CoV-2 --filename test.zip",
-        "4. NCBI servers may be temporarily unavailable - try again later",
-        "5. Consider using the general API method by removing SARS-CoV-2 specific terms from your query"
-    ]
-    
-    for msg in guidance_messages:
-        logger.info(msg)
-    
-    # Raise error with the last failure details
-    raise RuntimeError(
-        f"❌ All SARS-CoV-2 cached download strategies failed. "
-        f"Last error: {last_error}. "
-        f"Consider using the general API method instead by modifying your virus query to avoid SARS-CoV-2 detection. Use Taxon ID without is_sars_cov2 flag instead."
+    return _download_optimized_cached(
+        virus_type="SARS-CoV-2",
+        strategies=strategies,
+        zip_path=zip_path,
+        outdir=outdir,
+        use_accession=use_accession,
+        accession=accession,
+        requested_filters=requested_filters_dict
     )
 
 
@@ -708,7 +794,7 @@ def download_alphainfluenza_optimized(
     if use_accession:
         # Strategy 1: Direct accession download
         cmd1 = ["datasets", "download", "virus", "genome", "accession", accession]
-        cmd1.extend(["--filename", zip_filename])  # Use just filename since cwd=outdir
+        cmd1.extend(["--filename", zip_path])
         strategies.append(("Strategy 1 (direct accession)", cmd1, [f"accession={accession}"]))
     elif complete_only or host or annotated:
         # Strategy 1: Try with specific filters using taxon endpoint
@@ -727,198 +813,43 @@ def download_alphainfluenza_optimized(
             cmd1.append("--annotated")
             filters1.append("annotated")
 
-        cmd1.extend(["--filename", zip_filename])  # Use just filename since cwd=outdir
+        cmd1.extend(["--filename", zip_path])
         strategies.append(("Strategy 1 (specific filters)", cmd1, filters1))
     
     # Strategy 2: Try complete-only and host if both were requested
     if complete_only and host:
-        cmd2 = ["datasets", "download", "virus", "genome", "taxon", default_taxon, "--complete-only", "--host", host, "--filename", zip_filename]
+        cmd2 = ["datasets", "download", "virus", "genome", "taxon", default_taxon, "--complete-only", "--host", host, "--filename", zip_path]
         strategies.append(("Strategy 2 (complete-only and host)", cmd2, ["complete-only", f"host={host}"]))
 
     # Strategy 3: Try complete-only if it was requested
     if complete_only and (host or annotated):  
-        cmd3 = ["datasets", "download", "virus", "genome", "taxon", default_taxon, "--complete-only", "--filename", zip_filename]
+        cmd3 = ["datasets", "download", "virus", "genome", "taxon", default_taxon, "--complete-only", "--filename", zip_path]
         strategies.append(("Strategy 3 (complete-only)", cmd3, ["complete-only"]))
 
     # Strategy 4: Try host if it was requested 
     if host and (complete_only or annotated):  
-        cmd4 = ["datasets", "download", "virus", "genome", "taxon", default_taxon, "--host", host, "--filename", zip_filename]
+        cmd4 = ["datasets", "download", "virus", "genome", "taxon", default_taxon, "--host", host, "--filename", zip_path]
         strategies.append(("Strategy 4 (host)", cmd4, [f"host={host}"]))
 
     # Strategy 5: General Alphainfluenza package (no filters)
-    cmd5 = ["datasets", "download", "virus", "genome", "taxon", default_taxon, "--filename", zip_filename]
+    cmd5 = ["datasets", "download", "virus", "genome", "taxon", default_taxon, "--filename", zip_path]
     strategies.append(("Strategy 5 (general package)", cmd5, []))
 
-    # Try each strategy in order
-    last_error = None
+    # Use the common download function with all strategies
+    requested_filters_dict = {
+        'complete-only': complete_only,
+        'host': host,
+        'annotated': annotated
+    }
     
-    for strategy_name, cmd, applied_filters in strategies:
-        logger.info("🔄 Trying %s...", strategy_name)
-        
-        if applied_filters:
-            logger.debug("Applied filters: %s", ", ".join(applied_filters))
-        else:
-            logger.debug("No specific filters applied")
-        
-        logger.debug("Command: %s", " ".join(cmd))
-        
-        try:
-            # Log the exact command being executed
-            cmd_str = " ".join(cmd)
-            logger.info("📋 Executing command: %s", cmd_str)
-
-            # Start with capturing just stderr to check progress
-            process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                cwd=outdir
-            )
-            
-            # Track time and last progress
-            start_time = time.time()
-            last_progress = start_time
-            last_stderr = ""
-            
-            while True:
-                # Check if process has finished
-                retcode = process.poll()
-                if retcode is not None:
-                    break
-                    
-                # Read stderr without blocking
-                stderr = process.stderr.readline()
-                if stderr:
-                    last_stderr = stderr
-                    # Common progress indicators in datasets tool output:
-                    progress_indicators = ['%', '=', 'downloading', 'fetching', 'MB', 'GB', 'bytes']
-                    
-                    # Log the stderr for debugging
-                    logger.debug("Progress output: %s", stderr.strip())
-                    
-                    # If we see any progress indicator, update the last_progress time
-                    if any(indicator.lower() in stderr.lower() for indicator in progress_indicators):
-                        last_progress = time.time()
-                        logger.debug("Progress detected, updating last_progress time")
-                
-                # Check timeout conditions:
-                # 1. Less than 30 minutes total time, continue
-                # 2. If more than 30 mins but progress in last 5 mins, continue
-                # 3. Otherwise, timeout
-                current_time = time.time()
-                total_time = current_time - start_time
-                time_since_progress = current_time - last_progress
-                
-                if total_time > 1800 and time_since_progress > 300:  # 30 mins total and 5 mins no progress
-                    process.kill()
-                    raise subprocess.TimeoutExpired(cmd, 1800)
-                
-                time.sleep(0.1)  # Prevent CPU spin
-            
-            stdout, stderr = process.communicate()
-            result = subprocess.CompletedProcess(
-                args=cmd,
-                returncode=retcode,
-                stdout=stdout,
-                stderr=stderr
-            )
-            
-            # Check if the command was successful
-            if result.returncode == 0 and os.path.exists(zip_path):
-                file_size = os.path.getsize(zip_path)
-                logger.info("✅ %s successful: %s (%.2f MB)", 
-                           strategy_name, os.path.basename(zip_path), file_size / 1024 / 1024)
-                
-                # Log any important output from the datasets CLI
-                if result.stdout:
-                    logger.debug("datasets CLI output: %s", result.stdout.strip())
-                
-                # Check which filters from the original request weren't applied in this strategy
-                requested_filters = []
-                if complete_only: requested_filters.append("complete-only")
-                if host: requested_filters.append(f"host={host}")
-                if annotated: requested_filters.append("annotated")
-                
-                missing_filters = [f for f in requested_filters if f not in applied_filters]
-                if missing_filters:
-                    logger.warning("⚠️ Some requested filters were not applied in successful strategy:")
-                    logger.warning("   Filters applied: %s", ", ".join(applied_filters) if applied_filters else "none")
-                    logger.warning("   Filters missing: %s", ", ".join(missing_filters))
-                    logger.warning("   These filters will need to be applied through post-processing")
-                
-                return zip_path
-            else:
-                # Strategy failed, prepare error message
-                error_msg = f"❌ {strategy_name} failed with return code {result.returncode}"
-                if result.stderr:
-                    error_msg += f": {result.stderr.strip()}"
-                logger.warning("❌ %s", error_msg)
-                last_error = error_msg
-                
-                # If this was an accession download that failed, provide specific guidance
-                if use_accession:
-                    error_msg = (
-                        f"❌ Failed to download Alphainfluenza sequence for accession '{accession}'. "
-                        f"Please verify that this is a valid Alphainfluenza accession number. "
-                        f"If you're not sure if this is an Alphainfluenza sequence, try without setting is_alphainfluenza=True."
-                    )
-                    raise RuntimeError(error_msg)
-                
-                # Clean up failed download file if it exists
-                if os.path.exists(zip_path):
-                    try:
-                        os.remove(zip_path)
-                    except OSError:
-                        pass
-                continue # Try next strategy
-                
-        except subprocess.TimeoutExpired:
-            error_msg = f"{strategy_name} timed out after 30 minutes"
-            logger.warning("❌ %s", error_msg)
-            last_error = error_msg
-            continue
-            
-        except subprocess.CalledProcessError as e:
-            error_msg = f"{strategy_name} execution failed: {e}"
-            logger.warning("❌ %s", error_msg)
-            last_error = error_msg
-            continue
-            
-        except FileNotFoundError as e:
-            # datasets CLI not found - this is a critical error, don't continue
-            raise RuntimeError(
-                "datasets CLI not found. Please install NCBI datasets CLI tools. "
-                "Installation guide: https://www.ncbi.nlm.nih.gov/datasets/docs/v2/command-line-tools/download-and-install/"
-            ) from e
-            
-        except Exception as e:
-            error_msg = f"{strategy_name} unexpected error: {e}"
-            logger.warning("❌ %s", error_msg)
-            last_error = error_msg
-            continue
-    
-    logger.warning("🚨 All cached download strategies failed. Last error: %s", last_error)
-    
-    # Provide helpful guidance
-    guidance_messages = [
-        "🔧 TROUBLESHOOTING SUGGESTIONS:",
-        "1. Check your internet connection",
-        "2. Verify datasets CLI is properly installed and updated",
-        "3. Try running the command manually to see detailed error messages:",
-        f"   datasets download virus genome taxon \"Alphainfluenzavirus influenzae\" --filename test.zip",
-        "4. NCBI servers may be temporarily unavailable - try again later",
-        "5. Consider using the general API method by removing Alphainfluenza specific terms from your query"
-    ]
-    
-    for msg in guidance_messages:
-        logger.info(msg)
-    
-    # Raise error with the last failure details
-    raise RuntimeError(
-        f"❌ All Alphainfluenza cached download strategies failed. "
-        f"Last error: {last_error}. "
-        f"Consider using the general API method instead by modifying your virus query to avoid Alphainfluenza detection."
+    return _download_optimized_cached(
+        virus_type="Alphainfluenza",
+        strategies=strategies,
+        zip_path=zip_path,
+        outdir=outdir,
+        use_accession=use_accession,
+        accession=accession,
+        requested_filters=requested_filters_dict
     )
 
 
@@ -958,9 +889,6 @@ def download_sequences_by_accessions(accessions, outdir=None, batch_size=200):
     fasta_path = os.path.join(outdir, f"virus_sequences_{timestamp}_{random_suffix}.fasta")
     logger.debug("Saving sequences to: %s", fasta_path)
     
-    # Use NCBI E-utilities to fetch FASTA sequences with batching
-    # base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
-    
     # If we have many accessions, split into batches to avoid URL length limits
     if len(accessions) > batch_size:
         logger.info("Large request detected (%d accessions). Using batch processing with batch size %d", 
@@ -972,7 +900,33 @@ def download_sequences_by_accessions(accessions, outdir=None, batch_size=200):
 
 
 def _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE, fasta_path):
-    """Download sequences in a single E-utilities request."""
+    """
+    Download sequences in a single E-utilities request.
+    
+    This function handles downloading virus sequences for a list of accessions
+    using a single HTTP request to NCBI E-utilities. It's optimized for
+    smaller batches (< 200 accessions) to avoid URL length limitations.
+    
+    Args:
+        accessions (list): List of accession numbers to download
+        NCBI_EUTILS_BASE (str): Base URL for NCBI E-utilities API
+        fasta_path (str): Path where FASTA file should be saved
+        
+    Returns:
+        str: Path to the saved FASTA file
+        
+    Raises:
+        RuntimeError: If the download fails or response is invalid
+        
+    Note:
+        - Validates FASTA format before saving
+        - Includes extended timeout for large datasets
+        - Automatically retries with batching if URL is too long
+        
+    Example:
+        >>> accessions = ['NC_045512.2', 'MN908947.3']
+        >>> path = _download_sequences_single_batch(accessions, BASE_URL, 'output.fasta')
+    """
     
     # Build accession string (E-utils supports comma-separated IDs)
     accession_string = ",".join(accessions)
@@ -1024,7 +978,42 @@ def _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE, fasta_path):
 
 
 def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_size):
-    """Download sequences using multiple batched E-utilities requests with incremental file writing."""
+    """
+    Download sequences using multiple batched E-utilities requests with incremental file writing.
+    
+    This function handles large sequence downloads by splitting them into smaller
+    batches and writing results incrementally to avoid memory issues. It includes
+    robust error handling with automatic retries for failed batches.
+    
+    Key features:
+    - Batched requests to avoid URL length limits
+    - Incremental file writing to manage memory
+    - Automatic retry with smaller batch sizes for failures
+    - Progress tracking and detailed logging
+    - Graceful handling of partial failures
+    
+    Args:
+        accessions (list): List of accession numbers to download
+        NCBI_EUTILS_BASE (str): Base URL for NCBI E-utilities API
+        fasta_path (str): Path where FASTA file should be saved
+        batch_size (int): Number of accessions per batch
+        
+    Returns:
+        str: Path to the saved FASTA file containing all downloaded sequences
+        
+    Raises:
+        RuntimeError: If all batches fail or no sequences are downloaded
+        
+    Note:
+        - Respects NCBI rate limits with 0.5s delays between batches
+        - Automatically reduces batch size for URL length errors
+        - Continues processing even if some batches fail
+        - Writes sequences immediately to reduce memory usage
+        
+    Example:
+        >>> large_accession_list = ['NC_045512.2', 'MN908947.3', ...]  # 1000+ accessions
+        >>> path = _download_sequences_batched(large_accession_list, BASE_URL, 'out.fasta', 200)
+    """
     
     # Split accessions into batches
     batches = [accessions[i:i + batch_size] for i in range(0, len(accessions), batch_size)]
@@ -1338,7 +1327,7 @@ def filter_sequences(
                 filter_stats['ambiguous_chars'] += 1
                 record_passes = False
                 continue
-                
+            
         # TODO: Add protein feature analysis if required (has_proteins/proteins_complete)
         
         # If sequence passed all filters, keep it and its metadata
@@ -1636,17 +1625,9 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
                 all_metadata.update(batch_metadata)
 
             if batch_xml_text:
-                # Clean XML before concatenating
-                cleaned_lines = []
-                for line in batch_xml_text.splitlines():
-                    # Skip declarations and DOCTYPEs
-                    if line.strip().startswith("<?xml") or line.strip().startswith("<!DOCTYPE"):
-                        logger.debug("Skipping line:%s", line)
-                        continue
-                    cleaned_lines.append(line)
-
-                cleaned_xml = "\n".join(cleaned_lines)
-
+                # Clean XML before concatenating using helper function
+                cleaned_xml = _clean_xml_declarations(batch_xml_text)
+                
                 # Add to the global XML string
                 all_xml_text += cleaned_xml + "\n"
                 
@@ -1680,13 +1661,9 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
                     all_metadata.update(meta)
                     retry_success.append(batch_accessions)
                 if xml:
-                    # Clean XML
-                    cleaned_lines = []
-                    for line in xml.splitlines():
-                        if line.strip().startswith("<?xml") or line.strip().startswith("<!DOCTYPE"):
-                            continue
-                        cleaned_lines.append(line)
-                    all_xml_text += "\n".join(cleaned_lines) + "\n"
+                    # Clean XML using helper function
+                    cleaned_xml = _clean_xml_declarations(xml)
+                    all_xml_text += cleaned_xml + "\n"
                     logger.info("Successfully retried batch with %d accessions", len(batch_accessions))
             except Exception as e:
                 logger.warning("Final retry failed for batch: %s", batch_accessions)
@@ -1722,14 +1699,38 @@ def _fetch_genbank_batch(accessions, failed_log_path=None):
     """
     Fetch GenBank metadata for a single batch of accessions.
     
+    This function handles retrieval of GenBank XML data for a batch of accessions
+    using NCBI E-utilities. It includes comprehensive error handling with retries,
+    exponential backoff, and automatic batch splitting for problematic requests.
+    
+    Error handling features:
+    - Retry logic with exponential backoff for transient errors
+    - Automatic batch splitting for URL length errors
+    - Logging of failed accessions with download URLs
+    - Graceful degradation for partial failures
+    
     Args:
         accessions (list): List of accession numbers for this batch
+        failed_log_path (str, optional): Path to log file for failed batches
         
     Returns:
-        dict: Dictionary mapping accession numbers to metadata dictionaries
-        
+        tuple: (metadata_dict, xml_text)
+            - metadata_dict: Dictionary mapping accessions to parsed metadata
+            - xml_text: Raw XML content from the response
+            
     Raises:
         RuntimeError: If the E-utilities request fails or XML parsing fails
+        
+    Note:
+        - Implements retry logic for network errors (max 3 attempts)
+        - Uses exponential backoff between retries (1s, 2s, 4s)
+        - Automatically splits batches that are too large
+        - Logs failed batches with individual download URLs for debugging
+        
+    Example:
+        >>> batch = ['NC_045512.2', 'MN908947.3', 'MT020781.1']
+        >>> metadata, xml = _fetch_genbank_batch(batch, 'failed_batches.log')
+        >>> print(f"Retrieved metadata for {len(metadata)} accessions")
     """
     
     # Build E-utilities efetch URL for GenBank XML format
@@ -1863,43 +1864,85 @@ def _fetch_genbank_batch(accessions, failed_log_path=None):
     
     return {}, None
 
-    #     logger.debug("Making E-utilities request for %d accessions", len(accessions))
-    #     logger.debug("Request URL: %s", NCBI_EUTILS_BASE)
-    #     logger.debug("Request parameters: %s", {k: v[:50] + '...' if len(str(v)) > 50 else v for k, v in params.items()})
+
+def _clean_xml_declarations(xml_text):
+    """
+    Remove XML declarations and DOCTYPE declarations from XML text.
+    
+    When concatenating multiple XML documents, we need to remove the XML
+    declaration (<?xml...?>) and DOCTYPE declarations from each document
+    to create valid combined XML.
+    
+    Args:
+        xml_text (str): Raw XML text that may contain declarations
         
-    #     # Make the HTTP request with extended timeout for large batches
-    #     response = requests.get(NCBI_EUTILS_BASE, params=params, timeout=300)
-    #     logger.debug("explicit URL requested: %s", response.url)
-    #     response.raise_for_status()
+    Returns:
+        str: Cleaned XML text without declarations
         
-    #     # Verify we got XML data
-    #     if not response.text.strip().startswith('<?xml') and not response.text.strip().startswith('<'):
-    #         raise RuntimeError(f"Invalid XML response: {response.text[:200]}")
-        
-    #     logger.debug("Received XML response: %d characters", len(response.text))
-        
-    #     # Parse the GenBank XML and extract metadata
-    #     metadata_dict = _parse_genbank_xml(response.text)
-    #     # save_genbank_xml_and_csv(response.text, genbank_full_xml_path, genbank_full_csv_path)
-        
-    #     logger.debug("✅ Successfully parsed metadata for %d records", len(metadata_dict))
-    #     return metadata_dict, response.text
-        
-    # except requests.exceptions.RequestException as e:
-    #     logger.error("❌ E-utilities request failed: %s", e)
-    #     raise RuntimeError(f"Failed to fetch GenBank metadata via E-utilities: {e}") from e
-    # except Exception as e:
-    #     logger.error("❌ GenBank XML parsing failed: %s", e)
-    #     raise RuntimeError(f"Failed to parse GenBank XML response: {e}") from e
+    Example:
+        >>> xml = '<?xml version="1.0"?>\n<!DOCTYPE GBSet>\n<GBSet>...</GBSet>'
+        >>> _clean_xml_declarations(xml)
+        '<GBSet>...</GBSet>'
+    """
+    cleaned_lines = []
+    for line in xml_text.splitlines():
+        # Skip XML declarations and DOCTYPE declarations
+        if line.strip().startswith("<?xml") or line.strip().startswith("<!DOCTYPE"):
+            continue
+        cleaned_lines.append(line)
+    return "\n".join(cleaned_lines)
 
 
 def _local_name(tag):
-    """Return the local name of an XML tag (strip namespace if present)."""
+    """
+    Return the local name of an XML tag (strip namespace if present).
+    
+    XML tags may include namespace prefixes (e.g., '{http://namespace}TagName').
+    This helper function extracts just the tag name without the namespace.
+    
+    Args:
+        tag (str): XML tag string, potentially with namespace
+        
+    Returns:
+        str: Tag name without namespace prefix
+        
+    Example:
+        >>> _local_name('{http://www.ncbi.nlm.nih.gov}GBSeq')
+        'GBSeq'
+        >>> _local_name('GBSeq')
+        'GBSeq'
+    """
     return tag.split('}')[-1] if '}' in tag else tag
 
 
 def _genbank_xml_to_csv(xml_path, csv_path, chunk_size=10000):
-    """Convert GenBank XML to structured CSV with streaming and dynamic qualifier columns."""
+    """
+    Convert GenBank XML to structured CSV with streaming and dynamic qualifier columns.
+    
+    This function parses a GenBank XML file and extracts feature data into a flat CSV
+    format suitable for analysis. It uses streaming parsing to handle large files
+    efficiently and dynamically discovers all qualifier columns present in the data.
+    
+    The output CSV includes:
+    - Basic sequence information (accession, sequence)
+    - Feature information (key, location, intervals)
+    - All qualifiers as separate columns (discovered dynamically)
+    
+    Args:
+        xml_path (str): Path to input GenBank XML file
+        csv_path (str): Path to output CSV file
+        chunk_size (int): Number of rows to process before writing to disk (default: 10000)
+                         Larger values use more memory but may be faster
+    
+    Note:
+        - Uses streaming to handle files larger than available memory
+        - Dynamically discovers qualifier columns from the XML data
+        - The sequence is only added to the last row for each accession to save space
+        - Writes incrementally in chunks to manage memory usage
+        
+    Example:
+        >>> _genbank_xml_to_csv('genbank_data.xml', 'output.csv', chunk_size=5000)
+    """
     
     qualifier_names = set()
     rows = []
@@ -1997,8 +2040,26 @@ def _save_genbank_xml_and_csv(xml_content, xml_file_name, csv_file_name):
     """
     Save GenBank XML content and flattened CSV representation.
     
+    This function takes raw GenBank XML data and saves it in two formats:
+    1. Raw XML file - preserves all original data
+    2. Flattened CSV file - extracts key fields into tabular format
+    
+    The CSV conversion makes the data more accessible for analysis tools
+    that work with tabular data, while the XML preserves all information
+    in its original structure.
+    
     Args:
         xml_content (str): Raw XML content from E-utilities efetch
+        xml_file_name (str): Path where XML file should be saved
+        csv_file_name (str): Path where CSV file should be saved
+        
+    Raises:
+        RuntimeError: If XML parsing fails or file writing encounters errors
+        ET.ParseError: If XML content is invalid or malformed
+        
+    Example:
+        >>> xml = fetch_genbank_xml(['NC_045512.2'])
+        >>> _save_genbank_xml_and_csv(xml, 'data.xml', 'data.csv')
     """
     try:
         root = ET.fromstring(xml_content)
@@ -2224,7 +2285,6 @@ def save_genbank_metadata_to_csv(genbank_metadata, output_file, virus_metadata=N
         
         # Collection and geographic information
         "collection_date",
-        # "country", #FIXME: this field is not extracted in the current implementation
         "geographic_location",
         "strain",
         "isolate",
@@ -2232,8 +2292,6 @@ def save_genbank_metadata_to_csv(genbank_metadata, output_file, virus_metadata=N
         # Host and source information
         "host",
         "isolation_source",
-        # "collected_by", #FIXME
-        # "specimen_voucher", #FIXME
         
         # Database and version information
         "create_date",
@@ -3529,281 +3587,6 @@ def ncbi_virus(
                 
         
         logger.info("NCBI virus data retrieval process completed.")
-
-
-def fetch_virus_with_genbank_metadata(
-    virus,
-    accession=False,
-    host=None,
-    geographic_location=None,
-    annotated=None,
-    complete_only=None,
-    min_release_date=None,
-    refseq_only=False,
-    outdir=None,
-    save_genbank_csv=True,
-    genbank_batch_size=200,
-    **kwargs
-):
-    """
-    Fetch virus data and detailed GenBank metadata in a single integrated workflow.
-    
-    This function combines the standard virus metadata retrieval with comprehensive
-    GenBank metadata extraction. It provides a complete picture of each virus sequence
-    including collection dates, geographic information, host details, publication
-    references, and other fields from GenBank records.
-    
-    Args:
-        virus (str): Virus taxon name/ID or accession number
-        accession (bool): Whether virus parameter is an accession number
-        host (str): Host organism name filter
-        geographic_location (str): Geographic location filter
-        annotated (bool): Filter for annotated genomes only
-        complete_only (bool): Filter for complete genomes only
-        min_release_date (str): Minimum release date filter (YYYY-MM-DD format)
-        refseq_only (bool): Limit to RefSeq genomes only
-        outdir (str): Output directory for files
-        save_genbank_csv (bool): Whether to save GenBank metadata to CSV
-        genbank_batch_size (int): Batch size for GenBank API requests
-        **kwargs: Additional filtering parameters passed to the main virus function
-        
-    Returns:
-        tuple: (filtered_sequences, filtered_metadata, genbank_metadata, output_files)
-            - filtered_sequences: List of sequence records that passed filters
-            - filtered_metadata: List of virus metadata dictionaries
-            - genbank_metadata: Dictionary of detailed GenBank metadata
-            - output_files: Dictionary with paths to generated output files
-            
-    Raises:
-        RuntimeError: If virus data retrieval or GenBank fetching fails
-        
-    Example:
-        >>> sequences, metadata, genbank_data, files = fetch_virus_with_genbank_metadata(
-        ...     virus="SARS-CoV-2",
-        ...     complete_only=True,
-        ...     host="human",
-        ...     outdir="./output"
-        ... )
-        >>> print(f"Retrieved {len(sequences)} sequences with GenBank metadata")
-        >>> print(f"GenBank CSV saved to: {files['genbank_csv']}")
-    """
-    
-    logger.info("=== INTEGRATED VIRUS + GENBANK METADATA RETRIEVAL ===")
-    logger.info("Virus query: %s (accession: %s)", virus, accession)
-    logger.info("Filters: host=%s, location=%s, complete=%s, annotated=%s, refseq=%s", 
-                host, geographic_location, complete_only, annotated, refseq_only)
-    
-    # Determine output directory
-    if not outdir:
-        outdir = os.getcwd()
-        logger.info("Using current directory for output: %s", outdir)
-    else:
-        os.makedirs(outdir, exist_ok=True)
-        logger.info("Using specified output directory: %s", outdir)
-    
-    output_files = {}
-    
-    try:
-        # STEP 1: Fetch standard virus data using the main function
-        logger.info("🦠 STEP 1: Fetching virus sequences and metadata...")
-        
-        # Create a temporary output directory for ncbi_virus function
-        virus_temp_dir = os.path.join(outdir, f"temp_{virus.replace(' ', '_')}")
-        os.makedirs(virus_temp_dir, exist_ok=True)
-        
-        # Call the main virus retrieval function with all parameters
-        # Note: ncbi_virus saves files but doesn't return data, so we need to read the files
-        ncbi_virus(
-            virus=virus,
-            accession=accession,
-            outfolder=virus_temp_dir,
-            host=host,
-            geographic_location=geographic_location,
-            annotated=annotated,
-            nuc_completeness='complete' if complete_only else None,
-            min_release_date=min_release_date,
-            **kwargs
-        )
-        
-        # Read the generated files from ncbi_virus
-        virus_name_clean = virus.replace(' ', '_').replace('/', '_').replace('-', '_')
-        expected_fasta = None
-        expected_csv = None
-        expected_jsonl = None
-        
-        # Look for output files with various naming patterns
-        for filename in os.listdir(virus_temp_dir):
-            if filename.endswith('.fasta'):
-                expected_fasta = os.path.join(virus_temp_dir, filename)
-            elif filename.endswith('_metadata.csv'):
-                expected_csv = os.path.join(virus_temp_dir, filename)
-            elif filename.endswith('_metadata.jsonl'):
-                expected_jsonl = os.path.join(virus_temp_dir, filename)
-        
-        if not expected_fasta or not expected_csv or not expected_jsonl:
-            available_files = os.listdir(virus_temp_dir) if os.path.exists(virus_temp_dir) else []
-            logger.error("Required output files not found in %s", virus_temp_dir)
-            logger.error("Available files: %s", available_files)
-            raise RuntimeError("ncbi_virus function did not generate expected output files")
-        
-        # Read sequences from FASTA file
-        logger.info("Reading sequences from: %s", expected_fasta)
-        filtered_sequences = list(FastaIO.parse(expected_fasta, "fasta"))
-        
-        # Read metadata from CSV file (convert back to list of dictionaries)
-        logger.info("Reading metadata from: %s", expected_csv)
-        metadata_df = pd.read_csv(expected_csv)
-        filtered_metadata = metadata_df.to_dict('records')
-        
-        if not filtered_sequences or not filtered_metadata:
-            logger.warning("No virus sequences retrieved - skipping GenBank metadata fetch")
-            return None, None, {}, output_files
-        
-        logger.info("✅ Retrieved %d virus sequences with metadata", len(filtered_sequences))
-        
-        # STEP 2: Extract accession numbers for GenBank lookup
-        logger.info("🔍 STEP 2: Extracting accession numbers for GenBank lookup...")
-        
-        # Get accession numbers from the filtered sequences
-        accession_numbers = []
-        for seq_record in filtered_sequences:
-            # Extract accession from sequence ID (usually the first part before spaces)
-            acc = seq_record.id.split()[0] if hasattr(seq_record, 'id') else str(seq_record)
-            if acc:
-                accession_numbers.append(acc)
-        
-        if not accession_numbers:
-            logger.warning("No accession numbers found in sequence records")
-            return filtered_sequences, filtered_metadata, {}, output_files
-        
-        logger.info("✅ Found %d unique accession numbers", len(set(accession_numbers)))
-        logger.debug("Sample accessions: %s", accession_numbers[:5])
-        
-        # STEP 3: Fetch detailed GenBank metadata
-        logger.info("📚 STEP 3: Fetching detailed GenBank metadata...")
-        
-        genbank_metadata = fetch_genbank_metadata(
-            accessions=list(set(accession_numbers)),  # Remove duplicates
-            batch_size=genbank_batch_size,
-            delay=0.5  # Be respectful to NCBI servers
-        )
-        
-        logger.info("✅ Retrieved GenBank metadata for %d accessions", len(genbank_metadata))
-        
-        # STEP 4: Save GenBank metadata to CSV if requested
-        if save_genbank_csv and genbank_metadata:
-            logger.info("💾 STEP 4: Saving GenBank metadata to CSV...")
-            
-            genbank_csv_path = os.path.join(outdir, f"{virus}_genbank_metadata.csv")
-            save_genbank_metadata_to_csv(
-                genbank_metadata=genbank_metadata,
-                output_file=genbank_csv_path,
-                virus_metadata=filtered_metadata
-            )
-            
-            output_files['genbank_csv'] = genbank_csv_path
-            logger.info("✅ GenBank metadata saved to: %s", genbank_csv_path)
-        
-        # STEP 5: Create summary report
-        logger.info("📊 STEP 5: Generating summary report...")
-        
-        _log_integration_summary(
-            virus=virus,
-            num_sequences=len(filtered_sequences),
-            num_virus_metadata=len(filtered_metadata),
-            num_genbank_metadata=len(genbank_metadata),
-            output_files=output_files
-        )
-        
-        logger.info("🎉 INTEGRATION COMPLETE: All data successfully retrieved and processed")
-        
-        return filtered_sequences, filtered_metadata, genbank_metadata, output_files
-        
-    except Exception as e:
-        logger.error("❌ INTEGRATION FAILED: %s", e)
-        logger.error("Error occurred during integrated virus + GenBank retrieval")
-        
-        if logger.getEffectiveLevel() <= logging.DEBUG:
-            logger.debug("Full traceback:\n%s", traceback.format_exc())
-        
-        # Provide helpful troubleshooting guidance
-        logger.error("TROUBLESHOOTING SUGGESTIONS:")
-        logger.error("1. Check internet connection and NCBI server availability")
-        logger.error("2. Verify virus query parameters are correct")
-        logger.error("3. Try reducing batch size for GenBank requests")
-        logger.error("4. Check output directory permissions")
-        
-        raise RuntimeError(f"❌ Integrated virus + GenBank metadata retrieval failed: {e}") from e
-
-
-def _log_integration_summary(virus, num_sequences, num_virus_metadata, num_genbank_metadata, output_files):
-    """Log a comprehensive summary of the integration results."""
-    
-    logger.info("=" * 80)
-    logger.info("INTEGRATION SUMMARY REPORT")
-    logger.info("=" * 80)
-    logger.info("Query: %s", virus)
-    logger.info("Sequences retrieved: %d", num_sequences)
-    logger.info("Virus metadata records: %d", num_virus_metadata)
-    logger.info("GenBank metadata records: %d", num_genbank_metadata)
-    
-    if output_files:
-        logger.info("Output files generated:")
-        for file_type, file_path in output_files.items():
-            logger.info("  %s: %s", file_type, file_path)
-    
-    # Calculate data completeness metrics
-    if num_genbank_metadata > 0 and num_virus_metadata > 0:
-        coverage = min(num_genbank_metadata / num_virus_metadata, 1.0) * 100
-        logger.info("GenBank metadata coverage: %.1f%%", coverage)
-        
-        if coverage < 90:
-            logger.info("ℹ️  Note: Some sequences may not have complete GenBank metadata")
-            logger.info("   This is normal for newer sequences or specific databases")
-    
-    logger.info("=" * 80)
-
-
-# Example usage and integration helper
-# def example_genbank_integration():
-#     """
-#     Example demonstrating how to use the integrated GenBank metadata functionality.
-    
-#     This function shows the recommended workflow for retrieving both virus sequence
-#     data and detailed GenBank metadata in a single operation.
-#     """
-    
-#     # Example 1: SARS-CoV-2 with GenBank metadata
-#     print("Example 1: SARS-CoV-2 sequences with GenBank metadata")
-#     sequences, virus_meta, genbank_meta, files = fetch_virus_with_genbank_metadata(
-#         virus="SARS-CoV-2",
-#         complete_only=True,
-#         host="human",
-#         outdir="./sars_cov2_output",
-#         save_genbank_csv=True
-#     )
-    
-#     print(f"Retrieved {len(sequences)} sequences")
-#     print(f"GenBank CSV: {files.get('genbank_csv', 'Not saved')}")
-    
-#     # Example 2: Specific accession with GenBank details
-#     print("\nExample 2: Specific accession with GenBank details")
-#     sequences, virus_meta, genbank_meta, files = fetch_virus_with_genbank_metadata(
-#         virus="NC_045512.2",
-#         accession=True,
-#         outdir="./reference_output",
-#         save_genbank_csv=True
-#     )
-    
-#     # Show sample GenBank metadata
-#     if genbank_meta:
-#         sample_acc = list(genbank_meta.keys())[0]
-#         sample_data = genbank_meta[sample_acc]['genbank_data']
-#         print(f"Sample GenBank data for {sample_acc}:")
-#         print(f"  Collection date: {sample_data.get('collection_date', 'Not available')}")
-#         print(f"  Country: {sample_data.get('country', 'Not available')}")
-#         print(f"  Host: {sample_data.get('host', 'Not available')}")
-#         print(f"  Reference count: {len(sample_data.get('references', []))}")
 
 
 if __name__ == "__main__":
