@@ -885,6 +885,10 @@ def download_sequences_by_accessions(accessions, outdir=None, batch_size=200):
         outdir = os.getcwd()
         logger.debug("No output directory specified, using current directory: %s", outdir)
     
+    # Ensure output directory exists
+    os.makedirs(outdir, exist_ok=True)
+    logger.debug("Ensured output directory exists: %s", outdir)
+    
     # Create output FASTA file path
     fasta_path = os.path.join(outdir, f"virus_sequences_{timestamp}_{random_suffix}.fasta")
     logger.debug("Saving sequences to: %s", fasta_path)
@@ -1269,6 +1273,140 @@ def parse_date(date_str, filtername="", verbose=False):
             return None
 
 
+def _check_protein_requirements(record, metadata, has_proteins, proteins_complete):
+    """
+    Check if a sequence meets protein/gene requirements.
+    
+    This function validates whether a virus sequence contains required proteins
+    or genes, and optionally whether those proteins are complete. It checks both
+    the FASTA header (for gene/protein names) and metadata (for counts).
+    
+    Args:
+        record: FastaRecord object containing the sequence and description
+        metadata (dict): Metadata dictionary for this accession
+        has_proteins (str/list/None): Required protein(s)/gene(s) to check for
+                                      Can be a single string or list of strings
+        proteins_complete (bool): Whether to require complete protein annotations
+        
+    Returns:
+        bool: True if protein requirements are met, False otherwise
+        
+    Example:
+        >>> # Check for spike protein
+        >>> _check_protein_requirements(record, metadata, "spike", False)
+        True
+        >>> # Check for multiple proteins
+        >>> _check_protein_requirements(record, metadata, ["HA", "NA"], False)
+        True
+    """
+    
+    # If proteins_complete is True, check if sequence has protein annotations
+    if proteins_complete:
+        protein_count = metadata.get("proteinCount", 0)
+        gene_count = metadata.get("geneCount", 0)
+        
+        # Consider a sequence complete if it has at least one protein or gene annotated
+        if protein_count is None or protein_count == 0:
+            if gene_count is None or gene_count == 0:
+                logger.debug("Sequence %s has no protein/gene annotations (protein_count=%s, gene_count=%s)",
+                           record.id, protein_count, gene_count)
+                return False
+    
+    # If specific proteins are required, check for them in the header
+    if has_proteins is not None:
+        # Convert single string to list for uniform processing
+        required_proteins = [has_proteins] if isinstance(has_proteins, str) else has_proteins
+        
+        # Get the full FASTA header description
+        header = record.description.lower() if hasattr(record, 'description') else str(record.id).lower()
+        
+        # Check if all required proteins are mentioned in the header
+        for protein in required_proteins:
+            protein_lower = protein.lower()
+            if protein_lower not in header:
+                logger.debug("Sequence %s missing required protein: %s (header: %s)",
+                           record.id, protein, record.description[:100])
+                return False
+        
+        logger.debug("Sequence %s has all required proteins: %s",
+                   record.id, required_proteins)
+    
+    return True
+
+
+def _extract_protein_info_from_header(header):
+    """
+    Extract protein/segment information from FASTA header.
+    
+    This function parses FASTA headers to extract useful protein or segment
+    information, which is particularly important for segmented viruses like
+    influenza that have multiple genomic segments encoding different proteins.
+    
+    Common patterns extracted:
+    - Segment numbers (e.g., "segment 4", "segment 8")
+    - Gene/protein names (e.g., "hemagglutinin", "HA", "neuraminidase", "NA")
+    - CDS/protein annotations
+    
+    Args:
+        header (str): FASTA header/description line
+        
+    Returns:
+        str: Extracted protein/segment information, or empty string if none found
+        
+    Example:
+        >>> _extract_protein_info_from_header("A/H1N1 segment 4 (HA)")
+        "segment 4 (HA)"
+        >>> _extract_protein_info_from_header("spike glycoprotein gene")
+        "spike glycoprotein"
+    """
+    
+    if not header:
+        return ""
+    
+    header_lower = header.lower()
+    
+    # Common protein/gene keywords to extract
+    protein_keywords = [
+        'hemagglutinin', 'neuraminidase', 'polymerase', 'nucleoprotein',
+        'matrix protein', 'nonstructural protein', 'ns1', 'ns2',
+        'spike', 'envelope', 'membrane', 'nucleocapsid',
+        'orf', 'nsp', 'pp1a', 'pp1ab',
+        'segment 1', 'segment 2', 'segment 3', 'segment 4',
+        'segment 5', 'segment 6', 'segment 7', 'segment 8',
+    ]
+    
+    # Try to find any of these keywords in the header
+    found_info = []
+    for keyword in protein_keywords:
+        if keyword in header_lower:
+            # Find the position and extract surrounding context
+            pos = header_lower.find(keyword)
+            # Extract a reasonable chunk around the keyword
+            start = max(0, pos - 10)
+            end = min(len(header), pos + len(keyword) + 20)
+            chunk = header[start:end].strip()
+            
+            # Clean up the chunk
+            chunk = chunk.split('|')[0].strip()  # Remove accession info after |
+            chunk = chunk.split(',')[0].strip()   # Remove comma-separated info
+            
+            if chunk and chunk not in found_info:
+                found_info.append(chunk)
+    
+    if found_info:
+        return "; ".join(found_info)
+    
+    # If no specific keywords found, try to extract gene/protein from common patterns
+    # Pattern: "gene for X" or "X gene" or "X protein"
+    import re
+    gene_pattern = r'(?:gene for |protein )?([a-zA-Z0-9\-]+(?:\s+[a-zA-Z0-9\-]+){0,2})(?:\s+gene|\s+protein)'
+    match = re.search(gene_pattern, header_lower)
+    if match:
+        return match.group(1).strip()
+    
+    return ""
+
+
 def filter_sequences(
     fna_file,
     metadata_dict,
@@ -1327,13 +1465,34 @@ def filter_sequences(
                 filter_stats['ambiguous_chars'] += 1
                 record_passes = False
                 continue
+        
+        # Get metadata for this record to check protein information
+        record_metadata = metadata_dict.get(record.id, {})
+        
+        # Check protein requirements if specified
+        if has_proteins is not None or proteins_complete:
+            protein_check_passed = _check_protein_requirements(
+                record, 
+                record_metadata, 
+                has_proteins, 
+                proteins_complete
+            )
             
-        # TODO: Add protein feature analysis if required (has_proteins/proteins_complete)
+            if not protein_check_passed:
+                filter_stats['proteins'] += 1
+                record_passes = False
+                logger.debug("Sequence %s failed protein requirements", record.id)
+                continue
         
         # If sequence passed all filters, keep it and its metadata
         if record_passes:
             filtered_sequences.append(record)
-            filtered_metadata.append(metadata_dict.get(record.id, {}))
+            filtered_metadata.append(record_metadata)
+            
+            # Extract protein/segment information from FASTA header for CSV output
+            # This is useful for segmented viruses like influenza
+            protein_info = _extract_protein_info_from_header(record.description)
+            protein_headers.append(protein_info)
 
     # Log filtering results
     logger.info("Sequence filter results:")
@@ -3312,7 +3471,7 @@ def ncbi_virus(
             "proteins_complete": proteins_complete,
         }
 
-        if filters_seq["max_ambiguous_chars"] is None and filters_seq["has_proteins"] is None:
+        if filters_seq["max_ambiguous_chars"] is None and filters_seq["has_proteins"] is None and not filters_seq["proteins_complete"]:
             logger.info("No sequence-dependent filters specified, skipping this step.")
             filtered_sequences = list(FastaIO.parse(fna_file, "fasta"))
             filtered_metadata_final = filtered_metadata  # No change to metadata

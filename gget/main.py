@@ -2399,20 +2399,6 @@ def main():
         help="Nucleotide completeness filter: 'complete' or 'partial'.",
     )
     parser_ncbi_virus.add_argument(
-        "--has_proteins",
-        type=str,
-        nargs="+",
-        required=False,
-        help="Filter for sequences containing specific proteins/genes/segments, e.g. 'spike' 'nucleocapsid'.",
-    )
-    parser_ncbi_virus.add_argument(
-        "--proteins_complete",
-        default=False,
-        action="store_true",
-        required=False,
-        help="Require that specified proteins are marked as complete.",
-    )
-    parser_ncbi_virus.add_argument(
         "--lab_passaged",
         type=lambda x: x.lower() == 'true',
         required=False,
@@ -2525,6 +2511,19 @@ def main():
         type=int,
         required=False,
         help="Maximum number of ambiguous nucleotide characters ('N') allowed.",
+    )
+    parser_ncbi_virus.add_argument(
+        "--has_proteins",
+        type=str,
+        required=False,
+        help="Filter for sequences containing specific protein(s)/gene(s). Can be a single protein name (e.g., 'spike') or comma-separated list (e.g., 'hemagglutinin,neuraminidase'). Searches in FASTA headers.",
+    )
+    parser_ncbi_virus.add_argument(
+        "--proteins_complete",
+        action="store_true",
+        default=False,
+        required=False,
+        help="Filter for sequences with complete protein annotations (protein_count > 0 or gene_count > 0).",
     )
     parser_ncbi_virus.add_argument(
         "--lineage",
@@ -3532,6 +3531,11 @@ def main():
 
     ## ncbi_virus return
     if args.command == "ncbi_virus":
+        # Parse has_proteins argument - convert comma-separated string to list
+        has_proteins_arg = args.has_proteins
+        if has_proteins_arg and ',' in has_proteins_arg:
+            has_proteins_arg = [p.strip() for p in has_proteins_arg.split(',')]
+        
         ncbi_virus(
             virus=args.virus,
             is_accession=args.is_accession,
@@ -3542,7 +3546,7 @@ def main():
             min_gene_count=args.min_gene_count,
             max_gene_count=args.max_gene_count,
             nuc_completeness=args.nuc_completeness,
-            has_proteins=args.has_proteins,
+            has_proteins=has_proteins_arg,
             proteins_complete=args.proteins_complete,
             lab_passaged=args.lab_passaged,
             geographic_location=args.geographic_location,
