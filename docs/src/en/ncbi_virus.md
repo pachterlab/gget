@@ -12,7 +12,7 @@ Virus taxon name (e.g. 'Zika virus'), taxon ID (e.g. 2697049), or accession numb
 
 ### Output arguments
 
-`-o` `--outfolder`
+`-o` `--out`
 Path to the folder where results will be saved. Default: current working directory.
 Python: `outfolder="path/to/folder"`
 
@@ -142,7 +142,7 @@ gget.ncbi_virus(
 )
 ```
 
-→ Downloads complete Zika virus genomes from human hosts. Results are saved in the `zika_data` folder as `Zika_virus_sequences.fasta`, `Zika_virus_metadata.csv`, and `Zika_virus_metadata.jsonl`.
+→ Downloads complete Zika virus genomes from human hosts. Results are saved in the `zika_data` folder as `Zika_virus_sequences.fasta`, `Zika_virus_metadata.csv`, `Zika_virus_metadata.jsonl`, and `command_summary.txt`.
 
 The metadata CSV file will look like this:
 
@@ -150,6 +150,96 @@ The metadata CSV file will look like this:
 |---|---|---|---|---|---|---|---|---|
 | KX198135.1 | Zika virus | GenBank | 2016-05-18 | 10807 | complete | Americas:Haiti | Homo sapiens | ... |
 | . . . | . . . | . . . | . . . | . . . | . . . | . . . | . . . | ... |
+
+The command summary file (`command_summary.txt`) will contain:
+```
+================================================================================
+GGET NCBI_VIRUS COMMAND SUMMARY
+================================================================================
+
+Execution Date: 2025-12-15 13:33:39
+Output Folder: zika_data
+
+--------------------------------------------------------------------------------
+COMMAND LINE
+--------------------------------------------------------------------------------
+gget ncbi_virus "Zika virus" --nuc_completeness complete --host human --out zika_data
+
+--------------------------------------------------------------------------------
+EXECUTION STATUS
+--------------------------------------------------------------------------------
+✓ Command completed successfully
+
+--------------------------------------------------------------------------------
+SEQUENCE STATISTICS
+--------------------------------------------------------------------------------
+Total records from API: 234
+After metadata filtering: 234
+Final sequences (after all filters): 234
+
+--------------------------------------------------------------------------------
+DETAILED STATISTICS
+--------------------------------------------------------------------------------
+Unique hosts: 1
+  - Homo sapiens
+
+Unique geographic locations: 15
+  - Americas:Brazil
+  - Americas:Colombia
+  - ... (showing top 20)
+
+Sequence length range: 10272 - 11155 bp
+Average sequence length: 10742 bp
+
+Completeness breakdown:
+  - complete: 234
+
+Source database breakdown:
+  - GenBank: 233
+  - RefSeq: 1
+
+Unique submitter countries: 12
+  - USA
+  - Brazil
+  - ... (showing top 20)
+
+--------------------------------------------------------------------------------
+OUTPUT FILES
+--------------------------------------------------------------------------------
+FASTA Sequences: Zika_virus_sequences.fasta (2.45 MB)
+JSONL Metadata: Zika_virus_metadata.jsonl (0.53 MB)
+CSV Metadata: Zika_virus_metadata.csv (0.42 MB)
+
+================================================================================
+END OF SUMMARY
+================================================================================
+```
+
+**Note**: If any operations fail during execution (API timeouts, sequence download failures, GenBank metadata failures), the summary will include a "FAILED OPERATIONS - RETRY COMMANDS" section with exact commands and URLs that can be run manually to retry the failed operations. For example:
+
+```
+--------------------------------------------------------------------------------
+FAILED OPERATIONS - RETRY COMMANDS
+--------------------------------------------------------------------------------
+Some operations failed during execution. You can retry them manually:
+
+[Failed Sequence Download Batches]
+Total failed batches: 2
+
+Batch 15: 200 sequences
+Error: HTTPError: 500 Server Error
+Accessions: NC_045512.2, MN908947.3, MT020781.1 ... and 197 more
+Retry URL: https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nucleotide&id=NC_045512.2,MN908947.3,...&rettype=fasta&retmode=text
+
+[Failed GenBank Metadata Batches]
+Total failed batches: 1
+See detailed log file: genbank_failed_batches.log
+
+Accessions: NC_045512.2, MN908947.3, MT020781.1 ... and 2 more
+Retry URL: https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nucleotide&id=NC_045512.2,MN908947.3,...&rettype=gb&retmode=xml
+
+--------------------------------------------------------------------------------
+```
 
 <br><br>
 **Download a specific SARS-CoV-2 reference genome using its accession number:**
@@ -415,6 +505,28 @@ ncbi_virus()
 - Streaming-friendly format
 - Complete nested data preserved (protein and annotated data)
 - Combined virus and GenBank data when available
+
+### 5. **Command Summary** (`command_summary.txt`)
+- Automatically generated summary of the command execution
+- Records the exact command line that was run
+- Execution status (success/failure with error messages)
+- Filtering statistics at each stage:
+  - Total records from API
+  - Records after metadata filtering
+  - Final sequences after all filters
+- Detailed statistics:
+  - Unique hosts with counts (up to top 20 listed)
+  - Unique geographic locations with counts (up to top 20 listed)
+  - Sequence length range and average
+  - Completeness breakdown (complete vs partial)
+  - Source database breakdown (GenBank vs RefSeq)
+  - Unique submitter countries with counts (up to top 20 listed)
+- List of all generated output files with sizes
+- **Failed Operations Tracking** (when applicable):
+  - **API timeout failures**: Exact URL that timed out with alternative command suggestions
+  - **Failed sequence download batches**: Batch numbers, accession lists, and retry URLs
+  - **Failed GenBank metadata batches**: Accession lists with individual retry URLs
+  - All failed operations include exact commands/URLs that can be run manually for retry
 
 ## Performance Characteristics
 
