@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import sys           # For accessing command line arguments
 import time          # For adding delays between requests
 import logging       # For logging level checks
 import shutil        # For directory operations  
@@ -35,6 +36,7 @@ def fetch_virus_metadata(
     complete_only=None,
     min_release_date=None,
     refseq_only=None,
+    failed_commands=None,
 ):
     """
     Fetch virus metadata using NCBI Datasets API.
@@ -195,6 +197,16 @@ def fetch_virus_metadata(
             if isinstance(last_exception, requests.exceptions.Timeout):
                 # Handle timeout errors with specific guidance for known problematic filters
                 error_msg = f"Request timed out while fetching virus metadata: {last_exception}"
+                
+                # Track API timeout information for summary
+                if failed_commands is not None:
+                    # api_url = f"{NCBI_API_BASE}?virusTaxId={taxid}" if not accession else f"{NCBI_API_BASE}?accession={accession}"
+                    failed_commands['api_timeout'] = {
+                        'error': 'API request timeout',
+                        'url': url,
+                        'alternative_command': None
+                    }
+                
                 if geographic_location:
                     error_msg += (
                         f"\n\n🔧 TIMEOUT LIKELY DUE TO GEOGRAPHIC FILTER: "
@@ -853,7 +865,7 @@ def download_alphainfluenza_optimized(
     )
 
 
-def download_sequences_by_accessions(accessions, outdir=None, batch_size=200):
+def download_sequences_by_accessions(accessions, outdir=None, batch_size=200, failed_commands=None):
     """
     Download virus genome sequences for a specific list of accession numbers.
     
@@ -897,13 +909,13 @@ def download_sequences_by_accessions(accessions, outdir=None, batch_size=200):
     if len(accessions) > batch_size:
         logger.info("Large request detected (%d accessions). Using batch processing with batch size %d", 
                    len(accessions), batch_size)
-        return _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_size)
+        return _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_size, failed_commands)
     
     # For smaller requests, use single request
-    return _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE, fasta_path)
+    return _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE, fasta_path, failed_commands)
 
 
-def _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE, fasta_path):
+def _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE, fasta_path, failed_commands=None):
     """
     Download sequences in a single E-utilities request.
     
@@ -974,14 +986,14 @@ def _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE, fasta_path):
         if "414" in str(e) or "Request-URI Too Long" in str(e):
             logger.info("URL too long error detected. Retrying with batch processing...")
             # Retry with smaller batches
-            return _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_size=100)
+            return _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_size=100, failed_commands=failed_commands)
         raise RuntimeError(f"❌ Failed to download virus sequences via E-utilities: {e}") from e
     except IOError as e:
         logger.error("❌ Failed to save FASTA file: %s", e)
         raise RuntimeError(f"❌ Failed to save downloaded sequences: {e}") from e
 
 
-def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_size):
+def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_size, failed_commands=None):
     """
     Download sequences using multiple batched E-utilities requests with incremental file writing.
     
@@ -1077,6 +1089,16 @@ def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_
                     logger.error("Batch %d failed: %s", batch_num, e)
                     batch_failed_count += 1
                     
+                    # Track failed batch for summary (if tracking is enabled)
+                    if failed_commands is not None:
+                        retry_url = f"{NCBI_EUTILS_BASE}?db=nucleotide&id={','.join(batch_accessions)}&rettype=fasta&retmode=text"
+                        failed_commands['sequence_batches'].append({
+                            'batch_num': batch_num,
+                            'accessions': batch_accessions,
+                            'error': str(e),
+                            'retry_url': retry_url
+                        })
+                    
                     # Check for URL length error even in batch mode
                     if "414" in str(e) and batch_size > 50:
                         logger.warning("⚠️ URL still too long for batch size %d. Retrying batch %d with smaller size...", 
@@ -1085,7 +1107,7 @@ def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_
                         temp_batch_path = f"temp_batch_{batch_num}.fasta"
                         try:
                             _download_sequences_batched(
-                                batch_accessions, NCBI_EUTILS_BASE, temp_batch_path, batch_size // 2
+                                batch_accessions, NCBI_EUTILS_BASE, temp_batch_path, batch_size // 2, failed_commands
                             )
                             # Read the temporary file and append to main file
                             with open(temp_batch_path, 'r', encoding='utf-8') as temp_f:
@@ -1505,6 +1527,192 @@ def filter_sequences(
     return filtered_sequences, filtered_metadata, protein_headers
 
 
+def save_command_summary(
+    outfolder,
+    command_line,
+    total_api_records,
+    total_after_metadata_filter,
+    total_final_sequences,
+    output_files,
+    filtered_metadata,
+    success=True,
+    error_message=None,
+    failed_commands=None
+):
+    """
+    Save a summary file documenting the command execution and results.
+    
+    This function creates a comprehensive summary text file that includes:
+    - The exact command line that was run
+    - Statistics about sequences, hosts, locations, etc.
+    - List of output files generated
+    - Information about what filters were applied
+    - Any errors or warnings encountered
+    - Failed download commands (batches, URLs) for user retry
+    
+    Args:
+        outfolder (str): Output directory where summary file will be saved
+        command_line (str): The command line that was executed
+        total_api_records (int): Number of records returned from API
+        total_after_metadata_filter (int): Number after metadata filtering
+        total_final_sequences (int): Final number of sequences after all filters
+        output_files (dict): Dictionary of output file paths
+        filtered_metadata (list): List of metadata dictionaries for statistics
+        success (bool): Whether the command completed successfully
+        error_message (str): Error message if command failed
+        failed_commands (dict): Dictionary containing failed operations with retry commands/URLs
+            Expected keys: 'api_timeout', 'sequence_batches', 'genbank_batches'
+    """
+    
+    summary_file = os.path.join(outfolder, "command_summary.txt")
+    
+    try:
+        with open(summary_file, 'w', encoding='utf-8') as f:
+            # Header
+            f.write("=" * 80 + "\n")
+            f.write("GGET NCBI_VIRUS COMMAND SUMMARY\n")
+            f.write("=" * 80 + "\n\n")
+            
+            # Timestamp
+            f.write(f"Execution Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+            f.write(f"Output Folder: {outfolder}\n\n")
+            
+            # Command line
+            f.write("-" * 80 + "\n")
+            f.write("COMMAND LINE\n")
+            f.write("-" * 80 + "\n")
+            f.write(f"{command_line}\n\n")
+            
+            # Execution status
+            f.write("-" * 80 + "\n")
+            f.write("EXECUTION STATUS\n")
+            f.write("-" * 80 + "\n")
+            if success:
+                f.write("✓ Command completed successfully\n\n")
+            else:
+                f.write("✗ Command failed\n")
+                if error_message:
+                    f.write(f"Error: {error_message}\n\n")
+            
+            # Statistics
+            f.write("-" * 80 + "\n")
+            f.write("SEQUENCE STATISTICS\n")
+            f.write("-" * 80 + "\n")
+            f.write(f"Total records from API: {total_api_records}\n")
+            f.write(f"After metadata filtering: {total_after_metadata_filter}\n")
+            f.write(f"Final sequences (after all filters): {total_final_sequences}\n\n")
+            
+            # Detailed statistics from metadata
+            if filtered_metadata and len(filtered_metadata) > 0:
+                f.write("-" * 80 + "\n")
+                f.write("DETAILED STATISTICS\n")
+                f.write("-" * 80 + "\n")
+                
+                # Unique hosts
+                hosts = set()
+                for meta in filtered_metadata:
+                    host_name = meta.get('host', {}).get('organism_name') if isinstance(meta.get('host'), dict) else None
+                    if host_name:
+                        hosts.add(host_name)
+                f.write(f"Unique hosts: {len(hosts)}\n")
+                if hosts and len(hosts) <= 20:
+                    for host in sorted(hosts):
+                        f.write(f"  - {host}\n")
+                elif hosts:
+                    f.write(f"  (Top 20 of {len(hosts)} hosts)\n")
+                    for host in sorted(hosts)[:20]:
+                        f.write(f"  - {host}\n")
+                f.write("\n")
+                
+                # Unique geographic locations
+                locations = set()
+                for meta in filtered_metadata:
+                    location = meta.get('location', {}).get('geographic_location') if isinstance(meta.get('location'), dict) else None
+                    if location:
+                        locations.add(location)
+                f.write(f"Unique geographic locations: {len(locations)}\n")
+                if locations and len(locations) <= 20:
+                    for loc in sorted(locations):
+                        f.write(f"  - {loc}\n")
+                elif locations:
+                    f.write(f"  (Top 20 of {len(locations)} locations)\n")
+                    for loc in sorted(locations)[:20]:
+                        f.write(f"  - {loc}\n")
+                f.write("\n")
+                
+                # Sequence length statistics
+                lengths = [meta.get('length') for meta in filtered_metadata if meta.get('length')]
+                if lengths:
+                    f.write(f"Sequence length range: {min(lengths)} - {max(lengths)} bp\n")
+                    f.write(f"Average sequence length: {sum(lengths) / len(lengths):.0f} bp\n\n")
+                
+                # Completeness breakdown
+                completeness_counts = {}
+                for meta in filtered_metadata:
+                    comp = meta.get('completeness', 'unknown')
+                    completeness_counts[comp] = completeness_counts.get(comp, 0) + 1
+                f.write("Completeness breakdown:\n")
+                for comp, count in sorted(completeness_counts.items()):
+                    f.write(f"  - {comp}: {count}\n")
+                f.write("\n")
+                
+                # Source database breakdown
+                source_counts = {}
+                for meta in filtered_metadata:
+                    source = meta.get('sourceDatabase', 'unknown')
+                    source_counts[source] = source_counts.get(source, 0) + 1
+                f.write("Source database breakdown:\n")
+                for source, count in sorted(source_counts.items()):
+                    f.write(f"  - {source}: {count}\n")
+                f.write("\n")
+                
+                # Submitter countries
+                countries = set()
+                for meta in filtered_metadata:
+                    submitter = meta.get('submitter', {})
+                    if isinstance(submitter, dict):
+                        country = submitter.get('country')
+                        if country:
+                            countries.add(country)
+                f.write(f"Unique submitter countries: {len(countries)}\n")
+                if countries and len(countries) <= 20:
+                    for country in sorted(countries):
+                        f.write(f"  - {country}\n")
+                elif countries:
+                    f.write(f"  (Top 20 of {len(countries)} countries)\n")
+                    for country in sorted(countries)[:20]:
+                        f.write(f"  - {country}\n")
+                f.write("\n")
+            
+            # Output files
+            f.write("-" * 80 + "\n")
+            f.write("OUTPUT FILES\n")
+            f.write("-" * 80 + "\n")
+            if output_files:
+                for file_type, file_path in output_files.items():
+                    if file_path and os.path.exists(file_path):
+                        file_size = os.path.getsize(file_path) / 1024 / 1024  # MB
+                        f.write(f"{file_type}: {os.path.basename(file_path)} ({file_size:.2f} MB)\n")
+                    elif file_path:
+                        f.write(f"{file_type}: {os.path.basename(file_path)} (not created)\n")
+            else:
+                f.write("No output files generated\n")
+            f.write("\n")
+            
+            # Footer
+            f.write("=" * 80 + "\n")
+            f.write("END OF SUMMARY\n")
+            f.write("=" * 80 + "\n")
+        
+        logger.info("✅ Command summary saved: %s", summary_file)
+        return summary_file
+        
+    except Exception as e:
+        logger.error("Failed to save command summary: %s", e)
+        logger.error("Traceback: %s", traceback.format_exc())
+        return None
+
+
 def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_file):
     """
     Save filtered metadata to a CSV file with a specific column order.
@@ -1851,7 +2059,8 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
             logger.info(f"  {acc}: {efetch_url}")
         logger.info(f"A log of failed batches and efetch URLs is saved at: {failed_log_path}")
     
-    return all_metadata
+    # Return both metadata and the path to the failed batches log for summary tracking
+    return all_metadata, failed_log_path if os.path.exists(failed_log_path) else None
 
 
 def _fetch_genbank_batch(accessions, failed_log_path=None):
@@ -2949,6 +3158,23 @@ def ncbi_virus(
         references, and other fields extracted from GenBank records.
     """
     logger.info("Starting NCBI virus data retrieval process...")
+    
+    # Capture the command line for summary
+    command_line = " ".join(sys.argv) if len(sys.argv) > 0 else "ncbi_virus (called programmatically)"
+    
+    # Initialize variables for tracking results
+    total_api_records = 0
+    total_after_metadata_filter = 0
+    total_final_sequences = 0
+    output_files_dict = {}
+    final_metadata_for_summary = []
+    
+    # Initialize failed commands tracker
+    failed_commands = {
+        'api_timeout': None,
+        'sequence_batches': [],
+        'genbank_batches': []
+    }
 
     if download_all_accessions:
         logger.info("ATTENTION: Download all accessions mode is active.")
@@ -3097,6 +3323,11 @@ def ncbi_virus(
     logger.info("STEP 2: CHECKING FOR SARS-CoV-2 QUERY...")
     logger.info("=" * 60)
 
+    # Initialize variables to track cached download results
+    cached_sequences = None
+    cached_metadata_dict = None
+    used_cached_download = False
+
     if is_sars_cov2 or is_sars_cov2_query(virus, is_accession):
         logger.info("DETECTED SARS-CoV-2 QUERY - USING CACHED DATA PACKAGES")
         logger.info("SARS-CoV-2 queries will use NCBI's optimized cached data packages")
@@ -3188,25 +3419,38 @@ def ncbi_virus(
                     cached_metadata = filtered_meta
                     logger.info("After length filtering: %d sequences remain", len(all_cached_sequences))
                 
-                # 5. Save filtered cached results
+                # 5. Check if we have sequences for further processing
                 if all_cached_sequences:
-                    logger.info("🎉 CACHED DATA PROCESSING SUCCESSFUL!")
-                    logger.info("Using %d sequences from cached data", len(all_cached_sequences))
+                    logger.info("🎉 CACHED DATA LOADING SUCCESSFUL!")
+                    logger.info("Loaded %d sequences from cached data", len(all_cached_sequences))
+                    
                     
                     # Save FASTA sequences
-                    output_fasta_path = os.path.join(outfolder, f"{virus_clean}_sequences.fasta")
-                    FastaIO.write(all_cached_sequences, output_fasta_path, "fasta")
-                    logger.info("Saved cached sequences to: %s", output_fasta_path)
-                    
+                    # output_fasta_path = os.path.join(outfolder, f"{virus_clean}_sequences.fasta")
+                    # FastaIO.write(all_cached_sequences, output_fasta_path, "fasta")
+                    # logger.info("Saved cached sequences to: %s", output_fasta_path)
+                    # Convert cached metadata list to dictionary format (accession -> metadata)
+                    print(cached_metadata[0:20])
+                    cached_metadata_dict = {meta['accession']: meta for meta in cached_metadata}
+                    print(list(cached_metadata_dict.keys())[0:20])
+                    print(list(cached_metadata_dict.values())[0:20])
                     # Save metadata CSV
-                    if cached_metadata:
-                        output_csv_path = os.path.join(outfolder, f"{virus_clean}_metadata.csv")
-                        df = pd.DataFrame(cached_metadata)
-                        df.to_csv(output_csv_path, index=False)
-                        logger.info("Saved cached metadata to: %s", output_csv_path)
+                    # if cached_metadata:
+                    #     output_csv_path = os.path.join(outfolder, f"{virus_clean}_metadata.csv")
+                    #     df = pd.DataFrame(cached_metadata)
+                    #     df.to_csv(output_csv_path, index=False)
+                    #     logger.info("Saved cached metadata to: %s", output_csv_path)
                     
-                    logger.info("✅ Cached data processing completed successfully!")
-                    return output_fasta_path  # Return early with cached results
+                    # logger.info("✅ Cached data processing completed successfully!")
+                    # return output_fasta_path  # Return early with cached results
+                    # Store sequences and metadata for post-download filtering
+                    cached_sequences = all_cached_sequences
+                    used_cached_download = True
+                    
+                    logger.info("Cached download completed. This only applies basic filters (host, complete_only, annotated, lineage)")
+                    logger.info("Additional filters will be applied post-download, and GenBank metadata will be fetched if requested.")
+                    logger.info("Continuing with pipeline...")
+                    
                 else:
                     logger.warning("No sequences remain after filtering cached data")
                     raise RuntimeError("No sequences passed the filter criteria")
@@ -3312,25 +3556,22 @@ def ncbi_virus(
                     cached_metadata = filtered_meta
                     logger.info("After length filtering: %d sequences remain", len(all_cached_sequences))
                 
-                # 5. Save filtered cached results
+                # 5. Check if we have sequences for further processing
                 if all_cached_sequences:
-                    logger.info("🎉 CACHED DATA PROCESSING SUCCESSFUL!")
-                    logger.info("Using %d sequences from cached data", len(all_cached_sequences))
+                    logger.info("🎉 CACHED DATA LOADING SUCCESSFUL!")
+                    logger.info("Loaded %d sequences from cached data", len(all_cached_sequences))
                     
-                    # Save FASTA sequences
-                    output_fasta_path = os.path.join(outfolder, f"{virus_clean}_sequences.fasta")
-                    FastaIO.write(all_cached_sequences, output_fasta_path, "fasta")
-                    logger.info("Saved cached sequences to: %s", output_fasta_path)
+                    # Convert cached metadata list to dictionary format (accession -> metadata)
+                    cached_metadata_dict = {meta['accession']: meta for meta in cached_metadata}
                     
-                    # Save metadata CSV
-                    if cached_metadata:
-                        output_csv_path = os.path.join(outfolder, f"{virus_clean}_metadata.csv")
-                        df = pd.DataFrame(cached_metadata)
-                        df.to_csv(output_csv_path, index=False)
-                        logger.info("Saved cached metadata to: %s", output_csv_path)
+                    # Store sequences and metadata for post-download filtering
+                    cached_sequences = all_cached_sequences
+                    used_cached_download = True
                     
-                    logger.info("✅ Cached data processing completed successfully!")
-                    return output_fasta_path  # Return early with cached results
+                    logger.info("Cached download completed. This only applies basic filters (host, complete_only, annotated)")
+                    logger.info("Additional filters will be applied post-download, and GenBank metadata will be fetched if requested.")
+                    logger.info("Continuing with pipeline...")
+                    
                 else:
                     logger.warning("No sequences remain after filtering cached data")
                     raise RuntimeError("No sequences passed the filter criteria")
@@ -3354,47 +3595,73 @@ def ncbi_virus(
 
     try:
     # SECTION 3: METADATA RETRIEVAL WHILE APPLYING SERVER-SIDE FILTERS
-        logger.info("=" * 60)
-        logger.info("STEP 3: Fetching virus metadata from NCBI API")
-        logger.info("=" * 60)
+        # logger.info("=" * 60)
+        # logger.info("STEP 3: Fetching virus metadata from NCBI API")
+        # logger.info("=" * 60)
 
-        api_annotated_filter = annotated if annotated is True else None
-        api_complete_filter = True if nuc_completeness=="complete" else False
+        # Check if we're using cached download data
+        if used_cached_download and cached_metadata_dict:
+            logger.info("=" * 60)
+            logger.info("STEP 3: Saving metadata from cached download")
+            logger.info("=" * 60)
+            logger.info("Using metadata from cached download (skipping API metadata fetch)")
+            metadata_dict = cached_metadata_dict
+            total_api_records = len(metadata_dict)
+            logger.info("Loaded %d metadata records from cached download", total_api_records)
+            
+            # Save the cached metadata as API metadata for consistency
+            logger.debug("Writing cached metadata to JSONL file: %s", output_api_metadata_jsonl)
+            try:
+                with open(output_api_metadata_jsonl, "w", encoding="utf-8") as f:
+                    for md in metadata_dict.values():
+                        f.write(json.dumps(md) + "\n")
+                logger.info("✅ Saved cached metadata JSONL: %s", output_api_metadata_jsonl)
+            except Exception as e:
+                logger.warning("❌ Failed to save cached metadata JSONL: %s", e)
+        else:
+            # Regular API metadata fetch
+            logger.info("=" * 60)
+            logger.info("STEP 3: Fetching virus metadata from NCBI API")
+            logger.info("=" * 60)
+            api_annotated_filter = annotated if annotated is True else None
+            api_complete_filter = True if nuc_completeness=="complete" else False
 
-        logger.debug("Applying server-side filters: host=%s, geo_location=%s, annotated=%s, complete_only=%s, min_release_date=%s, refseq_only=%s", host, geographic_location, annotated, api_complete_filter, min_release_date, refseq_only)
-        
-        api_reports = fetch_virus_metadata(
-            virus,
-            accession=is_accession,
-            host=host,
-            geographic_location=geographic_location,
-            annotated=api_annotated_filter,
-            complete_only=api_complete_filter,
-            min_release_date=min_release_date,
-            refseq_only=refseq_only,
-        )
+            logger.debug("Applying server-side filters: host=%s, geo_location=%s, annotated=%s, complete_only=%s, min_release_date=%s, refseq_only=%s", host, geographic_location, annotated, api_complete_filter, min_release_date, refseq_only)
+            
+            api_reports = fetch_virus_metadata(
+                virus,
+                accession=is_accession,
+                host=host,
+                geographic_location=geographic_location,
+                annotated=api_annotated_filter,
+                complete_only=api_complete_filter,
+                min_release_date=min_release_date,
+                refseq_only=refseq_only,
+                failed_commands=failed_commands,
+            )
 
-        if not api_reports:
-            logger.warning("No virus records found matching the specified criteria.")
-            logger.info("Consider relaxing your filter criteria or checking your virus identifier.")
-            return
+            if not api_reports:
+                logger.warning("No virus records found matching the specified criteria.")
+                logger.info("Consider relaxing your filter criteria or checking your virus identifier.")
+                return
 
-        logger.info("Successfully retrieved %d virus records from API", len(api_reports))
+            logger.info("Successfully retrieved %d virus records from API", len(api_reports))
+            total_api_records = len(api_reports)
 
-        # Convert API metadata to internal format
-        logger.debug("Converting API metadata to internal format...")
-        metadata_dict = load_metadata_from_api_reports(api_reports)
-        logger.info("Processed metadata for %d sequences", len(metadata_dict))
+            # Convert API metadata to internal format
+            logger.debug("Converting API metadata to internal format...")
+            metadata_dict = load_metadata_from_api_reports(api_reports)
+            logger.info("Processed metadata for %d sequences", len(metadata_dict))
 
-        # Save the raw API metadata (server-side filtered) before local filtering
-        logger.debug("Writing API metadata to JSONL file: %s", output_api_metadata_jsonl)
-        try:
-            with open(output_api_metadata_jsonl, "w", encoding="utf-8") as f:
-                for md in metadata_dict.values():
-                    f.write(json.dumps(md) + "\n")
-            logger.info("✅ Saved API metadata JSONL: %s", output_api_metadata_jsonl)
-        except Exception as e:
-            logger.warning("❌ Failed to save API metadata JSONL: %s", e)
+            # Save the raw API metadata (server-side filtered) before local filtering
+            logger.debug("Writing API metadata to JSONL file: %s", output_api_metadata_jsonl)
+            try:
+                with open(output_api_metadata_jsonl, "w", encoding="utf-8") as f:
+                    for md in metadata_dict.values():
+                        f.write(json.dumps(md) + "\n")
+                logger.info("✅ Saved API metadata JSONL: %s", output_api_metadata_jsonl)
+            except Exception as e:
+                logger.warning("❌ Failed to save API metadata JSONL: %s", e)
 
     # SECTION 4: METADATA-ONLY FILTERING
         logger.info("=" * 60)
@@ -3432,7 +3699,24 @@ def ncbi_virus(
             filtered_accessions, filtered_metadata = filter_metadata_only(metadata_dict, **filters)
             if not filtered_accessions:
                 logger.warning("No sequences passed metadata-only filters. Skipping sequence download.")
+                total_after_metadata_filter = 0
+                total_final_sequences = 0
+                # Save command summary even if no sequences passed filters
+                save_command_summary(
+                    outfolder=outfolder,
+                    command_line=command_line,
+                    total_api_records=total_api_records,
+                    total_after_metadata_filter=0,
+                    total_final_sequences=0,
+                    output_files=output_files_dict,
+                    filtered_metadata=[],
+                    success=True,
+                    error_message="No sequences passed the metadata filters",
+                    failed_commands=failed_commands
+                )
                 return
+        
+        total_after_metadata_filter = len(filtered_accessions)
 
 
         # Prepare output file paths
@@ -3455,10 +3739,34 @@ def ncbi_virus(
         logger.info("STEP 5: Downloading sequences for filtered accessions")
         logger.info("=" * 60)
 
-        fna_file = download_sequences_by_accessions(filtered_accessions, outdir=temp_dir)
-        if not os.path.exists(fna_file):
-            raise RuntimeError(f"❌ Download failed: FASTA file not found at {fna_file}")
-        logger.info("Downloaded FASTA file: %s (%.2f MB)", fna_file, os.path.getsize(fna_file) / 1024 / 1024)
+        # Check if we're using cached sequences
+        if used_cached_download and cached_sequences:
+            logger.info("Using sequences from cached download (skipping sequence download)")
+            
+            # Filter cached sequences based on filtered_accessions
+            # Create a mapping of accession to sequence
+            cached_seq_dict = {seq.id.split('.')[0]: seq for seq in cached_sequences}
+            
+            # Get only the sequences that passed metadata filtering
+            filtered_cached_seqs = []
+            for acc in filtered_accessions:
+                if acc in cached_seq_dict:
+                    filtered_cached_seqs.append(cached_seq_dict[acc])
+                else:
+                    logger.debug("Accession %s not found in cached sequences", acc)
+            
+            logger.info("After metadata filtering: %d sequences from cache", len(filtered_cached_seqs))
+            
+            # Save to temporary FASTA file for consistency with regular pipeline
+            fna_file = os.path.join(temp_dir, f"{virus_clean}_cached_sequences.fasta")
+            FastaIO.write(filtered_cached_seqs, fna_file, "fasta")
+            logger.info("Saved filtered cached sequences to temporary file: %s", fna_file)
+        else:
+            # Regular sequence download
+            fna_file = download_sequences_by_accessions(filtered_accessions, outdir=temp_dir, failed_commands=failed_commands)
+            if not os.path.exists(fna_file):
+                raise RuntimeError(f"❌ Download failed: FASTA file not found at {fna_file}")
+            logger.info("Downloaded FASTA file: %s (%.2f MB)", fna_file, os.path.getsize(fna_file) / 1024 / 1024)
 
     # SECTION 6: SEQUENCE-DEPENDENT FILTERING
         logger.info("=" * 60)
@@ -3499,8 +3807,13 @@ def ncbi_virus(
             FastaIO.write(filtered_sequences, output_fasta_file, "fasta")
             if os.path.exists(output_fasta_file):
                 logger.info("✅ FASTA file saved: %s (%.2f MB)", output_fasta_file, os.path.getsize(output_fasta_file) / 1024 / 1024)
+                output_files_dict['FASTA Sequences'] = output_fasta_file
             else:
                 logger.error("❌ Failed to create FASTA file: %s", output_fasta_file)
+            
+            # Track final counts and metadata for summary
+            total_final_sequences = len(filtered_sequences)
+            final_metadata_for_summary = filtered_metadata_final
 
             # Overwrite JSONL with final filtered metadata (includes only sequences that passed all filters)
             try:
@@ -3508,6 +3821,7 @@ def ncbi_virus(
                     for metadata in filtered_metadata_final:
                         file.write(json.dumps(metadata) + "\n")
                 logger.info("✅ JSONL metadata file saved: %s (%.2f MB)", output_metadata_jsonl, os.path.getsize(output_metadata_jsonl) / 1024 / 1024)
+                output_files_dict['JSONL Metadata'] = output_metadata_jsonl
             except Exception as e:
                 logger.error("❌ Failed to save JSONL metadata file: %s", e)
                 raise
@@ -3517,6 +3831,7 @@ def ncbi_virus(
                 save_metadata_to_csv(filtered_metadata_final, protein_headers, output_metadata_csv)
                 if os.path.exists(output_metadata_csv):
                     logger.info("✅ CSV metadata file saved: %s (%.2f MB)", output_metadata_csv, os.path.getsize(output_metadata_csv) / 1024 / 1024)
+                    output_files_dict['CSV Metadata'] = output_metadata_csv
                 else:
                     logger.error("❌ Failed to create CSV file: %s", output_metadata_csv)
             except Exception as e:
@@ -3546,12 +3861,31 @@ def ncbi_virus(
                     # genbank_full_csv_path = os.path.join(outfolder, f"{virus_clean}_genbank_metadata_full_csv_data.csv")
 
                     # Fetch GenBank metadata
-                    genbank_data = fetch_genbank_metadata(
+                    genbank_data, genbank_failed_log = fetch_genbank_metadata(
                         accessions=list(set(final_accessions)),  # Remove duplicates
                         genbank_full_xml_path=genbank_full_xml_path, genbank_full_csv_path=genbank_full_csv_path,
                         batch_size=genbank_batch_size,
                         delay=0.5  # Be respectful to NCBI servers
                     )
+                    
+                    # Parse GenBank failed batches log if it exists
+                    if genbank_failed_log and os.path.exists(genbank_failed_log):
+                        try:
+                            with open(genbank_failed_log, 'r') as flog:
+                                content = flog.read()
+                                # Parse the log file to extract failed batch information
+                                batch_pattern = r'FAILED_BATCH: \[([^\]]+)\][\s\S]*?URL: ([^\n]+)'
+                                matches = re.findall(batch_pattern, content)
+                                for accessions_str, url in matches:
+                                    # Clean up accessions string
+                                    batch_accessions = [acc.strip().strip("'").strip('"') for acc in accessions_str.split(',')]
+                                    failed_commands['genbank_batches'].append({
+                                        'accessions': batch_accessions,
+                                        'retry_url': url.strip()
+                                    })
+                        except Exception as parse_error:
+                            logger.debug("Could not parse GenBank failed batches log: %s", parse_error)
+                    
                     if genbank_data:
                         # Save GenBank metadata to CSV
                         save_genbank_metadata_to_csv(
@@ -3561,6 +3895,11 @@ def ncbi_virus(
                         )
                         logger.info("✅ GenBank metadata CSV saved: %s (%.2f MB)", 
                                     genbank_csv_path, os.path.getsize(genbank_csv_path) / 1024 / 1024)
+                        output_files_dict['GenBank CSV Metadata'] = genbank_csv_path
+                        if os.path.exists(genbank_full_xml_path):
+                            output_files_dict['GenBank Full XML'] = genbank_full_xml_path
+                        if os.path.exists(genbank_full_csv_path):
+                            output_files_dict['GenBank Full CSV'] = genbank_full_csv_path
                     else:
                         logger.warning("No GenBank metadata was retrieved")
                 else:
@@ -3600,6 +3939,20 @@ def ncbi_virus(
                     logger.info("  🧬 GenBank-only full CSV (readable XML format):      %s", os.path.basename(genbank_full_csv_path))
 
             logger.info("=" * 60)
+            
+            # Save command summary
+            save_command_summary(
+                outfolder=outfolder,
+                command_line=command_line,
+                total_api_records=total_api_records,
+                total_after_metadata_filter=total_after_metadata_filter,
+                total_final_sequences=total_final_sequences,
+                output_files=output_files_dict,
+                filtered_metadata=final_metadata_for_summary,
+                success=True,
+                error_message=None,
+                failed_commands=failed_commands
+            )
         else:
             logger.warning("=" * 60)
             logger.warning("NO SEQUENCES PASSED THE FILTERS")
@@ -3611,6 +3964,20 @@ def ncbi_virus(
             logger.warning("  - Trying a broader virus query term")
             logger.warning("  - Removing some of the more restrictive filters")
             logger.warning("=" * 60)
+            
+            # Save command summary even when no sequences pass
+            save_command_summary(
+                outfolder=outfolder,
+                command_line=command_line,
+                total_api_records=total_api_records,
+                total_after_metadata_filter=total_after_metadata_filter,
+                total_final_sequences=0,
+                output_files=output_files_dict,
+                filtered_metadata=[],
+                success=True,
+                error_message="No sequences passed all filters",
+                failed_commands=failed_commands
+            )
 
     except Exception as e:
         # Handle any unexpected errors during processing
@@ -3720,6 +4087,20 @@ def ncbi_virus(
             logger.error("Error type: %s", type(e).__name__)
             if logger.getEffectiveLevel() <= logging.DEBUG:
                 logger.debug("Full traceback:\n%s", traceback.format_exc())
+        
+        # Save command summary with error information
+        save_command_summary(
+            outfolder=outfolder if outfolder else os.getcwd(),
+            command_line=command_line,
+            total_api_records=total_api_records,
+            total_after_metadata_filter=total_after_metadata_filter,
+            total_final_sequences=total_final_sequences,
+            output_files=output_files_dict,
+            filtered_metadata=final_metadata_for_summary,
+            success=False,
+            error_message=str(e),
+            failed_commands=failed_commands
+        )
         
         raise
         
