@@ -245,29 +245,57 @@ Retry URL: https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nucleoti
 **Download a specific SARS-CoV-2 reference genome using its accession number:**
 
 ```bash
-gget ncbi_virus NC_045512.2 --accession --is_sars_cov2
+gget ncbi_virus NC_045512.2 --is_accession --is_sars_cov2
 ```
 
 ```python
 # Python
-gget.ncbi_virus("NC_045512.2", accession=True, is_sars_cov2=True)
+gget.ncbi_virus("NC_045512.2", is_accession=True, is_sars_cov2=True)
 ```
 
 → Uses the optimized download method for SARS-CoV-2 to fetch the reference genome and its metadata.
 
 <br><br>
-**Download Influenza A virus sequences with optimized caching:**
+**Download SARS-CoV-2 sequences with cached optimization AND GenBank metadata:**
 
 ```bash
-gget ncbi_virus "Influenza A virus" --host human --nuc_completeness complete --is_alphainfluenza
+gget ncbi_virus "SARS-CoV-2" --host human --nuc_completeness complete --min_seq_length 29000 --genbank_metadata
 ```
 
 ```python
 # Python
-gget.ncbi_virus("Influenza A virus", host="human", nuc_completeness="complete", is_alphainfluenza=True)
+gget.ncbi_virus(
+    "SARS-CoV-2", 
+    host="human", 
+    nuc_completeness="complete",
+    min_seq_length=29000,
+    genbank_metadata=True,
+    is_sars_cov2=True
+)
 ```
 
-→ Uses NCBI's cached data packages for Alphainfluenza to download complete Influenza A genomes from human hosts much faster than the standard API method.
+→ Uses cached download for speed, applies the sequence length filter post-download, and fetches detailed GenBank metadata for all filtered sequences.
+
+<br><br>
+**Download Influenza A virus sequences with optimized caching and post-download filtering:**
+
+```bash
+gget ncbi_virus "Influenza A virus" --host human --nuc_completeness complete --max_seq_length 15000 --genbank_metadata --is_alphainfluenza
+```
+
+```python
+# Python
+gget.ncbi_virus(
+    "Influenza A virus", 
+    host="human", 
+    nuc_completeness="complete",
+    max_seq_length=15000,
+    genbank_metadata=True,
+    is_alphainfluenza=True
+)
+```
+
+→ Uses NCBI's cached data packages for Alphainfluenza to download complete Influenza A genomes from human hosts much faster than the standard API method, then applies the sequence length filter and fetches GenBank metadata.
 
 #### [More examples](https://github.com/pachterlab/gget_examples)
 
@@ -285,7 +313,7 @@ If you use `gget ncbi_virus` in a publication, please cite the following article
 
 ## Overview
 
-The `gget.ncbi_virus()` function implements an optimized 6-step workflow for retrieving virus sequences and associated metadata from NCBI. The system is designed to minimize download overhead by filtering metadata first, then downloading only the sequences that pass initial filters, with optional detailed GenBank metadata retrieval.
+The `gget.ncbi_virus()` function implements an optimized 8-step workflow for retrieving virus sequences and associated metadata from NCBI. The system is designed to minimize download overhead by filtering metadata first, then downloading only the sequences that pass initial filters, with optional detailed GenBank metadata retrieval. For SARS-CoV-2 and Alphainfluenza queries, the workflow can use optimized cached data packages while still applying all filters and fetching GenBank metadata.
 
 ## Architecture
 
@@ -302,9 +330,23 @@ The `gget.ncbi_virus()` function implements an optimized 6-step workflow for ret
                │
                ▼
 ┌─────────────────────────────┐
+│  Cached Download Check      │
+│  (SARS-CoV-2/Alphainfluenza)│
+│                             │
+│  • Auto-detect or use flags │
+│  • Download cached packages │
+│  • Apply basic filters      │
+│    (host, complete, lineage)│
+│  • Store for pipeline use   │
+└──────────────┬──────────────┘
+               │
+               ▼
+┌─────────────────────────────┐
 │   API & Pre-Filtering       │
+│   (or use cached metadata)  │
 │                             │
 │  • Calls NCBI Datasets API  │
+│    OR uses cached metadata  │
 │  • Applies server-side      │
 │    filters (host, refseq)   │
 └──────────────┬──────────────┘
@@ -312,27 +354,28 @@ The `gget.ncbi_virus()` function implements an optimized 6-step workflow for ret
                ▼
 ┌─────────────────────────────┐
 │ Local Metadata Filtering &  │
-│     Sequence Acquisition    │
+│     Sequence Handling       │
 │                             │
-│  • Applies remaining local  │
-│    filters (date ranges,    │
+│  • Applies ALL remaining    │
+│    local filters (dates,    │
 │    gene counts, etc.)       │
 │  • Generates final list of  │
 │    accession numbers        │
-│  • Downloads FASTA sequences│
-│    via E-utilities API      │
+│  • Uses cached sequences OR │
+│    downloads via E-utilities│
 └──────────────┬──────────────┘
                │
    ┌───────────┴──────────────────────────────────────────┐
    │                                                      │
    ▼                                                      ▼
 ┌─────────────────────────────┐      ┌───────────────────────────────────┐
-│   Final Processing          │      │   GenBank Sideload (Optional)     │
+│   Final Processing          │      │   GenBank Metadata (Optional)     │
 │                             │      │                                   │
-│  • Applies sequence-level   │      │ • Uses final accession list to    │
-│    filters (e.g., max N's)  │      │   fetch detailed GenBank records  │
-│  • Formats standard metadata│      │   via E-utilities API             │
-└──────────────┬──────────────┘      └──────────────────┬────────────────┘
+│  • Applies sequence-level   │      │ • Fetched even for cached         │
+│    filters (e.g., max N's)  │      │   downloads when requested        │
+│  • Formats standard metadata│      │ • Uses final accession list       │
+└──────────────┬──────────────┘      │ • Fetches via E-utilities API     │
+               │                     └──────────────────┬────────────────┘
                │                                        │
                └──────────────────┬─────────────────────┘
                                   │
@@ -340,15 +383,17 @@ The `gget.ncbi_virus()` function implements an optimized 6-step workflow for ret
                     ┌───────────────────────────────┐
                     │            Results            │
                     │                               │
+                    │  • command_summary.txt        │
                     │  • _sequences.fasta           │
                     │  • _metadata.csv & .jsonl     │
                     │  • _genbank_metadata.csv      │
+                    │    (if requested)             │
                     └───────────────────────────────┘
 ```
 
 ## Workflow Steps
 
-### Step 1: Input Validation & Setup (Silent)
+### Step 1: Input Validation & Setup
 - **Function**: `ncbi_virus()` main function
 - **Purpose**: Validate all user parameters and configure logging
 - **Key Operations**:
@@ -358,54 +403,85 @@ The `gget.ncbi_virus()` function implements an optimized 6-step workflow for ret
   - Configure logging based on verbosity level
   - Check for SARS-CoV-2 or Alphainfluenza optimization opportunities
 
-### Step 2: Metadata Retrieval
-- **Function**: `fetch_virus_metadata()`
-- **Purpose**: Retrieve metadata from NCBI Datasets API with server-side filtering
+### Step 2: Optimized Cached Download (SARS-CoV-2 & Alphainfluenza)
+- **Functions**: `download_sars_cov2_optimized()`, `download_alphainfluenza_optimized()`
+- **Purpose**: Use NCBI's pre-computed cached data packages for faster downloads
 - **Key Operations**:
+  - Auto-detect or use explicit flags for SARS-CoV-2/Alphainfluenza queries
+  - Download compressed cached packages via NCBI datasets CLI
+  - Apply basic filters supported by cached downloads (host, complete_only, annotated, lineage)
+  - Extract sequences and basic metadata
+  - **Store data for pipeline continuation** (does not return early)
+  - Hierarchical fallback to standard API if cached download fails
+- **Filters Applied**:
+  - ✅ `host` - Applied during download
+  - ✅ `complete_only` - Applied during download
+  - ✅ `annotated` - Applied during download
+  - ✅ `lineage` (COVID only) - Applied during download
+  - ⏭️ All other filters applied in subsequent steps
+
+### Step 3: Metadata Retrieval
+- **Function**: `fetch_virus_metadata()`
+- **Purpose**: Retrieve metadata from NCBI Datasets API with server-side filtering, or use cached metadata
+- **Key Operations**:
+  - **If using cached download**: Skip API call, use cached metadata
+  - **Otherwise**: Call NCBI Datasets API with server-side filters
   - Apply server-side filters (host, geographic location, release date, completeness)
   - Handle API pagination with connection pooling
   - Implement exponential backoff with jitter for retries
   - Parse JSON responses with streaming for large datasets
   - Store metadata in structured format with validation
 
-### Step 3: Metadata-Only Filtering
+### Step 4: Metadata-Only Filtering
 - **Function**: `filter_metadata_only()`
-- **Purpose**: Apply local filters that don't require sequence data
+- **Purpose**: Apply ALL local filters that don't require sequence data
 - **Key Operations**:
   - Filter by date ranges with smart date parsing
   - Filter by genome completeness and quality indicators
-  - Apply numeric range filters (gene/protein counts)
+  - Apply numeric range filters (gene/protein counts, sequence length)
   - Handle missing or malformed metadata gracefully
-  - Generate optimized accession list for targeted download
+  - Generate optimized accession list for targeted processing
+  - **Note**: Filters not applied during cached download are applied here
 
-### Step 4: Targeted Sequence Download
+### Step 5: Sequence Handling
 - **Function**: `download_sequences_by_accessions()`
-- **Purpose**: Download FASTA sequences only for filtered accessions
+- **Purpose**: Use cached sequences or download FASTA sequences for filtered accessions
 - **Key Operations**:
-  - Use E-utilities API with batch optimization
+  - **If using cached download**: Filter cached sequences by accession list from Step 4
+  - **Otherwise**: Download via E-utilities API with batch optimization
   - Implement configurable batch sizes (default: 200)
   - Stream large responses to manage memory
   - Handle download retries with exponential backoff
-  - Return path to downloaded FASTA file
-
-### Step 5: GenBank Metadata Retrieval (Optional)
-- **Function**: `fetch_genbank_metadata()`
-- **Purpose**: Fetch detailed GenBank records for sequences
-- **Key Operations**:
-  - Retrieve comprehensive GenBank records
-  - Extract 23+ metadata fields per record
-  - Process in configurable batch sizes
-  - Implement rate limiting and retries
-  - Parse and validate GenBank XML
+  - Return path to FASTA file for processing
 
 ### Step 6: Sequence-Dependent Filtering & Output
 - **Function**: `filter_sequences()`
 - **Purpose**: Apply final filters requiring sequence analysis and save results
 - **Key Operations**:
   - Parse FASTA sequences and calculate sequence metrics
-  - Filter by sequence length, ambiguous character count
+  - Filter by ambiguous character count
   - Filter by protein completeness indicators
   - Save filtered sequences and metadata to output files
+
+### Step 7: GenBank Metadata Retrieval (Optional)
+- **Function**: `fetch_genbank_metadata()`
+- **Purpose**: Fetch detailed GenBank records for final sequence set
+- **Key Operations**:
+  - **Available for both cached and non-cached downloads**
+  - Retrieve comprehensive GenBank records
+  - Extract 23+ metadata fields per record
+  - Process in configurable batch sizes
+  - Implement rate limiting and retries
+  - Parse and validate GenBank XML
+  - Merge with existing metadata
+
+### Step 8: Command Summary Generation
+- **Purpose**: Create detailed summary of execution
+- **Key Operations**:
+  - Record command line and parameters
+  - Track filtering statistics at each stage
+  - List output files with sizes
+  - Document any failed operations with retry commands
 
 ## Function Dependencies
 
@@ -471,6 +547,12 @@ ncbi_virus()
 - Automatic detection or explicit flags (`--is_sars_cov2`, `--is_alphainfluenza`)
 - Hierarchical fallback strategies to standard API if cached download fails
 - Significantly faster downloads for large datasets
+- **Pipeline continuation**: Cached downloads now continue through all workflow steps
+- **Post-download filtering**: Filters not applied during cached download are applied afterward
+- **GenBank metadata**: Available for cached downloads when `--genbank_metadata` flag is used
+- **Filter categories**:
+  - Applied during download: `host`, `complete_only`, `annotated`, `lineage` (COVID)
+  - Applied post-download: All other filters (sequence length, gene counts, dates, etc.)
 
 ### 5. **Efficient Data Structures**
 - Accession-based dictionaries for O(1) lookups
