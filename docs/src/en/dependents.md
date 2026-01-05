@@ -10,7 +10,8 @@ ___
 The following applications build on *gget*:
 - [Biomni](https://biomni.stanford.edu/environment)  
   A General-Purpose Biomedical AI Agent being developed at Stanford and Genentech.
-- [PerTurboAgent](https://www.biorxiv.org/content/10.1101/2025.05.25.656020v1): A Self-Planning Agent for Boosting Sequential Perturb-seq Experiments  
+- [PerTurboAgent](https://www.biorxiv.org/content/10.1101/2025.05.25.656020v1)  
+  A Self-Planning Agent for Boosting Sequential Perturb-seq Experiments.  
   > "We [...] use packages gget and blitzgsea for data enrichment analysis" 
 - [Scientific skills for Claude](https://github.com/K-Dense-AI/claude-scientific-skills) by K-Dense-AI  
   > " This repository contains 138 scientific skills organized across multiple domains. Each skill provides comprehensive documentation, code examples, and best practices for working with scientific libraries, databases, and tools.  
