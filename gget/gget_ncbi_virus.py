@@ -27,6 +27,158 @@ logger = set_up_logger()
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 random_suffix = os.urandom(4).hex() # random suffix for naming uniqueness
 
+
+def _check_and_install_datasets_cli():
+    """
+    Check if NCBI datasets CLI is installed. If not, attempt to install it via conda.
+    
+    Returns:
+        bool: True if datasets CLI is available, False otherwise
+        
+    Raises:
+        RuntimeError: If datasets CLI is not available and cannot be installed
+    """
+    # Check if datasets command is available
+    try:
+        result = subprocess.run(
+            ["datasets", "--version"],
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        if result.returncode == 0:
+            logger.info("✅ NCBI datasets CLI is installed: %s", result.stdout.strip())
+            return True
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        pass
+    
+    # datasets CLI not found, attempt to install via conda
+    logger.warning("=" * 80)
+    logger.warning("⚠️  NCBI DATASETS CLI NOT FOUND")
+    logger.warning("=" * 80)
+    logger.warning("The NCBI datasets CLI is required for cached Alphainfluenza/SARS-CoV-2 downloads.")
+    logger.warning("Attempting automatic installation via conda...")
+    logger.warning("=" * 80)
+    
+    # Check if conda is available
+    try:
+        conda_result = subprocess.run(
+            ["conda", "--version"], 
+            capture_output=True, 
+            check=True, 
+            timeout=5
+        )
+        logger.info("Found conda: %s", conda_result.stdout.strip())
+    except (FileNotFoundError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
+        error_msg = (
+            "=" * 80 + "\n"
+            "❌ INSTALLATION FAILED\n"
+            "=" * 80 + "\n"
+            "datasets CLI not found and conda is not available for automatic installation.\n\n"
+            "🔧 MANUAL INSTALLATION REQUIRED:\n\n"
+            "Option 1 - Using conda:\n"
+            "  conda install -c conda-forge ncbi-datasets-cli\n\n"
+            "Option 2 - Using the official installer:\n"
+            "  Visit: https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/\n\n"
+            "After installation, restart your terminal and try again.\n"
+            "=" * 80
+        )
+        logger.error(error_msg)
+        raise RuntimeError(error_msg)
+    
+    # Try to install via conda
+    logger.info("📦 Installing ncbi-datasets-cli via conda...")
+    logger.info("This may take a few minutes...")
+    try:
+        install_result = subprocess.run(
+            ["conda", "install", "-c", "conda-forge", "ncbi-datasets-cli", "-y"],
+            capture_output=True,
+            text=True,
+            timeout=300  # 5 minutes timeout for installation
+        )
+        
+        if install_result.returncode == 0:
+            logger.info("✅ conda install completed successfully")
+            
+            # Verify installation
+            verify_result = subprocess.run(
+                ["datasets", "--version"],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            if verify_result.returncode == 0:
+                logger.info("=" * 80)
+                logger.info("✅ INSTALLATION SUCCESSFUL")
+                logger.info("=" * 80)
+                logger.info("Verified datasets CLI installation: %s", verify_result.stdout.strip())
+                logger.info("=" * 80)
+                return True
+            else:
+                error_msg = (
+                    "=" * 80 + "\n"
+                    "⚠️  INSTALLATION COMPLETED BUT VERIFICATION FAILED\n"
+                    "=" * 80 + "\n"
+                    "The conda installation succeeded, but the datasets command is not yet available.\n"
+                    "This usually means you need to restart your terminal/shell.\n\n"
+                    "🔧 NEXT STEPS:\n"
+                    "1. Close your current terminal window\n"
+                    "2. Open a new terminal\n"
+                    "3. Reactivate your conda environment if needed\n"
+                    "4. Run your gget command again\n"
+                    "=" * 80
+                )
+                logger.warning(error_msg)
+                raise RuntimeError(error_msg)
+        else:
+            error_msg = (
+                "=" * 80 + "\n"
+                "❌ CONDA INSTALLATION FAILED\n"
+                "=" * 80 + "\n"
+                f"Error output:\n{install_result.stderr}\n\n"
+                "🔧 MANUAL INSTALLATION:\n"
+                "Please try installing manually:\n"
+                "  conda install -c conda-forge ncbi-datasets-cli\n\n"
+                "Or use the official installer:\n"
+                "  https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/\n"
+                "=" * 80
+            )
+            logger.error(error_msg)
+            raise RuntimeError(error_msg)
+            
+    except subprocess.TimeoutExpired:
+        error_msg = (
+            "=" * 80 + "\n"
+            "❌ INSTALLATION TIMEOUT\n"
+            "=" * 80 + "\n"
+            "Installation of ncbi-datasets-cli timed out after 5 minutes.\n"
+            "This may indicate network issues or conda environment problems.\n\n"
+            "🔧 MANUAL INSTALLATION:\n"
+            "Please try installing manually:\n"
+            "  conda install -c conda-forge ncbi-datasets-cli\n\n"
+            "Or use the official installer:\n"
+            "  https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/\n"
+            "=" * 80
+        )
+        logger.error(error_msg)
+        raise RuntimeError(error_msg)
+    except Exception as e:
+        error_msg = (
+            "=" * 80 + "\n"
+            "❌ UNEXPECTED INSTALLATION ERROR\n"
+            "=" * 80 + "\n"
+            f"An unexpected error occurred during installation: {e}\n\n"
+            "🔧 MANUAL INSTALLATION:\n"
+            "Please try installing manually:\n"
+            "  conda install -c conda-forge ncbi-datasets-cli\n\n"
+            "Or use the official installer:\n"
+            "  https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/\n"
+            "=" * 80
+        )
+        logger.error(error_msg)
+        raise RuntimeError(error_msg)
+
+
 def fetch_virus_metadata(
     virus,
     accession=False,
@@ -226,6 +378,17 @@ def fetch_virus_metadata(
                 
                 # Check for specific server error patterns
                 if "500" in str(last_exception):
+                    # Special handling for "all viruses" query (taxon 10239)
+                    # If this is the first page and we're querying all viruses without date filters,
+                    # the dataset is too large for NCBI to handle - need to chunk by date
+                    if virus == "10239" and not accession and page_count == 1 and not min_release_date:
+                        logger.warning("⚠️ NCBI API cannot handle 'all viruses' query in a single request")
+                        logger.info("🔄 Automatically switching to date-chunked download strategy...")
+                        logger.info("This will split the download into yearly chunks to avoid server overload")
+                        # Return None to signal that chunking is needed
+                        # The calling function will handle the chunking strategy
+                        return None
+                    
                     error_msg += (
                         f"\n\n🔧 SERVER ERROR DETECTED: "
                         f"NCBI's API is experiencing temporary server-side issues. "
@@ -242,6 +405,122 @@ def fetch_virus_metadata(
     # Log the final results summary
     logger.info("Successfully retrieved %d virus records from NCBI API across %d pages", 
                 len(all_reports), page_count)
+    
+    return all_reports
+
+
+def fetch_virus_metadata_chunked(
+    virus, 
+    accession=False, 
+    host=None, 
+    geographic_location=None, 
+    annotated=None,
+    complete_only=False,
+    min_release_date=None,
+    refseq_only=False,
+    failed_commands=None
+):
+    """
+    Fetch virus metadata using a chunked date-range strategy for very large datasets.
+    
+    This function is used as a fallback when the standard fetch_virus_metadata fails
+    due to dataset size limitations. It breaks down the request into yearly chunks
+    starting from a reasonable start date (2000-01-01 or user's min_release_date) to the present.
+    
+    Args:
+        Same as fetch_virus_metadata
+        
+    Returns:
+        list: Combined list of virus metadata records from all date chunks
+        
+    Raises:
+        RuntimeError: If any chunk fails to download
+    """
+    from datetime import datetime, timedelta
+    
+    logger.info("=" * 80)
+    logger.info("📦 CHUNKED DOWNLOAD MODE ACTIVATED")
+    logger.info("=" * 80)
+    logger.info("The 'all viruses' dataset is too large for NCBI to handle in one request.")
+    logger.info("Splitting download into yearly chunks to ensure successful completion.")
+    logger.info("This may take a while, but ensures all data is retrieved.")
+    logger.info("=" * 80)
+    
+    # Define date range for chunking
+    # If user specified min_release_date, use it; otherwise start from 2000
+    if min_release_date:
+        # Extract year from user's min_release_date
+        start_year = int(min_release_date.split('-')[0])
+        logger.info(f"Starting from user-specified year: {start_year}")
+    else:
+        # Start from 2000 as most valuable viral sequence data is from 2000 onwards
+        start_year = 2000
+        logger.info("Starting from year 2000 (default for 'all viruses' downloads)")
+    
+    current_date = datetime.now()
+    current_year = current_date.year
+    
+    all_reports = []
+    total_chunks = current_year - start_year + 1
+    
+    logger.info(f"Will process {total_chunks} year(s) from {start_year} to {current_year}")
+    logger.info("=" * 80)
+    
+    for year in range(start_year, current_year + 1):
+        chunk_start = f"{year}-01-01"
+        chunk_end = f"{year}-12-31"
+        
+        # For the current year, use today's date as the end
+        if year == current_year:
+            chunk_end = current_date.strftime("%Y-%m-%d")
+        
+        chunk_num = year - start_year + 1
+        logger.info("")
+        logger.info("=" * 80)
+        logger.info(f"📥 Chunk {chunk_num}/{total_chunks}: Fetching data for year {year}")
+        logger.info(f"   Date range: {chunk_start} to {chunk_end}")
+        logger.info("=" * 80)
+        
+        try:
+            # Fetch metadata for this date chunk
+            chunk_reports = fetch_virus_metadata(
+                virus=virus,
+                accession=accession,
+                host=host,
+                geographic_location=geographic_location,
+                annotated=annotated,
+                complete_only=complete_only,
+                min_release_date=chunk_start,
+                refseq_only=refseq_only,
+                failed_commands=failed_commands
+            )
+            
+            # If we got None, it means even this chunk is too large (shouldn't happen for yearly chunks)
+            if chunk_reports is None:
+                logger.error(f"❌ Chunk for year {year} is too large even for NCBI to handle")
+                logger.error("This is unexpected and may indicate an API issue")
+                raise RuntimeError(f"Year {year} chunk failed - dataset too large even when split by year")
+            
+            chunk_count = len(chunk_reports)
+            all_reports.extend(chunk_reports)
+            
+            logger.info(f"✅ Chunk {chunk_num}/{total_chunks} complete: Retrieved {chunk_count:,} records")
+            logger.info(f"   Running total: {len(all_reports):,} records")
+            
+            # Add a small delay between chunks to be respectful to NCBI servers
+            if year < current_year:
+                time.sleep(0.5)
+                
+        except Exception as e:
+            logger.error(f"❌ Failed to fetch chunk for year {year}: {e}")
+            raise RuntimeError(f"Chunked download failed at year {year}") from e
+    
+    logger.info("")
+    logger.info("=" * 80)
+    logger.info(f"✅ CHUNKED DOWNLOAD COMPLETE")
+    logger.info(f"   Total records retrieved: {len(all_reports):,}")
+    logger.info(f"   Total chunks processed: {total_chunks}")
+    logger.info("=" * 80)
     
     return all_reports
 
@@ -436,6 +715,9 @@ def _download_optimized_cached(
         ... )
     """
     
+    # Check if datasets CLI is available and install if needed
+    _check_and_install_datasets_cli()
+    
     last_error = None
     
     for strategy_name, cmd, applied_filters in strategies:
@@ -455,12 +737,28 @@ def _download_optimized_cached(
 
             # Start subprocess for progress monitoring
             # Note: We don't use cwd=outdir because the command already includes full paths
-            process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True
-            )
+            try:
+                process = subprocess.Popen(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True
+                )
+            except FileNotFoundError as fnf_error:
+                # Datasets CLI is not in PATH despite earlier check
+                error_msg = (
+                    "❌ datasets CLI is not available in your PATH.\n\n"
+                    "This likely means one of the following:\n"
+                    "1. The NCBI datasets CLI failed to install automatically\n"
+                    "2. It was installed but you need to restart your terminal/shell\n"
+                    "3. It's installed but not in your PATH environment variable\n\n"
+                    "🔧 SOLUTIONS:\n"
+                    "• If you just installed it, restart your terminal and try again\n"
+                    "• Install manually with: conda install -c conda-forge ncbi-datasets-cli\n"
+                    "• Or follow the official guide: https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/\n"
+                )
+                logger.error(error_msg)
+                raise RuntimeError(error_msg) from fnf_error
             
             # Monitor progress with timeout handling using helper function
             result = _monitor_subprocess_with_progress(process, cmd)
@@ -529,13 +827,6 @@ def _download_optimized_cached(
             logger.warning("❌ %s", error_msg)
             last_error = error_msg
             continue
-            
-        except FileNotFoundError as e:
-            # datasets CLI not found - this is a critical error, don't continue
-            raise RuntimeError(
-                "datasets CLI not found. Please install NCBI datasets CLI tools. "
-                "Installation guide: https://www.ncbi.nlm.nih.gov/datasets/docs/v2/command-line-tools/download-and-install/"
-            ) from e
             
         except Exception as e:
             error_msg = f"{strategy_name} unexpected error: {e}"
@@ -3639,6 +3930,22 @@ def ncbi_virus(
                 refseq_only=refseq_only,
                 failed_commands=failed_commands,
             )
+
+            # If fetch_virus_metadata returns None, it means the dataset is too large
+            # and we need to use the chunked download strategy
+            if api_reports is None:
+                logger.info("Standard download failed due to dataset size - switching to chunked download")
+                api_reports = fetch_virus_metadata_chunked(
+                    virus,
+                    accession=is_accession,
+                    host=host,
+                    geographic_location=geographic_location,
+                    annotated=api_annotated_filter,
+                    complete_only=api_complete_filter,
+                    min_release_date=min_release_date,
+                    refseq_only=refseq_only,
+                    failed_commands=failed_commands,
+                )
 
             if not api_reports:
                 logger.warning("No virus records found matching the specified criteria.")
