@@ -11,7 +11,7 @@
               "EFO_0000274",
               "atopic eczema",
               "A common chronic pruritic inflammatory skin disease with a strong genetic component. Onset typically occurs during the first 2 years of life.",
-              0.6876522106083125
+              0.6908981975876463
             ],
             [
               "MONDO_0004979",
@@ -181,7 +181,7 @@
             "ensembl_id": "ENSG00000169194",
             "resource": "depmap"
         },
-        "expected_result": "b0b9dece95d5dde83c3f1efe4b23fdf5"
+        "expected_result": "4c0393626ee958f860d4c1fd0b6b77ee"
     },
     "test_opentargets_depmap_filter": {
         "type": "assert_equal",
@@ -196,23 +196,21 @@
         "expected_result": [
             [
                 "ACH-000979",
-                0.034343917,
-                -0.14336789,
+                0.034343916922807693,
+                -0.14336788654327393,
                 "UBERON_0002367",
                 "prostate gland",
                 "DU 145",
-                "SIDM00120",
                 "Prostate Adenocarcinoma"
             ],
             [
-                "ACH-000115",
-                0.03794162,
-                -0.082284026,
+                "ACH-001422",
+                0.0291899424046278,
+                0.06934770196676254,
                 "UBERON_0002367",
                 "prostate gland",
-                "VCaP",
-                "SIDM01077",
-                "Prostate Adenocarcinoma"
+                "WPE1-NA22",
+                "Non-Cancerous"
             ]
         ]
     },
