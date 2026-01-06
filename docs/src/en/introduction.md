@@ -70,7 +70,6 @@ Read the article here: [https://doi.org/10.1093/bioinformatics/btac836](https://
 <br>  
 
 [![gget PyPI downloads over the last year](https://github.com/lauraluebbert/gget_downloads/raw/main/plots/downloads_gget.png)](https://github.com/lauraluebbert/gget_downloads/tree/main)  
-Automatically updates every day at 23:55 UTC. 
   
 <br>  
 <br>  
