@@ -71,7 +71,6 @@ Gracias a [Victor Garcia-Ruiz](https://github.com/victorg775) y [Anna Karen Orta
 <br>  
 
 [![gget PyPI downloads over the last year](https://github.com/lauraluebbert/gget_downloads/raw/main/plots/downloads_gget.png)](https://github.com/lauraluebbert/gget_downloads/tree/main)  
-Automatically updates every day at 23:55 UTC. 
 
 <br>  
 <br>  
