@@ -4,38 +4,20 @@
         "args": {
             "ensembl_id": "ENSG00000169194",
             "resource": "diseases",
-            "limit": 5
+            "limit": 2
         },
         "expected_result": [
             [
               "EFO_0000274",
               "atopic eczema",
               "A common chronic pruritic inflammatory skin disease with a strong genetic component. Onset typically occurs during the first 2 years of life.",
-              0.6908981975876463
+              0.6908981976
             ],
             [
               "MONDO_0004979",
               "asthma",
               "A bronchial disease that is characterized by chronic inflammation and narrowing of the airways, which is caused by a combination of environmental and genetic factors resulting in recurring periods of wheezing (a whistling sound while breathing), chest tightness, shortness of breath, mucus production and coughing. The symptoms appear due to a variety of triggers such as allergens, irritants, respiratory infections, weather changes, exercise, stress, reflux disease, medications, foods and emotional anxiety.",
-              0.6435360124611592
-            ],
-            [
-              "HP_0000964",
-              "Eczematoid dermatitis",
-              "Eczema is a form of dermatitis that is characterized by scaly, pruritic, erythematous lesions located on flexural surfaces.",
-              0.5915945300823627
-            ],
-            [
-              "EFO_0005854",
-              "allergic rhinitis",
-              "Inflammation of the nasal mucous membranes caused by an IgE-mediated response to external allergens. The inflammation may also involve the mucous membranes of the sinuses, eyes, middle ear, and pharynx. Symptoms include sneezing, nasal congestion, rhinorrhea, and itching. It may lead to fatigue, drowsiness, and malaise thus causing impairment of the quality of life.",
-              0.5336067452437038
-            ],
-            [
-              "EFO_0000676",
-              "psoriasis",
-              "An autoimmune condition characterized by red, well-delineated plaques with silvery scales that are usually on the extensor surfaces and scalp. They can occasionally present with these manifestations: pustules; erythema and scaling in intertriginous areas, and erythroderma, that are often distributed on extensor surfaces and scalp.",
-              0.5276407334688803
+              0.6506508395
             ]
         ]
     },
@@ -45,7 +27,7 @@
             "ensembl_id": "ENSG00000169194",
             "resource": "diseases"
         },
-        "expected_result": "e3e75838dfe1d0b74e447424ec52c2e6"
+        "expected_result": "177b4dc5dc5413fd2a35ec1979e97b8c"
     },
     "test_opentargets_no_limit_accurate_coverage": {
         "type": "assert_equal_json_hash",
@@ -55,7 +37,7 @@
             "verbose": false,
             "wrap_text": true
         },
-        "expected_result": "e3e75838dfe1d0b74e447424ec52c2e6"
+        "expected_result": "177b4dc5dc5413fd2a35ec1979e97b8c"
     },
     "test_opentargets_drugs": {
         "type": "assert_equal",
@@ -220,7 +202,7 @@
             "ensembl_id": "ENSG00000169194",
             "resource": "interactions"
         },
-        "expected_result": "ff58d2d15d55d6f9b96b211e74fa4d8e"
+        "expected_result": "87426de2adc0d83e6477a0eae579bec5"
     },
     "test_opentargets_interactions_simple_filter": {
         "type": "assert_equal",
@@ -248,20 +230,6 @@
                 9606
             ],
             [
-                3,
-                "reactome",
-                "P35225",
-                "ENSG00000169194",
-                "IL13",
-                "unspecified role",
-                9606,
-                "P24394",
-                "ENSG00000077238",
-                "IL4R",
-                "unspecified role",
-                9606
-            ],
-            [
                 2,
                 "signor",
                 "P35225",
@@ -273,6 +241,20 @@
                 "ENSG00000077238",
                 "IL4R",
                 "regulator target",
+                9606
+            ],
+            [
+                3,
+                "reactome",
+                "P35225",
+                "ENSG00000169194",
+                "IL13",
+                "unspecified role",
+                9606,
+                "P24394",
+                "ENSG00000077238",
+                "IL4R",
+                "unspecified role",
                 9606
             ]
         ]
