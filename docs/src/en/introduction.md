@@ -67,6 +67,11 @@ Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference data
 Read the article here: [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
 
 <br>  
+  
+[![gget PyPI downloads over the last year](https://github.com/lauraluebbert/gget_downloads/raw/main/plots/downloads_gget.png)](https://github.com/lauraluebbert/gget_downloads/tree/main)  
+Automatically updates every day at 23:55 UTC.
+  
+<br>  
 <iframe width="560" height="315" src="https://www.youtube.com/embed/cVR0k6Mt97o?si=BJwRyaymmxF9w65f" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>  
 
 ![logo-bmbf](https://github.com/user-attachments/assets/68449ba0-09d1-4f1e-b747-5ae2fec08a21) 
