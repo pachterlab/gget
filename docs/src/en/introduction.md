@@ -68,11 +68,13 @@ Read the article here: [https://doi.org/10.1093/bioinformatics/btac836](https://
 
 <br>  
 <br>  
+
 [![gget PyPI downloads over the last year](https://github.com/lauraluebbert/gget_downloads/raw/main/plots/downloads_gget.png)](https://github.com/lauraluebbert/gget_downloads/tree/main)  
-Automatically updates every day at 23:55 UTC.
+Automatically updates every day at 23:55 UTC. 
   
 <br>  
 <br>  
+
 <div style="display: flex; justify-content: center;">
   <iframe
     width="560"
@@ -86,5 +88,4 @@ Automatically updates every day at 23:55 UTC.
 </div>
 
 
-![logo-bmbf](https://github.com/user-attachments/assets/68449ba0-09d1-4f1e-b747-5ae2fec08a21) 
 ![logo-okfn](https://github.com/user-attachments/assets/452ae8d8-69f0-4d0d-848c-ddfb40357eb2)
