@@ -6,8 +6,7 @@ Automatically updates every day at 16:00 UTC.
 
 # ⬇️ Daily *gget* downloads
 
-[![gget PyPI downloads over the last year](https://github.com/lauraluebbert/gget_downloads/raw/main/plots/downloads_gget.png)](https://github.com/lauraluebbert/gget_downloads/tree/main)
-
+[![gget PyPI downloads over the last year](https://github.com/lauraluebbert/gget_downloads/raw/main/plots/downloads_gget.png)](https://github.com/lauraluebbert/gget_downloads/tree/main)  
 Automatically updates every day at 23:55 UTC.
 ___
 
