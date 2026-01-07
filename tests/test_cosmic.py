@@ -10,7 +10,7 @@ from gget.gget_cosmic import cosmic
 from .from_json import from_json
 
 # COSMIC release
-cosmic_version = 102
+cosmic_version = 103
 
 # Only this combo is used for example testing (no login required)
 arg_combinations = [

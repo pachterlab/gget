@@ -4,15 +4,25 @@
 
 Automatically updates every day at 16:00 UTC.
 
+# ⬇️ Daily *gget* downloads
+
+[![gget PyPI downloads over the last year](https://github.com/lauraluebbert/gget_downloads/raw/main/plots/downloads_gget.png)](https://github.com/lauraluebbert/gget_downloads/tree/main)  
+Automatically updates every day at 23:55 UTC.
 ___
 
 # 🧑‍🤝‍🧑 Dependent software
 The following applications build on *gget*:
-- [Biomni](https://biomni.stanford.edu/)  
+- [Biomni](https://biomni.stanford.edu/environment)  
   A General-Purpose Biomedical AI Agent being developed at Stanford and Genentech.
+- [PerTurboAgent](https://www.biorxiv.org/content/10.1101/2025.05.25.656020v1)  
+  A Self-Planning Agent for Boosting Sequential Perturb-seq Experiments.  
+  > "We [...] use packages gget and blitzgsea for data enrichment analysis" 
+- [Scientific skills for Claude](https://github.com/K-Dense-AI/claude-scientific-skills) by K-Dense-AI  
+  > " This repository contains 138 scientific skills organized across multiple domains. Each skill provides comprehensive documentation, code examples, and best practices for working with scientific libraries, databases, and tools.  
+  > 🧬 Bioinformatics & Genomics  
+  > Genomic tools: gget, ..."
 - [Therapeutics Data Commons (TDC)](https://tdcommons.ai/)  
-  Artificial intelligence foundation for therapeutic science ([source code](https://github.com/mims-harvard/TDC), [Nat Chem Bio paper](https://www.nature.com/articles/s41589-022-01131-2)) by 
-Harvard's Artificial Intelligence for Medicine and Science lab.
+  Artificial intelligence foundation for therapeutic science ([source code](https://github.com/mims-harvard/TDC), [Nat Chem Bio paper](https://www.nature.com/articles/s41589-022-01131-2)) by Harvard's Artificial Intelligence for Medicine and Science lab.
 - [BioDiscoveryAgent](https://github.com/snap-stanford/BioDiscoveryAgent)  
   BioDiscoveryAgent is an LLM-based AI agent for closed-loop design of genetic perturbation experiments ([preprint](https://arxiv.org/abs/2405.17631)) by the Stanford Network Analysis Project.
 - [DeepChopper](https://ylab-hi.github.io/DeepChopper/)  
@@ -47,10 +57,15 @@ ____
 
 # 📃 Featured publications
 - David Bradley et al., [The fitness cost of spurious phosphorylation.](https://doi.org/10.1038/s44318-024-00200-7) *The EMBO Journal* (2024). DOI: 10.1038/s44318-024-00200-7
+  > "Phosphosites matching to putative short linear motifs (SLiMs) were extracted using the gget elm resource"
 - Mikael Nilsson et al., [Resolving thyroid lineage cell trajectories merging into a dual endocrine gland in mammals.](https://doi.org/10.21203/rs.3.rs-5278325/v1) *Nature Portfolio (under review)* (2024). DOI: 10.21203/rs.3.rs-5278325/v1
+  > "Enrichment analysis of differentially expressed genes [...] was performed using gget enrichr"
 - Avasthi P et al., [Repeat expansions associated with human disease are present in diverse organisms.](https://doi.org/10.57844/arcadia-e367-8b55) *Arcadia* (2024). DOI: 10.57844/arcadia-e367-8b55
+  > "We used the gget package using the gget.blast command [...] to BLAST our proteins of interest against the non-redundant NCBI protein database"
 - Ibrahim Al Rayyes et al., [Single-Cell Transcriptomics Reveals the Molecular Logic Underlying Ca2+ Signaling Diversity in Human and Mouse Brain.](https://doi.org/10.1101/2024.04.26.591400) *bioRxiv* (2024). DOI: 10.1101/2024.04.26.591400
+  > "The gget package was used to perform the gene set enrichment analyses with databases Reactome_2022 and KEGG_2021_Mouse."
 - David R. Blair & Neil Risch. [Dissecting the Reduced Penetrance of Putative Loss-of-Function Variants in Population-Scale Biobanks.](https://doi.org/10.1101/2024.09.23.24314008) *medRxiv* (2024). DOI: 10.1101/2024.09.23.24314008
+  > "Additional gene and transcript information (exon-intron boundaries, 5' and 3' UTRs, full coding and amino acid sequences) was downloaded using gget"
 - Shanmugampillai Jeyarajaguru Kabilan et al., [Molecular modelling approaches for the identification of potent Sodium-Glucose Cotransporter 2 inhibitors from Boerhavia diffusa for the potential treatment of chronic kidney disease.](https://doi.org/10.21203/rs.3.rs-4520611/v1) *Journal of Computer-Aided Molecular Design (under review)* (2024). DOI: 10.21203/rs.3.rs-4520611/v1
 - Joseph M Rich et al., [The impact of package selection and versioning on single-cell RNA-seq analysis.](https://pmc.ncbi.nlm.nih.gov/articles/PMC11014608/#:~:text=10.1101/2024.04.04.588111) *bioRxiv* (2024). DOI: 10.1101/2024.04.04.588111
 - Sanjay C. Nagi et al., [AnoPrimer: Primer Design in malaria vectors informed by range-wide genomic variation.](https://wellcomeopenresearch.org/articles/9-255/v1) *Wellcome Open Research* (2024).
@@ -65,7 +80,7 @@ ____
 ___
 
 # 📰 News
-- [`gget opentargets` release blog post by the Open Targets platform](https://blog.opentargets.org/case-study-gget/)
+- `gget opentargets` release [blog post](https://blog.opentargets.org/case-study-gget/) by the Open Targets platform
 - Documentary short film about *gget*: [https://youtu.be/cVR0k6Mt97o](https://youtu.be/cVR0k6Mt97o)
 - Podcast episode for the Prototype Fund Public Interest Podcast about the importance of open-source software and its role in academic research (in German): [https://public-interest-podcast.podigee.io/33-pips4e4](https://public-interest-podcast.podigee.io/33-pips4e4)
 - Prototype Fund announcement: [https://prototypefund.de/project/gget-genomische-datenbanken](https://prototypefund.de/project/gget-genomische-datenbanken/)
@@ -73,5 +88,6 @@ ___
 ___
 
 # 🚂 [gget repository](https://github.com/pachterlab/gget/) traffic
+Updates automatically every week on Sunday at 23:55 (UTC).
 ![Plots showing the cumulative clones and views of the gget GitHub repository.](https://raw.githubusercontent.com/pachterlab/gget/traffic/plots/gget_cumulative_clones_views.png)
 
