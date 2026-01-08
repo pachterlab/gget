@@ -31,3 +31,76 @@ jobs:
         run: pip install -r requirements.txt && pip install -r dev-requirements.txt
       - name: Run tests
         run: pytest -ra -v --tb=long --maxfail=5 --durations=10 --cov=gget --cov-report=term-missing tests
+
+name: CI
+
+on:
+  schedule:
+    - cron: "0 16 * * 1,4"
+  push:
+    paths:
+      - 'gget/**'
+      - 'tests/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.11', '3.12']
+        os: ['ubuntu-22.04']
+    name: Test on Python ${{ matrix.python }}
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt && pip install -r dev-requirements.txt
+
+      - name: Run tests (save output to file)
+        shell: bash
+        run: |
+          set -o pipefail
+          OUT="tests/pytest_results_py${{ matrix.python }}.txt"
+          echo "Pytest results (Python ${{ matrix.python }}) - $(date -u +"%Y-%m-%dT%H:%M:%SZ")" > "$OUT"
+          echo "" >> "$OUT"
+          pytest -ra -v --tb=long --maxfail=5 --durations=10 \
+            --cov=gget --cov-report=term-missing tests 2>&1 | tee -a "$OUT"
+
+      - name: Upload pytest results artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-results-py${{ matrix.python }}
+          path: tests/pytest_results_py${{ matrix.python }}.txt
+
+      # Commit back to repo ONLY on schedule/manual triggers
+      - name: Commit and push pytest results
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add tests/pytest_results_py${{ matrix.python }}.txt
+
+          # If no changes, don't commit
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "CI: update pytest results (py${{ matrix.python }})"
+          git push
