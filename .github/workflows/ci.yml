@@ -7,8 +7,7 @@ on:
     paths:
       - 'gget/**'
       - 'tests/**'
-    paths-ignore:
-      - 'tests/pytest_results_py*.txt'
+      - '!tests/pytest_results_py*.txt'
   workflow_dispatch:
 
 permissions:
