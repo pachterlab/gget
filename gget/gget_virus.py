@@ -1861,7 +1861,7 @@ def save_command_summary(
         with open(summary_file, 'w', encoding='utf-8') as f:
             # Header
             f.write("=" * 80 + "\n")
-            f.write("GGET NCBI_VIRUS COMMAND SUMMARY\n")
+            f.write("GGET VIRUS COMMAND SUMMARY\n")
             f.write("=" * 80 + "\n\n")
             
             # Timestamp
@@ -3358,7 +3358,7 @@ def filter_metadata_only(
     return filtered_accessions, filtered_metadata_list
 
 
-def ncbi_virus(
+def virus(
     virus,
     is_accession=False,
     outfolder=None,
@@ -3451,7 +3451,7 @@ def ncbi_virus(
     logger.info("Starting NCBI virus data retrieval process...")
     
     # Capture the command line for summary
-    command_line = " ".join(sys.argv) if len(sys.argv) > 0 else "ncbi_virus (called programmatically)"
+    command_line = " ".join(sys.argv) if len(sys.argv) > 0 else "virus (called programmatically)"
     
     # Initialize variables for tracking results
     total_api_records = 0
@@ -4309,7 +4309,7 @@ def ncbi_virus(
                 logger.error("")
                 
                 # Build alternative command
-                cmd_parts = [f"gget.ncbi_virus('{virus}'"]
+                cmd_parts = [f"gget.virus('{virus}'"]
                 
                 # Add all non-problematic filters
                 if host:
@@ -4362,7 +4362,7 @@ def ncbi_virus(
                 logger.error("")
                 
                 # Build alternative command with host filter
-                cmd_parts = [f"gget.ncbi_virus('{virus}'", "host='human'"]
+                cmd_parts = [f"gget.virus('{virus}'", "host='human'"]
                 
                 # Add existing filters
                 if min_seq_length:

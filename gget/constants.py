@@ -10,10 +10,10 @@ ENSEMBL_FTP_URL_NV = "http://ftp.ensemblgenomes.org/pub/"
 # NCBI URL for gget info
 NCBI_URL = "https://www.ncbi.nlm.nih.gov"
 
-# NCBI_VIRUS REST API URL for gget ncbi_virus - Version 2 API endpoint
+# NCBI VIRUS REST API URL for gget virus - Version 2 API endpoint
 NCBI_API_BASE = "https://api.ncbi.nlm.nih.gov/datasets/v2"
 
-# NCBI E-utilities URL for gget ncbi_virus
+# NCBI E-utilities URL for gget virus
 NCBI_EUTILS_BASE = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 
 # UniProt REST API server for gget seq and info

@@ -30,7 +30,7 @@
 * [gget search](en/search.md)  
 * [gget setup](en/setup.md)  
 * [gget seq](en/seq.md)   
-* [gget ncbi_virus](en/ncbi_virus.md)
+* [gget virus](en/virus.md)
 
 ---
 

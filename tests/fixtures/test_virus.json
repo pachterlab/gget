@@ -1,5 +1,5 @@
 {
-    "test_ncbi_virus_invalid_completeness": {
+    "test_virus_invalid_completeness": {
         "type": "error",
         "args": {
             "virus": "Zika virus",
@@ -9,7 +9,7 @@
         "expected_result": "ValueError",
         "expected_msg": "Argument 'nuc_completeness' must be 'partial', 'complete', or None."
     },
-    "test_ncbi_virus_invalid_annotated_type": {
+    "test_virus_invalid_annotated_type": {
         "type": "error",
         "args": {
             "virus": "Zika virus",
@@ -19,7 +19,7 @@
         "expected_result": "TypeError",
         "expected_msg": "Argument 'annotated' must be a boolean (True or False) or None."
     },
-    "test_ncbi_virus_invalid_lab_passaged_type": {
+    "test_virus_invalid_lab_passaged_type": {
         "type": "error",
         "args": {
             "virus": "Zika virus",
@@ -29,7 +29,7 @@
         "expected_result": "TypeError",
         "expected_msg": "Argument 'lab_passaged' must be a boolean (True or False) or None."
     },
-    "test_ncbi_virus_invalid_proteins_complete_type": {
+    "test_virus_invalid_proteins_complete_type": {
         "type": "error",
         "args": {
             "virus": "Zika virus",
@@ -39,7 +39,7 @@
         "expected_result": "TypeError",
         "expected_msg": "Argument 'proteins_complete' must be a boolean (True or False)."
     },
-    "test_ncbi_virus_invalid_refseq_only_type": {
+    "test_virus_invalid_refseq_only_type": {
         "type": "error",
         "args": {
             "virus": "Zika virus",
@@ -49,7 +49,7 @@
         "expected_result": "TypeError",
         "expected_msg": "Argument 'refseq_only' must be a boolean (True or False)."
     },
-    "test_ncbi_virus_invalid_keep_temp_type": {
+    "test_virus_invalid_keep_temp_type": {
         "type": "error",
         "args": {
             "virus": "Zika virus",
@@ -59,7 +59,7 @@
         "expected_result": "TypeError",
         "expected_msg": "Argument 'keep_temp' must be a boolean (True or False)."
     },
-    "test_ncbi_virus_invalid_is_accession_type": {
+    "test_virus_invalid_is_accession_type": {
         "type": "error",
         "args": {
             "virus": "NC_045512.2",
@@ -69,7 +69,7 @@
         "expected_result": "TypeError",
         "expected_msg": "Argument 'is_accession' must be a boolean (True or False)."
     },
-    "test_ncbi_virus_invalid_genbank_metadata_type": {
+    "test_virus_invalid_genbank_metadata_type": {
         "type": "error",
         "args": {
             "virus": "Zika virus",
@@ -79,7 +79,7 @@
         "expected_result": "TypeError",
         "expected_msg": "Argument 'genbank_metadata' must be a boolean (True or False)."
     },
-    "test_ncbi_virus_invalid_genbank_batch_size_type": {
+    "test_virus_invalid_genbank_batch_size_type": {
         "type": "error",
         "args": {
             "virus": "Zika virus",
@@ -89,7 +89,7 @@
         "expected_result": "ValueError",
         "expected_msg": "Argument 'genbank_batch_size' must be a positive integer."
     },
-    "test_ncbi_virus_invalid_genbank_batch_size_negative": {
+    "test_virus_invalid_genbank_batch_size_negative": {
         "type": "error",
         "args": {
             "virus": "Zika virus",
@@ -99,7 +99,7 @@
         "expected_result": "ValueError",
         "expected_msg": "Argument 'genbank_batch_size' must be a positive integer."
     },
-    "test_ncbi_virus_invalid_genbank_batch_size_zero": {
+    "test_virus_invalid_genbank_batch_size_zero": {
         "type": "error",
         "args": {
             "virus": "Zika virus",
@@ -109,7 +109,7 @@
         "expected_result": "ValueError",
         "expected_msg": "Argument 'genbank_batch_size' must be a positive integer."
     },
-    "test_ncbi_virus_min_greater_than_max_seq_length": {
+    "test_virus_min_greater_than_max_seq_length": {
         "type": "error",
         "args": {
             "virus": "Zika virus",
@@ -120,7 +120,7 @@
         "expected_result": "ValueError",
         "expected_msg": "Min value (15000) cannot be greater than max value (10000) for sequence length (arguments: min_seq_length and max_seq_length)."
     },
-    "test_ncbi_virus_min_greater_than_max_gene_count": {
+    "test_virus_min_greater_than_max_gene_count": {
         "type": "error",
         "args": {
             "virus": "Zika virus",
@@ -131,7 +131,7 @@
         "expected_result": "ValueError",
         "expected_msg": "Min value (20) cannot be greater than max value (10) for gene count (arguments: min_gene_count and max_gene_count)."
     },
-    "test_ncbi_virus_min_greater_than_max_protein_count": {
+    "test_virus_min_greater_than_max_protein_count": {
         "type": "error",
         "args": {
             "virus": "Zika virus",
@@ -142,7 +142,7 @@
         "expected_result": "ValueError",
         "expected_msg": "Min value (20) cannot be greater than max value (10) for protein count (arguments: min_protein_count and max_protein_count)."
     },
-    "test_ncbi_virus_min_greater_than_max_peptide_count": {
+    "test_virus_min_greater_than_max_peptide_count": {
         "type": "error",
         "args": {
             "virus": "Zika virus",
@@ -153,7 +153,7 @@
         "expected_result": "ValueError",
         "expected_msg": "Min value (20) cannot be greater than max value (10) for mature peptide count (arguments: min_mature_peptide_count and max_mature_peptide_count)."
     },
-    "test_ncbi_virus_min_greater_than_max_collection_date": {
+    "test_virus_min_greater_than_max_collection_date": {
         "type": "error",
         "args": {
             "virus": "Zika virus",
@@ -164,7 +164,7 @@
         "expected_result": "ValueError",
         "expected_msg": "Min value (2020-12-31 00:00:00) cannot be greater than max value (2020-01-01 00:00:00) for collection date (arguments: min_collection_date and max_collection_date)."
     },
-    "test_ncbi_virus_min_greater_than_max_release_date": {
+    "test_virus_min_greater_than_max_release_date": {
         "type": "error",
         "args": {
             "virus": "Zika virus",
@@ -175,57 +175,57 @@
         "expected_result": "ValueError",
         "expected_msg": "Min value (2020-12-31 00:00:00) cannot be greater than max value (2020-01-01 00:00:00) for release data (arguments: min_release_date and max_release_date)."
     },
-    "test_ncbi_virus_specific_accession_file_creation": {
+    "test_virus_specific_accession_file_creation": {
         "type": "code_defined",
         "args": {
             "virus": "NC_045512.2",
             "is_accession": true,
-            "outfolder": "test_ncbi_virus_output"
+            "outfolder": "test_virus_output"
         }
     },
-    "test_ncbi_virus_with_host_filter": {
+    "test_virus_with_host_filter": {
         "type": "code_defined",
         "args": {
             "virus": "Zika virus",
             "host": "human",
-            "outfolder": "test_ncbi_virus_output"
+            "outfolder": "test_virus_output"
         }
     },
-    "test_ncbi_virus_with_completeness_filter": {
+    "test_virus_with_completeness_filter": {
         "type": "code_defined",
         "args": {
             "virus": "Zika virus",
             "nuc_completeness": "complete",
-            "outfolder": "test_ncbi_virus_output"
+            "outfolder": "test_virus_output"
         }
     },
-    "test_ncbi_virus_with_length_filters": {
+    "test_virus_with_length_filters": {
         "type": "code_defined",
         "args": {
             "virus": "Zika virus",
             "min_seq_length": 10000,
             "max_seq_length": 11000,
-            "outfolder": "test_ncbi_virus_output"
+            "outfolder": "test_virus_output"
         }
     },
 
-    "test_ncbi_virus_with_annotated_filter": {
+    "test_virus_with_annotated_filter": {
         "type": "code_defined",
         "args": {
             "virus": "Zika virus",
             "annotated": true,
-            "outfolder": "test_ncbi_virus_output"
+            "outfolder": "test_virus_output"
         }
     },
-    "test_ncbi_virus_with_refseq_filter": {
+    "test_virus_with_refseq_filter": {
         "type": "code_defined",
         "args": {
             "virus": "Zika virus",
             "refseq_only": true,
-            "outfolder": "test_ncbi_virus_output"
+            "outfolder": "test_virus_output"
         }
     },
-    "test_ncbi_virus_with_multiple_filters": {
+    "test_virus_with_multiple_filters": {
         "type": "code_defined",
         "args": {
             "virus": "Zika virus",
@@ -234,18 +234,18 @@
             "min_seq_length": 10500,
             "max_seq_length": 11000,
             "annotated": true,
-            "outfolder": "test_ncbi_virus_output"
+            "outfolder": "test_virus_output"
         }
     },
-    "test_ncbi_virus_integer_virus_id": {
+    "test_virus_integer_virus_id": {
         "type": "code_defined",
         "args": {
             "virus": 64320,
-            "outfolder": "test_ncbi_virus_output"
+            "outfolder": "test_virus_output"
         }
     },
 
-    "test_ncbi_virus_empty_virus_name": {
+    "test_virus_empty_virus_name": {
         "type": "error",
         "args": {
             "virus": "",
@@ -254,7 +254,7 @@
         "expected_result": "ValueError",
         "expected_msg": "Argument 'virus' must be a non-empty string (virus name, taxon ID, or accession number)."
     },
-    "test_ncbi_virus_none_virus_name": {
+    "test_virus_none_virus_name": {
         "type": "error",
         "args": {
             "virus": null,

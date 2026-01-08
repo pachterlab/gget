@@ -1,6 +1,6 @@
-"""Unit tests for gget ncbi_virus module.
+"""Unit tests for gget virus module.
 
-This test module provides comprehensive validation of the ncbi_virus function,
+This test module provides comprehensive validation of the virus function,
 which downloads viral sequences and metadata from NCBI's virus database.
 
 Test Structure:
@@ -9,7 +9,7 @@ The test suite uses a hybrid approach combining JSON-defined tests (for input
 validation) and code-defined tests (for functional and data quality checks).
 
 1. JSON-Defined Tests (19 tests):
-   - Loaded from tests/fixtures/test_ncbi_virus.json
+   - Loaded from tests/fixtures/test_virus.json
    - Focus on input validation and error handling
    - Test invalid types, values, and parameter combinations
 
@@ -118,16 +118,16 @@ import json
 import os
 import shutil
 import tempfile
-from gget.gget_ncbi_virus import ncbi_virus
+from gget.gget_virus import virus
 from .from_json import from_json
 
 # Load dictionary containing arguments and expected results
-with open("./tests/fixtures/test_ncbi_virus.json") as json_file:
-    ncbi_virus_dict = json.load(json_file)
+with open("./tests/fixtures/test_virus.json") as json_file:
+    virus_dict = json.load(json_file)
 
 
-class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi_virus)):
-    """Test suite for gget.ncbi_virus module.
+class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
+    """Test suite for gget.virus module.
     
     This comprehensive test suite covers:
     
@@ -161,7 +161,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
     @classmethod
     def setUpClass(cls):
         """Set up test fixtures that are shared across all tests."""
-        cls.test_output_dir = "test_ncbi_virus_output"
+        cls.test_output_dir = "test_virus_output"
         
     @classmethod
     def tearDownClass(cls):
@@ -305,10 +305,10 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
     # =========================================================================
     # FUNCTIONAL TESTS: Basic file creation and filter functionality
     # =========================================================================
-    # These tests verify that the ncbi_virus function creates output files
+    # These tests verify that the virus function creates output files
     # correctly and that individual filters work as expected.
     
-    def test_ncbi_virus_specific_accession_file_creation(self):
+    def test_virus_specific_accession_file_creation(self):
         """Test that files are created when downloading a specific accession.
         
         Downloads SARS-CoV-2 reference sequence (NC_045512.2) and verifies:
@@ -321,7 +321,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         outfolder = self.test_output_dir
         
         # Run the function (should create files, returns None)
-        result = ncbi_virus(
+        result = virus(
             virus=virus,
             is_accession=True,
             outfolder=outfolder
@@ -350,12 +350,12 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         seq_count = self._count_fasta_sequences(files["fasta"]["path"])
         self.assertGreaterEqual(seq_count, 1, "No sequences found in FASTA file")
     
-    def test_ncbi_virus_with_host_filter(self):
+    def test_virus_with_host_filter(self):
         """Test that host filter works and creates appropriate files."""
         virus = "Zika virus"
         outfolder = self.test_output_dir
         
-        result = ncbi_virus(
+        result = virus(
             virus=virus,
             host="human",
             outfolder=outfolder
@@ -371,12 +371,12 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         # Verify that files contain data
         self.assertGreater(files["fasta"]["size"], 0, "FASTA file is empty with host filter")
     
-    def test_ncbi_virus_with_completeness_filter(self):
+    def test_virus_with_completeness_filter(self):
         """Test that completeness filter works correctly."""
         virus = "Zika virus"
         outfolder = self.test_output_dir
         
-        result = ncbi_virus(
+        result = virus(
             virus=virus,
             nuc_completeness="complete",
             outfolder=outfolder
@@ -388,12 +388,12 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         self.assertTrue(files["fasta"]["exists"], "FASTA file not created with completeness filter")
         self.assertGreater(files["fasta"]["size"], 0, "FASTA file is empty with completeness filter")
     
-    def test_ncbi_virus_with_length_filters(self):
+    def test_virus_with_length_filters(self):
         """Test that sequence length filters work correctly."""
         virus = "Zika virus"
         outfolder = self.test_output_dir
         
-        result = ncbi_virus(
+        result = virus(
             virus=virus,
             min_seq_length=10000,
             max_seq_length=11000,
@@ -410,12 +410,12 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         seq_count = self._count_fasta_sequences(files["fasta"]["path"])
         self.assertGreater(seq_count, 0, "No sequences passed length filters")
     
-    def test_ncbi_virus_with_annotated_filter(self):
+    def test_virus_with_annotated_filter(self):
         """Test that annotated filter works correctly."""
         virus = "Zika virus"
         outfolder = self.test_output_dir
         
-        result = ncbi_virus(
+        result = virus(
             virus=virus,
             annotated=True,
             outfolder=outfolder
@@ -427,12 +427,12 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         self.assertTrue(files["fasta"]["exists"], "FASTA file not created with annotated filter")
         self.assertGreater(files["fasta"]["size"], 0, "FASTA file is empty with annotated filter")
     
-    def test_ncbi_virus_with_refseq_filter(self):
+    def test_virus_with_refseq_filter(self):
         """Test that RefSeq filter works correctly."""
         virus = "Zika virus"
         outfolder = self.test_output_dir
         
-        result = ncbi_virus(
+        result = virus(
             virus=virus,
             refseq_only=True,
             outfolder=outfolder
@@ -444,12 +444,12 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         self.assertTrue(files["fasta"]["exists"], "FASTA file not created with RefSeq filter")
         self.assertGreater(files["fasta"]["size"], 0, "FASTA file is empty with RefSeq filter")
     
-    def test_ncbi_virus_with_multiple_filters(self):
+    def test_virus_with_multiple_filters(self):
         """Test that multiple filters can be combined correctly."""
         virus = "Zika virus"
         outfolder = self.test_output_dir
         
-        result = ncbi_virus(
+        result = virus(
             virus=virus,
             host="human",
             nuc_completeness="complete",
@@ -470,7 +470,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         seq_count = self._count_fasta_sequences(files["fasta"]["path"])
         self.assertGreater(seq_count, 0, "No sequences passed multiple filters")
     
-    def test_ncbi_virus_integer_virus_id(self):
+    def test_virus_integer_virus_id(self):
         """Test that integer virus IDs are handled correctly.
         
         Tests using Zika virus taxon ID (64320) as integer input.
@@ -479,7 +479,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         virus_id = 64320  # Zika virus taxon ID
         outfolder = self.test_output_dir
         
-        result = ncbi_virus(
+        result = virus(
             virus=virus_id,
             outfolder=outfolder
         )
@@ -499,7 +499,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
     # API/data source changes would be detected. They go beyond simple file
     # existence checks to validate actual data quality.
     
-    def test_ncbi_virus_relationship_check_counts_match(self):
+    def test_virus_relationship_check_counts_match(self):
         """Test that FASTA sequence count matches CSV and JSONL record counts.
         
         Downloads a specific accession and verifies:
@@ -512,7 +512,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         virus = "NC_045512.2"
         outfolder = self.test_output_dir
         
-        result = ncbi_virus(
+        result = virus(
             virus=virus,
             is_accession=True,
             outfolder=outfolder
@@ -538,7 +538,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         # Should have at least one record
         self.assertGreater(fasta_count, 0, "No records found in output files")
     
-    def test_ncbi_virus_host_filter_verification(self):
+    def test_virus_host_filter_verification(self):
         """Test that host filter actually filters by host in metadata.
         
         Downloads Zika virus with host="human" filter and verifies:
@@ -556,7 +556,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         host = "human"
         outfolder = self.test_output_dir
         
-        result = ncbi_virus(
+        result = virus(
             virus=virus,
             host=host,
             outfolder=outfolder
@@ -601,7 +601,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
                     self.assertGreater(match_percentage, 50, 
                                      f"Only {match_percentage:.1f}% of populated host fields match filter '{host}'")
     
-    def test_ncbi_virus_release_date_filter_verification(self):
+    def test_virus_release_date_filter_verification(self):
         """Test that release date filter is applied correctly in metadata.
         
         Downloads Mumps virus with min_release_date="2024-12-31" and verifies:
@@ -634,8 +634,8 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         except Exception as e:
             self.skipTest(f"Could not fetch API data for comparison: {e}")
         
-        # Run ncbi_virus function with same filter
-        result = ncbi_virus(
+        # Run virus function with same filter
+        result = virus(
             virus=virus,
             min_release_date=min_release_date,
             outfolder=outfolder
@@ -689,7 +689,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         self.assertEqual(len(invalid_dates), 0,
                         f"Found {len(invalid_dates)} records with release dates before {min_release_date}: {invalid_dates[:5]}")
     
-    def test_ncbi_virus_metadata_schema_validation(self):
+    def test_virus_metadata_schema_validation(self):
         """Test that expected metadata columns exist in CSV output.
         
         Downloads a specific accession and verifies:
@@ -703,7 +703,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         virus = "NC_045512.2"
         outfolder = self.test_output_dir
         
-        result = ncbi_virus(
+        result = virus(
             virus=virus,
             is_accession=True,
             outfolder=outfolder
@@ -740,7 +740,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         self.assertGreaterEqual(len(columns), 5, 
                                f"Only {len(columns)} columns found, expected at least 5")
     
-    def test_ncbi_virus_completeness_filter_verification(self):
+    def test_virus_completeness_filter_verification(self):
         """Test that completeness filter returns appropriate sequences.
         
         Downloads Zika virus with nuc_completeness="complete" and verifies:
@@ -754,7 +754,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         virus = "Zika virus"
         outfolder = self.test_output_dir
         
-        result = ncbi_virus(
+        result = virus(
             virus=virus,
             nuc_completeness="complete",
             outfolder=outfolder
@@ -802,7 +802,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
                 self.assertIsNotNone(length_field, 
                                     "Neither completeness nor length field found in metadata")
     
-    def test_ncbi_virus_multiple_filters_relationship_check(self):
+    def test_virus_multiple_filters_relationship_check(self):
         """Test relationship checks work correctly with multiple filters applied.
         
         Downloads Zika virus with multiple filters (host, completeness, length) and verifies:
@@ -816,7 +816,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         virus = "Zika virus"
         outfolder = self.test_output_dir
         
-        result = ncbi_virus(
+        result = virus(
             virus=virus,
             host="human",
             nuc_completeness="complete",
@@ -846,7 +846,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
     # ADDITIONAL FUNCTIONAL TESTS: Testing previously untested parameters
     # =========================================================================
     
-    def test_ncbi_virus_with_geographic_location_filter(self):
+    def test_virus_with_geographic_location_filter(self):
         """Test that geographic location filter works correctly.
         
         Downloads Zika virus sequences from Brazil and verifies:
@@ -859,7 +859,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         virus = "Zika virus"
         outfolder = self.test_output_dir
         
-        result = ncbi_virus(
+        result = virus(
             virus=virus,
             geographic_location="Brazil",
             outfolder=outfolder
@@ -884,7 +884,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
             self.assertTrue(has_geo_field, 
                           f"No geographic location field found. Available fields: {list(records[0].keys())}")
     
-    def test_ncbi_virus_with_protein_count_filters(self):
+    def test_virus_with_protein_count_filters(self):
         """Test that protein count filters work correctly.
         
         Downloads Zika virus with protein count filters and verifies:
@@ -897,7 +897,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         virus = "Zika virus"
         outfolder = self.test_output_dir
         
-        result = ncbi_virus(
+        result = virus(
             virus=virus,
             min_protein_count=1,
             max_protein_count=20,
@@ -920,7 +920,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
             self.assertIn("Protein count", records[0].keys(), 
                          f"Protein count field not found. Available fields: {list(records[0].keys())}")
     
-    def test_ncbi_virus_with_source_database_filter(self):
+    def test_virus_with_source_database_filter(self):
         """Test that source database filter works correctly.
         
         Downloads Zika virus from GenBank database and verifies:
@@ -933,7 +933,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         virus = "Zika virus"
         outfolder = self.test_output_dir
         
-        result = ncbi_virus(
+        result = virus(
             virus=virus,
             source_database="GenBank",
             outfolder=outfolder
@@ -961,7 +961,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
             self.assertIsNotNone(db_field, 
                                f"Source database field not found. Available fields: {list(records[0].keys())}")
     
-    def test_ncbi_virus_with_lab_passaged_filter(self):
+    def test_virus_with_lab_passaged_filter(self):
         """Test that lab_passaged filter works correctly.
         
         Downloads Zika virus with lab_passaged=False filter and verifies:
@@ -976,7 +976,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         virus = "Zika virus"
         outfolder = self.test_output_dir
         
-        result = ncbi_virus(
+        result = virus(
             virus=virus,
             lab_passaged=False,
             outfolder=outfolder
@@ -990,7 +990,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         # Should create files (even if no lab passaged field in results)
         self.assertGreater(files["fasta"]["size"], 0, "FASTA file is empty with lab_passaged filter")
     
-    def test_ncbi_virus_with_collection_date_filters(self):
+    def test_virus_with_collection_date_filters(self):
         """Test that collection date filters don't break the query.
         
         Downloads Zika virus with collection date range and verifies:
@@ -1003,7 +1003,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         outfolder = self.test_output_dir
         
         # This will complete without error even if no results match
-        result = ncbi_virus(
+        result = virus(
             virus=virus,
             min_collection_date="2016-01-01",
             max_collection_date="2016-12-31",
@@ -1013,7 +1013,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         # Function should complete successfully
         self.assertIsNone(result)
     
-    def test_ncbi_virus_with_max_ambiguous_chars_filter(self):
+    def test_virus_with_max_ambiguous_chars_filter(self):
         """Test that max_ambiguous_chars filter works correctly.
         
         Downloads Zika virus with max_ambiguous_chars filter and verifies:
@@ -1026,7 +1026,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         virus = "Zika virus"
         outfolder = self.test_output_dir
         
-        result = ncbi_virus(
+        result = virus(
             virus=virus,
             max_ambiguous_chars=100,
             outfolder=outfolder
@@ -1041,7 +1041,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         seq_count = self._count_fasta_sequences(files["fasta"]["path"])
         self.assertGreater(seq_count, 0, "No sequences passed max_ambiguous_chars filter")
     
-    def test_ncbi_virus_with_has_proteins_filter(self):
+    def test_virus_with_has_proteins_filter(self):
         """Test that has_proteins filter works correctly.
         
         Downloads Zika virus requiring specific proteins and verifies:
@@ -1055,7 +1055,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         outfolder = self.test_output_dir
         
         # Test with a common protein (polyprotein is typical for Zika)
-        result = ncbi_virus(
+        result = virus(
             virus=virus,
             has_proteins="polyprotein",
             outfolder=outfolder
@@ -1070,7 +1070,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         seq_count = self._count_fasta_sequences(files["fasta"]["path"])
         self.assertGreater(seq_count, 0, "No sequences passed has_proteins filter")
     
-    def test_ncbi_virus_with_genbank_metadata_retrieval(self):
+    def test_virus_with_genbank_metadata_retrieval(self):
         """Test that GenBank metadata retrieval works correctly.
         
         Downloads a single accession with genbank_metadata=True and verifies:
@@ -1083,7 +1083,7 @@ class TestNcbiVirus(unittest.TestCase, metaclass=from_json(ncbi_virus_dict, ncbi
         virus = "NC_045512.2"
         outfolder = self.test_output_dir
         
-        result = ncbi_virus(
+        result = virus(
             virus=virus,
             is_accession=True,
             genbank_metadata=True,

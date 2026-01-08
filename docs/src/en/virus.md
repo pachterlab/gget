@@ -1,7 +1,7 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python.  The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
 # gget ncbi\_virus 🧬
 
-Download virus sequences and associated metadata from the [NCBI Virus database](https://www.ncbi.nlm.nih.gov/labs/virus/). `gget ncbi_virus` applies server-side and local filters to efficiently download customized datasets.
+Download virus sequences and associated metadata from the [NCBI Virus database](https://www.ncbi.nlm.nih.gov/labs/virus/). `gget virus` applies server-side and local filters to efficiently download customized datasets.
 Return format: FASTA, CSV, and JSONL files saved to an output folder.
 
 **Positional argument**
@@ -129,12 +129,12 @@ Python: Use `verbose=False` to prevent progress information from being displayed
 ### Example
 
 ```bash
-gget ncbi_virus "Zika virus" --nuc_completeness complete --host human --out zika_data
+gget virus "Zika virus" --nuc_completeness complete --host human --out zika_data
 ```
 
 ```python
 # Python
-gget.ncbi_virus(
+gget.virus(
     "Zika virus",
     nuc_completeness="complete",
     host="human",
@@ -154,7 +154,7 @@ The metadata CSV file will look like this:
 The command summary file (`command_summary.txt`) will contain:
 ```
 ================================================================================
-GGET NCBI_VIRUS COMMAND SUMMARY
+GGET VIRUS COMMAND SUMMARY
 ================================================================================
 
 Execution Date: 2025-12-15 13:33:39
@@ -163,7 +163,7 @@ Output Folder: zika_data
 --------------------------------------------------------------------------------
 COMMAND LINE
 --------------------------------------------------------------------------------
-gget ncbi_virus "Zika virus" --nuc_completeness complete --host human --out zika_data
+gget virus "Zika virus" --nuc_completeness complete --host human --out zika_data
 
 --------------------------------------------------------------------------------
 EXECUTION STATUS
@@ -245,12 +245,12 @@ Retry URL: https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nucleoti
 **Download a specific SARS-CoV-2 reference genome using its accession number:**
 
 ```bash
-gget ncbi_virus NC_045512.2 --is_accession --is_sars_cov2
+gget virus NC_045512.2 --is_accession --is_sars_cov2
 ```
 
 ```python
 # Python
-gget.ncbi_virus("NC_045512.2", is_accession=True, is_sars_cov2=True)
+gget.virus("NC_045512.2", is_accession=True, is_sars_cov2=True)
 ```
 
 → Uses the optimized download method for SARS-CoV-2 to fetch the reference genome and its metadata.
@@ -259,12 +259,12 @@ gget.ncbi_virus("NC_045512.2", is_accession=True, is_sars_cov2=True)
 **Download SARS-CoV-2 sequences with cached optimization AND GenBank metadata:**
 
 ```bash
-gget ncbi_virus "SARS-CoV-2" --host human --nuc_completeness complete --min_seq_length 29000 --genbank_metadata
+gget virus "SARS-CoV-2" --host human --nuc_completeness complete --min_seq_length 29000 --genbank_metadata
 ```
 
 ```python
 # Python
-gget.ncbi_virus(
+gget.virus(
     "SARS-CoV-2", 
     host="human", 
     nuc_completeness="complete",
@@ -280,12 +280,12 @@ gget.ncbi_virus(
 **Download Influenza A virus sequences with optimized caching and post-download filtering:**
 
 ```bash
-gget ncbi_virus "Influenza A virus" --host human --nuc_completeness complete --max_seq_length 15000 --genbank_metadata --is_alphainfluenza
+gget virus "Influenza A virus" --host human --nuc_completeness complete --max_seq_length 15000 --genbank_metadata --is_alphainfluenza
 ```
 
 ```python
 # Python
-gget.ncbi_virus(
+gget.virus(
     "Influenza A virus", 
     host="human", 
     nuc_completeness="complete",
@@ -301,7 +301,7 @@ gget.ncbi_virus(
 
 # References
 
-If you use `gget ncbi_virus` in a publication, please cite the following articles:
+If you use `gget virus` in a publication, please cite the following articles:
 
   - Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
 
@@ -313,7 +313,7 @@ If you use `gget ncbi_virus` in a publication, please cite the following article
 
 ## Overview
 
-The `gget.ncbi_virus()` function implements an optimized 8-step workflow for retrieving virus sequences and associated metadata from NCBI. The system is designed to minimize download overhead by filtering metadata first, then downloading only the sequences that pass initial filters, with optional detailed GenBank metadata retrieval. For SARS-CoV-2 and Alphainfluenza queries, the workflow can use optimized cached data packages while still applying all filters and fetching GenBank metadata.
+The `gget.virus()` function implements an optimized 8-step workflow for retrieving virus sequences and associated metadata from NCBI. The system is designed to minimize download overhead by filtering metadata first, then downloading only the sequences that pass initial filters, with optional detailed GenBank metadata retrieval. For SARS-CoV-2 and Alphainfluenza queries, the workflow can use optimized cached data packages while still applying all filters and fetching GenBank metadata.
 
 ## Architecture
 
@@ -394,7 +394,7 @@ The `gget.ncbi_virus()` function implements an optimized 8-step workflow for ret
 ## Workflow Steps
 
 ### Step 1: Input Validation & Setup
-- **Function**: `ncbi_virus()` main function
+- **Function**: `virus()` main function
 - **Purpose**: Validate all user parameters and configure logging
 - **Key Operations**:
   - Validate virus taxon/accession format
@@ -486,7 +486,7 @@ The `gget.ncbi_virus()` function implements an optimized 8-step workflow for ret
 ## Function Dependencies
 
 ```
-ncbi_virus()
+virus()
 ├── is_sars_cov2_query()
 │   └── SARS-CoV-2 detection logic
 ├── is_alphainfluenza_query()
@@ -676,24 +676,24 @@ ncbi_virus()
 
 ```bash
 # Get help and see all available parameters
-$ gget ncbi_virus --help
+$ gget virus --help
 
-$ gget ncbi_virus "Nipah virus"
+$ gget virus "Nipah virus"
 
 # Download Zika virus sequences with basic filtering (API + metadata filtering)
-$ gget ncbi_virus "Zika virus" --host human --min_seq_length 10000 --max_seq_length 11000
+$ gget virus "Zika virus" --host human --min_seq_length 10000 --max_seq_length 11000
 
 # Download with metadata and sequence filtering
-$ gget ncbi_virus "Ebolavirus" --max_seq_length 20000 --genbank_metadata -o ./ebola_data
+$ gget virus "Ebolavirus" --max_seq_length 20000 --genbank_metadata -o ./ebola_data
 
 # Download SARS-CoV-2 with cached optimization
-$ gget ncbi_virus "SARS-CoV-2" --host dog --nuc_completeness complete
+$ gget virus "SARS-CoV-2" --host dog --nuc_completeness complete
 
 # Download Influenza A with post-download sequence filtering (warning: big data size)
-$ gget ncbi_virus "Influenza A virus" --host human --max_ambiguous_chars 50 --has_proteins spike
+$ gget virus "Influenza A virus" --host human --max_ambiguous_chars 50 --has_proteins spike
 
 # Using accession ID to get data
-$ gget ncbi_virus -a "MK947457" --host deer --min_collection_date "2020-01-01"
+$ gget virus -a "MK947457" --host deer --min_collection_date "2020-01-01"
 ```
 
 ### Python Examples
@@ -702,7 +702,7 @@ $ gget ncbi_virus -a "MK947457" --host deer --min_collection_date "2020-01-01"
 import gget
 
 # Basic download with GenBank metadata
-result = gget.ncbi_virus(
+result = gget.virus(
     "Zika virus",
     host="human",
     genbank_metadata=True,
@@ -723,7 +723,7 @@ for acc, data in genbank_data.items():
     print(f"  Collection date: {data.get('collection_date', 'Unknown')}")
 
 # Advanced filtering with GenBank data
-result = gget.ncbi_virus(
+result = gget.virus(
     "SARS-CoV-2", 
     host="human",
     min_seq_length=29000,

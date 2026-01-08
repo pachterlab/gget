@@ -19,7 +19,7 @@ from .gget_mutate import mutate
 from .gget_opentargets import opentargets
 from .gget_cbio import cbio_plot, cbio_search
 from .gget_bgee import bgee
-from .gget_ncbi_virus import ncbi_virus
+from .gget_virus import virus
 
 import logging
 # Mute numexpr threads info

@@ -39,7 +39,7 @@ from .gget_mutate import mutate
 from .gget_opentargets import opentargets, OPENTARGETS_RESOURCES
 from .gget_cbio import cbio_plot, cbio_search
 from .gget_bgee import bgee
-from .gget_ncbi_virus import ncbi_virus
+from .gget_virus import virus
 
 
 # Custom formatter for help messages that preserved the text formatting and adds the default value to the end of the help message
@@ -2325,25 +2325,25 @@ def main():
         help="Does not print progress information.",
     )
 
-    ## gget ncbi_virus subparser
-    ncbi_virus_desc = "Download virus genome datasets and associated GenBank metadata from the NCBI Virus database."
-    parser_ncbi_virus = parent_subparsers.add_parser(
-        "ncbi_virus",
+    ## gget virus subparser
+    virus_desc = "Download virus genome datasets and associated GenBank metadata from the NCBI Virus database."
+    parser_virus = parent_subparsers.add_parser(
+        "virus",
         parents=[parent],
-        description=ncbi_virus_desc,
-        help=ncbi_virus_desc,
+        description=virus_desc,
+        help=virus_desc,
         add_help=True,
         formatter_class=CustomHelpFormatter,
     )
-    # ncbi_virus parser arguments
-    parser_ncbi_virus.add_argument(
+    # virus parser arguments
+    parser_virus.add_argument(
         "virus",
         type=str,
         nargs="?",
         default=None,
         help="Virus taxon name/ID to query, e.g. 'SARS-CoV-2', 'covid', 'influenza', or taxon ID '2697049'.",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "-a",
         "--is_accession",
         default=False,
@@ -2351,7 +2351,7 @@ def main():
         required=False,
         help="Treat the virus argument as an accession number instead of a taxon name, e.g. 'NM_001744', 'NP_001735'.",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "-o",
         "--out",
         type=str,
@@ -2361,87 +2361,87 @@ def main():
             "Default: Current working directory."
         ),
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "--host",
         type=str,
         required=False,
         help="Host organism name (scientific or common) at any taxonomic rank or NCBI Taxonomy ID filter, e.g. 'human', 'mouse', '1335626'. Place in quotation marks if multiple words.",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "--min_seq_length",
         type=int,
         required=False,
         help="Minimum sequence length filter (in base pairs).",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "--max_seq_length",
         type=int,
         required=False,
         help="Maximum sequence length filter (in base pairs).",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "--min_gene_count",
         type=int,
         required=False,
         help="Minimum number of genes filter.",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "--max_gene_count",
         type=int,
         required=False,
         help="Maximum number of genes filter.",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "--nuc_completeness",
         type=str,
         choices=["complete", "partial"],
         required=False,
         help="Nucleotide completeness filter: 'complete' or 'partial'.",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "--lab_passaged",
         type=lambda x: x.lower() == 'true',
         required=False,
         help="Lab passaging status filter: 'true' or 'false'.",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "--geographic_location",
         type=str,
         required=False,
         help="Specific geographic location filter (country or continent), e.g. 'Germany', 'Asia'.",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "--submitter_country",
         type=str,
         required=False,
         help="Submitter country filter.",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "--min_collection_date",
         type=str,
         required=False,
         help="Minimum collection date filter (YYYY-MM-DD format).",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "--max_collection_date",
         type=str,
         required=False,
         help="Maximum collection date filter (YYYY-MM-DD format).",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "--annotated",
         type=lambda x: x.lower() == 'true',
         required=False,
         help="Annotation status filter: 'true' or 'false'.",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "--refseq_only",
         default=False,
         action="store_true",
         required=False,
         help="Only fetch RefSeq genomes. If not set, both RefSeq and GenBank genomes will be fetched.",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "-kt",
         "--keep_temp",
         default=False,
@@ -2449,89 +2449,89 @@ def main():
         required=False,
         help="Save all output files, including intermediate files.",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "--is_sars_cov2",
         default=False,
         action="store_true",
         required=False,
         help="When using SARS-CoV-2 accessions, use this tag so the code optimizes in using the correct SARS-CoV-2 pathway.",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "--is_alphainfluenza",
         default=False,
         action="store_true",
         required=False,
         help="When querying Alphainfluenza (Influenza A), use this tag so the code optimizes by using NCBI's cached data packages for faster downloads.",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "--source_database",
         type=str,
         choices=["genbank", "refseq"],
         required=False,
         help="Source database filter: 'genbank' or 'refseq'.",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "--min_release_date",
         type=str,
         required=False,
         help="Minimum release date filter (YYYY-MM-DD format).",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "--max_release_date",
         type=str,
         required=False,
         help="Maximum release date filter (YYYY-MM-DD format).",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "--min_mature_peptide_count",
         type=int,
         required=False,
         help="Minimum mature peptide count filter.",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "--max_mature_peptide_count",
         type=int,
         required=False,
         help="Maximum mature peptide count filter.",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "--min_protein_count",
         type=int,
         required=False,
         help="Minimum protein count filter.",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "--max_protein_count",
         type=int,
         required=False,
         help="Maximum protein count filter.",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "--max_ambiguous_chars",
         type=int,
         required=False,
         help="Maximum number of ambiguous nucleotide characters ('N') allowed.",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "--has_proteins",
         type=str,
         required=False,
         help="Filter for sequences containing specific protein(s)/gene(s). Can be a single protein name (e.g., 'spike') or comma-separated list (e.g., 'hemagglutinin,neuraminidase'). Searches in FASTA headers.",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "--proteins_complete",
         action="store_true",
         default=False,
         required=False,
         help="Filter for sequences with complete protein annotations (protein_count > 0 or gene_count > 0).",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "--lineage",
         type=str,
         required=False,
         help="Virus lineage filter (e.g., for SARS-CoV-2: 'B.1.1.7', 'P.1').",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "-g",
         "--genbank_metadata",
         default=False,
@@ -2539,21 +2539,21 @@ def main():
         required=False,
         help="Also fetch detailed GenBank metadata for the sequences that pass all filters. The metadata will be saved in a separate CSV file.",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "--download_all_accessions",
         default=False,
         action="store_true",
         required=False,
         help="Download ALL virus accessions from NCBI (entire Viruses taxonomy). WARNING: This is an extremely large dataset that can take many hours and require significant disk space. When set, the virus argument is ignored.",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "--genbank_batch_size",
         default=200,
         type=int,
         required=False,
         help="Maximum number of accessions to fetch in each GenBank metadata request. Smaller batches are slower but more reliable for large datasets. Only used when --genbank_metadata is True. Default: 200",
     )
-    parser_ncbi_virus.add_argument(
+    parser_virus.add_argument(
         "-q",
         "--quiet",
         default=True,
@@ -2613,7 +2613,7 @@ def main():
         "opentargets": parser_opentargets,
         "cbio": parser_cbio,
         "bgee": parser_bgee,
-        "ncbi_virus": parser_ncbi_virus,
+        "virus": parser_virus,
     }
 
     if len(sys.argv) == 2:
@@ -3529,14 +3529,14 @@ def main():
                     bgee_results.to_json(orient="records", force_ascii=False, indent=4)
                 )
 
-    ## ncbi_virus return
-    if args.command == "ncbi_virus":
+    ## virus return
+    if args.command == "virus":
         # Parse has_proteins argument - convert comma-separated string to list
         has_proteins_arg = args.has_proteins
         if has_proteins_arg and ',' in has_proteins_arg:
             has_proteins_arg = [p.strip() for p in has_proteins_arg.split(',')]
         
-        ncbi_virus(
+        virus(
             virus=args.virus,
             is_accession=args.is_accession,
             outfolder=args.out,
