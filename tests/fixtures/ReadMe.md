@@ -11,7 +11,7 @@ Format of dictionaries containing arguments and expected results:
     },
     
     "test_name": {
-        "type": "none",
+        "type": "assert_none",
         "args":{
             "gene": "",
         },
@@ -19,7 +19,7 @@ Format of dictionaries containing arguments and expected results:
     },
     
     "test_name": {
-        "type": "none",
+        "type": "error",
         "args":{
             "gene": "banana",
         },
