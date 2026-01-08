@@ -7,6 +7,8 @@ on:
     paths:
       - 'gget/**'
       - 'tests/**'
+    paths-ignore:
+      - 'tests/pytest_results_py*.txt'
   workflow_dispatch:
 
 permissions:
@@ -36,7 +38,16 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt && pip install -r dev-requirements.txt
 
+      # Always run tests on push
+      - name: Run tests
+        if: github.event_name == 'push'
+        run: pytest -ra -v --tb=long --maxfail=5 --durations=10 --cov=gget --cov-report=term-missing tests
+
+      # On schedule/manual, run tests AND save output
       - name: Run tests (save output to file)
+        id: pytest_saved
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        continue-on-error: true
         shell: bash
         run: |
           set -o pipefail
@@ -45,28 +56,38 @@ jobs:
           echo "" >> "$OUT"
           pytest -ra -v --tb=long --maxfail=5 --durations=10 \
             --cov=gget --cov-report=term-missing tests 2>&1 | tee -a "$OUT"
+          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
 
       - name: Upload pytest results artifact
+        if: always() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
         uses: actions/upload-artifact@v4
         with:
           name: pytest-results-py${{ matrix.python }}
           path: tests/pytest_results_py${{ matrix.python }}.txt
 
-      # Commit back to repo ONLY on schedule/manual triggers
       - name: Commit and push pytest results
-        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        # commit only once to avoid matrix push races
+        if: always() && matrix.python == '3.12' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
         shell: bash
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add tests/pytest_results_py${{ matrix.python }}.txt
-
-          # If no changes, don't commit
+          git add tests/pytest_results_py*.txt
           if git diff --cached --quiet; then
             echo "No changes to commit."
             exit 0
           fi
 
-          git commit -m "CI: update pytest results (py${{ matrix.python }})"
+          git commit -m "CI: update pytest results"
           git push
+
+      # Make schedule/manual runs still fail if pytest failed
+      - name: Fail job if pytest failed
+        if: always() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+        shell: bash
+        run: |
+          code="${{ steps.pytest_saved.outputs.exit_code }}"
+          if [ -n "$code" ] && [ "$code" != "0" ]; then
+            exit "$code"
+          fi
