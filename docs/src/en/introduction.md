@@ -1,7 +1,7 @@
 [![pypi version](https://img.shields.io/pypi/v/gget)](https://pypi.org/project/gget)
 [![Downloads](https://static.pepy.tech/personalized-badge/gget?period=total&units=international_system&left_color=grey&right_color=brightgreen&left_text=Downloads)](https://pepy.tech/project/gget)
 [![license](https://img.shields.io/pypi/l/gget)](LICENSE)
-![status](https://github.com/pachterlab/gget/actions/workflows/ci.yml/badge.svg)
+[![status](https://github.com/pachterlab/gget/actions/workflows/ci.yml/badge.svg)](https://github.com/pachterlab/gget/blob/main/tests/pytest_results_py3.12.txt)
 [![Star on GitHub](https://img.shields.io/github/stars/pachterlab/gget.svg?style=social)](https://github.com/pachterlab/gget/)  
 
 [<img align="right" width="50%" height="50%" src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_overview.png?raw=true" />](https://raw.githubusercontent.com/pachterlab/gget/main/figures/gget_overview.png)
