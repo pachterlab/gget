@@ -1,5 +1,5 @@
-> Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python.  The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
-# gget virus 🧬
+> Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
+# gget virus 🦠
 
 Download virus sequences and associated metadata from the [NCBI Virus database](https://www.ncbi.nlm.nih.gov/labs/virus/). `gget virus` applies server-side and local filters to efficiently download customized datasets.
 Return format: FASTA, CSV, and JSONL files saved to an output folder.
@@ -7,6 +7,9 @@ Return format: FASTA, CSV, and JSONL files saved to an output folder.
 **Positional argument**
 `virus`
 Virus taxon name (e.g. 'Zika virus'), taxon ID (e.g. 2697049), or accession number (e.g. 'NC\_045512.2').
+
+Command line: `gget virus "Zika virus" ...`  
+Python: `gget.virus("Zika virus", ...)`
 
 **Optional arguments**
 
@@ -19,7 +22,7 @@ Python: `outfolder="path/to/folder"`
 ### Host filters
 
 `--host`
-Filter by host organism name (e.g. 'human', 'Aedes aegypti').
+Filter by host organism name or NCBI Taxonomy ID (e.g. 'human', 'Aedes aegypti', `1335626`).
 
 ### Sequence & Gene filters
 
@@ -88,30 +91,34 @@ Filter by source database. One of: 'genbank' or 'refseq'.
 Filter by SARS-CoV-2 lineage (e.g. 'B.1.1.7', 'P.1').
 
 **Flags**
-`--is_accession`
+`-a` `--is_accession`
 Flag to indicate that the `virus` positional argument is an accession number.
 
 `--refseq_only`
 Flag to limit search to RefSeq genomes only (higher quality, curated sequences).
 
 `--is_sars_cov2`
-Flag to use NCBI's optimized cached data packages for a SARS-CoV-2 query. This provides faster and more reliable downloads. The system can auto-detect SARS-CoV-2 queries, but this flag ensures the optimization is used.
+Use NCBI's optimized cached data packages for a SARS-CoV-2 query. This provides faster and more reliable downloads. The system can auto-detect SARS-CoV-2 taxon-name queries, but for accession-based queries you must set this flag explicitly.
 
 `--is_alphainfluenza`
-Flag to use NCBI's optimized cached data packages for an Alphainfluenza (Influenza A virus) query. This provides faster and more reliable downloads for large Influenza A datasets. The system can auto-detect Alphainfluenza queries, but this flag ensures the optimization is used.
+Use NCBI's optimized cached data packages for an Alphainfluenza (Influenza A virus) query. This provides faster and more reliable downloads for large Influenza A datasets. The system can auto-detect Alphainfluenza taxon-name queries, but for accession-based queries you must set this flag explicitly.
 
 `--genbank_metadata`
-Flag to fetch and save additional detailed metadata from GenBank, including collection dates, host details, and publication references, in a separate `_genbank_metadata.csv` file.
+Fetch and save additional detailed metadata from GenBank, including collection dates, host details, and publication references, in a separate `{virus}_genbank_metadata.csv` file (plus full XML/CSV dumps).
 
 `--genbank_batch_size`
 Batch size for GenBank metadata API requests. Default: 200. Larger batches are faster but may be more prone to timeouts.
 Python: `genbank_batch_size=200`
 
 `--annotated`
-Flag to only return sequences that have been annotated with gene/protein information.
+Filter for sequences that have been annotated with gene/protein information.
+Command line: `--annotated true` or `--annotated false`.  
+Python: `annotated=True` or `annotated=False`.
 
 `--lab_passaged`
-In Python, set `lab_passaged=True` to fetch only lab-passaged samples, or `lab_passaged=False` to exclude them. In the command-line, the `--lab_passaged` flag corresponds to `lab_passaged=True`.
+Filter for or against lab-passaged samples.  
+Command line: `--lab_passaged true` to fetch only lab-passaged samples, or `--lab_passaged false` to exclude them.  
+Python: `lab_passaged=True` or `lab_passaged=False`.
 
 `--proteins_complete`
 Flag to only include sequences where all annotated proteins are complete.
@@ -120,10 +127,10 @@ Flag to only include sequences where all annotated proteins are complete.
 Flag to keep all intermediate/temporary files generated during processing. By default, only final output files are retained.
 
 `--download_all_accessions`
-⚠️ **WARNING**: Downloads ALL virus accessions from NCBI (entire Viruses taxonomy, taxon ID 10239). This is an extremely large dataset that can take many hours to download and require significant disk space. Use with caution and ensure you have adequate storage and bandwidth. When this flag is set, the virus argument is ignored.
+⚠️ **WARNING**: Downloads ALL virus accessions from NCBI (entire Viruses taxonomy, taxon ID 10239). This is an extremely large dataset that can take many hours to download and require significant disk space. Use with caution and ensure you have adequate storage and bandwidth. When this flag is set, the `virus` argument is ignored.
 
 `-q` `--quiet`
-Command-line only. Prevents progress information from being displayed.
+Command-line only. Prevents progress information from being displayed.  
 Python: Use `verbose=False` to prevent progress information from being displayed.
 
 ### Example
@@ -134,11 +141,13 @@ gget virus "Zika virus" --nuc_completeness complete --host human --out zika_data
 
 ```python
 # Python
+import gget
+
 gget.virus(
-    "Zika virus",
-    nuc_completeness="complete",
-    host="human",
-    outfolder="zika_data"
+  "Zika virus",
+  nuc_completeness="complete",
+  host="human",
+  outfolder="zika_data"
 )
 ```
 
@@ -151,7 +160,7 @@ The metadata CSV file will look like this:
 | KX198135.1 | Zika virus | GenBank | 2016-05-18 | 10807 | complete | Americas:Haiti | Homo sapiens | ... |
 | . . . | . . . | . . . | . . . | . . . | . . . | . . . | . . . | ... |
 
-The command summary file (`command_summary.txt`) will contain:
+The command summary file (`command_summary.txt`) will contain, for example:
 ```
 ================================================================================
 GGET VIRUS COMMAND SUMMARY
@@ -250,6 +259,8 @@ gget virus NC_045512.2 --is_accession --is_sars_cov2
 
 ```python
 # Python
+import gget
+
 gget.virus("NC_045512.2", is_accession=True, is_sars_cov2=True)
 ```
 
@@ -264,17 +275,20 @@ gget virus "SARS-CoV-2" --host human --nuc_completeness complete --min_seq_lengt
 
 ```python
 # Python
+import gget
+
 gget.virus(
-    "SARS-CoV-2", 
-    host="human", 
-    nuc_completeness="complete",
-    min_seq_length=29000,
-    genbank_metadata=True,
-    is_sars_cov2=True
+  "SARS-CoV-2", 
+  host="human", 
+  nuc_completeness="complete",
+  min_seq_length=29000,
+  genbank_metadata=True,
+  is_sars_cov2=True,
+  outfolder="covid_data"
 )
 ```
 
-→ Uses cached download for speed, applies the sequence length filter post-download, and fetches detailed GenBank metadata for all filtered sequences.
+→ Uses cached download for speed (via NCBI's SARS-CoV-2 data packages when available), applies the sequence length filter post-download, and fetches detailed GenBank metadata for all filtered sequences.
 
 <br><br>
 **Download Influenza A virus sequences with optimized caching and post-download filtering:**
@@ -285,13 +299,16 @@ gget virus "Influenza A virus" --host human --nuc_completeness complete --max_se
 
 ```python
 # Python
+import gget
+
 gget.virus(
-    "Influenza A virus", 
-    host="human", 
-    nuc_completeness="complete",
-    max_seq_length=15000,
-    genbank_metadata=True,
-    is_alphainfluenza=True
+  "Influenza A virus", 
+  host="human", 
+  nuc_completeness="complete",
+  max_seq_length=15000,
+  genbank_metadata=True,
+  is_alphainfluenza=True,
+  outfolder="influenza_a_data"
 )
 ```
 
@@ -309,7 +326,7 @@ If you use `gget virus` in a publication, please cite the following articles:
 
 
 
-# NCBI Virus Retrieval Workflow
+# Virus Retrieval Workflow
 
 ## Overview
 
@@ -583,10 +600,10 @@ virus()
 - Strain and isolate details
 
 ### 4. **JSONL Metadata** (`{virus}_metadata.jsonl`)
-- JSON Lines format for full data structure
-- Streaming-friendly format
-- Complete nested data preserved (protein and annotated data)
-- Combined virus and GenBank data when available
+- JSON Lines format for virus metadata after metadata-only filtering
+- Streaming-friendly format for programmatic access
+- One JSON object per sequence with the same fields as the CSV metadata
+- GenBank-specific fields are stored separately in `{virus}_genbank_metadata.csv` when `--genbank_metadata` is used
 
 ### 5. **Command Summary** (`command_summary.txt`)
 - Automatically generated summary of the command execution
@@ -699,35 +716,76 @@ $ gget virus -a "MK947457" --host deer --min_collection_date "2020-01-01"
 ### Python Examples
 
 ```python
-import gget
+  import gget
+  import pandas as pd
+  from Bio import SeqIO
 
-# Basic download with GenBank metadata
-result = gget.virus(
+  # Basic download with GenBank metadata
+  gget.virus(
     "Zika virus",
     host="human",
     genbank_metadata=True,
     outfolder="zika_data"
-)
+  )
 
-# Access different data types
-sequences = result['sequences']           # List of SeqRecord objects
-virus_metadata = result['metadata']       # List of virus metadata dicts
-genbank_data = result['genbank_metadata'] # Dict of GenBank records
+  # Access different data types from output files
+  sequences = list(SeqIO.parse("zika_data/Zika_virus_sequences.fasta", "fasta"))
+  virus_metadata = pd.read_csv("zika_data/Zika_virus_metadata.csv")
+  genbank_metadata = pd.read_csv("zika_data/Zika_virus_genbank_metadata.csv")
 
-# Print GenBank metadata summary
-for acc, data in genbank_data.items():
-    print(f"Sequence: {acc}")
-    print(f"  Length: {data['sequence_length']} bp")
-    print(f"  Host: {data.get('host', 'Unknown')}")
-    print(f"  Location: {data.get('country', 'Unknown')}")
-    print(f"  Collection date: {data.get('collection_date', 'Unknown')}")
+  # Print GenBank metadata summary
+  for _, row in genbank_metadata.head().iterrows():
+    print(f"Sequence: {row['accession']}")
+    print(f"  Length: {row['sequence_length']} bp")
+    print(f"  Host: {row.get('host', 'Unknown')}")
+    print(f"  Location: {row.get('geographic_location', 'Unknown')}")
+    print(f"  Collection date: {row.get('collection_date', 'Unknown')}")
 
-# Advanced filtering with GenBank data
-result = gget.virus(
+  # Advanced filtering with GenBank data
+  gget.virus(
     "SARS-CoV-2", 
     host="human",
     min_seq_length=29000,
     max_seq_length=30000,
+    min_collection_date="2020-03-01",
+    max_collection_date="2020-03-31",
+    geographic_location="North America",
+    genbank_metadata=True,
+    genbank_batch_size=200,
+    outfolder="covid_march2020"
+  )
+
+  # Process and analyze results
+
+  # Read virus metadata
+  virus_df = pd.read_csv("covid_march2020/SARS-CoV-2_metadata.csv")
+  print(f"Total sequences: {len(virus_df)}")
+  print(f"Unique hosts: {virus_df['Host'].nunique()}")
+  print(f"Date range: {virus_df['Collection Date'].min()} to {virus_df['Collection Date'].max()}")
+
+  # Read GenBank metadata for detailed analysis
+  genbank_df = pd.read_csv("covid_march2020/SARS-CoV-2_genbank_metadata.csv")
+  print(f"Sequences with GenBank data: {len(genbank_df)}")
+  print("\nPublication summary:")
+  print(genbank_df['reference_count'].describe())
+
+  # Custom sequence analysis
+  sequences = list(SeqIO.parse("covid_march2020/SARS-CoV-2_sequences.fasta", "fasta"))
+  for record in sequences:
+    gc_content = (str(record.seq).count('G') + str(record.seq).count('C')) / len(record.seq)
+    print(f"{record.id}: GC content = {gc_content:.2%}")
+
+  # Merge metadata sources
+  merged_df = pd.merge(
+    virus_df,
+    genbank_df,
+    on='accession',
+    how='left',
+    suffixes=('_virus', '_genbank')
+  )
+
+  # Save merged analysis
+  merged_df.to_csv("covid_march2020/combined_analysis.csv", index=False)
     min_collection_date="2020-03-01",
     max_collection_date="2020-03-31",
     geographic_region="North America",
