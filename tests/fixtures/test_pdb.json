@@ -59,12 +59,12 @@
             "rcsb_assembly_container_identifiers": {
                 "assembly_id": "1",
                 "entry_id": "1RH7",
-                "rcsb_id": "1RH7-1",
                 "interface_ids": [
                     "1",
                     "2",
                     "3"
-                ]
+                ],
+                "rcsb_id": "1RH7-1"
             },
             "rcsb_assembly_info": {
                 "assembly_id": "1",
@@ -80,6 +80,15 @@
                 "nonpolymer_atom_count": 29,
                 "nonpolymer_entity_count": 2,
                 "nonpolymer_entity_instance_count": 5,
+                "num_heterologous_interface_entities": 0,
+                "num_heteromeric_interface_entities": 0,
+                "num_homomeric_interface_entities": 1,
+                "num_interface_entities": 1,
+                "num_interfaces": 3,
+                "num_isologous_interface_entities": 1,
+                "num_na_interface_entities": 0,
+                "num_prot_na_interface_entities": 0,
+                "num_protein_interface_entities": 1,
                 "polymer_atom_count": 1658,
                 "polymer_composition": "homomeric protein",
                 "polymer_entity_count": 1,
@@ -99,28 +108,34 @@
                 "solvent_atom_count": 75,
                 "solvent_entity_count": 1,
                 "solvent_entity_instance_count": 3,
-                "unmodeled_polymer_monomer_count": 0,
-                "num_interfaces": 3,
-                "num_interface_entities": 1,
-                "num_homomeric_interface_entities": 1,
-                "num_heteromeric_interface_entities": 0,
-                "num_isologous_interface_entities": 1,
-                "num_heterologous_interface_entities": 0,
-                "num_protein_interface_entities": 1,
-                "num_na_interface_entities": 0,
-                "num_prot_na_interface_entities": 0,
                 "total_assembly_buried_surface_area": 2315.334008113287,
-                "total_number_interface_residues": 161
+                "total_number_interface_residues": 161,
+                "unmodeled_polymer_monomer_count": 0
             },
-            "rcsb_id": "1RH7-1",
             "rcsb_struct_symmetry": [
                 {
-                    "symbol": "C3",
-                    "type": "Cyclic",
+                    "kind": "Global Symmetry",
+                    "oligomeric_state": "Homo 3-mer",
                     "stoichiometry": [
                         "A3"
                     ],
-                    "oligomeric_state": "Homo 3-mer",
+                    "symbol": "C3",
+                    "type": "Cyclic",
+                    "rotation_axes": [
+                        {
+                            "end": [
+                                13.473746075056361,
+                                41.0962265805248,
+                                -5.777587727129287
+                            ],
+                            "order": 3,
+                            "start": [
+                                13.838143875349235,
+                                28.581996104345052,
+                                78.43743587115125
+                            ]
+                        }
+                    ],
                     "clusters": [
                         {
                             "members": [
@@ -145,48 +160,33 @@
                             ],
                             "avg_rmsd": 0.8418294327358263
                         }
-                    ],
-                    "rotation_axes": [
-                        {
-                            "start": [
-                                13.838143875349235,
-                                28.581996104345052,
-                                78.43743587115125
-                            ],
-                            "end": [
-                                13.473746075056361,
-                                41.0962265805248,
-                                -5.777587727129287
-                            ],
-                            "order": 3
-                        }
-                    ],
-                    "kind": "Global Symmetry"
+                    ]
                 }
             ],
-            "rcsb_struct_symmetry_provenance_code": "biojava-7.1.1",
             "rcsb_struct_symmetry_lineage": [
                 {
-                    "id": "Global Symmetry.Cyclic.C3",
-                    "name": "C3",
-                    "depth": 3
-                },
-                {
-                    "id": "Global Symmetry.Cyclic.C3.Homo 3-mer",
-                    "name": "Homo 3-mer",
-                    "depth": 4
-                },
-                {
+                    "depth": 0,
                     "id": "Global Symmetry",
-                    "name": "Global Symmetry",
-                    "depth": 1
+                    "name": "Global Symmetry"
                 },
                 {
+                    "depth": 2,
+                    "id": "Global Symmetry.Cyclic.C3",
+                    "name": "C3"
+                },
+                {
+                    "depth": 3,
+                    "id": "Global Symmetry.Cyclic.C3.Homo 3-mer",
+                    "name": "Homo 3-mer"
+                },
+                {
+                    "depth": 1,
                     "id": "Global Symmetry.Cyclic",
-                    "name": "Cyclic",
-                    "depth": 2
+                    "name": "Cyclic"
                 }
-            ]
+            ],
+            "rcsb_id": "1RH7-1",
+            "rcsb_struct_symmetry_provenance_code": "biojava-7.1.1"
         }
     },
     "test2": {
