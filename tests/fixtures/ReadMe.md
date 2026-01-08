@@ -1,7 +1,7 @@
 Format of dictionaries containing arguments and expected results:  
 ```
 {
-    "test1": {
+    "test_name": {
         "type": "assert_equal",
         "args":{
             "gene": "FUNDC1",
@@ -10,7 +10,7 @@ Format of dictionaries containing arguments and expected results:
         "expected_result": []
     },
     
-    "none_test1": {
+    "test_name": {
         "type": "none",
         "args":{
             "gene": "",
@@ -18,7 +18,7 @@ Format of dictionaries containing arguments and expected results:
         "expected_result": None
     },
     
-    "error_test1": {
+    "test_name": {
         "type": "none",
         "args":{
             "gene": "banana",
@@ -31,6 +31,4 @@ Format of dictionaries containing arguments and expected results:
 Note: Results returned in a DataFrame format need to be converted to a list and NA values should be dropped (df.dropna(axis=1).values.tolist()).  
 
 **Test types:**  
-assert_equal -> Use assertListEqual or assertEqual. 
-none -> Expected result is None.  
-error -> Expected result is specified error.  
+See: https://github.com/pachterlab/gget/blob/c7044545494ef72c042db1a5c5f116f45fbf28a3/tests/from_json.py#L197C1-L197C7
