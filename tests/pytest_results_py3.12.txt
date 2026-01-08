@@ -1,0 +1,439 @@
+Pytest results (Python 3.12) - 2026-01-08T19:19:59Z
+
+============================= test session starts ==============================
+platform linux -- Python 3.12.12, pytest-9.0.2, pluggy-1.6.0 -- /opt/hostedtoolcache/Python/3.12.12/x64/bin/python
+cachedir: .pytest_cache
+rootdir: /home/runner/work/gget/gget
+configfile: pyproject.toml
+plugins: cov-7.0.0, zarr-3.1.5
+collecting ... collected 203 items
+
+tests/test_archs4.py::TestArchs4::test_archs4_bad_ensembl PASSED         [  0%]
+tests/test_archs4.py::TestArchs4::test_archs4_bad_gene PASSED            [  0%]
+tests/test_archs4.py::TestArchs4::test_archs4_bad_gene_tissue PASSED     [  1%]
+tests/test_archs4.py::TestArchs4::test_archs4_bad_species PASSED         [  1%]
+tests/test_archs4.py::TestArchs4::test_archs4_bad_which PASSED           [  2%]
+tests/test_archs4.py::TestArchs4::test_archs4_defaults PASSED            [  2%]
+tests/test_archs4.py::TestArchs4::test_archs4_mouse_json_ensembl PASSED  [  3%]
+tests/test_archs4.py::TestArchs4::test_archs4_tissue PASSED              [  3%]
+tests/test_archs4.py::TestArchs4::test_archs4_tissue_ensembl PASSED      [  4%]
+tests/test_archs4.py::TestArchs4::test_archs4_tissue_json PASSED         [  4%]
+tests/test_archs4.py::TestArchs4::test_archs4_tissue_mouse PASSED        [  5%]
+tests/test_bgee.py::TestBgee::test_bgee_expression PASSED                [  5%]
+tests/test_bgee.py::TestBgee::test_bgee_expression_multiple PASSED       [  6%]
+tests/test_bgee.py::TestBgee::test_bgee_orthologs PASSED                 [  6%]
+tests/test_bgee.py::TestBgee::test_error_bgee_expression_no_exist PASSED [  7%]
+tests/test_bgee.py::TestBgee::test_error_bgee_orthologs_no_exist PASSED  [  7%]
+tests/test_bgee.py::TestBgee::test_error_bgee_unknown_type PASSED        [  8%]
+tests/test_blast.py::TestBlast::test_blast_bad_db1 PASSED                [  8%]
+tests/test_blast.py::TestBlast::test_blast_bad_db2 PASSED                [  9%]
+tests/test_blast.py::TestBlast::test_blast_bad_fasta PASSED              [  9%]
+tests/test_blast.py::TestBlast::test_blast_bad_program PASSED            [ 10%]
+tests/test_blast.py::TestBlast::test_blast_bad_seq PASSED                [ 10%]
+tests/test_blast.py::TestBlast::test_blast_db_missing PASSED             [ 11%]
+tests/test_blast.py::TestBlast::test_blast_nt PASSED                     [ 11%]
+tests/test_blat.py::TestBlat::test_blat_aa PASSED                        [ 12%]
+tests/test_blat.py::TestBlat::test_blat_aa_RNA PASSED                    [ 12%]
+tests/test_blat.py::TestBlat::test_blat_aa_protein PASSED                [ 13%]
+tests/test_blat.py::TestBlat::test_blat_bad_assembly PASSED              [ 13%]
+tests/test_blat.py::TestBlat::test_blat_bad_fasta PASSED                 [ 14%]
+tests/test_blat.py::TestBlat::test_blat_bad_fileformat PASSED            [ 14%]
+tests/test_blat.py::TestBlat::test_blat_bad_seqtype PASSED               [ 15%]
+tests/test_blat.py::TestBlat::test_blat_bad_txt PASSED                   [ 15%]
+tests/test_blat.py::TestBlat::test_blat_nt PASSED                        [ 16%]
+tests/test_blat.py::TestBlat::test_blat_nt_DNA PASSED                    [ 16%]
+tests/test_blat.py::TestBlat::test_blat_nt_RNA PASSED                    [ 17%]
+tests/test_blat.py::TestBlat::test_blat_nt_fasta PASSED                  [ 17%]
+tests/test_blat.py::TestBlat::test_blat_nt_json PASSED                   [ 18%]
+tests/test_blat.py::TestBlat::test_blat_nt_protein PASSED                [ 18%]
+tests/test_blat.py::TestBlat::test_blat_nt_transDNA PASSED               [ 19%]
+tests/test_blat.py::TestBlat::test_blat_nt_txt PASSED                    [ 19%]
+tests/test_blat.py::TestBlat::test_blat_shortseq PASSED                  [ 20%]
+tests/test_cbio.py::TestCbioSearch::test_cbio_search PASSED              [ 20%]
+tests/test_cbio.py::TestCbio::test_cbio_download PASSED                  [ 21%]
+tests/test_cbio.py::TestCbio::test_cbio_download_partially_existing_files PASSED [ 21%]
+tests/test_cbio.py::TestCbio::test_error_cbio_download PASSED            [ 22%]
+tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata PASSED      [ 22%]
+tests/test_cellxgene.py::TestCellxgene::test_cellxgene_metadata PASSED   [ 23%]
+tests/test_compile.py::TestCompilerWindows::test_compiler_windows PASSED [ 23%]
+tests/test_cosmic.py::TestCosmicWorkflow::test_cosmic_defaults PASSED    [ 24%]
+tests/test_diamond.py::TestDiamond::test_diamond_JSON_out PASSED         [ 24%]
+tests/test_diamond.py::TestDiamond::test_diamond_both_files PASSED       [ 25%]
+tests/test_diamond.py::TestDiamond::test_diamond_query_file PASSED       [ 25%]
+tests/test_diamond.py::TestDiamond::test_diamond_ref_file PASSED         [ 26%]
+tests/test_diamond.py::TestDiamond::test_diamond_seqs_multiple PASSED    [ 26%]
+tests/test_diamond.py::TestDiamond::test_diamond_seqs_single PASSED      [ 27%]
+tests/test_elm.py::TestELM::test_elm_uniprot_aminoacidseq PASSED         [ 27%]
+tests/test_elm.py::TestELM::test_elm_uniprot_id_in_elm PASSED            [ 28%]
+tests/test_elm.py::TestELM::test_elm_uniprot_id_new PASSED               [ 28%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_background PASSED       [ 29%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_background_ensembl PASSED [ 29%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_bad_background PASSED   [ 30%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_bad_background_list PASSED [ 30%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_bad_database_shortcut PASSED [ 31%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_bad_gene PASSED         [ 31%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_bad_species PASSED      [ 32%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_celltypes PASSED        [ 32%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_diseases_drugs PASSED   [ 33%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_ensembl_ids PASSED      [ 33%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_fish PASSED             [ 33%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_fly PASSED              [ 34%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_json PASSED             [ 34%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_kinase_interactions PASSED [ 35%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_mouse_is_human PASSED   [ 35%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_none PASSED             [ 36%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_ontology PASSED         [ 36%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_pathway PASSED          [ 37%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_plot PASSED             [ 37%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_transcription PASSED    [ 38%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_worm PASSED             [ 38%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_yeast PASSED            [ 39%]
+tests/test_gpt.py::TestGpt::test_gpt PASSED                              [ 39%]
+tests/test_info.py::TestInfo::test_info_WB_transcript PASSED             [ 40%]
+tests/test_info.py::TestInfo::test_info_exon PASSED                      [ 40%]
+tests/test_info.py::TestInfo::test_info_gene PASSED                      [ 41%]
+tests/test_info.py::TestInfo::test_info_gene_list_non_model PASSED       [ 41%]
+tests/test_info.py::TestInfo::test_info_mix PASSED                       [ 42%]
+tests/test_info.py::TestInfo::test_info_ncbifalse_uniprotfalse PASSED    [ 42%]
+tests/test_info.py::TestInfo::test_info_ncbifalse_uniprottrue PASSED     [ 43%]
+tests/test_info.py::TestInfo::test_info_ncbitrue_uniprotfalse PASSED     [ 43%]
+tests/test_info.py::TestInfo::test_info_transcript PASSED                [ 44%]
+tests/test_muscle.py::TestMuscle::test_muscle_nt PASSED                  [ 44%]
+tests/test_muscle.py::TestMuscle::test_muscle_nt_txt PASSED              [ 45%]
+tests/test_muscle.py::TestMuscleSuper::test_muscle_nt_super5 PASSED      [ 45%]
+tests/test_muscle.py::TestMuscleAA::test_muscle_aa PASSED                [ 46%]
+tests/test_muscle.py::TestMuscleSeqsInput::test_muscle_seqs_as_input PASSED [ 46%]
+tests/test_muscle.py::TestMuscleAASuper::test_muscle_aa_super5 PASSED    [ 47%]
+tests/test_muscle.py::TestMusclePrints::test_muscle_print_nt PASSED      [ 47%]
+tests/test_mutate.py::TestMutate::test_ambiguous_mutation PASSED         [ 48%]
+tests/test_mutate.py::TestMutate::test_index_error PASSED                [ 48%]
+tests/test_mutate.py::TestMutate::test_intron_mutation_minus PASSED      [ 49%]
+tests/test_mutate.py::TestMutate::test_intron_mutation_plus PASSED       [ 49%]
+tests/test_mutate.py::TestMutate::test_inversion_with_overlaps PASSED    [ 50%]
+tests/test_mutate.py::TestMutate::test_large_k PASSED                    [ 50%]
+tests/test_mutate.py::TestMutate::test_list_of_mutations PASSED          [ 51%]
+tests/test_mutate.py::TestMutate::test_multi_deletion PASSED             [ 51%]
+tests/test_mutate.py::TestMutate::test_multi_deletion_with_right_repeats PASSED [ 52%]
+tests/test_mutate.py::TestMutate::test_multi_delins PASSED               [ 52%]
+tests/test_mutate.py::TestMutate::test_multi_delins_with_psuedo_left_repeats PASSED [ 53%]
+tests/test_mutate.py::TestMutate::test_multi_delins_with_true_left_repeats PASSED [ 53%]
+tests/test_mutate.py::TestMutate::test_multi_delins_with_true_right_repeats PASSED [ 54%]
+tests/test_mutate.py::TestMutate::test_multi_dup PASSED                  [ 54%]
+tests/test_mutate.py::TestMutate::test_multi_insertion PASSED            [ 55%]
+tests/test_mutate.py::TestMutate::test_multi_insertion_with_left_repeats PASSED [ 55%]
+tests/test_mutate.py::TestMutate::test_posttranslational_mutation PASSED [ 56%]
+tests/test_mutate.py::TestMutate::test_single_deletion PASSED            [ 56%]
+tests/test_mutate.py::TestMutate::test_single_deletion_with_left_repeats PASSED [ 57%]
+tests/test_mutate.py::TestMutate::test_single_deletion_with_right_repeats PASSED [ 57%]
+tests/test_mutate.py::TestMutate::test_single_delins PASSED              [ 58%]
+tests/test_mutate.py::TestMutate::test_single_dup PASSED                 [ 58%]
+tests/test_mutate.py::TestMutate::test_single_insertion PASSED           [ 59%]
+tests/test_mutate.py::TestMutate::test_single_substitution PASSED        [ 59%]
+tests/test_mutate.py::TestMutate::test_single_substitution_near_left_end PASSED [ 60%]
+tests/test_mutate.py::TestMutate::test_single_substitution_near_right_end PASSED [ 60%]
+tests/test_mutate.py::TestMutate::test_uncertain_mutation PASSED         [ 61%]
+tests/test_mutate.py::test_csv_of_mutations PASSED                       [ 61%]
+tests/test_mutate.py::test_mismatch_error PASSED                         [ 62%]
+tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_bad_limit PASSED [ 62%]
+tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_bad_resource PASSED [ 63%]
+tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_diseases_filter PASSED [ 63%]
+tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_drugs_invalid_filter PASSED [ 64%]
+tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_nonexistent_id PASSED [ 64%]
+tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_tractability_limit PASSED [ 65%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets FAILED      [ 65%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_depmap PASSED [ 66%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_depmap_filter PASSED [ 66%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_drugs PASSED [ 66%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_drugs_no_limit PASSED [ 67%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_expression_no_limit PASSED [ 67%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_interactions_no_limit PASSED [ 68%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_interactions_simple_filter PASSED [ 68%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_no_limit PASSED [ 69%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_no_limit_accurate_coverage PASSED [ 69%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_pharmacogenetics_filter_or PASSED [ 70%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_pharmacogenetics_no_limit PASSED [ 70%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_tractability PASSED [ 71%]
+tests/test_pdb.py::TestPDB::test_pdb_assembly PASSED                     [ 71%]
+tests/test_pdb.py::TestPDB::test_pdb_pdb PASSED                          [ 72%]
+tests/test_ref.py::TestRef::test_ref PASSED                              [ 72%]
+tests/test_ref.py::TestRef::test_ref_bad_rel PASSED                      [ 73%]
+tests/test_ref.py::TestRef::test_ref_bad_species PASSED                  [ 73%]
+tests/test_ref.py::TestRef::test_ref_bad_which PASSED                    [ 74%]
+tests/test_ref.py::TestRef::test_ref_ftp PASSED                          [ 74%]
+tests/test_ref.py::TestRef::test_ref_list PASSED                         [ 75%]
+tests/test_ref.py::TestRef::test_ref_plant PASSED                        [ 75%]
+tests/test_ref.py::TestRef::test_ref_rel PASSED                          [ 76%]
+tests/test_ref.py::TestRef::test_ref_rel_ftp PASSED                      [ 76%]
+tests/test_ref.py::TestRef::test_ref_rel_ftp_octopus PASSED              [ 77%]
+tests/test_ref.py::TestRef::test_ref_rel_protist PASSED                  [ 77%]
+tests/test_ref.py::TestRef::test_ref_which PASSED                        [ 78%]
+tests/test_ref.py::TestRef::test_ref_which_plant PASSED                  [ 78%]
+tests/test_search.py::TestSearch::test_search_db PASSED                  [ 79%]
+tests/test_search.py::TestSearch::test_search_gene_bad_andor PASSED      [ 79%]
+tests/test_search.py::TestSearch::test_search_gene_bad_species PASSED    [ 80%]
+tests/test_search.py::TestSearch::test_search_gene_one_sw PASSED         [ 80%]
+tests/test_search.py::TestSearch::test_search_gene_one_sw_json PASSED    [ 81%]
+tests/test_search.py::TestSearch::test_search_gene_one_sw_limit PASSED   [ 81%]
+tests/test_search.py::TestSearch::test_search_gene_two_sw_and PASSED     [ 82%]
+tests/test_search.py::TestSearch::test_search_gene_two_sw_limit PASSED   [ 82%]
+tests/test_search.py::TestSearch::test_search_gene_two_sw_or PASSED      [ 83%]
+tests/test_search.py::TestSearch::test_search_octopus PASSED             [ 83%]
+tests/test_search.py::TestSearch::test_search_plant PASSED               [ 84%]
+tests/test_search.py::TestSearch::test_search_plant_db PASSED            [ 84%]
+tests/test_search.py::TestSearch::test_search_release PASSED             [ 85%]
+tests/test_search.py::TestSearch::test_search_transcript_bad_andor PASSED [ 85%]
+tests/test_search.py::TestSearch::test_search_transcript_bad_species PASSED [ 86%]
+tests/test_search.py::TestSearch::test_search_transcript_one_sw PASSED   [ 86%]
+tests/test_search.py::TestSearch::test_search_transcript_two_sw_and PASSED [ 87%]
+tests/test_search.py::TestSearch::test_search_transcript_two_sw_or PASSED [ 87%]
+tests/test_seq.py::TestSeq::test_seq_gene PASSED                         [ 88%]
+tests/test_seq.py::TestSeq::test_seq_gene_iso PASSED                     [ 88%]
+tests/test_seq.py::TestSeq::test_seq_gene_transcript_iso PASSED          [ 89%]
+tests/test_seq.py::TestSeq::test_seq_missing_uniprot_gene_name PASSED    [ 89%]
+tests/test_seq.py::TestSeq::test_seq_transcript PASSED                   [ 90%]
+tests/test_seq.py::TestSeq::test_seq_transcript_gene PASSED              [ 90%]
+tests/test_seq.py::TestSeq::test_seq_transcript_gene_WB PASSED           [ 91%]
+tests/test_seq.py::TestSeq::test_seq_transcript_gene_iso PASSED          [ 91%]
+tests/test_seq.py::TestSeq::test_seq_transcript_transcript_WB PASSED     [ 92%]
+tests/test_seq.py::TestSeq::test_seq_transcript_transcript_iso PASSED    [ 92%]
+tests/test_utils.py::TestUtils::test_aa_colors PASSED                    [ 93%]
+tests/test_utils.py::TestUtils::test_find_latest_ens_rel PASSED          [ 93%]
+tests/test_utils.py::TestUtils::test_get_uniprot_info_gene PASSED        [ 94%]
+tests/test_utils.py::TestUtils::test_get_uniprot_info_transcript PASSED  [ 94%]
+tests/test_utils.py::TestUtils::test_get_uniprot_seqs PASSED             [ 95%]
+tests/test_utils.py::TestUtils::test_n_colors PASSED                     [ 95%]
+tests/test_utils.py::TestUtils::test_read_fasta PASSED                   [ 96%]
+tests/test_utils.py::TestUtils::test_ref_iv_species_options PASSED       [ 96%]
+tests/test_utils.py::TestUtils::test_ref_species_options PASSED          [ 97%]
+tests/test_utils.py::TestUtils::test_ref_species_options_bad_type PASSED [ 97%]
+tests/test_utils.py::TestUtils::test_rest_query PASSED                   [ 98%]
+tests/test_utils.py::TestUtils::test_rest_query_bad_type PASSED          [ 98%]
+tests/test_utils.py::TestUtils::test_search_iv_species_options PASSED    [ 99%]
+tests/test_utils.py::TestUtils::test_search_species_options PASSED       [ 99%]
+tests/test_utils.py::TestUtils::test_search_species_options_bad_type PASSED [100%]
+
+=================================== FAILURES ===================================
+_______________________ TestOpenTargets.test_opentargets _______________________
+
+self = <tests.test_opentargets.TestOpenTargets testMethod=test_opentargets>
+
+    def assert_equal(self: unittest.TestCase):
+        test = name
+        expected_result = td[test]["expected_result"]
+        result_to_test = do_call(func, td[test]["args"])
+        if test == "test_cosmic_defaults":  # special case for cosmic
+            import numpy as np
+            expected_result = pd.DataFrame(expected_result[0])
+            expected_result = expected_result.replace({None: np.nan})
+            # result_to_test.equals(expected_result)
+            pd.testing.assert_frame_equal(result_to_test, expected_result)
+            return
+    
+        # If result is a DataFrame, convert to list
+        if isinstance(result_to_test, pd.DataFrame):
+            result_to_test = result_to_test.dropna(axis=1).values.tolist()
+    
+>       self.assertEqual(result_to_test, expected_result)
+E       AssertionError: Lists differ: [['EF[180 chars]981975876463], ['MONDO_0004979', 'asthma', 'A [526 chars]614]] != [['EF[180 chars]981976], ['MONDO_0004979', 'asthma', 'A bronch[514 chars]395]]
+E       
+E       First differing element 0:
+E       ['EFO[129 chars] occurs during the first 2 years of life.', 0.6908981975876463]
+E       ['EFO[129 chars] occurs during the first 2 years of life.', 0.6908981976]
+E       
+E         [['EFO_0000274',
+E           'atopic eczema',
+E           'A common chronic pruritic inflammatory skin disease with a strong genetic '
+E           'component. Onset typically occurs during the first 2 years of life.',
+E       -   0.6908981975876463],
+E       ?              --- ---
+E       
+E       +   0.6908981976],
+E          ['MONDO_0004979',
+E           'asthma',
+E           'A bronchial disease that is characterized by chronic inflammation and '
+E           'narrowing of the airways, which is caused by a combination of environmental '
+E           'and genetic factors resulting in recurring periods of wheezing (a whistling '
+E           'sound while breathing), chest tightness, shortness of breath, mucus '
+E           'production and coughing. The symptoms appear due to a variety of triggers '
+E           'such as allergens, irritants, respiratory infections, weather changes, '
+E           'exercise, stress, reflux disease, medications, foods and emotional anxiety.',
+E       -   0.6506508395200614]]
+E       ?               ------
+E       
+E       +   0.6506508395]]
+
+tests/from_json.py:78: AssertionError
+------------------------------ Captured log call -------------------------------
+INFO     gget.utils:gget_opentargets.py:345 Retrieved 2/1353 associated diseases.
+=============================== warnings summary ===============================
+tests/test_blast.py::TestBlast::test_blast_nt
+  /home/runner/work/gget/gget/gget/gget_blast.py:327: FutureWarning: Passing literal html to 'read_html' is deprecated and will be removed in a future version. To read from a literal string, wrap it in a 'StringIO' object.
+    results_df = pd.read_html(str(dsc_table))[0]
+
+tests/test_cbio.py::TestCbioSearch::test_cbio_search
+tests/test_cbio.py::TestCbioSearch::test_cbio_search
+  /opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/swagger_spec_validator/validator12.py:18: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
+    from jsonschema import RefResolver
+
+tests/test_cbio.py::TestCbioSearch::test_cbio_search
+  /opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/swagger_spec_validator/ref_validators.py:14: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
+    from jsonschema.validators import RefResolver
+
+tests/test_cbio.py::TestCbioSearch::test_cbio_search
+  /opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/swagger_spec_validator/validator20.py:18: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
+    from jsonschema.validators import RefResolver
+
+tests/test_cbio.py::TestCbioSearch::test_cbio_search
+tests/test_cbio.py::TestCbioSearch::test_cbio_search
+  /opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/bravado_core/swagger20_validator.py:6: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
+    from jsonschema import RefResolver
+
+tests/test_cbio.py::TestCbioSearch::test_cbio_search
+  /opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/bravado_core/spec.py:14: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
+    from jsonschema.validators import RefResolver
+
+tests/test_cbio.py: 16 warnings
+  /opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/bravado_core/model.py:888: DeprecationWarning: jsonschema.RefResolver.in_scope is deprecated and will be removed in a future release.
+    with spec.resolver.in_scope(additional_uri):
+
+tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
+  /home/runner/work/gget/gget/gget/gget_cellxgene.py:222: FutureWarning: The argument `column_names` is deprecated and will be removed in a future release. Please use `obs_column_names` and `var_column_names` instead.
+    adata = cellxgene_census.get_anndata(
+
+tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
+tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
+  /opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/functools.py:912: ImplicitModificationWarning: Transforming to str index.
+    return dispatch(args[0].__class__)(*args, **kw)
+
+tests/test_cosmic.py::TestCosmicWorkflow::test_cosmic_defaults
+  /home/runner/work/gget/gget/gget/gget_cosmic.py:183: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.
+    tar.extractall(path=tar_folder_path)
+
+tests/test_cosmic.py::TestCosmicWorkflow::test_cosmic_defaults
+  /home/runner/work/gget/gget/tests/from_json.py:69: FutureWarning: Downcasting behavior in `replace` is deprecated and will be removed in a future version. To retain the old behavior, explicitly call `result.infer_objects(copy=False)`. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
+    expected_result = expected_result.replace({None: np.nan})
+
+tests/test_mutate.py: 29 warnings
+  /home/runner/work/gget/gget/gget/gget_mutate.py:663: UserWarning: This pattern is interpreted as a regular expression, and has match groups. To actually get the groups, use str.extract.
+    mask = mutations[mut_column].str.contains(combined_pattern)
+
+tests/test_ref.py: 22 warnings
+tests/test_utils.py: 1 warning
+  /home/runner/work/gget/gget/gget/utils.py:924: DeprecationWarning: Call to deprecated method findAll. (Replaced by find_all) -- Deprecated since version 4.0.0.
+    for subsoup in soup.body.findAll("a"):
+
+tests/test_ref.py: 39 warnings
+  /home/runner/work/gget/gget/gget/gget_ref.py:43: DeprecationWarning: Call to deprecated method findAll. (Replaced by find_all) -- Deprecated since version 4.0.0.
+    links = [stuff.text.strip() for stuff in soup.findAll("td")]
+
+tests/test_ref.py::TestRef::test_ref
+tests/test_ref.py::TestRef::test_ref_ftp
+  /home/runner/work/gget/gget/gget/gget_ref.py:350: DeprecationWarning: Call to deprecated method findAll. (Replaced by find_all) -- Deprecated since version 4.0.0.
+    links = [stuff.text.strip() for stuff in soup.findAll("td")]
+
+tests/test_ref.py: 32 warnings
+tests/test_utils.py: 4 warnings
+  /home/runner/work/gget/gget/gget/utils.py:899: DeprecationWarning: Call to deprecated method findAll. (Replaced by find_all) -- Deprecated since version 4.0.0.
+    for subsoup in soup.body.findAll("a"):
+
+tests/test_ref.py: 7 warnings
+tests/test_search.py: 44 warnings
+  /home/runner/work/gget/gget/gget/utils.py:845: DeprecationWarning: Call to deprecated method findAll. (Replaced by find_all) -- Deprecated since version 4.0.0.
+    for subsoup in soup.body.findAll("a"):
+
+tests/test_search.py: 10 warnings
+  /home/runner/work/gget/gget/gget/gget_search.py:255: UserWarning: pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3 DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
+    df_temp = pd.read_sql(query, con=db_connection)
+
+tests/test_search.py: 9 warnings
+tests/test_utils.py: 1 warning
+  /home/runner/work/gget/gget/gget/utils.py:822: DeprecationWarning: Call to deprecated method findAll. (Replaced by find_all) -- Deprecated since version 4.0.0.
+    for subsoup in soup.body.findAll("a"):
+
+tests/test_search.py: 36 warnings
+tests/test_utils.py: 4 warnings
+  /home/runner/work/gget/gget/gget/utils.py:804: DeprecationWarning: Call to deprecated method findAll. (Replaced by find_all) -- Deprecated since version 4.0.0.
+    for subsoup in soup.body.findAll("a"):
+
+tests/test_search.py::TestSearch::test_search_gene_two_sw_limit
+tests/test_search.py::TestSearch::test_search_transcript_one_sw
+tests/test_search.py::TestSearch::test_search_transcript_two_sw_and
+tests/test_search.py::TestSearch::test_search_transcript_two_sw_or
+  /home/runner/work/gget/gget/gget/gget_search.py:290: UserWarning: pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3 DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
+    df_temp = pd.read_sql(query, con=db_connection)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================================ tests coverage ================================
+_______________ coverage: platform linux, python 3.12.12-final-0 _______________
+
+Name                       Stmts   Miss  Cover   Missing
+--------------------------------------------------------
+gget/__init__.py              33      2    94%   31-32
+gget/__main__.py               2      2     0%   1-3
+gget/compile.py               39     27    31%   30-84
+gget/constants.py             32      0   100%
+gget/gget_alphafold.py       362    321    11%   86-108, 115-116, 123-149, 181-186, 233-867
+gget/gget_archs4.py           79     13    84%   75-78, 84, 107, 123-126, 139-142, 148, 170, 198-201, 207
+gget/gget_bgee.py             56      6    89%   60, 83, 103, 130, 154, 175
+gget/gget_blast.py           127     36    72%   92, 124-142, 163-165, 204, 207, 246-248, 296-299, 302-303, 322-325, 332-333, 336-341, 346, 351-354
+gget/gget_blat.py             86     10    88%   58-62, 95, 136, 139, 168, 232-233, 239
+gget/gget_cbio.py            524    403    23%   28, 39-67, 77-87, 136-137, 143-147, 154-157, 161, 164, 172-177, 208, 226, 265, 271-275, 278, 282-294, 296, 322-331, 334, 376-389, 393-416, 420-441, 447-450, 454-473, 477, 494-537, 540-757, 760-789, 802-1164, 1218-1254
+gget/gget_cellxgene.py        53      9    83%   21-22, 140-149, 176, 215, 231, 247
+gget/gget_cosmic.py          277    153    45%   24-26, 30-82, 94-109, 112-114, 117-119, 122-126, 131-135, 140-142, 155-168, 189-202, 220, 242-243, 283-308, 311, 396-398, 410, 416, 424, 427-429, 454-472, 496-621, 637-646, 649, 651, 653, 852-855, 868-870, 879-891, 896-901
+gget/gget_diamond.py          82     24    71%   16, 69, 75, 77, 95, 98-99, 105, 111, 117-122, 125-127, 132, 150, 154, 186-187, 193
+gget/gget_elm.py             158     22    86%   128, 278, 301, 325-332, 353, 420-423, 426, 436, 490, 503, 506-515, 519-520
+gget/gget_enrichr.py         213     42    80%   39-42, 48, 172, 226-237, 254-255, 263-264, 290, 310, 316-322, 336, 364-374, 403-418, 439, 451-453, 555, 564-565, 575-576, 583
+gget/gget_gpt.py              20      6    70%   56-65, 88, 110-111
+gget/gget_info.py            316    106    66%   58-59, 63-64, 150-152, 161-162, 175, 201-206, 213-216, 242, 255-266, 300-308, 324-342, 368-369, 453-454, 461-462, 465-466, 469-470, 473-474, 507-508, 511-512, 515-516, 543-544, 547-548, 551-552, 575-576, 579-673, 677
+gget/gget_muscle.py           89     15    83%   17, 45, 68-69, 78-80, 93, 96, 100-104, 129, 176-177
+gget/gget_mutate.py          434    193    56%   124-175, 186, 190-198, 215-226, 274-278, 283-287, 291-296, 300-305, 309-312, 317-320, 324-334, 340-350, 493, 516-520, 528, 538-542, 553-557, 576, 583, 593-600, 611, 616, 624, 635, 730-741, 855-879, 891-904, 948-985, 1032-1050, 1053-1056, 1070-1077, 1083-1093, 1109-1110, 1147, 1152, 1156, 1160, 1165-1241, 1255-1258, 1299, 1308-1324, 1332-1336, 1341, 1349, 1353
+gget/gget_opentargets.py     148      6    96%   75, 184, 192-195, 204-205
+gget/gget_pdb.py              60     22    63%   52, 58, 67, 75, 83, 104, 108-110, 113-129, 141-147
+gget/gget_ref.py             215     57    73%   32, 97-98, 117-118, 124-152, 161, 174, 176, 178-179, 186-187, 225, 244, 256-258, 279-281, 308-310, 329-331, 384-386, 485-494, 507, 512-513, 529-534, 538, 542, 548, 553-554
+gget/gget_search.py          149     29    81%   25-32, 95-98, 107, 124, 128, 136, 160-161, 168, 176-182, 224-233, 319-320, 326-327, 379-380, 387-388, 396
+gget/gget_seq.py             146     24    84%   44-47, 49, 119, 140-143, 177-178, 207-208, 245-248, 271-272, 293, 312-315, 334, 356, 365, 402-405
+gget/gget_setup.py           212    147    31%   47-85, 103, 108, 111, 123-133, 147, 170-171, 184, 194, 204, 216-461
+gget/main.py                 722    722     0%   1-3289
+gget/utils.py                403     74    82%   31, 36-42, 72, 95, 119, 122, 186, 193, 245, 257, 285, 296, 337-338, 347, 367, 378, 411-412, 452-453, 468-469, 476-478, 494-495, 501-502, 623-639, 676, 695, 757, 797, 837, 953, 961, 969-989, 994, 999, 1005-1006, 1024-1025
+--------------------------------------------------------
+TOTAL                       5037   2471    51%
+============================= slowest 10 durations =============================
+130.34s call     tests/test_search.py::TestSearch::test_search_gene_two_sw_limit
+75.81s call     tests/test_blast.py::TestBlast::test_blast_nt
+29.18s call     tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
+20.86s setup    tests/test_cosmic.py::TestCosmicWorkflow::test_cosmic_defaults
+16.88s call     tests/test_search.py::TestSearch::test_search_gene_one_sw_limit
+14.55s call     tests/test_search.py::TestSearch::test_search_release
+12.45s call     tests/test_elm.py::TestELM::test_elm_uniprot_id_new
+10.71s call     tests/test_seq.py::TestSeq::test_seq_transcript_transcript_WB
+10.70s call     tests/test_seq.py::TestSeq::test_seq_transcript_gene_WB
+10.05s call     tests/test_cosmic.py::TestCosmicWorkflow::test_cosmic_defaults
+=========================== short test summary info ============================
+FAILED tests/test_opentargets.py::TestOpenTargets::test_opentargets - AssertionError: Lists differ: [['EF[180 chars]981975876463], ['MONDO_0004979', 'asthma', 'A [526 chars]614]] != [['EF[180 chars]981976], ['MONDO_0004979', 'asthma', 'A bronch[514 chars]395]]
+
+First differing element 0:
+['EFO[129 chars] occurs during the first 2 years of life.', 0.6908981975876463]
+['EFO[129 chars] occurs during the first 2 years of life.', 0.6908981976]
+
+  [['EFO_0000274',
+    'atopic eczema',
+    'A common chronic pruritic inflammatory skin disease with a strong genetic '
+    'component. Onset typically occurs during the first 2 years of life.',
+-   0.6908981975876463],
+?              --- ---
+
++   0.6908981976],
+   ['MONDO_0004979',
+    'asthma',
+    'A bronchial disease that is characterized by chronic inflammation and '
+    'narrowing of the airways, which is caused by a combination of environmental '
+    'and genetic factors resulting in recurring periods of wheezing (a whistling '
+    'sound while breathing), chest tightness, shortness of breath, mucus '
+    'production and coughing. The symptoms appear due to a variety of triggers '
+    'such as allergens, irritants, respiratory infections, weather changes, '
+    'exercise, stress, reflux disease, medications, foods and emotional anxiety.',
+-   0.6506508395200614]]
+?               ------
+
++   0.6506508395]]
+=========== 1 failed, 202 passed, 273 warnings in 551.84s (0:09:11) ============
