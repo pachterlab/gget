@@ -77,6 +77,11 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+          # Make sure we're up to date
+          git fetch origin main
+          git checkout main
+          git rebase origin/main
+
           git add tests/pytest_results_py*.txt
           if git diff --cached --quiet; then
             echo "No changes to commit."
@@ -84,7 +89,12 @@ jobs:
           fi
 
           git commit -m "CI: update pytest results"
-          git push
+
+          # Rebase again in case main moved while we were running tests/committing
+          git fetch origin main
+          git rebase origin/main
+
+          git push origin HEAD:main
 
       # Make schedule/manual runs still fail if pytest failed
       - name: Fail job if pytest failed
