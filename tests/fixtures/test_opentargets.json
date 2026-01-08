@@ -11,13 +11,13 @@
               "EFO_0000274",
               "atopic eczema",
               "A common chronic pruritic inflammatory skin disease with a strong genetic component. Onset typically occurs during the first 2 years of life.",
-              0.6908981976
+              0.6908981975876463
             ],
             [
               "MONDO_0004979",
               "asthma",
               "A bronchial disease that is characterized by chronic inflammation and narrowing of the airways, which is caused by a combination of environmental and genetic factors resulting in recurring periods of wheezing (a whistling sound while breathing), chest tightness, shortness of breath, mucus production and coughing. The symptoms appear due to a variety of triggers such as allergens, irritants, respiratory infections, weather changes, exercise, stress, reflux disease, medications, foods and emotional anxiety.",
-              0.6506508395
+              0.6506508395200614
             ]
         ]
     },
@@ -132,7 +132,7 @@
             "ensembl_id": "ENSG00000169194",
             "resource": "pharmacogenetics"
         },
-        "expected_result": "f743509f6adc0fa39b87417e3bc2152e"
+        "expected_result": "961ff37ddc5a0cf34de084df607d70e0"
     },
     "test_opentargets_pharmacogenetics_filter_or": {
         "type": "assert_equal_json_hash_nested",
@@ -147,7 +147,7 @@
             },
             "filter_mode": "or"
         },
-        "expected_result": "a802d3a1e9d1a1c405723cee9b4fce6d"
+        "expected_result": "fe7d213f9e819dc8e5ccf8984782bf38"
     },
     "test_opentargets_expression_no_limit": {
         "type": "assert_equal_json_hash",
