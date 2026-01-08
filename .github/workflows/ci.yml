@@ -42,7 +42,7 @@ jobs:
         if: github.event_name == 'push'
         run: pytest -ra -v --tb=long --maxfail=5 --durations=10 --cov=gget --cov-report=term-missing tests
 
-      # On schedule/manual, run tests AND save output
+      # On schedule/manual, run tests AND save output (and capture real pytest exit code)
       - name: Run tests (save output to file)
         id: pytest_saved
         if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
@@ -53,19 +53,24 @@ jobs:
           OUT="tests/pytest_results_py${{ matrix.python }}.txt"
           echo "Pytest results (Python ${{ matrix.python }}) - $(date -u +"%Y-%m-%dT%H:%M:%SZ")" > "$OUT"
           echo "" >> "$OUT"
+
           pytest -ra -v --tb=long --maxfail=5 --durations=10 \
             --cov=gget --cov-report=term-missing tests 2>&1 | tee -a "$OUT"
-          echo "exit_code=$?" >> "$GITHUB_OUTPUT"
+
+          code=${PIPESTATUS[0]}
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          echo "pytest exit code: $code"
 
       - name: Upload pytest results artifact
-        if: always() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+        # create and commit results only for one python version to avoid matrix push races
+        if: always() && matrix.python == '3.12' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
         uses: actions/upload-artifact@v4
         with:
           name: pytest-results-py${{ matrix.python }}
           path: tests/pytest_results_py${{ matrix.python }}.txt
 
       - name: Commit and push pytest results
-        # commit only once to avoid matrix push races
+        # create and commit results only for one python version to avoid matrix push races
         if: always() && matrix.python == '3.12' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
         shell: bash
         run: |
