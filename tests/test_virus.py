@@ -317,12 +317,12 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         - Files are not empty
         - At least one sequence in FASTA file
         """
-        virus = "NC_045512.2"
+        virus_name = "NC_045512.2"
         outfolder = self.test_output_dir
         
         # Run the function (should create files, returns None)
         result = virus(
-            virus=virus,
+            virus=virus_name,
             is_accession=True,
             outfolder=outfolder
         )
@@ -331,7 +331,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         self.assertIsNone(result)
         
         # Check that output files were created
-        files = self._check_output_files(virus, outfolder)
+        files = self._check_output_files(virus_name, outfolder)
         
         # Assert all files exist
         self.assertTrue(files["fasta"]["exists"], 
@@ -352,18 +352,18 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
     
     def test_virus_with_host_filter(self):
         """Test that host filter works and creates appropriate files."""
-        virus = "Zika virus"
+        virus_name = "Zika virus"
         outfolder = self.test_output_dir
         
         result = virus(
-            virus=virus,
+            virus=virus_name,
             host="human",
             outfolder=outfolder
         )
         
         self.assertIsNone(result)
         
-        files = self._check_output_files(virus, outfolder)
+        files = self._check_output_files(virus_name, outfolder)
         self.assertTrue(files["fasta"]["exists"], "FASTA file not created with host filter")
         self.assertTrue(files["csv"]["exists"], "CSV file not created with host filter")
         self.assertTrue(files["jsonl"]["exists"], "JSONL file not created with host filter")
@@ -373,28 +373,28 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
     
     def test_virus_with_completeness_filter(self):
         """Test that completeness filter works correctly."""
-        virus = "Zika virus"
+        virus_name = "Zika virus"
         outfolder = self.test_output_dir
         
         result = virus(
-            virus=virus,
+            virus=virus_name,
             nuc_completeness="complete",
             outfolder=outfolder
         )
         
         self.assertIsNone(result)
         
-        files = self._check_output_files(virus, outfolder)
+        files = self._check_output_files(virus_name, outfolder)
         self.assertTrue(files["fasta"]["exists"], "FASTA file not created with completeness filter")
         self.assertGreater(files["fasta"]["size"], 0, "FASTA file is empty with completeness filter")
     
     def test_virus_with_length_filters(self):
         """Test that sequence length filters work correctly."""
-        virus = "Zika virus"
+        virus_name = "Zika virus"
         outfolder = self.test_output_dir
         
         result = virus(
-            virus=virus,
+            virus=virus_name,
             min_seq_length=10000,
             max_seq_length=11000,
             outfolder=outfolder
@@ -402,7 +402,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         
         self.assertIsNone(result)
         
-        files = self._check_output_files(virus, outfolder)
+        files = self._check_output_files(virus_name, outfolder)
         self.assertTrue(files["fasta"]["exists"], "FASTA file not created with length filters")
         
         # Verify sequences are within expected length range
@@ -412,45 +412,45 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
     
     def test_virus_with_annotated_filter(self):
         """Test that annotated filter works correctly."""
-        virus = "Zika virus"
+        virus_name = "Zika virus"
         outfolder = self.test_output_dir
         
         result = virus(
-            virus=virus,
+            virus=virus_name,
             annotated=True,
             outfolder=outfolder
         )
         
         self.assertIsNone(result)
         
-        files = self._check_output_files(virus, outfolder)
+        files = self._check_output_files(virus_name, outfolder)
         self.assertTrue(files["fasta"]["exists"], "FASTA file not created with annotated filter")
         self.assertGreater(files["fasta"]["size"], 0, "FASTA file is empty with annotated filter")
     
     def test_virus_with_refseq_filter(self):
         """Test that RefSeq filter works correctly."""
-        virus = "Zika virus"
+        virus_name = "Zika virus"
         outfolder = self.test_output_dir
         
         result = virus(
-            virus=virus,
+            virus=virus_name,
             refseq_only=True,
             outfolder=outfolder
         )
         
         self.assertIsNone(result)
         
-        files = self._check_output_files(virus, outfolder)
+        files = self._check_output_files(virus_name, outfolder)
         self.assertTrue(files["fasta"]["exists"], "FASTA file not created with RefSeq filter")
         self.assertGreater(files["fasta"]["size"], 0, "FASTA file is empty with RefSeq filter")
     
     def test_virus_with_multiple_filters(self):
         """Test that multiple filters can be combined correctly."""
-        virus = "Zika virus"
+        virus_name = "Zika virus"
         outfolder = self.test_output_dir
         
         result = virus(
-            virus=virus,
+            virus=virus_name,
             host="human",
             nuc_completeness="complete",
             min_seq_length=10500,
@@ -461,7 +461,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         
         self.assertIsNone(result)
         
-        files = self._check_output_files(virus, outfolder)
+        files = self._check_output_files(virus_name, outfolder)
         self.assertTrue(files["fasta"]["exists"], "FASTA file not created with multiple filters")
         self.assertTrue(files["csv"]["exists"], "CSV file not created with multiple filters")
         self.assertTrue(files["jsonl"]["exists"], "JSONL file not created with multiple filters")
@@ -509,18 +509,18 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         
         This catches: Format conversion bugs, data loss, parsing errors.
         """
-        virus = "NC_045512.2"
+        virus_name = "NC_045512.2"
         outfolder = self.test_output_dir
         
         result = virus(
-            virus=virus,
+            virus=virus_name,
             is_accession=True,
             outfolder=outfolder
         )
         
         self.assertIsNone(result)
         
-        files = self._check_output_files(virus, outfolder)
+        files = self._check_output_files(virus_name, outfolder)
         
         # Count records in each file type
         fasta_count = self._count_fasta_sequences(files["fasta"]["path"])
@@ -552,19 +552,19 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         
         This catches: Broken host filters, API changes in filtering behavior.
         """
-        virus = "Zika virus"
+        virus_name = "Zika virus"
         host = "human"
         outfolder = self.test_output_dir
         
         result = virus(
-            virus=virus,
+            virus=virus_name,
             host=host,
             outfolder=outfolder
         )
         
         self.assertIsNone(result)
         
-        files = self._check_output_files(virus, outfolder)
+        files = self._check_output_files(virus_name, outfolder)
         
         # Parse CSV metadata
         records = self._parse_csv_metadata(files["csv"]["path"])
@@ -618,7 +618,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         import requests
         from datetime import datetime
         
-        virus = "mumps virus"
+        virus_name = "mumps virus"
         min_release_date = "2024-12-31"
         outfolder = self.test_output_dir
         
@@ -636,14 +636,14 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         
         # Run virus function with same filter
         result = virus(
-            virus=virus,
+            virus=virus_name,
             min_release_date=min_release_date,
             outfolder=outfolder
         )
         
         self.assertIsNone(result)
         
-        files = self._check_output_files(virus, outfolder)
+        files = self._check_output_files(virus_name, outfolder)
         
         # Verify files were created
         self.assertTrue(os.path.exists(files["csv"]["path"]), 
@@ -700,18 +700,18 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         This catches: API schema changes, missing metadata fields, field
         name changes that would break downstream analysis tools.
         """
-        virus = "NC_045512.2"
+        virus_name = "NC_045512.2"
         outfolder = self.test_output_dir
         
         result = virus(
-            virus=virus,
+            virus=virus_name,
             is_accession=True,
             outfolder=outfolder
         )
         
         self.assertIsNone(result)
         
-        files = self._check_output_files(virus, outfolder)
+        files = self._check_output_files(virus_name, outfolder)
         
         # Get column names from CSV
         columns = self._get_csv_columns(files["csv"]["path"])
@@ -751,18 +751,18 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         This catches: Broken completeness filters, metadata field changes,
         filter logic errors.
         """
-        virus = "Zika virus"
+        virus_name = "Zika virus"
         outfolder = self.test_output_dir
         
         result = virus(
-            virus=virus,
+            virus=virus_name,
             nuc_completeness="complete",
             outfolder=outfolder
         )
         
         self.assertIsNone(result)
         
-        files = self._check_output_files(virus, outfolder)
+        files = self._check_output_files(virus_name, outfolder)
         
         # Parse CSV metadata
         records = self._parse_csv_metadata(files["csv"]["path"])
@@ -813,11 +813,11 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         This catches: Filter interaction bugs, data loss with complex queries,
         inconsistent filtering across output formats.
         """
-        virus = "Zika virus"
+        virus_name = "Zika virus"
         outfolder = self.test_output_dir
         
         result = virus(
-            virus=virus,
+            virus=virus_name,
             host="human",
             nuc_completeness="complete",
             min_seq_length=10000,
@@ -826,7 +826,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         
         self.assertIsNone(result)
         
-        files = self._check_output_files(virus, outfolder)
+        files = self._check_output_files(virus_name, outfolder)
         
         # Count records in each file type
         fasta_count = self._count_fasta_sequences(files["fasta"]["path"])
@@ -856,18 +856,18 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         
         This catches: Geographic location filter bugs, API parameter issues.
         """
-        virus = "Zika virus"
+        virus_name = "Zika virus"
         outfolder = self.test_output_dir
         
         result = virus(
-            virus=virus,
+            virus=virus_name,
             geographic_location="Brazil",
             outfolder=outfolder
         )
         
         self.assertIsNone(result)
         
-        files = self._check_output_files(virus, outfolder)
+        files = self._check_output_files(virus_name, outfolder)
         self.assertTrue(files["fasta"]["exists"], "FASTA file not created with geographic location filter")
         self.assertTrue(files["csv"]["exists"], "CSV file not created with geographic location filter")
         
@@ -894,11 +894,11 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         
         This catches: Protein count filter bugs, metadata field issues.
         """
-        virus = "Zika virus"
+        virus_name = "Zika virus"
         outfolder = self.test_output_dir
         
         result = virus(
-            virus=virus,
+            virus=virus_name,
             min_protein_count=1,
             max_protein_count=20,
             outfolder=outfolder
@@ -906,7 +906,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         
         self.assertIsNone(result)
         
-        files = self._check_output_files(virus, outfolder)
+        files = self._check_output_files(virus_name, outfolder)
         self.assertTrue(files["fasta"]["exists"], "FASTA file not created with protein count filters")
         
         # Parse CSV metadata
@@ -930,18 +930,18 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         
         This catches: Source database filter bugs, API parameter issues.
         """
-        virus = "Zika virus"
+        virus_name = "Zika virus"
         outfolder = self.test_output_dir
         
         result = virus(
-            virus=virus,
+            virus=virus_name,
             source_database="GenBank",
             outfolder=outfolder
         )
         
         self.assertIsNone(result)
         
-        files = self._check_output_files(virus, outfolder)
+        files = self._check_output_files(virus_name, outfolder)
         self.assertTrue(files["fasta"]["exists"], "FASTA file not created with source database filter")
         
         # Parse CSV metadata
@@ -973,18 +973,18 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         
         This catches: Lab passaged filter bugs, API parameter issues.
         """
-        virus = "Zika virus"
+        virus_name = "Zika virus"
         outfolder = self.test_output_dir
         
         result = virus(
-            virus=virus,
+            virus=virus_name,
             lab_passaged=False,
             outfolder=outfolder
         )
         
         self.assertIsNone(result)
         
-        files = self._check_output_files(virus, outfolder)
+        files = self._check_output_files(virus_name, outfolder)
         self.assertTrue(files["fasta"]["exists"], "FASTA file not created with lab_passaged filter")
         
         # Should create files (even if no lab passaged field in results)
@@ -999,12 +999,12 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         Note: Collection date data is often sparse, filters may return no results.
         This test just ensures the filter doesn't cause errors.
         """
-        virus = "Zika virus"
+        virus_name = "Zika virus"
         outfolder = self.test_output_dir
         
         # This will complete without error even if no results match
         result = virus(
-            virus=virus,
+            virus=virus_name,
             min_collection_date="2016-01-01",
             max_collection_date="2016-12-31",
             outfolder=outfolder
@@ -1023,18 +1023,18 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         
         This catches: Max ambiguous chars filter bugs, sequence quality filtering issues.
         """
-        virus = "Zika virus"
+        virus_name = "Zika virus"
         outfolder = self.test_output_dir
         
         result = virus(
-            virus=virus,
+            virus=virus_name,
             max_ambiguous_chars=100,
             outfolder=outfolder
         )
         
         self.assertIsNone(result)
         
-        files = self._check_output_files(virus, outfolder)
+        files = self._check_output_files(virus_name, outfolder)
         self.assertTrue(files["fasta"]["exists"], "FASTA file not created with max_ambiguous_chars filter")
         
         # Should have some records (most sequences have some ambiguous bases)
@@ -1051,19 +1051,19 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         
         This catches: has_proteins filter bugs, protein filtering logic issues.
         """
-        virus = "Zika virus"
+        virus_name = "Zika virus"
         outfolder = self.test_output_dir
         
         # Test with a common protein (polyprotein is typical for Zika)
         result = virus(
-            virus=virus,
+            virus=virus_name,
             has_proteins="polyprotein",
             outfolder=outfolder
         )
         
         self.assertIsNone(result)
         
-        files = self._check_output_files(virus, outfolder)
+        files = self._check_output_files(virus_name, outfolder)
         self.assertTrue(files["fasta"]["exists"], "FASTA file not created with has_proteins filter")
         
         # Should have some records (polyprotein is common in Zika)
@@ -1080,11 +1080,11 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         
         This catches: GenBank metadata retrieval bugs, batch processing issues.
         """
-        virus = "NC_045512.2"
+        virus_name = "NC_045512.2"
         outfolder = self.test_output_dir
         
         result = virus(
-            virus=virus,
+            virus=virus_name,
             is_accession=True,
             genbank_metadata=True,
             genbank_batch_size=10,
@@ -1093,11 +1093,11 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         
         self.assertIsNone(result)
         
-        files = self._check_output_files(virus, outfolder)
+        files = self._check_output_files(virus_name, outfolder)
         self.assertTrue(files["fasta"]["exists"], "FASTA file not created with genbank_metadata")
         
         # Check for GenBank metadata file
-        genbank_csv = os.path.join(outfolder, f"{virus}_genbank_metadata.csv")
+        genbank_csv = os.path.join(outfolder, f"{virus_name}_genbank_metadata.csv")
         self.assertTrue(os.path.exists(genbank_csv), 
                        f"GenBank metadata CSV not created: {genbank_csv}")
         
