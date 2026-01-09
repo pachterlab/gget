@@ -29,154 +29,60 @@ random_suffix = os.urandom(4).hex() # random suffix for naming uniqueness
 
 
 def _check_and_install_datasets_cli():
-    """
-    Check if NCBI datasets CLI is installed. If not, attempt to install it via conda.
-    
+    """Check that the NCBI datasets CLI is available.
+
+    This helper is called from the optimized virus download paths that rely on the
+    `datasets` command-line tool (ncbi-datasets-cli). It no longer performs any
+    automatic installation; instead it:
+
+    - Returns True if `datasets --version` succeeds
+    - Otherwise logs a prominent warning and raises RuntimeError instructing the
+      user to run `gget setup virus` to install the CLI
+
     Returns:
-        bool: True if datasets CLI is available, False otherwise
-        
+        bool: True if datasets CLI is available
+
     Raises:
-        RuntimeError: If datasets CLI is not available and cannot be installed
+        RuntimeError: If datasets CLI is not available
     """
+
     # Check if datasets command is available
     try:
         result = subprocess.run(
             ["datasets", "--version"],
             capture_output=True,
             text=True,
-            timeout=5
+            timeout=5,
         )
         if result.returncode == 0:
-            logger.info("✅ NCBI datasets CLI is installed: %s", result.stdout.strip())
+            logger.info(
+                "✅ NCBI datasets CLI is installed: %s", result.stdout.strip()
+            )
             return True
     except (FileNotFoundError, subprocess.TimeoutExpired):
         pass
-    
-    # datasets CLI not found, attempt to install via conda
-    logger.warning("=" * 80)
-    logger.warning("⚠️  NCBI DATASETS CLI NOT FOUND")
-    logger.warning("=" * 80)
-    logger.warning("The NCBI datasets CLI is required for cached Alphainfluenza/SARS-CoV-2 downloads.")
-    logger.warning("Attempting automatic installation via conda...")
-    logger.warning("=" * 80)
-    
-    # Check if conda is available
-    try:
-        conda_result = subprocess.run(
-            ["conda", "--version"], 
-            capture_output=True, 
-            check=True, 
-            timeout=5
-        )
-        logger.info("Found conda: %s", conda_result.stdout.strip())
-    except (FileNotFoundError, subprocess.CalledProcessError, subprocess.TimeoutExpired):
-        error_msg = (
-            "=" * 80 + "\n"
-            "❌ INSTALLATION FAILED\n"
-            "=" * 80 + "\n"
-            "datasets CLI not found and conda is not available for automatic installation.\n\n"
-            "🔧 MANUAL INSTALLATION REQUIRED:\n\n"
-            "Option 1 - Using conda:\n"
-            "  conda install -c conda-forge ncbi-datasets-cli\n\n"
-            "Option 2 - Using the official installer:\n"
-            "  Visit: https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/\n\n"
-            "After installation, restart your terminal and try again.\n"
-            "=" * 80
-        )
-        logger.error(error_msg)
-        raise RuntimeError(error_msg)
-    
-    # Try to install via conda
-    logger.info("📦 Installing ncbi-datasets-cli via conda...")
-    logger.info("This may take a few minutes...")
-    try:
-        install_result = subprocess.run(
-            ["conda", "install", "-c", "conda-forge", "ncbi-datasets-cli", "-y"],
-            capture_output=True,
-            text=True,
-            timeout=300  # 5 minutes timeout for installation
-        )
-        
-        if install_result.returncode == 0:
-            logger.info("✅ conda install completed successfully")
-            
-            # Verify installation
-            verify_result = subprocess.run(
-                ["datasets", "--version"],
-                capture_output=True,
-                text=True,
-                timeout=5
-            )
-            if verify_result.returncode == 0:
-                logger.info("=" * 80)
-                logger.info("✅ INSTALLATION SUCCESSFUL")
-                logger.info("=" * 80)
-                logger.info("Verified datasets CLI installation: %s", verify_result.stdout.strip())
-                logger.info("=" * 80)
-                return True
-            else:
-                error_msg = (
-                    "=" * 80 + "\n"
-                    "⚠️  INSTALLATION COMPLETED BUT VERIFICATION FAILED\n"
-                    "=" * 80 + "\n"
-                    "The conda installation succeeded, but the datasets command is not yet available.\n"
-                    "This usually means you need to restart your terminal/shell.\n\n"
-                    "🔧 NEXT STEPS:\n"
-                    "1. Close your current terminal window\n"
-                    "2. Open a new terminal\n"
-                    "3. Reactivate your conda environment if needed\n"
-                    "4. Run your gget command again\n"
-                    "=" * 80
-                )
-                logger.warning(error_msg)
-                raise RuntimeError(error_msg)
-        else:
-            error_msg = (
-                "=" * 80 + "\n"
-                "❌ CONDA INSTALLATION FAILED\n"
-                "=" * 80 + "\n"
-                f"Error output:\n{install_result.stderr}\n\n"
-                "🔧 MANUAL INSTALLATION:\n"
-                "Please try installing manually:\n"
-                "  conda install -c conda-forge ncbi-datasets-cli\n\n"
-                "Or use the official installer:\n"
-                "  https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/\n"
-                "=" * 80
-            )
-            logger.error(error_msg)
-            raise RuntimeError(error_msg)
-            
-    except subprocess.TimeoutExpired:
-        error_msg = (
-            "=" * 80 + "\n"
-            "❌ INSTALLATION TIMEOUT\n"
-            "=" * 80 + "\n"
-            "Installation of ncbi-datasets-cli timed out after 5 minutes.\n"
-            "This may indicate network issues or conda environment problems.\n\n"
-            "🔧 MANUAL INSTALLATION:\n"
-            "Please try installing manually:\n"
-            "  conda install -c conda-forge ncbi-datasets-cli\n\n"
-            "Or use the official installer:\n"
-            "  https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/\n"
-            "=" * 80
-        )
-        logger.error(error_msg)
-        raise RuntimeError(error_msg)
-    except Exception as e:
-        error_msg = (
-            "=" * 80 + "\n"
-            "❌ UNEXPECTED INSTALLATION ERROR\n"
-            "=" * 80 + "\n"
-            f"An unexpected error occurred during installation: {e}\n\n"
-            "🔧 MANUAL INSTALLATION:\n"
-            "Please try installing manually:\n"
-            "  conda install -c conda-forge ncbi-datasets-cli\n\n"
-            "Or use the official installer:\n"
-            "  https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/\n"
-            "=" * 80
-        )
-        logger.error(error_msg)
-        raise RuntimeError(error_msg)
+
+    banner = "=" * 80
+    error_msg = (
+        f"{banner}\n"
+        "⚠️  NCBI DATASETS CLI NOT FOUND\n"
+        f"{banner}\n"
+        "The NCBI datasets CLI is required for cached Alphainfluenza/SARS-CoV-2 "
+        "downloads in gget.virus.\n\n"
+        "To install it using gget, run:\n\n"
+        "  gget setup virus\n\n"
+        "This will install the ncbi-datasets-cli package (via conda) and make the "
+        "`datasets` command available. After installation, restart your terminal "
+        "if needed and re-run your gget command.\n\n"
+        "If you prefer manual installation, you can also run:\n"
+        "  conda install -c conda-forge ncbi-datasets-cli\n\n"
+        "or follow the official instructions:\n"
+        "  https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/\n"
+        f"{banner}"
+    )
+
+    logger.error(error_msg)
+    raise RuntimeError(error_msg)
 
 
 def fetch_virus_metadata(
@@ -715,7 +621,7 @@ def _download_optimized_cached(
         ... )
     """
     
-    # Check if datasets CLI is available and install if needed
+    # Check if datasets CLI is available (no longer auto-installs here)
     _check_and_install_datasets_cli()
     
     last_error = None
@@ -749,12 +655,13 @@ def _download_optimized_cached(
                 error_msg = (
                     "❌ datasets CLI is not available in your PATH.\n\n"
                     "This likely means one of the following:\n"
-                    "1. The NCBI datasets CLI failed to install automatically\n"
+                    "1. The NCBI datasets CLI is not installed\n"
                     "2. It was installed but you need to restart your terminal/shell\n"
                     "3. It's installed but not in your PATH environment variable\n\n"
                     "🔧 SOLUTIONS:\n"
                     "• If you just installed it, restart your terminal and try again\n"
-                    "• Install manually with: conda install -c conda-forge ncbi-datasets-cli\n"
+                    "• Install via gget: gget setup virus\n"
+                    "• Or manually: conda install -c conda-forge ncbi-datasets-cli\n"
                     "• Or follow the official guide: https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/\n"
                 )
                 logger.error(error_msg)

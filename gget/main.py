@@ -1234,8 +1234,12 @@ def main():
     parser_setup.add_argument(
         "module",
         type=str,
-        choices=["alphafold", "gpt", "cellxgene", "elm", "cbio"],
-        help="gget module for which dependencies should be installed, e.g. 'alphafold'",
+        choices=["alphafold", "gpt", "cellxgene", "elm", "cbio", "virus"],
+        help=(
+            "gget module for which dependencies should be installed, e.g. 'alphafold'. "
+            "Use 'virus' to install the NCBI datasets CLI required for cached Alphainfluenza/"
+            "SARS-CoV-2 downloads."
+        ),
     )
 
     parser_setup.add_argument(
