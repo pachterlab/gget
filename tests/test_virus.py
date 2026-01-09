@@ -25,6 +25,13 @@ validation) and code-defined tests (for functional and data quality checks).
    - Check metadata schema and field presence
    - Detect API/data source changes
 
+4. Datasets CLI Tests (5 tests):
+   - Test _check_and_install_datasets_cli() detection when CLI is installed
+   - Test _check_and_install_datasets_cli() error handling when CLI is missing
+   - Test setup(module='virus') detection of existing CLI installation
+   - Test setup(module='virus') error handling when CLI and conda are missing
+   - Test datasets CLI version output validation
+
 Parameters Tested:
 ------------------
 Core Parameters:
@@ -85,6 +92,8 @@ What These Tests Catch:
 ✓ Protein and gene filtering
 ✓ Geographic location filtering
 ✓ Quality filters (ambiguous characters)
+✓ NCBI datasets CLI detection and installation (via gget setup virus)
+✓ Error handling when datasets CLI is not installed
 
 What These Tests Don't Catch:
 -----------------------------
@@ -104,7 +113,7 @@ Test Coverage Summary:
 - Functional tests: 19 (56%)
 - Not tested: 5 (15%)
 
-Total: 41 tests covering validation, functionality, and data quality.
+Total: 46 tests covering validation, functionality, data quality, and CLI setup.
 
 Notes:
 ------
@@ -112,13 +121,16 @@ Notes:
   and are tested separately in dedicated test modules
 - download_all_accessions is impractical for unit tests (would download entire database)
 - submitter_country is intentionally not tested (similar to geographic_location)
+- Datasets CLI tests cover the connection between gget_virus.py and gget_setup.py
 """
 import unittest
 import json
 import os
 import shutil
+import subprocess
 import tempfile
-from gget.gget_virus import virus
+from gget.gget_virus import virus, _check_and_install_datasets_cli
+from gget.gget_setup import setup
 from .from_json import from_json
 
 # Load dictionary containing arguments and expected results
@@ -1104,6 +1116,169 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         # Verify GenBank CSV has data
         self.assertGreater(os.path.getsize(genbank_csv), 0, 
                          "GenBank metadata CSV is empty")
+
+    # =========================================================================
+    # DATASETS CLI TESTS: Testing NCBI datasets CLI check and setup
+    # =========================================================================
+    # These tests verify the datasets CLI detection and installation functionality
+    # that connects gget_virus.py to gget_setup.py
+    
+    def test_check_datasets_cli_when_installed(self):
+        """Test that _check_and_install_datasets_cli returns True when CLI is installed.
+        
+        This test checks if the NCBI datasets CLI is available on the system.
+        If installed, the function should return True without raising any errors.
+        If not installed, the test is skipped (use test_check_datasets_cli_not_installed).
+        
+        This catches: Detection logic bugs, version check issues.
+        """
+        # First check if datasets is actually installed
+        try:
+            result = subprocess.run(
+                ["datasets", "--version"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            cli_installed = result.returncode == 0
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            cli_installed = False
+        
+        if not cli_installed:
+            self.skipTest("NCBI datasets CLI not installed - skipping positive test")
+        
+        # If installed, _check_and_install_datasets_cli should return True
+        check_result = _check_and_install_datasets_cli()
+        self.assertTrue(check_result, 
+                       "_check_and_install_datasets_cli should return True when CLI is installed")
+    
+    def test_check_datasets_cli_not_installed(self):
+        """Test that _check_and_install_datasets_cli raises RuntimeError when CLI is missing.
+        
+        This test verifies the error handling when the datasets CLI is not found.
+        We temporarily modify PATH to simulate the CLI not being installed.
+        
+        This catches: Error message bugs, exception handling issues.
+        """
+        # Save original PATH
+        original_path = os.environ.get("PATH", "")
+        
+        try:
+            # Set PATH to empty to simulate datasets not being found
+            os.environ["PATH"] = ""
+            
+            # Should raise RuntimeError with helpful message
+            with self.assertRaises(RuntimeError) as context:
+                _check_and_install_datasets_cli()
+            
+            # Verify the error message contains helpful instructions
+            error_message = str(context.exception)
+            self.assertIn("NCBI DATASETS CLI NOT FOUND", error_message,
+                         "Error should mention CLI not found")
+            self.assertIn("gget setup virus", error_message,
+                         "Error should suggest running gget setup virus")
+            self.assertIn("conda install", error_message,
+                         "Error should mention conda installation option")
+            
+        finally:
+            # Restore original PATH
+            os.environ["PATH"] = original_path
+    
+    def test_setup_virus_checks_existing_cli(self):
+        """Test that gget setup virus detects an already-installed datasets CLI.
+        
+        If the datasets CLI is already installed, setup(module='virus') should
+        detect it and return without attempting reinstallation.
+        
+        This catches: Setup detection bugs, redundant installation issues.
+        """
+        # First check if datasets is actually installed
+        try:
+            result = subprocess.run(
+                ["datasets", "--version"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            cli_installed = result.returncode == 0
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            cli_installed = False
+        
+        if not cli_installed:
+            self.skipTest("NCBI datasets CLI not installed - skipping setup detection test")
+        
+        # If installed, setup should complete without errors
+        # It should detect the existing installation and return early
+        try:
+            setup(module="virus", verbose=True)
+        except Exception as e:
+            self.fail(f"setup(module='virus') raised unexpected error: {e}")
+    
+    def test_setup_virus_requires_conda_when_cli_missing(self):
+        """Test that gget setup virus requires conda when CLI is not installed.
+        
+        When the datasets CLI is missing and conda is not available,
+        setup(module='virus') should raise a RuntimeError with instructions.
+        
+        This catches: Installation fallback bugs, error handling issues.
+        """
+        # Save original PATH
+        original_path = os.environ.get("PATH", "")
+        
+        try:
+            # Set PATH to empty to simulate both datasets and conda not being found
+            os.environ["PATH"] = ""
+            
+            # Should raise RuntimeError because neither datasets nor conda is available
+            with self.assertRaises(RuntimeError) as context:
+                setup(module="virus", verbose=True)
+            
+            # Verify the error message is helpful
+            error_message = str(context.exception)
+            # Should mention that installation failed or manual installation required
+            self.assertTrue(
+                "INSTALLATION FAILED" in error_message or 
+                "conda" in error_message.lower() or
+                "NCBI DATASETS CLI NOT FOUND" in error_message,
+                f"Error should mention installation failure or conda requirement: {error_message}"
+            )
+            
+        finally:
+            # Restore original PATH
+            os.environ["PATH"] = original_path
+    
+    def test_datasets_cli_version_output(self):
+        """Test that the datasets CLI returns a valid version string.
+        
+        When installed, the datasets CLI should return a version string
+        that can be parsed. This helps ensure the CLI is properly functional.
+        
+        This catches: Corrupted installations, version parsing issues.
+        """
+        # Check if datasets is actually installed
+        try:
+            result = subprocess.run(
+                ["datasets", "--version"],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            cli_installed = result.returncode == 0
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            cli_installed = False
+        
+        if not cli_installed:
+            self.skipTest("NCBI datasets CLI not installed - skipping version test")
+        
+        # Version output should not be empty and should contain version info
+        version_output = result.stdout.strip()
+        self.assertTrue(len(version_output) > 0, 
+                       "Version output should not be empty")
+        # NCBI datasets typically outputs version like "datasets version: X.Y.Z" or just "X.Y.Z"
+        self.assertTrue(
+            any(char.isdigit() for char in version_output),
+            f"Version output should contain version numbers: {version_output}"
+        )
 
     
 
