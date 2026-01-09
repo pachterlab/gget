@@ -71,6 +71,7 @@
 * [gget search](es/search.md)  
 * [gget setup](es/setup.md)  
 * [gget seq](es/seq.md)  
+* [gget virus](es/virus.md)
 
 ---
 
