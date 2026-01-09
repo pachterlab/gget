@@ -93,6 +93,6 @@ ___
 ___
 
 # 🚂 [gget code repository](https://github.com/pachterlab/gget/) traffic
-Updates automatically every week on Sunday at 23:55 (UTC).
 ![Plots showing the cumulative clones and views of the gget GitHub repository.](https://raw.githubusercontent.com/pachterlab/gget/traffic/plots/gget_cumulative_clones_views.png)
+Updates automatically every week on Sunday at 23:55 (UTC).
 
