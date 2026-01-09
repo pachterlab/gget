@@ -69,6 +69,9 @@ $ gget archs4 -w tissue ACE2
 # Get the protein structure (in PDB format) of ACE2 as stored in the Protein Data Bank (PDB ID returned by gget info)
 $ gget pdb 1R42 -o 1R42.pdb
 
+# Download virus genome datasets from NCBI Virus (e.g., Zika virus sequences)
+$ gget virus "Zika virus" --host "Homo sapiens" --nuc_completeness complete
+
 # Find Eukaryotic Linear Motifs (ELMs) in a protein sequence
 $ gget setup elm # setup only needs to be run once
 $ gget elm -o results MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS
@@ -95,6 +98,7 @@ gget.diamond("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS", reference="MSSSS
 gget.enrichr(["ACE2", "AGT", "AGTR1", "ACE", "AGTRAP", "AGTR2", "ACE3P"], database="ontology", plot=True)
 gget.archs4("ACE2", which="tissue")
 gget.pdb("1R42", save=True)
+gget.virus("Zika virus", host="Homo sapiens", nuc_completeness="complete")
 
 gget.setup("elm") # setup only needs to be run once
 ortho_df, regex_df = gget.elm("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")

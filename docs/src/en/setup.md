@@ -29,4 +29,15 @@ gget setup alphafold
 # Python
 gget.setup("alphafold")
 ```
-&rarr; Installs all (modified) third-party dependencies and downloads model parameters (~4GB) required to run [`gget alphafold`](alphafold.md). 
+&rarr; Installs all (modified) third-party dependencies and downloads model parameters (~4GB) required to run [`gget alphafold`](alphafold.md).
+
+<br>
+
+```bash
+gget setup virus
+```
+```python
+# Python
+gget.setup("virus")
+```
+&rarr; Installs the NCBI datasets CLI (via conda) required for optimized cached downloads of Alphainfluenza and SARS-CoV-2 data in [`gget virus`](virus.md). If the CLI is already installed, the command will detect it and exit without reinstalling. 
