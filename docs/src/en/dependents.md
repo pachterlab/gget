@@ -14,8 +14,10 @@ ___
 
 # 🧑‍🤝‍🧑 Dependent software
 The following applications build on `gget`:
+- [gget-mcp](https://mcpindex.net/en/mcpserver/longevity-genie-gget-mcp)
+  > "MCP server providing a powerful bioinformatics toolkit for genomics queries and analysis, wrapping the popular `gget` library."
 - [Biomni](https://biomni.stanford.edu/environment)  
-  A General-Purpose Biomedical AI Agent being developed at Stanford and Genentech.
+  A General-Purpose Biomedical AI Scientist being developed at Stanford and Genentech.
 - [PerTurboAgent](https://www.biorxiv.org/content/10.1101/2025.05.25.656020v1)  
   A Self-Planning Agent for Boosting Sequential Perturb-seq Experiments.  
   > "We [...] use packages gget and blitzgsea for data enrichment analysis" 
