@@ -1,4 +1,4 @@
-Pytest results (Python 3.12) - 2026-01-08T22:43:44Z
+Pytest results (Python 3.12) - 2026-01-12T16:10:24Z
 
 ============================= test session starts ==============================
 platform linux -- Python 3.12.12, pytest-9.0.2, pluggy-1.6.0 -- /opt/hostedtoolcache/Python/3.12.12/x64/bin/python
@@ -322,7 +322,7 @@ gget/constants.py             32      0   100%
 gget/gget_alphafold.py       362    321    11%   86-108, 115-116, 123-149, 181-186, 233-867
 gget/gget_archs4.py           79     13    84%   75-78, 84, 107, 123-126, 139-142, 148, 170, 198-201, 207
 gget/gget_bgee.py             56      6    89%   60, 83, 103, 130, 154, 175
-gget/gget_blast.py           127     36    72%   92, 124-142, 163-165, 204, 207, 246-248, 296-299, 302-303, 322-325, 332-333, 336-341, 346, 351-354
+gget/gget_blast.py           127     36    72%   92, 124-142, 163-165, 204, 207, 251-255, 296-299, 302-303, 322-325, 332-333, 336-341, 346, 351-354
 gget/gget_blat.py             86     10    88%   58-62, 95, 136, 139, 168, 232-233, 239
 gget/gget_cbio.py            524    403    23%   28, 39-67, 77-87, 136-137, 143-147, 154-157, 161, 164, 172-177, 208, 226, 265, 271-275, 278, 282-294, 296, 322-331, 334, 376-389, 393-416, 420-441, 447-450, 454-473, 477, 494-537, 540-757, 760-789, 802-1164, 1218-1254
 gget/gget_cellxgene.py        53      9    83%   21-22, 140-149, 176, 215, 231, 247
@@ -345,14 +345,14 @@ gget/utils.py                403     74    82%   31, 36-42, 72, 95, 119, 122, 18
 --------------------------------------------------------
 TOTAL                       5037   2471    51%
 ============================= slowest 10 durations =============================
-117.27s call     tests/test_search.py::TestSearch::test_search_gene_two_sw_limit
-76.72s call     tests/test_blast.py::TestBlast::test_blast_nt
-29.90s call     tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
-16.88s setup    tests/test_cosmic.py::TestCosmicWorkflow::test_cosmic_defaults
-16.70s call     tests/test_search.py::TestSearch::test_search_release
-12.54s call     tests/test_elm.py::TestELM::test_elm_uniprot_id_new
-12.54s call     tests/test_search.py::TestSearch::test_search_gene_one_sw_limit
-10.90s call     tests/test_search.py::TestSearch::test_search_transcript_two_sw_and
-10.73s call     tests/test_seq.py::TestSeq::test_seq_transcript_gene_WB
-10.68s call     tests/test_seq.py::TestSeq::test_seq_transcript_transcript_WB
-================ 203 passed, 273 warnings in 542.61s (0:09:02) =================
+79.16s call     tests/test_search.py::TestSearch::test_search_gene_two_sw_limit
+76.40s call     tests/test_blast.py::TestBlast::test_blast_nt
+28.12s call     tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
+21.82s setup    tests/test_cosmic.py::TestCosmicWorkflow::test_cosmic_defaults
+18.44s call     tests/test_search.py::TestSearch::test_search_gene_one_sw_limit
+13.21s call     tests/test_elm.py::TestELM::test_elm_uniprot_id_new
+12.04s call     tests/test_info.py::TestInfo::test_info_mix
+10.89s call     tests/test_seq.py::TestSeq::test_seq_transcript_gene_WB
+10.85s call     tests/test_seq.py::TestSeq::test_seq_transcript_transcript_WB
+10.55s call     tests/test_search.py::TestSearch::test_search_release
+================ 203 passed, 273 warnings in 565.54s (0:09:25) =================
