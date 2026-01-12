@@ -85,6 +85,59 @@ def _check_and_install_datasets_cli():
     raise RuntimeError(error_msg)
 
 
+def _get_modified_virus_name(virus_name):
+    """
+    Modify the virus name for retry attempts when the NCBI server is unreachable.
+    
+    This function generates an alternative virus name to try when the initial
+    query fails due to server unreachability. The modification strategy is:
+    1. If the name doesn't end with "virus", append " virus" to it
+    2. If the name already ends with "virus", add a space before "virus"
+       (e.g., "Denguevirus" -> "Dengue virus")
+    
+    Args:
+        virus_name (str): Original virus name that failed
+        
+    Returns:
+        str: Modified virus name to retry, or None if no modification is possible
+        
+    Example:
+        >>> _get_modified_virus_name("Dengue")
+        "Dengue virus"
+        >>> _get_modified_virus_name("Denguevirus")
+        "Dengue virus"
+        >>> _get_modified_virus_name("Dengue virus")
+        None  # Already has " virus" at end with space
+    """
+    if not virus_name:
+        return None
+    
+    virus_lower = virus_name.lower().strip()
+    
+    # Check if the name already ends with " virus" (with space)
+    if virus_lower.endswith(" virus"):
+        # Already has proper " virus" suffix, no modification needed
+        return None
+    
+    # Check if the name ends with "virus" (without space before it)
+    if virus_lower.endswith("virus"):
+        # Add a space before "virus"
+        # Find where "virus" starts and insert a space
+        idx = virus_name.lower().rfind("virus")
+        if idx > 0:
+            modified = virus_name[:idx] + " " + virus_name[idx:]
+            logger.debug("Modified virus name by adding space before 'virus': '%s' -> '%s'", 
+                        virus_name, modified)
+            return modified
+        return None
+    
+    # Name doesn't contain "virus" at the end, so append " virus"
+    modified = virus_name + " virus"
+    logger.debug("Modified virus name by appending ' virus': '%s' -> '%s'", 
+                virus_name, modified)
+    return modified
+
+
 def fetch_virus_metadata(
     virus,
     accession=False,
@@ -95,6 +148,7 @@ def fetch_virus_metadata(
     min_release_date=None,
     refseq_only=None,
     failed_commands=None,
+    _is_retry=False,
 ):
     """
     Fetch virus metadata using NCBI Datasets API.
@@ -102,6 +156,10 @@ def fetch_virus_metadata(
     This function retrieves metadata for virus sequences from the NCBI Datasets API
     using either taxon-based or accession-based queries. It handles pagination
     automatically to retrieve all available results.
+    
+    When the server is unreachable, this function will automatically retry with
+    a modified virus name (adding " virus" suffix or spacing) to improve query
+    matching.
     
     Args:
         virus (str): Virus taxon name/ID or accession number
@@ -112,6 +170,7 @@ def fetch_virus_metadata(
         complete_only (bool): Filter for complete genomes only  
         min_release_date (str): Minimum release date filter (YYYY-MM-DD format)
         refseq_only (bool): Limit to RefSeq genomes only
+        _is_retry (bool): Internal flag to prevent infinite retry loops
         
     Returns:
         list: List of virus metadata records from the API response
@@ -276,14 +335,43 @@ def fetch_virus_metadata(
                 
             elif isinstance(last_exception, requests.exceptions.ConnectionError):
                 # Handle connection errors (network issues, DNS failures, etc.)
+                # Try retrying with a modified virus name if this is not already a retry
+                if not _is_retry and not accession:
+                    modified_virus = _get_modified_virus_name(virus)
+                    if modified_virus:
+                        logger.warning("⚠️ Connection error with virus name '%s'. "
+                                      "Retrying with modified name: '%s'", virus, modified_virus)
+                        try:
+                            return fetch_virus_metadata(
+                                virus=modified_virus,
+                                accession=accession,
+                                host=host,
+                                geographic_location=geographic_location,
+                                annotated=annotated,
+                                complete_only=complete_only,
+                                min_release_date=min_release_date,
+                                refseq_only=refseq_only,
+                                failed_commands=failed_commands,
+                                _is_retry=True,
+                            )
+                        except RuntimeError:
+                            # If retry also fails, raise the original error
+                            logger.warning("⚠️ Retry with modified virus name also failed")
+                            pass
                 raise RuntimeError(f"Connection error while fetching virus metadata: {last_exception}") from last_exception
                 
             elif isinstance(last_exception, requests.exceptions.HTTPError):
                 # Handle HTTP errors with specific guidance for known issues
                 error_msg = f"HTTP error while fetching virus metadata: {last_exception}"
                 
-                # Check for specific server error patterns
-                if "500" in str(last_exception):
+                # Check for specific server error patterns (5xx errors indicate server unreachability)
+                is_server_error = False
+                if hasattr(last_exception, 'response') and last_exception.response is not None:
+                    is_server_error = 500 <= last_exception.response.status_code < 600
+                elif "500" in str(last_exception) or "502" in str(last_exception) or "503" in str(last_exception) or "504" in str(last_exception):
+                    is_server_error = True
+                
+                if is_server_error:
                     # Special handling for "all viruses" query (taxon 10239)
                     # If this is the first page and we're querying all viruses without date filters,
                     # the dataset is too large for NCBI to handle - need to chunk by date
@@ -294,6 +382,30 @@ def fetch_virus_metadata(
                         # Return None to signal that chunking is needed
                         # The calling function will handle the chunking strategy
                         return None
+                    
+                    # Try retrying with a modified virus name if this is not already a retry
+                    if not _is_retry and not accession:
+                        modified_virus = _get_modified_virus_name(virus)
+                        if modified_virus:
+                            logger.warning("⚠️ Server error (5xx) with virus name '%s'. "
+                                          "Retrying with modified name: '%s'", virus, modified_virus)
+                            try:
+                                return fetch_virus_metadata(
+                                    virus=modified_virus,
+                                    accession=accession,
+                                    host=host,
+                                    geographic_location=geographic_location,
+                                    annotated=annotated,
+                                    complete_only=complete_only,
+                                    min_release_date=min_release_date,
+                                    refseq_only=refseq_only,
+                                    failed_commands=failed_commands,
+                                    _is_retry=True,
+                                )
+                            except RuntimeError:
+                                # If retry also fails, continue with original error handling
+                                logger.warning("⚠️ Retry with modified virus name also failed")
+                                pass
                     
                     error_msg += (
                         f"\n\n🔧 SERVER ERROR DETECTED: "
@@ -3904,6 +4016,11 @@ def virus(
             v is None for k, v in filters.items() if k != "nuc_completeness"
         )
 
+        # Prepare output file paths (defined early for use in cleanup even if filters return early)
+        output_fasta_file = os.path.join(outfolder, f"{virus_clean}_sequences.fasta")
+        output_metadata_csv = os.path.join(outfolder, f"{virus_clean}_metadata.csv")
+        output_metadata_jsonl = os.path.join(outfolder, f"{virus_clean}_metadata.jsonl")
+
         if all_metadata_filters_none_except_nuc and filters["nuc_completeness"]!="partial":
             logger.info("No metadata-only filters specified, skipping this step.")
             filtered_accessions = list(metadata_dict.keys())
@@ -3931,12 +4048,6 @@ def virus(
                 return
         
         total_after_metadata_filter = len(filtered_accessions)
-
-
-        # Prepare output file paths
-        output_fasta_file = os.path.join(outfolder, f"{virus_clean}_sequences.fasta")
-        output_metadata_csv = os.path.join(outfolder, f"{virus_clean}_metadata.csv")
-        output_metadata_jsonl = os.path.join(outfolder, f"{virus_clean}_metadata.jsonl")
 
         # Save filtered metadata immediately (before sequence-dependent fields)
         logger.debug("Writing filtered metadata (pre-sequence) to JSONL: %s", output_metadata_jsonl)
