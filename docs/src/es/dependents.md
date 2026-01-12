@@ -13,6 +13,7 @@ ___
 
 # 🧑‍🤝‍🧑 Programas dependientes
 Las siguientes aplicaciones usan *gget*:
+- [gget-mcp](https://mcpindex.net/en/mcpserver/longevity-genie-gget-mcp)
 - [Biomni](https://biomni.stanford.edu/)  
   Un agente de inteligencia artificial biomédica de propósito general que se está desarrollando en Stanford y Genentech.
 - [PerTurboAgent](https://www.biorxiv.org/content/10.1101/2025.05.25.656020v1)  
