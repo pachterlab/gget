@@ -12,7 +12,7 @@ import stat          # For file permission constants
 import pandas as pd  # For data manipulation and CSV output
 import requests      # For HTTP requests to NCBI API
 import zipfile       # For extracting downloaded ZIP files
-from datetime import datetime
+from datetime import datetime  # For date handling
 from dateutil import parser  # For flexible date parsing
 import xml.etree.ElementTree as ET # For XML parsing
 import http.client
@@ -45,7 +45,8 @@ _datasets_path_cache = None
 
 
 def _get_datasets_path():
-    """Get the path to the NCBI datasets CLI binary.
+    """
+    Get the path to the NCBI datasets CLI binary.
 
     This helper first checks if datasets is available in the system PATH.
     If found, it uses the system-installed version. Otherwise, it falls back
@@ -54,10 +55,10 @@ def _get_datasets_path():
     The result is cached after the first successful call.
 
     Returns:
-        str: Path to the datasets binary ("datasets" for system PATH, or full path for bundled)
+        str: Path to the datasets binary ("datasets" for system PATH, or full path for bundled).
 
     Raises:
-        RuntimeError: If no working datasets binary is available
+        RuntimeError: If no working datasets binary is available.
     """
     global _datasets_path_cache
     
@@ -135,23 +136,23 @@ def _get_modified_virus_name(virus_name):
     
     This function generates an alternative virus name to try when the initial
     query fails due to server unreachability. The modification strategy is:
-    1. If the name doesn't end with "virus", append " virus" to it
-    2. If the name already ends with "virus", add a space before "virus"
-       (e.g., "Denguevirus" -> "Dengue virus")
+        1. If the name doesn't end with "virus", append " virus" to it.
+        2. If the name already ends with "virus", add a space before "virus"
+           (e.g., "Denguevirus" -> "Dengue virus").
     
     Args:
-        virus_name (str): Original virus name that failed
+        virus_name (str): Original virus name that failed.
         
     Returns:
-        str: Modified virus name to retry, or None if no modification is possible
+        str or None: Modified virus name to retry, or None if no modification is possible.
         
     Example:
         >>> _get_modified_virus_name("Dengue")
-        "Dengue virus"
+        'Dengue virus'
         >>> _get_modified_virus_name("Denguevirus")
-        "Dengue virus"
+        'Dengue virus'
         >>> _get_modified_virus_name("Dengue virus")
-        None  # Already has " virus" at end with space
+        None
     """
     if not virus_name:
         return None
@@ -206,21 +207,22 @@ def fetch_virus_metadata(
     matching.
     
     Args:
-        virus (str): Virus taxon name/ID or accession number
-        accession (bool): Whether virus parameter is an accession number
-        host (str): Host organism name filter
-        geographic_location (str): Geographic location filter  
-        annotated (bool): Filter for annotated genomes only
-        complete_only (bool): Filter for complete genomes only  
-        min_release_date (str): Minimum release date filter (YYYY-MM-DD format)
-        refseq_only (bool): Limit to RefSeq genomes only
-        _is_retry (bool): Internal flag to prevent infinite retry loops
+        virus (str): Virus taxon name/ID or accession number.
+        accession (bool): Whether virus parameter is an accession number.
+        host (str, optional): Host organism name filter.
+        geographic_location (str, optional): Geographic location filter.
+        annotated (bool, optional): Filter for annotated genomes only.
+        complete_only (bool, optional): Filter for complete genomes only.
+        min_release_date (str, optional): Minimum release date filter (YYYY-MM-DD format).
+        refseq_only (bool, optional): Limit to RefSeq genomes only.
+        failed_commands (dict, optional): Dictionary to track failed operations.
+        _is_retry (bool): Internal flag to prevent infinite retry loops.
         
     Returns:
-        list: List of virus metadata records from the API response
+        list: List of virus metadata records from the API response.
         
     Raises:
-        RuntimeError: If the API request fails
+        RuntimeError: If the API request fails.
     """
     
     # Choose the appropriate API endpoint based on whether we're querying by accession or taxon
@@ -490,15 +492,14 @@ def fetch_virus_metadata_chunked(
     starting from a reasonable start date (2000-01-01 or user's min_release_date) to the present.
     
     Args:
-        Same as fetch_virus_metadata
+        Same as fetch_virus_metadata.
         
     Returns:
-        list: Combined list of virus metadata records from all date chunks
+        list: Combined list of virus metadata records from all date chunks.
         
     Raises:
-        RuntimeError: If any chunk fails to download
+        RuntimeError: If any chunk fails to download.
     """
-    from datetime import datetime, timedelta
     
     logger.info("=" * 80)
     logger.info("📦 CHUNKED DOWNLOAD MODE ACTIVATED")
@@ -589,18 +590,17 @@ def fetch_virus_metadata_chunked(
 
 def is_sars_cov2_query(virus, accession=False):
     """
-    Check if the query is for SARS-CoV-2 to determine if optimized cached downloads should be used.
+    Check if the query is for SARS-CoV-2 to determine if optimized downloads should be used.
     
-    NCBI provides optimized cached data packages for SARS-CoV-2 that are faster and more reliable
-    than the general API endpoints. This function detects SARS-CoV-2 queries so we can use
-    the optimized download method.
+    NCBI provides optimized cached data packages for SARS-CoV-2 that are faster and more
+    reliable than the general API endpoints. This function detects SARS-CoV-2 queries.
     
     Args:
-        virus (str): Virus taxon name/ID or accession number
-        accession (bool): Whether virus parameter is an accession number
+        virus (str): Virus taxon name/ID or accession number.
+        accession (bool): Whether virus parameter is an accession number.
         
     Returns:
-        bool: True if this is a SARS-CoV-2 query that should use cached downloads
+        bool: True if this is a SARS-CoV-2 query that should use cached downloads.
     """
     if accession:
         # When in accession mode, let the user explicitly set is_sars_cov2=True
@@ -626,23 +626,22 @@ def is_sars_cov2_query(virus, accession=False):
 
 def is_alphainfluenza_query(virus, accession=False):
     """
-    Check if the query is for Alphainfluenza to determine if optimized cached downloads should be used.
+    Check if the query is for Alphainfluenza to determine if optimized downloads should be used.
     
-    NCBI provides optimized cached data packages for Alphainfluenza that are faster and more reliable
-    than the general API endpoints. This function detects Alphainfluenza queries so we can use
-    the optimized download method.
+    NCBI provides optimized cached data packages for Alphainfluenza that are faster and more
+    reliable than the general API endpoints. This function detects Alphainfluenza queries.
     
-    Cached packages are available for the following Alphainfluenza taxonomic nodes:
-    1. Alphainfluenza (genus, taxid: 197911)
-    2. Alphainfluenzavirus influenzae (species, taxid: 2955291)
-    3. Influenza A virus (no-rank, taxid: 11320)
+    Cached packages are available for:
+        - Alphainfluenza (genus, taxid: 197911)
+        - Alphainfluenzavirus influenzae (species, taxid: 2955291)
+        - Influenza A virus (no-rank, taxid: 11320)
     
     Args:
-        virus (str): Virus taxon name/ID or accession number
-        accession (bool): Whether virus parameter is an accession number
+        virus (str): Virus taxon name/ID or accession number.
+        accession (bool): Whether virus parameter is an accession number.
         
     Returns:
-        bool: True if this is an Alphainfluenza query that should use cached downloads
+        bool: True if this is an Alphainfluenza query that should use cached downloads.
     """
     if accession:
         # When in accession mode, let the user explicitly set is_alphainfluenza=True
@@ -669,26 +668,191 @@ def is_alphainfluenza_query(virus, accession=False):
     return False
 
 
+def _process_cached_download(zip_file, virus_type="virus"):
+    """
+    Process a cached download ZIP file and extract sequences with metadata.
+    
+    This helper function extracts sequences from a cached ZIP download and loads the
+    rich metadata from data_report.jsonl (if available). The metadata is essential 
+    for post-download filtering operations.
+    
+    NCBI cached downloads typically include:
+        - genomic.fna: FASTA sequences
+        - data_report.jsonl: Rich metadata with virus genome information
+        - dataset_catalog.json: List of files in the package
+    
+    Args:
+        zip_file (str): Path to the downloaded ZIP file.
+        virus_type (str): Type of virus for logging messages.
+        
+    Returns:
+        tuple: (sequences, metadata_dict, success)
+            - sequences: List of all sequence records from the cached download.
+            - metadata_dict: Dictionary mapping accessions to metadata (rich metadata
+              from data_report.jsonl if available, or basic metadata from FASTA headers).
+            - success: Boolean indicating if processing was successful.
+            
+    Raises:
+        RuntimeError: If no valid sequences are found in the cached data.
+    """
+    if not zip_file or not os.path.exists(zip_file):
+        return None, None, False
+    
+    # Extract directory path from zip file name
+    extract_dir = os.path.splitext(zip_file)[0]
+    unzip_file(zip_file, extract_dir)
+    
+    if not os.path.exists(extract_dir):
+        logger.warning("Extraction directory not found: %s", extract_dir)
+        return None, None, False
+    
+    logger.info("🔬 PROCESSING CACHED DATA...")
+    logger.info("Extracted cached data to: %s", extract_dir)
+    
+    # Find and load metadata from data_report.jsonl (rich metadata from NCBI)
+    metadata_files = []
+    fasta_files = []
+    for root, dirs, files in os.walk(extract_dir):
+        for file in files:
+            if file == 'data_report.jsonl':
+                metadata_files.append(os.path.join(root, file))
+            elif file.endswith(('.fasta', '.fa', '.fna')):
+                fasta_files.append(os.path.join(root, file))
+    
+    # Load rich metadata from data_report.jsonl if available
+    cached_metadata_dict = {}
+    if metadata_files:
+        logger.info("Found %d metadata file(s) in cached download", len(metadata_files))
+        for metadata_file in metadata_files:
+            try:
+                with open(metadata_file, 'r', encoding='utf-8') as f:
+                    for line in f:
+                        if line.strip():
+                            report = json.loads(line)
+                            # Extract accession from the report
+                            accession = report.get('accession', '')
+                            if not accession:
+                                continue
+                            
+                            # Transform the NCBI report format to our internal metadata format
+                            # This mirrors the logic in load_metadata_from_api_reports
+                            metadata = {
+                                'accession': accession,
+                                'length': report.get('length'),
+                                'source': 'cached_data_report',
+                            }
+                            
+                            # Extract virus info
+                            virus_info = report.get('virus', {})
+                            metadata['virus_name'] = virus_info.get('sci_name')
+                            metadata['virus_tax_id'] = virus_info.get('tax_id')
+                            metadata['virus_pangolin_classification'] = virus_info.get('pangolin_classification')
+                            
+                            # Extract host info
+                            host_info = report.get('host', {})
+                            metadata['host_name'] = host_info.get('sci_name')
+                            metadata['host_common_name'] = host_info.get('common_name')
+                            metadata['host_tax_id'] = host_info.get('tax_id')
+                            
+                            # Extract biosample info
+                            biosample_info = report.get('biosample_info', {})
+                            metadata['biosample_accession'] = biosample_info.get('accession')
+                            
+                            # Extract isolate info
+                            isolate_info = report.get('isolate', {})
+                            metadata['isolate_name'] = isolate_info.get('name')
+                            metadata['collection_date'] = isolate_info.get('collection_date')
+                            
+                            # Extract location info
+                            location_info = report.get('location', {})
+                            metadata['geo_location'] = location_info.get('geo_location')
+                            metadata['usa_state'] = location_info.get('usa_state')
+                            
+                            # Extract nucleotide completeness
+                            completeness_info = report.get('nucleotide_completeness', {})
+                            metadata['nuc_completeness'] = completeness_info.get('value')
+                            
+                            # Extract other fields
+                            metadata['release_date'] = report.get('release_date')
+                            metadata['update_date'] = report.get('update_date')
+                            metadata['is_annotated'] = report.get('annotation', {}).get('is_annotated', False)
+                            metadata['is_refseq'] = report.get('is_refseq', False)
+                            metadata['is_lab_host'] = report.get('is_lab_host', False)
+                            
+                            # Gene and protein counts
+                            metadata['gene_count'] = report.get('gene_count')
+                            metadata['protein_count'] = report.get('protein_count')
+                            metadata['mature_peptide_count'] = report.get('mature_peptide_count')
+                            
+                            cached_metadata_dict[accession] = metadata
+                            
+                logger.info("Loaded %d metadata records from %s", len(cached_metadata_dict), metadata_file)
+            except Exception as e:
+                logger.warning("❌ Failed to load metadata file %s: %s", metadata_file, e)
+                continue
+    else:
+        logger.warning("No data_report.jsonl found in cached download. Post-download filters may be limited.")
+    
+    # Process all available FASTA files
+    all_cached_sequences = []
+    for fasta_file in fasta_files:
+        try:
+            sequences = list(FastaIO.parse(fasta_file, "fasta"))
+            all_cached_sequences.extend(sequences)
+            logger.info("Loaded %d sequences from %s", len(sequences), fasta_file)
+        except Exception as e:
+            logger.warning("❌ Failed to load FASTA file %s: %s", fasta_file, e)
+            continue
+    
+    if not all_cached_sequences:
+        logger.warning("No valid sequences found in cached data.")
+        raise RuntimeError("No valid sequences found in cached data")
+    
+    # If no rich metadata was loaded, create minimal metadata from FASTA headers
+    if not cached_metadata_dict:
+        logger.info("Creating basic metadata from FASTA headers (no data_report.jsonl available)")
+        for seq in all_cached_sequences:
+            accession = seq.id.split('.')[0]  # Remove version if present
+            cached_metadata_dict[accession] = {
+                'accession': accession,
+                'description': seq.description,
+                'length': len(seq.seq),
+                'source': 'cached_fasta_header'
+            }
+        logger.info("Created basic metadata for %d sequences", len(cached_metadata_dict))
+    
+    if not all_cached_sequences:
+        logger.warning("No valid sequences found in cached data")
+        raise RuntimeError("No valid sequences found in cached data")
+    
+    logger.info("🎉 CACHED DATA LOADING SUCCESSFUL!")
+    logger.info("Loaded %d sequences from cached %s data", len(all_cached_sequences), virus_type)
+    if metadata_files:
+        logger.info("Rich metadata available from data_report.jsonl for post-download filtering")
+    
+    return all_cached_sequences, cached_metadata_dict, True
+
+
 def _monitor_subprocess_with_progress(process, cmd, timeout=1800, progress_timeout=300):
     """
     Monitor a subprocess with progress tracking and timeout handling.
     
     This helper function monitors a running subprocess, checking for progress
     indicators in stderr output. It implements a two-tier timeout strategy:
-    - Overall timeout: Maximum total execution time
-    - Progress timeout: Maximum time without seeing progress
+        - Overall timeout: Maximum total execution time.
+        - Progress timeout: Maximum time without seeing progress.
     
     Args:
-        process: subprocess.Popen instance to monitor
-        cmd (list): Command that was executed (for error reporting)
-        timeout (int): Maximum total execution time in seconds (default: 1800 = 30 min)
-        progress_timeout (int): Maximum time without progress in seconds (default: 300 = 5 min)
+        process: subprocess.Popen instance to monitor.
+        cmd (list): Command that was executed (for error reporting).
+        timeout (int): Maximum total execution time in seconds. Defaults to 1800 (30 min).
+        progress_timeout (int): Maximum time without progress in seconds. Defaults to 300 (5 min).
         
     Returns:
-        subprocess.CompletedProcess: Result of the completed process
+        subprocess.CompletedProcess: Result of the completed process.
         
     Raises:
-        subprocess.TimeoutExpired: If timeout conditions are met
+        subprocess.TimeoutExpired: If timeout conditions are met.
     """
     start_time = time.time()
     last_progress = start_time
@@ -753,19 +917,19 @@ def _download_optimized_cached(
     until one succeeds, with comprehensive error handling and logging.
     
     Args:
-        virus_type (str): Type of virus for error messages ('SARS-CoV-2', 'Alphainfluenza', etc.)
-        strategies (list): List of tuples (strategy_name, cmd, applied_filters)
-        zip_path (str): Path where ZIP file should be saved
-        outdir (str): Output directory for download
-        use_accession (bool): Whether using accession-based download
-        accession (str): Accession number if using accession-based download
-        requested_filters (dict): Dictionary of originally requested filters for comparison
+        virus_type (str): Type of virus for error messages ('SARS-CoV-2', 'Alphainfluenza', etc.).
+        strategies (list): List of tuples (strategy_name, cmd, applied_filters).
+        zip_path (str): Path where ZIP file should be saved.
+        outdir (str): Output directory for download.
+        use_accession (bool): Whether using accession-based download.
+        accession (str, optional): Accession number if using accession-based download.
+        requested_filters (dict, optional): Dictionary of originally requested filters.
         
     Returns:
-        str: Path to the successfully downloaded ZIP file
+        str: Path to the successfully downloaded ZIP file.
         
     Raises:
-        RuntimeError: If all strategies fail or datasets CLI is not available
+        RuntimeError: If all strategies fail or datasets CLI is not available.
         
     Example:
         >>> strategies = [
@@ -938,26 +1102,26 @@ def download_sars_cov2_optimized(
     hierarchical fallback from specific to general cached files.
     
     Download strategies (in order of precedence):
-    1. If use_accession=True: Direct accession download using accession endpoint
-    2. If use_accession=False:
-       a. Specific lineage + complete + host filters using taxon endpoint
-       b. Complete genomes only using taxon endpoint
-       c. All SARS-CoV-2 genomes using taxon endpoint (default fallback)
+        1. If use_accession=True: Direct accession download using accession endpoint.
+        2. If use_accession=False:
+           a. Specific lineage + complete + host filters using taxon endpoint.
+           b. Complete genomes only using taxon endpoint.
+           c. All SARS-CoV-2 genomes using taxon endpoint (default fallback).
     
     Args:
-        host (str): Host organism filter (optimized for 'human', others handled in post-processing)
-        complete_only (bool): Whether to download only complete genomes
-        annotated (bool): Whether to download only annotated genomes  
-        outdir (str): Output directory for downloaded files
-        lineage (str): SARS-CoV-2 lineage filter (e.g., 'B.1.1.7', 'P.1')
-        accession (str): Specific SARS-CoV-2 accession or taxon ID
-        use_accession (bool): Whether to use the accession endpoint (True) or taxon endpoint (False)
+        host (str, optional): Host organism filter (optimized for 'human').
+        complete_only (bool, optional): Whether to download only complete genomes.
+        annotated (bool, optional): Whether to download only annotated genomes.
+        outdir (str, optional): Output directory for downloaded files.
+        lineage (str, optional): SARS-CoV-2 lineage filter (e.g., 'B.1.1.7', 'P.1').
+        accession (str, optional): Specific SARS-CoV-2 accession or taxon ID.
+        use_accession (bool): Whether to use accession endpoint. Defaults to False.
         
     Returns:
-        str: Path to the downloaded ZIP file containing sequences and metadata
+        str: Path to the downloaded ZIP file containing sequences and metadata.
         
     Raises:
-        RuntimeError: If the datasets CLI is not available or download fails
+        RuntimeError: If the datasets CLI is not available or download fails.
     """
     
     # Determine filter specificity for logging
@@ -1083,36 +1247,29 @@ def download_alphainfluenza_optimized(
     hierarchical fallback from specific to general cached files.
     
     Cached packages are available for the following Alphainfluenza taxonomic nodes:
-    1. Alphainfluenza (genus, taxid: 197911)
-    2. Alphainfluenzavirus influenzae (species, taxid: 2955291)
-    3. Influenza A virus (no-rank, taxid: 11320)
+        1. Alphainfluenza (genus, taxid: 197911)
+        2. Alphainfluenzavirus influenzae (species, taxid: 2955291)
+        3. Influenza A virus (no-rank, taxid: 11320)
     
-    For each of the 3 taxa above, the following filtered sets are available:
-    1. All genomes
-    2. Human host only
-    3. Human host only & complete
-    4. Complete only
-    
-    Download strategies (in order of precedence):
-    1. If use_accession=True: Direct accession download using accession endpoint
-    2. If use_accession=False:
-       a. Specific complete + host filters using taxon endpoint
-       b. Complete genomes only using taxon endpoint
-       c. All Alphainfluenza genomes using taxon endpoint (default fallback)
+    For each taxon, filtered sets are available:
+        1. All genomes
+        2. Human host only
+        3. Human host only & complete
+        4. Complete only
     
     Args:
-        host (str): Host organism filter (optimized for 'human', others handled in post-processing)
-        complete_only (bool): Whether to download only complete genomes
-        annotated (bool): Whether to download only annotated genomes  
-        outdir (str): Output directory for downloaded files
-        accession (str): Specific Alphainfluenza accession or taxon ID
-        use_accession (bool): Whether to use the accession endpoint (True) or taxon endpoint (False)
+        host (str, optional): Host organism filter (optimized for 'human').
+        complete_only (bool, optional): Whether to download only complete genomes.
+        annotated (bool, optional): Whether to download only annotated genomes.
+        outdir (str, optional): Output directory for downloaded files.
+        accession (str, optional): Specific Alphainfluenza accession or taxon ID.
+        use_accession (bool): Whether to use accession endpoint. Defaults to False.
         
     Returns:
-        str: Path to the downloaded ZIP file containing sequences and metadata
+        str: Path to the downloaded ZIP file containing sequences and metadata.
         
     Raises:
-        RuntimeError: If the datasets CLI is not available or download fails
+        RuntimeError: If the datasets CLI is not available or download fails.
     """
     
     # Determine filter specificity for logging
@@ -1225,16 +1382,17 @@ def download_sequences_by_accessions(accessions, outdir=None, batch_size=200, fa
     Large requests are automatically split into smaller batches.
     
     Args:
-        accessions (list): List of accession numbers to download
-        outdir (str): Output directory for downloaded files
-        batch_size (int): Maximum number of accessions per batch (default: 200)
+        accessions (list): List of accession numbers to download.
+        outdir (str, optional): Output directory for downloaded files.
+        batch_size (int): Maximum number of accessions per batch. Defaults to 200.
+        failed_commands (dict, optional): Dictionary to track failed operations.
         
     Returns:
-        str: Path to the downloaded FASTA file containing sequences
+        str: Path to the downloaded FASTA file containing sequences.
         
     Raises:
-        RuntimeError: If the download request fails
-        ValueError: If no accessions are provided
+        RuntimeError: If the download request fails.
+        ValueError: If no accessions are provided.
     """
     
     if not accessions:
@@ -1500,7 +1658,18 @@ def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_
 
 
 def unzip_file(zip_file_path, extract_to_path):
-    """Unzips a ZIP file to a specified directory."""
+    """
+    Unzip a ZIP file to a specified directory.
+    
+    Args:
+        zip_file_path (str): Path to the ZIP file to extract.
+        extract_to_path (str): Directory where contents will be extracted.
+        
+    Raises:
+        zipfile.BadZipFile: If the ZIP file is invalid or corrupted.
+        PermissionError: If there are permission issues with the target directory.
+        FileNotFoundError: If the ZIP file does not exist.
+    """
     os.makedirs(extract_to_path, exist_ok=True)
     logger.debug("Created extraction directory: %s", extract_to_path)
     
@@ -2313,9 +2482,6 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
         failed_log_path = os.path.join(os.path.dirname(genbank_full_xml_path), "genbank_failed_batches.log")
     if os.path.exists(failed_log_path):
         os.remove(failed_log_path)
-    all_metadata = {}
-    all_xml_text = ""
-    failed_batches = []
 
     if not accessions:
         raise ValueError("No accessions provided for GenBank metadata retrieval")
@@ -2323,9 +2489,10 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
     logger.info("Fetching GenBank metadata for %d accessions using E-utilities", len(accessions))
     logger.debug("First 5 accessions: %s", accessions[:5])
     
-    # Dictionary to store all metadata results
+    # Initialize tracking variables
     all_metadata = {}
     all_xml_text = ""
+    failed_batches = []
     
     # Split accessions into batches to avoid URL length limits and server overload
     if len(accessions) > batch_size:
@@ -3701,125 +3868,22 @@ def virus(
             'annotated': annotated,
             'outdir': outfolder,
             'lineage': lineage,
-            'accession': virus,  # Pass the virus parameter as either accession or taxon
-            'use_accession': is_accession  # Tell the function whether to use accession or taxon endpoint
+            'accession': virus,
+            'use_accession': is_accession
         }
             
         zip_file = download_sars_cov2_optimized(**params)
-            
-        if zip_file and os.path.exists(zip_file):
-            # Extract directory path should come from the zip file name to match what download_sars_cov2_optimized uses
-            extract_dir = os.path.splitext(zip_file)[0]
-            unzip_file(zip_file, extract_dir)
-            
-            # Process the cached download
-            if os.path.exists(extract_dir):
-                logger.info("🔬 PROCESSING CACHED DATA...")
-                logger.info("Extracted cached data to: %s", extract_dir)
-            
-            # Process cached data pipeline
-            try:
-                # 1. Find FASTA and metadata files in extracted directory
-                fasta_files = []
-                metadata_files = []
-                
-                for root, dirs, files in os.walk(extract_dir):
-                    for file in files:
-                        file_path = os.path.join(root, file)
-                        if file.endswith(('.fasta', '.fa', '.fna')):
-                            fasta_files.append(file_path)
-                        elif file.endswith(('.json', '.jsonl', '.csv')):
-                            metadata_files.append(file_path)
-                
-                # Process all available FASTA files
-                all_cached_sequences = []
-                for fasta_file in fasta_files:
-                    try:
-                        sequences = list(FastaIO.parse(fasta_file, "fasta"))
-                        all_cached_sequences.extend(sequences)
-                        logger.info("Loaded %d sequences from %s", len(sequences), fasta_file)
-                    except Exception as e:
-                        logger.warning("❌ Failed to load FASTA file %s: %s", fasta_file, e)
-                        continue
-                
-                if not all_cached_sequences:
-                    logger.warning("No valid sequences found in cached data. Falling back to API workflow.")
-                    raise RuntimeError("No valid sequences found in cached data")
-                
-                # 3. For cached data, create minimal metadata (accession-based)
-                cached_metadata = []
-                for seq in all_cached_sequences:
-                    # Extract basic info from FASTA header
-                    metadata = {
-                        'accession': seq.id.split('.')[0],  # Remove version if present
-                        'description': seq.description,
-                        'length': len(seq.seq),
-                        'source': 'cached_data'
-                    }
-                    cached_metadata.append(metadata)
-                
-                logger.info("Created basic metadata for %d cached sequences", len(cached_metadata))
-                
-                # 4. Apply basic filtering to cached data
-                # Note: Some filters may not work fully with cached data due to limited metadata
-                logger.info("Applying basic filters to cached data...")
-                
-                # Apply sequence length filters if specified
-                if min_seq_length is not None or max_seq_length is not None:
-                    filtered_seqs = []
-                    filtered_meta = []
-                    for seq, meta in zip(all_cached_sequences, cached_metadata):
-                        seq_len = len(seq.seq)
-                        if min_seq_length is not None and seq_len < min_seq_length:
-                            continue
-                        if max_seq_length is not None and seq_len > max_seq_length:
-                            continue
-                        filtered_seqs.append(seq)
-                        filtered_meta.append(meta)
-                    all_cached_sequences = filtered_seqs
-                    cached_metadata = filtered_meta
-                    logger.info("After length filtering: %d sequences remain", len(all_cached_sequences))
-                
-                # 5. Check if we have sequences for further processing
-                if all_cached_sequences:
-                    logger.info("🎉 CACHED DATA LOADING SUCCESSFUL!")
-                    logger.info("Loaded %d sequences from cached data", len(all_cached_sequences))
-                    
-                    
-                    # Save FASTA sequences
-                    # output_fasta_path = os.path.join(outfolder, f"{virus_clean}_sequences.fasta")
-                    # FastaIO.write(all_cached_sequences, output_fasta_path, "fasta")
-                    # logger.info("Saved cached sequences to: %s", output_fasta_path)
-                    # Convert cached metadata list to dictionary format (accession -> metadata)
-                    print(cached_metadata[0:20])
-                    cached_metadata_dict = {meta['accession']: meta for meta in cached_metadata}
-                    print(list(cached_metadata_dict.keys())[0:20])
-                    print(list(cached_metadata_dict.values())[0:20])
-                    # Save metadata CSV
-                    # if cached_metadata:
-                    #     output_csv_path = os.path.join(outfolder, f"{virus_clean}_metadata.csv")
-                    #     df = pd.DataFrame(cached_metadata)
-                    #     df.to_csv(output_csv_path, index=False)
-                    #     logger.info("Saved cached metadata to: %s", output_csv_path)
-                    
-                    # logger.info("✅ Cached data processing completed successfully!")
-                    # return output_fasta_path  # Return early with cached results
-                    # Store sequences and metadata for post-download filtering
-                    cached_sequences = all_cached_sequences
-                    used_cached_download = True
-                    
-                    logger.info("Cached download completed. This only applies basic filters (host, complete_only, annotated, lineage)")
-                    logger.info("Additional filters will be applied post-download, and GenBank metadata will be fetched if requested.")
-                    logger.info("Continuing with pipeline...")
-                    
-                else:
-                    logger.warning("No sequences remain after filtering cached data")
-                    raise RuntimeError("No sequences passed the filter criteria")
-                    
-            except Exception as cache_error:
-                logger.warning("❌ Cached data processing failed: %s", cache_error)
-                logger.info("Proceeding with regular API workflow...")
-                logger.info("=" * 60)
+        
+        try:
+            cached_sequences, cached_metadata_dict, used_cached_download = _process_cached_download(
+                zip_file, virus_type="SARS-CoV-2"
+            )
+            if used_cached_download:
+                logger.info("Cached download completed. Server-side filters (host, complete_only, annotated, lineage) applied.")
+                logger.info("All other filters will be applied in the unified filtering pipeline.")
+        except Exception as cache_error:
+            logger.warning("❌ Cached data processing failed: %s", cache_error)
+            logger.info("Proceeding with regular API workflow...")
     
     # SECTION 2b: ALPHAINFLUENZA CACHED DATA PROCESSING
     # For Alphainfluenza queries, use cached data packages with hierarchical fallback
@@ -3838,109 +3902,22 @@ def virus(
             'complete_only': (nuc_completeness == "complete"),
             'annotated': annotated,
             'outdir': outfolder,
-            'accession': virus,  # Pass the virus parameter as either accession or taxon
-            'use_accession': is_accession  # Tell the function whether to use accession or taxon endpoint
+            'accession': virus,
+            'use_accession': is_accession
         }
             
         zip_file = download_alphainfluenza_optimized(**params)
-            
-        if zip_file and os.path.exists(zip_file):
-            # Extract directory path should come from the zip file name to match what download_alphainfluenza_optimized uses
-            extract_dir = os.path.splitext(zip_file)[0]
-            unzip_file(zip_file, extract_dir)
-            
-            # Process the cached download
-            if os.path.exists(extract_dir):
-                logger.info("🔬 PROCESSING CACHED DATA...")
-                logger.info("Extracted cached data to: %s", extract_dir)
-            
-            # Process cached data pipeline
-            try:
-                # 1. Find FASTA and metadata files in extracted directory
-                fasta_files = []
-                metadata_files = []
-                
-                for root, dirs, files in os.walk(extract_dir):
-                    for file in files:
-                        file_path = os.path.join(root, file)
-                        if file.endswith(('.fasta', '.fa', '.fna')):
-                            fasta_files.append(file_path)
-                        elif file.endswith(('.json', '.jsonl', '.csv')):
-                            metadata_files.append(file_path)
-                
-                # Process all available FASTA files
-                all_cached_sequences = []
-                for fasta_file in fasta_files:
-                    try:
-                        sequences = list(FastaIO.parse(fasta_file, "fasta"))
-                        all_cached_sequences.extend(sequences)
-                        logger.info("Loaded %d sequences from %s", len(sequences), fasta_file)
-                    except Exception as e:
-                        logger.warning("❌ Failed to load FASTA file %s: %s", fasta_file, e)
-                        continue
-                
-                if not all_cached_sequences:
-                    logger.warning("No valid sequences found in cached data. Falling back to API workflow.")
-                    raise RuntimeError("No valid sequences found in cached data")
-                
-                # 3. For cached data, create minimal metadata (accession-based)
-                cached_metadata = []
-                for seq in all_cached_sequences:
-                    # Extract basic info from FASTA header
-                    metadata = {
-                        'accession': seq.id.split('.')[0],  # Remove version if present
-                        'description': seq.description,
-                        'length': len(seq.seq),
-                        'source': 'cached_data'
-                    }
-                    cached_metadata.append(metadata)
-                
-                logger.info("Created basic metadata for %d cached sequences", len(cached_metadata))
-                
-                # 4. Apply basic filtering to cached data
-                # Note: Some filters may not work fully with cached data due to limited metadata
-                logger.info("Applying basic filters to cached data...")
-                
-                # Apply sequence length filters if specified
-                if min_seq_length is not None or max_seq_length is not None:
-                    filtered_seqs = []
-                    filtered_meta = []
-                    for seq, meta in zip(all_cached_sequences, cached_metadata):
-                        seq_len = len(seq.seq)
-                        if min_seq_length is not None and seq_len < min_seq_length:
-                            continue
-                        if max_seq_length is not None and seq_len > max_seq_length:
-                            continue
-                        filtered_seqs.append(seq)
-                        filtered_meta.append(meta)
-                    all_cached_sequences = filtered_seqs
-                    cached_metadata = filtered_meta
-                    logger.info("After length filtering: %d sequences remain", len(all_cached_sequences))
-                
-                # 5. Check if we have sequences for further processing
-                if all_cached_sequences:
-                    logger.info("🎉 CACHED DATA LOADING SUCCESSFUL!")
-                    logger.info("Loaded %d sequences from cached data", len(all_cached_sequences))
-                    
-                    # Convert cached metadata list to dictionary format (accession -> metadata)
-                    cached_metadata_dict = {meta['accession']: meta for meta in cached_metadata}
-                    
-                    # Store sequences and metadata for post-download filtering
-                    cached_sequences = all_cached_sequences
-                    used_cached_download = True
-                    
-                    logger.info("Cached download completed. This only applies basic filters (host, complete_only, annotated)")
-                    logger.info("Additional filters will be applied post-download, and GenBank metadata will be fetched if requested.")
-                    logger.info("Continuing with pipeline...")
-                    
-                else:
-                    logger.warning("No sequences remain after filtering cached data")
-                    raise RuntimeError("No sequences passed the filter criteria")
-                    
-            except Exception as cache_error:
-                logger.warning("❌ Cached data processing failed: %s", cache_error)
-                logger.info("Proceeding with regular API workflow...")
-                logger.info("=" * 60)
+        
+        try:
+            cached_sequences, cached_metadata_dict, used_cached_download = _process_cached_download(
+                zip_file, virus_type="Alphainfluenza"
+            )
+            if used_cached_download:
+                logger.info("Cached download completed. Server-side filters (host, complete_only, annotated) applied.")
+                logger.info("All other filters will be applied in the unified filtering pipeline.")
+        except Exception as cache_error:
+            logger.warning("❌ Cached data processing failed: %s", cache_error)
+            logger.info("Proceeding with regular API workflow...")
     
     # Create temporary directory for intermediate processing
     # This will be cleaned up at the end regardless of success or failure
