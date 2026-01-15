@@ -1847,7 +1847,8 @@ def save_command_summary(
     filtered_metadata,
     success=True,
     error_message=None,
-    failed_commands=None
+    failed_commands=None,
+    genbank_error=None
 ):
     """
     Save a summary file documenting the command execution and results.
@@ -1872,6 +1873,7 @@ def save_command_summary(
         error_message (str): Error message if command failed
         failed_commands (dict): Dictionary containing failed operations with retry commands/URLs
             Expected keys: 'api_timeout', 'sequence_batches', 'genbank_batches'
+        genbank_error (str): Error message if GenBank metadata retrieval failed
     """
     
     summary_file = os.path.join(outfolder, "command_summary.txt")
@@ -1898,7 +1900,11 @@ def save_command_summary(
             f.write("EXECUTION STATUS\n")
             f.write("-" * 80 + "\n")
             if success:
-                f.write("✓ Command completed successfully\n\n")
+                if genbank_error:
+                    f.write("Command completed with warnings\n")
+                    f.write(f"⚠️ GenBank metadata retrieval failed: {genbank_error}\n\n")
+                else:
+                    f.write("✅ Command completed successfully\n\n")
             else:
                 f.write("✗ Command failed\n")
                 if error_message:
@@ -3485,6 +3491,10 @@ def virus(
         'sequence_batches': [],
         'genbank_batches': []
     }
+    
+    # Track if GenBank metadata was successfully retrieved
+    genbank_success = False
+    genbank_error_msg = None
 
     if download_all_accessions:
         logger.info("ATTENTION: Download all accessions mode is active.")
@@ -4225,14 +4235,18 @@ def virus(
                             output_files_dict['GenBank Full XML'] = genbank_full_xml_path
                         if os.path.exists(genbank_full_csv_path):
                             output_files_dict['GenBank Full CSV'] = genbank_full_csv_path
+                        genbank_success = True
                     else:
                         logger.warning("No GenBank metadata was retrieved")
+                        genbank_error_msg = "No GenBank metadata was retrieved"
                 else:
                     logger.warning("No accession numbers found for GenBank metadata lookup")
+                    genbank_error_msg = "No accession numbers found for GenBank metadata lookup"
                     
             except Exception as genbank_error:
                 logger.error("❌ GenBank metadata retrieval failed: %s", genbank_error)
                 logger.warning("Continuing without GenBank metadata - standard output files are still available")
+                genbank_error_msg = str(genbank_error)
                 # Don't raise the error - continue with the rest of the process
             
             logger.info("GenBank metadata processing completed")
@@ -4257,11 +4271,18 @@ def virus(
             logger.info("  🔧 Metadata (JSONL):  %s", os.path.basename(output_metadata_jsonl))
 
             # Check if GenBank metadata CSV was created
-            if genbank_metadata and os.path.exists(genbank_csv_path) and os.path.exists(genbank_full_xml_path):
-                logger.info("  📊 Metadata (including Genbank information):  %s", os.path.basename(genbank_csv_path))
-                logger.info("  🧬 GenBank-only full XML:      %s", os.path.basename(genbank_full_xml_path))
-                if os.path.exists(genbank_full_csv_path):
-                    logger.info("  🧬 GenBank-only full CSV (readable XML format):      %s", os.path.basename(genbank_full_csv_path))
+            if genbank_metadata:
+                if genbank_success and os.path.exists(genbank_csv_path):
+                    logger.info("  📊 Metadata (including Genbank information):  %s", os.path.basename(genbank_csv_path))
+                    if os.path.exists(genbank_full_xml_path):
+                        logger.info("  🧬 GenBank-only full XML:      %s", os.path.basename(genbank_full_xml_path))
+                    if os.path.exists(genbank_full_csv_path):
+                        logger.info("  🧬 GenBank-only full CSV (readable XML format):      %s", os.path.basename(genbank_full_csv_path))
+                else:
+                    logger.warning("")
+                    logger.warning("⚠️  GenBank metadata was requested but NOT saved due to errors:")
+                    logger.warning("    %s", genbank_error_msg)
+                    logger.warning("    Standard metadata files are still available.")
 
             logger.info("=" * 60)
             
@@ -4276,7 +4297,8 @@ def virus(
                 filtered_metadata=final_metadata_for_summary,
                 success=True,
                 error_message=None,
-                failed_commands=failed_commands
+                failed_commands=failed_commands,
+                genbank_error=genbank_error_msg if genbank_metadata and not genbank_success else None
             )
         else:
             logger.warning("=" * 60)
@@ -4438,7 +4460,8 @@ def virus(
                 shutil.rmtree(temp_dir)
                 if os.path.exists(output_api_metadata_jsonl):
                     os.remove(output_api_metadata_jsonl)
-                if genbank_metadata and os.path.exists(output_metadata_csv):
+                # Only remove metadata CSV if GenBank was successfully retrieved (as it's superseded by GenBank CSV)
+                if genbank_metadata and genbank_success and os.path.exists(output_metadata_csv):
                     os.remove(output_metadata_csv)
                 logger.debug("✅ Cleaned up temporary directory: %s", temp_dir)
             except Exception as e:
@@ -4446,7 +4469,7 @@ def virus(
         elif keep_temp and os.path.exists(output_api_metadata_jsonl):
             logger.debug("Preserving temporary directory as per user request: %s", temp_dir)
             shutil.move(output_api_metadata_jsonl, os.path.join(temp_dir, os.path.basename(output_api_metadata_jsonl)))
-            if genbank_metadata and os.path.exists(genbank_csv_path):
+            if genbank_metadata and genbank_success and os.path.exists(genbank_csv_path):
                 shutil.move(output_metadata_csv, os.path.join(temp_dir, os.path.basename(output_metadata_csv)))
                 
                 
