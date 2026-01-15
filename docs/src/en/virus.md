@@ -103,7 +103,7 @@ Use NCBI's optimized cached data packages for a SARS-CoV-2 query. This provides 
 `--is_alphainfluenza`
 Use NCBI's optimized cached data packages for an Alphainfluenza (Influenza A virus) query. This provides faster and more reliable downloads for large Influenza A datasets. The system can auto-detect Alphainfluenza taxon-name queries, but for accession-based queries you must set this flag explicitly.
 
-`--genbank_metadata`
+`-g` `--genbank_metadata`
 Fetch and save additional detailed metadata from GenBank, including collection dates, host details, and publication references, in a separate `{virus}_genbank_metadata.csv` file (plus full XML/CSV dumps).
 
 `--genbank_batch_size`
@@ -123,15 +123,14 @@ Python: `lab_passaged=True` or `lab_passaged=False`.
 `--proteins_complete`
 Flag to only include sequences where all annotated proteins are complete.
 
-`--keep_temp`
+`-kt` `--keep_temp`
 Flag to keep all intermediate/temporary files generated during processing. By default, only final output files are retained.
 
 `--download_all_accessions`
 ⚠️ **WARNING**: Downloads ALL virus accessions from NCBI (entire Viruses taxonomy, taxon ID 10239). This is an extremely large dataset that can take many hours to download and require significant disk space. Use with caution and ensure you have adequate storage and bandwidth. When this flag is set, the `virus` argument is ignored.
 
 `-q` `--quiet`
-Command-line only. Prevents progress information from being displayed.  
-Python: Use `verbose=False` to prevent progress information from being displayed.
+Command-line only. Prevents progress information from being displayed.
 
 ### Example
 
@@ -330,7 +329,7 @@ If you use `gget virus` in a publication, please cite the following articles:
 
 ## Overview
 
-The `gget.virus()` function implements an optimized 8-step workflow for retrieving virus sequences and associated metadata from NCBI. The system is designed to minimize download overhead by filtering metadata first, then downloading only the sequences that pass initial filters, with optional detailed GenBank metadata retrieval. For SARS-CoV-2 and Alphainfluenza queries, the workflow can use optimized cached data packages while still applying all filters and fetching GenBank metadata.
+The `gget.virus()` function implements an optimized 10-step workflow for retrieving virus sequences and associated metadata from NCBI. The system is designed to minimize download overhead by filtering metadata first, then downloading only the sequences that pass initial filters, with optional detailed GenBank metadata retrieval. For SARS-CoV-2 and Alphainfluenza queries, the workflow can use optimized cached data packages while still applying all filters and fetching GenBank metadata.
 
 ## Architecture
 
@@ -398,13 +397,21 @@ The `gget.virus()` function implements an optimized 8-step workflow for retrievi
                                   │
                                   ▼
                     ┌───────────────────────────────┐
-                    │            Results            │
+                    │   Save Final Output Files     │
                     │                               │
-                    │  • command_summary.txt        │
                     │  • _sequences.fasta           │
                     │  • _metadata.csv & .jsonl     │
                     │  • _genbank_metadata.csv      │
                     │    (if requested)             │
+                    └──────────────┬────────────────┘
+                                   │
+                                   ▼
+                    ┌───────────────────────────────┐
+                    │   Summary & Cleanup           │
+                    │                               │
+                    │  • command_summary.txt        │
+                    │  • Display results to user    │
+                    │  • Clean temp files           │
                     └───────────────────────────────┘
 ```
 
@@ -471,16 +478,26 @@ The `gget.virus()` function implements an optimized 8-step workflow for retrievi
   - Handle download retries with exponential backoff
   - Return path to FASTA file for processing
 
-### Step 6: Sequence-Dependent Filtering & Output
+### Step 6: Sequence-Dependent Filtering
 - **Function**: `filter_sequences()`
-- **Purpose**: Apply final filters requiring sequence analysis and save results
+- **Purpose**: Apply final filters requiring sequence analysis
 - **Key Operations**:
   - Parse FASTA sequences and calculate sequence metrics
-  - Filter by ambiguous character count
-  - Filter by protein completeness indicators
-  - Save filtered sequences and metadata to output files
+  - Filter by ambiguous character count (`max_ambiguous_chars`)
+  - Filter by protein/gene presence (`has_proteins`)
+  - Filter by protein completeness indicators (`proteins_complete`)
+  - Return filtered sequences and updated metadata
 
-### Step 7: GenBank Metadata Retrieval (Optional)
+### Step 7: Saving Final Output Files
+- **Functions**: `save_metadata_to_csv()`, `FastaIO.write()`
+- **Purpose**: Save filtered sequences and metadata to output files
+- **Key Operations**:
+  - Write filtered sequences to FASTA file
+  - Save metadata to CSV and JSONL formats
+  - Track output file sizes for summary
+  - Validate file creation success
+
+### Step 8: GenBank Metadata Retrieval (Optional)
 - **Function**: `fetch_genbank_metadata()`
 - **Purpose**: Fetch detailed GenBank records for final sequence set
 - **Key Operations**:
@@ -492,52 +509,75 @@ The `gget.virus()` function implements an optimized 8-step workflow for retrievi
   - Parse and validate GenBank XML
   - Merge with existing metadata
 
-### Step 8: Command Summary Generation
-- **Purpose**: Create detailed summary of execution
+### Step 9: Final Summary & Command Summary Generation
+- **Function**: `save_command_summary()`
+- **Purpose**: Create detailed summary of execution and display results
 - **Key Operations**:
   - Record command line and parameters
   - Track filtering statistics at each stage
   - List output files with sizes
   - Document any failed operations with retry commands
+  - Display comprehensive results summary to user
+
+### Step 10: Cleanup
+- **Purpose**: Clean up temporary files and finalize execution
+- **Key Operations**:
+  - Remove temporary processing directory (unless `keep_temp=True`)
+  - Remove intermediate metadata files
+  - Preserve GenBank metadata CSV when successfully retrieved
+  - Log completion status
 
 ## Function Dependencies
 
 ```
 virus()
-├── is_sars_cov2_query()
-│   └── SARS-CoV-2 detection logic
-├── is_alphainfluenza_query()
-│   └── Alphainfluenza detection logic
-├── download_sars_cov2_optimized()  [For SARS-CoV-2 queries]
+├── check_min_max()                          [Step 1: Input validation]
+│   └── Validates min/max parameter pairs
+├── is_sars_cov2_query()                     [Step 2: SARS-CoV-2 detection]
+│   └── Auto-detects SARS-CoV-2 queries
+├── download_sars_cov2_optimized()           [Step 2: Cached download]
+│   ├── _check_and_install_datasets_cli()
 │   ├── NCBI datasets CLI calls
 │   └── Cached package downloads
-├── download_alphainfluenza_optimized()  [For Alphainfluenza queries]
+├── is_alphainfluenza_query()                [Step 2b: Alphainfluenza detection]
+│   └── Auto-detects Alphainfluenza queries
+├── download_alphainfluenza_optimized()      [Step 2b: Cached download]
+│   ├── _check_and_install_datasets_cli()
 │   ├── NCBI datasets CLI calls
 │   └── Cached package downloads
-├── fetch_virus_metadata()
+├── unzip_file()                             [Step 2/2b: Extract cached data]
+│   └── ZIP extraction utilities
+├── fetch_virus_metadata()                   [Step 3: API metadata retrieval]
 │   ├── NCBI Datasets API client
-│   ├── Connection pooling
 │   ├── Pagination handling
-│   └── Retry logic with backoff
-├── filter_metadata_only()
-│   ├── Date parsing utilities
+│   ├── Retry logic with backoff
+│   └── _get_modified_virus_name() for retry
+├── fetch_virus_metadata_chunked()           [Step 3: Fallback for large datasets]
+│   └── Date-chunked download strategy
+├── load_metadata_from_api_reports()         [Step 3: Metadata conversion]
+│   └── Converts API format to internal format
+├── filter_metadata_only()                   [Step 4: Metadata filtering]
+│   ├── parse_date() for date comparisons
 │   ├── Numeric validation
 │   └── Missing data handling
-├── download_sequences_by_accessions()
+├── download_sequences_by_accessions()       [Step 5: Sequence download]
 │   ├── E-utilities API client
-│   ├── Batch processing
+│   ├── Batch processing (default: 200)
 │   └── Stream handling
-├── fetch_genbank_metadata() [Optional]
-│   ├── E-utilities API client
-│   ├── XML parsing utilities
-│   ├── Rate limiting
-│   └── Batch processing
-├── filter_sequences()
+├── filter_sequences()                       [Step 6: Sequence filtering]
 │   ├── FastaIO parser
-│   ├── Sequence validation
-│   └── Output generation
-└── unzip_file()  [For cached downloads]
-    └── ZIP extraction utilities
+│   └── Sequence validation
+├── save_metadata_to_csv()                   [Step 7: Save outputs]
+│   └── CSV formatting and writing
+├── fetch_genbank_metadata()                 [Step 8: Optional GenBank data]
+│   ├── _fetch_genbank_batch()
+│   ├── _clean_xml_declarations()
+│   ├── XML parsing utilities
+│   └── Rate limiting
+├── save_genbank_metadata_to_csv()           [Step 8: Save GenBank data]
+│   └── Merges with virus metadata
+└── save_command_summary()                   [Step 9: Execution summary]
+    └── Failed operations tracking
 ```
 
 ## Optimization Features
