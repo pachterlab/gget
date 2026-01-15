@@ -352,6 +352,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
     # These tests verify that the virus function creates output files
     # correctly and that individual filters work as expected.
     
+    @retry_on_network_error(max_retries=3, delay=5)
     def test_virus_specific_accession_file_creation(self):
         """Test that files are created when downloading a specific accession.
         
@@ -394,6 +395,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         seq_count = self._count_fasta_sequences(files["fasta"]["path"])
         self.assertGreaterEqual(seq_count, 1, "No sequences found in FASTA file")
     
+    @retry_on_network_error(max_retries=3, delay=5)
     def test_virus_with_host_filter(self):
         """Test that host filter works and creates appropriate files."""
         virus_name = "Zika virus"
@@ -415,6 +417,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         # Verify that files contain data
         self.assertGreater(files["fasta"]["size"], 0, "FASTA file is empty with host filter")
     
+    @retry_on_network_error(max_retries=3, delay=5)
     def test_virus_with_completeness_filter(self):
         """Test that completeness filter works correctly."""
         virus_name = "Zika virus"
@@ -432,6 +435,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         self.assertTrue(files["fasta"]["exists"], "FASTA file not created with completeness filter")
         self.assertGreater(files["fasta"]["size"], 0, "FASTA file is empty with completeness filter")
     
+    @retry_on_network_error(max_retries=3, delay=5)
     def test_virus_with_length_filters(self):
         """Test that sequence length filters work correctly."""
         virus_name = "Zika virus"
@@ -454,6 +458,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         seq_count = self._count_fasta_sequences(files["fasta"]["path"])
         self.assertGreater(seq_count, 0, "No sequences passed length filters")
     
+    @retry_on_network_error(max_retries=3, delay=5)
     def test_virus_with_annotated_filter(self):
         """Test that annotated filter works correctly."""
         virus_name = "Zika virus"
@@ -471,6 +476,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         self.assertTrue(files["fasta"]["exists"], "FASTA file not created with annotated filter")
         self.assertGreater(files["fasta"]["size"], 0, "FASTA file is empty with annotated filter")
     
+    @retry_on_network_error(max_retries=3, delay=5)
     def test_virus_with_refseq_filter(self):
         """Test that RefSeq filter works correctly."""
         virus_name = "Zika virus"
@@ -488,6 +494,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         self.assertTrue(files["fasta"]["exists"], "FASTA file not created with RefSeq filter")
         self.assertGreater(files["fasta"]["size"], 0, "FASTA file is empty with RefSeq filter")
     
+    @retry_on_network_error(max_retries=3, delay=5)
     def test_virus_with_multiple_filters(self):
         """Test that multiple filters can be combined correctly."""
         virus_name = "Zika virus"
@@ -514,6 +521,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         seq_count = self._count_fasta_sequences(files["fasta"]["path"])
         self.assertGreater(seq_count, 0, "No sequences passed multiple filters")
     
+    @retry_on_network_error(max_retries=3, delay=5)
     def test_virus_integer_virus_id(self):
         """Test that integer virus IDs are handled correctly.
         
@@ -543,6 +551,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
     # API/data source changes would be detected. They go beyond simple file
     # existence checks to validate actual data quality.
     
+    @retry_on_network_error(max_retries=3, delay=5)
     def test_virus_relationship_check_counts_match(self):
         """Test that FASTA sequence count matches CSV and JSONL record counts.
         
@@ -582,6 +591,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         # Should have at least one record
         self.assertGreater(fasta_count, 0, "No records found in output files")
     
+    @retry_on_network_error(max_retries=3, delay=5)
     def test_virus_host_filter_verification(self):
         """Test that host filter actually filters by host in metadata.
         
@@ -645,6 +655,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
                     self.assertGreater(match_percentage, 50, 
                                      f"Only {match_percentage:.1f}% of populated host fields match filter '{host}'")
     
+    @retry_on_network_error(max_retries=3, delay=5)
     def test_virus_release_date_filter_verification(self):
         """Test that release date filter is applied correctly in metadata.
         
@@ -733,6 +744,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         self.assertEqual(len(invalid_dates), 0,
                         f"Found {len(invalid_dates)} records with release dates before {min_release_date}: {invalid_dates[:5]}")
     
+    @retry_on_network_error(max_retries=3, delay=5)
     def test_virus_metadata_schema_validation(self):
         """Test that expected metadata columns exist in CSV output.
         
@@ -784,6 +796,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         self.assertGreaterEqual(len(columns), 5, 
                                f"Only {len(columns)} columns found, expected at least 5")
     
+    @retry_on_network_error(max_retries=3, delay=5)
     def test_virus_completeness_filter_verification(self):
         """Test that completeness filter returns appropriate sequences.
         
@@ -846,6 +859,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
                 self.assertIsNotNone(length_field, 
                                     "Neither completeness nor length field found in metadata")
     
+    @retry_on_network_error(max_retries=3, delay=5)
     def test_virus_multiple_filters_relationship_check(self):
         """Test relationship checks work correctly with multiple filters applied.
         
@@ -890,6 +904,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
     # ADDITIONAL FUNCTIONAL TESTS: Testing previously untested parameters
     # =========================================================================
     
+    @retry_on_network_error(max_retries=3, delay=5)
     def test_virus_with_geographic_location_filter(self):
         """Test that geographic location filter works correctly.
         
@@ -928,6 +943,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
             self.assertTrue(has_geo_field, 
                           f"No geographic location field found. Available fields: {list(records[0].keys())}")
     
+    @retry_on_network_error(max_retries=3, delay=5)
     def test_virus_with_protein_count_filters(self):
         """Test that protein count filters work correctly.
         
@@ -964,6 +980,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
             self.assertIn("Protein count", records[0].keys(), 
                          f"Protein count field not found. Available fields: {list(records[0].keys())}")
     
+    @retry_on_network_error(max_retries=3, delay=5)
     def test_virus_with_source_database_filter(self):
         """Test that source database filter works correctly.
         
@@ -1005,6 +1022,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
             self.assertIsNotNone(db_field, 
                                f"Source database field not found. Available fields: {list(records[0].keys())}")
     
+    @retry_on_network_error(max_retries=3, delay=5)
     def test_virus_with_lab_passaged_filter(self):
         """Test that lab_passaged filter works correctly.
         
@@ -1034,6 +1052,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         # Should create files (even if no lab passaged field in results)
         self.assertGreater(files["fasta"]["size"], 0, "FASTA file is empty with lab_passaged filter")
     
+    @retry_on_network_error(max_retries=3, delay=5)
     def test_virus_with_collection_date_filters(self):
         """Test that collection date filters don't break the query.
         
@@ -1057,6 +1076,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         # Function should complete successfully
         self.assertIsNone(result)
     
+    @retry_on_network_error(max_retries=3, delay=5)
     def test_virus_with_max_ambiguous_chars_filter(self):
         """Test that max_ambiguous_chars filter works correctly.
         
