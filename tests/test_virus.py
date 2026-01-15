@@ -127,7 +127,7 @@ import os
 import shutil
 import subprocess
 import tempfile
-from gget.gget_virus import virus, _get_datasets_path
+from gget.gget_virus import virus, _get_datasets_path, _clear_datasets_cache
 from .from_json import from_json
 
 # Load dictionary containing arguments and expected results
@@ -1167,7 +1167,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         
         try:
             # Clear the cache to force re-detection
-            gget_virus_module._datasets_path_cache = None
+            _clear_datasets_cache()
             
             # Set PATH to empty to simulate system datasets not being found
             os.environ["PATH"] = ""

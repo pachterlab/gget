@@ -140,6 +140,48 @@ else:
 _datasets_path_cache = None
 
 
+def _validate_datasets_binary(path):
+    """
+    Validate that a datasets binary exists and is functional.
+    
+    Args:
+        path (str): Path to the datasets binary to validate.
+        
+    Returns:
+        bool: True if the binary exists and runs successfully, False otherwise.
+    """
+    if not path:
+        return False
+    
+    # Check if the file exists (for bundled binary) or is in PATH (for system binary)
+    if not os.path.isfile(path) and not shutil.which(path):
+        return False
+    
+    # Verify the binary actually works
+    try:
+        result = subprocess.run(
+            [path, "--version"],
+            capture_output=True,
+            text=True,
+            timeout=SUBPROCESS_VERSION_TIMEOUT,
+        )
+        return result.returncode == 0
+    except (subprocess.TimeoutExpired, OSError, FileNotFoundError):
+        return False
+
+
+def _clear_datasets_cache():
+    """
+    Clear the cached datasets path, forcing re-detection on next call.
+    
+    This is useful when the environment changes (e.g., user installs/uninstalls
+    the datasets CLI) or when the cached binary becomes unavailable.
+    """
+    global _datasets_path_cache
+    _datasets_path_cache = None
+    logger.debug("Cleared datasets path cache")
+
+
 def _get_datasets_path():
     """
     Get the path to the NCBI datasets CLI binary.
@@ -148,7 +190,9 @@ def _get_datasets_path():
     If found, it uses the system-installed version. Otherwise, it falls back
     to the precompiled binary bundled with gget.
 
-    The result is cached after the first successful call.
+    The result is cached after the first successful call. The cache is automatically
+    invalidated if the cached binary becomes unavailable (e.g., deleted or environment
+    changed), triggering re-detection.
 
     Returns:
         str: Path to the datasets binary ("datasets" for system PATH, or full path for bundled).
@@ -158,9 +202,17 @@ def _get_datasets_path():
     """
     global _datasets_path_cache
     
-    # Return cached path if already determined
+    # If we have a cached path, validate it's still working
     if _datasets_path_cache is not None:
-        return _datasets_path_cache
+        if _validate_datasets_binary(_datasets_path_cache):
+            return _datasets_path_cache
+        else:
+            # Cached binary is no longer valid, clear cache and re-detect
+            logger.warning(
+                "⚠️ Previously cached datasets binary at '%s' is no longer available. "
+                "Re-detecting...", _datasets_path_cache
+            )
+            _clear_datasets_cache()
     
     # First, check if datasets is available in the system PATH
     datasets_path = shutil.which("datasets")
