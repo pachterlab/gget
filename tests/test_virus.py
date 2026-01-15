@@ -25,11 +25,9 @@ validation) and code-defined tests (for functional and data quality checks).
    - Check metadata schema and field presence
    - Detect API/data source changes
 
-4. Datasets CLI Tests (5 tests):
-   - Test _check_and_install_datasets_cli() detection when CLI is installed
-   - Test _check_and_install_datasets_cli() error handling when CLI is missing
-   - Test setup(module='virus') detection of existing CLI installation
-   - Test setup(module='virus') error handling when CLI and conda are missing
+4. Datasets CLI Tests (3 tests):
+   - Test _get_datasets_path() returns valid path when CLI is available
+   - Test _get_datasets_path() uses bundled binary when system CLI is missing
    - Test datasets CLI version output validation
 
 Parameters Tested:
@@ -92,8 +90,8 @@ What These Tests Catch:
 ✓ Protein and gene filtering
 ✓ Geographic location filtering
 ✓ Quality filters (ambiguous characters)
-✓ NCBI datasets CLI detection and installation (via gget setup virus)
-✓ Error handling when datasets CLI is not installed
+✓ NCBI datasets CLI detection (system or bundled binary)
+✓ Bundled binary fallback when system CLI is not installed
 
 What These Tests Don't Catch:
 -----------------------------
@@ -113,7 +111,7 @@ Test Coverage Summary:
 - Functional tests: 19 (56%)
 - Not tested: 5 (15%)
 
-Total: 46 tests covering validation, functionality, data quality, and CLI setup.
+Total: 44 tests covering validation, functionality, data quality, and CLI detection.
 
 Notes:
 ------
@@ -129,8 +127,7 @@ import os
 import shutil
 import subprocess
 import tempfile
-from gget.gget_virus import virus, _check_and_install_datasets_cli
-from gget.gget_setup import setup
+from gget.gget_virus import virus, _get_datasets_path
 from .from_json import from_json
 
 # Load dictionary containing arguments and expected results
@@ -1123,129 +1120,74 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
     # These tests verify the datasets CLI detection and installation functionality
     # that connects gget_virus.py to gget_setup.py
     
-    def test_check_datasets_cli_when_installed(self):
-        """Test that _check_and_install_datasets_cli returns True when CLI is installed.
+    def test_get_datasets_path_returns_valid_path(self):
+        """Test that _get_datasets_path returns a valid path to the datasets CLI.
         
-        This test checks if the NCBI datasets CLI is available on the system.
-        If installed, the function should return True without raising any errors.
-        If not installed, the test is skipped (use test_check_datasets_cli_not_installed).
+        The function should return a path to either:
+        1. The system-installed datasets CLI (if available)
+        2. The bundled datasets binary (fallback)
         
-        This catches: Detection logic bugs, version check issues.
+        This catches: Detection logic bugs, path resolution issues.
         """
-        # First check if datasets is actually installed
-        try:
-            result = subprocess.run(
-                ["datasets", "--version"],
-                capture_output=True,
-                text=True,
-                timeout=5,
-            )
-            cli_installed = result.returncode == 0
-        except (FileNotFoundError, subprocess.TimeoutExpired):
-            cli_installed = False
+        # _get_datasets_path should always return a valid path
+        # (either system CLI or bundled binary)
+        datasets_path = _get_datasets_path()
         
-        if not cli_installed:
-            self.skipTest("NCBI datasets CLI not installed - skipping positive test")
+        # Should return a non-empty string
+        self.assertIsInstance(datasets_path, str)
+        self.assertTrue(len(datasets_path) > 0, 
+                       "_get_datasets_path should return a non-empty path")
         
-        # If installed, _check_and_install_datasets_cli should return True
-        check_result = _check_and_install_datasets_cli()
-        self.assertTrue(check_result, 
-                       "_check_and_install_datasets_cli should return True when CLI is installed")
+        # The returned path should be executable
+        result = subprocess.run(
+            [datasets_path, "--version"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        self.assertEqual(result.returncode, 0,
+                        f"datasets CLI at {datasets_path} should be executable")
     
-    def test_check_datasets_cli_not_installed(self):
-        """Test that _check_and_install_datasets_cli raises RuntimeError when CLI is missing.
+    def test_get_datasets_path_uses_bundled_binary(self):
+        """Test that _get_datasets_path falls back to bundled binary when system CLI is missing.
         
-        This test verifies the error handling when the datasets CLI is not found.
-        We temporarily modify PATH to simulate the CLI not being installed.
+        When the system-installed datasets CLI is not in PATH, the function
+        should fall back to the bundled binary included with gget.
         
-        This catches: Error message bugs, exception handling issues.
+        Note: _get_datasets_path caches its result, so this test clears the cache
+        before testing the fallback behavior.
+        
+        This catches: Bundled binary fallback logic, path resolution issues.
         """
-        # Save original PATH
+        import gget.gget_virus as gget_virus_module
+        
+        # Save original PATH and cache
         original_path = os.environ.get("PATH", "")
+        original_cache = gget_virus_module._datasets_path_cache
         
         try:
-            # Set PATH to empty to simulate datasets not being found
+            # Clear the cache to force re-detection
+            gget_virus_module._datasets_path_cache = None
+            
+            # Set PATH to empty to simulate system datasets not being found
             os.environ["PATH"] = ""
             
-            # Should raise RuntimeError with helpful message
-            with self.assertRaises(RuntimeError) as context:
-                _check_and_install_datasets_cli()
+            # Should still return a valid path (to bundled binary)
+            datasets_path = _get_datasets_path()
             
-            # Verify the error message contains helpful instructions
-            error_message = str(context.exception)
-            self.assertIn("NCBI DATASETS CLI NOT FOUND", error_message,
-                         "Error should mention CLI not found")
-            self.assertIn("gget setup virus", error_message,
-                         "Error should suggest running gget setup virus")
-            self.assertIn("conda install", error_message,
-                         "Error should mention conda installation option")
+            # Should return a non-empty string path to bundled binary
+            self.assertIsInstance(datasets_path, str)
+            self.assertTrue(len(datasets_path) > 0,
+                           "Should return path to bundled binary")
             
-        finally:
-            # Restore original PATH
-            os.environ["PATH"] = original_path
-    
-    def test_setup_virus_checks_existing_cli(self):
-        """Test that gget setup virus detects an already-installed datasets CLI.
-        
-        If the datasets CLI is already installed, setup(module='virus') should
-        detect it and return without attempting reinstallation.
-        
-        This catches: Setup detection bugs, redundant installation issues.
-        """
-        # First check if datasets is actually installed
-        try:
-            result = subprocess.run(
-                ["datasets", "--version"],
-                capture_output=True,
-                text=True,
-                timeout=5,
-            )
-            cli_installed = result.returncode == 0
-        except (FileNotFoundError, subprocess.TimeoutExpired):
-            cli_installed = False
-        
-        if not cli_installed:
-            self.skipTest("NCBI datasets CLI not installed - skipping setup detection test")
-        
-        # If installed, setup should complete without errors
-        # It should detect the existing installation and return early
-        try:
-            setup(module="virus", verbose=True)
-        except Exception as e:
-            self.fail(f"setup(module='virus') raised unexpected error: {e}")
-    
-    def test_setup_virus_requires_conda_when_cli_missing(self):
-        """Test that gget setup virus requires conda when CLI is not installed.
-        
-        When the datasets CLI is missing and conda is not available,
-        setup(module='virus') should raise a RuntimeError with instructions.
-        
-        This catches: Installation fallback bugs, error handling issues.
-        """
-        # Save original PATH
-        original_path = os.environ.get("PATH", "")
-        
-        try:
-            # Set PATH to empty to simulate both datasets and conda not being found
-            os.environ["PATH"] = ""
-            
-            # Should raise RuntimeError because neither datasets nor conda is available
-            with self.assertRaises(RuntimeError) as context:
-                setup(module="virus", verbose=True)
-            
-            # Verify the error message is helpful
-            error_message = str(context.exception)
-            # Should mention that installation failed or manual installation required
-            self.assertTrue(
-                "INSTALLATION FAILED" in error_message or 
-                "conda" in error_message.lower() or
-                "NCBI DATASETS CLI NOT FOUND" in error_message,
-                f"Error should mention installation failure or conda requirement: {error_message}"
-            )
+            # Path should contain 'bins' indicating bundled binary
+            self.assertIn("bins", datasets_path,
+                         f"Path should be bundled binary, got: {datasets_path}")
             
         finally:
-            # Restore original PATH
+            # Restore original PATH and cache
             os.environ["PATH"] = original_path
+            gget_virus_module._datasets_path_cache = original_cache
     
     def test_datasets_cli_version_output(self):
         """Test that the datasets CLI returns a valid version string.
