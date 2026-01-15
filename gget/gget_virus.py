@@ -7,6 +7,7 @@ import logging       # For logging level checks
 import shutil        # For directory operations  
 import subprocess    # For executing external commands
 import traceback     # For error traceback logging
+import platform      # For OS detection
 import pandas as pd  # For data manipulation and CSV output
 import requests      # For HTTP requests to NCBI API
 import zipfile       # For extracting downloaded ZIP files
@@ -21,32 +22,41 @@ from requests.adapters import HTTPAdapter
 # Internal imports for logging, unique ID generation, and FASTA parsing
 from .utils import set_up_logger, FastaIO
 from .constants import NCBI_API_BASE, NCBI_EUTILS_BASE
+from .compile import PACKAGE_PATH
 
 # Set up logger for this module
 logger = set_up_logger()
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 random_suffix = os.urandom(4).hex() # random suffix for naming uniqueness
 
+# Path to precompiled datasets binary
+if platform.system() == "Windows":
+    PRECOMPILED_DATASETS_PATH = os.path.join(
+        PACKAGE_PATH, "bins", "Windows", "datasets.exe"
+    )
+else:
+    PRECOMPILED_DATASETS_PATH = os.path.join(
+        PACKAGE_PATH, "bins", platform.system(), "datasets"
+    )
 
-def _check_and_install_datasets_cli():
-    """Check that the NCBI datasets CLI is available.
 
-    This helper is called from the optimized virus download paths that rely on the
-    `datasets` command-line tool (ncbi-datasets-cli). It no longer performs any
-    automatic installation; instead it:
+def _get_datasets_path():
+    """Get the path to the NCBI datasets CLI binary.
 
-    - Returns True if `datasets --version` succeeds
-    - Otherwise logs a prominent warning and raises RuntimeError instructing the
-      user to run `gget setup virus` to install the CLI
+    This helper first checks if datasets is available in the system PATH.
+    If found, it uses the system-installed version. Otherwise, it falls back
+    to the precompiled binary bundled with gget.
+
+    On non-Windows systems, it also ensures the binary has executable permissions
+    when using the bundled version.
 
     Returns:
-        bool: True if datasets CLI is available
+        str: Absolute path to the datasets binary
 
     Raises:
-        RuntimeError: If datasets CLI is not available
+        RuntimeError: If no datasets binary is available
     """
-
-    # Check if datasets command is available
+    # First, check if datasets is available in the system PATH
     try:
         result = subprocess.run(
             ["datasets", "--version"],
@@ -55,34 +65,86 @@ def _check_and_install_datasets_cli():
             timeout=5,
         )
         if result.returncode == 0:
-            logger.info(
-                "✅ NCBI datasets CLI is installed: %s", result.stdout.strip()
+            logger.debug(
+                "Found system-installed datasets CLI: %s", result.stdout.strip()
             )
-            return True
+            return "datasets"  # Use system PATH version
     except (FileNotFoundError, subprocess.TimeoutExpired):
-        pass
+        pass  # Not found in PATH, will use bundled binary
+    
+    # Fall back to the bundled binary
+    datasets_path = PRECOMPILED_DATASETS_PATH
+    
+    # Check if the precompiled binary exists
+    if not os.path.isfile(datasets_path):
+        raise RuntimeError(
+            f"NCBI datasets binary not found at {datasets_path}. "
+            "Please reinstall gget to restore the bundled datasets binary, "
+            "or install the NCBI datasets CLI manually: "
+            "https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/"
+        )
+    
+    # On non-Windows systems, ensure the binary is executable
+    if platform.system() != "Windows":
+        # Assign read, write, and execute permission to datasets binary
+        with subprocess.Popen(
+            f"chmod 755 '{datasets_path}'",
+            shell=True,
+            stderr=subprocess.PIPE,
+        ) as process:
+            stderr = process.stderr.read().decode("utf-8")
+            if stderr:
+                sys.stderr.write(stderr)
+        if process.wait() != 0:
+            raise RuntimeError(
+                "Making the NCBI 'datasets' binary executable has failed."
+            )
+    
+    logger.debug("Using bundled datasets CLI at: %s", datasets_path)
+    return datasets_path
 
-    banner = "=" * 80
-    error_msg = (
-        f"{banner}\n"
-        "⚠️  NCBI DATASETS CLI NOT FOUND\n"
-        f"{banner}\n"
-        "The NCBI datasets CLI is required for cached Alphainfluenza/SARS-CoV-2 "
-        "downloads in gget.virus.\n\n"
-        "To install it using gget, run:\n\n"
-        "  gget setup virus\n\n"
-        "This will install the ncbi-datasets-cli package (via conda) and make the "
-        "`datasets` command available. After installation, restart your terminal "
-        "if needed and re-run your gget command.\n\n"
-        "If you prefer manual installation, you can also run:\n"
-        "  conda install -c conda-forge ncbi-datasets-cli\n\n"
-        "or follow the official instructions:\n"
-        "  https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/\n"
-        f"{banner}"
+
+def _check_and_install_datasets_cli():
+    """Check that the NCBI datasets CLI is available and return its path.
+
+    This helper is called from the optimized virus download paths that rely on the
+    datasets command-line tool. It first checks for a system-installed datasets CLI;
+    if not found, it uses the precompiled binary bundled with gget.
+
+    Returns:
+        str: Path to the datasets CLI binary (either "datasets" for system PATH or full path for bundled)
+
+    Raises:
+        RuntimeError: If datasets CLI is not available
+    """
+    datasets_path = _get_datasets_path()
+    
+    # Verify the binary works by checking version
+    try:
+        result = subprocess.run(
+            [datasets_path, "--version"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+        if result.returncode == 0:
+            if datasets_path == "datasets":
+                logger.info(
+                    "✅ Using system-installed NCBI datasets CLI: %s", result.stdout.strip()
+                )
+            else:
+                logger.info(
+                    "✅ Using bundled NCBI datasets CLI: %s", result.stdout.strip()
+                )
+            return datasets_path
+    except (FileNotFoundError, subprocess.TimeoutExpired) as e:
+        raise RuntimeError(
+            f"Failed to verify NCBI datasets binary at {datasets_path}: {e}"
+        )
+    
+    raise RuntimeError(
+        f"NCBI datasets binary at {datasets_path} failed verification."
     )
-
-    logger.error(error_msg)
-    raise RuntimeError(error_msg)
 
 
 def _get_modified_virus_name(virus_name):
@@ -733,12 +795,16 @@ def _download_optimized_cached(
         ... )
     """
     
-    # Check if datasets CLI is available (no longer auto-installs here)
-    _check_and_install_datasets_cli()
+    # Get the path to the datasets CLI binary (uses precompiled binary bundled with gget)
+    datasets_path = _check_and_install_datasets_cli()
     
     last_error = None
     
     for strategy_name, cmd, applied_filters in strategies:
+        # Replace "datasets" with the actual path to the binary
+        if cmd and cmd[0] == "datasets":
+            cmd = [datasets_path] + cmd[1:]
+        
         logger.info("🔄 Trying %s...", strategy_name)
         
         if applied_filters:
@@ -763,18 +829,12 @@ def _download_optimized_cached(
                     text=True
                 )
             except FileNotFoundError as fnf_error:
-                # Datasets CLI is not in PATH despite earlier check
+                # Datasets binary not found - this shouldn't happen if bundled correctly
                 error_msg = (
-                    "❌ datasets CLI is not available in your PATH.\n\n"
-                    "This likely means one of the following:\n"
-                    "1. The NCBI datasets CLI is not installed\n"
-                    "2. It was installed but you need to restart your terminal/shell\n"
-                    "3. It's installed but not in your PATH environment variable\n\n"
-                    "🔧 SOLUTIONS:\n"
-                    "• If you just installed it, restart your terminal and try again\n"
-                    "• Install via gget: gget setup virus\n"
-                    "• Or manually: conda install -c conda-forge ncbi-datasets-cli\n"
-                    "• Or follow the official guide: https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/\n"
+                    f"❌ datasets binary not found at expected path.\n\n"
+                    f"Expected path: {datasets_path}\n\n"
+                    "🔧 SOLUTION:\n"
+                    "• Please reinstall gget to restore the bundled datasets binary.\n"
                 )
                 logger.error(error_msg)
                 raise RuntimeError(error_msg) from fnf_error
@@ -861,11 +921,10 @@ def _download_optimized_cached(
     guidance_messages = [
         "🔧 TROUBLESHOOTING SUGGESTIONS:",
         "1. Check your internet connection",
-        "2. Verify datasets CLI is properly installed and updated",
-        "3. Try running the command manually to see detailed error messages:",
-        f"   datasets download virus genome taxon \"{example_taxon}\" --filename test.zip",
-        "4. NCBI servers may be temporarily unavailable - try again later",
-        f"5. Consider using the general API method by removing {virus_type} specific terms from your query"
+        "2. Try running the command manually to see detailed error messages:",
+        f"   {datasets_path} download virus genome taxon \"{example_taxon}\" --filename test.zip",
+        "3. NCBI servers may be temporarily unavailable - try again later",
+        f"4. Consider using the general API method by removing {virus_type} specific terms from your query"
     ]
     
     for msg in guidance_messages:
