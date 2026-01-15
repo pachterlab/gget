@@ -142,5 +142,5 @@ dmypy.json
 /scratch/
 
 # VSCode settings
-./vscode/
+.vscode/
 
