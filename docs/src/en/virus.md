@@ -786,52 +786,6 @@ $ gget virus -a "MK947457" --host deer --min_collection_date "2020-01-01"
 
   # Save merged analysis
   merged_df.to_csv("covid_march2020/combined_analysis.csv", index=False)
-    min_collection_date="2020-03-01",
-    max_collection_date="2020-03-31",
-    geographic_region="North America",
-    genbank_metadata=True,
-    genbank_batch_size=200,
-    outfolder="covid_march2020"
-)
-
-# Process and analyze results
-import pandas as pd
-
-# Read virus metadata
-virus_df = pd.read_csv("covid_march2020/SARS-CoV-2_metadata.csv")
-print(f"Total sequences: {len(virus_df)}")
-print(f"Unique hosts: {virus_df['Host'].nunique()}")
-print(f"Date range: {virus_df['Collection Date'].min()} to {virus_df['Collection Date'].max()}")
-
-# Read GenBank metadata for detailed analysis
-genbank_df = pd.read_csv("covid_march2020/SARS-CoV-2_genbank_metadata.csv")
-print(f"Sequences with GenBank data: {len(genbank_df)}")
-print("
-Publication summary:")
-print(genbank_df['reference_count'].describe())
-
-# Custom filtering workflow
-from Bio import SeqIO
-
-# Read sequences
-sequences = list(SeqIO.parse("covid_march2020/SARS-CoV-2_sequences.fasta", "fasta"))
-
-# Custom sequence analysis
-for record in sequences:
-    gc_content = (str(record.seq).count('G') + str(record.seq).count('C')) / len(record.seq)
-    print(f"{record.id}: GC content = {gc_content:.2%}")
-
-# Merge metadata sources
-merged_df = pd.merge(
-    virus_df,
-    genbank_df,
-    on='accession',
-    how='left',
-    suffixes=('_virus', '_genbank')
-)
-
-# Save merged analysis
-merged_df.to_csv("covid_march2020/combined_analysis.csv", index=False)
 ```
 
 ### Analysis Strategy Examples
