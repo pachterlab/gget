@@ -25,6 +25,102 @@ from .utils import set_up_logger, FastaIO
 from .constants import NCBI_API_BASE, NCBI_EUTILS_BASE
 from .compile import PACKAGE_PATH
 
+# =============================================================================
+# MODULE-LEVEL CONSTANTS
+# =============================================================================
+
+# API and Network Configuration
+# -----------------------------------------------------------------------------
+API_PAGE_SIZE = 1000  # Maximum records per API request (NCBI limit)
+API_REQUEST_TIMEOUT = 30  # Timeout in seconds for API requests
+API_MAX_RETRIES = 3  # Maximum retry attempts for failed API requests
+API_INITIAL_RETRY_DELAY = 2.0  # Initial delay in seconds between retries
+API_RETRY_BACKOFF_MULTIPLIER = 1.5  # Multiplier for exponential backoff
+
+# E-utilities Configuration
+EUTILS_TIMEOUT = 300  # Timeout in seconds for E-utilities requests
+EUTILS_DEFAULT_BATCH_SIZE = 200  # Default batch size for E-utilities requests
+EUTILS_INTER_BATCH_DELAY = 0.5  # Delay in seconds between batch requests
+EUTILS_MIN_BATCH_SIZE_FOR_SPLIT = 50  # Minimum batch size before giving up on splitting
+
+# GenBank Configuration
+GENBANK_DEFAULT_BATCH_SIZE = 200  # Default batch size for GenBank requests
+GENBANK_INTER_BATCH_DELAY = 0.5  # Delay in seconds between GenBank batch requests
+GENBANK_MAX_BATCH_SIZE_WARNING = 500  # Warn user if batch size exceeds this
+GENBANK_RETRY_ATTEMPTS = 5  # Number of retry attempts for GenBank requests
+GENBANK_XML_CHUNK_SIZE = 10000  # Rows to process before writing to CSV
+
+# Subprocess and Download Configuration
+# -----------------------------------------------------------------------------
+SUBPROCESS_VERSION_TIMEOUT = 5  # Timeout for version check commands
+DOWNLOAD_OVERALL_TIMEOUT = 1800  # Maximum total download time (30 minutes)
+DOWNLOAD_PROGRESS_TIMEOUT = 300  # Maximum time without progress (5 minutes)
+DOWNLOAD_PROGRESS_CHECK_INTERVAL = 0.1  # Interval for checking download progress
+
+# Chunked Download Configuration (for large datasets)
+CHUNKED_DOWNLOAD_START_YEAR = 1970  # Default start year for chunked downloads
+CHUNKED_DOWNLOAD_INTER_CHUNK_DELAY = 0.5  # Delay between yearly chunks
+
+# NCBI Taxonomy IDs
+# -----------------------------------------------------------------------------
+NCBI_ALL_VIRUSES_TAXID = "10239"  # Taxonomy ID for all viruses
+NCBI_SARS_COV2_TAXID = "2697049"  # Taxonomy ID for SARS-CoV-2
+NCBI_ALPHAINFLUENZA_GENUS_TAXID = "197911"  # Alphainfluenza genus
+NCBI_ALPHAINFLUENZA_SPECIES_TAXID = "2955291"  # Alphainfluenzavirus influenzae species
+NCBI_INFLUENZA_A_TAXID = "11320"  # Influenza A virus
+
+# Virus Detection Identifiers
+# -----------------------------------------------------------------------------
+SARS_COV2_IDENTIFIERS = {
+    'sarscov2', 'sars2', '2697049', 'sarscov', 
+    'severeacuterespiratorysyndromecoronavirus2',
+    'covid19', 'covid', 'coronavirusdisease', 'ncov', 'hcov19'
+}
+
+ALPHAINFLUENZA_IDENTIFIERS = {
+    'alphainfluenza', 'alphainfluenzavirus', 'alphainfluenzavirusinfluenzae',
+    'influenzaavirus', 'influenzaa', 'flua',
+    '197911',  # Alphainfluenza genus
+    '2955291',  # Alphainfluenzavirus influenzae species
+    '11320'  # Influenza A virus
+}
+
+# Default taxon for Alphainfluenza downloads (most comprehensive cached data)
+ALPHAINFLUENZA_DEFAULT_TAXON = "Alphainfluenzavirus influenzae"
+
+# Progress Indicator Keywords (for subprocess monitoring)
+# -----------------------------------------------------------------------------
+PROGRESS_INDICATORS = ['%', '=', 'downloading', 'fetching', 'MB', 'GB', 'bytes']
+
+# Protein/Gene Keywords for Header Parsing
+# -----------------------------------------------------------------------------
+PROTEIN_KEYWORDS = [
+    'hemagglutinin', 'neuraminidase', 'polymerase', 'nucleoprotein',
+    'matrix protein', 'nonstructural protein', 'ns1', 'ns2',
+    'spike', 'envelope', 'membrane', 'nucleocapsid',
+    'orf', 'nsp', 'pp1a', 'pp1ab',
+    'segment 1', 'segment 2', 'segment 3', 'segment 4',
+    'segment 5', 'segment 6', 'segment 7', 'segment 8',
+]
+
+# Date Parsing Configuration
+# -----------------------------------------------------------------------------
+DATE_PARSE_DEFAULT_YEAR = 1000  # Default year for incomplete date strings
+
+# HTTP Retry Configuration
+# -----------------------------------------------------------------------------
+HTTP_RETRY_STATUS_CODES = [429, 500, 502, 503, 504]  # Status codes to retry on
+HTTP_MAX_LOCAL_RETRIES = 3  # Maximum local retry attempts
+HTTP_INITIAL_BACKOFF = 1.0  # Initial backoff in seconds
+
+# File Size Display Divisor
+# -----------------------------------------------------------------------------
+BYTES_PER_MB = 1024 * 1024  # Bytes in a megabyte for file size display
+
+# =============================================================================
+# End of Constants
+# =============================================================================
+
 # Set up logger for this module
 logger = set_up_logger()
 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -74,7 +170,7 @@ def _get_datasets_path():
                 [datasets_path, "--version"],
                 capture_output=True,
                 text=True,
-                timeout=5,
+                timeout=SUBPROCESS_VERSION_TIMEOUT,
             )
             if result.returncode == 0:
                 logger.info(
@@ -112,7 +208,7 @@ def _get_datasets_path():
             [datasets_path, "--version"],
             capture_output=True,
             text=True,
-            timeout=5,
+            timeout=SUBPROCESS_VERSION_TIMEOUT,
         )
         if result.returncode == 0:
             logger.info(
@@ -271,8 +367,8 @@ def fetch_virus_metadata(
     
     # Set page size to maximum allowed to minimize the number of API calls needed
     # The NCBI API supports pagination for large result sets
-    params['page_size'] = 1000
-    logger.debug("Set page size to maximum: 1000 records per request")
+    params['page_size'] = API_PAGE_SIZE
+    logger.debug("Set page size to maximum: %d records per request", API_PAGE_SIZE)
     
     # Initialize variables for handling paginated results
     all_reports = []      # Will store all metadata records across all pages
@@ -282,8 +378,8 @@ def fetch_virus_metadata(
     # Main pagination loop - continue until all pages are retrieved
     loop = True
     # Retry logic for handling intermittent server issues
-    max_retries = 3
-    retry_delay = 2.0  # Start with 2 second delay
+    max_retries = API_MAX_RETRIES
+    retry_delay = API_INITIAL_RETRY_DELAY
     last_exception = None
     while loop:
         page_count += 1
@@ -298,7 +394,7 @@ def fetch_virus_metadata(
                 # Make the HTTP GET request to the NCBI API  
                 logger.debug("Making API request to: %s (attempt %d/%d)", url, attempt + 1, max_retries)
                 logger.debug("Request parameters: %s", params)
-                response = requests.get(url, params=params, timeout=30)
+                response = requests.get(url, params=params, timeout=API_REQUEST_TIMEOUT)
                 logger.debug("Explicit URL request sent: %s", response.url)
                 
                 # Raise an exception if the HTTP request failed (4xx or 5xx status codes)
@@ -343,7 +439,7 @@ def fetch_virus_metadata(
                     logger.warning("⚠️ Request failed (attempt %d/%d): %s. Retrying in %.1f seconds...", 
                                  attempt + 1, max_retries, e, retry_delay)
                     time.sleep(retry_delay)
-                    retry_delay *= 1.5  # Exponential backoff
+                    retry_delay *= API_RETRY_BACKOFF_MULTIPLIER  # Exponential backoff
                     continue
                 else:
                     # Either we've exhausted retries or this is a non-retryable error
@@ -418,10 +514,10 @@ def fetch_virus_metadata(
                     is_server_error = True
                 
                 if is_server_error:
-                    # Special handling for "all viruses" query (taxon 10239)
+                    # Special handling for "all viruses" query
                     # If this is the first page and we're querying all viruses without date filters,
                     # the dataset is too large for NCBI to handle - need to chunk by date
-                    if virus == "10239" and not accession and page_count == 1 and not min_release_date:
+                    if virus == NCBI_ALL_VIRUSES_TAXID and not accession and page_count == 1 and not min_release_date:
                         logger.warning("⚠️ NCBI API cannot handle 'all viruses' query in a single request")
                         logger.info("🔄 Automatically switching to date-chunked download strategy...")
                         logger.info("This will split the download into yearly chunks to avoid server overload")
@@ -510,15 +606,15 @@ def fetch_virus_metadata_chunked(
     logger.info("=" * 80)
     
     # Define date range for chunking
-    # If user specified min_release_date, use it; otherwise start from 2000
+    # If user specified min_release_date, use it; otherwise start from default year
     if min_release_date:
         # Extract year from user's min_release_date
         start_year = int(min_release_date.split('-')[0])
         logger.info(f"Starting from user-specified year: {start_year}")
     else:
-        # Start from 2000 as most valuable viral sequence data is from 2000 onwards
-        start_year = 2000
-        logger.info("Starting from year 2000 (default for 'all viruses' downloads)")
+        # Start from default year as most valuable viral sequence data is from then onwards
+        start_year = CHUNKED_DOWNLOAD_START_YEAR
+        logger.info("Starting from year %d (default for 'all viruses' downloads)", CHUNKED_DOWNLOAD_START_YEAR)
     
     current_date = datetime.now()
     current_year = current_date.year
@@ -572,7 +668,7 @@ def fetch_virus_metadata_chunked(
             
             # Add a small delay between chunks to be respectful to NCBI servers
             if year < current_year:
-                time.sleep(0.5)
+                time.sleep(CHUNKED_DOWNLOAD_INTER_CHUNK_DELAY)
                 
         except Exception as e:
             logger.error(f"❌ Failed to fetch chunk for year {year}: {e}")
@@ -609,13 +705,9 @@ def is_sars_cov2_query(virus, accession=False):
     
     # Check for common SARS-CoV-2 identifiers in taxon names
     virus_lower = virus.lower().replace('-', '').replace('_', '').replace(' ', '')
-    sars_cov2_identifiers = {
-        'sarscov2', 'sars2', '2697049', 'sarscov', 'severeacuterespiratorysyndromecoronavirus2',
-        'covid19', 'covid', 'coronavirusdisease', 'ncov', 'hcov19'
-    }
     
     # Check if the query matches any SARS-CoV-2 identifier
-    for identifier in sars_cov2_identifiers:
+    for identifier in SARS_COV2_IDENTIFIERS:
         if identifier in virus_lower:
             logger.debug("Detected SARS-CoV-2 query: %s matches %s", virus, identifier)
             return True
@@ -650,16 +742,9 @@ def is_alphainfluenza_query(virus, accession=False):
     
     # Check for common Alphainfluenza identifiers in taxon names
     virus_lower = virus.lower().replace('-', '').replace('_', '').replace(' ', '')
-    alphainfluenza_identifiers = {
-        'alphainfluenza', 'alphainfluenzavirus', 'alphainfluenzavirusinfluenzae',
-        'influenzaavirus', 'influenzaa', 'flua',
-        '197911',  # Alphainfluenza genus
-        '2955291',  # Alphainfluenzavirus influenzae species
-        '11320'  # Influenza A virus
-    }
     
     # Check if the query matches any Alphainfluenza identifier
-    for identifier in alphainfluenza_identifiers:
+    for identifier in ALPHAINFLUENZA_IDENTIFIERS:
         if identifier in virus_lower:
             logger.debug("Detected Alphainfluenza query: %s matches %s", virus, identifier)
             return True
@@ -833,7 +918,7 @@ def _process_cached_download(zip_file, virus_type="virus"):
     return all_cached_sequences, cached_metadata_dict, True
 
 
-def _monitor_subprocess_with_progress(process, cmd, timeout=1800, progress_timeout=300):
+def _monitor_subprocess_with_progress(process, cmd, timeout=None, progress_timeout=None):
     """
     Monitor a subprocess with progress tracking and timeout handling.
     
@@ -845,8 +930,8 @@ def _monitor_subprocess_with_progress(process, cmd, timeout=1800, progress_timeo
     Args:
         process: subprocess.Popen instance to monitor.
         cmd (list): Command that was executed (for error reporting).
-        timeout (int): Maximum total execution time in seconds. Defaults to 1800 (30 min).
-        progress_timeout (int): Maximum time without progress in seconds. Defaults to 300 (5 min).
+        timeout (int): Maximum total execution time in seconds. Defaults to DOWNLOAD_OVERALL_TIMEOUT.
+        progress_timeout (int): Maximum time without progress in seconds. Defaults to DOWNLOAD_PROGRESS_TIMEOUT.
         
     Returns:
         subprocess.CompletedProcess: Result of the completed process.
@@ -854,6 +939,12 @@ def _monitor_subprocess_with_progress(process, cmd, timeout=1800, progress_timeo
     Raises:
         subprocess.TimeoutExpired: If timeout conditions are met.
     """
+    # Apply default timeouts if not specified
+    if timeout is None:
+        timeout = DOWNLOAD_OVERALL_TIMEOUT
+    if progress_timeout is None:
+        progress_timeout = DOWNLOAD_PROGRESS_TIMEOUT
+    
     start_time = time.time()
     last_progress = start_time
     
@@ -866,14 +957,11 @@ def _monitor_subprocess_with_progress(process, cmd, timeout=1800, progress_timeo
         # Read stderr without blocking
         stderr = process.stderr.readline()
         if stderr:
-            # Common progress indicators in datasets tool output
-            progress_indicators = ['%', '=', 'downloading', 'fetching', 'MB', 'GB', 'bytes']
-            
             # Log the stderr for debugging
             logger.debug("Progress output: %s", stderr.strip())
             
             # If we see any progress indicator, update the last_progress time
-            if any(indicator.lower() in stderr.lower() for indicator in progress_indicators):
+            if any(indicator.lower() in stderr.lower() for indicator in PROGRESS_INDICATORS):
                 last_progress = time.time()
                 logger.debug("Progress detected, updating last_progress time")
         
@@ -889,7 +977,7 @@ def _monitor_subprocess_with_progress(process, cmd, timeout=1800, progress_timeo
             process.kill()
             raise subprocess.TimeoutExpired(cmd, timeout)
         
-        time.sleep(0.1)  # Prevent CPU spin
+        time.sleep(DOWNLOAD_PROGRESS_CHECK_INTERVAL)  # Prevent CPU spin
     
     stdout, stderr = process.communicate()
     return subprocess.CompletedProcess(
@@ -1309,7 +1397,7 @@ def download_alphainfluenza_optimized(
     
     # Default taxon to use (most specific: Alphainfluenzavirus influenzae species)
     # This taxon ID has the most comprehensive cached data
-    default_taxon = "Alphainfluenzavirus influenzae"
+    default_taxon = ALPHAINFLUENZA_DEFAULT_TAXON
     
     if use_accession:
         # Strategy 1: Direct accession download
@@ -1467,7 +1555,7 @@ def _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE, fasta_path, f
         logger.debug("E-utilities URL: %s", NCBI_EUTILS_BASE)
         
         # Make the request with extended timeout for large datasets
-        response = requests.get(NCBI_EUTILS_BASE, params=params, timeout=300)
+        response = requests.get(NCBI_EUTILS_BASE, params=params, timeout=EUTILS_TIMEOUT)
         
         # Check if the request was successful
         response.raise_for_status()
@@ -1494,8 +1582,8 @@ def _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE, fasta_path, f
         # Check for specific URL length error
         if "414" in str(e) or "Request-URI Too Long" in str(e):
             logger.info("URL too long error detected. Retrying with batch processing...")
-            # Retry with smaller batches
-            return _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_size=100, failed_commands=failed_commands)
+            # Retry with smaller batches (half of default)
+            return _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_size=EUTILS_DEFAULT_BATCH_SIZE // 2, failed_commands=failed_commands)
         raise RuntimeError(f"❌ Failed to download virus sequences via E-utilities: {e}") from e
     except IOError as e:
         logger.error("❌ Failed to save FASTA file: %s", e)
@@ -1566,7 +1654,7 @@ def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_
                 
                 try:
                     # Make the request with timeout
-                    response = requests.get(NCBI_EUTILS_BASE, params=params, timeout=300)
+                    response = requests.get(NCBI_EUTILS_BASE, params=params, timeout=EUTILS_TIMEOUT)
                     response.raise_for_status()
                     
                     # Verify we got FASTA data
@@ -1588,11 +1676,11 @@ def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_
                     
                     logger.info("Batch %d: Downloaded and wrote %d sequences (%.2f MB)", 
                                batch_num, batch_sequence_count, 
-                               len(response.text.encode('utf-8')) / 1024 / 1024)
+                               len(response.text.encode('utf-8')) / BYTES_PER_MB)
                     
                     # Add small delay between requests to be respectful to NCBI servers
                     if batch_num < len(batches):  # Don't delay after the last batch
-                        time.sleep(0.5)
+                        time.sleep(EUTILS_INTER_BATCH_DELAY)
                         
                 except requests.exceptions.RequestException as e:
                     logger.error("Batch %d failed: %s", batch_num, e)
@@ -1609,7 +1697,7 @@ def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_
                         })
                     
                     # Check for URL length error even in batch mode
-                    if "414" in str(e) and batch_size > 50:
+                    if "414" in str(e) and batch_size > EUTILS_MIN_BATCH_SIZE_FOR_SPLIT:
                         logger.warning("⚠️ URL still too long for batch size %d. Retrying batch %d with smaller size...", 
                                      batch_size, batch_num)
                         # Recursively retry this batch with smaller size by splitting it further
@@ -1649,7 +1737,7 @@ def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_
         
         file_size = os.path.getsize(fasta_path)
         logger.info("Successfully saved %d sequences to: %s (%.2f MB)", 
-                   total_downloaded, fasta_path, file_size / 1024 / 1024)
+                   total_downloaded, fasta_path, file_size / BYTES_PER_MB)
         return fasta_path
         
     except IOError as e:
@@ -1791,8 +1879,8 @@ def parse_date(date_str, filtername="", verbose=False):
     """
     try:
         # Use dateutil parser for flexible date parsing
-        # Default to year 1000 for partial dates to handle edge cases properly
-        parsed_date = parser.parse(date_str, default=datetime(1000, 1, 1))
+        # Default to a very early year for partial dates to handle edge cases properly
+        parsed_date = parser.parse(date_str, default=datetime(DATE_PARSE_DEFAULT_YEAR, 1, 1))
         logger.debug("Successfully parsed date '%s' as %s", date_str, parsed_date)
         return parsed_date
         
@@ -1907,19 +1995,9 @@ def _extract_protein_info_from_header(header):
     
     header_lower = header.lower()
     
-    # Common protein/gene keywords to extract
-    protein_keywords = [
-        'hemagglutinin', 'neuraminidase', 'polymerase', 'nucleoprotein',
-        'matrix protein', 'nonstructural protein', 'ns1', 'ns2',
-        'spike', 'envelope', 'membrane', 'nucleocapsid',
-        'orf', 'nsp', 'pp1a', 'pp1ab',
-        'segment 1', 'segment 2', 'segment 3', 'segment 4',
-        'segment 5', 'segment 6', 'segment 7', 'segment 8',
-    ]
-    
     # Try to find any of these keywords in the header
     found_info = []
-    for keyword in protein_keywords:
+    for keyword in PROTEIN_KEYWORDS:
         if keyword in header_lower:
             # Find the position and extract surrounding context
             pos = header_lower.find(keyword)
@@ -2532,7 +2610,7 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
             # Add delay between requests to be respectful to NCBI servers
             if batch_num < len(batches) and delay > 0:
                 logger.debug("Adding %.1f second delay before next batch", delay)
-                time.sleep(delay)
+                time.sleep(delay)  # Uses the delay parameter passed to the function
                 
         except Exception as e:
             logger.error("⚠️ Batch %d failed: %s", batch_num, e)
@@ -2641,17 +2719,17 @@ def _fetch_genbank_batch(accessions, failed_log_path=None):
     session = requests.Session()
     try:
         retry_strategy = Retry(
-            total=5,
-            backoff_factor=1,
-            status_forcelist=[429, 500, 502, 503, 504],
+            total=GENBANK_RETRY_ATTEMPTS,
+            backoff_factor=HTTP_INITIAL_BACKOFF,
+            status_forcelist=HTTP_RETRY_STATUS_CODES,
             allowed_methods=frozenset(['GET', 'POST'])
         )
     except TypeError:
         # Fallback for older urllib3 versions that use method_whitelist
         retry_strategy = Retry(
-            total=5,
-            backoff_factor=1,
-            status_forcelist=[429, 500, 502, 503, 504],
+            total=GENBANK_RETRY_ATTEMPTS,
+            backoff_factor=HTTP_INITIAL_BACKOFF,
+            status_forcelist=HTTP_RETRY_STATUS_CODES,
             method_whitelist=frozenset(['GET', 'POST'])
         )
 
@@ -2661,9 +2739,9 @@ def _fetch_genbank_batch(accessions, failed_log_path=None):
 
     headers = {'Connection': 'close', 'User-Agent': 'gget/1.0'}
     # Local retry loop for transient chunk/connection errors with exponential backoff
-    max_attempts = 3
+    max_attempts = HTTP_MAX_LOCAL_RETRIES
     attempt = 0
-    backoff = 1.0
+    backoff = HTTP_INITIAL_BACKOFF
     efetch_url = None  # Initialize to track the URL for logging
 
     while attempt < max_attempts:
@@ -2672,7 +2750,7 @@ def _fetch_genbank_batch(accessions, failed_log_path=None):
             logger.debug("Request URL: %s", NCBI_EUTILS_BASE)
             logger.debug("Request parameters: %s", {k: (v[:50] + '...' if isinstance(v, str) and len(v) > 50 else v) for k, v in params.items()})
 
-            response = session.get(NCBI_EUTILS_BASE, params=params, timeout=300, headers=headers)
+            response = session.get(NCBI_EUTILS_BASE, params=params, timeout=EUTILS_TIMEOUT, headers=headers)
             efetch_url = response.url  # Capture the full URL for logging
             logger.debug("explicit URL requested: %s", response.url)
             response.raise_for_status()
@@ -2807,7 +2885,7 @@ def _local_name(tag):
     return tag.split('}')[-1] if '}' in tag else tag
 
 
-def _genbank_xml_to_csv(xml_path, csv_path, chunk_size=10000):
+def _genbank_xml_to_csv(xml_path, csv_path, chunk_size=None):
     """
     Convert GenBank XML to structured CSV with streaming and dynamic qualifier columns.
     
@@ -2835,6 +2913,9 @@ def _genbank_xml_to_csv(xml_path, csv_path, chunk_size=10000):
     Example:
         >>> _genbank_xml_to_csv('genbank_data.xml', 'output.csv', chunk_size=5000)
     """
+    # Apply default chunk size if not specified
+    if chunk_size is None:
+        chunk_size = GENBANK_XML_CHUNK_SIZE
     
     qualifier_names = set()
     rows = []
@@ -3707,7 +3788,7 @@ def virus(
     if download_all_accessions:
         logger.info("ATTENTION: Download all accessions mode is active.")
         logger.info("This will download all virus accessions from NCBI, which can be a very large dataset and take a long time.")
-        virus = "10239" # NCBI taxonomy ID for Viruses
+        virus = NCBI_ALL_VIRUSES_TAXID  # NCBI taxonomy ID for all Viruses
         is_accession = False
         logger.info("Overriding virus query to fetch all viruses using taxon ID: %s", virus)
 
@@ -3780,7 +3861,7 @@ def virus(
             raise ValueError(
                 "Argument 'genbank_batch_size' must be a positive integer."
             )
-        if genbank_batch_size > 500:
+        if genbank_batch_size > GENBANK_MAX_BATCH_SIZE_WARNING:
             logger.warning("Large genbank_batch_size (%d) may cause API timeouts. Consider using smaller batches.", genbank_batch_size)
     
     # Log GenBank metadata configuration
