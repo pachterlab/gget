@@ -8,6 +8,7 @@ import shutil        # For directory operations
 import subprocess    # For executing external commands
 import traceback     # For error traceback logging
 import platform      # For OS detection
+import stat          # For file permission constants
 import pandas as pd  # For data manipulation and CSV output
 import requests      # For HTTP requests to NCBI API
 import zipfile       # For extracting downloaded ZIP files
@@ -39,6 +40,9 @@ else:
         PACKAGE_PATH, "bins", platform.system(), "datasets"
     )
 
+# Cache for the datasets path to avoid repeated checks
+_datasets_path_cache = None
+
 
 def _get_datasets_path():
     """Get the path to the NCBI datasets CLI binary.
@@ -47,30 +51,38 @@ def _get_datasets_path():
     If found, it uses the system-installed version. Otherwise, it falls back
     to the precompiled binary bundled with gget.
 
-    On non-Windows systems, it also ensures the binary has executable permissions
-    when using the bundled version.
+    The result is cached after the first successful call.
 
     Returns:
-        str: Absolute path to the datasets binary
+        str: Path to the datasets binary ("datasets" for system PATH, or full path for bundled)
 
     Raises:
-        RuntimeError: If no datasets binary is available
+        RuntimeError: If no working datasets binary is available
     """
+    global _datasets_path_cache
+    
+    # Return cached path if already determined
+    if _datasets_path_cache is not None:
+        return _datasets_path_cache
+    
     # First, check if datasets is available in the system PATH
-    try:
-        result = subprocess.run(
-            ["datasets", "--version"],
-            capture_output=True,
-            text=True,
-            timeout=5,
-        )
-        if result.returncode == 0:
-            logger.debug(
-                "Found system-installed datasets CLI: %s", result.stdout.strip()
+    datasets_path = shutil.which("datasets")
+    if datasets_path:
+        try:
+            result = subprocess.run(
+                [datasets_path, "--version"],
+                capture_output=True,
+                text=True,
+                timeout=5,
             )
-            return "datasets"  # Use system PATH version
-    except (FileNotFoundError, subprocess.TimeoutExpired):
-        pass  # Not found in PATH, will use bundled binary
+            if result.returncode == 0:
+                logger.info(
+                    "✅ Using system-installed NCBI datasets CLI: %s", result.stdout.strip()
+                )
+                _datasets_path_cache = datasets_path
+                return datasets_path
+        except (subprocess.TimeoutExpired, OSError):
+            pass  # System binary didn't work, try bundled
     
     # Fall back to the bundled binary
     datasets_path = PRECOMPILED_DATASETS_PATH
@@ -86,40 +98,14 @@ def _get_datasets_path():
     
     # On non-Windows systems, ensure the binary is executable
     if platform.system() != "Windows":
-        # Assign read, write, and execute permission to datasets binary
-        with subprocess.Popen(
-            f"chmod 755 '{datasets_path}'",
-            shell=True,
-            stderr=subprocess.PIPE,
-        ) as process:
-            stderr = process.stderr.read().decode("utf-8")
-            if stderr:
-                sys.stderr.write(stderr)
-        if process.wait() != 0:
+        try:
+            os.chmod(datasets_path, os.stat(datasets_path).st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+        except OSError as e:
             raise RuntimeError(
-                "Making the NCBI 'datasets' binary executable has failed."
+                f"Failed to make NCBI datasets binary executable: {e}"
             )
     
-    logger.debug("Using bundled datasets CLI at: %s", datasets_path)
-    return datasets_path
-
-
-def _check_and_install_datasets_cli():
-    """Check that the NCBI datasets CLI is available and return its path.
-
-    This helper is called from the optimized virus download paths that rely on the
-    datasets command-line tool. It first checks for a system-installed datasets CLI;
-    if not found, it uses the precompiled binary bundled with gget.
-
-    Returns:
-        str: Path to the datasets CLI binary (either "datasets" for system PATH or full path for bundled)
-
-    Raises:
-        RuntimeError: If datasets CLI is not available
-    """
-    datasets_path = _get_datasets_path()
-    
-    # Verify the binary works by checking version
+    # Verify the bundled binary works
     try:
         result = subprocess.run(
             [datasets_path, "--version"],
@@ -128,18 +114,14 @@ def _check_and_install_datasets_cli():
             timeout=5,
         )
         if result.returncode == 0:
-            if datasets_path == "datasets":
-                logger.info(
-                    "✅ Using system-installed NCBI datasets CLI: %s", result.stdout.strip()
-                )
-            else:
-                logger.info(
-                    "✅ Using bundled NCBI datasets CLI: %s", result.stdout.strip()
-                )
+            logger.info(
+                "✅ Using bundled NCBI datasets CLI: %s", result.stdout.strip()
+            )
+            _datasets_path_cache = datasets_path
             return datasets_path
-    except (FileNotFoundError, subprocess.TimeoutExpired) as e:
+    except (subprocess.TimeoutExpired, OSError) as e:
         raise RuntimeError(
-            f"Failed to verify NCBI datasets binary at {datasets_path}: {e}"
+            f"Failed to verify bundled NCBI datasets binary at {datasets_path}: {e}"
         )
     
     raise RuntimeError(
@@ -796,7 +778,7 @@ def _download_optimized_cached(
     """
     
     # Get the path to the datasets CLI binary (uses precompiled binary bundled with gget)
-    datasets_path = _check_and_install_datasets_cli()
+    datasets_path = _get_datasets_path()
     
     last_error = None
     
