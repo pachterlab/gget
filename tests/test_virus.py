@@ -127,8 +127,43 @@ import os
 import shutil
 import subprocess
 import tempfile
+import time
+import functools
 from gget.gget_virus import virus, _get_datasets_path, _clear_datasets_cache
 from .from_json import from_json
+
+
+def retry_on_network_error(max_retries=3, delay=5):
+    """Decorator to retry tests that may fail due to network issues.
+    
+    This is useful for tests that make real API calls to NCBI, which can
+    occasionally time out or fail due to network flakiness.
+    
+    Args:
+        max_retries: Maximum number of retry attempts (default: 3)
+        delay: Seconds to wait between retries (default: 5)
+    """
+    def decorator(test_func):
+        @functools.wraps(test_func)
+        def wrapper(*args, **kwargs):
+            last_exception = None
+            for attempt in range(max_retries):
+                try:
+                    return test_func(*args, **kwargs)
+                except Exception as e:
+                    # Only retry on network-related errors
+                    error_msg = str(e).lower()
+                    if any(keyword in error_msg for keyword in ['timeout', 'timed out', 'connection', 'network']):
+                        last_exception = e
+                        if attempt < max_retries - 1:
+                            time.sleep(delay)
+                        continue
+                    # Re-raise non-network errors immediately
+                    raise
+            # If all retries failed, raise the last exception
+            raise last_exception
+        return wrapper
+    return decorator
 
 # Load dictionary containing arguments and expected results
 with open("./tests/fixtures/test_virus.json") as json_file:
@@ -1050,6 +1085,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         seq_count = self._count_fasta_sequences(files["fasta"]["path"])
         self.assertGreater(seq_count, 0, "No sequences passed max_ambiguous_chars filter")
     
+    @retry_on_network_error(max_retries=3, delay=5)
     def test_virus_with_has_proteins_filter(self):
         """Test that has_proteins filter works correctly.
         
@@ -1079,6 +1115,7 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         seq_count = self._count_fasta_sequences(files["fasta"]["path"])
         self.assertGreater(seq_count, 0, "No sequences passed has_proteins filter")
     
+    @retry_on_network_error(max_retries=3, delay=5)
     def test_virus_with_genbank_metadata_retrieval(self):
         """Test that GenBank metadata retrieval works correctly.
         
@@ -1192,25 +1229,27 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
     def test_datasets_cli_version_output(self):
         """Test that the datasets CLI returns a valid version string.
         
-        When installed, the datasets CLI should return a version string
-        that can be parsed. This helps ensure the CLI is properly functional.
+        When available (system or bundled), the datasets CLI should return a 
+        version string that can be parsed. This helps ensure the CLI is properly 
+        functional.
         
         This catches: Corrupted installations, version parsing issues.
         """
-        # Check if datasets is actually installed
+        # Use _get_datasets_path() to get either system or bundled binary
         try:
+            datasets_path = _get_datasets_path()
             result = subprocess.run(
-                ["datasets", "--version"],
+                [datasets_path, "--version"],
                 capture_output=True,
                 text=True,
                 timeout=5,
             )
-            cli_installed = result.returncode == 0
-        except (FileNotFoundError, subprocess.TimeoutExpired):
-            cli_installed = False
+            cli_available = result.returncode == 0
+        except (FileNotFoundError, subprocess.TimeoutExpired, RuntimeError):
+            cli_available = False
         
-        if not cli_installed:
-            self.skipTest("NCBI datasets CLI not installed - skipping version test")
+        if not cli_available:
+            self.skipTest("NCBI datasets CLI not available - skipping version test")
         
         # Version output should not be empty and should contain version info
         version_output = result.stdout.strip()
