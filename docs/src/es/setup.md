@@ -19,13 +19,3 @@ gget.setup("alphafold")
 ```
 &rarr; Instala todas las dependencias de terceros (modificadas) y descarga los parámetros del algoritmo (~4 GB) necesarios para ejecutar [`gget alphafold`](alphafold.md).
 
-<br>
-
-```bash
-gget setup virus
-```
-```python
-# Python
-gget.setup("virus")
-```
-&rarr; Instala la interfaz de línea de comandos (CLI) de NCBI datasets (a través de conda) necesaria para descargas optimizadas de datos de Alphainfluenza y SARS-CoV-2 en [`gget virus`](virus.md). Si la CLI ya está instalada, el comando la detectará y saldrá sin reinstalar.  
