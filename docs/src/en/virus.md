@@ -4,6 +4,8 @@
 Download virus sequences and associated metadata from the [NCBI Virus database](https://www.ncbi.nlm.nih.gov/labs/virus/). `gget virus` applies server-side and local filters to efficiently download customized datasets.
 Return format: FASTA, CSV, and JSONL files saved to an output folder.
 
+**Note**: For SARS-CoV-2 and Alphainfluenza (Influenza A) queries, `gget virus` uses NCBI's optimized cached data packages via the [NCBI datasets CLI](https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/). The datasets CLI binary is bundled with gget for all major platforms—no additional installation required. If you already have the `datasets` CLI installed on your system, gget will automatically use your existing installation.
+
 **Positional argument**
 `virus`
 Virus taxon name (e.g. 'Zika virus'), taxon ID (e.g. 2697049), or accession number (e.g. 'NC\_045512.2').
@@ -430,6 +432,7 @@ The `gget.virus()` function implements an optimized 10-step workflow for retriev
 ### Step 2: Optimized Cached Download (SARS-CoV-2 & Alphainfluenza)
 - **Functions**: `download_sars_cov2_optimized()`, `download_alphainfluenza_optimized()`
 - **Purpose**: Use NCBI's pre-computed cached data packages for faster downloads
+- **NCBI datasets CLI**: gget bundles the NCBI datasets CLI binary for all major platforms (macOS, Linux, Windows). If you already have the `datasets` CLI installed on your system, gget will automatically use your system installation instead.
 - **Key Operations**:
   - Auto-detect or use explicit flags for SARS-CoV-2/Alphainfluenza queries
   - Download compressed cached packages via NCBI datasets CLI
@@ -536,13 +539,13 @@ virus()
 ├── is_sars_cov2_query()                     [Step 2: SARS-CoV-2 detection]
 │   └── Auto-detects SARS-CoV-2 queries
 ├── download_sars_cov2_optimized()           [Step 2: Cached download]
-│   ├── _check_and_install_datasets_cli()
+│   ├── _get_datasets_path()
 │   ├── NCBI datasets CLI calls
 │   └── Cached package downloads
 ├── is_alphainfluenza_query()                [Step 2b: Alphainfluenza detection]
 │   └── Auto-detects Alphainfluenza queries
 ├── download_alphainfluenza_optimized()      [Step 2b: Cached download]
-│   ├── _check_and_install_datasets_cli()
+│   ├── _get_datasets_path()
 │   ├── NCBI datasets CLI calls
 │   └── Cached package downloads
 ├── unzip_file()                             [Step 2/2b: Extract cached data]
