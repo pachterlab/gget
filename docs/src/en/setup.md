@@ -29,4 +29,4 @@ gget setup alphafold
 # Python
 gget.setup("alphafold")
 ```
-&rarr; Installs all (modified) third-party dependencies and downloads model parameters (~4GB) required to run [`gget alphafold`](alphafold.md). 
+&rarr; Installs all (modified) third-party dependencies and downloads model parameters (~4GB) required to run [`gget alphafold`](alphafold.md).
