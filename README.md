@@ -3,8 +3,8 @@
 [![Downloads](https://static.pepy.tech/personalized-badge/gget?period=total&units=international_system&left_color=grey&right_color=brightgreen&left_text=downloads)](https://pepy.tech/project/gget)
 [![Conda](https://img.shields.io/conda/dn/bioconda/gget?logo=Anaconda)](https://anaconda.org/bioconda/gget)
 [![license](https://img.shields.io/pypi/l/gget)](LICENSE)
-![status](https://github.com/pachterlab/gget/actions/workflows/ci.yml/badge.svg)
-![status](https://github.com/lauraluebbert/test_gget_alphafold/actions/workflows/CI_alphafold.yml/badge.svg)
+[![status](https://github.com/pachterlab/gget/actions/workflows/ci.yml/badge.svg)](https://github.com/pachterlab/gget/blob/main/tests/pytest_results_py3.12.txt)
+[![status](https://github.com/lauraluebbert/test_gget_alphafold/actions/workflows/CI_alphafold.yml/badge.svg)](https://github.com/lauraluebbert/test_gget_alphafold)
 ![Code Coverage](https://img.shields.io/badge/Coverage-83%25-green.svg)  
 
 `gget` is a free, open-source command-line tool and Python package that enables efficient querying of genomic databases. `gget`  consists of a collection of separate but interoperable modules, each designed to facilitate one type of database querying in a single line of code.  
@@ -69,6 +69,9 @@ $ gget archs4 -w tissue ACE2
 # Get the protein structure (in PDB format) of ACE2 as stored in the Protein Data Bank (PDB ID returned by gget info)
 $ gget pdb 1R42 -o 1R42.pdb
 
+# Download virus genome datasets from NCBI Virus (e.g., Zika virus sequences)
+$ gget virus "Zika virus" --host "Homo sapiens" --nuc_completeness complete
+
 # Find Eukaryotic Linear Motifs (ELMs) in a protein sequence
 $ gget setup elm # setup only needs to be run once
 $ gget elm -o results MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS
@@ -95,6 +98,7 @@ gget.diamond("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS", reference="MSSSS
 gget.enrichr(["ACE2", "AGT", "AGTR1", "ACE", "AGTRAP", "AGTR2", "ACE3P"], database="ontology", plot=True)
 gget.archs4("ACE2", which="tissue")
 gget.pdb("1R42", save=True)
+gget.virus("Zika virus", host="Homo sapiens", nuc_completeness="complete")
 
 gget.setup("elm") # setup only needs to be run once
 ortho_df, regex_df = gget.elm("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")

@@ -3,12 +3,22 @@
 [![Mapa de calor en forma de mapa mundial que muestra el número de usuarios activos del sitio web de gget por país.](https://github.com/lauraluebbert/lauraluebbert/raw/main/gget_user_map.png)](https://github.com/lauraluebbert/lauraluebbert)
 
 Este mapa se actualiza automáticamente todos los días a las 16:00 UTC.
+
+# ⬇️ Descargas diarias de *gget*
+
+[![Descargas de gget durante el último año.](https://github.com/lauraluebbert/gget_downloads/raw/main/plots/downloads_gget.png)](https://github.com/lauraluebbert/gget_downloads/tree/main)
+
+Este mapa se actualiza automáticamente todos los días a las 23:55 UTC.
 ___
 
 # 🧑‍🤝‍🧑 Programas dependientes
 Las siguientes aplicaciones usan *gget*:
+- [gget-mcp](https://mcpindex.net/en/mcpserver/longevity-genie-gget-mcp)
 - [Biomni](https://biomni.stanford.edu/)  
   Un agente de inteligencia artificial biomédica de propósito general que se está desarrollando en Stanford y Genentech.
+- [PerTurboAgent](https://www.biorxiv.org/content/10.1101/2025.05.25.656020v1)  
+  Un agente de auto-planificación para potenciar experimentos secuenciales de Perturb-seq.  
+- [Habilidades científicas para Claude](https://github.com/K-Dense-AI/claude-scientific-skills), desarrolladas por K-Dense-AI
 - [Therapeutics Data Commons (TDC)](https://tdcommons.ai/)  
   Base de inteligencia artificial para la ciencia terapéutica ([código fuente](https://github.com/mims-harvard/TDC), [artículo en Nat Chem Bio](https://www.nature.com/articles/s41589-022-01131-2)) del laboratorio de Inteligencia Artificial para Medicina y Ciencia de Harvard.
 - [BioDiscoveryAgent](https://github.com/snap-stanford/BioDiscoveryAgent)  

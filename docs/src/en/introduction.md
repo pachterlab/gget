@@ -1,7 +1,7 @@
 [![pypi version](https://img.shields.io/pypi/v/gget)](https://pypi.org/project/gget)
 [![Downloads](https://static.pepy.tech/personalized-badge/gget?period=total&units=international_system&left_color=grey&right_color=brightgreen&left_text=Downloads)](https://pepy.tech/project/gget)
-[![license](https://img.shields.io/pypi/l/gget)](LICENSE)
-![status](https://github.com/pachterlab/gget/actions/workflows/ci.yml/badge.svg)
+[![license](https://img.shields.io/pypi/l/gget)](https://github.com/pachterlab/gget/blob/main/LICENSE)
+[![status](https://github.com/pachterlab/gget/actions/workflows/ci.yml/badge.svg)](https://github.com/pachterlab/gget/blob/main/tests/pytest_results_py3.12.txt)
 [![Star on GitHub](https://img.shields.io/github/stars/pachterlab/gget.svg?style=social)](https://github.com/pachterlab/gget/)  
 
 [<img align="right" width="50%" height="50%" src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_overview.png?raw=true" />](https://raw.githubusercontent.com/pachterlab/gget/main/figures/gget_overview.png)
@@ -67,7 +67,24 @@ Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference data
 Read the article here: [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
 
 <br>  
-<iframe width="560" height="315" src="https://www.youtube.com/embed/cVR0k6Mt97o?si=BJwRyaymmxF9w65f" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>  
+<br>  
 
-![logo-bmbf](https://github.com/user-attachments/assets/68449ba0-09d1-4f1e-b747-5ae2fec08a21) 
+[![gget PyPI downloads over the last year](https://github.com/lauraluebbert/gget_downloads/raw/main/plots/downloads_gget.png)](https://github.com/lauraluebbert/gget_downloads/tree/main)  
+  
+<br>  
+<br>  
+
+<div style="display: flex; justify-content: center;">
+  <iframe
+    width="560"
+    height="315"
+    src="https://www.youtube.com/embed/cVR0k6Mt97o?si=BJwRyaymmxF9w65f"
+    title="YouTube video player"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    allowfullscreen>
+  </iframe>
+</div>
+
+
 ![logo-okfn](https://github.com/user-attachments/assets/452ae8d8-69f0-4d0d-848c-ddfb40357eb2)

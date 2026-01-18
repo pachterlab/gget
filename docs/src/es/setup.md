@@ -17,4 +17,5 @@ gget setup alphafold
 # Python
 gget.setup("alphafold")
 ```
-&rarr; Instala todas las dependencias de terceros (modificadas) y descarga los parámetros del algoritmo (~4 GB) necesarios para ejecutar [`gget alphafold`](alphafold.md).  
+&rarr; Instala todas las dependencias de terceros (modificadas) y descarga los parámetros del algoritmo (~4 GB) necesarios para ejecutar [`gget alphafold`](alphafold.md).
+

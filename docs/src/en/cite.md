@@ -1,4 +1,4 @@
-[![license](https://img.shields.io/pypi/l/gget)](LICENSE)  
+[![license](https://img.shields.io/pypi/l/gget)](https://github.com/pachterlab/gget/blob/main/LICENSE)
 
 # Citation
 
