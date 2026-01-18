@@ -22,7 +22,7 @@ def _listify(x):
         return [x]
 
 
-def _build_obs_filter(filters: dict, is_primary_data: bool) -> str | None:
+def _build_obs_filter(filters: dict, is_primary_data: bool):
     """
     Build a SOMA obs value_filter string like:
         "is_primary_data == True and tissue in ['lung'] and cell_type in ['muscle cell']"
