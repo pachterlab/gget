@@ -1,0 +1,32 @@
+{
+  "test_specificity_basic": {
+    "type": "assert_equal_json_hash",
+    "args": {
+      "gene_list": ["akr1c21"],
+      "json": true
+    },
+    "expected_result": "cf1aa70001759d3b0feee53d5675c883"
+  },
+
+  "test_psi_block_basic": {
+    "type": "assert_equal_json_hash",
+    "args": {
+      "gene_list": ["GJB4"],
+      "analysis_level": "Across_tissues",
+      "analysis_type": "Sex:Strain",
+      "json": true
+    },
+    "expected_result": "f9bfaab4f8c2af721fb8b07a59a480f5"
+  },
+
+  "test_gene_expression_basic": {
+    "type": "assert_equal_json_hash",
+    "args": {
+      "gene_list": ["ENSMUSG00000030945.18"],
+      "analysis_level": "Kidney",
+      "analysis_type": "Sex:Celltype",
+      "json": true
+    },
+    "expected_result": "2c9fa7a6bba9e82ef784aa5abb5fa81e"
+  }
+}

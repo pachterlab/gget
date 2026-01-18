@@ -39,6 +39,7 @@ from .gget_mutate import mutate
 from .gget_opentargets import opentargets, OPENTARGETS_RESOURCES
 from .gget_cbio import cbio_plot, cbio_search
 from .gget_bgee import bgee
+from .gget_8cubedb import specificity, psi_block, gene_expression
 from .gget_virus import virus
 
 
@@ -2289,7 +2290,7 @@ def main():
     parser_bgee.add_argument(
         "ens_id",
         type=str,
-        nargs='+',
+        nargs="+",
         help="Ensembl gene ID, e.g. ENSG00000169194 or ENSSSCG00000014725. When 'type=expression' you can also input multiple Ensembl IDs.",
     )
     parser_bgee.add_argument(
@@ -2328,6 +2329,263 @@ def main():
         help="Does not print progress information.",
     )
 
+    ## gget 8cubedb subparser
+    cube_desc = "Query 8cubeDB (https://eightcubedb.onrender.com/)."
+    parser_8cube = parent_subparsers.add_parser(
+        "8cubedb",
+        parents=[parent],
+        description=cube_desc,
+        help=cube_desc,
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
+    )
+
+    # Subcommands under "8cubedb"
+    cube_subparsers = parser_8cube.add_subparsers(dest="cube_command")
+
+    spec_desc = "Retrieve ψ and ζ specificity metrics for one or more genes."
+    parser_cube_spec = cube_subparsers.add_parser(
+        "specificity",
+        description=spec_desc,
+        help=spec_desc,
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
+    )
+
+    parser_cube_spec.add_argument(
+        "genes", nargs="+", help="Gene symbols or Ensembl IDs."
+    )
+
+    parser_cube_spec.add_argument(
+        "-csv",
+        "--csv",
+        default=True,
+        action="store_false",
+        help="Return CSV instead of JSON.",
+    )
+
+    parser_cube_spec.add_argument("-o", "--out", type=str, help="Output file path.")
+
+    parser_cube_spec.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        help="Does not print progress information.",
+    )
+
+    psib_desc = "Retrieve ψ_block (psi-block) specificity scores."
+    parser_cube_psib = cube_subparsers.add_parser(
+        "psi_block",
+        description=psib_desc,
+        help=psib_desc,
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
+    )
+
+    parser_cube_psib.add_argument(
+        "genes", nargs="+", help="Gene symbols or Ensembl IDs."
+    )
+
+    parser_cube_psib.add_argument(
+        "-al",
+        "--analysis_level",
+        required=True,
+        help="Analysis level, e.g. 'Kidney' or 'Across_tissues'.",
+    )
+
+    parser_cube_psib.add_argument(
+        "-at",
+        "--analysis_type",
+        required=True,
+        help="Partition type, e.g. 'Sex:Celltype'.",
+    )
+
+    parser_cube_psib.add_argument(
+        "-csv",
+        "--csv",
+        default=True,
+        action="store_false",
+        help="Return CSV instead of JSON.",
+    )
+
+    parser_cube_psib.add_argument("-o", "--out", type=str, help="Output file path.")
+
+    parser_cube_psib.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        help="Does not print progress information.",
+    )
+
+    expr_desc = "Retrieve mean and variance of normalized expression values for one or more genes."
+    parser_cube_expr = cube_subparsers.add_parser(
+        "expression",
+        description=expr_desc,
+        help=expr_desc,
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
+    )
+
+    parser_cube_expr.add_argument(
+        "genes", nargs="+", help="Gene symbols or Ensembl IDs."
+    )
+
+    parser_cube_expr.add_argument(
+        "-al", "--analysis_level", required=True, help="Analysis level, e.g. 'Kidney'."
+    )
+
+    parser_cube_expr.add_argument(
+        "-at",
+        "--analysis_type",
+        required=True,
+        help="Partition type, e.g. 'Sex:Celltype'.",
+    )
+
+    parser_cube_expr.add_argument(
+        "-csv",
+        "--csv",
+        default=True,
+        action="store_false",
+        help="Return CSV instead of JSON.",
+    )
+
+    parser_cube_expr.add_argument("-o", "--out", type=str, help="Output file path.")
+
+    parser_cube_expr.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        help="Does not print progress information.",
+    )
+
+    ## gget 8cubedb subparser
+    cube_desc = "Query 8cubeDB (https://eightcubedb.onrender.com/)."
+    parser_8cube = parent_subparsers.add_parser(
+        "8cubedb",
+        parents=[parent],
+        description=cube_desc,
+        help=cube_desc,
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
+    )
+
+    # Subcommands under "8cubedb"
+    cube_subparsers = parser_8cube.add_subparsers(dest="cube_command")
+
+    spec_desc = "Retrieve ψ and ζ specificity statistics for one or more genes."
+    parser_cube_spec = cube_subparsers.add_parser(
+        "specificity",
+        description=spec_desc,
+        help=spec_desc,
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
+    )
+
+    parser_cube_spec.add_argument(
+        "genes", nargs="+", help="Gene symbols or Ensembl IDs."
+    )
+
+    parser_cube_spec.add_argument(
+        "-csv",
+        "--csv",
+        default=True,
+        action="store_false",
+        help="Return CSV instead of JSON.",
+    )
+
+    parser_cube_spec.add_argument("-o", "--out", type=str, help="Output file path.")
+
+    parser_cube_spec.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        help="Does not print progress information.",
+    )
+
+    psib_desc = "Retrieve ψ_block (psi-block) specificity scores."
+    parser_cube_psib = cube_subparsers.add_parser(
+        "psi_block",
+        description=psib_desc,
+        help=psib_desc,
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
+    )
+
+    parser_cube_psib.add_argument(
+        "genes", nargs="+", help="Gene symbols or Ensembl IDs."
+    )
+
+    parser_cube_psib.add_argument(
+        "-al",
+        "--analysis_level",
+        required=True,
+        help="Analysis level, e.g. 'Kidney' or 'Across_tissues'.",
+    )
+
+    parser_cube_psib.add_argument(
+        "-at",
+        "--analysis_type",
+        required=True,
+        help="Partition type, e.g. 'Sex:Celltype'.",
+    )
+
+    parser_cube_psib.add_argument(
+        "-csv",
+        "--csv",
+        default=True,
+        action="store_false",
+        help="Return CSV instead of JSON.",
+    )
+
+    parser_cube_psib.add_argument("-o", "--out", type=str, help="Output file path.")
+
+    parser_cube_psib.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        help="Does not print progress information.",
+    )
+
+    expr_desc = "Retrieve normalized expression values for one or more genes."
+    parser_cube_expr = cube_subparsers.add_parser(
+        "expression",
+        description=expr_desc,
+        help=expr_desc,
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
+    )
+
+    parser_cube_expr.add_argument(
+        "genes", nargs="+", help="Gene symbols or Ensembl IDs."
+    )
+
+    parser_cube_expr.add_argument(
+        "-al", "--analysis_level", required=True, help="Analysis level, e.g. 'Kidney'."
+    )
+
+    parser_cube_expr.add_argument(
+        "-at",
+        "--analysis_type",
+        required=True,
+        help="Partition type, e.g. 'Sex:Celltype'.",
+    )
+
+    parser_cube_expr.add_argument(
+        "-csv",
+        "--csv",
+        default=True,
+        action="store_false",
+        help="Return CSV instead of JSON.",
+    )
+
+    parser_cube_expr.add_argument("-o", "--out", type=str, help="Output file path.")
+
+    parser_cube_expr.add_argument(
     ## gget virus subparser
     virus_desc = "Download virus genome datasets and associated GenBank metadata from the NCBI Virus database."
     parser_virus = parent_subparsers.add_parser(
@@ -3531,6 +3789,102 @@ def main():
                 print(
                     bgee_results.to_json(orient="records", force_ascii=False, indent=4)
                 )
+
+    ## 8cubedb return
+    if args.command == "8cubedb":
+        from .gget_8cubedb import specificity, psi_block, gene_expression
+
+        if args.cube_command is None:
+            parser_8cube.error(
+                "Please specify a subcommand: specificity, psi_block, or expression"
+            )
+
+        # SPECIFICITY
+        if args.cube_command == "specificity":
+            results = specificity(
+                gene_list=args.genes,
+                json=not args.csv,  # JSON default
+                save=False,
+                verbose=args.quiet,
+            )
+
+            # Save
+            if args.out:
+                directory = os.path.dirname(args.out)
+                if directory:
+                    os.makedirs(directory, exist_ok=True)
+
+                if args.csv:
+                    pd.DataFrame(results).to_csv(args.out, index=False)
+                else:
+                    with open(args.out, "w", encoding="utf-8") as f:
+                        json.dump(results, f, ensure_ascii=False, indent=4)
+                return
+
+            # Print to STDOUT
+            if args.csv:
+                pd.DataFrame(results).to_csv(sys.stdout, index=False)
+            else:
+                print(json.dumps(results, ensure_ascii=False, indent=4))
+            return
+
+        # PSI BLOCK
+        if args.cube_command == "psi_block":
+            results = psi_block(
+                gene_list=args.genes,
+                analysis_level=args.analysis_level,
+                analysis_type=args.analysis_type,
+                json=not args.csv,
+                save=False,
+                verbose=args.quiet,
+            )
+
+            if args.out:
+                directory = os.path.dirname(args.out)
+                if directory:
+                    os.makedirs(directory, exist_ok=True)
+
+                if args.csv:
+                    pd.DataFrame(results).to_csv(args.out, index=False)
+                else:
+                    with open(args.out, "w", encoding="utf-8") as f:
+                        json.dump(results, f, ensure_ascii=False, indent=4)
+                return
+
+            if args.csv:
+                pd.DataFrame(results).to_csv(sys.stdout, index=False)
+            else:
+                print(json.dumps(results, ensure_ascii=False, indent=4))
+            return
+
+        # EXPRESSION
+        if args.cube_command == "expression":
+            results = gene_expression(
+                gene_list=args.genes,
+                analysis_level=args.analysis_level,
+                analysis_type=args.analysis_type,
+                json=not args.csv,
+                save=False,
+                verbose=args.quiet,
+            )
+
+            if args.out:
+                directory = os.path.dirname(args.out)
+                if directory:
+                    os.makedirs(directory, exist_ok=True)
+
+                if args.csv:
+                    pd.DataFrame(results).to_csv(args.out, index=False)
+                else:
+                    with open(args.out, "w", encoding="utf-8") as f:
+                        json.dump(results, f, ensure_ascii=False, indent=4)
+                return
+
+            if args.csv:
+                pd.DataFrame(results).to_csv(sys.stdout, index=False)
+            else:
+                print(json.dumps(results, ensure_ascii=False, indent=4))
+            return
 
     ## virus return
     if args.command == "virus":

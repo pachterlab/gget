@@ -9,6 +9,7 @@
 * [Quick Start Guide](en/quick_start_guide.md)  
 
 # Manual
+* [gget 8cubedb](en/8cubedb.md) 
 * [gget alphafold](en/alphafold.md)  
 * [gget archs4](en/archs4.md)
 * [gget bgee](en/bgee.md)
