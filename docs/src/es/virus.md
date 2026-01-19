@@ -1,137 +1,137 @@
-> Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
+> Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
 # gget virus 🦠  
 
-Download virus sequences and associated metadata from the [NCBI Virus database](https://www.ncbi.nlm.nih.gov/labs/virus/). `gget virus` applies server-side and local filters to efficiently download customized datasets.  
-Return format: FASTA, CSV, and JSONL files saved to an output folder.  
+Descarga secuencias virales y metadatos asociados desde la [base de datos NCBI Virus](https://www.ncbi.nlm.nih.gov/labs/virus/). `gget virus` aplica filtros del lado del servidor y filtros locales para descargar de forma eficiente conjuntos de datos personalizados.  
+Formato de salida: archivos FASTA, CSV y JSONL guardados en una carpeta de salida.  
 
-**Note**: For SARS-CoV-2 and Alphainfluenza (Influenza A) queries, `gget virus` uses NCBI's optimized cached data packages via the [NCBI datasets CLI](https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/). The datasets CLI binary is bundled with gget for all major platforms—no additional installation required. If you already have the `datasets` CLI installed on your system, gget will automatically use your existing installation.
+**Nota**: Para consultas de SARS-CoV-2 y Alphainfluenza (Influenza A), `gget virus` utiliza los paquetes de datos optimizados en caché de NCBI mediante la [NCBI datasets CLI](https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/). El binario de la CLI de datasets se incluye con gget para las principales plataformas—no se requiere instalación adicional. Si ya tienes la CLI `datasets` instalada en tu sistema, gget usará automáticamente tu instalación existente.
 
-**Positional argument**  
+**Argumento posicional**  
 `virus`  
-Virus taxon name (e.g. 'Zika virus'), taxon ID (e.g. 2697049), or accession number (e.g. 'NC\_045512.2').  
+Nombre del taxón del virus (p. ej. 'Zika virus'), ID taxonómico (p. ej. 2697049) o número de acceso (p. ej. 'NC\_045512.2').  
 
-**Optional arguments**   
+**Argumentos opcionales**   
 `-o` `--out`  
-Path to the folder where results will be saved. Default: current working directory.
+Ruta a la carpeta donde se guardarán los resultados. Por defecto: directorio de trabajo actual.
 Python: `outfolder="path/to/folder"`
 
-_Host filters_  
+_Filtros de hospedador_  
 
 `--host`  
-Filter by host organism name or NCBI Taxonomy ID (e.g. 'human', 'Aedes aegypti', `1335626`).
+Filtra por nombre del organismo hospedador o ID de Taxonomía de NCBI (p. ej. 'human', 'Aedes aegypti', `1335626`).
 
-_Sequence & Gene filters_  
+_Filtros de Secuencia y Gen_  
 
 `--nuc_completeness`  
-Filter by nucleotide completeness. One of: 'complete' or 'partial'.
+Filtra por completitud nucleotídica. Uno de: 'complete' o 'partial'.
 
 `--min_seq_length`  
-Filter by minimum sequence length.
+Filtra por longitud mínima de secuencia.
 
 `--max_seq_length`  
-Filter by maximum sequence length.
+Filtra por longitud máxima de secuencia.
 
 `--min_gene_count`  
-Filter by minimum number of genes.
+Filtra por número mínimo de genes.
 
 `--max_gene_count`  
-Filter by maximum number of genes.
+Filtra por número máximo de genes.
 
 `--min_protein_count`  
-Filter by minimum number of proteins.
+Filtra por número mínimo de proteínas.
 
 `--max_protein_count`  
-Filter by maximum number of proteins.
+Filtra por número máximo de proteínas.
 
 `--min_mature_peptide_count`  
-Filter by minimum number of mature peptides.
+Filtra por número mínimo de péptidos maduros.
 
 `--max_mature_peptide_count`  
-Filter by maximum number of mature peptides.
+Filtra por número máximo de péptidos maduros.
 
 `--max_ambiguous_chars`  
-Filter by maximum number of ambiguous nucleotide characters (N's).
+Filtra por número máximo de caracteres nucleotídicos ambiguos (N).
 
 `--has_proteins`  
-Filter for sequences containing specific proteins or genes (e.g. 'spike', 'ORF1ab'). Can be a single protein name or a list of protein names.
-Python: `has_proteins="spike"` or `has_proteins=["spike", "ORF1ab"]`
+Filtra por secuencias que contengan proteínas o genes específicos (p. ej. 'spike', 'ORF1ab'). Puede ser un solo nombre de proteína o una lista de nombres de proteínas.
+Python: `has_proteins="spike"` o `has_proteins=["spike", "ORF1ab"]`
 
-_Date filters_  
+_Filtros de fecha_  
 
 `--min_collection_date`  
-Filter by minimum sample collection date (YYYY-MM-DD).
+Filtra por fecha mínima de recolección de la muestra (YYYY-MM-DD).
 
 `--max_collection_date`  
-Filter by maximum sample collection date (YYYY-MM-DD).
+Filtra por fecha máxima de recolección de la muestra (YYYY-MM-DD).
 
 `--min_release_date`  
-Filter by minimum sequence release date (YYYY-MM-DD).
+Filtra por fecha mínima de liberación de la secuencia (YYYY-MM-DD).
 
 `--max_release_date`  
-Filter by maximum sequence release date (YYYY-MM-DD).
+Filtra por fecha máxima de liberación de la secuencia (YYYY-MM-DD).
 
-_Location & Submitter filters_
+_Filtros de ubicación y remitente_
 
 `--geographic_location`  
-Filter by geographic location of sample collection (e.g. 'USA', 'Asia').
+Filtra por ubicación geográfica de la recolección de la muestra (p. ej. 'USA', 'Asia').
 
 `--submitter_country`  
-Filter by the country of the sequence submitter.
+Filtra por el país del remitente de la secuencia.
 
 `--source_database`  
-Filter by source database. One of: 'genbank' or 'refseq'.
+Filtra por base de datos de origen. Uno de: 'genbank' o 'refseq'.
 
-_SARS-CoV-2 specific filters_
+_Filtros específicos de SARS-CoV-2_
 
 `--lineage`  
-Filter by SARS-CoV-2 lineage (e.g. 'B.1.1.7', 'P.1').
+Filtra por linaje de SARS-CoV-2 (p. ej. 'B.1.1.7', 'P.1').
 
-**Flags**  
+**Banderas**  
 `-a` `--is_accession`  
-Flag to indicate that the `virus` positional argument is an accession number.
+Bandera para indicar que el argumento posicional `virus` es un número de acceso.
 
 `--refseq_only`  
-Flag to limit search to RefSeq genomes only (higher quality, curated sequences).
+Bandera para limitar la búsqueda solo a genomas RefSeq (secuencias de mayor calidad, curadas).
 
 `--is_sars_cov2`  
-Use NCBI's optimized cached data packages for a SARS-CoV-2 query. This provides faster and more reliable downloads. The system can auto-detect SARS-CoV-2 taxon-name queries, but for accession-based queries you must set this flag explicitly.
+Usa los paquetes de datos optimizados en caché de NCBI para una consulta de SARS-CoV-2. Esto proporciona descargas más rápidas y confiables. El sistema puede detectar automáticamente consultas por nombre de taxón de SARS-CoV-2, pero para consultas basadas en accesiones debes establecer esta bandera explícitamente.
 
 `--is_alphainfluenza`  
-Use NCBI's optimized cached data packages for an Alphainfluenza (Influenza A virus) query. This provides faster and more reliable downloads for large Influenza A datasets. The system can auto-detect Alphainfluenza taxon-name queries, but for accession-based queries you must set this flag explicitly.
+Usa los paquetes de datos optimizados en caché de NCBI para una consulta de Alphainfluenza (virus de la Influenza A). Esto proporciona descargas más rápidas y confiables para grandes conjuntos de datos de Influenza A. El sistema puede detectar automáticamente consultas por nombre de taxón de Alphainfluenza, pero para consultas basadas en accesiones debes establecer esta bandera explícitamente.
 
 `-g` `--genbank_metadata`  
-Fetch and save additional detailed metadata from GenBank, including collection dates, host details, and publication references, in a separate `{virus}_genbank_metadata.csv` file (plus full XML/CSV dumps).
+Obtiene y guarda metadatos adicionales detallados desde GenBank, incluyendo fechas de recolección, detalles del hospedador y referencias de publicaciones, en un archivo separado `{virus}_genbank_metadata.csv` (además de volcados completos XML/CSV dumps).
 
 `--genbank_batch_size`  
-Batch size for GenBank metadata API requests. Default: 200. Larger batches are faster but may be more prone to timeouts.  
+Tamaño de lote para solicitudes a la API de metadatos de GenBank. Por defecto: 200. Lotes más grandes son más rápidos pero pueden ser más propensos a timeouts.  
 
 `--annotated`  
-Filter for sequences that have been annotated with gene/protein information.  
-Command line: `--annotated true` or `--annotated false`.   
-Python: `annotated=True` or `annotated=False`.
+Filtra por secuencias que han sido anotadas con información de genes/proteínas.  
+Línea de comandos: `--annotated true` o `--annotated false`.   
+Python: `annotated=True` o `annotated=False`.
 
 `--lab_passaged`  
-Filter for or against lab-passaged samples.   
-Command line: `--lab_passaged true` to fetch only lab-passaged samples, or `--lab_passaged false` to exclude them.  
-Python: `lab_passaged=True` or `lab_passaged=False`.
+Filtra a favor o en contra de muestras pasadas en laboratorio.   
+Línea de comandos: `--lab_passaged true` para obtener solo muestras pasadas en laboratorio, o `--lab_passaged false` para excluirlas.  
+Python: `lab_passaged=True` o `lab_passaged=False`.
 
 `--proteins_complete`  
-Flag to only include sequences where all annotated proteins are complete.  
+Bandera para incluir solo secuencias donde todas las proteínas anotadas estén completas.  
 
 `-kt` `--keep_temp`  
-Flag to keep all intermediate/temporary files generated during processing. By default, only final output files are retained.
+Bandera para conservar todos los archivos intermedios/temporales generados durante el procesamiento. Por defecto, solo se conservan los archivos de salida finales.
 
 `--download_all_accessions`  
-⚠️ **WARNING**: Downloads ALL virus accessions from NCBI (entire Viruses taxonomy, taxon ID 10239). This is an extremely large dataset that can take many hours to download and require significant disk space. Use with caution and ensure you have adequate storage and bandwidth. When this flag is set, the `virus` argument is ignored.
+⚠️ **ADVERTENCIA**: Descarga TODAS las accesiones de virus desde NCBI (toda la taxonomía de Virus, taxon ID 10239). Este es un conjunto de datos extremadamente grande que puede tardar muchas horas en descargarse y requerir un espacio considerable en disco. Úsalo con precaución y asegúrate de tener almacenamiento y ancho de banda adecuados. Cuando esta bandera está activa, el argumento `virus` se ignora.
 
 `-q` `--quiet`  
-Command-line only. Prevents progress information from being displayed.
+Solo línea de comandos. Evita que se muestre información de progreso.
 
-### Example
+### Ejemplo
 
 ```bash
 gget virus "Zika virus" --nuc_completeness complete --host human --out zika_data
-```
+````
 
 ```python
 # Python
@@ -145,16 +145,17 @@ gget.virus(
 )
 ```
 
-→ Downloads complete Zika virus genomes from human hosts. Results are saved in the `zika_data` folder as `Zika_virus_sequences.fasta`, `Zika_virus_metadata.csv`, `Zika_virus_metadata.jsonl`, and `command_summary.txt`.
+→ Descarga genomas completos de Zika virus de hospedadores humanos. Los resultados se guardan en la carpeta `zika_data` como `Zika_virus_sequences.fasta`, `Zika_virus_metadata.csv`, `Zika_virus_metadata.jsonl` y `command_summary.txt`.
 
-The metadata CSV file will look like this:
+El archivo CSV de metadatos se verá así:
 
-| accession | Organism Name | GenBank/RefSeq | Release date | Length | Nuc Completeness | Geographic Location | Host | ... |
-|---|---|---|---|---|---|---|---|---|
-| KX198135.1 | Zika virus | GenBank | 2016-05-18 | 10807 | complete | Americas:Haiti | Homo sapiens | ... |
-| . . . | . . . | . . . | . . . | . . . | . . . | . . . | . . . | ... |
+| accession  | Organism Name | GenBank/RefSeq | Release date | Length | Nuc Completeness | Geographic Location | Host         | ... |
+| ---------- | ------------- | -------------- | ------------ | ------ | ---------------- | ------------------- | ------------ | --- |
+| KX198135.1 | Zika virus    | GenBank        | 2016-05-18   | 10807  | complete         | Americas:Haiti      | Homo sapiens | ... |
+| . . .      | . . .         | . . .          | . . .        | . . .  | . . .            | . . .               | . . .        | ... |
 
-The command summary file (`command_summary.txt`) will contain, for example:
+El archivo de resumen del comando (`command_summary.txt`) contendrá, por ejemplo:
+
 ```
 ================================================================================
 GGET VIRUS COMMAND SUMMARY
@@ -218,7 +219,7 @@ END OF SUMMARY
 ================================================================================
 ```
 
-**Note**: If any operations fail during execution (API timeouts, sequence download failures, GenBank metadata failures), the summary will include a "FAILED OPERATIONS - RETRY COMMANDS" section with exact commands and URLs that can be run manually to retry the failed operations. For example:
+**Nota**: Si alguna operación falla durante la ejecución (timeouts de API, fallos de descarga de secuencias, fallos de metadatos de GenBank), el resumen incluirá una sección "FAILED OPERATIONS - RETRY COMMANDS" con comandos y URLs exactas que pueden ejecutarse manualmente para reintentar las operaciones fallidas. Por ejemplo:
 
 ```
 --------------------------------------------------------------------------------
@@ -245,7 +246,7 @@ Retry URL: https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nucleoti
 ```
 
 <br><br>
-**Download a specific SARS-CoV-2 reference genome using its accession number:**
+**Descargar un genoma de referencia específico de SARS-CoV-2 usando su número de acceso:**
 
 ```bash
 gget virus NC_045512.2 --is_accession --is_sars_cov2
@@ -261,7 +262,7 @@ gget.virus("NC_045512.2", is_accession=True, is_sars_cov2=True)
 → Uses the optimized download method for SARS-CoV-2 to fetch the reference genome and its metadata.
 
 <br><br>
-**Download SARS-CoV-2 sequences with cached optimization AND GenBank metadata:**
+**Descargar secuencias de SARS-CoV-2 con optimización en caché Y metadatos de GenBank:**
 
 ```bash
 gget virus "SARS-CoV-2" --host human --nuc_completeness complete --min_seq_length 29000 --genbank_metadata
@@ -285,7 +286,7 @@ gget.virus(
 → Uses cached download for speed (via NCBI's SARS-CoV-2 data packages when available), applies the sequence length filter post-download, and fetches detailed GenBank metadata for all filtered sequences.
 
 <br><br>
-**Download Influenza A virus sequences with optimized caching and post-download filtering:**
+**Descargar secuencias del virus de la Influenza A con caché optimizada y filtrado posterior a la descarga:**
 
 ```bash
 gget virus "Influenza A virus" --host human --nuc_completeness complete --max_seq_length 15000 --genbank_metadata --is_alphainfluenza
@@ -308,424 +309,480 @@ gget.virus(
 
 → Uses NCBI's cached data packages for Alphainfluenza to download complete Influenza A genomes from human hosts much faster than the standard API method, then applies the sequence length filter and fetches GenBank metadata.
 
+# Citar
 
+Si utilizas `gget virus` en una publicación, por favor cita los siguientes artículos:
 
-# References
+* Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
 
-If you use `gget virus` in a publication, please cite the following articles:
+* O’Leary, N.A., Cox, E., Holmes, J.B. et al (2024). Exploring and retrieving sequence and metadata for species across the tree of life with NCBI Datasets. Sci Data 11, 732. [https://doi.org/10.1038/s41597-024-03571-y](https://doi.org/10.1038/s41597-024-03571-y)
 
-  - Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
+# Flujo de trabajo de recuperación de virus
 
-  - O’Leary, N.A., Cox, E., Holmes, J.B. et al (2024). Exploring and retrieving sequence and metadata for species across the tree of life with NCBI Datasets. Sci Data 11, 732. [https://doi.org/10.1038/s41597-024-03571-y](https://doi.org/10.1038/s41597-024-03571-y)
+## Visión general
 
+La función `gget.virus()` implementa un flujo de trabajo optimizado de 10 pasos para recuperar secuencias virales y metadatos asociados desde NCBI. El sistema está diseñado para minimizar la sobrecarga de descarga filtrando primero los metadatos y luego descargando solo las secuencias que pasan los filtros iniciales, con recuperación opcional de metadatos detallados de GenBank. Para consultas de SARS-CoV-2 y Alphainfluenza, el flujo de trabajo puede usar paquetes de datos optimizados en caché mientras sigue aplicando todos los filtros y obteniendo metadatos de GenBank.
 
-
-# Virus Retrieval Workflow
-
-## Overview
-
-The `gget.virus()` function implements an optimized 10-step workflow for retrieving virus sequences and associated metadata from NCBI. The system is designed to minimize download overhead by filtering metadata first, then downloading only the sequences that pass initial filters, with optional detailed GenBank metadata retrieval. For SARS-CoV-2 and Alphainfluenza queries, the workflow can use optimized cached data packages while still applying all filters and fetching GenBank metadata.
-
-## Architecture
+## Arquitectura
 
 ```
 ┌─────────────────────────────┐
-│           Users             │
+│           Usuarios          │
 │                             │
-│  • Virus Query (Taxon/Acc)  │
-│  • Filter Criteria          │
-│    (Host, Dates, Length...) │
-│  • Output Flags             │
+│  • Consulta de virus        │
+│    (Taxón/Acc)              │
+│  • Criterios de filtrado    │
+│    (Hospedador, fechas,     │
+│     longitud...)            │
+│  • Banderas de salida       │
 │    (`--genbank_metadata`)   │
 └──────────────┬──────────────┘
                │
                ▼
 ┌─────────────────────────────┐
-│  Cached Download Check      │
+│  Verificación de descarga   │
+│  en caché                   │
 │  (SARS-CoV-2/Alphainfluenza)│
 │                             │
-│  • Auto-detect or use flags │
-│  • Download cached packages │
-│  • Apply basic filters      │
+│  • Autodetección o banderas │
+│  • Descarga de paquetes     │
+│    en caché                 │
+│  • Aplicar filtros básicos  │
 │    (host, complete, lineage)│
-│  • Store for pipeline use   │
+│  • Guardar para el pipeline │
 └──────────────┬──────────────┘
                │
                ▼
 ┌─────────────────────────────┐
-│   API & Pre-Filtering       │
-│   (or use cached metadata)  │
+│   API y prefiltrado         │
+│   (o usar metadatos en      │
+│    caché)                   │
 │                             │
-│  • Calls NCBI Datasets API  │
-│    OR uses cached metadata  │
-│  • Applies server-side      │
-│    filters (host, refseq)   │
+│  • Llama a NCBI Datasets API│
+│    O usa metadatos en caché │
+│  • Aplica filtros del lado  │
+│    del servidor (host,      │
+│    refseq)                  │
 └──────────────┬──────────────┘
                │
                ▼
 ┌─────────────────────────────┐
-│ Local Metadata Filtering &  │
-│     Sequence Handling       │
+│ Filtrado local de metadatos │
+│ y manejo de secuencias      │
 │                             │
-│  • Applies ALL remaining    │
-│    local filters (dates,    │
-│    gene counts, etc.)       │
-│  • Generates final list of  │
-│    accession numbers        │
-│  • Uses cached sequences OR │
-│    downloads via E-utilities│
+│  • Aplica TODOS los filtros │
+│    locales restantes        │
+│    (fechas, recuentos de    │
+│     genes, etc.)            │
+│  • Genera la lista final de │
+│    números de acceso        │
+│  • Usa secuencias en caché  │
+│    O descarga vía           │
+│    E-utilities              │
 └──────────────┬──────────────┘
                │
    ┌───────────┴──────────────────────────────────────────┐
    │                                                      │
    ▼                                                      ▼
 ┌─────────────────────────────┐      ┌───────────────────────────────────┐
-│   Final Processing          │      │   GenBank Metadata (Optional)     │
+│   Procesamiento final       │      │   Metadatos de GenBank (Opcional) │
 │                             │      │                                   │
-│  • Applies sequence-level   │      │ • Fetched even for cached         │
-│    filters (e.g., max N's)  │      │   downloads when requested        │
-│  • Formats standard metadata│      │ • Uses final accession list       │
-└──────────────┬──────────────┘      │ • Fetches via E-utilities API     │
+│  • Aplica filtros a nivel   │      │ • Se obtienen incluso para        │
+│    de secuencia (p. ej.,    │      │   descargas en caché cuando       │
+│    max N's)                 │      │   se solicita                     │
+│  • Formatea metadatos       │      │ • Usa la lista final de           │
+│    estándar                 │      │   números de acceso               │
+└──────────────┬──────────────┘      │ • Se obtienen vía E-utilities API │
                │                     └──────────────────┬────────────────┘
                │                                        │
                └──────────────────┬─────────────────────┘
                                   │
                                   ▼
                     ┌───────────────────────────────┐
-                    │   Save Final Output Files     │
+                    │ Guardar archivos de salida    │
+                    │ finales                       │
                     │                               │
                     │  • _sequences.fasta           │
                     │  • _metadata.csv & .jsonl     │
                     │  • _genbank_metadata.csv      │
-                    │    (if requested)             │
+                    │    (si se solicita)           │
                     └──────────────┬────────────────┘
                                    │
                                    ▼
                     ┌───────────────────────────────┐
-                    │   Summary & Cleanup           │
+                    │   Resumen y limpieza          │
                     │                               │
                     │  • command_summary.txt        │
-                    │  • Display results to user    │
-                    │  • Clean temp files           │
+                    │  • Mostrar resultados al      │
+                    │    usuario                    │
+                    │  • Limpiar archivos temporales│
                     └───────────────────────────────┘
 ```
 
-## Workflow Steps
+## Pasos del flujo de trabajo
 
-### Step 1: Input Validation & Setup
-- **Function**: `virus()` main function
-- **Purpose**: Validate all user parameters and configure logging
-- **Key Operations**:
-  - Validate virus taxon/accession format
-  - Check filter parameter ranges and formats
-  - Set up output directory structure
-  - Configure logging based on verbosity level
-  - Check for SARS-CoV-2 or Alphainfluenza optimization opportunities
+### Paso 1: Validación de entrada y configuración
 
-### Step 2: Optimized Cached Download (SARS-CoV-2 & Alphainfluenza)
-- **Functions**: `download_sars_cov2_optimized()`, `download_alphainfluenza_optimized()`
-- **Purpose**: Use NCBI's pre-computed cached data packages for faster downloads
-- **NCBI datasets CLI**: gget bundles the NCBI datasets CLI binary for all major platforms (macOS, Linux, Windows). If you already have the `datasets` CLI installed on your system, gget will automatically use your system installation instead.
-- **Key Operations**:
-  - Auto-detect or use explicit flags for SARS-CoV-2/Alphainfluenza queries
-  - Download compressed cached packages via NCBI datasets CLI
-  - Apply basic filters supported by cached downloads (host, complete_only, annotated, lineage)
-  - Extract sequences and basic metadata
-  - **Store data for pipeline continuation** (does not return early)
-  - Hierarchical fallback to standard API if cached download fails
-- **Filters Applied**:
-  - ✅ `host` - Applied during download
-  - ✅ `complete_only` - Applied during download
-  - ✅ `annotated` - Applied during download
-  - ✅ `lineage` (COVID only) - Applied during download
-  - ⏭️ All other filters applied in subsequent steps
+* **Función**: función principal `virus()`
+* **Propósito**: Validar todos los parámetros del usuario y configurar el logging
+* **Operaciones clave**:
 
-### Step 3: Metadata Retrieval
-- **Function**: `fetch_virus_metadata()`
-- **Purpose**: Retrieve metadata from NCBI Datasets API with server-side filtering, or use cached metadata
-- **Key Operations**:
-  - **If using cached download**: Skip API call, use cached metadata
-  - **Otherwise**: Call NCBI Datasets API with server-side filters
-  - Apply server-side filters (host, geographic location, release date, completeness)
-  - Handle API pagination with connection pooling
-  - Implement exponential backoff with jitter for retries
-  - Parse JSON responses with streaming for large datasets
-  - Store metadata in structured format with validation
+  * Validar el formato del taxón/accesión del virus
+  * Verificar rangos y formatos de los parámetros de filtrado
+  * Configurar la estructura del directorio de salida
+  * Configurar el logging según el nivel de verbosidad
+  * Verificar oportunidades de optimización para SARS-CoV-2 o Alphainfluenza
 
-### Step 4: Metadata-Only Filtering
-- **Function**: `filter_metadata_only()`
-- **Purpose**: Apply ALL local filters that don't require sequence data
-- **Key Operations**:
-  - Filter by date ranges with smart date parsing
-  - Filter by genome completeness and quality indicators
-  - Apply numeric range filters (gene/protein counts, sequence length)
-  - Handle missing or malformed metadata gracefully
-  - Generate optimized accession list for targeted processing
-  - **Note**: Filters not applied during cached download are applied here
+### Paso 2: Descarga optimizada en caché (SARS-CoV-2 y Alphainfluenza)
 
-### Step 5: Sequence Handling
-- **Function**: `download_sequences_by_accessions()`
-- **Purpose**: Use cached sequences or download FASTA sequences for filtered accessions
-- **Key Operations**:
-  - **If using cached download**: Filter cached sequences by accession list from Step 4
-  - **Otherwise**: Download via E-utilities API with batch optimization
-  - Implement configurable batch sizes (default: 200)
-  - Stream large responses to manage memory
-  - Handle download retries with exponential backoff
-  - Return path to FASTA file for processing
+* **Funciones**: `download_sars_cov2_optimized()`, `download_alphainfluenza_optimized()`
+* **Propósito**: Usar los paquetes de datos en caché precomputados por NCBI para descargas más rápidas
+* **NCBI datasets CLI**: gget incluye el binario de la CLI de NCBI datasets para las principales plataformas (macOS, Linux, Windows). Si ya tienes la CLI `datasets` instalada en tu sistema, gget usará automáticamente la instalación del sistema.
+* **Operaciones clave**:
 
-### Step 6: Sequence-Dependent Filtering
-- **Function**: `filter_sequences()`
-- **Purpose**: Apply final filters requiring sequence analysis
-- **Key Operations**:
-  - Parse FASTA sequences and calculate sequence metrics
-  - Filter by ambiguous character count (`max_ambiguous_chars`)
-  - Filter by protein/gene presence (`has_proteins`)
-  - Filter by protein completeness indicators (`proteins_complete`)
-  - Return filtered sequences and updated metadata
+  * Autodetectar o usar banderas explícitas para consultas de SARS-CoV-2/Alphainfluenza
+  * Descargar paquetes comprimidos en caché mediante NCBI datasets CLI
+  * Aplicar filtros básicos soportados por descargas en caché (host, complete_only, annotated, lineage)
+  * Extraer secuencias y metadatos básicos
+  * **Guardar datos para continuar el pipeline** (no retorna temprano)
+  * Retroceso jerárquico a la API estándar si falla la descarga en caché
+* **Filtros aplicados**:
 
-### Step 7: Saving Final Output Files
-- **Functions**: `save_metadata_to_csv()`, `FastaIO.write()`
-- **Purpose**: Save filtered sequences and metadata to output files
-- **Key Operations**:
-  - Write filtered sequences to FASTA file
-  - Save metadata to CSV and JSONL formats
-  - Track output file sizes for summary
-  - Validate file creation success
+  * ✅ `host` - Aplicado durante la descarga
+  * ✅ `complete_only` - Aplicado durante la descarga
+  * ✅ `annotated` - Aplicado durante la descarga
+  * ✅ `lineage` (solo COVID) - Aplicado durante la descarga
+  * ⏭️ Todos los demás filtros se aplican en pasos posteriores
 
-### Step 8: GenBank Metadata Retrieval (Optional)
-- **Function**: `fetch_genbank_metadata()`
-- **Purpose**: Fetch detailed GenBank records for final sequence set
-- **Key Operations**:
-  - **Available for both cached and non-cached downloads**
-  - Retrieve comprehensive GenBank records
-  - Extract 23+ metadata fields per record
-  - Process in configurable batch sizes
-  - Implement rate limiting and retries
-  - Parse and validate GenBank XML
-  - Merge with existing metadata
+### Paso 3: Recuperación de metadatos
 
-### Step 9: Final Summary & Command Summary Generation
-- **Function**: `save_command_summary()`
-- **Purpose**: Create detailed summary of execution and display results
-- **Key Operations**:
-  - Record command line and parameters
-  - Track filtering statistics at each stage
-  - List output files with sizes
-  - Document any failed operations with retry commands
-  - Display comprehensive results summary to user
+* **Función**: `fetch_virus_metadata()`
+* **Propósito**: Recuperar metadatos desde NCBI Datasets API con filtrado del lado del servidor, o usar metadatos en caché
+* **Operaciones clave**:
 
-### Step 10: Cleanup
-- **Purpose**: Clean up temporary files and finalize execution
-- **Key Operations**:
-  - Remove temporary processing directory (unless `keep_temp=True`)
-  - Remove intermediate metadata files
-  - Preserve GenBank metadata CSV when successfully retrieved
-  - Log completion status
+  * **Si se usa descarga en caché**: Omitir llamada a la API, usar metadatos en caché
+  * **De lo contrario**: Llamar a NCBI Datasets API con filtros del lado del servidor
+  * Aplicar filtros del lado del servidor (host, ubicación geográfica, fecha de liberación, completitud)
+  * Manejar paginación de la API con connection pooling
+  * Implementar exponential backoff con jitter para reintentos
+  * Parsear respuestas JSON con streaming para conjuntos de datos grandes
+  * Almacenar metadatos en un formato estructurado con validación
 
-## Function Dependencies
+### Paso 4: Filtrado solo de metadatos
+
+* **Función**: `filter_metadata_only()`
+* **Propósito**: Aplicar TODOS los filtros locales que no requieren datos de secuencia
+* **Operaciones clave**:
+
+  * Filtrar por rangos de fechas con análisis inteligente de fechas
+  * Filtrar por completitud del genoma e indicadores de calidad
+  * Aplicar filtros de rango numérico (recuentos de genes/proteínas, longitud de secuencia)
+  * Manejar metadatos faltantes o malformados de forma robusta
+  * Generar lista optimizada de accesiones para procesamiento dirigido
+  * **Nota**: Los filtros no aplicados durante la descarga en caché se aplican aquí
+
+### Paso 5: Manejo de secuencias
+
+* **Función**: `download_sequences_by_accessions()`
+* **Propósito**: Usar secuencias en caché o descargar secuencias FASTA para accesiones filtradas
+* **Operaciones clave**:
+
+  * **Si se usa descarga en caché**: Filtrar secuencias en caché por la lista de accesiones del Paso 4
+  * **De lo contrario**: Descargar mediante la API de E-utilities con optimización por lotes
+  * Implementar tamaños de lote configurables (por defecto: 200)
+  * Hacer streaming de respuestas grandes para gestionar memoria
+  * Manejar reintentos de descarga con exponential backoff
+  * Devolver la ruta al archivo FASTA para procesamiento
+
+### Paso 6: Filtrado dependiente de la secuencia
+
+* **Función**: `filter_sequences()`
+* **Propósito**: Aplicar filtros finales que requieren análisis de secuencia
+* **Operaciones clave**:
+
+  * Parsear secuencias FASTA y calcular métricas de secuencia
+  * Filtrar por recuento de caracteres ambiguos (`max_ambiguous_chars`)
+  * Filtrar por presencia de proteína/gen (`has_proteins`)
+  * Filtrar por indicadores de completitud de proteínas (`proteins_complete`)
+  * Devolver secuencias filtradas y metadatos actualizados
+
+### Paso 7: Guardar los archivos de salida finales
+
+* **Funciones**: `save_metadata_to_csv()`, `FastaIO.write()`
+* **Propósito**: Guardar secuencias filtradas y metadatos en archivos de salida
+* **Operaciones clave**:
+
+  * Escribir secuencias filtradas en un archivo FASTA
+  * Guardar metadatos en formatos CSV y JSONL
+  * Registrar tamaños de archivos de salida para el resumen
+  * Validar que los archivos se hayan creado correctamente
+
+### Paso 8: Recuperación de metadatos de GenBank (Opcional)
+
+* **Función**: `fetch_genbank_metadata()`
+* **Propósito**: Obtener registros detallados de GenBank para el conjunto final de secuencias
+* **Operaciones clave**:
+
+  * **Disponible tanto para descargas en caché como sin caché**
+  * Recuperar registros completos de GenBank
+  * Extraer 23+ campos de metadatos por registro
+  * Procesar en tamaños de lote configurables
+  * Implementar rate limiting y reintentos
+  * Parsear y validar XML de GenBank
+  * Combinar con metadatos existentes
+
+### Paso 9: Resumen final y generación del resumen del comando
+
+* **Función**: `save_command_summary()`
+* **Propósito**: Crear un resumen detallado de la ejecución y mostrar resultados
+* **Operaciones clave**:
+
+  * Registrar la línea de comandos y parámetros
+  * Seguir estadísticas de filtrado en cada etapa
+  * Listar archivos de salida con tamaños
+  * Documentar operaciones fallidas con comandos de reintento
+  * Mostrar un resumen de resultados completo al usuario
+
+### Paso 10: Limpieza
+
+* **Propósito**: Limpiar archivos temporales y finalizar la ejecución
+* **Operaciones clave**:
+
+  * Eliminar el directorio temporal de procesamiento (a menos que `keep_temp=True`)
+  * Eliminar archivos de metadatos intermedios
+  * Conservar el CSV de metadatos de GenBank cuando se recupera con éxito
+  * Registrar el estado de finalización
+
+## Dependencias de funciones
 
 ```
 virus()
-├── check_min_max()                          [Step 1: Input validation]
-│   └── Validates min/max parameter pairs
-├── is_sars_cov2_query()                     [Step 2: SARS-CoV-2 detection]
-│   └── Auto-detects SARS-CoV-2 queries
-├── download_sars_cov2_optimized()           [Step 2: Cached download]
+├── check_min_max()                          [Paso 1: Validación de entrada]
+│   └── Valida pares de parámetros min/max
+├── is_sars_cov2_query()                     [Paso 2: Detección de SARS-CoV-2]
+│   └── Autodetecta consultas de SARS-CoV-2
+├── download_sars_cov2_optimized()           [Paso 2: Descarga en caché]
 │   ├── _get_datasets_path()
-│   ├── NCBI datasets CLI calls
-│   └── Cached package downloads
-├── is_alphainfluenza_query()                [Step 2b: Alphainfluenza detection]
-│   └── Auto-detects Alphainfluenza queries
-├── download_alphainfluenza_optimized()      [Step 2b: Cached download]
+│   ├── Llamadas a NCBI datasets CLI
+│   └── Descarga de paquetes en caché
+├── is_alphainfluenza_query()                [Paso 2b: Detección de Alphainfluenza]
+│   └── Autodetecta consultas de Alphainfluenza
+├── download_alphainfluenza_optimized()      [Paso 2b: Descarga en caché]
 │   ├── _get_datasets_path()
-│   ├── NCBI datasets CLI calls
-│   └── Cached package downloads
-├── unzip_file()                             [Step 2/2b: Extract cached data]
-│   └── ZIP extraction utilities
-├── fetch_virus_metadata()                   [Step 3: API metadata retrieval]
-│   ├── NCBI Datasets API client
-│   ├── Pagination handling
-│   ├── Retry logic with backoff
-│   └── _get_modified_virus_name() for retry
-├── fetch_virus_metadata_chunked()           [Step 3: Fallback for large datasets]
-│   └── Date-chunked download strategy
-├── load_metadata_from_api_reports()         [Step 3: Metadata conversion]
-│   └── Converts API format to internal format
-├── filter_metadata_only()                   [Step 4: Metadata filtering]
-│   ├── parse_date() for date comparisons
-│   ├── Numeric validation
-│   └── Missing data handling
-├── download_sequences_by_accessions()       [Step 5: Sequence download]
-│   ├── E-utilities API client
-│   ├── Batch processing (default: 200)
-│   └── Stream handling
-├── filter_sequences()                       [Step 6: Sequence filtering]
-│   ├── FastaIO parser
-│   └── Sequence validation
-├── save_metadata_to_csv()                   [Step 7: Save outputs]
-│   └── CSV formatting and writing
-├── fetch_genbank_metadata()                 [Step 8: Optional GenBank data]
+│   ├── Llamadas a NCBI datasets CLI
+│   └── Descarga de paquetes en caché
+├── unzip_file()                             [Paso 2/2b: Extraer datos en caché]
+│   └── Utilidades de extracción ZIP
+├── fetch_virus_metadata()                   [Paso 3: Recuperación de metadatos API]
+│   ├── Cliente de NCBI Datasets API
+│   ├── Manejo de paginación
+│   ├── Lógica de reintento con backoff
+│   └── _get_modified_virus_name() para reintento
+├── fetch_virus_metadata_chunked()           [Paso 3: Fallback para conjuntos grandes]
+│   └── Estrategia de descarga por bloques de fecha
+├── load_metadata_from_api_reports()         [Paso 3: Conversión de metadatos]
+│   └── Convierte el formato de la API al formato interno
+├── filter_metadata_only()                   [Paso 4: Filtrado de metadatos]
+│   ├── parse_date() para comparaciones de fecha
+│   ├── Validación numérica
+│   └── Manejo de datos faltantes
+├── download_sequences_by_accessions()       [Paso 5: Descarga de secuencias]
+│   ├── Cliente de la API de E-utilities
+│   ├── Procesamiento por lotes (por defecto: 200)
+│   └── Manejo de streaming
+├── filter_sequences()                       [Paso 6: Filtrado de secuencias]
+│   ├── Parser FastaIO
+│   └── Validación de secuencias
+├── save_metadata_to_csv()                   [Paso 7: Guardar salidas]
+│   └── Formateo y escritura CSV
+├── fetch_genbank_metadata()                 [Paso 8: Datos opcionales de GenBank]
 │   ├── _fetch_genbank_batch()
 │   ├── _clean_xml_declarations()
-│   ├── XML parsing utilities
+│   ├── Utilidades de parseo XML
 │   └── Rate limiting
-├── save_genbank_metadata_to_csv()           [Step 8: Save GenBank data]
-│   └── Merges with virus metadata
-└── save_command_summary()                   [Step 9: Execution summary]
-    └── Failed operations tracking
+├── save_genbank_metadata_to_csv()           [Paso 8: Guardar datos de GenBank]
+│   └── Combina con metadatos del virus
+└── save_command_summary()                   [Paso 9: Resumen de ejecución]
+    └── Seguimiento de operaciones fallidas
 ```
 
-## Optimization Features
+## Características de optimización
 
-### 1. **Server-Side Filtering**
-- Applies filters at the NCBI API level to reduce data transfer
-- Supported filters: host, geographic location, release date, genome completeness
-- Automatic validation of filter compatibility and values
+### 1. **Filtrado del lado del servidor**
 
-### 2. **Multi-Stage Filtering**
-- **Stage 1**: Metadata-only filters (fast, no sequence download)
-- **Stage 2**: Sequence-dependent filters (pre-filtered set)
-- **Stage 3**: GenBank metadata integration and filtering
-- **Stage 4**: Final validation and quality checks
+* Aplica filtros a nivel de la API de NCBI para reducir la transferencia de datos
+* Filtros soportados: host, ubicación geográfica, fecha de liberación, completitud del genoma
+* Validación automática de compatibilidad y valores de filtros
 
-### 3. **Optimized Downloads**
-- Configurable batch sizes for different data types
-- Connection pooling for improved performance
-- Stream handling for large downloads
-- Rate limiting and retry mechanisms
+### 2. **Filtrado en múltiples etapas**
 
-### 4. **Optimized Cached Downloads**
-- Special handling for SARS-CoV-2 and Alphainfluenza queries using NCBI's cached data packages
-- Automatic detection or explicit flags (`--is_sars_cov2`, `--is_alphainfluenza`)
-- Hierarchical fallback strategies to standard API if cached download fails
-- Significantly faster downloads for large datasets
-- **Pipeline continuation**: Cached downloads now continue through all workflow steps
-- **Post-download filtering**: Filters not applied during cached download are applied afterward
-- **GenBank metadata**: Available for cached downloads when `--genbank_metadata` flag is used
-- **Filter categories**:
-  - Applied during download: `host`, `complete_only`, `annotated`, `lineage` (COVID)
-  - Applied post-download: All other filters (sequence length, gene counts, dates, etc.)
+* **Etapa 1**: Filtros solo de metadatos (rápido, sin descarga de secuencias)
+* **Etapa 2**: Filtros dependientes de la secuencia (conjunto prefiltrado)
+* **Etapa 3**: Integración y filtrado de metadatos de GenBank
+* **Etapa 4**: Validación final y controles de calidad
 
-### 5. **Efficient Data Structures**
-- Accession-based dictionaries for O(1) lookups
-- Streaming parsers for JSON and XML
-- Memory-efficient FASTA handling
-- Optimized metadata merging
+### 3. **Descargas optimizadas**
 
-## Output Files
+* Tamaños de lote configurables para diferentes tipos de datos
+* Connection pooling para mejorar el rendimiento
+* Manejo de streaming para descargas grandes
+* Mecanismos de rate limiting y reintento
 
-### 1. **FASTA Sequences** (`{virus}_sequences.fasta`)
-- Contains nucleotide sequences for filtered results
-- Standard FASTA format with detailed headers
-- Original orientation from NCBI preserved
-- Optional protein/segment annotations in headers
+### 4. **Descargas optimizadas en caché**
 
-### 2. **CSV Metadata** (`{virus}_metadata.csv`)
-- Tabular format for spreadsheet analysis
-- Standardized column structure
-- Geographic and taxonomic information
-- Collection and submission details
-- Quality metrics and annotations
+* Manejo especial para consultas de SARS-CoV-2 y Alphainfluenza usando paquetes de datos en caché de NCBI
+* Detección automática o banderas explícitas (`--is_sars_cov2`, `--is_alphainfluenza`)
+* Estrategias de fallback jerárquicas a la API estándar si falla la descarga en caché
+* Descargas significativamente más rápidas para conjuntos de datos grandes
+* **Continuación del pipeline**: Las descargas en caché ahora continúan por todos los pasos del flujo de trabajo
+* **Filtrado posterior a la descarga**: Los filtros no aplicados durante la descarga en caché se aplican después
+* **Metadatos de GenBank**: Disponible para descargas en caché cuando se usa la bandera `--genbank_metadata`
+* **Categorías de filtros**:
 
-### 3. **GenBank Metadata** (`{virus}_genbank_metadata.csv`) [Optional]
-- 23+ detailed metadata columns
-- Publication references
-- Feature annotations
-- Cross-references to other databases
-- Strain and isolate details
+  * Aplicados durante la descarga: `host`, `complete_only`, `annotated`, `lineage` (COVID)
+  * Aplicados después: todos los demás filtros (longitud de secuencia, recuentos de genes, fechas, etc.)
 
-### 4. **JSONL Metadata** (`{virus}_metadata.jsonl`)
-- JSON Lines format for virus metadata after metadata-only filtering
-- Streaming-friendly format for programmatic access
-- One JSON object per sequence with the same fields as the CSV metadata
-- GenBank-specific fields are stored separately in `{virus}_genbank_metadata.csv` when `--genbank_metadata` is used
+### 5. **Estructuras de datos eficientes**
 
-### 5. **Command Summary** (`command_summary.txt`)
-- Automatically generated summary of the command execution
-- Records the exact command line that was run
-- Execution status (success/failure with error messages)
-- Filtering statistics at each stage:
-  - Total records from API
-  - Records after metadata filtering
-  - Final sequences after all filters
-- Detailed statistics:
-  - Unique hosts with counts (up to top 20 listed)
-  - Unique geographic locations with counts (up to top 20 listed)
-  - Sequence length range and average
-  - Completeness breakdown (complete vs partial)
-  - Source database breakdown (GenBank vs RefSeq)
-  - Unique submitter countries with counts (up to top 20 listed)
-- List of all generated output files with sizes
-- **Failed Operations Tracking** (when applicable):
-  - **API timeout failures**: Exact URL that timed out with alternative command suggestions
-  - **Failed sequence download batches**: Batch numbers, accession lists, and retry URLs
-  - **Failed GenBank metadata batches**: Accession lists with individual retry URLs
-  - All failed operations include exact commands/URLs that can be run manually for retry
+* Diccionarios basados en accesión para búsquedas O(1)
+* Parsers en streaming para JSON y XML
+* Manejo de FASTA eficiente en memoria
+* Combinación de metadatos optimizada
 
-## Performance Characteristics
+## Archivos de salida
 
-### Scalability
-- **Small datasets** (< 1,000 sequences): Near-instantaneous processing
-- **Medium datasets** (1,000 - 10,000 sequences): Minutes to complete
-- **Large datasets** (> 10,000 sequences): Optimized pagination and filtering
+### 1. **Secuencias FASTA** (`{virus}_sequences.fasta`)
 
-### Memory Usage
-- Streaming processing minimizes memory footprint
-- Metadata cached in memory for filtering operations
-- Large FASTA files processed in chunks
+* Contiene secuencias de nucleótidos para resultados filtrados
+* Formato FASTA estándar con encabezados detallados
+* Se conserva la orientación original de NCBI
+* Anotaciones opcionales de proteínas/segmentos en los encabezados
 
-### Network Efficiency
-- Minimal API calls due to server-side filtering
-- Targeted downloads reduce bandwidth usage
-- Automatic retry with exponential backoff
+### 2. **Metadatos CSV** (`{virus}_metadata.csv`)
 
-## Error Handling
+* Formato tabular para análisis en hojas de cálculo
+* Estructura de columnas estandarizada
+* Información geográfica y taxonómica
+* Detalles de recolección y envío
+* Métricas de calidad y anotaciones
 
-### API Failures
-- Smart retry strategy with exponential backoff and jitter
-- Server-side error detection with specific guidance:
-  - Timeout handling for large datasets
-  - Geographic filter optimization suggestions
-  - Batch size adjustments for GenBank metadata
-- Connection pooling and session management
-- Detailed error logging with troubleshooting steps
+### 3. **Metadatos de GenBank** (`{virus}_genbank_metadata.csv`) [Opcional]
 
-### Data Validation
-- Comprehensive input parameter validation:
-  - Type checking for all parameters
-  - Range validation for numeric values
-  - Date format and range validation
-  - Boolean parameter normalization
-- Sequence integrity verification:
-  - FASTA format validation
-  - Ambiguous character detection
-  - Protein/gene completeness checks
-- Metadata consistency validation:
-  - Required field presence checks
-  - Data type validation
-  - Cross-reference validation
-  - GenBank record validation
+* 23+ columnas detalladas de metadatos
+* Referencias de publicaciones
+* Anotaciones de características
+* Referencias cruzadas a otras bases de datos
+* Detalles de cepa e aislamiento
 
-### Recovery Mechanisms
-- Automatic temporary file cleanup
-- Partial result preservation:
-  - Intermediate metadata saving
-  - Progressive filtering state saving
-  - GenBank metadata caching
-- Hierarchical fallback strategies:
-  - SARS-CoV-2 optimized packages
-  - Cached data fallback
-  - API-based retrieval fallback
-- Detailed error reporting:
-  - Root cause analysis
-  - Alternative command suggestions
-  - Filter relaxation recommendations
-  - Performance optimization tips
+### 4. **Metadatos JSONL** (`{virus}_metadata.jsonl`)
 
-## Usage Examples
+* Formato JSON Lines para metadatos de virus después del filtrado solo de metadatos
+* Formato amigable para streaming y acceso programático
+* Un objeto JSON por secuencia con los mismos campos que el CSV de metadatos
+* Los campos específicos de GenBank se almacenan por separado en `{virus}_genbank_metadata.csv` cuando se utiliza `--genbank_metadata`
 
-### Command Line Examples
+### 5. **Resumen del comando** (`command_summary.txt`)
+
+* Resumen generado automáticamente de la ejecución del comando
+* Registra la línea de comandos exacta que se ejecutó
+* Estado de ejecución (éxito/fallo con mensajes de error)
+* Estadísticas de filtrado en cada etapa:
+
+  * Registros totales desde la API
+  * Registros después del filtrado de metadatos
+  * Secuencias finales después de todos los filtros
+* Estadísticas detalladas:
+
+  * Hospedadores únicos con recuentos (hasta 20 principales)
+  * Ubicaciones geográficas únicas con recuentos (hasta 20 principales)
+  * Rango de longitudes de secuencia y promedio
+  * Desglose de completitud (complete vs partial)
+  * Desglose de base de datos de origen (GenBank vs RefSeq)
+  * Países de remitentes únicos con recuentos (hasta 20 principales)
+* Lista de todos los archivos de salida generados con tamaños
+* **Seguimiento de operaciones fallidas** (cuando aplica):
+
+  * **Fallos por timeout de API**: URL exacta que expiró con sugerencias alternativas
+  * **Lotes de descarga de secuencias fallidos**: números de lote, listas de accesiones y URLs de reintento
+  * **Lotes de metadatos de GenBank fallidos**: listas de accesiones con URLs de reintento individuales
+  * Todas las operaciones fallidas incluyen comandos/URLs exactos que pueden ejecutarse manualmente para reintentar
+
+## Características de rendimiento
+
+### Escalabilidad
+
+* **Conjuntos pequeños** (< 1,000 secuencias): procesamiento casi instantáneo
+* **Conjuntos medianos** (1,000 - 10,000 secuencias): minutos para completarse
+* **Conjuntos grandes** (> 10,000 secuencias): paginación y filtrado optimizados
+
+### Uso de memoria
+
+* El procesamiento en streaming minimiza el uso de memoria
+* Metadatos cacheados en memoria para operaciones de filtrado
+* Archivos FASTA grandes procesados en bloques
+
+### Eficiencia de red
+
+* Mínimas llamadas a la API gracias al filtrado del lado del servidor
+* Descargas dirigidas reducen el uso de ancho de banda
+* Reintento automático con exponential backoff
+
+## Manejo de errores
+
+### Fallos de API
+
+* Estrategia de reintento inteligente con exponential backoff y jitter
+* Detección de errores del lado del servidor con guía específica:
+
+  * Manejo de timeouts para conjuntos grandes
+  * Sugerencias para optimizar filtros geográficos
+  * Ajustes de tamaño de lote para metadatos de GenBank
+* Connection pooling y gestión de sesiones
+* Registro detallado de errores con pasos de troubleshooting
+
+### Validación de datos
+
+* Validación integral de parámetros de entrada:
+
+  * Verificación de tipos para todos los parámetros
+  * Validación de rangos para valores numéricos
+  * Validación de formato y rango de fechas
+  * Normalización de parámetros booleanos
+* Verificación de integridad de secuencias:
+
+  * Validación de formato FASTA
+  * Detección de caracteres ambiguos
+  * Chequeos de completitud de proteínas/genes
+* Validación de consistencia de metadatos:
+
+  * Verificación de presencia de campos requeridos
+  * Validación de tipo de datos
+  * Validación de referencias cruzadas
+  * Validación de registros de GenBank
+
+### Mecanismos de recuperación
+
+* Limpieza automática de archivos temporales
+* Preservación parcial de resultados:
+
+  * Guardado de metadatos intermedios
+  * Guardado progresivo del estado de filtrado
+  * Caché de metadatos de GenBank
+* Estrategias de fallback jerárquicas:
+
+  * Paquetes optimizados de SARS-CoV-2
+  * Fallback a datos en caché
+  * Fallback a recuperación basada en API
+* Reporte detallado de errores:
+
+  * Análisis de causa raíz
+  * Sugerencias de comandos alternativos
+  * Recomendaciones para relajar filtros
+  * Consejos de optimización de rendimiento
+
+## Ejemplos de uso
+
+### Ejemplos de línea de comandos
 
 ```bash
 # Get help and see all available parameters
@@ -749,7 +806,7 @@ $ gget virus "Influenza A virus" --host human --max_ambiguous_chars 50 --has_pro
 $ gget virus -a "MK947457" --host deer --min_collection_date "2020-01-01"
 ```
 
-### Python Examples
+### Ejemplos en Python
 
 ```python
   import gget
@@ -824,16 +881,17 @@ $ gget virus -a "MK947457" --host deer --min_collection_date "2020-01-01"
   merged_df.to_csv("covid_march2020/combined_analysis.csv", index=False)
 ```
 
-### Analysis Strategy Examples
+### Ejemplos de estrategia de análisis
 
-The examples above demonstrate different analysis approaches:
+Los ejemplos anteriores demuestran diferentes enfoques de análisis:
 
-1. **Basic GenBank Integration**: Fetch sequences with GenBank metadata for comprehensive analysis
-2. **Advanced Filtering**: Combine virus metadata and GenBank data with custom filters
-3. **Custom Analysis**: Process sequences and metadata using BioPython and Pandas
-4. **Data Integration**: Merge virus and GenBank metadata for detailed analysis
+1. **Integración básica de GenBank**: Obtener secuencias con metadatos de GenBank para un análisis completo
+2. **Filtrado avanzado**: Combinar metadatos de virus y datos de GenBank con filtros personalizados
+3. **Análisis personalizado**: Procesar secuencias y metadatos usando BioPython y Pandas
+4. **Integración de datos**: Unir metadatos de virus y GenBank para un análisis detallado
 
-### Programmatic Access
+### Acceso programático
+
 ```python
 # Access filtered metadata and sequences
 metadata_file = "covid_data/SARS-CoV-2_metadata.jsonl"
@@ -846,4 +904,3 @@ with open(metadata_file) as f:
         record = json.loads(line)
         # Custom analysis here
 ```
-
