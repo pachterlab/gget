@@ -2750,6 +2750,7 @@ def main():
         "opentargets": parser_opentargets,
         "cbio": parser_cbio,
         "bgee": parser_bgee,
+        "8cubedb": parser_8cube,
         "virus": parser_virus,
     }
 
