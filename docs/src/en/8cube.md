@@ -1,8 +1,21 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.
 # gget 8cube 🔬
 
-Query [**8cubeDB**](https://eightcubedb.onrender.com/) ([biorxiv.org/content/10.1101/2025.04.21.649844](https://www.biorxiv.org/content/10.1101/2025.04.21.649844)) for gene-level specificity metrics and normalized expression values.   
-Return format: **JSON** (command-line) or **data frame/CSV** (Python).
+<a href="https://www.biorxiv.org/content/10.1101/2025.04.21.649844">
+  <img
+    align="right"
+    width="500"
+    alt="Screenshot 2026-01-19 at 5 34 43 PM"
+    src="https://github.com/user-attachments/assets/1fa9b68f-27e3-4f94-a46d-4f2d4df36b11"
+  />
+</a>
+
+Query [**8cubeDB**](https://eightcubedb.onrender.com/) for gene-level specificity metrics and normalized expression values.  
+Return format: JSON (command-line) or data frame/CSV (Python).
+
+This module was written by [Nikhila Swarna](https://github.com/nikkiswarna).
+
+<br clear="right" />
 
 ---
 
@@ -184,6 +197,10 @@ from gget import specificity, psi_block, gene_expression
 
 If you use `gget 8cube` in a publication, please cite:
 
+* **Swarna NP, et al.**
+  *Determining gene specificity from multivariate single-cell RNA sequencing data* (2025).
+  DOI forthcoming.
+
 * **Luebbert, L., & Pachter, L. (2023).**
   *Efficient querying of genomic reference databases with gget.* Bioinformatics.
   [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
@@ -191,9 +208,3 @@ If you use `gget 8cube` in a publication, please cite:
 * **Rebboah E, et al.**
   *Systematic cell-type resolved transcriptomes of 8 tissues in 8 lab and wild-derived mouse strains captures global and local expression variation* (2025).
   [https://doi.org/10.1101/2025.04.21.649844](https://doi.org/10.1101/2025.04.21.649844)
-
-* **Swarna NP, et al.**
-  *Determining gene specificity from multivariate single-cell RNA sequencing data* (2025).
-  DOI forthcoming.
-
-
