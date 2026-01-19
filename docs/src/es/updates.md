@@ -1,5 +1,13 @@
 ## ✨ ¡Lo más reciente!  
-Ayuda a mantener _gget_: [![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/lauraluebbert)
+**Versión ≥ 0.30.0** (18 de enero de 2026):  
+- NUEVOS MÓDULOS:
+  - [`gget 8cubedb`](8cubedb.md)
+  - [`gget virus`](virus.md)
+- MEJORAS DE SEGURIDAD:
+  - Se reemplazó `os.system()` con f-strings que contienen URLs de APIs externas en `gget/main.py`
+  - Se reemplazó `exec()` por `importlib.import_module()` en [`gget setup`](setup.md) para importaciones dinámicas más seguras
+  - Se reemplazaron llamadas a subprocess con `shell=True` por argumentos basados en listas en [`gget muscle`](muscle.md), [`gget diamond`](diamond.md) y [`gget setup`](setup.md) para prevenir la inyección de comandos
+
 
 **Versión ≥ 0.29.3** (11 de septiembre de 2025):  
 - [`gget blat`](blat.md): Actualiza la solicitud a la API para los nuevos permisos.
