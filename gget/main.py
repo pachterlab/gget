@@ -10,6 +10,7 @@ dt_string = datetime.now().strftime("%Y_%m_%d-%H_%M")
 
 import os
 import json
+import subprocess
 
 from .utils import set_up_logger
 
@@ -3196,15 +3197,15 @@ def main():
 
                 # Either way, download the files if download flag is set
                 if args.download:
-                    output_dir_part = ""
                     if args.out_dir is not None and args.out_dir != "":
-                        output_dir_part = f'--output-dir "{args.out_dir}" '
                         os.makedirs(args.out_dir, exist_ok=True)
 
                     # Download list of URLs
                     for link in ref_results:
-                        command = f"curl {output_dir_part}-O " + link
-                        os.system(command)
+                        if args.out_dir:
+                            subprocess.run(["curl", "--output-dir", args.out_dir, "-O", link], check=True)
+                        else:
+                            subprocess.run(["curl", "-O", link], check=True)
 
             # Print or save json file (ftp=False)
             else:
@@ -3222,17 +3223,17 @@ def main():
 
                 # Either way, download the files if download flag is set
                 if args.download:
-                    output_dir_part = ""
                     if args.out_dir is not None and args.out_dir != "":
-                        output_dir_part = f'--output-dir "{args.out_dir}" '
                         os.makedirs(args.out_dir, exist_ok=True)
 
                     # Download the URLs from the dictionary
                     for sp in ref_results:
                         for ftp_type in ref_results[sp]:
                             link = ref_results[sp][ftp_type]["ftp"]
-                            command = f"curl {output_dir_part}-O " + link
-                            os.system(command)
+                            if args.out_dir:
+                                subprocess.run(["curl", "--output-dir", args.out_dir, "-O", link], check=True)
+                            else:
+                                subprocess.run(["curl", "-O", link], check=True)
 
     ## search return
     if args.command == "search":
