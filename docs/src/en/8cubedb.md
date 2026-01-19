@@ -1,10 +1,8 @@
+> Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.
 # gget 8cubedb 🔬
 
-Query [**8cubeDB**](https://eightcubedb.onrender.com/) ([biorxiv.org/content/10.1101/2025.04.21.649844](https://www.biorxiv.org/content/10.1101/2025.04.21.649844)) for gene-level specificity metrics and normalized expression values.  
+Query [**8cubeDB**](https://eightcubedb.onrender.com/) ([biorxiv.org/content/10.1101/2025.04.21.649844](https://www.biorxiv.org/content/10.1101/2025.04.21.649844)) for gene-level specificity metrics and normalized expression values.   
 Return format: **JSON** (command-line) or **data frame/CSV** (Python).
-
-Python arguments are equivalent to long-option arguments (`--arg`) unless stated otherwise.  
-The manual can be displayed from the command-line using `-h` or `--help`.
 
 ---
 
@@ -22,11 +20,11 @@ Gene symbols or Ensembl gene IDs. Multiple genes allowed.
 
 **Optional arguments**  
 `-csv` `--csv`  
-Returns CSV instead of JSON (command-line only).
+Returns CSV instead of JSON (command-line only).   
 Python: Use `json=False` (default DataFrame) or `json=True` for JSON.
 
 `-o` `--out`  
-Output file path (CSV or .json depending on `--csv`).
+Output file path (CSV or .json depending on `--csv`).  
 Python: `save=True` saves automatically to the current directory.
 
 **Flags**  
@@ -42,7 +40,7 @@ gget 8cubedb specificity Acsm2 ENSMUSG00000046623.9
 
 ```python
 # Python
-from gget import specificity
+from gget.gget_8cubedb import specificity
 specificity(["Acsm2", "ENSMUSG00000046623.9"])
 ```
 
@@ -91,7 +89,7 @@ gget 8cubedb psi_block Acsm2 \
 
 ```python
 # Python
-from gget import psi_block
+from gget.gget_8cubedb import psi_block
 psi_block(["Acsm2"], analysis_level="Kidney", analysis_type="Sex:Celltype")
 ```
 
@@ -140,7 +138,7 @@ gget 8cubedb expression ENSMUSG00000046623.9 \
 
 ```python
 # Python
-from gget import gene_expression
+from gget.gget_8cubedb import gene_expression
 gene_expression(["ENSMUSG00000046623.9"], analysis_level="Across_tissues", analysis_type="Strain")
 ```
 
@@ -164,11 +162,13 @@ gget 8cubedb expression Gjb4 --analysis_level Across_tissues --analysis_type Str
 ---
 
 # Python API
-
+```python
+from gget.gget_8cubedb import specificity, psi_block, gene_expression
+```
+or
 ```python
 from gget import specificity, psi_block, gene_expression
 ```
-
 ---
 
 # Notes
