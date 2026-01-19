@@ -26,6 +26,13 @@ or
 pip install --upgrade gget
 ```
 
+Install from source:
+```bash
+git clone https://github.com/pachterlab/gget.git
+cd gget
+uv pip install .
+```
+
 For use in Jupyter Lab / Google Colab:
 ```python
 # Python
