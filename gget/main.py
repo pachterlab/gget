@@ -3678,7 +3678,7 @@ def main():
         if args.cube_command == "specificity":
             results = specificity(
                 gene_list=args.genes,
-                json=not args.csv,  # JSON default
+                json=args.csv,  # JSON default
                 save=False,
                 verbose=args.quiet,
             )
@@ -3709,7 +3709,7 @@ def main():
                 gene_list=args.genes,
                 analysis_level=args.analysis_level,
                 analysis_type=args.analysis_type,
-                json=not args.csv,
+                json=args.csv,
                 save=False,
                 verbose=args.quiet,
             )
@@ -3738,7 +3738,7 @@ def main():
                 gene_list=args.genes,
                 analysis_level=args.analysis_level,
                 analysis_type=args.analysis_type,
-                json=not args.csv,
+                json=args.csv,
                 save=False,
                 verbose=args.quiet,
             )
