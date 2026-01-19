@@ -1,5 +1,5 @@
 ## ✨ What's new
-**Version ≥ 0.30.0** (Jan 19, 2026):  
+**Version ≥ 0.30.0** (Jan 18, 2026):  
 - NEW MODULES:
   - [`gget 8cubedb`](8cubedb.md)
   - [`gget virus`](virus.md)
