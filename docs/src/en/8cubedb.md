@@ -1,6 +1,6 @@
 # gget 8cubedb 🔬
 
-Query **8cubeDB** ([https://eightcubedb.onrender.com/](https://eightcubedb.onrender.com/)) for gene-level specificity metrics and normalized expression values.
+Query [**8cubeDB**](https://eightcubedb.onrender.com/) ([biorxiv.org/content/10.1101/2025.04.21.649844](https://www.biorxiv.org/content/10.1101/2025.04.21.649844)) for gene-level specificity metrics and normalized expression values.
 Return format: **JSON** (command-line) or **data frame/CSV** (Python).
 
 Python arguments are equivalent to long-option arguments (`--arg`) unless stated otherwise.
