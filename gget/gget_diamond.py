@@ -114,12 +114,17 @@ def diamond(
 
     # Replace slashes in paths for Windows compatibility
     if platform.system() == "Windows":
-        DIAMOND_w = DIAMOND.replace("/", "\\")
-        reference_file_w = reference_file.replace("/", "\\")
-        diamond_db_w = diamond_db.replace("/", "\\")
-        input_file_w = input_file.replace("/", "\\")
-        reference_file_w = reference_file.replace("/", "\\")
-        output_w = output.replace("/", "\\")
+        diamond_bin = DIAMOND.replace("/", "\\")
+        ref_file = reference_file.replace("/", "\\")
+        db_path = diamond_db.replace("/", "\\")
+        in_file = input_file.replace("/", "\\")
+        out_file = output.replace("/", "\\")
+    else:
+        diamond_bin = DIAMOND
+        ref_file = reference_file
+        db_path = diamond_db
+        in_file = input_file
+        out_file = output
 
     if translated:
         if verbose:
@@ -133,7 +138,7 @@ def diamond(
         logger.info(f"Creating DIAMOND database and initiating alignment...")
 
     # Step 1: Check diamond version
-    version_cmd = [DIAMOND, "version"]
+    version_cmd = [diamond_bin, "version"]
     with subprocess.Popen(version_cmd, stderr=subprocess.PIPE) as process:
         stderr = process.stderr.read().decode("utf-8")
         if stderr:
@@ -143,10 +148,10 @@ def diamond(
 
     # Step 2: Create database
     makedb_cmd = [
-        DIAMOND, "makedb",
+        diamond_bin, "makedb",
         "--quiet",
-        "--in", reference_file,
-        "--db", diamond_db,
+        "--in", ref_file,
+        "--db", db_path,
         "--threads", str(threads)
     ]
     with subprocess.Popen(makedb_cmd, stderr=subprocess.PIPE) as process:
@@ -158,14 +163,14 @@ def diamond(
 
     # Step 3: Run alignment
     align_cmd = [
-        DIAMOND, diamond_program,
+        diamond_bin, diamond_program,
         "--outfmt", "6",
         "qseqid", "sseqid", "pident", "qlen", "slen", "length",
         "mismatch", "gapopen", "qstart", "qend", "sstart", "send", "evalue", "bitscore",
         "--quiet",
-        "--query", input_file,
-        "--db", reference_file,
-        "--out", output,
+        "--query", in_file,
+        "--db", ref_file,
+        "--out", out_file,
         f"--{sensitivity}",
         "--threads", str(threads),
         "--ignore-warnings"
