@@ -4,6 +4,8 @@
 Download virus sequences and associated metadata from the [NCBI Virus database](https://www.ncbi.nlm.nih.gov/labs/virus/). `gget virus` applies server-side and local filters to efficiently download customized datasets.  
 Return format: FASTA, CSV, and JSONL files saved to an output folder.  
 
+This module was written by [Ferdous Nasri](https://github.com/ferbsx).
+
 **Note**: For SARS-CoV-2 and Alphainfluenza (Influenza A) queries, `gget virus` uses NCBI's optimized cached data packages via the [NCBI datasets CLI](https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/). The datasets CLI binary is bundled with gget for all major platforms—no additional installation required. If you already have the `datasets` CLI installed on your system, gget will automatically use your existing installation.
 
 **Positional argument**  
