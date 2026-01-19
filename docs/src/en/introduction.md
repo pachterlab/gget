@@ -55,6 +55,7 @@ These are the `gget` core modules. Click on any module to access detailed docume
   </tr>
   <tr>
     <td style="width:33.33%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/en/seq.md"><strong>gget seq</strong></a><br>Fetch the nucleotide or amino acid sequence of a gene.</td>
+    <td style="width:33.33%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/en/virus.md"><strong>gget virus</strong></a><br>Get Viral Sequences and metadata from NCBI Virus Dataset.</td>
   </tr>
 </table>
 
