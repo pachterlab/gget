@@ -1,9 +1,9 @@
 # gget 8cubedb 🔬
 
-Query [**8cubeDB**](https://eightcubedb.onrender.com/) ([biorxiv.org/content/10.1101/2025.04.21.649844](https://www.biorxiv.org/content/10.1101/2025.04.21.649844)) for gene-level specificity metrics and normalized expression values.
+Query [**8cubeDB**](https://eightcubedb.onrender.com/) ([biorxiv.org/content/10.1101/2025.04.21.649844](https://www.biorxiv.org/content/10.1101/2025.04.21.649844)) for gene-level specificity metrics and normalized expression values.  
 Return format: **JSON** (command-line) or **data frame/CSV** (Python).
 
-Python arguments are equivalent to long-option arguments (`--arg`) unless stated otherwise.
+Python arguments are equivalent to long-option arguments (`--arg`) unless stated otherwise.  
 The manual can be displayed from the command-line using `-h` or `--help`.
 
 ---
@@ -16,21 +16,21 @@ Retrieve **ψ** and **ζ** specificity statistics for one or more genes.
 gget 8cubedb specificity <GENES...>
 ```
 
-**Positional argument**
-`genes`
+**Positional argument**  
+`genes`  
 Gene symbols or Ensembl gene IDs. Multiple genes allowed.
 
-**Optional arguments**
-`-csv` `--csv`
+**Optional arguments**  
+`-csv` `--csv`  
 Returns CSV instead of JSON (command-line only).
 Python: Use `json=False` (default DataFrame) or `json=True` for JSON.
 
-`-o` `--out`
+`-o` `--out`  
 Output file path (CSV or .json depending on `--csv`).
 Python: `save=True` saves automatically to the current directory.
 
-**Flags**
-`-q` `--quiet`
+**Flags**  
+`-q` `--quiet`  
 Suppresses progress information.
 Python: use `verbose=False`.
 
@@ -58,27 +58,27 @@ Retrieve **ψ-block** (block-level specificity) values for one or more genes.
 gget 8cubedb psi_block <GENES...> --analysis_level <LEVEL> --analysis_type <TYPE>
 ```
 
-**Positional argument**
-`genes`
+**Positional argument**  
+`genes`  
 Gene symbols or Ensembl IDs.
 
-**Required arguments**
-`-al` `--analysis_level`
+**Required arguments**  
+`-al` `--analysis_level`  
 Biological analysis level (e.g., `Kidney`, `Across_tissues`).
 
-`-at` `--analysis_type`
+`-at` `--analysis_type`  
 Partition type (e.g., `Sex:Celltype`, `Sex:Strain`).
 
-**Optional arguments**
-`-csv` `--csv`
-Return CSV instead of JSON.
+**Optional arguments**  
+`-csv` `--csv`  
+Return CSV instead of JSON.  
 Python: use `json=True` for JSON.
 
-`-o` `--out`
+`-o` `--out`  
 Output file location.
 
-**Flags**
-`-q` `--quiet`
+**Flags**  
+`-q` `--quiet`  
 Suppress progress printing.
 
 ### Example
@@ -107,27 +107,27 @@ Retrieve **mean and variance of normalized expression values** for one or more g
 gget 8cubedb expression <GENES...> --analysis_level <LEVEL> --analysis_type <TYPE>
 ```
 
-**Positional argument**
-`genes`
+**Positional argument**  
+`genes`  
 Gene symbols or Ensembl IDs. Multiple accepted.
 
-**Required arguments**
-`-al` `--analysis_level`
+**Required arguments**  
+`-al` `--analysis_level`  
 Biological grouping (e.g., `Kidney`, `Across_tissues`).
 
-`-at` `--analysis_type`
+`-at` `--analysis_type`  
 Partition layout (e.g., `Sex:Celltype`).
 
-**Optional arguments**
-`-csv` `--csv`
-Return CSV instead of JSON.
+**Optional arguments**  
+`-csv` `--csv`  
+Return CSV instead of JSON.  
 Python: use `json=True`.
 
-`-o` `--out`
+`-o` `--out`  
 Output file path.
 
-**Flags**
-`-q` `--quiet`
+**Flags**  
+`-q` `--quiet`  
 Suppress progress messages.
 
 ### Example
