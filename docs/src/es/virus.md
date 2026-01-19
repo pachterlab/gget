@@ -4,6 +4,8 @@
 Descarga secuencias virales y metadatos asociados desde la [base de datos NCBI Virus](https://www.ncbi.nlm.nih.gov/labs/virus/). `gget virus` aplica filtros del lado del servidor y filtros locales para descargar de forma eficiente conjuntos de datos personalizados.  
 Formato de salida: archivos FASTA, CSV y JSONL guardados en una carpeta de salida.  
 
+Este módulo fue escrito por [Ferdous Nasri](https://github.com/ferbsx).
+
 **Nota**: Para consultas de SARS-CoV-2 y Alphainfluenza (Influenza A), `gget virus` utiliza los paquetes de datos optimizados en caché de NCBI mediante la [NCBI datasets CLI](https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/). El binario de la CLI de datasets se incluye con gget para las principales plataformas—no se requiere instalación adicional. Si ya tienes la CLI `datasets` instalada en tu sistema, gget usará automáticamente tu instalación existente.
 
 **Argumento posicional**  
