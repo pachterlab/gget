@@ -1,137 +1,130 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
-# gget virus 🦠
+# gget virus 🦠  
 
-Download virus sequences and associated metadata from the [NCBI Virus database](https://www.ncbi.nlm.nih.gov/labs/virus/). `gget virus` applies server-side and local filters to efficiently download customized datasets.
-Return format: FASTA, CSV, and JSONL files saved to an output folder.
+Download virus sequences and associated metadata from the [NCBI Virus database](https://www.ncbi.nlm.nih.gov/labs/virus/). `gget virus` applies server-side and local filters to efficiently download customized datasets.  
+Return format: FASTA, CSV, and JSONL files saved to an output folder.  
 
 **Note**: For SARS-CoV-2 and Alphainfluenza (Influenza A) queries, `gget virus` uses NCBI's optimized cached data packages via the [NCBI datasets CLI](https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/). The datasets CLI binary is bundled with gget for all major platforms—no additional installation required. If you already have the `datasets` CLI installed on your system, gget will automatically use your existing installation.
 
-**Positional argument**
-`virus`
-Virus taxon name (e.g. 'Zika virus'), taxon ID (e.g. 2697049), or accession number (e.g. 'NC\_045512.2').
+**Positional argument**  
+`virus`  
+Virus taxon name (e.g. 'Zika virus'), taxon ID (e.g. 2697049), or accession number (e.g. 'NC\_045512.2').  
 
-Command line: `gget virus "Zika virus" ...`  
-Python: `gget.virus("Zika virus", ...)`
-
-**Optional arguments**
-
-### Output arguments
-
-`-o` `--out`
+**Optional arguments**   
+`-o` `--out`  
 Path to the folder where results will be saved. Default: current working directory.
 Python: `outfolder="path/to/folder"`
 
-### Host filters
+_Host filters_  
 
-`--host`
+`--host`  
 Filter by host organism name or NCBI Taxonomy ID (e.g. 'human', 'Aedes aegypti', `1335626`).
 
-### Sequence & Gene filters
+_Sequence & Gene filters_  
 
-`--nuc_completeness`
+`--nuc_completeness`  
 Filter by nucleotide completeness. One of: 'complete' or 'partial'.
 
-`--min_seq_length`
+`--min_seq_length`  
 Filter by minimum sequence length.
 
-`--max_seq_length`
+`--max_seq_length`  
 Filter by maximum sequence length.
 
-`--min_gene_count`
+`--min_gene_count`  
 Filter by minimum number of genes.
 
-`--max_gene_count`
+`--max_gene_count`  
 Filter by maximum number of genes.
 
-`--min_protein_count`
+`--min_protein_count`  
 Filter by minimum number of proteins.
 
-`--max_protein_count`
+`--max_protein_count`  
 Filter by maximum number of proteins.
 
-`--min_mature_peptide_count`
+`--min_mature_peptide_count`  
 Filter by minimum number of mature peptides.
 
-`--max_mature_peptide_count`
+`--max_mature_peptide_count`  
 Filter by maximum number of mature peptides.
 
-`--max_ambiguous_chars`
+`--max_ambiguous_chars`  
 Filter by maximum number of ambiguous nucleotide characters (N's).
 
-`--has_proteins`
+`--has_proteins`  
 Filter for sequences containing specific proteins or genes (e.g. 'spike', 'ORF1ab'). Can be a single protein name or a list of protein names.
 Python: `has_proteins="spike"` or `has_proteins=["spike", "ORF1ab"]`
 
-### Date filters
+_Date filters_  
 
-`--min_collection_date`
+`--min_collection_date`  
 Filter by minimum sample collection date (YYYY-MM-DD).
 
-`--max_collection_date`
+`--max_collection_date`  
 Filter by maximum sample collection date (YYYY-MM-DD).
 
-`--min_release_date`
+`--min_release_date`  
 Filter by minimum sequence release date (YYYY-MM-DD).
 
-`--max_release_date`
+`--max_release_date`  
 Filter by maximum sequence release date (YYYY-MM-DD).
 
-### Location & Submitter filters
+_Location & Submitter filters_
 
-`--geographic_location`
+`--geographic_location`  
 Filter by geographic location of sample collection (e.g. 'USA', 'Asia').
 
-`--submitter_country`
+`--submitter_country`  
 Filter by the country of the sequence submitter.
 
-`--source_database`
+`--source_database`  
 Filter by source database. One of: 'genbank' or 'refseq'.
 
-### SARS-CoV-2 specific filters
+_SARS-CoV-2 specific filters_
 
-`--lineage`
+`--lineage`  
 Filter by SARS-CoV-2 lineage (e.g. 'B.1.1.7', 'P.1').
 
-**Flags**
-`-a` `--is_accession`
+**Flags**  
+`-a` `--is_accession`  
 Flag to indicate that the `virus` positional argument is an accession number.
 
-`--refseq_only`
+`--refseq_only`  
 Flag to limit search to RefSeq genomes only (higher quality, curated sequences).
 
-`--is_sars_cov2`
+`--is_sars_cov2`  
 Use NCBI's optimized cached data packages for a SARS-CoV-2 query. This provides faster and more reliable downloads. The system can auto-detect SARS-CoV-2 taxon-name queries, but for accession-based queries you must set this flag explicitly.
 
-`--is_alphainfluenza`
+`--is_alphainfluenza`  
 Use NCBI's optimized cached data packages for an Alphainfluenza (Influenza A virus) query. This provides faster and more reliable downloads for large Influenza A datasets. The system can auto-detect Alphainfluenza taxon-name queries, but for accession-based queries you must set this flag explicitly.
 
-`-g` `--genbank_metadata`
+`-g` `--genbank_metadata`  
 Fetch and save additional detailed metadata from GenBank, including collection dates, host details, and publication references, in a separate `{virus}_genbank_metadata.csv` file (plus full XML/CSV dumps).
 
-`--genbank_batch_size`
-Batch size for GenBank metadata API requests. Default: 200. Larger batches are faster but may be more prone to timeouts.
-Python: `genbank_batch_size=200`
+`--genbank_batch_size`  
+Batch size for GenBank metadata API requests. Default: 200. Larger batches are faster but may be more prone to timeouts.  
 
-`--annotated`
-Filter for sequences that have been annotated with gene/protein information.
-Command line: `--annotated true` or `--annotated false`.  
+`--annotated`  
+Filter for sequences that have been annotated with gene/protein information.  
+Command line: `--annotated true` or `--annotated false`.   
 Python: `annotated=True` or `annotated=False`.
 
-`--lab_passaged`
-Filter for or against lab-passaged samples.  
+`--lab_passaged`  
+Filter for or against lab-passaged samples.   
 Command line: `--lab_passaged true` to fetch only lab-passaged samples, or `--lab_passaged false` to exclude them.  
 Python: `lab_passaged=True` or `lab_passaged=False`.
 
-`--proteins_complete`
-Flag to only include sequences where all annotated proteins are complete.
+`--proteins_complete`  
+Flag to only include sequences where all annotated proteins are complete.  
 
-`-kt` `--keep_temp`
+`-kt` `--keep_temp`  
 Flag to keep all intermediate/temporary files generated during processing. By default, only final output files are retained.
 
-`--download_all_accessions`
+`--download_all_accessions`  
 ⚠️ **WARNING**: Downloads ALL virus accessions from NCBI (entire Viruses taxonomy, taxon ID 10239). This is an extremely large dataset that can take many hours to download and require significant disk space. Use with caution and ensure you have adequate storage and bandwidth. When this flag is set, the `virus` argument is ignored.
 
-`-q` `--quiet`
+`-q` `--quiet`  
 Command-line only. Prevents progress information from being displayed.
 
 ### Example
@@ -315,7 +308,7 @@ gget.virus(
 
 → Uses NCBI's cached data packages for Alphainfluenza to download complete Influenza A genomes from human hosts much faster than the standard API method, then applies the sequence length filter and fetches GenBank metadata.
 
-#### [More examples](https://github.com/pachterlab/gget_examples)
+
 
 # References
 
