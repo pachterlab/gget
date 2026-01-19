@@ -1,8 +1,21 @@
 > Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.
 # gget 8cube 🔬
 
-Consulta [**8cubeDB**](https://eightcubedb.onrender.com/) ([biorxiv.org/content/10.1101/2025.04.21.649844](https://www.biorxiv.org/content/10.1101/2025.04.21.649844)) para métricas de especificidad a nivel génico y valores de expresión normalizados.  
+<a href="https://www.biorxiv.org/content/10.1101/2025.04.21.649844">
+  <img
+    align="right"
+    width="500"
+    alt="Screenshot 2026-01-19 at 5 34 43 PM"
+    src="https://github.com/user-attachments/assets/1fa9b68f-27e3-4f94-a46d-4f2d4df36b11"
+  />
+</a>
+
+Consulta [**8cubeDB**](https://eightcubedb.onrender.com/) para métricas de especificidad a nivel génico y valores de expresión normalizados.  
 Formato de salida: **JSON** (línea de comandos) o **data frame/CSV** (Python).
+
+Este módulo fue escrito por [Nikhila Swarna](https://github.com/nikkiswarna).
+
+<br clear="right" />
 
 ---
 
