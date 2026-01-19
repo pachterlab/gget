@@ -37,6 +37,9 @@ $ gget archs4 -w tissue ACE2
 # Obtenga la estructura de la proteína (en formato PDB) de ACE2 (ID de PDB devuelta por gget info)
 $ gget pdb 1R42 -o 1R42.pdb
 
+# Descargar conjuntos de datos del genoma de virus de NCBI Virus (por ejemplo, secuencias del virus del Zika).
+$ gget virus "Zika virus" --host "Homo sapiens" --nuc_completeness complete
+
 # Encuentre motivos lineales eucarióticos (ELM) en una secuencia de aminoácidos
 $ gget setup elm        # solo debe ejecutarse una vez
 $ gget elm -o results MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS
@@ -63,6 +66,7 @@ gget.diamond("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS", reference="MSSSS
 gget.enrichr(["ACE2", "AGT", "AGTR1", "ACE", "AGTRAP", "AGTR2", "ACE3P"], database="ontology", plot=True)
 gget.archs4("ACE2", which="tissue")
 gget.pdb("1R42", save=True)
+gget.virus("Zika virus", host="Homo sapiens", nuc_completeness="complete")
 
 gget.setup("elm")         # solo debe ejecutarse una vez
 ortho_df, regex_df = gget.elm("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS")
@@ -91,5 +95,6 @@ gget$diamond("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS", reference="MSSSS
 gget$enrichr(list("ACE2", "AGT", "AGTR1", "ACE", "AGTRAP", "AGTR2", "ACE3P"), database="ontology")
 gget$archs4("ACE2", which="tissue")
 gget$pdb("1R42", save=TRUE)
+gget$virus("Zika virus", host="Homo sapiens", nuc_completeness="complete")
 ```
 #### [Más ejemplos](https://github.com/pachterlab/gget_examples)

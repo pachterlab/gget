@@ -134,5 +134,6 @@ gget$diamond("MSSSSWLLLSLVAVTAAQSTIEEQAKTFLDKFNHEAEDLFYQSSLAS", reference="MSSSS
 gget$enrichr(list("ACE2", "AGT", "AGTR1", "ACE", "AGTRAP", "AGTR2", "ACE3P"), database="ontology")
 gget$archs4("ACE2", which="tissue")
 gget$pdb("1R42", save=TRUE)
+gget$virus("Zika virus", host="Homo sapiens", nuc_completeness="complete")
 ```
 #### [More tutorials](https://github.com/pachterlab/gget_examples)
