@@ -7,6 +7,7 @@ import platform
 import uuid
 import tempfile
 import pathlib
+import importlib
 
 from .utils import set_up_logger, check_file_for_error_message
 
@@ -67,7 +68,7 @@ def _install(package: str, import_name: str, verbose: bool = True):
                 continue
         # Test installation
         try:
-            exec(f"import {import_name}")
+            importlib.import_module(import_name)
             if verbose:
                 logger.info(f"{import_name} installed successfully using {command}.")
             return
