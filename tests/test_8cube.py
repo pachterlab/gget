@@ -2,11 +2,11 @@ import unittest
 import json
 import os
 
-from gget.gget_8cubedb import specificity, psi_block, gene_expression
+from gget.gget_8cube import specificity, psi_block, gene_expression
 from .from_json import from_json
 
 # Load JSON fixture
-fixture_path = os.path.join(os.path.dirname(__file__), "fixtures", "test_8cubedb.json")
+fixture_path = os.path.join(os.path.dirname(__file__), "fixtures", "test_8cube.json")
 
 with open(fixture_path) as f:
     fixture = json.load(f)

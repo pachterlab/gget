@@ -1,7 +1,7 @@
 ## ✨ What's new
 **Version ≥ 0.30.0** (Jan 18, 2026):  
 - NEW MODULES:
-  - [`gget 8cubedb`](8cubedb.md)
+  - [`gget 8cube`](8cube.md)
   - [`gget virus`](virus.md)
 - SECURITY IMPROVEMENTS:
   - Replaced `os.system()` with f-strings containing URLs from external APIs in `gget/main.py`

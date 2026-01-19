@@ -19,7 +19,7 @@ from .gget_mutate import mutate
 from .gget_opentargets import opentargets
 from .gget_cbio import cbio_plot, cbio_search
 from .gget_bgee import bgee
-from .gget_8cubedb import specificity, psi_block, gene_expression
+from .gget_8cube import specificity, psi_block, gene_expression
 from .gget_virus import virus
 
 import logging

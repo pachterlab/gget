@@ -40,7 +40,7 @@ from .gget_mutate import mutate
 from .gget_opentargets import opentargets, OPENTARGETS_RESOURCES
 from .gget_cbio import cbio_plot, cbio_search
 from .gget_bgee import bgee
-from .gget_8cubedb import specificity, psi_block, gene_expression
+from .gget_8cube import specificity, psi_block, gene_expression
 from .gget_virus import virus
 
 
@@ -2330,10 +2330,10 @@ def main():
         help="Does not print progress information.",
     )
 
-    ## gget 8cubedb subparser
+    ## gget 8cube subparser
     cube_desc = "Query 8cubeDB (https://eightcubedb.onrender.com/)."
     parser_8cube = parent_subparsers.add_parser(
-        "8cubedb",
+        "8cube",
         parents=[parent],
         description=cube_desc,
         help=cube_desc,
@@ -2341,7 +2341,7 @@ def main():
         formatter_class=CustomHelpFormatter,
     )
 
-    # Subcommands under "8cubedb"
+    # Subcommands under "8cube"
     cube_subparsers = parser_8cube.add_subparsers(dest="cube_command")
 
     spec_desc = "Retrieve ψ and ζ specificity metrics for one or more genes."
@@ -2750,7 +2750,7 @@ def main():
         "opentargets": parser_opentargets,
         "cbio": parser_cbio,
         "bgee": parser_bgee,
-        "8cubedb": parser_8cube,
+        "8cube": parser_8cube,
         "virus": parser_virus,
     }
 
@@ -3667,9 +3667,9 @@ def main():
                     bgee_results.to_json(orient="records", force_ascii=False, indent=4)
                 )
 
-    ## 8cubedb return
-    if args.command == "8cubedb":
-        from .gget_8cubedb import specificity, psi_block, gene_expression
+    ## 8cube return
+    if args.command == "8cube":
+        from .gget_8cube import specificity, psi_block, gene_expression
 
         if args.cube_command is None:
             parser_8cube.error(
