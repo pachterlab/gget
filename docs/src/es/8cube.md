@@ -1,18 +1,18 @@
 > Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.
-# gget 8cubedb 🔬
+# gget 8cube 🔬
 
 Consulta [**8cubeDB**](https://eightcubedb.onrender.com/) ([biorxiv.org/content/10.1101/2025.04.21.649844](https://www.biorxiv.org/content/10.1101/2025.04.21.649844)) para métricas de especificidad a nivel génico y valores de expresión normalizados.  
 Formato de salida: **JSON** (línea de comandos) o **data frame/CSV** (Python).
 
 ---
 
-# gget 8cubedb specificity 🎯
+# gget 8cube specificity 🎯
 
 Recupera estadísticas de especificidad **ψ** y **ζ** para uno o más genes.
 
 ```
 
-gget 8cubedb specificity <GENES...>
+gget 8cube specificity <GENES...>
 
 ````
 
@@ -37,12 +37,12 @@ Python: usar `verbose=False`.
 ### Ejemplo
 
 ```bash
-gget 8cubedb specificity Acsm2 ENSMUSG00000046623.9
+gget 8cube specificity Acsm2 ENSMUSG00000046623.9
 ````
 
 ```python
 # Python
-from gget.gget_8cubedb import specificity
+from gget.gget_8cube import specificity
 specificity(["Acsm2", "ENSMUSG00000046623.9"])
 ```
 
@@ -50,12 +50,12 @@ specificity(["Acsm2", "ENSMUSG00000046623.9"])
 
 ---
 
-# gget 8cubedb psi_block 🧩
+# gget 8cube psi_block 🧩
 
 Recupera valores de **ψ-block** (especificidad a nivel de bloque) para uno o más genes.
 
 ```
-gget 8cubedb psi_block <GENES...> --analysis_level <LEVEL> --analysis_type <TYPE>
+gget 8cube psi_block <GENES...> --analysis_level <LEVEL> --analysis_type <TYPE>
 ```
 
 **Argumento posicional**
@@ -84,14 +84,14 @@ Suprime la impresión del progreso.
 ### Ejemplo
 
 ```bash
-gget 8cubedb psi_block Acsm2 \
+gget 8cube psi_block Acsm2 \
     --analysis_level Kidney \
     --analysis_type "Sex:Celltype"
 ```
 
 ```python
 # Python
-from gget.gget_8cubedb import psi_block
+from gget.gget_8cube import psi_block
 psi_block(["Acsm2"], analysis_level="Kidney", analysis_type="Sex:Celltype")
 ```
 
@@ -99,12 +99,12 @@ psi_block(["Acsm2"], analysis_level="Kidney", analysis_type="Sex:Celltype")
 
 ---
 
-# gget 8cubedb expression 📊
+# gget 8cube expression 📊
 
 Recupera la **media y varianza de los valores de expresión normalizados** para uno o más genes.
 
 ```
-gget 8cubedb expression <GENES...> --analysis_level <LEVEL> --analysis_type <TYPE>
+gget 8cube expression <GENES...> --analysis_level <LEVEL> --analysis_type <TYPE>
 ```
 
 **Argumento posicional**
@@ -133,14 +133,14 @@ Suprime los mensajes de progreso.
 ### Ejemplo
 
 ```bash
-gget 8cubedb expression ENSMUSG00000046623.9 \
+gget 8cube expression ENSMUSG00000046623.9 \
     --analysis_level Across_tissues \
     --analysis_type Strain
 ```
 
 ```python
 # Python
-from gget.gget_8cubedb import gene_expression
+from gget.gget_8cube import gene_expression
 gene_expression(["ENSMUSG00000046623.9"], analysis_level="Across_tissues", analysis_type="Strain")
 ```
 
@@ -152,13 +152,13 @@ gene_expression(["ENSMUSG00000046623.9"], analysis_level="Across_tissues", analy
 
 ```bash
 # Especificidad
-gget 8cubedb specificity Gjb4
+gget 8cube specificity Gjb4
 
 # Especificidad ψ-block
-gget 8cubedb psi_block Gjb4 --analysis_level Across_tissues --analysis_type Strain
+gget 8cube psi_block Gjb4 --analysis_level Across_tissues --analysis_type Strain
 
 # Valores de expresión
-gget 8cubedb expression Gjb4 --analysis_level Across_tissues --analysis_type Strain
+gget 8cube expression Gjb4 --analysis_level Across_tissues --analysis_type Strain
 ```
 
 ---
@@ -166,7 +166,7 @@ gget 8cubedb expression Gjb4 --analysis_level Across_tissues --analysis_type Str
 # API de Python
 
 ```python
-from gget.gget_8cubedb import specificity, psi_block, gene_expression
+from gget.gget_8cube import specificity, psi_block, gene_expression
 ```
 
 o
@@ -188,7 +188,7 @@ from gget import specificity, psi_block, gene_expression
 
 # Citar
 
-Si utiliza `gget 8cubedb` en una publicación, por favor cite:
+Si utiliza `gget 8cube` en una publicación, por favor cite:
 
 * **Luebbert, L., & Pachter, L. (2023).**
   *Efficient querying of genomic reference databases with gget.* Bioinformatics.
