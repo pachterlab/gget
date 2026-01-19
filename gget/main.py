@@ -3689,7 +3689,7 @@ def main():
                 if directory:
                     os.makedirs(directory, exist_ok=True)
 
-                if args.csv:
+                if not args.csv: # args.csv stores False
                     pd.DataFrame(results).to_csv(args.out, index=False)
                 else:
                     with open(args.out, "w", encoding="utf-8") as f:
@@ -3697,7 +3697,7 @@ def main():
                 return
 
             # Print to STDOUT
-            if args.csv:
+            if not args.csv: # args.csv stores False
                 pd.DataFrame(results).to_csv(sys.stdout, index=False)
             else:
                 print(json.dumps(results, ensure_ascii=False, indent=4))
@@ -3719,14 +3719,14 @@ def main():
                 if directory:
                     os.makedirs(directory, exist_ok=True)
 
-                if args.csv:
+                if not args.csv: # args.csv stores False
                     pd.DataFrame(results).to_csv(args.out, index=False)
                 else:
                     with open(args.out, "w", encoding="utf-8") as f:
                         json.dump(results, f, ensure_ascii=False, indent=4)
                 return
 
-            if args.csv:
+            if not args.csv: # args.csv stores False
                 pd.DataFrame(results).to_csv(sys.stdout, index=False)
             else:
                 print(json.dumps(results, ensure_ascii=False, indent=4))
@@ -3748,14 +3748,14 @@ def main():
                 if directory:
                     os.makedirs(directory, exist_ok=True)
 
-                if args.csv:
+                if not args.csv: # args.csv stores False
                     pd.DataFrame(results).to_csv(args.out, index=False)
                 else:
                     with open(args.out, "w", encoding="utf-8") as f:
                         json.dump(results, f, ensure_ascii=False, indent=4)
                 return
 
-            if args.csv:
+            if not args.csv: # args.csv stores False
                 pd.DataFrame(results).to_csv(sys.stdout, index=False)
             else:
                 print(json.dumps(results, ensure_ascii=False, indent=4))
