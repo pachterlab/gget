@@ -54,8 +54,8 @@ Estos son los módulos principales de `gget`. Haga clic en cualquier módulo par
   </tr>
   <tr>
     <td style="width:33.33%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/es/seq.md"><strong>gget seq</strong></a><br>Recuperar la secuencia de nucleótidos o aminoácidos de un gen.</td>
-    <td style="width:33.33%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/es/virus.md"><strong>gget virus</strong></a><br>Filtrar y descargar secuencias virales y metadatos de la base de datos de virus del NCBI.</td>
-    <td style="width:33.33%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/es/8cubedb.md"><strong>gget 8cubedb</strong></a><br>Consulta 8cubeDB para métricas de especificidad a nivel génico y valores de expresión normalizados.</td>
+    <td style="width:33.33%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/es/virus.md"><strong>gget virus</strong></a><br>Filtrar y obtener secuencias virales globales y metadatos extensos.</td>
+    <td style="width:33.33%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/es/8cube.md"><strong>gget 8cube</strong></a><br>Consulta 8cubeDB para métricas de especificidad a nivel génico y valores de expresión normalizados.</td>
   </tr>
 </table>
 
