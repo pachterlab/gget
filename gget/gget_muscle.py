@@ -82,9 +82,7 @@ def muscle(fasta, super5=False, out=None, verbose=True):
     if platform.system() != "Windows":
         # Assign read, write, and execute permission to muscle binary
         with subprocess.Popen(
-            # The double-quotation marks allow white spaces in muscle_path
-            f"chmod 755 '{muscle_path}'",
-            shell=True,
+            ["chmod", "755", muscle_path],
             stderr=subprocess.PIPE,
         ) as process_1:
             stderr_1 = process_1.stderr.read().decode("utf-8")
@@ -95,23 +93,11 @@ def muscle(fasta, super5=False, out=None, verbose=True):
         if process_1.wait() != 0:
             return
 
-    # Define muscle command
-    if platform.system() == "Windows":
-        if super5:
-            # The double-quotation marks allow white spaces in the path, but this does not work for Windows
-            command = f"{muscle_path} -super5 {abs_fasta_path} -output {abs_out_path}"
-        else:
-            command = f"{muscle_path} -align {abs_fasta_path} -output {abs_out_path}"
+    # Define muscle command as list (handles paths with spaces safely)
+    if super5:
+        command = [muscle_path, "-super5", abs_fasta_path, "-output", abs_out_path]
     else:
-        if super5:
-            # The double-quotation marks allow white spaces in the path, but this does not work for Windows
-            command = (
-                f"'{muscle_path}' -super5 '{abs_fasta_path}' -output '{abs_out_path}'"
-            )
-        else:
-            command = (
-                f"'{muscle_path}' -align '{abs_fasta_path}' -output '{abs_out_path}'"
-            )
+        command = [muscle_path, "-align", abs_fasta_path, "-output", abs_out_path]
 
     # Record MUSCLE align start
     start_time = time.time()
@@ -119,7 +105,7 @@ def muscle(fasta, super5=False, out=None, verbose=True):
         logger.info("MUSCLE aligning... ")
 
     # Run muscle command and write command output
-    with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process_2:
+    with subprocess.Popen(command, stderr=subprocess.PIPE) as process_2:
         stderr_2 = process_2.stderr.read().decode("utf-8")
         # Log the standard error if it is not empty
         if stderr_2:

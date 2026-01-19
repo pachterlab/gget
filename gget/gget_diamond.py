@@ -128,28 +128,53 @@ def diamond(
     else:
         diamond_program = "blastp"
 
-    if platform.system() == "Windows":
-        command = f"{DIAMOND} version \
-        && {DIAMOND_w} makedb --quiet --in {reference_file_w} --db {diamond_db_w} --threads {threads} \
-        && {DIAMOND_w} {diamond_program} --outfmt 6 qseqid sseqid pident qlen slen length mismatch gapopen qstart qend sstart send evalue bitscore \
-            --quiet --query {input_file_w} --db {reference_file_w} --out {output_w} --{sensitivity} --threads {threads} --ignore-warnings"
-    else:
-        command = f"'{DIAMOND}' version \
-        && '{DIAMOND}' makedb --quiet --in '{reference_file}' --db '{diamond_db}' --threads {threads} \
-        && '{DIAMOND}' {diamond_program} --outfmt 6 qseqid sseqid pident qlen slen length mismatch gapopen qstart qend sstart send evalue bitscore \
-            --quiet --query '{input_file}' --db '{reference_file}' --out '{output}' --{sensitivity} --threads {threads} --ignore-warnings"
-
-    # Run DIAMOND
+    # Run DIAMOND commands as separate subprocess calls (avoids shell=True security issues)
     if verbose:
         logger.info(f"Creating DIAMOND database and initiating alignment...")
 
-    with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
+    # Step 1: Check diamond version
+    version_cmd = [DIAMOND, "version"]
+    with subprocess.Popen(version_cmd, stderr=subprocess.PIPE) as process:
         stderr = process.stderr.read().decode("utf-8")
-        # Log the standard error if it is not empty
+        if stderr:
+            sys.stderr.write(stderr)
+    if process.wait() != 0:
+        raise RuntimeError("DIAMOND version check failed.")
+
+    # Step 2: Create database
+    makedb_cmd = [
+        DIAMOND, "makedb",
+        "--quiet",
+        "--in", reference_file,
+        "--db", diamond_db,
+        "--threads", str(threads)
+    ]
+    with subprocess.Popen(makedb_cmd, stderr=subprocess.PIPE) as process:
+        stderr = process.stderr.read().decode("utf-8")
+        if stderr:
+            sys.stderr.write(stderr)
+    if process.wait() != 0:
+        raise RuntimeError("DIAMOND database creation failed.")
+
+    # Step 3: Run alignment
+    align_cmd = [
+        DIAMOND, diamond_program,
+        "--outfmt", "6",
+        "qseqid", "sseqid", "pident", "qlen", "slen", "length",
+        "mismatch", "gapopen", "qstart", "qend", "sstart", "send", "evalue", "bitscore",
+        "--quiet",
+        "--query", input_file,
+        "--db", reference_file,
+        "--out", output,
+        f"--{sensitivity}",
+        "--threads", str(threads),
+        "--ignore-warnings"
+    ]
+    with subprocess.Popen(align_cmd, stderr=subprocess.PIPE) as process:
+        stderr = process.stderr.read().decode("utf-8")
         if stderr:
             sys.stderr.write(stderr)
 
-    # Exit system if the subprocess returned wstdout = sys.stdout
     if process.wait() != 0:
         raise RuntimeError("DIAMOND alignment failed.")
     else:

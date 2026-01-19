@@ -44,21 +44,25 @@ PARAMS_PATH = os.path.join(PARAMS_DIR, "params_temp.tar")
 
 
 def _install(package: str, import_name: str, verbose: bool = True):
-    pip_cmds = ["uv pip install", "pip install"] if shutil.which("uv") else ["pip install"]
-    for pip_cmd in pip_cmds:
-        quiet_flag = "-q " if pip_cmd.startswith("pip ") else ""
-        command = f"{pip_cmd} {quiet_flag}-U {package}"
+    # Build list of installer commands to try (uv first if available, then pip)
+    pip_cmds = []
+    if shutil.which("uv"):
+        pip_cmds.append(["uv", "pip", "install", "-U", package])
+    pip_cmds.append([sys.executable, "-m", "pip", "install", "-q", "-U", package])
+
+    for cmd in pip_cmds:
+        cmd_str = " ".join(cmd)
         if verbose:
-            logger.info(f"Attempting to install {package} using: {command}")
-        with subprocess.Popen(command, shell=True, stderr=subprocess.PIPE) as process:
+            logger.info(f"Attempting to install {package} using: {cmd_str}")
+        with subprocess.Popen(cmd, stderr=subprocess.PIPE) as process:
             stderr = process.stderr.read().decode("utf-8")
         if process.wait() != 0:
             if stderr:
                 sys.stderr.write(stderr)
             logger.error(
-                f"{package} installation with '{command}' (https://pypi.org/project/{package}) failed."
+                f"{package} installation with '{cmd_str}' (https://pypi.org/project/{package}) failed."
             )
-            if pip_cmd == pip_cmds[-1]:
+            if cmd == pip_cmds[-1]:
                 logger.error(f"All installation attempts for {package} have failed. Note: Some dependencies (e.g., cellxgene-census) may not support the latest Python versions. If you encounter installation errors, try using an earlier Python version.")
                 return
             else:
@@ -67,16 +71,16 @@ def _install(package: str, import_name: str, verbose: bool = True):
                 continue
         # Test installation
         try:
-            exec(f"import {import_name}")
+            importlib.import_module(import_name)
             if verbose:
-                logger.info(f"{import_name} installed successfully using {command}.")
+                logger.info(f"{import_name} installed successfully using {cmd_str}.")
             return
         except ImportError as e:
             logger.error(
-                f"{package} installation with '{command}' (https://pypi.org/project/{package}) failed. Import error:\n{e}"
+                f"{package} installation with '{cmd_str}' (https://pypi.org/project/{package}) failed. Import error:\n{e}"
             )
             # Retry with pip if import after uv installation failed
-            if pip_cmd == pip_cmds[-1]:
+            if cmd == pip_cmds[-1]:
                 logger.error(f"All installation attempts for {package} have failed. Note: Some dependencies (e.g., cellxgene-census) may not support the latest Python versions. If you encounter installation errors, try using an earlier Python version.")
                 return
             else:
