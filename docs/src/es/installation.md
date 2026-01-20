@@ -49,7 +49,22 @@ import gget
 
 ---
 
-### Solución de problemas
+# Instalar desde el código fuente
+```bash
+git clone https://github.com/pachterlab/gget.git
+cd gget
+uv pip install .
+```
+or
+
+```bash
+git clone https://github.com/pachterlab/gget.git
+cd gget
+pip install .
+```
+---
+
+# Solución de problemas
 - Si ves errores sobre dependencias faltantes, asegúrate de estar usando un entorno limpio y tener la última versión de `pip` o `uv`.
 - Si instalaste gget previamente de forma global, desinstálalo con:
   ```bash
