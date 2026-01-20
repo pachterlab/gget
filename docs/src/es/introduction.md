@@ -12,9 +12,11 @@
 <br>
 `gget` consiste en un conjunto de módulos separados pero interoperables, cada uno diseñado para facilitar un tipo de consulta de base de datos en una sola línea de código.  
 <br>
-Las bases de datos consultadas por `gget` se actualizan continuamente, lo que a veces cambia su estructura. Los módulos `gget` se prueban automáticamente cada dos semanas y se actualizan para que coincidan con las nuevas estructuras de la base de datos cuando es necesario. Si encuentra algún problema, actualice a la última versión de `gget` usando `pip install --upgrade gget`. Si el problema persiste, [informa el problema](https://github.com/pachterlab/gget/issues/new/choose).  
+>Nota: Las bases de datos consultadas por `gget` se actualizan continuamente y pueden cambiar su estructura. Los módulos de `gget` se [prueban automáticamente](https://github.com/pachterlab/gget/blob/main/tests/pytest_results_py3.12.txt) dos veces por semana y se actualizan cuando es necesario. Si encuentras un problema, primero actualiza a la versión más reciente con `pip install --upgrade gget`. Si el problema persiste, por favor [repórtalo](https://github.com/pachterlab/gget/issues/new/choose).
 <br>
+¿Falta alguna base de datos o funcionalidad que te gustaría ver?
 [<kbd> <br> Solicitar una nueva función <br> </kbd>](https://github.com/pachterlab/gget/issues/new/choose)
+<br>
 <br>
 
 # Módulos gget
