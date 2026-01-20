@@ -9,6 +9,7 @@
 * [Quick Start Guide](en/quick_start_guide.md)  
 
 # Manual
+* [gget 8cube](en/8cube.md) 
 * [gget alphafold](en/alphafold.md)  
 * [gget archs4](en/archs4.md)
 * [gget bgee](en/bgee.md)
@@ -30,6 +31,7 @@
 * [gget search](en/search.md)  
 * [gget setup](en/setup.md)  
 * [gget seq](en/seq.md)   
+* [gget virus](en/virus.md)
 
 ---
 
@@ -49,6 +51,7 @@
 * [Guía de inicio rápido](es/quick_start_guide.md)  
 
 # Manuál
+* [gget 8cube](es/8cube.md) 
 * [gget alphafold](es/alphafold.md)  
 * [gget archs4](es/archs4.md)  
 * [gget bgee](es/bgee.md)  
@@ -70,6 +73,7 @@
 * [gget search](es/search.md)  
 * [gget setup](es/setup.md)  
 * [gget seq](es/seq.md)  
+* [gget virus](es/virus.md)
 
 ---
 

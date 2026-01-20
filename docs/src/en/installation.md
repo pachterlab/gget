@@ -49,7 +49,22 @@ import gget
 
 ---
 
-### Troubleshooting
+# Install from source
+```bash
+git clone https://github.com/pachterlab/gget.git
+cd gget
+uv pip install .
+```
+or
+
+```bash
+git clone https://github.com/pachterlab/gget.git
+cd gget
+pip install .
+```
+---
+
+# Troubleshooting
 - If you see errors about missing dependencies, make sure you are using a clean environment and have the latest version of pip or uv.
 - If you previously installed gget system-wide, uninstall it with:
   ```bash

@@ -1,4 +1,13 @@
-## ✨ What's new  
+## ✨ What's new
+**Version ≥ 0.30.0** (Jan 19, 2026):  
+- NEW MODULES:
+  - [`gget 8cube`](8cube.md)
+  - [`gget virus`](virus.md)
+- SECURITY IMPROVEMENTS:
+  - Replaced `os.system()` with f-strings containing URLs from external APIs in `gget/main.py`
+  - Replaced `exec()` with `importlib.import_module()` in [`gget setup`](setup.md) for safer dynamic imports
+  - Replaced `shell=True` subprocess calls with list-based arguments in [`gget muscle`](muscle.md), [`gget diamond`](diamond.md), and [`gget setup`](setup.md) to prevent command injection
+
 **Version ≥ 0.29.3** (Sep 11, 2025):  
 - [`gget blat`](blat.md): Updated API request to new permissions.
 - [`gget pdb`](pdb.md): Added wwpdb mirror; falls back to rcsb if wwpdb fails.

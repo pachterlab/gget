@@ -10,6 +10,7 @@ dt_string = datetime.now().strftime("%Y_%m_%d-%H_%M")
 
 import os
 import json
+import subprocess
 
 from .utils import set_up_logger
 
@@ -40,6 +41,9 @@ from .gget_opentargets import opentargets, OPENTARGETS_RESOURCES
 from .gget_cbio import cbio_plot, cbio_search
 from .gget_bgee import bgee
 from .gget_dataverse import dataverse
+from .gget_8cube import specificity, psi_block, gene_expression
+from .gget_virus import virus
+
 
 # Custom formatter for help messages that preserved the text formatting and adds the default value to the end of the help message
 class CustomHelpFormatter(argparse.RawTextHelpFormatter):
@@ -1234,7 +1238,10 @@ def main():
         "module",
         type=str,
         choices=["alphafold", "gpt", "cellxgene", "elm", "cbio"],
-        help="gget module for which dependencies should be installed, e.g. 'alphafold'",
+        help=(
+            "gget module for which dependencies should be installed, e.g. 'alphafold'. "
+            "Currently supported modules: 'alphafold', 'gpt', 'cellxgene', 'elm', 'cbio'."
+        ),
     )
 
     parser_setup.add_argument(
@@ -2285,7 +2292,7 @@ def main():
     parser_bgee.add_argument(
         "ens_id",
         type=str,
-        nargs='+',
+        nargs="+",
         help="Ensembl gene ID, e.g. ENSG00000169194 or ENSSSCG00000014725. When 'type=expression' you can also input multiple Ensembl IDs.",
     )
     parser_bgee.add_argument(
@@ -2350,6 +2357,375 @@ def main():
         help="File containing the dataset IDs to download, e.g. 'datasets.tsv'.",
     )
     
+    ## gget 8cube subparser
+    cube_desc = "Query 8cubeDB (https://eightcubedb.onrender.com/)."
+    parser_8cube = parent_subparsers.add_parser(
+        "8cube",
+        parents=[parent],
+        description=cube_desc,
+        help=cube_desc,
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
+    )
+
+    # Subcommands under "8cube"
+    cube_subparsers = parser_8cube.add_subparsers(dest="cube_command")
+
+    spec_desc = "Retrieve ψ and ζ specificity metrics for one or more genes."
+    parser_cube_spec = cube_subparsers.add_parser(
+        "specificity",
+        description=spec_desc,
+        help=spec_desc,
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
+    )
+
+    parser_cube_spec.add_argument(
+        "genes", nargs="+", help="Gene symbols or Ensembl IDs."
+    )
+
+    parser_cube_spec.add_argument(
+        "-csv",
+        "--csv",
+        default=True,
+        action="store_false",
+        help="Return CSV instead of JSON.",
+    )
+
+    parser_cube_spec.add_argument("-o", "--out", type=str, help="Output file path.")
+
+    parser_cube_spec.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        help="Does not print progress information.",
+    )
+
+    psib_desc = "Retrieve ψ_block (psi-block) specificity scores."
+    parser_cube_psib = cube_subparsers.add_parser(
+        "psi_block",
+        description=psib_desc,
+        help=psib_desc,
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
+    )
+
+    parser_cube_psib.add_argument(
+        "genes", nargs="+", help="Gene symbols or Ensembl IDs."
+    )
+
+    parser_cube_psib.add_argument(
+        "-al",
+        "--analysis_level",
+        required=True,
+        help="Analysis level, e.g. 'Kidney' or 'Across_tissues'.",
+    )
+
+    parser_cube_psib.add_argument(
+        "-at",
+        "--analysis_type",
+        required=True,
+        help="Partition type, e.g. 'Sex:Celltype'.",
+    )
+
+    parser_cube_psib.add_argument(
+        "-csv",
+        "--csv",
+        default=True,
+        action="store_false",
+        help="Return CSV instead of JSON.",
+    )
+
+    parser_cube_psib.add_argument("-o", "--out", type=str, help="Output file path.")
+
+    parser_cube_psib.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        help="Does not print progress information.",
+    )
+
+    expr_desc = "Retrieve mean and variance of normalized expression values for one or more genes."
+    parser_cube_expr = cube_subparsers.add_parser(
+        "expression",
+        description=expr_desc,
+        help=expr_desc,
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
+    )
+
+    parser_cube_expr.add_argument(
+        "genes", nargs="+", help="Gene symbols or Ensembl IDs."
+    )
+
+    parser_cube_expr.add_argument(
+        "-al", "--analysis_level", required=True, help="Analysis level, e.g. 'Kidney'."
+    )
+
+    parser_cube_expr.add_argument(
+        "-at",
+        "--analysis_type",
+        required=True,
+        help="Partition type, e.g. 'Sex:Celltype'.",
+    )
+
+    parser_cube_expr.add_argument(
+        "-csv",
+        "--csv",
+        default=True,
+        action="store_false",
+        help="Return CSV instead of JSON.",
+    )
+
+    parser_cube_expr.add_argument("-o", "--out", type=str, help="Output file path.")
+
+    parser_cube_expr.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        help="Does not print progress information.",
+    )
+        
+    ## gget virus subparser
+    virus_desc = "Download virus genome datasets and associated GenBank metadata from the NCBI Virus database."
+    parser_virus = parent_subparsers.add_parser(
+        "virus",
+        parents=[parent],
+        description=virus_desc,
+        help=virus_desc,
+        add_help=True,
+        formatter_class=CustomHelpFormatter,
+    )
+    # virus parser arguments
+    parser_virus.add_argument(
+        "virus",
+        type=str,
+        nargs="?",
+        default=None,
+        help="Virus taxon name/ID to query, e.g. 'SARS-CoV-2', 'covid', 'influenza', or taxon ID '2697049'.",
+    )
+    parser_virus.add_argument(
+        "-a",
+        "--is_accession",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Treat the virus argument as an accession number instead of a taxon name, e.g. 'NM_001744', 'NP_001735'.",
+    )
+    parser_virus.add_argument(
+        "-o",
+        "--out",
+        type=str,
+        required=False,
+        help=(
+            "Path to the output folder where results will be saved, e.g. path/to/directory.\n"
+            "Default: Current working directory."
+        ),
+    )
+    parser_virus.add_argument(
+        "--host",
+        type=str,
+        required=False,
+        help="Host organism name (scientific or common) at any taxonomic rank or NCBI Taxonomy ID filter, e.g. 'human', 'mouse', '1335626'. Place in quotation marks if multiple words.",
+    )
+    parser_virus.add_argument(
+        "--min_seq_length",
+        type=int,
+        required=False,
+        help="Minimum sequence length filter (in base pairs).",
+    )
+    parser_virus.add_argument(
+        "--max_seq_length",
+        type=int,
+        required=False,
+        help="Maximum sequence length filter (in base pairs).",
+    )
+    parser_virus.add_argument(
+        "--min_gene_count",
+        type=int,
+        required=False,
+        help="Minimum number of genes filter.",
+    )
+    parser_virus.add_argument(
+        "--max_gene_count",
+        type=int,
+        required=False,
+        help="Maximum number of genes filter.",
+    )
+    parser_virus.add_argument(
+        "--nuc_completeness",
+        type=str,
+        choices=["complete", "partial"],
+        required=False,
+        help="Nucleotide completeness filter: 'complete' or 'partial'.",
+    )
+    parser_virus.add_argument(
+        "--lab_passaged",
+        type=lambda x: x.lower() == 'true',
+        required=False,
+        help="Lab passaging status filter: 'true' or 'false'.",
+    )
+    parser_virus.add_argument(
+        "--geographic_location",
+        type=str,
+        required=False,
+        help="Specific geographic location filter (country or continent), e.g. 'Germany', 'Asia'.",
+    )
+    parser_virus.add_argument(
+        "--submitter_country",
+        type=str,
+        required=False,
+        help="Submitter country filter.",
+    )
+    parser_virus.add_argument(
+        "--min_collection_date",
+        type=str,
+        required=False,
+        help="Minimum collection date filter (YYYY-MM-DD format).",
+    )
+    parser_virus.add_argument(
+        "--max_collection_date",
+        type=str,
+        required=False,
+        help="Maximum collection date filter (YYYY-MM-DD format).",
+    )
+    parser_virus.add_argument(
+        "--annotated",
+        type=lambda x: x.lower() == 'true',
+        required=False,
+        help="Annotation status filter: 'true' or 'false'.",
+    )
+    parser_virus.add_argument(
+        "--refseq_only",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Only fetch RefSeq genomes. If not set, both RefSeq and GenBank genomes will be fetched.",
+    )
+    parser_virus.add_argument(
+        "-kt",
+        "--keep_temp",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Save all output files, including intermediate files.",
+    )
+    parser_virus.add_argument(
+        "--is_sars_cov2",
+        default=False,
+        action="store_true",
+        required=False,
+        help="When using SARS-CoV-2 accessions, use this tag so the code optimizes in using the correct SARS-CoV-2 pathway.",
+    )
+    parser_virus.add_argument(
+        "--is_alphainfluenza",
+        default=False,
+        action="store_true",
+        required=False,
+        help="When querying Alphainfluenza (Influenza A), use this tag so the code optimizes by using NCBI's cached data packages for faster downloads.",
+    )
+    parser_virus.add_argument(
+        "--source_database",
+        type=str,
+        choices=["genbank", "refseq"],
+        required=False,
+        help="Source database filter: 'genbank' or 'refseq'.",
+    )
+    parser_virus.add_argument(
+        "--min_release_date",
+        type=str,
+        required=False,
+        help="Minimum release date filter (YYYY-MM-DD format).",
+    )
+    parser_virus.add_argument(
+        "--max_release_date",
+        type=str,
+        required=False,
+        help="Maximum release date filter (YYYY-MM-DD format).",
+    )
+    parser_virus.add_argument(
+        "--min_mature_peptide_count",
+        type=int,
+        required=False,
+        help="Minimum mature peptide count filter.",
+    )
+    parser_virus.add_argument(
+        "--max_mature_peptide_count",
+        type=int,
+        required=False,
+        help="Maximum mature peptide count filter.",
+    )
+    parser_virus.add_argument(
+        "--min_protein_count",
+        type=int,
+        required=False,
+        help="Minimum protein count filter.",
+    )
+    parser_virus.add_argument(
+        "--max_protein_count",
+        type=int,
+        required=False,
+        help="Maximum protein count filter.",
+    )
+    parser_virus.add_argument(
+        "--max_ambiguous_chars",
+        type=int,
+        required=False,
+        help="Maximum number of ambiguous nucleotide characters ('N') allowed.",
+    )
+    parser_virus.add_argument(
+        "--has_proteins",
+        type=str,
+        required=False,
+        help="Filter for sequences containing specific protein(s)/gene(s). Can be a single protein name (e.g., 'spike') or comma-separated list (e.g., 'hemagglutinin,neuraminidase'). Searches in FASTA headers.",
+    )
+    parser_virus.add_argument(
+        "--proteins_complete",
+        action="store_true",
+        default=False,
+        required=False,
+        help="Filter for sequences with complete protein annotations (protein_count > 0 or gene_count > 0).",
+    )
+    parser_virus.add_argument(
+        "--lineage",
+        type=str,
+        required=False,
+        help="Virus lineage filter (e.g., for SARS-CoV-2: 'B.1.1.7', 'P.1').",
+    )
+    parser_virus.add_argument(
+        "-g",
+        "--genbank_metadata",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Also fetch detailed GenBank metadata for the sequences that pass all filters. The metadata will be saved in a separate CSV file.",
+    )
+    parser_virus.add_argument(
+        "--download_all_accessions",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Download ALL virus accessions from NCBI (entire Viruses taxonomy). WARNING: This is an extremely large dataset that can take many hours and require significant disk space. When set, the virus argument is ignored.",
+    )
+    parser_virus.add_argument(
+        "--genbank_batch_size",
+        default=200,
+        type=int,
+        required=False,
+        help="Maximum number of accessions to fetch in each GenBank metadata request. Smaller batches are slower but more reliable for large datasets. Only used when --genbank_metadata is True. Default: 200",
+    )
+    parser_virus.add_argument(
+        "-q",
+        "--quiet",
+        default=True,
+        action="store_false",
+        required=False,
+        help="Does not print progress information.",
+    )
+
     ### Define return values
     args = parent_parser.parse_args()
 
@@ -2378,7 +2754,7 @@ def main():
         parent_parser.print_help(sys.stderr)
         sys.exit(1)
 
-    # Show  module specific help if only module but no further arguments are given
+    # Show module specific help if only module but no further arguments are given
     command_to_parser = {
         "ref": parser_ref,
         "search": parser_gget,
@@ -2402,6 +2778,8 @@ def main():
         "cbio": parser_cbio,
         "bgee": parser_bgee,
         "dataverse": parser_dataverse,
+        "8cube": parser_8cube,
+        "virus": parser_virus,
     }
 
     if len(sys.argv) == 2:
@@ -2848,15 +3226,15 @@ def main():
 
                 # Either way, download the files if download flag is set
                 if args.download:
-                    output_dir_part = ""
                     if args.out_dir is not None and args.out_dir != "":
-                        output_dir_part = f'--output-dir "{args.out_dir}" '
                         os.makedirs(args.out_dir, exist_ok=True)
 
                     # Download list of URLs
                     for link in ref_results:
-                        command = f"curl {output_dir_part}-O " + link
-                        os.system(command)
+                        if args.out_dir:
+                            subprocess.run(["curl", "--output-dir", args.out_dir, "-O", link], check=True)
+                        else:
+                            subprocess.run(["curl", "-O", link], check=True)
 
             # Print or save json file (ftp=False)
             else:
@@ -2874,17 +3252,17 @@ def main():
 
                 # Either way, download the files if download flag is set
                 if args.download:
-                    output_dir_part = ""
                     if args.out_dir is not None and args.out_dir != "":
-                        output_dir_part = f'--output-dir "{args.out_dir}" '
                         os.makedirs(args.out_dir, exist_ok=True)
 
                     # Download the URLs from the dictionary
                     for sp in ref_results:
                         for ftp_type in ref_results[sp]:
                             link = ref_results[sp][ftp_type]["ftp"]
-                            command = f"curl {output_dir_part}-O " + link
-                            os.system(command)
+                            if args.out_dir:
+                                subprocess.run(["curl", "--output-dir", args.out_dir, "-O", link], check=True)
+                            else:
+                                subprocess.run(["curl", "-O", link], check=True)
 
     ## search return
     if args.command == "search":
@@ -3329,4 +3707,141 @@ def main():
             df = args.table,
             path = args.out,
             sep = sep,
+    ## 8cube return
+    if args.command == "8cube":
+        from .gget_8cube import specificity, psi_block, gene_expression
+
+        if args.cube_command is None:
+            parser_8cube.error(
+                "Please specify a subcommand: specificity, psi_block, or expression"
+            )
+
+        # SPECIFICITY
+        if args.cube_command == "specificity":
+            results = specificity(
+                gene_list=args.genes,
+                json=args.csv,  # JSON default
+                save=False,
+                verbose=args.quiet,
+            )
+
+            # Save
+            if args.out:
+                directory = os.path.dirname(args.out)
+                if directory:
+                    os.makedirs(directory, exist_ok=True)
+
+                if not args.csv: # args.csv stores False
+                    pd.DataFrame(results).to_csv(args.out, index=False)
+                else:
+                    with open(args.out, "w", encoding="utf-8") as f:
+                        json.dump(results, f, ensure_ascii=False, indent=4)
+                return
+
+            # Print to STDOUT
+            if not args.csv: # args.csv stores False
+                pd.DataFrame(results).to_csv(sys.stdout, index=False)
+            else:
+                print(json.dumps(results, ensure_ascii=False, indent=4))
+            return
+
+        # PSI BLOCK
+        if args.cube_command == "psi_block":
+            results = psi_block(
+                gene_list=args.genes,
+                analysis_level=args.analysis_level,
+                analysis_type=args.analysis_type,
+                json=args.csv,
+                save=False,
+                verbose=args.quiet,
+            )
+
+            if args.out:
+                directory = os.path.dirname(args.out)
+                if directory:
+                    os.makedirs(directory, exist_ok=True)
+
+                if not args.csv: # args.csv stores False
+                    pd.DataFrame(results).to_csv(args.out, index=False)
+                else:
+                    with open(args.out, "w", encoding="utf-8") as f:
+                        json.dump(results, f, ensure_ascii=False, indent=4)
+                return
+
+            if not args.csv: # args.csv stores False
+                pd.DataFrame(results).to_csv(sys.stdout, index=False)
+            else:
+                print(json.dumps(results, ensure_ascii=False, indent=4))
+            return
+
+        # EXPRESSION
+        if args.cube_command == "expression":
+            results = gene_expression(
+                gene_list=args.genes,
+                analysis_level=args.analysis_level,
+                analysis_type=args.analysis_type,
+                json=args.csv,
+                save=False,
+                verbose=args.quiet,
+            )
+
+            if args.out:
+                directory = os.path.dirname(args.out)
+                if directory:
+                    os.makedirs(directory, exist_ok=True)
+
+                if not args.csv: # args.csv stores False
+                    pd.DataFrame(results).to_csv(args.out, index=False)
+                else:
+                    with open(args.out, "w", encoding="utf-8") as f:
+                        json.dump(results, f, ensure_ascii=False, indent=4)
+                return
+
+            if not args.csv: # args.csv stores False
+                pd.DataFrame(results).to_csv(sys.stdout, index=False)
+            else:
+                print(json.dumps(results, ensure_ascii=False, indent=4))
+            return
+
+    ## virus return
+    if args.command == "virus":
+        # Parse has_proteins argument - convert comma-separated string to list
+        has_proteins_arg = args.has_proteins
+        if has_proteins_arg and ',' in has_proteins_arg:
+            has_proteins_arg = [p.strip() for p in has_proteins_arg.split(',')]
+        
+        virus(
+            virus=args.virus,
+            is_accession=args.is_accession,
+            outfolder=args.out,
+            host=args.host,
+            min_seq_length=args.min_seq_length,
+            max_seq_length=args.max_seq_length,
+            min_gene_count=args.min_gene_count,
+            max_gene_count=args.max_gene_count,
+            nuc_completeness=args.nuc_completeness,
+            has_proteins=has_proteins_arg,
+            proteins_complete=args.proteins_complete,
+            lab_passaged=args.lab_passaged,
+            geographic_location=args.geographic_location,
+            submitter_country=args.submitter_country,
+            min_collection_date=args.min_collection_date,
+            max_collection_date=args.max_collection_date,
+            annotated=args.annotated,
+            refseq_only=args.refseq_only,
+            keep_temp=args.keep_temp,
+            is_sars_cov2=args.is_sars_cov2,
+            is_alphainfluenza=args.is_alphainfluenza,
+            source_database=args.source_database,
+            min_release_date=args.min_release_date,
+            max_release_date=args.max_release_date,
+            min_mature_peptide_count=args.min_mature_peptide_count,
+            max_mature_peptide_count=args.max_mature_peptide_count,
+            min_protein_count=args.min_protein_count,
+            max_protein_count=args.max_protein_count,
+            max_ambiguous_chars=args.max_ambiguous_chars,
+            lineage=args.lineage,
+            genbank_metadata=args.genbank_metadata,
+            genbank_batch_size=args.genbank_batch_size,
+            download_all_accessions=args.download_all_accessions,
         )

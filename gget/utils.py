@@ -1095,3 +1095,84 @@ def json_list_to_df(json_list, columns) -> pd.DataFrame:
             tmp_columns[i].append(value)
 
     return pd.DataFrame({key[0]: value for key, value in zip(columns, tmp_columns)})
+
+
+# FASTA parsing functionality
+# Adapted from BioPython's SeqIO module for compatibility
+# Original BioPython code: Copyright (c) 1999-2021, The BioPython Contributors
+# Licensed under the BioPython License Agreement
+# https://github.com/biopython/biopython/blob/master/LICENSE.rst
+#
+# This implementation provides a lightweight alternative to BioPython's SeqIO
+# functionality specifically for FASTA files, maintaining compatibility with
+# the original BioPython API while removing the external dependency.
+
+class FastaRecord:
+    """Simple FASTA record class compatible with BioPython SeqIO.SeqRecord"""
+    def __init__(self, seq, id, description=""):
+        self.seq = seq
+        self.id = id
+        self.description = description
+
+
+class FastaIO:
+    """Simple FASTA parser and writer, compatible with BioPython SeqIO interface"""
+    
+    @staticmethod
+    def parse(filename, format=None):
+        """Parse FASTA file and yield records. Compatible with SeqIO.parse()"""
+        if format and format.lower() != "fasta":
+            raise ValueError(f"Unsupported format: {format}")
+        
+        with open(filename, 'r', encoding='utf-8') as handle:
+            current_id = None
+            current_description = ""
+            current_seq = []
+            
+            for line in handle:
+                line = line.strip()
+                if not line:
+                    continue
+                    
+                if line.startswith('>'):
+                    # Yield previous record if exists
+                    if current_id is not None:
+                        seq_str = ''.join(current_seq)
+                        yield FastaRecord(seq_str, current_id, current_description)
+                    
+                    # Start new record
+                    header = line[1:]  # Remove '>'
+                    if ' ' in header:
+                        current_id = header.split(' ', 1)[0]
+                        current_description = header.split(' ', 1)[1]
+                    else:
+                        current_id = header
+                        current_description = ""
+                    current_seq = []
+                else:
+                    # Accumulate sequence
+                    current_seq.append(line)
+            
+            # Yield final record if exists
+            if current_id is not None:
+                seq_str = ''.join(current_seq)
+                yield FastaRecord(seq_str, current_id, current_description)
+    
+    @staticmethod
+    def write(records, filename, format=None):
+        """Write records to FASTA file. Compatible with SeqIO.write()"""
+        if format and format.lower() != "fasta":
+            raise ValueError(f"Unsupported format: {format}")
+        
+        with open(filename, 'w', encoding='utf-8') as handle:
+            for record in records:
+                # Write header
+                if hasattr(record, 'description') and record.description:
+                    handle.write(f">{record.id} {record.description}\n")
+                else:
+                    handle.write(f">{record.id}\n")
+                
+                # Write sequence (wrap at 70 characters)
+                seq_str = str(record.seq)
+                for i in range(0, len(seq_str), 70):
+                    handle.write(seq_str[i:i+70] + '\n')

@@ -1,4 +1,14 @@
 ## ✨ ¡Lo más reciente!  
+**Versión ≥ 0.30.0** (19 de enero de 2026):  
+- NUEVOS MÓDULOS:
+  - [`gget 8cube`](8cube.md)
+  - [`gget virus`](virus.md)
+- MEJORAS DE SEGURIDAD:
+  - Se reemplazó `os.system()` con f-strings que contienen URLs de APIs externas en `gget/main.py`
+  - Se reemplazó `exec()` por `importlib.import_module()` en [`gget setup`](setup.md) para importaciones dinámicas más seguras
+  - Se reemplazaron llamadas a subprocess con `shell=True` por argumentos basados en listas en [`gget muscle`](muscle.md), [`gget diamond`](diamond.md) y [`gget setup`](setup.md) para prevenir la inyección de comandos
+
+
 **Versión ≥ 0.29.3** (11 de septiembre de 2025):  
 - [`gget blat`](blat.md): Actualiza la solicitud a la API para los nuevos permisos.
 - [`gget pdb`](pdb.md): Agregado el sitio web de `wwpdb`, retrocede a `rcsb` si las solicitudes fallan.  

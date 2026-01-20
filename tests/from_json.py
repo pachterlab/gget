@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import unittest
+unittest.TestCase.maxDiff = 10_000
 
 # from typing import Callable, Any, Optional, Union
 import pandas as pd

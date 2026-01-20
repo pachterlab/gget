@@ -1,8 +1,7 @@
 [![pypi version](https://img.shields.io/pypi/v/gget)](https://pypi.org/project/gget)
 [![Downloads](https://static.pepy.tech/personalized-badge/gget?period=total&units=international_system&left_color=grey&right_color=brightgreen&left_text=Downloads)](https://pepy.tech/project/gget)
-[![Conda](https://img.shields.io/conda/dn/bioconda/gget?logo=Anaconda)](https://anaconda.org/bioconda/gget)
-[![license](https://img.shields.io/pypi/l/gget)](LICENSE)
-![status](https://github.com/pachterlab/gget/actions/workflows/ci.yml/badge.svg)
+[![license](https://img.shields.io/pypi/l/gget)](https://github.com/pachterlab/gget/blob/main/LICENSE)
+[![status](https://github.com/pachterlab/gget/actions/workflows/ci.yml/badge.svg)](https://github.com/pachterlab/gget/blob/main/tests/pytest_results_py3.12.txt)
 [![Star on GitHub](https://img.shields.io/github/stars/pachterlab/gget.svg?style=social)](https://github.com/pachterlab/gget/)  
 
 [<img align="right" width="50%" height="50%" src="https://github.com/pachterlab/gget/blob/main/docs/assets/website_v2_gget_overview.png?raw=true" />](https://raw.githubusercontent.com/pachterlab/gget/main/figures/gget_overview.png)
@@ -13,9 +12,14 @@
 <br>
 `gget` consiste en un conjunto de módulos separados pero interoperables, cada uno diseñado para facilitar un tipo de consulta de base de datos en una sola línea de código.  
 <br>
-Las bases de datos consultadas por `gget` se actualizan continuamente, lo que a veces cambia su estructura. Los módulos `gget` se prueban automáticamente cada dos semanas y se actualizan para que coincidan con las nuevas estructuras de la base de datos cuando es necesario. Si encuentra algún problema, actualice a la última versión de `gget` usando `pip install --upgrade gget`. Si el problema persiste, [informa el problema](https://github.com/pachterlab/gget/issues/new/choose).  
+
+> Nota: Las bases de datos consultadas por `gget` se actualizan continuamente y pueden cambiar su estructura. Los módulos de `gget` se [prueban automáticamente](https://github.com/pachterlab/gget/blob/main/tests/pytest_results_py3.12.txt) dos veces por semana y se actualizan cuando es necesario. Si encuentras un problema, primero actualiza a la versión más reciente con `pip install --upgrade gget`. Si el problema persiste, por favor [repórtalo](https://github.com/pachterlab/gget/issues/new/choose).
+
 <br>
+
+¿Falta alguna base de datos o funcionalidad que te gustaría ver?
 [<kbd> <br> Solicitar una nueva función <br> </kbd>](https://github.com/pachterlab/gget/issues/new/choose)
+
 <br>
 
 # Módulos gget
@@ -55,6 +59,8 @@ Estos son los módulos principales de `gget`. Haga clic en cualquier módulo par
   </tr>
   <tr>
     <td style="width:33.33%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/es/seq.md"><strong>gget seq</strong></a><br>Recuperar la secuencia de nucleótidos o aminoácidos de un gen.</td>
+    <td style="width:33.33%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/es/virus.md"><strong>gget virus</strong></a><br>Filtrar y obtener secuencias virales globales y metadatos extensos.</td>
+    <td style="width:33.33%; padding:20px; text-align:center; vertical-align:top;"><a href="/gget/es/8cube.md"><strong>gget 8cube</strong></a><br>Consulta 8cubeDB para métricas de especificidad a nivel génico y valores de expresión normalizados.</td>
   </tr>
 </table>
 
@@ -69,7 +75,23 @@ Lea el artículo aquí: [https://doi.org/10.1093/bioinformatics/btac836](https:/
 Gracias a [Victor Garcia-Ruiz](https://github.com/victorg775) y [Anna Karen Orta](https://www.linkedin.com/in/akorta/) por su ayuda con la traduccion del sitio web.  
 
 <br>  
-<iframe width="560" height="315" src="https://www.youtube.com/embed/cVR0k6Mt97o?si=BJwRyaymmxF9w65f" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<br>  
 
-![logo-bmbf](https://github.com/user-attachments/assets/68449ba0-09d1-4f1e-b747-5ae2fec08a21)
+[![gget PyPI downloads over the last year](https://github.com/lauraluebbert/gget_downloads/raw/main/plots/downloads_gget.png)](https://github.com/lauraluebbert/gget_downloads/tree/main)  
+
+<br>  
+<br>  
+
+<div style="display: flex; justify-content: center;">
+  <iframe
+    width="560"
+    height="315"
+    src="https://www.youtube.com/embed/cVR0k6Mt97o?si=BJwRyaymmxF9w65f"
+    title="YouTube video player"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    allowfullscreen>
+  </iframe>
+</div>
+
 ![logo-okfn](https://github.com/user-attachments/assets/452ae8d8-69f0-4d0d-848c-ddfb40357eb2)
