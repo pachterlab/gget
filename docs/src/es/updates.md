@@ -1,5 +1,5 @@
 ## ✨ ¡Lo más reciente!  
-**Versión ≥ 0.30.0** (18 de enero de 2026):  
+**Versión ≥ 0.30.0** (19 de enero de 2026):  
 - NUEVOS MÓDULOS:
   - [`gget 8cube`](8cube.md)
   - [`gget virus`](virus.md)
