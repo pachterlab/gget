@@ -10,7 +10,8 @@
   />
 </a>
 
-Consulta [**8cubeDB**](https://eightcubedb.onrender.com/) para métricas de especificidad a nivel génico y valores de expresión normalizados.  
+Consulta [**8cubeDB**](https://eightcubedb.onrender.com/) (datos de secuenciación de snRNA de 8 cepas, tejidos e individuos diferentes de ratón (cuatro de cada sexo)) para métricas de especificidad a nivel génico y valores de expresión normalizados.  
+
 Formato de salida: **JSON** (línea de comandos) o **data frame/CSV** (Python).
 
 Este módulo fue escrito por [Nikhila Swarna](https://github.com/nikkiswarna).
