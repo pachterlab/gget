@@ -1,4 +1,6 @@
 ## ✨ What's new
+**Version ≥ 0.30.1** (XXX):  
+
 **Version ≥ 0.30.0** (Jan 19, 2026):  
 - NEW MODULES:
   - [`gget 8cube`](8cube.md)
