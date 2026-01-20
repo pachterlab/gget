@@ -16,9 +16,9 @@
 > Note: The databases queried by `gget` are continuously updated and may change structure. `gget` modules are [automatically tested](https://github.com/pachterlab/gget/blob/main/tests/pytest_results_py3.12.txt) twice weekly and updated as needed. If you encounter an issue, first upgrade to the latest version with pip install --upgrade gget. If the issue persists, please [report it](https://github.com/pachterlab/gget/issues/new/choose).
 
 <br>
-Missing a database or functionality you’d love to see?
-[<kbd> <br> Request new feature <br> </kbd>](https://github.com/pachterlab/gget/issues/new/choose)
-<br>
+
+Missing a database or functionality you’d love to see? [<kbd> <br> Request new feature <br> </kbd>](https://github.com/pachterlab/gget/issues/new/choose)
+
 <br>
 
 # gget modules
