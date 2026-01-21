@@ -1,7 +1,8 @@
 > Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
 # gget virus 🦠  
 
-Descarga secuencias virales y metadatos asociados desde la [base de datos NCBI Virus](https://www.ncbi.nlm.nih.gov/labs/virus/). `gget virus` aplica filtros del lado del servidor y filtros locales para descargar de forma eficiente conjuntos de datos personalizados.  
+Descargue secuencias nucleotídicas virales, junto con metadatos ricos y vinculados, de toda la International Nucleotide Sequence Database Collaboration ([INSDC](https://www.insdc.org/)), incluyendo NCBI, [ENA](https://www.ebi.ac.uk/ena/browser/) y [DDBJ](https://www.ddbj.nig.ac.jp/index-e.html) (a través de [NCBI Virus](https://www.ncbi.nlm.nih.gov/labs/virus/)), con la opción de enriquecer adicionalmente los resultados usando metadatos de NCBI GenBank (por ejemplo, anotaciones de genes y proteínas, secuencias de aminoácidos y más). `gget virus` aplica filtros secuenciales tanto del lado del servidor como locales para descargar de forma eficiente conjuntos de datos personalizados.
+
 Formato de salida: archivos FASTA, CSV y JSONL guardados en una carpeta de salida.  
 
 Este módulo fue escrito por [Ferdous Nasri](https://github.com/ferbsx).
