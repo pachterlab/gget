@@ -352,6 +352,74 @@ def _get_modified_virus_name(virus_name, attempt=1):
     return None
 
 
+def _try_modified_virus_names(
+    virus,
+    accession,
+    host,
+    geographic_location,
+    annotated,
+    complete_only,
+    min_release_date,
+    refseq_only,
+    failed_commands,
+    _retry_attempt,
+    error_type="Error"
+):
+    """
+    Try fetching virus metadata with modified virus names.
+    
+    This helper function iterates through available retry strategies (modification
+    of virus name) and attempts to fetch metadata with each modified name.
+    
+    Args:
+        virus: Original virus name.
+        accession: Accession filter.
+        host: Host filter.
+        geographic_location: Geographic location filter.
+        annotated: Annotated filter.
+        complete_only: Complete genome filter.
+        min_release_date: Minimum release date filter.
+        refseq_only: RefSeq only filter.
+        failed_commands: List to track failed commands.
+        _retry_attempt: Current retry attempt number.
+        error_type: String describing the error type for logging.
+        
+    Returns:
+        list or None: The fetched metadata if successful, None if all retries failed.
+    """
+    if _retry_attempt >= 2 or accession:
+        return None
+    
+    # Try modification strategies in order
+    for attempt_num in range(_retry_attempt + 1, 3):  # Try remaining attempts (1 and/or 2)
+        modified_virus = _get_modified_virus_name(virus, attempt=attempt_num)
+        if modified_virus:
+            logger.warning("%s with virus name '%s'. "
+                          "Retrying with modified name: '%s' (strategy %d)", 
+                          error_type, virus, modified_virus, attempt_num)
+            try:
+                return fetch_virus_metadata(
+                    virus=modified_virus,
+                    accession=accession,
+                    host=host,
+                    geographic_location=geographic_location,
+                    annotated=annotated,
+                    complete_only=complete_only,
+                    min_release_date=min_release_date,
+                    refseq_only=refseq_only,
+                    failed_commands=failed_commands,
+                    _retry_attempt=attempt_num,
+                )
+            except RuntimeError:
+                logger.warning("Retry with modified virus name '%s' failed", modified_virus)
+                # Continue to try next strategy
+                continue
+    
+    # All retry strategies exhausted
+    logger.warning("All retry strategies failed")
+    return None
+
+
 def fetch_virus_metadata(
     virus,
     accession=False,
@@ -547,56 +615,43 @@ def fetch_virus_metadata(
                         f"is known to cause server timeouts. Try removing the geographic_location parameter "
                         f"and filter the results manually after download."
                     )
+                
+                # Log the timeout error before raising
+                logger.error("=" * 80)
+                logger.error("❌ REQUEST TIMEOUT")
+                logger.error("=" * 80)
+                logger.error(error_msg)
+                logger.error("=" * 80)
                 raise RuntimeError(error_msg) from last_exception
                 
             elif isinstance(last_exception, requests.exceptions.ConnectionError):
                 # Handle connection errors (network issues, DNS failures, etc.)
                 # Try retrying with modified virus names (up to 2 retry strategies)
-                if _retry_attempt < 2 and not accession:
-                    next_attempt = _retry_attempt + 1
-                    modified_virus = _get_modified_virus_name(virus, attempt=next_attempt)
-                    if modified_virus:
-                        logger.warning("⚠️ Connection error with virus name '%s'. "
-                                      "Retrying with modified name: '%s' (attempt %d)", 
-                                      virus, modified_virus, next_attempt)
-                        try:
-                            return fetch_virus_metadata(
-                                virus=modified_virus,
-                                accession=accession,
-                                host=host,
-                                geographic_location=geographic_location,
-                                annotated=annotated,
-                                complete_only=complete_only,
-                                min_release_date=min_release_date,
-                                refseq_only=refseq_only,
-                                failed_commands=failed_commands,
-                                _retry_attempt=next_attempt,
-                            )
-                        except RuntimeError:
-                            # If this retry fails, try the next strategy
-                            logger.warning("⚠️ Retry with modified virus name '%s' also failed", modified_virus)
-                            if next_attempt < 2:
-                                # Try the second modification strategy
-                                modified_virus_2 = _get_modified_virus_name(virus, attempt=2)
-                                if modified_virus_2 and modified_virus_2 != modified_virus:
-                                    logger.warning("⚠️ Trying second modification: '%s'", modified_virus_2)
-                                    try:
-                                        return fetch_virus_metadata(
-                                            virus=modified_virus_2,
-                                            accession=accession,
-                                            host=host,
-                                            geographic_location=geographic_location,
-                                            annotated=annotated,
-                                            complete_only=complete_only,
-                                            min_release_date=min_release_date,
-                                            refseq_only=refseq_only,
-                                            failed_commands=failed_commands,
-                                            _retry_attempt=2,
-                                        )
-                                    except RuntimeError:
-                                        logger.warning("⚠️ Second retry also failed")
-                                        pass
-                raise RuntimeError(f"Connection error while fetching virus metadata: {last_exception}") from last_exception
+                retry_result = _try_modified_virus_names(
+                    virus=virus,
+                    accession=accession,
+                    host=host,
+                    geographic_location=geographic_location,
+                    annotated=annotated,
+                    complete_only=complete_only,
+                    min_release_date=min_release_date,
+                    refseq_only=refseq_only,
+                    failed_commands=failed_commands,
+                    _retry_attempt=_retry_attempt,
+                    error_type="Connection error"
+                )
+                if retry_result is not None:
+                    return retry_result
+                
+                # Log the connection error before raising
+                error_msg = f"Connection error while fetching virus metadata: {last_exception}"
+                logger.error("=" * 80)
+                logger.error("❌ CONNECTION ERROR")
+                logger.error("=" * 80)
+                logger.error(error_msg)
+                logger.error("Please check your internet connection and try again.")
+                logger.error("=" * 80)
+                raise RuntimeError(error_msg) from last_exception
                 
             elif isinstance(last_exception, requests.exceptions.HTTPError):
                 # Handle HTTP errors with specific guidance for known issues
@@ -622,50 +677,21 @@ def fetch_virus_metadata(
                         return None
                     
                     # Try retrying with modified virus names (up to 2 retry strategies)
-                    if _retry_attempt < 2 and not accession:
-                        next_attempt = _retry_attempt + 1
-                        modified_virus = _get_modified_virus_name(virus, attempt=next_attempt)
-                        if modified_virus:
-                            logger.warning("⚠️ Server error (5xx) with virus name '%s'. The issue can be the virus name formatting. "
-                                          "Retrying with modified name: '%s' (attempt %d)", 
-                                          virus, modified_virus, next_attempt)
-                            try:
-                                return fetch_virus_metadata(
-                                    virus=modified_virus,
-                                    accession=accession,
-                                    host=host,
-                                    geographic_location=geographic_location,
-                                    annotated=annotated,
-                                    complete_only=complete_only,
-                                    min_release_date=min_release_date,
-                                    refseq_only=refseq_only,
-                                    failed_commands=failed_commands,
-                                    _retry_attempt=next_attempt,
-                                )
-                            except RuntimeError:
-                                # If this retry fails, try the next strategy
-                                logger.warning("⚠️ Retry with modified virus name '%s' also failed", modified_virus)
-                                if next_attempt < 2:
-                                    # Try the second modification strategy
-                                    modified_virus_2 = _get_modified_virus_name(virus, attempt=2)
-                                    if modified_virus_2 and modified_virus_2 != modified_virus:
-                                        logger.warning("⚠️ Trying second modification: '%s'", modified_virus_2)
-                                        try:
-                                            return fetch_virus_metadata(
-                                                virus=modified_virus_2,
-                                                accession=accession,
-                                                host=host,
-                                                geographic_location=geographic_location,
-                                                annotated=annotated,
-                                                complete_only=complete_only,
-                                                min_release_date=min_release_date,
-                                                refseq_only=refseq_only,
-                                                failed_commands=failed_commands,
-                                                _retry_attempt=2,
-                                            )
-                                        except RuntimeError:
-                                            logger.warning("⚠️ Second retry also failed. Please check the virus name formatting or try again later.")
-                                            pass
+                    retry_result = _try_modified_virus_names(
+                        virus=virus,
+                        accession=accession,
+                        host=host,
+                        geographic_location=geographic_location,
+                        annotated=annotated,
+                        complete_only=complete_only,
+                        min_release_date=min_release_date,
+                        refseq_only=refseq_only,
+                        failed_commands=failed_commands,
+                        _retry_attempt=_retry_attempt,
+                        error_type="Server error (5xx)"
+                    )
+                    if retry_result is not None:
+                        return retry_result
                     
                     error_msg += (
                         f"\n\n🔧 SERVER ERROR DETECTED: "
@@ -673,11 +699,25 @@ def fetch_virus_metadata(
                         f"This is possibly an issue with the virus name formatting, but it could also be a genuine server problem. Try again in a few minutes, "
                         f"or consider using other name formatting or taxon id ormore specific filters to reduce the dataset size."
                     )
+                
+                # Log the error details before raising
+                logger.error("=" * 80)
+                logger.error("❌ API REQUEST FAILED")
+                logger.error("=" * 80)
+                logger.error(error_msg)
+                logger.error("=" * 80)
+                
                 raise RuntimeError(error_msg) from last_exception
                 
             else:
                 # Handle any other request-related errors
-                raise RuntimeError(f"❌ Failed to fetch virus metadata: {last_exception}") from last_exception
+                error_msg = f"❌ Failed to fetch virus metadata: {last_exception}"
+                logger.error("=" * 80)
+                logger.error("❌ REQUEST FAILED")
+                logger.error("=" * 80)
+                logger.error(error_msg)
+                logger.error("=" * 80)
+                raise RuntimeError(error_msg) from last_exception
 
     
     # Log the final results summary
@@ -2235,9 +2275,9 @@ def filter_sequences(
     # Log filtering results
     logger.info("Sequence filter results:")
     logger.info("- Total sequences processed: %d", total_sequences)
-    logger.info("- ⚠️ Failed length filter: %d", filter_stats['seq_length'])
-    logger.info("- ⚠️ Failed ambiguous char filter: %d", filter_stats['ambiguous_chars'])
-    logger.info("- ⚠️ Failed protein requirements: %d", filter_stats['proteins'])
+    logger.info("- Failed length filter: %d", filter_stats['seq_length'])
+    logger.info("- Failed ambiguous char filter: %d", filter_stats['ambiguous_chars'])
+    logger.info("- Failed protein requirements: %d", filter_stats['proteins'])
     logger.info("- Sequences passing all filters: %d", len(filtered_sequences))
     
     return filtered_sequences, filtered_metadata, protein_headers
@@ -4193,9 +4233,22 @@ def virus(
                         refseq_only=refseq_only,
                         failed_commands=failed_commands,
                     )
-            except RuntimeError:
+            except RuntimeError as e:
                 # Error has already been logged nicely by fetch_virus_metadata
-                # Exit gracefully without printing an ugly traceback
+                # Save a summary file documenting the failure, then exit gracefully
+                logger.error("Failed to fetch virus metadata from NCBI API")
+                save_command_summary(
+                    outfolder=outfolder,
+                    command_line=command_line,
+                    total_api_records=0,
+                    total_after_metadata_filter=0,
+                    total_final_sequences=0,
+                    output_files={},
+                    filtered_metadata=[],
+                    success=False,
+                    error_message=str(e),
+                    failed_commands=failed_commands,
+                )
                 return None
 
             if not api_reports:
