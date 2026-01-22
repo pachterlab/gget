@@ -3595,7 +3595,7 @@ def filter_metadata_only(
 
         # FILTER 6: Collection date range filter
         if min_collection_date is not None or max_collection_date is not None:
-            date_str = metadata.get("isolate", {}).get("collectionDate", "")
+            date_str = metadata.get("isolate", {}).get("collection_date", "")
             
             date = parse_date(date_str)
             
