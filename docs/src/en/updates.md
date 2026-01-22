@@ -1,4 +1,11 @@
 ## ✨ What's new
+**Version ≥ 0.30.1** (Jan 22, 2026):  
+- [`gget virus`](virus.md): Improved reliability with enhanced error handling and retry logic
+  - Fixed collection date naming bug
+  - Improved error messages for invalid filter dates
+  - Added enhanced retry attempts for virus name resolution
+  - Added verbosity to influenza A and COVID-19 checking steps
+
 **Version ≥ 0.30.0** (Jan 19, 2026):  
 - NEW MODULES:
   - [`gget 8cube`](8cube.md)
