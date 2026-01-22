@@ -761,10 +761,10 @@ def is_sars_cov2_query(virus, accession=False):
     # Check if the query matches any SARS-CoV-2 identifier
     for identifier in SARS_COV2_IDENTIFIERS:
         if identifier in virus_lower:
-            logger.debug("Detected SARS-CoV-2 query: %s matches %s", virus, identifier)
+            logger.info("Detected SARS-CoV-2 query: %s matches %s", virus, identifier)
             return True
     
-    logger.debug("Not a SARS-CoV-2 query: %s", virus)
+    logger.info("Not a SARS-CoV-2 query: %s", virus)
     return False
 
 
@@ -798,10 +798,10 @@ def is_alphainfluenza_query(virus, accession=False):
     # Check if the query matches any Alphainfluenza identifier
     for identifier in ALPHAINFLUENZA_IDENTIFIERS:
         if identifier in virus_lower:
-            logger.debug("Detected Alphainfluenza query: %s matches %s", virus, identifier)
+            logger.info("Detected Alphainfluenza query: %s matches %s", virus, identifier)
             return True
     
-    logger.debug("Not an Alphainfluenza query: %s", virus)
+    logger.info("Not an Alphainfluenza query: %s", virus)
     return False
 
 
