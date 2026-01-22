@@ -278,57 +278,78 @@ def _get_datasets_path():
     )
 
 
-def _get_modified_virus_name(virus_name):
+def _get_modified_virus_name(virus_name, attempt=1):
     """
     Modify the virus name for retry attempts when the NCBI server is unreachable.
     
-    This function generates an alternative virus name to try when the initial
-    query fails due to server unreachability. The modification strategy is:
-        1. If the name doesn't end with "virus", append " virus" to it.
-        2. If the name already ends with "virus", add a space before "virus"
-           (e.g., "Denguevirus" -> "Dengue virus").
+    This function generates alternative virus names to try when the initial
+    query fails due to server unreachability. The modification strategies are:
+        1. (attempt=1) If the name contains parentheses, remove them and their contents.
+           (e.g., "Lassa virus (LASV)" -> "Lassa virus")
+        2. (attempt=2) If the name doesn't contain "virus" anywhere, append " virus" to it.
+           (e.g., "Dengue" -> "Dengue virus")
+        3. (attempt=2) If the name ends with "virus" without a space, add a space.
+           (e.g., "Denguevirus" -> "Dengue virus")
     
     Args:
         virus_name (str): Original virus name that failed.
+        attempt (int): Which modification attempt this is (1 or 2).
         
     Returns:
         str or None: Modified virus name to retry, or None if no modification is possible.
         
     Example:
-        >>> _get_modified_virus_name("Dengue")
+        >>> _get_modified_virus_name("Lassa virus (LASV)", attempt=1)
+        'Lassa virus'
+        >>> _get_modified_virus_name("Dengue", attempt=1)
+        None  # No parentheses to remove
+        >>> _get_modified_virus_name("Dengue", attempt=2)
         'Dengue virus'
-        >>> _get_modified_virus_name("Denguevirus")
+        >>> _get_modified_virus_name("Denguevirus", attempt=2)
         'Dengue virus'
-        >>> _get_modified_virus_name("Dengue virus")
-        None
+        >>> _get_modified_virus_name("Dengue virus", attempt=2)
+        None  # Already contains "virus" properly
     """
     if not virus_name:
         return None
     
     virus_lower = virus_name.lower().strip()
     
-    # Check if the name already ends with " virus" (with space)
-    if virus_lower.endswith(" virus"):
-        # Already has proper " virus" suffix, no modification needed
+    # Attempt 1: Try removing parenthetical content
+    if attempt == 1:
+        # Check if there are parentheses to remove
+        if '(' in virus_name and ')' in virus_name:
+            # Remove parenthetical content (e.g., "(LASV)" or "(strain XYZ)")
+            modified = re.sub(r'\s*\([^)]*\)\s*', ' ', virus_name).strip()
+            # Clean up any double spaces
+            modified = re.sub(r'\s+', ' ', modified)
+            if modified and modified.lower() != virus_lower:
+                logger.debug("Modified virus name by removing parentheses: '%s' -> '%s'", 
+                            virus_name, modified)
+                return modified
         return None
     
-    # Check if the name ends with "virus" (without space before it)
-    if virus_lower.endswith("virus"):
-        # Add a space before "virus"
-        # Find where "virus" starts and insert a space
-        idx = virus_name.lower().rfind("virus")
-        if idx > 0:
-            modified = virus_name[:idx] + " " + virus_name[idx:]
-            logger.debug("Modified virus name by adding space before 'virus': '%s' -> '%s'", 
-                        virus_name, modified)
-            return modified
-        return None
+    # Attempt 2: Try adding "virus" suffix or spacing
+    if attempt == 2:
+        # Check if the name already contains "virus" anywhere (case-insensitive)
+        if "virus" in virus_lower:
+            # Add a space before "virus"
+            idx = virus_name.lower().rfind("virus")
+            if idx > 0:
+                modified = virus_name[:idx] + " " + virus_name[idx:]
+                logger.debug("Modified virus name by adding space before 'virus': '%s' -> '%s'", 
+                            virus_name, modified)
+                return modified
+        # Already has "virus" in the name, no modification needed
+            return None
+        
+        # Name doesn't contain "virus" anywhere, so append " virus"
+        modified = virus_name + " virus"
+        logger.debug("Modified virus name by appending ' virus': '%s' -> '%s'", 
+                    virus_name, modified)
+        return modified
     
-    # Name doesn't contain "virus" at the end, so append " virus"
-    modified = virus_name + " virus"
-    logger.debug("Modified virus name by appending ' virus': '%s' -> '%s'", 
-                virus_name, modified)
-    return modified
+    return None
 
 
 def fetch_virus_metadata(
@@ -341,7 +362,7 @@ def fetch_virus_metadata(
     min_release_date=None,
     refseq_only=None,
     failed_commands=None,
-    _is_retry=False,
+    _retry_attempt=0,
 ):
     """
     Fetch virus metadata using NCBI Datasets API.
@@ -351,8 +372,9 @@ def fetch_virus_metadata(
     automatically to retrieve all available results.
     
     When the server is unreachable, this function will automatically retry with
-    a modified virus name (adding " virus" suffix or spacing) to improve query
-    matching.
+    modified virus names:
+        1. First retry: Remove parenthetical content (e.g., "(LASV)")
+        2. Second retry: Add " virus" suffix or fix spacing
     
     Args:
         virus (str): Virus taxon name/ID or accession number.
@@ -364,7 +386,7 @@ def fetch_virus_metadata(
         min_release_date (str, optional): Minimum release date filter (YYYY-MM-DD format).
         refseq_only (bool, optional): Limit to RefSeq genomes only.
         failed_commands (dict, optional): Dictionary to track failed operations.
-        _is_retry (bool): Internal flag to prevent infinite retry loops.
+        _retry_attempt (int): Internal counter for retry attempts (0=original, 1=first retry, 2=second retry).
         
     Returns:
         list: List of virus metadata records from the API response.
@@ -529,12 +551,14 @@ def fetch_virus_metadata(
                 
             elif isinstance(last_exception, requests.exceptions.ConnectionError):
                 # Handle connection errors (network issues, DNS failures, etc.)
-                # Try retrying with a modified virus name if this is not already a retry
-                if not _is_retry and not accession:
-                    modified_virus = _get_modified_virus_name(virus)
+                # Try retrying with modified virus names (up to 2 retry strategies)
+                if _retry_attempt < 2 and not accession:
+                    next_attempt = _retry_attempt + 1
+                    modified_virus = _get_modified_virus_name(virus, attempt=next_attempt)
                     if modified_virus:
                         logger.warning("⚠️ Connection error with virus name '%s'. "
-                                      "Retrying with modified name: '%s'", virus, modified_virus)
+                                      "Retrying with modified name: '%s' (attempt %d)", 
+                                      virus, modified_virus, next_attempt)
                         try:
                             return fetch_virus_metadata(
                                 virus=modified_virus,
@@ -546,12 +570,32 @@ def fetch_virus_metadata(
                                 min_release_date=min_release_date,
                                 refseq_only=refseq_only,
                                 failed_commands=failed_commands,
-                                _is_retry=True,
+                                _retry_attempt=next_attempt,
                             )
                         except RuntimeError:
-                            # If retry also fails, raise the original error
-                            logger.warning("⚠️ Retry with modified virus name also failed")
-                            pass
+                            # If this retry fails, try the next strategy
+                            logger.warning("⚠️ Retry with modified virus name '%s' also failed", modified_virus)
+                            if next_attempt < 2:
+                                # Try the second modification strategy
+                                modified_virus_2 = _get_modified_virus_name(virus, attempt=2)
+                                if modified_virus_2 and modified_virus_2 != modified_virus:
+                                    logger.warning("⚠️ Trying second modification: '%s'", modified_virus_2)
+                                    try:
+                                        return fetch_virus_metadata(
+                                            virus=modified_virus_2,
+                                            accession=accession,
+                                            host=host,
+                                            geographic_location=geographic_location,
+                                            annotated=annotated,
+                                            complete_only=complete_only,
+                                            min_release_date=min_release_date,
+                                            refseq_only=refseq_only,
+                                            failed_commands=failed_commands,
+                                            _retry_attempt=2,
+                                        )
+                                    except RuntimeError:
+                                        logger.warning("⚠️ Second retry also failed")
+                                        pass
                 raise RuntimeError(f"Connection error while fetching virus metadata: {last_exception}") from last_exception
                 
             elif isinstance(last_exception, requests.exceptions.HTTPError):
@@ -577,12 +621,14 @@ def fetch_virus_metadata(
                         # The calling function will handle the chunking strategy
                         return None
                     
-                    # Try retrying with a modified virus name if this is not already a retry
-                    if not _is_retry and not accession:
-                        modified_virus = _get_modified_virus_name(virus)
+                    # Try retrying with modified virus names (up to 2 retry strategies)
+                    if _retry_attempt < 2 and not accession:
+                        next_attempt = _retry_attempt + 1
+                        modified_virus = _get_modified_virus_name(virus, attempt=next_attempt)
                         if modified_virus:
-                            logger.warning("⚠️ Server error (5xx) with virus name '%s'. "
-                                          "Retrying with modified name: '%s'", virus, modified_virus)
+                            logger.warning("⚠️ Server error (5xx) with virus name '%s'. The issue can be the virus name formatting. "
+                                          "Retrying with modified name: '%s' (attempt %d)", 
+                                          virus, modified_virus, next_attempt)
                             try:
                                 return fetch_virus_metadata(
                                     virus=modified_virus,
@@ -594,18 +640,38 @@ def fetch_virus_metadata(
                                     min_release_date=min_release_date,
                                     refseq_only=refseq_only,
                                     failed_commands=failed_commands,
-                                    _is_retry=True,
+                                    _retry_attempt=next_attempt,
                                 )
                             except RuntimeError:
-                                # If retry also fails, continue with original error handling
-                                logger.warning("⚠️ Retry with modified virus name also failed")
-                                pass
+                                # If this retry fails, try the next strategy
+                                logger.warning("⚠️ Retry with modified virus name '%s' also failed", modified_virus)
+                                if next_attempt < 2:
+                                    # Try the second modification strategy
+                                    modified_virus_2 = _get_modified_virus_name(virus, attempt=2)
+                                    if modified_virus_2 and modified_virus_2 != modified_virus:
+                                        logger.warning("⚠️ Trying second modification: '%s'", modified_virus_2)
+                                        try:
+                                            return fetch_virus_metadata(
+                                                virus=modified_virus_2,
+                                                accession=accession,
+                                                host=host,
+                                                geographic_location=geographic_location,
+                                                annotated=annotated,
+                                                complete_only=complete_only,
+                                                min_release_date=min_release_date,
+                                                refseq_only=refseq_only,
+                                                failed_commands=failed_commands,
+                                                _retry_attempt=2,
+                                            )
+                                        except RuntimeError:
+                                            logger.warning("⚠️ Second retry also failed. Please check the virus name formatting or try again later.")
+                                            pass
                     
                     error_msg += (
                         f"\n\n🔧 SERVER ERROR DETECTED: "
                         f"NCBI's API is experiencing temporary server-side issues. "
-                        f"This is not a problem with your query. Try again in a few minutes, "
-                        f"or consider using more specific filters to reduce the dataset size."
+                        f"This is possibly an issue with the virus name formatting, but it could also be a genuine server problem. Try again in a few minutes, "
+                        f"or consider using other name formatting or taxon id ormore specific filters to reduce the dataset size."
                     )
                 raise RuntimeError(error_msg) from last_exception
                 
@@ -4099,23 +4165,8 @@ def virus(
 
             logger.debug("Applying server-side filters: host=%s, geo_location=%s, annotated=%s, complete_only=%s, min_release_date=%s, refseq_only=%s", host, geographic_location, annotated, api_complete_filter, min_release_date, refseq_only)
             
-            api_reports = fetch_virus_metadata(
-                virus,
-                accession=is_accession,
-                host=host,
-                geographic_location=geographic_location,
-                annotated=api_annotated_filter,
-                complete_only=api_complete_filter,
-                min_release_date=min_release_date,
-                refseq_only=refseq_only,
-                failed_commands=failed_commands,
-            )
-
-            # If fetch_virus_metadata returns None, it means the dataset is too large
-            # and we need to use the chunked download strategy
-            if api_reports is None:
-                logger.info("Standard download failed due to dataset size - switching to chunked download")
-                api_reports = fetch_virus_metadata_chunked(
+            try:
+                api_reports = fetch_virus_metadata(
                     virus,
                     accession=is_accession,
                     host=host,
@@ -4126,6 +4177,26 @@ def virus(
                     refseq_only=refseq_only,
                     failed_commands=failed_commands,
                 )
+
+                # If fetch_virus_metadata returns None, it means the dataset is too large
+                # and we need to use the chunked download strategy
+                if api_reports is None:
+                    logger.info("Standard download failed due to dataset size - switching to chunked download")
+                    api_reports = fetch_virus_metadata_chunked(
+                        virus,
+                        accession=is_accession,
+                        host=host,
+                        geographic_location=geographic_location,
+                        annotated=api_annotated_filter,
+                        complete_only=api_complete_filter,
+                        min_release_date=min_release_date,
+                        refseq_only=refseq_only,
+                        failed_commands=failed_commands,
+                    )
+            except RuntimeError:
+                # Error has already been logged nicely by fetch_virus_metadata
+                # Exit gracefully without printing an ugly traceback
+                return None
 
             if not api_reports:
                 logger.warning("No virus records found matching the specified criteria.")
@@ -4328,10 +4399,10 @@ def virus(
         logger.info("=" * 60)
         logger.info("STEP 8: Fetching detailed GenBank metadata")
         logger.info("=" * 60)
-        logger.info("GenBank metadata retrieval requested - fetching detailed information...")
             
         # genbank_csv_path = os.path.join(outfolder, f"{virus_clean}_genbank_metadata.csv")
         if genbank_metadata:
+            logger.info("GenBank metadata retrieval requested - fetching detailed information...")
             try:
                 # Extract accession numbers from filtered sequences
                 final_accessions = []
