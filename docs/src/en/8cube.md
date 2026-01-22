@@ -10,7 +10,8 @@
   />
 </a>
 
-Query [**8cubeDB**](https://eightcubedb.onrender.com/) for gene-level specificity metrics and normalized expression values.  
+Query [**8cubeDB**](https://eightcubedb.onrender.com/) (snRNA-sequencing data of 8 different mouse strains, tissues, and individuals (four of each sex)) for gene-level specificity metrics and normalized expression values.  
+
 Return format: JSON (command-line) or data frame/CSV (Python).
 
 This module was written by [Nikhila Swarna](https://github.com/nikkiswarna).

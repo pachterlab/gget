@@ -30,7 +30,6 @@ from .compile import PACKAGE_PATH
 # =============================================================================
 
 # API and Network Configuration
-# -----------------------------------------------------------------------------
 API_PAGE_SIZE = 1000  # Maximum records per API request (NCBI limit)
 API_REQUEST_TIMEOUT = 30  # Timeout in seconds for API requests
 API_MAX_RETRIES = 3  # Maximum retry attempts for failed API requests
@@ -51,7 +50,6 @@ GENBANK_RETRY_ATTEMPTS = 5  # Number of retry attempts for GenBank requests
 GENBANK_XML_CHUNK_SIZE = 10000  # Rows to process before writing to CSV
 
 # Subprocess and Download Configuration
-# -----------------------------------------------------------------------------
 SUBPROCESS_VERSION_TIMEOUT = 5  # Timeout for version check commands
 DOWNLOAD_OVERALL_TIMEOUT = 1800  # Maximum total download time (30 minutes)
 DOWNLOAD_PROGRESS_TIMEOUT = 300  # Maximum time without progress (5 minutes)
@@ -62,7 +60,6 @@ CHUNKED_DOWNLOAD_START_YEAR = 1970  # Default start year for chunked downloads
 CHUNKED_DOWNLOAD_INTER_CHUNK_DELAY = 0.5  # Delay between yearly chunks
 
 # NCBI Taxonomy IDs
-# -----------------------------------------------------------------------------
 NCBI_ALL_VIRUSES_TAXID = "10239"  # Taxonomy ID for all viruses
 NCBI_SARS_COV2_TAXID = "2697049"  # Taxonomy ID for SARS-CoV-2
 NCBI_ALPHAINFLUENZA_GENUS_TAXID = "197911"  # Alphainfluenza genus
@@ -70,7 +67,6 @@ NCBI_ALPHAINFLUENZA_SPECIES_TAXID = "2955291"  # Alphainfluenzavirus influenzae 
 NCBI_INFLUENZA_A_TAXID = "11320"  # Influenza A virus
 
 # Virus Detection Identifiers
-# -----------------------------------------------------------------------------
 SARS_COV2_IDENTIFIERS = {
     'sarscov2', 'sars2', '2697049', 'sarscov', 
     'severeacuterespiratorysyndromecoronavirus2',
@@ -89,11 +85,9 @@ ALPHAINFLUENZA_IDENTIFIERS = {
 ALPHAINFLUENZA_DEFAULT_TAXON = "Alphainfluenzavirus influenzae"
 
 # Progress Indicator Keywords (for subprocess monitoring)
-# -----------------------------------------------------------------------------
 PROGRESS_INDICATORS = ['%', '=', 'downloading', 'fetching', 'MB', 'GB', 'bytes']
 
 # Protein/Gene Keywords for Header Parsing
-# -----------------------------------------------------------------------------
 PROTEIN_KEYWORDS = [
     'hemagglutinin', 'neuraminidase', 'polymerase', 'nucleoprotein',
     'matrix protein', 'nonstructural protein', 'ns1', 'ns2',
@@ -104,17 +98,14 @@ PROTEIN_KEYWORDS = [
 ]
 
 # Date Parsing Configuration
-# -----------------------------------------------------------------------------
 DATE_PARSE_DEFAULT_YEAR = 1000  # Default year for incomplete date strings
 
 # HTTP Retry Configuration
-# -----------------------------------------------------------------------------
 HTTP_RETRY_STATUS_CODES = [429, 500, 502, 503, 504]  # Status codes to retry on
 HTTP_MAX_LOCAL_RETRIES = 3  # Maximum local retry attempts
 HTTP_INITIAL_BACKOFF = 1.0  # Initial backoff in seconds
 
 # File Size Display Divisor
-# -----------------------------------------------------------------------------
 BYTES_PER_MB = 1024 * 1024  # Bytes in a megabyte for file size display
 
 # =============================================================================
@@ -278,57 +269,146 @@ def _get_datasets_path():
     )
 
 
-def _get_modified_virus_name(virus_name):
+def _get_modified_virus_name(virus_name, attempt=1):
     """
     Modify the virus name for retry attempts when the NCBI server is unreachable.
     
-    This function generates an alternative virus name to try when the initial
-    query fails due to server unreachability. The modification strategy is:
-        1. If the name doesn't end with "virus", append " virus" to it.
-        2. If the name already ends with "virus", add a space before "virus"
-           (e.g., "Denguevirus" -> "Dengue virus").
+    This function generates alternative virus names to try when the initial
+    query fails due to server unreachability. The modification strategies are:
+        1. (attempt=1) If the name contains parentheses, remove them and their contents.
+           (e.g., "Lassa virus (LASV)" -> "Lassa virus")
+        2. (attempt=2) If the name doesn't contain "virus" anywhere, append " virus" to it.
+           (e.g., "Dengue" -> "Dengue virus")
+        3. (attempt=2) If the name ends with "virus" without a space, add a space.
+           (e.g., "Denguevirus" -> "Dengue virus")
     
     Args:
         virus_name (str): Original virus name that failed.
+        attempt (int): Which modification attempt this is (1 or 2).
         
     Returns:
         str or None: Modified virus name to retry, or None if no modification is possible.
         
     Example:
-        >>> _get_modified_virus_name("Dengue")
+        >>> _get_modified_virus_name("Lassa virus (LASV)", attempt=1)
+        'Lassa virus'
+        >>> _get_modified_virus_name("Dengue", attempt=1)
+        None  # No parentheses to remove
+        >>> _get_modified_virus_name("Dengue", attempt=2)
         'Dengue virus'
-        >>> _get_modified_virus_name("Denguevirus")
+        >>> _get_modified_virus_name("Denguevirus", attempt=2)
         'Dengue virus'
-        >>> _get_modified_virus_name("Dengue virus")
-        None
+        >>> _get_modified_virus_name("Dengue virus", attempt=2)
+        None  # Already contains "virus" properly
     """
     if not virus_name:
         return None
     
     virus_lower = virus_name.lower().strip()
     
-    # Check if the name already ends with " virus" (with space)
-    if virus_lower.endswith(" virus"):
-        # Already has proper " virus" suffix, no modification needed
+    # Attempt 1: Try removing parenthetical content
+    if attempt == 1:
+        # Check if there are parentheses to remove
+        if '(' in virus_name and ')' in virus_name:
+            # Remove parenthetical content (e.g., "(LASV)" or "(strain XYZ)")
+            modified = re.sub(r'\s*\([^)]*\)\s*', ' ', virus_name).strip()
+            # Clean up any double spaces
+            modified = re.sub(r'\s+', ' ', modified)
+            if modified and modified.lower() != virus_lower:
+                logger.debug("Modified virus name by removing parentheses: '%s' -> '%s'", 
+                            virus_name, modified)
+                return modified
         return None
     
-    # Check if the name ends with "virus" (without space before it)
-    if virus_lower.endswith("virus"):
-        # Add a space before "virus"
-        # Find where "virus" starts and insert a space
-        idx = virus_name.lower().rfind("virus")
-        if idx > 0:
-            modified = virus_name[:idx] + " " + virus_name[idx:]
-            logger.debug("Modified virus name by adding space before 'virus': '%s' -> '%s'", 
-                        virus_name, modified)
-            return modified
+    # Attempt 2: Try adding "virus" suffix or spacing
+    if attempt == 2:
+        # Check if the name already contains "virus" anywhere (case-insensitive)
+        if "virus" in virus_lower:
+            # Add a space before "virus"
+            idx = virus_name.lower().rfind("virus")
+            if idx > 0:
+                modified = virus_name[:idx] + " " + virus_name[idx:]
+                logger.debug("Modified virus name by adding space before 'virus': '%s' -> '%s'", 
+                            virus_name, modified)
+                return modified
+        # Already has "virus" in the name, no modification needed
+            return None
+        
+        # Name doesn't contain "virus" anywhere, so append " virus"
+        modified = virus_name + " virus"
+        logger.debug("Modified virus name by appending ' virus': '%s' -> '%s'", 
+                    virus_name, modified)
+        return modified
+    
+    return None
+
+
+def _try_modified_virus_names(
+    virus,
+    accession,
+    host,
+    geographic_location,
+    annotated,
+    complete_only,
+    min_release_date,
+    refseq_only,
+    failed_commands,
+    _retry_attempt,
+    error_type="Error"
+):
+    """
+    Try fetching virus metadata with modified virus names.
+    
+    This helper function iterates through available retry strategies (modification
+    of virus name) and attempts to fetch metadata with each modified name.
+    
+    Args:
+        virus: Original virus name.
+        accession: Accession filter.
+        host: Host filter.
+        geographic_location: Geographic location filter.
+        annotated: Annotated filter.
+        complete_only: Complete genome filter.
+        min_release_date: Minimum release date filter.
+        refseq_only: RefSeq only filter.
+        failed_commands: List to track failed commands.
+        _retry_attempt: Current retry attempt number.
+        error_type: String describing the error type for logging.
+        
+    Returns:
+        list or None: The fetched metadata if successful, None if all retries failed.
+    """
+    if _retry_attempt >= 2 or accession:
         return None
     
-    # Name doesn't contain "virus" at the end, so append " virus"
-    modified = virus_name + " virus"
-    logger.debug("Modified virus name by appending ' virus': '%s' -> '%s'", 
-                virus_name, modified)
-    return modified
+    # Try modification strategies in order
+    for attempt_num in range(_retry_attempt + 1, 3):  # Try remaining attempts (1 and/or 2)
+        modified_virus = _get_modified_virus_name(virus, attempt=attempt_num)
+        if modified_virus:
+            logger.warning("%s with virus name '%s'. "
+                          "Retrying with modified name: '%s' (strategy %d)", 
+                          error_type, virus, modified_virus, attempt_num)
+            try:
+                return fetch_virus_metadata(
+                    virus=modified_virus,
+                    accession=accession,
+                    host=host,
+                    geographic_location=geographic_location,
+                    annotated=annotated,
+                    complete_only=complete_only,
+                    min_release_date=min_release_date,
+                    refseq_only=refseq_only,
+                    failed_commands=failed_commands,
+                    _retry_attempt=attempt_num,
+                )
+            except RuntimeError:
+                logger.warning("Retry with modified virus name '%s' failed", modified_virus)
+                # Continue to try next strategy
+                continue
+    
+    # All retry strategies exhausted
+    logger.warning("All retry strategies failed")
+    return None
 
 
 def fetch_virus_metadata(
@@ -341,7 +421,7 @@ def fetch_virus_metadata(
     min_release_date=None,
     refseq_only=None,
     failed_commands=None,
-    _is_retry=False,
+    _retry_attempt=0,
 ):
     """
     Fetch virus metadata using NCBI Datasets API.
@@ -351,8 +431,9 @@ def fetch_virus_metadata(
     automatically to retrieve all available results.
     
     When the server is unreachable, this function will automatically retry with
-    a modified virus name (adding " virus" suffix or spacing) to improve query
-    matching.
+    modified virus names:
+        1. First retry: Remove parenthetical content (e.g., "(LASV)")
+        2. Second retry: Add " virus" suffix or fix spacing
     
     Args:
         virus (str): Virus taxon name/ID or accession number.
@@ -364,7 +445,7 @@ def fetch_virus_metadata(
         min_release_date (str, optional): Minimum release date filter (YYYY-MM-DD format).
         refseq_only (bool, optional): Limit to RefSeq genomes only.
         failed_commands (dict, optional): Dictionary to track failed operations.
-        _is_retry (bool): Internal flag to prevent infinite retry loops.
+        _retry_attempt (int): Internal counter for retry attempts (0=original, 1=first retry, 2=second retry).
         
     Returns:
         list: List of virus metadata records from the API response.
@@ -525,34 +606,43 @@ def fetch_virus_metadata(
                         f"is known to cause server timeouts. Try removing the geographic_location parameter "
                         f"and filter the results manually after download."
                     )
+                
+                # Log the timeout error before raising
+                logger.error("=" * 80)
+                logger.error("❌ REQUEST TIMEOUT")
+                logger.error("=" * 80)
+                logger.error(error_msg)
+                logger.error("=" * 80)
                 raise RuntimeError(error_msg) from last_exception
                 
             elif isinstance(last_exception, requests.exceptions.ConnectionError):
                 # Handle connection errors (network issues, DNS failures, etc.)
-                # Try retrying with a modified virus name if this is not already a retry
-                if not _is_retry and not accession:
-                    modified_virus = _get_modified_virus_name(virus)
-                    if modified_virus:
-                        logger.warning("⚠️ Connection error with virus name '%s'. "
-                                      "Retrying with modified name: '%s'", virus, modified_virus)
-                        try:
-                            return fetch_virus_metadata(
-                                virus=modified_virus,
-                                accession=accession,
-                                host=host,
-                                geographic_location=geographic_location,
-                                annotated=annotated,
-                                complete_only=complete_only,
-                                min_release_date=min_release_date,
-                                refseq_only=refseq_only,
-                                failed_commands=failed_commands,
-                                _is_retry=True,
-                            )
-                        except RuntimeError:
-                            # If retry also fails, raise the original error
-                            logger.warning("⚠️ Retry with modified virus name also failed")
-                            pass
-                raise RuntimeError(f"Connection error while fetching virus metadata: {last_exception}") from last_exception
+                # Try retrying with modified virus names (up to 2 retry strategies)
+                retry_result = _try_modified_virus_names(
+                    virus=virus,
+                    accession=accession,
+                    host=host,
+                    geographic_location=geographic_location,
+                    annotated=annotated,
+                    complete_only=complete_only,
+                    min_release_date=min_release_date,
+                    refseq_only=refseq_only,
+                    failed_commands=failed_commands,
+                    _retry_attempt=_retry_attempt,
+                    error_type="Connection error"
+                )
+                if retry_result is not None:
+                    return retry_result
+                
+                # Log the connection error before raising
+                error_msg = f"Connection error while fetching virus metadata: {last_exception}"
+                logger.error("=" * 80)
+                logger.error("❌ CONNECTION ERROR")
+                logger.error("=" * 80)
+                logger.error(error_msg)
+                logger.error("Please check your internet connection and try again.")
+                logger.error("=" * 80)
+                raise RuntimeError(error_msg) from last_exception
                 
             elif isinstance(last_exception, requests.exceptions.HTTPError):
                 # Handle HTTP errors with specific guidance for known issues
@@ -577,41 +667,48 @@ def fetch_virus_metadata(
                         # The calling function will handle the chunking strategy
                         return None
                     
-                    # Try retrying with a modified virus name if this is not already a retry
-                    if not _is_retry and not accession:
-                        modified_virus = _get_modified_virus_name(virus)
-                        if modified_virus:
-                            logger.warning("⚠️ Server error (5xx) with virus name '%s'. "
-                                          "Retrying with modified name: '%s'", virus, modified_virus)
-                            try:
-                                return fetch_virus_metadata(
-                                    virus=modified_virus,
-                                    accession=accession,
-                                    host=host,
-                                    geographic_location=geographic_location,
-                                    annotated=annotated,
-                                    complete_only=complete_only,
-                                    min_release_date=min_release_date,
-                                    refseq_only=refseq_only,
-                                    failed_commands=failed_commands,
-                                    _is_retry=True,
-                                )
-                            except RuntimeError:
-                                # If retry also fails, continue with original error handling
-                                logger.warning("⚠️ Retry with modified virus name also failed")
-                                pass
+                    # Try retrying with modified virus names (up to 2 retry strategies)
+                    retry_result = _try_modified_virus_names(
+                        virus=virus,
+                        accession=accession,
+                        host=host,
+                        geographic_location=geographic_location,
+                        annotated=annotated,
+                        complete_only=complete_only,
+                        min_release_date=min_release_date,
+                        refseq_only=refseq_only,
+                        failed_commands=failed_commands,
+                        _retry_attempt=_retry_attempt,
+                        error_type="Server error (5xx)"
+                    )
+                    if retry_result is not None:
+                        return retry_result
                     
                     error_msg += (
                         f"\n\n🔧 SERVER ERROR DETECTED: "
                         f"NCBI's API is experiencing temporary server-side issues. "
-                        f"This is not a problem with your query. Try again in a few minutes, "
-                        f"or consider using more specific filters to reduce the dataset size."
+                        f"This is possibly an issue with the virus name formatting, but it could also be a genuine server problem. Try again in a few minutes, "
+                        f"or consider using other name formatting or taxon id ormore specific filters to reduce the dataset size."
                     )
+                
+                # Log the error details before raising
+                logger.error("=" * 80)
+                logger.error("❌ API REQUEST FAILED")
+                logger.error("=" * 80)
+                logger.error(error_msg)
+                logger.error("=" * 80)
+                
                 raise RuntimeError(error_msg) from last_exception
                 
             else:
                 # Handle any other request-related errors
-                raise RuntimeError(f"❌ Failed to fetch virus metadata: {last_exception}") from last_exception
+                error_msg = f"❌ Failed to fetch virus metadata: {last_exception}"
+                logger.error("=" * 80)
+                logger.error("❌ REQUEST FAILED")
+                logger.error("=" * 80)
+                logger.error(error_msg)
+                logger.error("=" * 80)
+                raise RuntimeError(error_msg) from last_exception
 
     
     # Log the final results summary
@@ -738,17 +835,14 @@ def fetch_virus_metadata_chunked(
 
 def is_sars_cov2_query(virus, accession=False):
     """
-    Check if the query is for SARS-CoV-2 to determine if optimized downloads should be used.
-    
-    NCBI provides optimized cached data packages for SARS-CoV-2 that are faster and more
-    reliable than the general API endpoints. This function detects SARS-CoV-2 queries.
+    Check if the query is for SARS-CoV-2 to enable optimized cached downloads.
     
     Args:
         virus (str): Virus taxon name/ID or accession number.
         accession (bool): Whether virus parameter is an accession number.
         
     Returns:
-        bool: True if this is a SARS-CoV-2 query that should use cached downloads.
+        bool: True if this is a SARS-CoV-2 query.
     """
     if accession:
         # When in accession mode, let the user explicitly set is_sars_cov2=True
@@ -761,19 +855,16 @@ def is_sars_cov2_query(virus, accession=False):
     # Check if the query matches any SARS-CoV-2 identifier
     for identifier in SARS_COV2_IDENTIFIERS:
         if identifier in virus_lower:
-            logger.debug("Detected SARS-CoV-2 query: %s matches %s", virus, identifier)
+            logger.info("Detected SARS-CoV-2 query: %s matches %s", virus, identifier)
             return True
     
-    logger.debug("Not a SARS-CoV-2 query: %s", virus)
+    logger.info("Not a SARS-CoV-2 query: %s", virus)
     return False
 
 
 def is_alphainfluenza_query(virus, accession=False):
     """
-    Check if the query is for Alphainfluenza to determine if optimized downloads should be used.
-    
-    NCBI provides optimized cached data packages for Alphainfluenza that are faster and more
-    reliable than the general API endpoints. This function detects Alphainfluenza queries.
+    Check if the query is for Alphainfluenza to enable optimized cached downloads.
     
     Cached packages are available for:
         - Alphainfluenza (genus, taxid: 197911)
@@ -785,7 +876,7 @@ def is_alphainfluenza_query(virus, accession=False):
         accession (bool): Whether virus parameter is an accession number.
         
     Returns:
-        bool: True if this is an Alphainfluenza query that should use cached downloads.
+        bool: True if this is an Alphainfluenza query.
     """
     if accession:
         # When in accession mode, let the user explicitly set is_alphainfluenza=True
@@ -798,10 +889,10 @@ def is_alphainfluenza_query(virus, accession=False):
     # Check if the query matches any Alphainfluenza identifier
     for identifier in ALPHAINFLUENZA_IDENTIFIERS:
         if identifier in virus_lower:
-            logger.debug("Detected Alphainfluenza query: %s matches %s", virus, identifier)
+            logger.info("Detected Alphainfluenza query: %s matches %s", virus, identifier)
             return True
     
-    logger.debug("Not an Alphainfluenza query: %s", virus)
+    logger.info("Not an Alphainfluenza query: %s", virus)
     return False
 
 
@@ -957,10 +1048,6 @@ def _process_cached_download(zip_file, virus_type="virus"):
                 'source': 'cached_fasta_header'
             }
         logger.info("Created basic metadata for %d sequences", len(cached_metadata_dict))
-    
-    if not all_cached_sequences:
-        logger.warning("No valid sequences found in cached data")
-        raise RuntimeError("No valid sequences found in cached data")
     
     logger.info("🎉 CACHED DATA LOADING SUCCESSFUL!")
     logger.info("Loaded %d sequences from cached %s data", len(all_cached_sequences), virus_type)
@@ -1573,12 +1660,13 @@ def _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE, fasta_path, f
     smaller batches (< 200 accessions) to avoid URL length limitations.
     
     Args:
-        accessions (list): List of accession numbers to download
-        NCBI_EUTILS_BASE (str): Base URL for NCBI E-utilities API
-        fasta_path (str): Path where FASTA file should be saved
+        accessions (list): List of accession numbers to download.
+        NCBI_EUTILS_BASE (str): Base URL for NCBI E-utilities API.
+        fasta_path (str): Path where FASTA file should be saved.
+        failed_commands (dict, optional): Dictionary to track failed operations.
         
     Returns:
-        str: Path to the saved FASTA file
+        str: Path to the saved FASTA file.
         
     Raises:
         RuntimeError: If the download fails or response is invalid
@@ -1658,10 +1746,11 @@ def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_
     - Graceful handling of partial failures
     
     Args:
-        accessions (list): List of accession numbers to download
-        NCBI_EUTILS_BASE (str): Base URL for NCBI E-utilities API
-        fasta_path (str): Path where FASTA file should be saved
-        batch_size (int): Number of accessions per batch
+        accessions (list): List of accession numbers to download.
+        NCBI_EUTILS_BASE (str): Base URL for NCBI E-utilities API.
+        fasta_path (str): Path where FASTA file should be saved.
+        batch_size (int): Number of accessions per batch.
+        failed_commands (dict, optional): Dictionary to track failed operations.
         
     Returns:
         str: Path to the saved FASTA file containing all downloaded sequences
@@ -1799,31 +1888,20 @@ def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_
 
 def unzip_file(zip_file_path, extract_to_path):
     """
-    Unzip a ZIP file to a specified directory.
+    Extract a ZIP file to a specified directory.
     
     Args:
-        zip_file_path (str): Path to the ZIP file to extract.
-        extract_to_path (str): Directory where contents will be extracted.
-        
-    Raises:
-        zipfile.BadZipFile: If the ZIP file is invalid or corrupted.
-        PermissionError: If there are permission issues with the target directory.
-        FileNotFoundError: If the ZIP file does not exist.
+        zip_file_path (str): Path to the ZIP file.
+        extract_to_path (str): Target directory for extraction.
     """
     os.makedirs(extract_to_path, exist_ok=True)
     logger.debug("Created extraction directory: %s", extract_to_path)
     
     try:
-        # Open the ZIP file in read mode
         with zipfile.ZipFile(zip_file_path, "r") as zip_ref:
-            # Extract all contents to the specified directory
             zip_ref.extractall(extract_to_path)
-            
-            # Log information about the extracted contents
             file_list = zip_ref.namelist()
-            logger.info("Successfully extracted %d files from %s to %s", 
-                       len(file_list), zip_file_path, extract_to_path)
-            logger.debug("Extracted files: %s", file_list[:10])  # Log first 10 files
+            logger.info("Extracted %d files from %s", len(file_list), zip_file_path)
             
     except zipfile.BadZipFile as e:
         raise zipfile.BadZipFile(f"Invalid or corrupted ZIP file: {zip_file_path}") from e
@@ -1843,7 +1921,7 @@ def load_metadata_from_api_reports(api_reports):
     missing or null values appropriately.
     
     Args:
-        api_reports (list): List of virus metadata reports from the NCBI API
+        api_reports (list): List of virus metadata reports from the NCBI API.
         
     Returns:
         dict: Dictionary mapping accession numbers to metadata dictionaries
@@ -1908,19 +1986,15 @@ def load_metadata_from_api_reports(api_reports):
 
 def parse_date(date_str, filtername="", verbose=False):
     """
-    Parse various date formats into a standardized datetime object.
-    
-    This function uses the dateutil parser to handle various date formats
-    that might be encountered in virus metadata. It provides helpful error
-    messages when date parsing fails.
+    Parse various date formats into a datetime object.
     
     Args:
-        date_str (str): Date string to parse (various formats accepted)
-        filtername (str): Name of the filter/field for error reporting
-        verbose (bool): Whether to raise detailed exceptions on parse errors
+        date_str (str): Date string to parse (various formats accepted).
+        filtername (str): Name of the filter/field for error reporting.
+        verbose (bool): Whether to raise detailed exceptions on parse errors.
         
     Returns:
-        datetime: Parsed datetime object, or None if parsing fails (when verbose=False)
+        datetime: Parsed datetime object, or None if parsing fails (when verbose=False).
         
     Raises:
         ValueError: If date parsing fails and verbose=True
@@ -2089,20 +2163,16 @@ def filter_sequences(
     """
     Apply sequence-dependent filters to downloaded sequences.
     
-    This function only applies filters that require the actual sequence data:
-    - Ambiguous character counting
-    - Protein/feature analysis if required
-    
-    Note: All metadata-only filters should have been applied by filter_metadata_only
-    before downloading sequences. The metadata-related parameters are kept for
-    backwards compatibility but are ignored.
+    Applies filters requiring actual sequence data (ambiguous character counting,
+    protein/feature analysis). Metadata-only filters should be applied by
+    filter_metadata_only before downloading sequences.
     
     Args:
-        fna_file (str): Path to FASTA file containing sequences
-        metadata_dict (dict): Dictionary mapping accession numbers to metadata
-        max_ambiguous_chars (int): Maximum number of ambiguous nucleotides allowed
-        has_proteins (str/list): Required proteins/genes filter
-        proteins_complete (bool): Whether proteins must be complete
+        fna_file (str): Path to FASTA file containing sequences.
+        metadata_dict (dict): Dictionary mapping accession numbers to metadata.
+        max_ambiguous_chars (int, optional): Maximum ambiguous nucleotides allowed.
+        has_proteins (str/list, optional): Required proteins/genes filter.
+        proteins_complete (bool): Whether proteins must be complete.
         
     Returns:
         tuple: (filtered_sequences, filtered_metadata, protein_headers)
@@ -2169,9 +2239,9 @@ def filter_sequences(
     # Log filtering results
     logger.info("Sequence filter results:")
     logger.info("- Total sequences processed: %d", total_sequences)
-    logger.info("- ⚠️ Failed length filter: %d", filter_stats['seq_length'])
-    logger.info("- ⚠️ Failed ambiguous char filter: %d", filter_stats['ambiguous_chars'])
-    logger.info("- ⚠️ Failed protein requirements: %d", filter_stats['proteins'])
+    logger.info("- Failed length filter: %d", filter_stats['seq_length'])
+    logger.info("- Failed ambiguous char filter: %d", filter_stats['ambiguous_chars'])
+    logger.info("- Failed protein requirements: %d", filter_stats['proteins'])
     logger.info("- Sequences passing all filters: %d", len(filtered_sequences))
     
     return filtered_sequences, filtered_metadata, protein_headers
@@ -2193,27 +2263,8 @@ def save_command_summary(
     """
     Save a summary file documenting the command execution and results.
     
-    This function creates a comprehensive summary text file that includes:
-    - The exact command line that was run
-    - Statistics about sequences, hosts, locations, etc.
-    - List of output files generated
-    - Information about what filters were applied
-    - Any errors or warnings encountered
-    - Failed download commands (batches, URLs) for user retry
-    
-    Args:
-        outfolder (str): Output directory where summary file will be saved
-        command_line (str): The command line that was executed
-        total_api_records (int): Number of records returned from API
-        total_after_metadata_filter (int): Number after metadata filtering
-        total_final_sequences (int): Final number of sequences after all filters
-        output_files (dict): Dictionary of output file paths
-        filtered_metadata (list): List of metadata dictionaries for statistics
-        success (bool): Whether the command completed successfully
-        error_message (str): Error message if command failed
-        failed_commands (dict): Dictionary containing failed operations with retry commands/URLs
-            Expected keys: 'api_timeout', 'sequence_batches', 'genbank_batches'
-        genbank_error (str): Error message if GenBank metadata retrieval failed
+    Creates a comprehensive summary including command line, statistics,
+    output files, and any errors encountered.
     """
     
     summary_file = os.path.join(outfolder, "command_summary.txt")
@@ -2509,15 +2560,11 @@ def check_min_max(min_val, max_val, filtername, date=False):
     """
     Validate that minimum and maximum values are in the correct order.
     
-    This helper function ensures that minimum values are not greater than
-    maximum values for range-based filters. It handles both numeric and
-    date-based comparisons.
-    
     Args:
-        min_val: Minimum value (can be numeric or date string)
-        max_val: Maximum value (can be numeric or date string)
-        filtername (str): Name of the filter for error reporting
-        date (bool): Whether the values are dates that need parsing
+        min_val: Minimum value (can be numeric or date string).
+        max_val: Maximum value (can be numeric or date string).
+        filtername (str): Name of the filter for error reporting.
+        date (bool): Whether the values are dates that need parsing.
         
     Raises:
         ValueError: If minimum value is greater than maximum value
@@ -2532,7 +2579,6 @@ def check_min_max(min_val, max_val, filtername, date=False):
                     filtername, min_val, max_val)
         
         if date:
-            # Parse date strings for comparison
             try:
                 min_val = parse_date(min_val)
                 max_val = parse_date(max_val)
@@ -2541,7 +2587,6 @@ def check_min_max(min_val, max_val, filtername, date=False):
                 logger.error("❌ Failed to parse dates for validation: %s", e)
                 raise ValueError(f"Invalid date format in {filtername} filters") from e
         
-        # Check if minimum is greater than maximum
         if min_val > max_val:
             error_msg = f"Min value ({min_val}) cannot be greater than max value ({max_val}) for {filtername}."
             logger.error("❌ Validation failed: %s", error_msg)
@@ -2554,59 +2599,21 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
     """
     Fetch detailed GenBank metadata for a list of accession numbers using NCBI E-utilities.
     
-    This function provides an optimized alternative to Biopython's approach for retrieving
-    GenBank information. It uses NCBI's E-utilities API directly with HTTP requests to
-    fetch GenBank records in XML format, then parses them using Python's built-in XML
-    library to extract comprehensive metadata.
-    
-    Key advantages over Biopython approach:
-    - No external dependencies beyond standard library
-    - Batch processing for improved performance
-    - Structured output suitable for CSV/analysis
-    - Respectful rate limiting for NCBI servers
-    - Comprehensive error handling and logging
-    
-    Extracted metadata includes:
-    - Basic sequence information (organism, length, definition)
-    - Collection metadata (date, location, host, strain)
-    - Publication references (authors, titles, journals, PubMed IDs)
-    - Database information (create/update dates, comments)
-    - Taxonomic classification
-    - Assembly information
+    Uses NCBI's E-utilities API to fetch GenBank records in XML format and extracts
+    comprehensive metadata including collection dates, geographic info, host details,
+    and publication references.
     
     Args:
-        accessions (list): List of accession numbers to fetch GenBank data for
-        batch_size (int): Maximum number of accessions per API request (default: 200)
-                         Recommended range: 50-500 depending on server load
-        delay (float): Delay in seconds between batch requests (default: 0.5)
-                      Helps avoid overloading NCBI servers
+        accessions (list): List of accession numbers to fetch GenBank data for.
+        genbank_full_xml_path (str): Path to save the full XML output.
+        genbank_full_csv_path (str): Path to save the full CSV output.
+        batch_size (int): Maximum accessions per API request (default: 200).
+        delay (float): Delay in seconds between batch requests (default: 0.5).
+        failed_log_path (str, optional): Path to log file for failed batches.
         
     Returns:
-        dict: Dictionary mapping accession numbers to GenBank metadata dictionaries
-              Key: accession number (str) 
-              Value: dictionary with structure:
-                     {
-                         'accession': str,
-                         'genbank_data': {
-                             'organism': str,
-                             'sequence_length': int,
-                             'collection_date': str,
-                             'country': str,
-                             'host': str,
-                             'references': [{'title': str, 'authors': str, ...}],
-                             ... (20+ additional fields)
-                         }
-                     }
-              
-    Raises:
-        RuntimeError: If API requests fail or XML parsing encounters errors
-        ValueError: If no accessions are provided
-        
-    Example:
-        >>> accessions = ['NC_045512.2', 'MN908947.3']
-        >>> genbank_data = fetch_genbank_metadata(accessions)
-        >>> print(genbank_data['NC_045512.2']['genbank_data']['organism'])
-        'Severe acute respiratory syndrome coronavirus 2'
+        tuple: (metadata_dict, failed_log_path) where metadata_dict maps accession
+               numbers to their GenBank metadata.
     """
     if failed_log_path is None:
         failed_log_path = os.path.join(os.path.dirname(genbank_full_xml_path), "genbank_failed_batches.log")
@@ -2721,38 +2728,16 @@ def _fetch_genbank_batch(accessions, failed_log_path=None):
     """
     Fetch GenBank metadata for a single batch of accessions.
     
-    This function handles retrieval of GenBank XML data for a batch of accessions
-    using NCBI E-utilities. It includes comprehensive error handling with retries,
-    exponential backoff, and automatic batch splitting for problematic requests.
-    
-    Error handling features:
-    - Retry logic with exponential backoff for transient errors
-    - Automatic batch splitting for URL length errors
-    - Logging of failed accessions with download URLs
-    - Graceful degradation for partial failures
+    Includes retry logic with exponential backoff and automatic batch splitting
+    for problematic requests.
     
     Args:
-        accessions (list): List of accession numbers for this batch
-        failed_log_path (str, optional): Path to log file for failed batches
+        accessions (list): List of accession numbers for this batch.
+        failed_log_path (str, optional): Path to log file for failed batches.
         
     Returns:
-        tuple: (metadata_dict, xml_text)
-            - metadata_dict: Dictionary mapping accessions to parsed metadata
-            - xml_text: Raw XML content from the response
-            
-    Raises:
-        RuntimeError: If the E-utilities request fails or XML parsing fails
-        
-    Note:
-        - Implements retry logic for network errors (max 3 attempts)
-        - Uses exponential backoff between retries (1s, 2s, 4s)
-        - Automatically splits batches that are too large
-        - Logs failed batches with individual download URLs for debugging
-        
-    Example:
-        >>> batch = ['NC_045512.2', 'MN908947.3', 'MT020781.1']
-        >>> metadata, xml = _fetch_genbank_batch(batch, 'failed_batches.log')
-        >>> print(f"Retrieved metadata for {len(metadata)} accessions")
+        tuple: (metadata_dict, xml_text) where metadata_dict maps accessions to
+               parsed metadata, and xml_text is the raw XML response.
     """
     
     # Build E-utilities efetch URL for GenBank XML format
@@ -2889,14 +2874,10 @@ def _fetch_genbank_batch(accessions, failed_log_path=None):
 
 def _clean_xml_declarations(xml_text):
     """
-    Remove XML declarations and DOCTYPE declarations from XML text.
-    
-    When concatenating multiple XML documents, we need to remove the XML
-    declaration (<?xml...?>) and DOCTYPE declarations from each document
-    to create valid combined XML.
+    Remove XML and DOCTYPE declarations from XML text for concatenation.
     
     Args:
-        xml_text (str): Raw XML text that may contain declarations
+        xml_text (str): Raw XML text with declarations.
         
     Returns:
         str: Cleaned XML text without declarations
@@ -2923,10 +2904,10 @@ def _local_name(tag):
     This helper function extracts just the tag name without the namespace.
     
     Args:
-        tag (str): XML tag string, potentially with namespace
+        tag (str): XML tag string, potentially with namespace.
         
     Returns:
-        str: Tag name without namespace prefix
+        str: Tag name without namespace prefix.
         
     Example:
         >>> _local_name('{http://www.ncbi.nlm.nih.gov}GBSeq')
@@ -2939,31 +2920,12 @@ def _local_name(tag):
 
 def _genbank_xml_to_csv(xml_path, csv_path, chunk_size=None):
     """
-    Convert GenBank XML to structured CSV with streaming and dynamic qualifier columns.
-    
-    This function parses a GenBank XML file and extracts feature data into a flat CSV
-    format suitable for analysis. It uses streaming parsing to handle large files
-    efficiently and dynamically discovers all qualifier columns present in the data.
-    
-    The output CSV includes:
-    - Basic sequence information (accession, sequence)
-    - Feature information (key, location, intervals)
-    - All qualifiers as separate columns (discovered dynamically)
+    Convert GenBank XML to CSV with streaming and dynamic qualifier columns.
     
     Args:
-        xml_path (str): Path to input GenBank XML file
-        csv_path (str): Path to output CSV file
-        chunk_size (int): Number of rows to process before writing to disk (default: 10000)
-                         Larger values use more memory but may be faster
-    
-    Note:
-        - Uses streaming to handle files larger than available memory
-        - Dynamically discovers qualifier columns from the XML data
-        - The sequence is only added to the last row for each accession to save space
-        - Writes incrementally in chunks to manage memory usage
-        
-    Example:
-        >>> _genbank_xml_to_csv('genbank_data.xml', 'output.csv', chunk_size=5000)
+        xml_path (str): Path to input GenBank XML file.
+        csv_path (str): Path to output CSV file.
+        chunk_size (int, optional): Rows to process before writing to disk.
     """
     # Apply default chunk size if not specified
     if chunk_size is None:
@@ -3063,28 +3025,12 @@ def _genbank_xml_to_csv(xml_path, csv_path, chunk_size=None):
 
 def _save_genbank_xml_and_csv(xml_content, xml_file_name, csv_file_name):
     """
-    Save GenBank XML content and flattened CSV representation.
-    
-    This function takes raw GenBank XML data and saves it in two formats:
-    1. Raw XML file - preserves all original data
-    2. Flattened CSV file - extracts key fields into tabular format
-    
-    The CSV conversion makes the data more accessible for analysis tools
-    that work with tabular data, while the XML preserves all information
-    in its original structure.
+    Save GenBank XML content and convert to CSV.
     
     Args:
-        xml_content (str): Raw XML content from E-utilities efetch
-        xml_file_name (str): Path where XML file should be saved
-        csv_file_name (str): Path where CSV file should be saved
-        
-    Raises:
-        RuntimeError: If XML parsing fails or file writing encounters errors
-        ET.ParseError: If XML content is invalid or malformed
-        
-    Example:
-        >>> xml = fetch_genbank_xml(['NC_045512.2'])
-        >>> _save_genbank_xml_and_csv(xml, 'data.xml', 'data.csv')
+        xml_content (str): Raw XML content from E-utilities.
+        xml_file_name (str): Path for XML output file.
+        csv_file_name (str): Path for CSV output file.
     """
     try:
         root = ET.fromstring(xml_content)
@@ -3098,7 +3044,7 @@ def _save_genbank_xml_and_csv(xml_content, xml_file_name, csv_file_name):
         logger.debug("Saving the loss-less genbank information into a CSV if the flag is set.")
         logger.debug("Reformatting to extract important data from GenBank XML to save as CSV: %s", csv_file_name)
         _genbank_xml_to_csv(xml_file_name, csv_file_name)
-        logger.debug("✅ Saved GenBank data in a loss-less csv file to: %s", csv_file_name)
+        logger.debug("✅ Saved GenBank data in a csv file to: %s", csv_file_name)
 
     except ET.ParseError as e:
         logger.error("❌ XML parsing failed: %s", e)
@@ -3114,7 +3060,7 @@ def _parse_genbank_xml(xml_content):
     host details, publication references, and sequence features.
     
     Args:
-        xml_content (str): Raw XML content from E-utilities efetch
+        xml_content (str): Raw XML content from E-utilities efetch.
         
     Returns:
         dict: Dictionary mapping accession numbers to metadata dictionaries
@@ -3278,12 +3224,7 @@ def _parse_genbank_xml(xml_content):
 
 def save_genbank_metadata_to_csv(genbank_metadata, output_file, virus_metadata=None):
     """
-    Save GenBank metadata to a human-readable CSV file.
-    
-    This function creates a comprehensive CSV file containing GenBank-specific metadata
-    that complements the standard virus metadata. The output includes collection dates,
-    geographic information, host details, publication references, and other fields
-    extracted from GenBank records.
+    Save GenBank metadata to a CSV file.
     
     Args:
         genbank_metadata (dict): Dictionary mapping accessions to GenBank metadata
@@ -3437,19 +3378,16 @@ def filter_metadata_only(
     """
     Filter metadata records based on metadata-only criteria.
     
-    This function applies filters that can be evaluated using only metadata,
-    allowing us to reduce the number of accessions before downloading sequences.
-    Sequence-dependent filters (max_ambiguous_chars, has_proteins) are deferred
-    to the post-download filtering step.
+    Applies filters that can be evaluated using only metadata, reducing the
+    number of accessions before downloading sequences. Sequence-dependent
+    filters are deferred to post-download filtering.
     
     Args:
-        metadata_dict (dict): Dictionary mapping accession numbers to metadata
-        (all other args): Same as filter_sequences function
+        metadata_dict (dict): Dictionary mapping accession numbers to metadata.
+        (other args): Filter criteria - same as filter_sequences.
         
     Returns:
         tuple: (filtered_accessions, filtered_metadata_list)
-               - filtered_accessions: List of accession numbers that passed filters
-               - filtered_metadata_list: List of metadata dictionaries for filtered accessions
     """
     
     logger.info("Starting metadata-only filtering process...")
@@ -3595,7 +3533,7 @@ def filter_metadata_only(
 
         # FILTER 6: Collection date range filter
         if min_collection_date is not None or max_collection_date is not None:
-            date_str = metadata.get("isolate", {}).get("collectionDate", "")
+            date_str = metadata.get("isolate", {}).get("collection_date", "")
             
             date = parse_date(date_str)
             
@@ -4099,23 +4037,8 @@ def virus(
 
             logger.debug("Applying server-side filters: host=%s, geo_location=%s, annotated=%s, complete_only=%s, min_release_date=%s, refseq_only=%s", host, geographic_location, annotated, api_complete_filter, min_release_date, refseq_only)
             
-            api_reports = fetch_virus_metadata(
-                virus,
-                accession=is_accession,
-                host=host,
-                geographic_location=geographic_location,
-                annotated=api_annotated_filter,
-                complete_only=api_complete_filter,
-                min_release_date=min_release_date,
-                refseq_only=refseq_only,
-                failed_commands=failed_commands,
-            )
-
-            # If fetch_virus_metadata returns None, it means the dataset is too large
-            # and we need to use the chunked download strategy
-            if api_reports is None:
-                logger.info("Standard download failed due to dataset size - switching to chunked download")
-                api_reports = fetch_virus_metadata_chunked(
+            try:
+                api_reports = fetch_virus_metadata(
                     virus,
                     accession=is_accession,
                     host=host,
@@ -4126,6 +4049,39 @@ def virus(
                     refseq_only=refseq_only,
                     failed_commands=failed_commands,
                 )
+
+                # If fetch_virus_metadata returns None, it means the dataset is too large
+                # and we need to use the chunked download strategy
+                if api_reports is None:
+                    logger.info("Standard download failed due to dataset size - switching to chunked download")
+                    api_reports = fetch_virus_metadata_chunked(
+                        virus,
+                        accession=is_accession,
+                        host=host,
+                        geographic_location=geographic_location,
+                        annotated=api_annotated_filter,
+                        complete_only=api_complete_filter,
+                        min_release_date=min_release_date,
+                        refseq_only=refseq_only,
+                        failed_commands=failed_commands,
+                    )
+            except RuntimeError as e:
+                # Error has already been logged nicely by fetch_virus_metadata
+                # Save a summary file documenting the failure, then exit gracefully
+                logger.error("Failed to fetch virus metadata from NCBI API")
+                save_command_summary(
+                    outfolder=outfolder,
+                    command_line=command_line,
+                    total_api_records=0,
+                    total_after_metadata_filter=0,
+                    total_final_sequences=0,
+                    output_files={},
+                    filtered_metadata=[],
+                    success=False,
+                    error_message=str(e),
+                    failed_commands=failed_commands,
+                )
+                return None
 
             if not api_reports:
                 logger.warning("No virus records found matching the specified criteria.")
@@ -4328,10 +4284,10 @@ def virus(
         logger.info("=" * 60)
         logger.info("STEP 8: Fetching detailed GenBank metadata")
         logger.info("=" * 60)
-        logger.info("GenBank metadata retrieval requested - fetching detailed information...")
             
         # genbank_csv_path = os.path.join(outfolder, f"{virus_clean}_genbank_metadata.csv")
         if genbank_metadata:
+            logger.info("GenBank metadata retrieval requested - fetching detailed information...")
             try:
                 # Extract accession numbers from filtered sequences
                 final_accessions = []

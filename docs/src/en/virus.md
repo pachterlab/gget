@@ -1,7 +1,8 @@
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
 # gget virus 🦠  
 
-Download virus sequences and associated metadata from the [NCBI Virus database](https://www.ncbi.nlm.nih.gov/labs/virus/). `gget virus` applies server-side and local filters to efficiently download customized datasets.  
+Download viral nucleotide sequences, along with rich, linked metadata, from across the International Nucleotide Sequence Database Collaboration ([INSDC](https://www.insdc.org/)), including NCBI, [ENA](ebi.ac.uk/ena/browser/), and [DDBJ](https://www.ddbj.nig.ac.jp/index-e.html) (accessed via [NCBI Virus](https://www.ncbi.nlm.nih.gov/labs/virus/)), with the option to further enrich results using metadata from NCBI GenBank (e.g. gene and protein annotations, amino acid sequences, and more). `gget virus` applies sequential server-side and local filters to efficiently download customized datasets.  
+
 Return format: FASTA, CSV, and JSONL files saved to an output folder.  
 
 This module was written by [Ferdous Nasri](https://github.com/ferbsx).
