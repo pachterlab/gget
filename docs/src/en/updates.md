@@ -1,4 +1,10 @@
 ## ✨ What's new
+**Version ≥ 0.30.2** (Jan 23, 2026):  
+- [`gget virus`](virus.md): Bug fixes for edge cases
+  - Fixed missing `command_summary.txt` when API returns 0 records 
+  - Improved date parsing error messages by passing filter names to `parse_date()` function
+  - Reduced log noise: empty/missing collection dates now log at DEBUG level instead of WARNING
+
 **Version ≥ 0.30.1** (Jan 22, 2026):  
 - [`gget virus`](virus.md): Improved reliability with enhanced error handling and retry logic
   - Fixed collection date naming bug
