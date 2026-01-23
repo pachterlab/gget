@@ -2023,9 +2023,13 @@ def parse_date(date_str, filtername="", verbose=False):
             logger.error("❌ Date parsing failed: %s", error_msg)
             raise ValueError(error_msg) from exc
         else:
-            # In non-verbose mode, log warning and return None
-            logger.warning("⚠️ Failed to parse date '%s' for filter '%s': %s", 
-                          date_str, filtername, exc)
+            # In non-verbose mode, log at appropriate level and return None
+            # Use debug level for empty/missing dates (common case), warning for actual invalid dates
+            if not date_str or not date_str.strip():
+                logger.debug("Empty or missing date for filter '%s'", filtername)
+            else:
+                logger.warning("⚠️ Failed to parse date '%s' for filter '%s': %s", 
+                              date_str, filtername, exc)
             return None
 
 
@@ -2410,7 +2414,7 @@ def save_command_summary(
             f.write("=" * 80 + "\n")
             f.write("END OF SUMMARY\n")
             f.write("=" * 80 + "\n")
-            
+
         logger.info("=================================")
         logger.info("✅ Command summary saved: %s", summary_file)
         return summary_file
@@ -3536,7 +3540,7 @@ def filter_metadata_only(
         if min_collection_date is not None or max_collection_date is not None:
             date_str = metadata.get("isolate", {}).get("collection_date", "")
             
-            date = parse_date(date_str)
+            date = parse_date(date_str, filtername="collection_date")
             
             if date_str is None or date is None:
                 logger.debug("Skipping %s: missing or invalid collection date '%s'", accession, date_str)
@@ -3578,7 +3582,7 @@ def filter_metadata_only(
                 filter_stats['release_date'] += 1
                 continue
                 
-            release_date_value = parse_date(release_date_str.split("T")[0])
+            release_date_value = parse_date(release_date_str.split("T")[0], filtername="release_date")
             
             if release_date_value is None:
                 logger.debug("Skipping %s: invalid release date '%s'", accession, release_date_str)
@@ -4097,6 +4101,19 @@ def virus(
             if not api_reports:
                 logger.warning("No virus records found matching the specified criteria.")
                 logger.info("Consider relaxing your filter criteria or checking your virus identifier.")
+                # Save command summary documenting zero results
+                save_command_summary(
+                    outfolder=outfolder,
+                    command_line=command_line,
+                    total_api_records=0,
+                    total_after_metadata_filter=0,
+                    total_final_sequences=0,
+                    output_files={},
+                    filtered_metadata=[],
+                    success=True,
+                    error_message="No virus records found matching the specified criteria (API returned 0 records)",
+                    failed_commands=failed_commands
+                )
                 return
 
             logger.info("Successfully retrieved %d virus records from API", len(api_reports))
