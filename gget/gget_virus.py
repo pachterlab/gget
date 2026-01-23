@@ -2410,7 +2410,8 @@ def save_command_summary(
             f.write("=" * 80 + "\n")
             f.write("END OF SUMMARY\n")
             f.write("=" * 80 + "\n")
-        
+            
+        logger.info("=================================")
         logger.info("✅ Command summary saved: %s", summary_file)
         return summary_file
         
@@ -3642,22 +3643,32 @@ def filter_metadata_only(
 
     # Log comprehensive filtering statistics
     num_filtered = len(filtered_accessions)
-    logger.info("✅ Metadata-only filtering process complete.")
-    logger.info("=================================")
-    logger.info("Metadata-only filtering complete:")
-    logger.info("  Total metadata records: %d", total_sequences)
-    logger.info("  Records passing filters: %d", num_filtered)
-
+    
     if num_filtered == 0:
-        logger.info("No records passed the metadata-only filters.")
-
-    # Log detailed filter statistics if any records were filtered out
-    total_filtered = sum(filter_stats.values())
-    if total_filtered > 0:
-        logger.info("Filter statistics (records excluded):")
-        for filter_name, count in filter_stats.items():
-            if count > 0:
-                logger.info("  %s: %d records", filter_name, count)
+        # Simplified output when nothing passes filters
+        logger.info("=================================")
+        logger.info("Metadata-only filtering complete: 0 of %d records passed filters", total_sequences)
+        total_filtered = sum(filter_stats.values())
+        if total_filtered > 0:
+            logger.info("Filter statistics (records excluded):")
+            for filter_name, count in filter_stats.items():
+                if count > 0:
+                    logger.info("  %s: %d records", filter_name, count)
+    else:
+        # Normal output when some records pass filters
+        logger.info("✅ Metadata-only filtering process complete.")
+        logger.info("=================================")
+        logger.info("Metadata-only filtering complete:")
+        logger.info("  Total metadata records: %d", total_sequences)
+        logger.info("  Records passing filters: %d", num_filtered)
+        
+        # Log detailed filter statistics if any records were filtered out
+        total_filtered = sum(filter_stats.values())
+        if total_filtered > 0:
+            logger.info("Filter statistics (records excluded):")
+            for filter_name, count in filter_stats.items():
+                if count > 0:
+                    logger.info("  %s: %d records", filter_name, count)
     
     return filtered_accessions, filtered_metadata_list
 
@@ -4146,7 +4157,7 @@ def virus(
         else:
             filtered_accessions, filtered_metadata = filter_metadata_only(metadata_dict, **filters)
             if not filtered_accessions:
-                logger.warning("No sequences passed metadata-only filters. Skipping sequence download.")
+                pass  # No sequences passed metadata filters
                 total_after_metadata_filter = 0
                 total_final_sequences = 0
                 # Save command summary even if no sequences passed filters
