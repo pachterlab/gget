@@ -3385,6 +3385,7 @@ def filter_metadata_only(
     max_mature_peptide_count=None,
     min_protein_count=None,
     max_protein_count=None,
+    annotated=None,
 ):
     """
     Filter metadata records based on metadata-only criteria.
@@ -3403,11 +3404,11 @@ def filter_metadata_only(
     
     logger.info("Starting metadata-only filtering process...")
     logger.debug("Applying metadata-only filters: seq_length(%s-%s), gene_count(%s-%s), "
-                "completeness(%s), lab_passaged(%s), "
+                "completeness(%s), lab_passaged(%s), annotated(%s), "
                 "submitter_country(%s), collection_date(%s-%s), max_release_date(%s), "
                 "peptide_count(%s-%s), protein_count(%s-%s)",
                 min_seq_length, max_seq_length, min_gene_count, max_gene_count,
-                nuc_completeness, lab_passaged,
+                nuc_completeness, lab_passaged, annotated,
                 submitter_country, min_collection_date, max_collection_date, max_release_date, 
                 min_mature_peptide_count, max_mature_peptide_count,
                 min_protein_count, max_protein_count)
@@ -3444,6 +3445,7 @@ def filter_metadata_only(
         'gene_count': 0,
         'completeness': 0,
         'lab_passaged': 0,
+        'annotated': 0,
         'submitter_country': 0,
         'collection_date': 0,
         'release_date': 0,
@@ -3524,7 +3526,17 @@ def filter_metadata_only(
                 filter_stats['lab_passaged'] += 1
                 continue
 
-        # FILTER 5: Submitter country filter
+        # FILTER 5: Annotation status filter
+        # Note: annotated=True is handled server-side via API filter.annotated_only=true
+        # annotated=False must be handled client-side by excluding annotated sequences
+        if annotated is False:
+            is_annotated = metadata.get("isAnnotated")
+            if is_annotated:
+                logger.debug("Skipping %s: is annotated (excluded when annotated=False)", accession)
+                filter_stats['annotated'] += 1
+                continue
+
+        # FILTER 6: Submitter country filter
         if submitter_country is not None:
             submitter_country_value = "_".join(
                 metadata.get("submitter", {}).get("country", "").split(" ")
@@ -3541,7 +3553,7 @@ def filter_metadata_only(
                 filter_stats['submitter_country'] += 1
                 continue
 
-        # FILTER 6: Collection date range filter
+        # FILTER 7: Collection date range filter
         if min_collection_date is not None or max_collection_date is not None:
             date_str = metadata.get("isolate", {}).get("collection_date", "")
             
@@ -3564,7 +3576,7 @@ def filter_metadata_only(
                 filter_stats['collection_date'] += 1
                 continue
 
-        # FILTER 7: Maximum release date filter
+        # FILTER 8: Maximum release date filter
         if max_release_date is not None:
             release_date_str = metadata.get("releaseDate")
             
@@ -3586,7 +3598,7 @@ def filter_metadata_only(
                 filter_stats['release_date'] += 1
                 continue
 
-        # FILTER 8: Mature peptide count filters
+        # FILTER 9: Mature peptide count filters
         if min_mature_peptide_count is not None or max_mature_peptide_count is not None:
             mature_peptide_count = metadata.get("maturePeptideCount")
             
@@ -3609,7 +3621,7 @@ def filter_metadata_only(
                 filter_stats['mature_peptide_count'] += 1
                 continue
 
-        # FILTER 9: Protein count filters
+        # FILTER 10: Protein count filters
         if min_protein_count is not None or max_protein_count is not None:
             protein_count = metadata.get("proteinCount")
             
@@ -4151,11 +4163,13 @@ def virus(
             "max_mature_peptide_count": max_mature_peptide_count,
             "min_protein_count": min_protein_count,
             "max_protein_count": max_protein_count,
+            # annotated=False needs client-side filtering (annotated=True is handled server-side)
+            "annotated": annotated if annotated is False else None,
         }
 
         all_metadata_filters_none_except_nuc = all(
-            v is None for k, v in filters.items() if k != "nuc_completeness"
-        )
+            v is None for k, v in filters.items() if k not in ("nuc_completeness", "annotated")
+        ) and annotated is not False
 
         # Prepare output file paths (defined early for use in cleanup even if filters return early)
         output_fasta_file = os.path.join(outfolder, f"{virus_clean}_sequences.fasta")
