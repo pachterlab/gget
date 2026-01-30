@@ -986,10 +986,17 @@ def _process_cached_download(zip_file, virus_type="virus"):
                             biosample_info = report.get('biosample_info', {})
                             metadata['biosample_accession'] = biosample_info.get('accession')
                             
-                            # Extract isolate info
+                            # Extract isolate info - NOTE: datasets CLI uses camelCase (collectionDate)
+                            # but we need to store in the format filter_metadata_only expects
                             isolate_info = report.get('isolate', {})
                             metadata['isolate_name'] = isolate_info.get('name')
-                            metadata['collection_date'] = isolate_info.get('collection_date')
+                            # Store isolate as nested dict to match filter_metadata_only expectations
+                            # CLI uses 'collectionDate' (camelCase), we convert to 'collection_date' (snake_case)
+                            metadata['isolate'] = {
+                                'name': isolate_info.get('name'),
+                                'collection_date': isolate_info.get('collectionDate'),  # CLI uses camelCase
+                                'source': isolate_info.get('source'),
+                            }
                             
                             # Extract location info
                             location_info = report.get('location', {})
@@ -2023,9 +2030,13 @@ def parse_date(date_str, filtername="", verbose=False):
             logger.error("❌ Date parsing failed: %s", error_msg)
             raise ValueError(error_msg) from exc
         else:
-            # In non-verbose mode, log warning and return None
-            logger.warning("⚠️ Failed to parse date '%s' for filter '%s': %s", 
-                          date_str, filtername, exc)
+            # In non-verbose mode, log at appropriate level and return None
+            # Use debug level for empty/missing dates (common case), warning for actual invalid dates
+            if not date_str or not date_str.strip():
+                logger.debug("Empty or missing date for filter '%s'", filtername)
+            else:
+                logger.warning("⚠️ Failed to parse date '%s' for filter '%s': %s", 
+                              date_str, filtername, exc)
             return None
 
 
@@ -2410,7 +2421,8 @@ def save_command_summary(
             f.write("=" * 80 + "\n")
             f.write("END OF SUMMARY\n")
             f.write("=" * 80 + "\n")
-        
+
+        logger.info("=================================")
         logger.info("✅ Command summary saved: %s", summary_file)
         return summary_file
         
@@ -3368,12 +3380,12 @@ def filter_metadata_only(
     submitter_country=None,
     min_collection_date=None,
     max_collection_date=None,
-    source_database=None,
     max_release_date=None,
     min_mature_peptide_count=None,
     max_mature_peptide_count=None,
     min_protein_count=None,
     max_protein_count=None,
+    annotated=None,
 ):
     """
     Filter metadata records based on metadata-only criteria.
@@ -3392,12 +3404,12 @@ def filter_metadata_only(
     
     logger.info("Starting metadata-only filtering process...")
     logger.debug("Applying metadata-only filters: seq_length(%s-%s), gene_count(%s-%s), "
-                "completeness(%s), lab_passaged(%s), "
-                "submitter_country(%s), collection_date(%s-%s), source_db(%s), max_release_date(%s), "
+                "completeness(%s), lab_passaged(%s), annotated(%s), "
+                "submitter_country(%s), collection_date(%s-%s), max_release_date(%s), "
                 "peptide_count(%s-%s), protein_count(%s-%s)",
                 min_seq_length, max_seq_length, min_gene_count, max_gene_count,
-                nuc_completeness, lab_passaged,
-                submitter_country, min_collection_date, max_collection_date, source_database, max_release_date, 
+                nuc_completeness, lab_passaged, annotated,
+                submitter_country, min_collection_date, max_collection_date, max_release_date, 
                 min_mature_peptide_count, max_mature_peptide_count,
                 min_protein_count, max_protein_count)
     
@@ -3433,9 +3445,9 @@ def filter_metadata_only(
         'gene_count': 0,
         'completeness': 0,
         'lab_passaged': 0,
+        'annotated': 0,
         'submitter_country': 0,
         'collection_date': 0,
-        'source_database': 0,
         'release_date': 0,
         'mature_peptide_count': 0,
         'protein_count': 0,
@@ -3514,7 +3526,17 @@ def filter_metadata_only(
                 filter_stats['lab_passaged'] += 1
                 continue
 
-        # FILTER 5: Submitter country filter
+        # FILTER 5: Annotation status filter
+        # Note: annotated=True is handled server-side via API filter.annotated_only=true
+        # annotated=False must be handled client-side by excluding annotated sequences
+        if annotated is False:
+            is_annotated = metadata.get("isAnnotated")
+            if is_annotated:
+                logger.debug("Skipping %s: is annotated (excluded when annotated=False)", accession)
+                filter_stats['annotated'] += 1
+                continue
+
+        # FILTER 6: Submitter country filter
         if submitter_country is not None:
             submitter_country_value = "_".join(
                 metadata.get("submitter", {}).get("country", "").split(" ")
@@ -3531,11 +3553,11 @@ def filter_metadata_only(
                 filter_stats['submitter_country'] += 1
                 continue
 
-        # FILTER 6: Collection date range filter
+        # FILTER 7: Collection date range filter
         if min_collection_date is not None or max_collection_date is not None:
             date_str = metadata.get("isolate", {}).get("collection_date", "")
             
-            date = parse_date(date_str)
+            date = parse_date(date_str, filtername="collection_date")
             
             if date_str is None or date is None:
                 logger.debug("Skipping %s: missing or invalid collection date '%s'", accession, date_str)
@@ -3554,20 +3576,6 @@ def filter_metadata_only(
                 filter_stats['collection_date'] += 1
                 continue
 
-        # FILTER 7: Source database filter
-        if source_database is not None:
-            source_db = metadata.get("sourceDatabase", "").lower()
-            if not source_db:
-                logger.debug("Skipping %s: missing source database", accession)
-                filter_stats['source_database'] += 1
-                continue
-                
-            if source_db != source_database.lower():
-                logger.debug("Skipping %s: source database '%s' != required '%s'", 
-                           accession, source_db, source_database.lower())
-                filter_stats['source_database'] += 1
-                continue
-
         # FILTER 8: Maximum release date filter
         if max_release_date is not None:
             release_date_str = metadata.get("releaseDate")
@@ -3577,7 +3585,7 @@ def filter_metadata_only(
                 filter_stats['release_date'] += 1
                 continue
                 
-            release_date_value = parse_date(release_date_str.split("T")[0])
+            release_date_value = parse_date(release_date_str.split("T")[0], filtername="release_date")
             
             if release_date_value is None:
                 logger.debug("Skipping %s: invalid release date '%s'", accession, release_date_str)
@@ -3642,22 +3650,32 @@ def filter_metadata_only(
 
     # Log comprehensive filtering statistics
     num_filtered = len(filtered_accessions)
-    logger.info("✅ Metadata-only filtering process complete.")
-    logger.info("=================================")
-    logger.info("Metadata-only filtering complete:")
-    logger.info("  Total metadata records: %d", total_sequences)
-    logger.info("  Records passing filters: %d", num_filtered)
-
+    
     if num_filtered == 0:
-        logger.info("No records passed the metadata-only filters.")
-
-    # Log detailed filter statistics if any records were filtered out
-    total_filtered = sum(filter_stats.values())
-    if total_filtered > 0:
-        logger.info("Filter statistics (records excluded):")
-        for filter_name, count in filter_stats.items():
-            if count > 0:
-                logger.info("  %s: %d records", filter_name, count)
+        # Simplified output when nothing passes filters
+        logger.info("=================================")
+        logger.info("Metadata-only filtering complete: 0 of %d records passed filters", total_sequences)
+        total_filtered = sum(filter_stats.values())
+        if total_filtered > 0:
+            logger.info("Filter statistics (records excluded):")
+            for filter_name, count in filter_stats.items():
+                if count > 0:
+                    logger.info("  %s: %d records", filter_name, count)
+    else:
+        # Normal output when some records pass filters
+        logger.info("✅ Metadata-only filtering process complete.")
+        logger.info("=================================")
+        logger.info("Metadata-only filtering complete:")
+        logger.info("  Total metadata records: %d", total_sequences)
+        logger.info("  Records passing filters: %d", num_filtered)
+        
+        # Log detailed filter statistics if any records were filtered out
+        total_filtered = sum(filter_stats.values())
+        if total_filtered > 0:
+            logger.info("Filter statistics (records excluded):")
+            for filter_name, count in filter_stats.items():
+                if count > 0:
+                    logger.info("  %s: %d records", filter_name, count)
     
     return filtered_accessions, filtered_metadata_list
 
@@ -3682,7 +3700,6 @@ def virus(
     annotated=None,
     refseq_only=False,
     keep_temp=False,
-    source_database=None,
     min_release_date=None,
     max_release_date=None,
     min_mature_peptide_count=None,
@@ -3727,7 +3744,6 @@ def virus(
         min_collection_date (str): Minimum collection date filter (YYYY-MM-DD)
         max_collection_date (str): Maximum collection date filter (YYYY-MM-DD)
         annotated (bool): Annotation status filter
-        source_database (str): Source database filter
         min_release_date (str): Minimum release date filter (YYYY-MM-DD)
         max_release_date (str): Maximum release date filter (YYYY-MM-DD)
         min_mature_peptide_count (int): Minimum mature peptide count filter
@@ -3784,8 +3800,8 @@ def virus(
 
     logger.info("Query parameters: virus='%s', is_accession=%s, outfolder='%s'", 
                 virus, is_accession, outfolder)
-    logger.debug("Applied filters: host=%s, seq_length=(%s-%s), gene_count=(%s-%s), completeness=%s, annotated=%s, refseq_only=%s, keep_temp=%s, lab_passaged=%s, geo_location=%s, submitter_country=%s, collection_date=(%s-%s), source_db=%s, release_date=(%s-%s), protein_count=(%s-%s), peptide_count=(%s-%s), max_ambiguous=%s, has_proteins=%s, proteins_complete=%s, genbank_metadata=%s, genbank_batch_size=%s",
-    host, min_seq_length, max_seq_length, min_gene_count, max_gene_count, nuc_completeness, annotated, refseq_only, keep_temp, lab_passaged, geographic_location, submitter_country, min_collection_date, max_collection_date,source_database, min_release_date, max_release_date, min_protein_count, max_protein_count, min_mature_peptide_count, max_mature_peptide_count, max_ambiguous_chars, has_proteins, proteins_complete, genbank_metadata, genbank_batch_size)
+    logger.debug("Applied filters: host=%s, seq_length=(%s-%s), gene_count=(%s-%s), completeness=%s, annotated=%s, refseq_only=%s, keep_temp=%s, lab_passaged=%s, geo_location=%s, submitter_country=%s, collection_date=(%s-%s), release_date=(%s-%s), protein_count=(%s-%s), peptide_count=(%s-%s), max_ambiguous=%s, has_proteins=%s, proteins_complete=%s, genbank_metadata=%s, genbank_batch_size=%s",
+    host, min_seq_length, max_seq_length, min_gene_count, max_gene_count, nuc_completeness, annotated, refseq_only, keep_temp, lab_passaged, geographic_location, submitter_country, min_collection_date, max_collection_date, min_release_date, max_release_date, min_protein_count, max_protein_count, min_mature_peptide_count, max_mature_peptide_count, max_ambiguous_chars, has_proteins, proteins_complete, genbank_metadata, genbank_batch_size)
 
     # SECTION 1: INPUT VALIDATION AND OUTPUT DIRECTORY SETUP
     # Validate and normalize input arguments before proceeding
@@ -3942,10 +3958,10 @@ def virus(
             'accession': virus,
             'use_accession': is_accession
         }
-            
-        zip_file = download_sars_cov2_optimized(**params)
         
         try:
+            zip_file = download_sars_cov2_optimized(**params)
+            
             cached_sequences, cached_metadata_dict, used_cached_download = _process_cached_download(
                 zip_file, virus_type="SARS-CoV-2"
             )
@@ -3953,8 +3969,12 @@ def virus(
                 logger.info("Cached download completed. Server-side filters (host, complete_only, annotated, lineage) applied.")
                 logger.info("All other filters will be applied in the unified filtering pipeline.")
         except Exception as cache_error:
-            logger.warning("❌ Cached data processing failed: %s", cache_error)
-            logger.info("Proceeding with regular API workflow...")
+            logger.warning("❌ SARS-CoV-2 cached download failed: %s", cache_error)
+            logger.info("Falling back to regular API workflow...")
+            # Reset cached download state to ensure regular API workflow is used
+            cached_sequences = None
+            cached_metadata_dict = None
+            used_cached_download = False
     
     # SECTION 2b: ALPHAINFLUENZA CACHED DATA PROCESSING
     # For Alphainfluenza queries, use cached data packages with hierarchical fallback
@@ -3976,10 +3996,10 @@ def virus(
             'accession': virus,
             'use_accession': is_accession
         }
-            
-        zip_file = download_alphainfluenza_optimized(**params)
         
         try:
+            zip_file = download_alphainfluenza_optimized(**params)
+            
             cached_sequences, cached_metadata_dict, used_cached_download = _process_cached_download(
                 zip_file, virus_type="Alphainfluenza"
             )
@@ -3987,8 +4007,12 @@ def virus(
                 logger.info("Cached download completed. Server-side filters (host, complete_only, annotated) applied.")
                 logger.info("All other filters will be applied in the unified filtering pipeline.")
         except Exception as cache_error:
-            logger.warning("❌ Cached data processing failed: %s", cache_error)
-            logger.info("Proceeding with regular API workflow...")
+            logger.warning("❌ Alphainfluenza cached download failed: %s", cache_error)
+            logger.info("Falling back to regular API workflow...")
+            # Reset cached download state to ensure regular API workflow is used
+            cached_sequences = None
+            cached_metadata_dict = None
+            used_cached_download = False
     
     # Create temporary directory for intermediate processing
     # This will be cleaned up at the end regardless of success or failure
@@ -4086,6 +4110,19 @@ def virus(
             if not api_reports:
                 logger.warning("No virus records found matching the specified criteria.")
                 logger.info("Consider relaxing your filter criteria or checking your virus identifier.")
+                # Save command summary documenting zero results
+                save_command_summary(
+                    outfolder=outfolder,
+                    command_line=command_line,
+                    total_api_records=0,
+                    total_after_metadata_filter=0,
+                    total_final_sequences=0,
+                    output_files={},
+                    filtered_metadata=[],
+                    success=True,
+                    error_message="No virus records found matching the specified criteria (API returned 0 records)",
+                    failed_commands=failed_commands
+                )
                 return
 
             logger.info("Successfully retrieved %d virus records from API", len(api_reports))
@@ -4121,17 +4158,18 @@ def virus(
             "submitter_country": submitter_country,
             "min_collection_date": min_collection_date,
             "max_collection_date": max_collection_date,
-            "source_database": source_database,
             "max_release_date": max_release_date,
             "min_mature_peptide_count": min_mature_peptide_count,
             "max_mature_peptide_count": max_mature_peptide_count,
             "min_protein_count": min_protein_count,
             "max_protein_count": max_protein_count,
+            # annotated=False needs client-side filtering (annotated=True is handled server-side)
+            "annotated": annotated if annotated is False else None,
         }
 
         all_metadata_filters_none_except_nuc = all(
-            v is None for k, v in filters.items() if k != "nuc_completeness"
-        )
+            v is None for k, v in filters.items() if k not in ("nuc_completeness", "annotated")
+        ) and annotated is not False
 
         # Prepare output file paths (defined early for use in cleanup even if filters return early)
         output_fasta_file = os.path.join(outfolder, f"{virus_clean}_sequences.fasta")
@@ -4146,7 +4184,7 @@ def virus(
         else:
             filtered_accessions, filtered_metadata = filter_metadata_only(metadata_dict, **filters)
             if not filtered_accessions:
-                logger.warning("No sequences passed metadata-only filters. Skipping sequence download.")
+                pass  # No sequences passed metadata filters
                 total_after_metadata_filter = 0
                 total_final_sequences = 0
                 # Save command summary even if no sequences passed filters
@@ -4479,8 +4517,6 @@ def virus(
                     cmd_parts.append(f"min_collection_date='{min_collection_date}'")
                 if max_collection_date:
                     cmd_parts.append(f"max_collection_date='{max_collection_date}'")
-                if source_database:
-                    cmd_parts.append(f"source_database='{source_database}'")
                 if min_release_date:
                     cmd_parts.append(f"min_release_date='{min_release_date}'")
                 if max_release_date:

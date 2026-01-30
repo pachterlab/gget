@@ -66,7 +66,6 @@ Advanced Filters:
   ✓ genbank_metadata (bool) - type validation, functional test
   ✓ genbank_batch_size (int) - type validation, functional test
   ✓ geographic_location (str) - functional test
-  ✓ source_database (str) - functional test
   ✓ max_ambiguous_chars (int) - functional test
   ✓ has_proteins (str/list) - functional test
 
@@ -979,48 +978,6 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         if records:
             self.assertIn("Protein count", records[0].keys(), 
                          f"Protein count field not found. Available fields: {list(records[0].keys())}")
-    
-    @retry_on_network_error(max_retries=3, delay=5)
-    def test_virus_with_source_database_filter(self):
-        """Test that source database filter works correctly.
-        
-        Downloads Zika virus from GenBank database and verifies:
-        - Files are created successfully
-        - Records are returned
-        - Source database field exists in metadata
-        
-        This catches: Source database filter bugs, API parameter issues.
-        """
-        virus_name = "Zika virus"
-        outfolder = self.test_output_dir
-        
-        result = virus(
-            virus=virus_name,
-            source_database="GenBank",
-            outfolder=outfolder
-        )
-        
-        self.assertIsNone(result)
-        
-        files = self._check_output_files(virus_name, outfolder)
-        self.assertTrue(files["fasta"]["exists"], "FASTA file not created with source database filter")
-        
-        # Parse CSV metadata
-        records = self._parse_csv_metadata(files["csv"]["path"])
-        
-        # Should have some records
-        self.assertGreater(len(records), 0, "No records returned with source database filter")
-        
-        # Check that source database field exists
-        if records:
-            db_field = None
-            for possible_field in ["GenBank/RefSeq", "Source Database", "Database"]:
-                if possible_field in records[0].keys():
-                    db_field = possible_field
-                    break
-            
-            self.assertIsNotNone(db_field, 
-                               f"Source database field not found. Available fields: {list(records[0].keys())}")
     
     @retry_on_network_error(max_retries=3, delay=5)
     def test_virus_with_lab_passaged_filter(self):
