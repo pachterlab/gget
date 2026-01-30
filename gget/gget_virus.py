@@ -3941,6 +3941,7 @@ def virus(
     cached_sequences = None
     cached_metadata_dict = None
     used_cached_download = False
+    cached_zip_file = None  # Track zip file path for cleanup
 
     if is_sars_cov2 or is_sars_cov2_query(virus, is_accession):
         logger.info("DETECTED SARS-CoV-2 QUERY - USING CACHED DATA PACKAGES")
@@ -3959,6 +3960,7 @@ def virus(
         }
             
         zip_file = download_sars_cov2_optimized(**params)
+        cached_zip_file = zip_file  # Track for cleanup
         
         try:
             cached_sequences, cached_metadata_dict, used_cached_download = _process_cached_download(
@@ -3993,6 +3995,7 @@ def virus(
         }
             
         zip_file = download_alphainfluenza_optimized(**params)
+        cached_zip_file = zip_file  # Track for cleanup
         
         try:
             cached_sequences, cached_metadata_dict, used_cached_download = _process_cached_download(
@@ -4601,7 +4604,26 @@ def virus(
                 logger.debug("✅ Cleaned up temporary directory: %s", temp_dir)
             except Exception as e:
                 logger.warning("❌ Failed to clean up temporary directory %s: %s", temp_dir, e)
-        elif keep_temp and os.path.exists(output_api_metadata_jsonl):
+        
+        # Clean up cached download files (zip file and extracted directory)
+        # This ensures the folder structure is identical whether using cached or API-based downloads
+        if cached_zip_file and keep_temp is False:
+            try:
+                # Remove the zip file
+                if os.path.exists(cached_zip_file):
+                    os.remove(cached_zip_file)
+                    logger.debug("✅ Cleaned up cached zip file: %s", cached_zip_file)
+                # Remove the extracted directory (same path without .zip extension)
+                cached_extract_dir = os.path.splitext(cached_zip_file)[0]
+                if os.path.exists(cached_extract_dir) and os.path.isdir(cached_extract_dir):
+                    shutil.rmtree(cached_extract_dir)
+                    logger.debug("✅ Cleaned up cached extracted directory: %s", cached_extract_dir)
+            except Exception as e:
+                logger.warning("❌ Failed to clean up cached download files: %s", e)
+        elif cached_zip_file and keep_temp:
+            logger.debug("Preserving cached download files as per user request: %s", cached_zip_file)
+        
+        if keep_temp and os.path.exists(output_api_metadata_jsonl):
             logger.debug("Preserving temporary directory as per user request: %s", temp_dir)
             shutil.move(output_api_metadata_jsonl, os.path.join(temp_dir, os.path.basename(output_api_metadata_jsonl)))
             if genbank_metadata and genbank_success and os.path.exists(genbank_csv_path):
