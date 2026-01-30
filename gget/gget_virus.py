@@ -986,10 +986,17 @@ def _process_cached_download(zip_file, virus_type="virus"):
                             biosample_info = report.get('biosample_info', {})
                             metadata['biosample_accession'] = biosample_info.get('accession')
                             
-                            # Extract isolate info
+                            # Extract isolate info - NOTE: datasets CLI uses camelCase (collectionDate)
+                            # but we need to store in the format filter_metadata_only expects
                             isolate_info = report.get('isolate', {})
                             metadata['isolate_name'] = isolate_info.get('name')
-                            metadata['collection_date'] = isolate_info.get('collection_date')
+                            # Store isolate as nested dict to match filter_metadata_only expectations
+                            # CLI uses 'collectionDate' (camelCase), we convert to 'collection_date' (snake_case)
+                            metadata['isolate'] = {
+                                'name': isolate_info.get('name'),
+                                'collection_date': isolate_info.get('collectionDate'),  # CLI uses camelCase
+                                'source': isolate_info.get('source'),
+                            }
                             
                             # Extract location info
                             location_info = report.get('location', {})
