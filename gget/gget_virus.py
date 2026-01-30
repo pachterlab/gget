@@ -3373,7 +3373,6 @@ def filter_metadata_only(
     submitter_country=None,
     min_collection_date=None,
     max_collection_date=None,
-    source_database=None,
     max_release_date=None,
     min_mature_peptide_count=None,
     max_mature_peptide_count=None,
@@ -3398,11 +3397,11 @@ def filter_metadata_only(
     logger.info("Starting metadata-only filtering process...")
     logger.debug("Applying metadata-only filters: seq_length(%s-%s), gene_count(%s-%s), "
                 "completeness(%s), lab_passaged(%s), "
-                "submitter_country(%s), collection_date(%s-%s), source_db(%s), max_release_date(%s), "
+                "submitter_country(%s), collection_date(%s-%s), max_release_date(%s), "
                 "peptide_count(%s-%s), protein_count(%s-%s)",
                 min_seq_length, max_seq_length, min_gene_count, max_gene_count,
                 nuc_completeness, lab_passaged,
-                submitter_country, min_collection_date, max_collection_date, source_database, max_release_date, 
+                submitter_country, min_collection_date, max_collection_date, max_release_date, 
                 min_mature_peptide_count, max_mature_peptide_count,
                 min_protein_count, max_protein_count)
     
@@ -3440,7 +3439,6 @@ def filter_metadata_only(
         'lab_passaged': 0,
         'submitter_country': 0,
         'collection_date': 0,
-        'source_database': 0,
         'release_date': 0,
         'mature_peptide_count': 0,
         'protein_count': 0,
@@ -3559,21 +3557,7 @@ def filter_metadata_only(
                 filter_stats['collection_date'] += 1
                 continue
 
-        # FILTER 7: Source database filter
-        if source_database is not None:
-            source_db = metadata.get("sourceDatabase", "").lower()
-            if not source_db:
-                logger.debug("Skipping %s: missing source database", accession)
-                filter_stats['source_database'] += 1
-                continue
-                
-            if source_db != source_database.lower():
-                logger.debug("Skipping %s: source database '%s' != required '%s'", 
-                           accession, source_db, source_database.lower())
-                filter_stats['source_database'] += 1
-                continue
-
-        # FILTER 8: Maximum release date filter
+        # FILTER 7: Maximum release date filter
         if max_release_date is not None:
             release_date_str = metadata.get("releaseDate")
             
@@ -3595,7 +3579,7 @@ def filter_metadata_only(
                 filter_stats['release_date'] += 1
                 continue
 
-        # FILTER 9: Mature peptide count filters
+        # FILTER 8: Mature peptide count filters
         if min_mature_peptide_count is not None or max_mature_peptide_count is not None:
             mature_peptide_count = metadata.get("maturePeptideCount")
             
@@ -3618,7 +3602,7 @@ def filter_metadata_only(
                 filter_stats['mature_peptide_count'] += 1
                 continue
 
-        # FILTER 10: Protein count filters
+        # FILTER 9: Protein count filters
         if min_protein_count is not None or max_protein_count is not None:
             protein_count = metadata.get("proteinCount")
             
@@ -3697,7 +3681,6 @@ def virus(
     annotated=None,
     refseq_only=False,
     keep_temp=False,
-    source_database=None,
     min_release_date=None,
     max_release_date=None,
     min_mature_peptide_count=None,
@@ -3742,7 +3725,6 @@ def virus(
         min_collection_date (str): Minimum collection date filter (YYYY-MM-DD)
         max_collection_date (str): Maximum collection date filter (YYYY-MM-DD)
         annotated (bool): Annotation status filter
-        source_database (str): Source database filter
         min_release_date (str): Minimum release date filter (YYYY-MM-DD)
         max_release_date (str): Maximum release date filter (YYYY-MM-DD)
         min_mature_peptide_count (int): Minimum mature peptide count filter
@@ -3799,8 +3781,8 @@ def virus(
 
     logger.info("Query parameters: virus='%s', is_accession=%s, outfolder='%s'", 
                 virus, is_accession, outfolder)
-    logger.debug("Applied filters: host=%s, seq_length=(%s-%s), gene_count=(%s-%s), completeness=%s, annotated=%s, refseq_only=%s, keep_temp=%s, lab_passaged=%s, geo_location=%s, submitter_country=%s, collection_date=(%s-%s), source_db=%s, release_date=(%s-%s), protein_count=(%s-%s), peptide_count=(%s-%s), max_ambiguous=%s, has_proteins=%s, proteins_complete=%s, genbank_metadata=%s, genbank_batch_size=%s",
-    host, min_seq_length, max_seq_length, min_gene_count, max_gene_count, nuc_completeness, annotated, refseq_only, keep_temp, lab_passaged, geographic_location, submitter_country, min_collection_date, max_collection_date,source_database, min_release_date, max_release_date, min_protein_count, max_protein_count, min_mature_peptide_count, max_mature_peptide_count, max_ambiguous_chars, has_proteins, proteins_complete, genbank_metadata, genbank_batch_size)
+    logger.debug("Applied filters: host=%s, seq_length=(%s-%s), gene_count=(%s-%s), completeness=%s, annotated=%s, refseq_only=%s, keep_temp=%s, lab_passaged=%s, geo_location=%s, submitter_country=%s, collection_date=(%s-%s), release_date=(%s-%s), protein_count=(%s-%s), peptide_count=(%s-%s), max_ambiguous=%s, has_proteins=%s, proteins_complete=%s, genbank_metadata=%s, genbank_batch_size=%s",
+    host, min_seq_length, max_seq_length, min_gene_count, max_gene_count, nuc_completeness, annotated, refseq_only, keep_temp, lab_passaged, geographic_location, submitter_country, min_collection_date, max_collection_date, min_release_date, max_release_date, min_protein_count, max_protein_count, min_mature_peptide_count, max_mature_peptide_count, max_ambiguous_chars, has_proteins, proteins_complete, genbank_metadata, genbank_batch_size)
 
     # SECTION 1: INPUT VALIDATION AND OUTPUT DIRECTORY SETUP
     # Validate and normalize input arguments before proceeding
@@ -3957,10 +3939,10 @@ def virus(
             'accession': virus,
             'use_accession': is_accession
         }
-            
-        zip_file = download_sars_cov2_optimized(**params)
         
         try:
+            zip_file = download_sars_cov2_optimized(**params)
+            
             cached_sequences, cached_metadata_dict, used_cached_download = _process_cached_download(
                 zip_file, virus_type="SARS-CoV-2"
             )
@@ -3968,8 +3950,12 @@ def virus(
                 logger.info("Cached download completed. Server-side filters (host, complete_only, annotated, lineage) applied.")
                 logger.info("All other filters will be applied in the unified filtering pipeline.")
         except Exception as cache_error:
-            logger.warning("❌ Cached data processing failed: %s", cache_error)
-            logger.info("Proceeding with regular API workflow...")
+            logger.warning("❌ SARS-CoV-2 cached download failed: %s", cache_error)
+            logger.info("Falling back to regular API workflow...")
+            # Reset cached download state to ensure regular API workflow is used
+            cached_sequences = None
+            cached_metadata_dict = None
+            used_cached_download = False
     
     # SECTION 2b: ALPHAINFLUENZA CACHED DATA PROCESSING
     # For Alphainfluenza queries, use cached data packages with hierarchical fallback
@@ -3991,10 +3977,10 @@ def virus(
             'accession': virus,
             'use_accession': is_accession
         }
-            
-        zip_file = download_alphainfluenza_optimized(**params)
         
         try:
+            zip_file = download_alphainfluenza_optimized(**params)
+            
             cached_sequences, cached_metadata_dict, used_cached_download = _process_cached_download(
                 zip_file, virus_type="Alphainfluenza"
             )
@@ -4002,8 +3988,12 @@ def virus(
                 logger.info("Cached download completed. Server-side filters (host, complete_only, annotated) applied.")
                 logger.info("All other filters will be applied in the unified filtering pipeline.")
         except Exception as cache_error:
-            logger.warning("❌ Cached data processing failed: %s", cache_error)
-            logger.info("Proceeding with regular API workflow...")
+            logger.warning("❌ Alphainfluenza cached download failed: %s", cache_error)
+            logger.info("Falling back to regular API workflow...")
+            # Reset cached download state to ensure regular API workflow is used
+            cached_sequences = None
+            cached_metadata_dict = None
+            used_cached_download = False
     
     # Create temporary directory for intermediate processing
     # This will be cleaned up at the end regardless of success or failure
@@ -4149,7 +4139,6 @@ def virus(
             "submitter_country": submitter_country,
             "min_collection_date": min_collection_date,
             "max_collection_date": max_collection_date,
-            "source_database": source_database,
             "max_release_date": max_release_date,
             "min_mature_peptide_count": min_mature_peptide_count,
             "max_mature_peptide_count": max_mature_peptide_count,
@@ -4507,8 +4496,6 @@ def virus(
                     cmd_parts.append(f"min_collection_date='{min_collection_date}'")
                 if max_collection_date:
                     cmd_parts.append(f"max_collection_date='{max_collection_date}'")
-                if source_database:
-                    cmd_parts.append(f"source_database='{source_database}'")
                 if min_release_date:
                     cmd_parts.append(f"min_release_date='{min_release_date}'")
                 if max_release_date:

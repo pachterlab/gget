@@ -81,9 +81,6 @@ Filter by geographic location of sample collection (e.g. 'USA', 'Asia').
 `--submitter_country`  
 Filter by the country of the sequence submitter.
 
-`--source_database`  
-Filter by source database. One of: 'genbank' or 'refseq'.
-
 _SARS-CoV-2 specific filters_
 
 `--lineage`  

@@ -2601,13 +2601,6 @@ def main():
         help="When querying Alphainfluenza (Influenza A), use this tag so the code optimizes by using NCBI's cached data packages for faster downloads.",
     )
     parser_virus.add_argument(
-        "--source_database",
-        type=str,
-        choices=["genbank", "refseq"],
-        required=False,
-        help="Source database filter: 'genbank' or 'refseq'.",
-    )
-    parser_virus.add_argument(
         "--min_release_date",
         type=str,
         required=False,
@@ -3792,7 +3785,6 @@ def main():
             keep_temp=args.keep_temp,
             is_sars_cov2=args.is_sars_cov2,
             is_alphainfluenza=args.is_alphainfluenza,
-            source_database=args.source_database,
             min_release_date=args.min_release_date,
             max_release_date=args.max_release_date,
             min_mature_peptide_count=args.min_mature_peptide_count,
