@@ -81,9 +81,6 @@ Filtra por ubicación geográfica de la recolección de la muestra (p. ej. 'USA'
 `--submitter_country`  
 Filtra por el país del remitente de la secuencia.
 
-`--source_database`  
-Filtra por base de datos de origen. Uno de: 'genbank' o 'refseq'.
-
 _Filtros específicos de SARS-CoV-2_
 
 `--lineage`  
