@@ -8,8 +8,8 @@ ___
 
 # ⬇️ Daily `gget` downloads
 
-[![gget PyPI downloads over the last year](https://github.com/lauraluebbert/gget_downloads/raw/main/plots/downloads_gget.png)](https://github.com/lauraluebbert/gget_downloads/tree/main)  
-Automatically updates every day at 23:55 UTC.
+[![gget PyPI downloads over the last year](https://github.com/lauraluebbert/gget_downloads/raw/main/plots/downloads_gget_daily.png)](https://github.com/lauraluebbert/gget_downloads/tree/main)  
+Automatically updates every Sunday at 23:55 UTC.
 ___
 
 # 🧑‍🤝‍🧑 Dependent software
