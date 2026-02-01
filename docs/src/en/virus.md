@@ -317,13 +317,17 @@ gget.virus(
 
 If you use `gget virus` in a publication, please cite the following articles:
 
+  - Nasri, F. et al (2026). Coming soon.
+
   - Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
 
   - O’Leary, N.A., Cox, E., Holmes, J.B. et al (2024). Exploring and retrieving sequence and metadata for species across the tree of life with NCBI Datasets. Sci Data 11, 732. [https://doi.org/10.1038/s41597-024-03571-y](https://doi.org/10.1038/s41597-024-03571-y)
 
 
+---
+---
 
-# Virus Retrieval Workflow
+# Additional Details: Virus Retrieval Workflow
 
 ## Overview
 
