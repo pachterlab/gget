@@ -16,6 +16,10 @@ ___
 The following applications build on `gget`:
 - [gget-mcp](https://mcpindex.net/en/mcpserver/longevity-genie-gget-mcp)
   > "MCP server providing a powerful bioinformatics toolkit for genomics queries and analysis, wrapping the popular `gget` library."
+  - Other tools using this or other `gget` MCP servers:
+    - [https://mcpservers.org/servers/longevity-genie/holy-bio-mcp](https://mcpservers.org/servers/longevity-genie/holy-bio-mcp)
+    - [https://biocontext.ai](https://biocontext.ai/registry/longevity-genie/gget-mcp)
+    - [https://mcpmarket.com/zh/tools/skills/gget-bioinformatics-tool](https://mcpmarket.com/zh/tools/skills/gget-bioinformatics-tool)
 - [Biomni](https://biomni.stanford.edu/environment)  
   A General-Purpose Biomedical AI Scientist being developed at Stanford and Genentech.
 - [PerTurboAgent](https://www.biorxiv.org/content/10.1101/2025.05.25.656020v1)  
@@ -87,6 +91,7 @@ See more: [Google Scholar](https://scholar.google.com/scholar?oi=bibs&hl=en&cite
 ___
 
 # 📰 `gget` in the news
+- [Oreate AI blog post](https://www.oreateai.com/blog/exploring-alphafold2-a-guide-to-github-repositories-and-colab-resources/e9a4355bf08a6cdfe061cb93d3ff61dd): "Exploring AlphaFold2: A Guide to GitHub Repositories and Colab Resources"
 - `gget opentargets` release [blog post](https://blog.opentargets.org/case-study-gget/) by the Open Targets platform
 - Documentary short film about *gget*: [https://youtu.be/cVR0k6Mt97o](https://youtu.be/cVR0k6Mt97o)
 - Podcast episode for the Prototype Fund Public Interest Podcast about the importance of open-source software and its role in academic research (in German): [https://public-interest-podcast.podigee.io/33-pips4e4](https://public-interest-podcast.podigee.io/33-pips4e4)
