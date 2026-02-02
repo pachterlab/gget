@@ -2042,126 +2042,149 @@ def parse_date(date_str, filtername="", verbose=False):
 
 def _check_protein_requirements(record, metadata, has_proteins, proteins_complete):
     """
-    Check if a sequence meets protein/gene requirements.
+    Check if a sequence meets protein/gene requirements based on FASTA header.
     
     This function validates whether a virus sequence contains required proteins
-    or genes, and optionally whether those proteins are complete. It checks both
-    the FASTA header (for gene/protein names) and metadata (for counts).
+    or genes by checking the FASTA header. For segmented viruses (like influenza),
+    this checks segment/protein labels in the sequence description.
+    
+    The function extracts the protein/segment portion of the header by:
+    1. Splitting the description on the isolate name (if available in metadata)
+    2. Splitting by semicolons to get individual protein/segment parts
+    3. Using regex to match protein names (case-insensitive, handles quotes/parentheses)
     
     Args:
         record: FastaRecord object containing the sequence and description
         metadata (dict): Metadata dictionary for this accession
         has_proteins (str/list/None): Required protein(s)/gene(s) to check for
                                       Can be a single string or list of strings
-        proteins_complete (bool): Whether to require complete protein annotations
+        proteins_complete (bool): Whether proteins must be marked as "complete" in header
         
     Returns:
         bool: True if protein requirements are met, False otherwise
         
     Example:
-        >>> # Check for spike protein
-        >>> _check_protein_requirements(record, metadata, "spike", False)
+        >>> # Check for HA segment
+        >>> _check_protein_requirements(record, metadata, "HA", False)
         True
-        >>> # Check for multiple proteins
-        >>> _check_protein_requirements(record, metadata, ["HA", "NA"], False)
-        True
+        >>> # Check for multiple segments, requiring complete
+        >>> _check_protein_requirements(record, metadata, ["HA", "NA"], True)
+        True  # Only if both HA and NA are present AND marked "complete"
     """
     
-    # If proteins_complete is True, check if sequence has protein annotations
-    if proteins_complete:
+    # If no protein filter specified and proteins_complete is False, pass through
+    if has_proteins is None and not proteins_complete:
+        return True
+    
+    # If only proteins_complete is True but no specific proteins required,
+    # we can't check completion status without knowing which proteins to look for
+    if has_proteins is None and proteins_complete:
+        # Fall back to checking if sequence has any protein annotations in metadata
         protein_count = metadata.get("proteinCount", 0)
         gene_count = metadata.get("geneCount", 0)
-        
-        # Consider a sequence complete if it has at least one protein or gene annotated
         if protein_count is None or protein_count == 0:
             if gene_count is None or gene_count == 0:
-                logger.debug("Sequence %s has no protein/gene annotations (protein_count=%s, gene_count=%s)",
-                           record.id, protein_count, gene_count)
+                logger.debug("Sequence %s has no protein/gene annotations", record.id)
                 return False
+        return True
     
-    # If specific proteins are required, check for them in the header
-    if has_proteins is not None:
-        # Convert single string to list for uniform processing
-        required_proteins = [has_proteins] if isinstance(has_proteins, str) else has_proteins
-        
-        # Get the full FASTA header description
-        header = record.description.lower() if hasattr(record, 'description') else str(record.id).lower()
-        
-        # Check if all required proteins are mentioned in the header
-        for protein in required_proteins:
-            protein_lower = protein.lower()
-            if protein_lower not in header:
-                logger.debug("Sequence %s missing required protein: %s (header: %s)",
-                           record.id, protein, record.description[:100])
-                return False
-        
-        logger.debug("Sequence %s has all required proteins: %s",
-                   record.id, required_proteins)
+    # Convert single string to list for uniform processing
+    if isinstance(has_proteins, str):
+        has_proteins = [has_proteins]
     
-    return True
+    try:
+        # Extract the protein/segment portion of the header
+        # If isolate name exists in metadata, split on it to get just the protein info
+        isolate_name = metadata.get("isolate", {}).get("name")
+        if isolate_name:
+            prot_header = record.description.split(isolate_name)[-1]
+        else:
+            # If sample name was not added to metadata,
+            # whole header will be searched for protein/segment names
+            prot_header = record.description
+        
+        # Split header into parts by semicolon for checking individual annotations
+        prot_parts = prot_header.split(";")
+        
+        # Check that ALL required proteins are present
+        for protein in has_proteins:
+            # Dynamically create regex for each protein with case insensitivity
+            # Handles optional quotes, parentheses around protein names
+            regex = rf"(?i)\b['\",]?\(?{re.escape(protein)}\)?['\",]?\b"
+            
+            if proteins_complete:
+                # Only keeping sequences for which proteins are marked as "complete"
+                if not any(
+                    re.search(regex, part) and "complete" in part.lower()
+                    for part in prot_parts
+                ):
+                    logger.debug("Sequence %s: protein '%s' not found or not complete",
+                               record.id, protein)
+                    return False
+            else:
+                # Just check if protein name appears anywhere in header parts
+                if not any(re.search(regex, part) for part in prot_parts):
+                    logger.debug("Sequence %s: required protein '%s' not found in header",
+                               record.id, protein)
+                    return False
+        
+        logger.debug("Sequence %s passed protein requirements: %s (complete=%s)",
+                   record.id, has_proteins, proteins_complete)
+        return True
+        
+    except Exception as e:
+        logger.warning(
+            f"The 'has_proteins' filter could not be applied to sequence {record.id} "
+            f"due to the following error:\n{e}"
+        )
+        # On error, exclude the sequence (conservative approach)
+        return False
 
 
-def _extract_protein_info_from_header(header):
+def _extract_protein_info_from_header(description, metadata=None):
     """
     Extract protein/segment information from FASTA header.
     
-    This function parses FASTA headers to extract useful protein or segment
-    information, which is particularly important for segmented viruses like
-    influenza that have multiple genomic segments encoding different proteins.
+    This function extracts the protein/segment portion of the FASTA description
+    by splitting on the isolate name (if available in metadata). This is particularly
+    important for segmented viruses like influenza.
     
-    Common patterns extracted:
-    - Segment numbers (e.g., "segment 4", "segment 8")
-    - Gene/protein names (e.g., "hemagglutinin", "HA", "neuraminidase", "NA")
-    - CDS/protein annotations
+    The extraction logic matches the original Laura_OG implementation:
+    1. If isolate name exists in metadata, split description on it and take the last part
+    2. Otherwise, use the entire description as the protein/segment info
     
     Args:
-        header (str): FASTA header/description line
+        description (str): FASTA header/description line
+        metadata (dict, optional): Metadata dictionary that may contain isolate name
         
     Returns:
-        str: Extracted protein/segment information, or empty string if none found
+        str: Extracted protein/segment information, or pd.NA if extraction fails
         
     Example:
-        >>> _extract_protein_info_from_header("A/H1N1 segment 4 (HA)")
-        "segment 4 (HA)"
-        >>> _extract_protein_info_from_header("spike glycoprotein gene")
-        "spike glycoprotein"
+        >>> _extract_protein_info_from_header(
+        ...     "NC_001234 A/California/07/2009 HA; complete cds",
+        ...     {"isolate": {"name": "A/California/07/2009"}}
+        ... )
+        " HA; complete cds"
     """
     
-    if not header:
-        return ""
+    if not description:
+        return pd.NA
     
-    header_lower = header.lower()
-    
-    # Try to find any of these keywords in the header
-    found_info = []
-    for keyword in PROTEIN_KEYWORDS:
-        if keyword in header_lower:
-            # Find the position and extract surrounding context
-            pos = header_lower.find(keyword)
-            # Extract a reasonable chunk around the keyword
-            start = max(0, pos - 10)
-            end = min(len(header), pos + len(keyword) + 20)
-            chunk = header[start:end].strip()
-            
-            # Clean up the chunk
-            chunk = chunk.split('|')[0].strip()  # Remove accession info after |
-            chunk = chunk.split(',')[0].strip()   # Remove comma-separated info
-            
-            if chunk and chunk not in found_info:
-                found_info.append(chunk)
-    
-    if found_info:
-        return "; ".join(found_info)
-    
-    # If no specific keywords found, try to extract gene/protein from common patterns
-    # Pattern: "gene for X" or "X gene" or "X protein"
-    import re
-    gene_pattern = r'(?:gene for |protein )?([a-zA-Z0-9\-]+(?:\s+[a-zA-Z0-9\-]+){0,2})(?:\s+gene|\s+protein)'
-    match = re.search(gene_pattern, header_lower)
-    if match:
-        return match.group(1).strip()
-    
-    return ""
+    try:
+        # If isolate name exists in metadata, split on it to get just the protein info
+        if metadata is not None:
+            isolate_name = metadata.get("isolate", {}).get("name")
+            if isolate_name:
+                prot_header = description.split(isolate_name)[-1]
+                return prot_header
+        
+        # If sample name was not added to metadata,
+        # whole header will be added as protein/segment description
+        return description
+        
+    except Exception:
+        return pd.NA
 
 
 def filter_sequences(
@@ -2244,7 +2267,8 @@ def filter_sequences(
             
             # Extract protein/segment information from FASTA header for CSV output
             # This is useful for segmented viruses like influenza
-            protein_info = _extract_protein_info_from_header(record.description)
+            # Pass metadata to enable splitting on isolate name (Laura_OG logic)
+            protein_info = _extract_protein_info_from_header(record.description, record_metadata)
             protein_headers.append(protein_info)
 
     # Log filtering results
