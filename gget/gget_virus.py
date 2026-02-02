@@ -3963,7 +3963,9 @@ def virus(
     used_cached_download = False
     cached_zip_file = None  # Track zip file path for cleanup
 
-    if is_sars_cov2 or is_sars_cov2_query(virus, is_accession):
+    # Skip cached download for accession-based queries, as accessions are specific sequences
+    # and should use the regular API-based accession download instead
+    if (is_sars_cov2 or is_sars_cov2_query(virus, is_accession)) and not is_accession:
         logger.info("DETECTED SARS-CoV-2 QUERY - USING CACHED DATA PACKAGES")
         logger.info("SARS-CoV-2 queries will use NCBI's optimized cached data packages")
         logger.info("with hierarchical fallback from specific to general cached files.")
@@ -4007,7 +4009,7 @@ def virus(
     logger.info("=" * 60)
     logger.info("STEP 2b: CHECKING FOR ALPHAINFLUENZA QUERY...")
     logger.info("=" * 60)
-    if is_alphainfluenza or is_alphainfluenza_query(virus, is_accession):
+    if (is_alphainfluenza or is_alphainfluenza_query(virus, is_accession)) and not is_accession:
         logger.info("DETECTED ALPHAINFLUENZA QUERY - USING CACHED DATA PACKAGES")
         logger.info("Alphainfluenza queries will use NCBI's optimized cached data packages")
         logger.info("with hierarchical fallback from specific to general cached files.")
@@ -4042,7 +4044,7 @@ def virus(
             cached_metadata_dict = None
             used_cached_download = False
     else:
-        logger.info(" Skipping this step. No Alphainfluenza query detected, proceeding with regular API workflow.")
+        logger.info(" Skipping this step. No Alphainfluenza query detected.")
     
 
     # Create temporary directory for intermediate processing
@@ -4303,10 +4305,10 @@ def virus(
             )
 
     # SECTION 7: SAVING FINAL OUTPUT FILES
+        logger.info("=" * 60)
+        logger.info("STEP 7: Saving final output files")
+        logger.info("=" * 60)
         if filtered_sequences:
-            logger.info("=" * 60)
-            logger.info("STEP 7: Saving final output files")
-            logger.info("=" * 60)
             logger.info("Saving %d filtered sequences and their metadata...", len(filtered_sequences))
 
             # Save FASTA
@@ -4344,13 +4346,13 @@ def virus(
                 logger.error("❌ Failed to save CSV metadata file: %s", e)
                 raise
         else:
-            logger.info("Skipping Step 7 - Final output saving since no sequences passed all filters")
+            logger.info("Skipping this step since no sequences passed all filters")
 
     # SECTION 8: GENBANK METADATA RETRIEVAL (OPTIONAL)
+        logger.info("=" * 60)
+        logger.info("STEP 8: Fetching detailed GenBank metadata")
+        logger.info("=" * 60)
         if genbank_metadata and len(filtered_sequences) != 0:
-            logger.info("=" * 60)
-            logger.info("STEP 8: Fetching detailed GenBank metadata")
-            logger.info("=" * 60)
             logger.info("GenBank metadata retrieval requested - fetching detailed information...")
             try:
                 # Extract accession numbers from filtered sequences
@@ -4419,7 +4421,7 @@ def virus(
             
             logger.info("GenBank metadata processing completed")
         else:
-            logger.info("Skipping Step 8 - GenBank metadata retrieval not requested")
+            logger.info("Skipping this step since GenBank metadata retrieval was not requested.")
 
     # SECTION 9: FINAL SUMMARY
         # Provide comprehensive summary of the results
