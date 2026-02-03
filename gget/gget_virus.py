@@ -2496,7 +2496,6 @@ def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_fil
         "Proteins/Segments",  # Protein/segment information from FASTA headers
         "Geographic Region",  # Geographic region where sample was collected
         "Geographic Location",# Specific geographic location
-        "Geo String",         # Full geographic information string
         "Host",               # Host organism name
         "Host Lineage",       # Taxonomic lineage of host organism
         "Lab Host",           # Whether sample was lab-passaged
@@ -2550,7 +2549,6 @@ def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_fil
             # Geographic information
             "Geographic Region": metadata.get("region", pd.NA),
             "Geographic Location": metadata.get("location", pd.NA),
-            "Geo String": metadata.get("location", pd.NA),  # Using location as geo string fallback
             
             # Host information
             "Host": metadata.get("host", {}).get("organism_name", pd.NA),
