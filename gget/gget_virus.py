@@ -2228,6 +2228,11 @@ def filter_sequences(
     for record in FastaIO.parse(fna_file, "fasta"):
         total_sequences += 1
         record_passes = True
+        
+        # Normalize accession by taking only the first part (before space)
+        record_accession = record.id.split()[0] if hasattr(record, 'id') else str(record)
+        # logger.debug("Processing sequence: %s", record_accession)
+        # logger.debug("record id: %s", record.id)
             
         # Count ambiguous characters (N's)
         if max_ambiguous_chars is not None:
@@ -2238,7 +2243,7 @@ def filter_sequences(
                 continue
         
         # Get metadata for this record to check protein information
-        record_metadata = metadata_dict.get(record.id, {})
+        record_metadata = metadata_dict.get(record_accession, {})
         
         # Check protein requirements if specified
         if has_proteins is not None or proteins_complete:
@@ -2504,6 +2509,7 @@ def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_fil
         "Biosample",          # BioSample identifier
         "Protein count",      # Number of proteins annotated
         "Gene count",         # Number of genes annotated
+        "Mature Peptide Count", # Number of mature peptides annotated
     ]
 
     logger.debug("Using column order: %s", columns)
@@ -2520,14 +2526,14 @@ def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_fil
         row = {
             # Primary identifiers
             "accession": metadata.get("accession", pd.NA),
-            "Organism Name": metadata.get("virus", {}).get("organismName", pd.NA),
+            "Organism Name": metadata.get("virus", {}).get("organism_name", pd.NA),
             
             # Database and submission information
             "GenBank/RefSeq": metadata.get("sourceDatabase", pd.NA),
-            "Submitters": ", ".join(metadata.get("submitter", {}).get("names", [])),
+            "Submitters": ", ".join(metadata.get("submitter", {}).get("names", [])) if metadata.get("submitter", {}).get("names") else pd.NA,
             "Organization": metadata.get("submitter", {}).get("affiliation", pd.NA),
-            "Submitter Country": metadata.get("submitter", {}).get("country", ""),
-            "Release date": metadata.get("releaseDate", "").split("T")[0],  # Remove time component
+            "Submitter Country": metadata.get("submitter", {}).get("country", pd.NA),
+            "Release date": metadata.get("releaseDate", "").split("T")[0] if metadata.get("releaseDate") else pd.NA,  # Remove time component
             
             # Sample and isolate information
             "Isolate": metadata.get("isolate", {}).get("name", pd.NA),
@@ -2544,15 +2550,16 @@ def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_fil
             # Geographic information
             "Geographic Region": metadata.get("region", pd.NA),
             "Geographic Location": metadata.get("location", pd.NA),
+            "Geo String": metadata.get("location", pd.NA),  # Using location as geo string fallback
             
             # Host information
-            "Host": metadata.get("host", {}).get("organismName", pd.NA),
+            "Host": metadata.get("host", {}).get("organism_name", pd.NA),
             "Host Lineage": metadata.get("host", {}).get("lineage", []),
             "Lab Host": metadata.get("labHost", pd.NA),
             
             # Sample source information
             "Tissue/Specimen/Source": metadata.get("isolate", {}).get("source", pd.NA),
-            "Collection Date": metadata.get("isolate", {}).get("collectionDate", pd.NA),
+            "Collection Date": metadata.get("isolate", {}).get("collection_date", pd.NA),
             
             # Annotation and quality information
             "Annotated": metadata.get("isAnnotated", pd.NA),
@@ -2565,6 +2572,7 @@ def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_fil
             # Counts
             "Gene count": metadata.get("geneCount"),
             "Protein count": metadata.get("proteinCount"),
+            "Mature Peptide Count": metadata.get("maturePeptideCount"),
         }
         
         data_for_df.append(row)
