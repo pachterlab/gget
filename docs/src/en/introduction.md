@@ -74,7 +74,7 @@ Read the article here: [https://doi.org/10.1093/bioinformatics/btac836](https://
 <br>  
 <br>  
 
-[![gget PyPI downloads over the last year](https://github.com/lauraluebbert/gget_downloads/raw/main/plots/downloads_gget.png)](https://github.com/lauraluebbert/gget_downloads/tree/main)  
+[![gget PyPI downloads over the last year](https://github.com/lauraluebbert/gget_downloads/raw/main/plots/downloads_gget_daily.png)](https://github.com/lauraluebbert/gget_downloads/tree/main)  
   
 <br>  
 <br>  
