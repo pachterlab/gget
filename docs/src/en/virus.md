@@ -11,7 +11,7 @@ This module was written by [Ferdous Nasri](https://github.com/ferbsx).
 
 **Positional argument**  
 `virus`  
-Virus taxon name (e.g. 'Zika virus'), taxon ID (e.g. 2697049), or accession number (e.g. 'NC\_045512.2').  
+Virus taxon name (e.g. 'Zika virus'), taxon ID (e.g. 2697049), accession number (e.g. 'NC\_045512.2'), space-separated list of accessions (e.g. 'NC\_045512.2 MN908947.3 MT020781.1'), or path to a text file containing accession numbers (one per line, when combined with `--is_accession`).  
 
 **Optional arguments**   
 `-o` `--out`  
@@ -88,7 +88,10 @@ Filter by SARS-CoV-2 lineage (e.g. 'B.1.1.7', 'P.1').
 
 **Flags**  
 `-a` `--is_accession`  
-Flag to indicate that the `virus` positional argument is an accession number.
+Flag to indicate that the `virus` positional argument is an accession number, space-separated list of accessions, or path to a text file containing accession numbers (one per line). For SARS-CoV-2 and Alphainfluenza cached downloads, supports:
+  - Single accession: `NC_045512.2`
+  - Space-separated list: `NC_045512.2 MN908947.3 MT020781.1`
+  - Text file path: `accessions.txt` (one accession per line)
 
 `--refseq_only`  
 Flag to limit search to RefSeq genomes only (higher quality, curated sequences).
