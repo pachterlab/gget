@@ -78,7 +78,7 @@ Gracias a [Victor Garcia-Ruiz](https://github.com/victorg775) y [Anna Karen Orta
 <br>  
 <br>  
 
-[![gget PyPI downloads over the last year](https://github.com/lauraluebbert/gget_downloads/raw/main/plots/downloads_gget.png)](https://github.com/lauraluebbert/gget_downloads/tree/main)  
+[![gget PyPI downloads over the last year](https://github.com/lauraluebbert/gget_downloads/raw/main/plots/downloads_gget_daily.png)](https://github.com/lauraluebbert/gget_downloads/tree/main)  
 
 <br>  
 <br>  
