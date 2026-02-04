@@ -99,7 +99,7 @@ PROTEIN_KEYWORDS = [
 ]
 
 # Date Parsing Configuration
-DATE_PARSE_DEFAULT_YEAR = 1000  # Default year for incomplete date strings
+DATE_PARSE_DEFAULT_YEAR = 1500  # Default year for incomplete date strings
 
 # HTTP Retry Configuration
 HTTP_RETRY_STATUS_CODES = [429, 500, 502, 503, 504]  # Status codes to retry on
@@ -108,6 +108,14 @@ HTTP_INITIAL_BACKOFF = 1.0  # Initial backoff in seconds
 
 # File Size Display Divisor
 BYTES_PER_MB = 1024 * 1024  # Bytes in a megabyte for file size display
+
+# URL Length Configuration
+# Most browsers and servers support URLs up to ~2000-8000 chars, but NCBI recommends keeping under 2000
+# We use a conservative limit to ensure compatibility
+MAX_URL_LENGTH = 2000  # Maximum URL length for API requests
+ACCESSION_URL_ENCODING = "%2C"  # URL-encoded comma for joining accessions
+ACCESSION_AVG_LENGTH = 11  # Average length of an accession number (e.g., "NC_045512.2")
+BUFFER_SIZE = 200  # Buffer for URL query parameters (filters) and safety margin
 
 # =============================================================================
 # End of Constants
@@ -344,6 +352,263 @@ def _get_modified_virus_name(virus_name, attempt=1):
     return None
 
 
+def _parse_accession_input(accession_input):
+    """
+    Parse accession input which can be:
+    1. Single accession: 'NC_045512.2'
+    2. Space-separated accessions: 'NC_045512.2 MN908947.3 MT020781.1'
+    3. Path to text file: '/path/to/accessions.txt' (one accession per line)
+    
+    Args:
+        accession_input (str): The accession input string.
+        
+    Returns:
+        dict: A dictionary with keys:
+            - 'type': 'single', 'list', or 'file'
+            - 'accessions': list of accession strings (for 'list' type) or single accession (for 'single')
+            - 'file_path': file path (for 'file' type only)
+            - 'is_file': True if input is a file path
+            
+    Raises:
+        ValueError: If file path doesn't exist or file is empty.
+        
+    Example:
+        >>> _parse_accession_input('NC_045512.2')
+        {'type': 'single', 'accessions': 'NC_045512.2', 'file_path': None, 'is_file': False}
+        
+        >>> _parse_accession_input('NC_045512.2 MN908947.3')
+        {'type': 'list', 'accessions': ['NC_045512.2', 'MN908947.3'], 'file_path': None, 'is_file': False}
+        
+        >>> _parse_accession_input('/path/to/accessions.txt')
+        {'type': 'file', 'accessions': ['NC_045512.2', 'MN908947.3', ...], 'file_path': '/path/to/accessions.txt', 'is_file': True}
+    """
+    accession_input = accession_input.strip()
+    
+    # Check if input is a file path
+    if os.path.isfile(accession_input):
+        logger.info("Parsing accession numbers from file: %s", accession_input)
+        try:
+            with open(accession_input, 'r') as f:
+                accessions = [line.strip() for line in f if line.strip()]
+            
+            if not accessions:
+                raise ValueError(f"Accession file {accession_input} is empty.")
+            
+            logger.info("Loaded %d accession(s) from file", len(accessions))
+            return {
+                'type': 'file',
+                'accessions': accessions,
+                'file_path': accession_input,
+                'is_file': True
+            }
+        except IOError as e:
+            raise ValueError(f"Error reading accession file {accession_input}: {e}")
+    
+    # Check if input is space-separated accessions
+    if ' ' in accession_input:
+        accessions = accession_input.split()
+        logger.info("Parsed %d accession(s) from space-separated input", len(accessions))
+        return {
+            'type': 'list',
+            'accessions': accessions,
+            'file_path': None,
+            'is_file': False
+        }
+    
+    # Single accession
+    logger.debug("Single accession input: %s", accession_input)
+    return {
+        'type': 'single',
+        'accessions': accession_input,
+        'file_path': None,
+        'is_file': False
+    }
+
+
+def _calculate_max_accessions_per_batch(base_url_length):
+    """
+    Calculate the maximum number of accessions that can fit in a single API URL.
+    
+    The NCBI API URL format for multiple accessions is:
+    https://api.ncbi.nlm.nih.gov/datasets/v2/virus/accession/ACC1%2CACC2%2CACC3/dataset_report
+    
+    Args:
+        base_url_length (int): Length of the base URL without accessions.
+        
+    Returns:
+        int: Maximum number of accessions per batch.
+        
+    Example:
+        >>> _calculate_max_accessions_per_batch(80)
+        100  # Approximate, depends on accession lengths
+    """
+    # Calculate available space for accessions
+    available_length = MAX_URL_LENGTH - base_url_length - BUFFER_SIZE  
+    
+    # Each accession takes: average accession length + URL-encoded comma (%2C = 3 chars)
+    chars_per_accession = ACCESSION_AVG_LENGTH + len(ACCESSION_URL_ENCODING)
+    
+    max_accessions = max(1, available_length // chars_per_accession)
+    logger.debug("Calculated max accessions per batch: %d (URL limit: %d, base URL: %d)", 
+                max_accessions, MAX_URL_LENGTH, base_url_length)
+    
+    return max_accessions
+
+
+def _batch_accessions_for_url(accessions, base_url_length):
+    """
+    Split a list of accessions into batches that fit within URL length limits.
+    
+    Args:
+        accessions (list): List of accession numbers.
+        base_url_length (int): Length of the base URL without accessions.
+        
+    Returns:
+        list: List of accession batches (each batch is a list of accessions).
+        
+    Example:
+        >>> batches = _batch_accessions_for_url(['NC_045512.2', 'MN908947.3', ...], 80)
+        >>> len(batches)  # Number of batches needed
+        3
+    """
+    max_per_batch = _calculate_max_accessions_per_batch(base_url_length)
+    
+    batches = []
+    for i in range(0, len(accessions), max_per_batch):
+        batch = accessions[i:i + max_per_batch]
+        batches.append(batch)
+    
+    logger.info("Split %d accessions into %d batches (max %d per batch)", 
+               len(accessions), len(batches), max_per_batch)
+    
+    return batches
+
+
+def _fetch_metadata_for_accession_list(
+    accessions,
+    host=None,
+    geographic_location=None,
+    annotated=None,
+    complete_only=None,
+    min_release_date=None,
+    refseq_only=None,
+    failed_commands=None,
+    temp_output_dir=None,
+):
+    """
+    Fetch metadata for a list of accessions, handling URL length limits.
+    
+    This function fetches metadata for multiple accessions by:
+    1. Splitting the accession list into batches that fit within URL limits
+    2. Making separate API calls for each batch
+    3. Combining all results into a single list
+    
+    The NCBI API URL format for multiple accessions is:
+    https://api.ncbi.nlm.nih.gov/datasets/v2/virus/accession/ACC1%2CACC2%2CACC3/dataset_report
+    
+    Args:
+        accessions (list): List of accession numbers to fetch.
+        host (str, optional): Host organism filter.
+        geographic_location (str, optional): Geographic location filter.
+        annotated (bool, optional): Annotation status filter.
+        complete_only (bool, optional): Complete genome filter.
+        min_release_date (str, optional): Minimum release date filter.
+        refseq_only (bool, optional): RefSeq only filter.
+        failed_commands (dict, optional): Dictionary to track failed operations.
+        temp_output_dir (str, optional): Directory for temporary files.
+        
+    Returns:
+        list: Combined list of metadata records from all batches.
+        
+    Raises:
+        RuntimeError: If all batches fail to fetch.
+    """
+    if not accessions:
+        logger.warning("No accessions provided to fetch metadata for")
+        return []
+    
+    # Calculate base URL length for batch sizing
+    # BUFFER_SIZE accounts for query parameters (filters) added by fetch_virus_metadata
+    base_url_length = len(f"{NCBI_API_BASE}/virus/accession//dataset_report")
+    
+    # Split accessions into URL-safe batches
+    batches = _batch_accessions_for_url(accessions, base_url_length)
+    
+    all_reports = []
+    failed_batches = []
+    
+    logger.info("Fetching metadata for %d accessions in %d batch(es)", len(accessions), len(batches))
+    
+    for batch_num, batch in enumerate(batches, 1):
+        logger.info("Processing accession batch %d/%d (%d accessions)", 
+                   batch_num, len(batches), len(batch))
+        
+        # Join accessions with URL-encoded comma for the API URL
+        accession_string = ACCESSION_URL_ENCODING.join(batch)
+        
+        try:
+            # Fetch metadata for this batch using the existing function
+            # We pass the joined accession string as a single "virus" parameter
+            batch_reports = fetch_virus_metadata(
+                virus=accession_string,
+                accession=True,  # This is an accession-based query
+                host=host,
+                geographic_location=geographic_location,
+                annotated=annotated,
+                complete_only=complete_only,
+                min_release_date=min_release_date,
+                refseq_only=refseq_only,
+                failed_commands=failed_commands,
+                temp_output_dir=temp_output_dir,
+            )
+            
+            if batch_reports:
+                all_reports.extend(batch_reports)
+                logger.info("Batch %d: Retrieved %d records", batch_num, len(batch_reports))
+            else:
+                logger.warning("Batch %d: No records returned", batch_num)
+                
+        except Exception as e:
+            logger.warning("Batch %d failed: %s", batch_num, e)
+            failed_batches.append({
+                'batch_num': batch_num,
+                'accessions': batch,
+                'error': str(e)
+            })
+            
+            # Track in failed_commands if provided
+            if failed_commands is not None:
+                if 'api_batches' not in failed_commands:
+                    failed_commands['api_batches'] = []
+                
+                failed_commands['api_batches'].append({
+                    'batch_num': batch_num,
+                    'accessions': batch,
+                    'error': str(e),
+                })
+        
+        # Add a small delay between batches to respect rate limits
+        if batch_num < len(batches):
+            time.sleep(EUTILS_INTER_BATCH_DELAY)
+    
+    # Log summary
+    if failed_batches:
+        logger.warning("%d out of %d batches failed", len(failed_batches), len(batches))
+        for fb in failed_batches:
+            logger.debug("Failed batch %d: %s", fb['batch_num'], fb['error'])
+    
+    if not all_reports and failed_batches:
+        raise RuntimeError(
+            f"All {len(batches)} accession batches failed to fetch metadata. "
+            f"Last error: {failed_batches[-1]['error']}"
+        )
+    
+    logger.info("Successfully retrieved %d total metadata records from %d accessions", 
+               len(all_reports), len(accessions))
+    
+    return all_reports
+
+
 def _try_modified_virus_names(
     virus,
     accession,
@@ -355,7 +620,8 @@ def _try_modified_virus_names(
     refseq_only,
     failed_commands,
     _retry_attempt,
-    error_type="Error"
+    error_type="Error",
+    temp_output_dir=None
 ):
     """
     Try fetching virus metadata with modified virus names.
@@ -401,6 +667,7 @@ def _try_modified_virus_names(
                     refseq_only=refseq_only,
                     failed_commands=failed_commands,
                     _retry_attempt=attempt_num,
+                    temp_output_dir=temp_output_dir,
                 )
             except RuntimeError:
                 logger.warning("Retry with modified virus name '%s' failed", modified_virus)
@@ -423,6 +690,7 @@ def fetch_virus_metadata(
     refseq_only=None,
     failed_commands=None,
     _retry_attempt=0,
+    temp_output_dir=None,
 ):
     """
     Fetch virus metadata using NCBI Datasets API.
@@ -453,11 +721,21 @@ def fetch_virus_metadata(
         
     Raises:
         RuntimeError: If the API request fails.
+    
+    Note:
+        Metadata is streamed to a temporary JSONL file during fetching to reduce RAM usage
+        for large datasets. If temp_output_dir is provided, the file is saved there;
+        otherwise it's saved in the system temp directory.
     """
+    
+    metadata_file = None
+    temp_metadata_file = None
     
     # Choose the appropriate API endpoint based on whether we're querying by accession or taxon
     if accession:
         # For accession numbers (e.g., NC_045512.2), use the accession-specific endpoint
+        # For multiple accessions, virus will contain accessions joined with %2C (URL-encoded comma)
+        # e.g., "NC_045512.2%2CMN908947.3%2CMT020781.1"
         url = f"{NCBI_API_BASE}/virus/accession/{virus}/dataset_report"
         logger.debug("Using accession endpoint for virus: %s", virus)
         params = {}
@@ -466,7 +744,7 @@ def fetch_virus_metadata(
         url = f"{NCBI_API_BASE}/virus/taxon/{virus}/dataset_report"
         logger.debug("Using taxon endpoint for virus: %s", virus)
         params = {}
-    
+
     # Add API-level filters to reduce the amount of data we need to download
     # These filters are applied server-side before results are returned
     if refseq_only:
@@ -498,7 +776,7 @@ def fetch_virus_metadata(
         # Convert date to ISO format expected by the API (YYYY-MM-DDTHH:MM:SS.sssZ)
         params['filter.released_since'] = f"{min_release_date}T00:00:00.000Z"
         logger.debug("Applied minimum release date filter: %s", min_release_date)
-    
+
     # Set page size to maximum allowed to minimize the number of API calls needed
     # The NCBI API supports pagination for large result sets
     params['page_size'] = API_PAGE_SIZE
@@ -508,6 +786,19 @@ def fetch_virus_metadata(
     all_reports = []      # Will store all metadata records across all pages
     page_token = None     # Token for accessing subsequent pages
     page_count = 0        # Track number of pages processed for logging
+    
+    # Create a temporary file to stream metadata as it arrives from the API
+    # This prevents large datasets from consuming all system RAM
+    # Save in output temp directory
+    os.makedirs(temp_output_dir, exist_ok=True)
+    temp_metadata_file = os.path.join(temp_output_dir, f"gget_metadata_{timestamp}_{random_suffix}.jsonl")
+    metadata_file = None
+    try:
+        metadata_file = open(temp_metadata_file, 'w', encoding='utf-8')
+        logger.info("Streaming API metadata to temporary file: %s", temp_metadata_file)
+    except IOError as e:
+        logger.warning("Could not open temporary metadata file for streaming: %s. Metadata will be held in RAM.", e)
+        temp_metadata_file = None
     
     # Main pagination loop - continue until all pages are retrieved
     loop = True
@@ -541,6 +832,16 @@ def fetch_virus_metadata(
                 # Extract the virus reports from the response
                 reports = data.get('reports', [])
                 logger.info("Page %d contains %d virus records", page_count, len(reports))
+                
+                # Stream reports to temporary file if available
+                if metadata_file and reports:
+                    try:
+                        for report in reports:
+                            metadata_file.write(json.dumps(report) + '\n')
+                        metadata_file.flush()  # Ensure data is written to disk
+                        logger.debug("Streamed %d records to temporary metadata file", len(reports))
+                    except IOError as e:
+                        logger.warning("Error writing to temporary metadata file: %s", e)
                 
                 # Add this page's reports to our complete collection
                 all_reports.extend(reports)
@@ -614,6 +915,14 @@ def fetch_virus_metadata(
                 logger.error("=" * 80)
                 logger.error(error_msg)
                 logger.error("=" * 80)
+                
+                # Close temporary file before raising exception
+                if metadata_file:
+                    try:
+                        metadata_file.close()
+                    except:
+                        pass
+                        
                 raise RuntimeError(error_msg) from last_exception
                 
             elif isinstance(last_exception, requests.exceptions.ConnectionError):
@@ -630,7 +939,8 @@ def fetch_virus_metadata(
                     refseq_only=refseq_only,
                     failed_commands=failed_commands,
                     _retry_attempt=_retry_attempt,
-                    error_type="Connection error"
+                    error_type="Connection error",
+                    temp_output_dir=temp_output_dir
                 )
                 if retry_result is not None:
                     return retry_result
@@ -643,6 +953,14 @@ def fetch_virus_metadata(
                 logger.error(error_msg)
                 logger.error("Please check your internet connection and try again.")
                 logger.error("=" * 80)
+                
+                # Close temporary file before raising exception
+                if metadata_file:
+                    try:
+                        metadata_file.close()
+                    except:
+                        pass
+                        
                 raise RuntimeError(error_msg) from last_exception
                 
             elif isinstance(last_exception, requests.exceptions.HTTPError):
@@ -651,8 +969,10 @@ def fetch_virus_metadata(
                 
                 # Check for specific server error patterns (5xx errors indicate server unreachability)
                 is_server_error = False
+                http_status_code = None
                 if hasattr(last_exception, 'response') and last_exception.response is not None:
-                    is_server_error = 500 <= last_exception.response.status_code < 600
+                    http_status_code = last_exception.response.status_code
+                    is_server_error = 500 <= http_status_code < 600
                 elif "500" in str(last_exception) or "502" in str(last_exception) or "503" in str(last_exception) or "504" in str(last_exception):
                     is_server_error = True
                 
@@ -664,32 +984,52 @@ def fetch_virus_metadata(
                         logger.warning("⚠️ NCBI API cannot handle 'all viruses' query in a single request")
                         logger.info("🔄 Automatically switching to date-chunked download strategy...")
                         logger.info("This will split the download into yearly chunks to avoid server overload")
+                        
+                        # Close temporary file before returning None
+                        if metadata_file:
+                            try:
+                                metadata_file.close()
+                            except:
+                                pass
+                        
                         # Return None to signal that chunking is needed
                         # The calling function will handle the chunking strategy
                         return None
                     
-                    # Try retrying with modified virus names (up to 2 retry strategies)
-                    retry_result = _try_modified_virus_names(
-                        virus=virus,
-                        accession=accession,
-                        host=host,
-                        geographic_location=geographic_location,
-                        annotated=annotated,
-                        complete_only=complete_only,
-                        min_release_date=min_release_date,
-                        refseq_only=refseq_only,
-                        failed_commands=failed_commands,
-                        _retry_attempt=_retry_attempt,
-                        error_type="Server error (5xx)"
-                    )
-                    if retry_result is not None:
-                        return retry_result
+                    # Special handling for numeric taxon IDs that fail with 500 errors
+                    # These are often transient issues with NCBI's server
+                    if virus.isdigit():
+                        logger.warning("⚠️ Server error (HTTP %d) for numeric taxon ID: %s", http_status_code or 500, virus)
+                        logger.info("Numeric taxon IDs sometimes encounter temporary server issues at NCBI.")
+                        logger.info("This may be a transient problem. Recommendations:")
+                        logger.info("  1. Wait a few minutes and try again")
+                        logger.info("  2. Try using the virus name instead of the taxon ID")
+                        logger.info("  3. Consider using more specific filters to reduce the dataset size")
+                    
+                    # Try retrying with modified virus names (skip for numeric IDs since they won't have modified versions)
+                    if not virus.isdigit():
+                        retry_result = _try_modified_virus_names(
+                            virus=virus,
+                            accession=accession,
+                            host=host,
+                            geographic_location=geographic_location,
+                            annotated=annotated,
+                            complete_only=complete_only,
+                            min_release_date=min_release_date,
+                            refseq_only=refseq_only,
+                            failed_commands=failed_commands,
+                            _retry_attempt=_retry_attempt,
+                            error_type="Server error (5xx)",
+                            temp_output_dir=temp_output_dir
+                        )
+                        if retry_result is not None:
+                            return retry_result
                     
                     error_msg += (
-                        f"\n\n🔧 SERVER ERROR DETECTED: "
+                        f"\n\n🔧 SERVER ERROR (HTTP {http_status_code or 500}) DETECTED: "
                         f"NCBI's API is experiencing temporary server-side issues. "
-                        f"This is possibly an issue with the virus name formatting, but it could also be a genuine server problem. Try again in a few minutes, "
-                        f"or consider using other name formatting or taxon id ormore specific filters to reduce the dataset size."
+                        f"This could be due to the specific virus/taxon ID or a genuine server problem. Try again in a few minutes, "
+                        f"or consider using different parameters to reduce the dataset size."
                     )
                 
                 # Log the error details before raising
@@ -698,6 +1038,13 @@ def fetch_virus_metadata(
                 logger.error("=" * 80)
                 logger.error(error_msg)
                 logger.error("=" * 80)
+                
+                # Close temporary file before raising exception
+                if metadata_file:
+                    try:
+                        metadata_file.close()
+                    except:
+                        pass
                 
                 raise RuntimeError(error_msg) from last_exception
                 
@@ -709,12 +1056,34 @@ def fetch_virus_metadata(
                 logger.error("=" * 80)
                 logger.error(error_msg)
                 logger.error("=" * 80)
+                
+                # Close temporary file before raising exception
+                if metadata_file:
+                    try:
+                        metadata_file.close()
+                    except:
+                        pass
+                
                 raise RuntimeError(error_msg) from last_exception
 
+    
+    # Close the temporary metadata file if it was created
+    if metadata_file:
+        try:
+            metadata_file.close()
+            logger.debug("✅ Closed temporary metadata file: %s", temp_metadata_file)
+            logger.debug("   This file is being used to reduce RAM usage during API metadata fetching")
+            logger.debug("   It will be kept in: %s", temp_output_dir)
+        except IOError as e:
+            logger.warning("Error closing temporary metadata file: %s", e)
     
     # Log the final results summary
     logger.info("Successfully retrieved %d virus records from NCBI API across %d pages", 
                 len(all_reports), page_count)
+    
+    if temp_metadata_file and os.path.exists(temp_metadata_file):
+        file_size_mb = os.path.getsize(temp_metadata_file) / (1024 * 1024)
+        logger.info("Temporary metadata file size: %.2f MB", file_size_mb)
     
     return all_reports
 
@@ -728,7 +1097,8 @@ def fetch_virus_metadata_chunked(
     complete_only=False,
     min_release_date=None,
     refseq_only=False,
-    failed_commands=None
+    failed_commands=None,
+    temp_output_dir=None
 ):
     """
     Fetch virus metadata using a chunked date-range strategy for very large datasets.
@@ -801,7 +1171,8 @@ def fetch_virus_metadata_chunked(
                 complete_only=complete_only,
                 min_release_date=chunk_start,
                 refseq_only=refseq_only,
-                failed_commands=failed_commands
+                failed_commands=failed_commands,
+                temp_output_dir=temp_output_dir
             )
             
             # If we got None, it means even this chunk is too large (shouldn't happen for yearly chunks)
@@ -897,7 +1268,7 @@ def is_alphainfluenza_query(virus, accession=False):
     return False
 
 
-def _process_cached_download(zip_file, virus_type="virus"):
+def process_cached_download(zip_file, virus_type="virus"):
     """
     Process a cached download ZIP file and extract sequences with metadata.
     
@@ -929,7 +1300,7 @@ def _process_cached_download(zip_file, virus_type="virus"):
     
     # Extract directory path from zip file name
     extract_dir = os.path.splitext(zip_file)[0]
-    unzip_file(zip_file, extract_dir)
+    _unzip_file(zip_file, extract_dir)
     
     if not os.path.exists(extract_dir):
         logger.warning("Extraction directory not found: %s", extract_dir)
@@ -1394,10 +1765,28 @@ def download_sars_cov2_optimized(
     strategies = []
     
     if use_accession:
-        # Strategy 1: Direct accession download
-        cmd1 = ["datasets", "download", "virus", "genome", "accession", accession]
-        cmd1.extend(["--filename", zip_path])
-        strategies.append(("Strategy 1 (direct accession)", cmd1, [f"accession={accession}"]))
+        # Parse the accession input to handle single, space-separated, or file-based accessions
+        parsed = _parse_accession_input(accession)
+        
+        if parsed['is_file']:
+            # File-based input: use --inputfile flag
+            cmd1 = ["datasets", "download", "virus", "genome", "accession", 
+                   "--inputfile", parsed['file_path']]
+            cmd1.extend(["--filename", zip_path])
+            strategies.append(("Strategy 1 (accessions from file)", cmd1, [f"inputfile={parsed['file_path']}"]))
+            logger.debug("Using accession input file: %s", parsed['file_path'])
+        elif parsed['type'] == 'list':
+            # Space-separated accessions: pass as arguments
+            cmd1 = ["datasets", "download", "virus", "genome", "accession"] + parsed['accessions']
+            cmd1.extend(["--filename", zip_path])
+            strategies.append(("Strategy 1 (multiple accessions)", cmd1, [f"accessions={', '.join(parsed['accessions'][:3])}..."]))
+            logger.debug("Using multiple accessions: %s", ", ".join(parsed['accessions']))
+        else:
+            # Single accession
+            cmd1 = ["datasets", "download", "virus", "genome", "accession", parsed['accessions']]
+            cmd1.extend(["--filename", zip_path])
+            strategies.append(("Strategy 1 (direct accession)", cmd1, [f"accession={parsed['accessions']}"]))
+            logger.debug("Using single accession: %s", parsed['accessions'])
     elif lineage or complete_only or host or annotated:
         # Strategy 1: Try with specific filters using taxon endpoint
         cmd1 = ["datasets", "download", "virus", "genome", "taxon", "SARS-CoV-2"]
@@ -1547,10 +1936,28 @@ def download_alphainfluenza_optimized(
     default_taxon = ALPHAINFLUENZA_DEFAULT_TAXON
     
     if use_accession:
-        # Strategy 1: Direct accession download
-        cmd1 = ["datasets", "download", "virus", "genome", "accession", accession]
-        cmd1.extend(["--filename", zip_path])
-        strategies.append(("Strategy 1 (direct accession)", cmd1, [f"accession={accession}"]))
+        # Parse the accession input to handle single, space-separated, or file-based accessions
+        parsed = _parse_accession_input(accession)
+        
+        if parsed['is_file']:
+            # File-based input: use --inputfile flag
+            cmd1 = ["datasets", "download", "virus", "genome", "accession", 
+                   "--inputfile", parsed['file_path']]
+            cmd1.extend(["--filename", zip_path])
+            strategies.append(("Strategy 1 (accessions from file)", cmd1, [f"inputfile={parsed['file_path']}"]))
+            logger.debug("Using accession input file: %s", parsed['file_path'])
+        elif parsed['type'] == 'list':
+            # Space-separated accessions: pass as arguments
+            cmd1 = ["datasets", "download", "virus", "genome", "accession"] + parsed['accessions']
+            cmd1.extend(["--filename", zip_path])
+            strategies.append(("Strategy 1 (multiple accessions)", cmd1, [f"accessions={', '.join(parsed['accessions'][:3])}..."]))
+            logger.debug("Using multiple accessions: %s", ", ".join(parsed['accessions']))
+        else:
+            # Single accession
+            cmd1 = ["datasets", "download", "virus", "genome", "accession", parsed['accessions']]
+            cmd1.extend(["--filename", zip_path])
+            strategies.append(("Strategy 1 (direct accession)", cmd1, [f"accession={parsed['accessions']}"]))
+            logger.debug("Using single accession: %s", parsed['accessions'])
     elif complete_only or host or annotated:
         # Strategy 1: Try with specific filters using taxon endpoint
         cmd1 = ["datasets", "download", "virus", "genome", "taxon", default_taxon]
@@ -1888,7 +2295,7 @@ def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_
         raise RuntimeError(f"❌ Failed to save downloaded sequences: {e}") from e
 
 
-def unzip_file(zip_file_path, extract_to_path):
+def _unzip_file(zip_file_path, extract_to_path):
     """
     Extract a ZIP file to a specified directory.
     
@@ -1986,7 +2393,7 @@ def load_metadata_from_api_reports(api_reports):
     return metadata_dict
 
 
-def parse_date(date_str, filtername="", verbose=False):
+def _parse_date(date_str, filtername="", verbose=False):
     """
     Parse various date formats into a datetime object.
     
@@ -2002,7 +2409,7 @@ def parse_date(date_str, filtername="", verbose=False):
         ValueError: If date parsing fails and verbose=True
         
     Note:
-        Uses a default date of year 1000 for incomplete date strings to ensure
+        Uses a default date of year 1500 for incomplete date strings to ensure
         proper comparison behavior with minimum date filters.
     """
     try:
@@ -2030,8 +2437,7 @@ def parse_date(date_str, filtername="", verbose=False):
             if not date_str or not date_str.strip():
                 logger.debug("Empty or missing date for filter '%s'", filtername)
             else:
-                logger.warning("⚠️ Failed to parse date '%s' for filter '%s': %s", 
-                              date_str, filtername, exc)
+                logger.warning("⚠️ Failed to parse date '%s' for filter '%s': %s", date_str, filtername, exc)
             return None
 
 
@@ -2456,6 +2862,83 @@ def save_command_summary(
         return None
 
 
+def merge_metadata_csvs(genbank_csv_path, standard_csv_path):
+    """
+    Merge standard metadata CSV into GenBank metadata CSV.
+    
+    Where GenBank data is missing, fills in values from the standard metadata CSV.
+    Does not overwrite any existing data in the GenBank CSV.
+    
+    Args:
+        genbank_csv_path (str): Path to the GenBank metadata CSV file
+        standard_csv_path (str): Path to the standard metadata CSV file
+        
+    Returns:
+        bool: True if merge was successful, False otherwise
+    """
+    try:
+        if not os.path.exists(standard_csv_path):
+            logger.debug("Standard metadata CSV not found, skipping merge: %s", standard_csv_path)
+            return False
+        
+        logger.info("Merging standard metadata into GenBank metadata...")
+        
+        # Read both CSV files - use dtype=str to avoid type conversion issues
+        genbank_df = pd.read_csv(genbank_csv_path, dtype=str)
+        standard_df = pd.read_csv(standard_csv_path, dtype=str)
+        
+        logger.debug("GenBank CSV: %d rows × %d columns", len(genbank_df), len(genbank_df.columns))
+        logger.debug("Standard CSV: %d rows × %d columns", len(standard_df), len(standard_df.columns))
+        
+        # Create a mapping from accession to standard metadata for quick lookup
+        standard_by_accession = {}
+        if 'accession' in standard_df.columns:
+            for _, row in standard_df.iterrows():
+                acc = row['accession']
+                if pd.notna(acc) and str(acc).strip() and str(acc) != 'nan':
+                    standard_by_accession[str(acc)] = row
+        
+        logger.debug("Indexed %d accessions from standard metadata", len(standard_by_accession))
+        
+        # Fill missing values in genbank_df from standard_df
+        rows_updated = 0
+        columns_updated = 0
+        
+        for idx, row in genbank_df.iterrows():
+            accession = str(row['accession']).strip() if pd.notna(row['accession']) else None
+            
+            if accession and accession != 'nan' and accession in standard_by_accession:
+                standard_row = standard_by_accession[accession]
+                
+                # For each column in genbank_df, if the value is NaN/empty, fill from standard
+                for col in genbank_df.columns:
+                    if col in standard_row.index:
+                        genbank_val = str(row[col]).strip() if pd.notna(row[col]) else None
+                        standard_val = str(standard_row[col]).strip() if pd.notna(standard_row[col]) else None
+                        
+                        # Fill if genbank is empty but standard has data
+                        if (not genbank_val or genbank_val == 'nan') and standard_val and standard_val != 'nan':
+                            genbank_df.at[idx, col] = standard_val
+                            columns_updated += 1
+                
+                if columns_updated > 0:
+                    rows_updated += 1
+        
+        # Save the merged dataframe back to the genbank CSV
+        genbank_df.to_csv(genbank_csv_path, index=False, encoding='utf-8')
+        
+        logger.info("✅ Metadata merge complete: updated %d cells across %d rows", 
+                    columns_updated, rows_updated)
+        logger.debug("Merged GenBank CSV: %d rows × %d columns", len(genbank_df), len(genbank_df.columns))
+        
+        return True
+        
+    except Exception as e:
+        logger.warning("❌ Failed to merge metadata CSVs: %s", e)
+        logger.debug("Exception details:", exc_info=True)
+        return False
+
+
 def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_file):
     """
     Save filtered metadata to a CSV file with a specific column order.
@@ -2509,6 +2992,19 @@ def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_fil
         "Protein count",      # Number of proteins annotated
         "Gene count",         # Number of genes annotated
         "Mature Peptide Count", # Number of mature peptides annotated
+        # Additional GenBank columns
+        "definition",         # GenBank sequence definition
+        "strain",             # Strain information
+        "isolation_source",   # Source of isolation
+        "create_date",        # GenBank creation date
+        "update_date",        # GenBank update date
+        "assembly_name",      # Assembly name
+        "authors",            # Publication authors
+        "title",              # Publication title
+        "journal",            # Publication journal
+        "pubmed_id",          # PubMed ID
+        "reference_count",    # Number of references
+        "comment",            # Additional comments
     ]
 
     logger.debug("Using column order: %s", columns)
@@ -2571,6 +3067,20 @@ def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_fil
             "Gene count": metadata.get("geneCount"),
             "Protein count": metadata.get("proteinCount"),
             "Mature Peptide Count": metadata.get("maturePeptideCount"),
+            
+            # GenBank-specific columns (not available from NCBI API metadata)
+            "definition": pd.NA,
+            "strain": pd.NA,
+            "isolation_source": pd.NA,
+            "create_date": pd.NA,
+            "update_date": pd.NA,
+            "assembly_name": pd.NA,
+            "authors": pd.NA,
+            "title": pd.NA,
+            "journal": pd.NA,
+            "pubmed_id": pd.NA,
+            "reference_count": pd.NA,
+            "comment": pd.NA,
         }
         
         data_for_df.append(row)
@@ -2617,8 +3127,8 @@ def check_min_max(min_val, max_val, filtername, date=False):
         
         if date:
             try:
-                min_val = parse_date(min_val)
-                max_val = parse_date(max_val)
+                min_val = _parse_date(min_val)
+                max_val = _parse_date(max_val)
                 logger.debug("Parsed date values: min=%s, max=%s", min_val, max_val)
             except Exception as e:
                 logger.error("❌ Failed to parse dates for validation: %s", e)
@@ -3261,7 +3771,7 @@ def _parse_genbank_xml(xml_content):
 
 def save_genbank_metadata_to_csv(genbank_metadata, output_file, virus_metadata=None):
     """
-    Save GenBank metadata to a CSV file.
+    Save GenBank metadata to a CSV file with the same column headers as the standard metadata CSV.
     
     Args:
         genbank_metadata (dict): Dictionary mapping accessions to GenBank metadata
@@ -3269,50 +3779,55 @@ def save_genbank_metadata_to_csv(genbank_metadata, output_file, virus_metadata=N
         virus_metadata (list, optional): List of virus metadata dictionaries to merge
         
     Note:
-        The CSV format is designed to be easily readable and compatible with
-        downstream analysis tools. Complex nested data (like references) is
-        flattened into separate columns or JSON-encoded strings.
+        The CSV format uses the same column headers as save_metadata_to_csv to ensure
+        consistency between the two output files, making them directly comparable.
     """
     
     logger.info("Preparing GenBank metadata for CSV output...")
     logger.debug("Processing %d GenBank records", len(genbank_metadata))
     
-    # Define the column order for the GenBank metadata CSV
-    # Prioritize the most commonly used and important fields
+    # Use the same column order as save_metadata_to_csv for consistency
     columns = [
-        # Basic identifiers
-        "accession",
-        "organism",
-        "definition",
-        "sequence_length",
-        
-        # Collection and geographic information
-        "collection_date",
-        "geographic_location",
-        "strain",
-        "isolate",
-        
-        # Host and source information
-        "host",
-        "isolation_source",
-        
-        # Database and version information
-        "create_date",
-        "update_date",
-        "assembly_name",
-        
-        # Taxonomic information
-        "taxonomy",
-        
-        # Publication information
-        "authors",
-        "title",
-        "journal",
-        "pubmed_id",
-        "reference_count",
-        
-        # Additional metadata
-        "comment",
+        "accession",           # Primary identifier (lowercase for Delphy compatibility)
+        "Organism Name",       # Virus species/strain name
+        "GenBank/RefSeq",      # Source database (GenBank or RefSeq)
+        "Submitters",          # Names of sequence submitters
+        "Organization",        # Submitting organization/institution
+        "Submitter Country",   # Country of submitting organization
+        "Release date",        # Date when sequence was released to public databases
+        "Isolate",            # Isolate/sample identifier
+        "Virus Lineage",      # Taxonomic lineage of the virus
+        "Length",             # Sequence length in base pairs
+        "Nuc Completeness",   # Completeness status (complete/partial)
+        "Proteins/Segments",  # Protein/segment information from FASTA headers
+        "Geographic Region",  # Geographic region where sample was collected
+        "Geographic Location",# Specific geographic location
+        "Host",               # Host organism name
+        "Host Lineage",       # Taxonomic lineage of host organism
+        "Lab Host",           # Whether sample was lab-passaged
+        "Tissue/Specimen/Source", # Sample source/tissue type
+        "Collection Date",    # Date when sample was collected
+        "Sample Name",        # Sample identifier
+        "Annotated",          # Whether sequence has annotation data
+        "SRA Accessions",     # Associated SRA (sequencing) accessions
+        "Bioprojects",        # Associated BioProject identifiers
+        "Biosample",          # BioSample identifier
+        "Protein count",      # Number of proteins annotated
+        "Gene count",         # Number of genes annotated
+        "Mature Peptide Count", # Number of mature peptides annotated
+        # Additional GenBank columns
+        "definition",         # GenBank sequence definition
+        "strain",             # Strain information
+        "isolation_source",   # Source of isolation
+        "create_date",        # GenBank creation date
+        "update_date",        # GenBank update date
+        "assembly_name",      # Assembly name
+        "authors",            # Publication authors
+        "title",              # Publication title
+        "journal",            # Publication journal
+        "pubmed_id",          # PubMed ID
+        "reference_count",    # Number of references
+        "comment",            # Additional comments
     ]
     
     logger.debug("Using column order: %s", columns)
@@ -3329,37 +3844,72 @@ def save_genbank_metadata_to_csv(genbank_metadata, output_file, virus_metadata=N
         references = genbank_data.get('references', [])
         first_ref = references[0] if references else {}
         
-        # Build the row dictionary
+        # Build the row dictionary with the same column structure as save_metadata_to_csv
         row = {
+            # Primary identifier
             "accession": accession,
-            "organism": genbank_data.get('organism', ''),
-            "definition": genbank_data.get('definition', ''),
-            "sequence_length": genbank_data.get('sequence_length', ''),
             
-            "collection_date": genbank_data.get('collection_date', ''),
-            # "country": genbank_data.get('country', ''),
-            "geographic_location": genbank_data.get('geographic_location', ''),
-            "strain": genbank_data.get('strain', ''),
-            "isolate": genbank_data.get('isolate', ''),
+            # Organism and database information
+            "Organism Name": genbank_data.get('organism', pd.NA),
+            "GenBank/RefSeq": metadata.get('sourceDatabase', pd.NA),
             
-            "host": genbank_data.get('host', ''),
-            "isolation_source": genbank_data.get('isolation_source', ''),
-            # "collected_by": genbank_data.get('collected_by', ''),
-            # "specimen_voucher": genbank_data.get('specimen_voucher', ''),
+            # Submission information
+            "Submitters": metadata.get('submitter', {}).get('names', []) if metadata.get('submitter', {}).get('names') else pd.NA,
+            "Organization": metadata.get('submitter', {}).get('affiliation', pd.NA),
+            "Submitter Country": metadata.get('submitter', {}).get('country', pd.NA),
+            "Release date": metadata.get('releaseDate', '').split('T')[0] if metadata.get('releaseDate') else pd.NA,
             
-            "create_date": genbank_data.get('create_date', ''),
-            "update_date": genbank_data.get('update_date', ''),
-            "assembly_name": genbank_data.get('assembly_name', ''),
+            # Sample and isolate information
+            "Isolate": genbank_data.get('isolate', pd.NA),
+            "Sample Name": genbank_data.get('isolate', pd.NA),
             
-            "taxonomy": genbank_data.get('taxonomy', ''),
+            # Virus classification
+            "Virus Lineage": genbank_data.get('taxonomy', pd.NA),
             
-            "authors": first_ref.get('authors', ''),
-            "title": first_ref.get('title', ''),
-            "journal": first_ref.get('journal', ''),
-            "pubmed_id": first_ref.get('pubmed_id', ''),
-            "reference_count": len(references),
+            # Sequence characteristics
+            "Length": genbank_data.get('sequence_length', pd.NA),
+            "Nuc Completeness": metadata.get('completeness', pd.NA),
+            "Proteins/Segments": pd.NA,  # Not available from GenBank XML parsing
             
-            "comment": genbank_data.get('comment', ''),
+            # Geographic information
+            "Geographic Region": metadata.get('region', pd.NA),
+            "Geographic Location": genbank_data.get('geographic_location', pd.NA),
+            
+            # Host information
+            "Host": genbank_data.get('host', pd.NA),
+            "Host Lineage": metadata.get('host', {}).get('lineage', []) if isinstance(metadata.get('host'), dict) else pd.NA,
+            "Lab Host": metadata.get('labHost', pd.NA),
+            
+            # Sample source information
+            "Tissue/Specimen/Source": genbank_data.get('isolation_source', pd.NA),
+            "Collection Date": genbank_data.get('collection_date', pd.NA),
+            
+            # Annotation and quality information
+            "Annotated": metadata.get('isAnnotated', pd.NA),
+            
+            # Associated database records
+            "SRA Accessions": metadata.get('sraAccessions', pd.NA),
+            "Bioprojects": metadata.get('bioprojects', pd.NA),
+            "Biosample": metadata.get('biosample', pd.NA),
+            
+            # Counts
+            "Gene count": metadata.get('geneCount', pd.NA),
+            "Protein count": metadata.get('proteinCount', pd.NA),
+            "Mature Peptide Count": metadata.get('maturePeptideCount', pd.NA),
+            
+            # GenBank-specific columns
+            "definition": genbank_data.get('definition', pd.NA),
+            "strain": genbank_data.get('strain', pd.NA),
+            "isolation_source": genbank_data.get('isolation_source', pd.NA),
+            "create_date": genbank_data.get('create_date', pd.NA),
+            "update_date": genbank_data.get('update_date', pd.NA),
+            "assembly_name": genbank_data.get('assembly_name', pd.NA),
+            "authors": first_ref.get('authors', pd.NA),
+            "title": first_ref.get('title', pd.NA),
+            "journal": first_ref.get('journal', pd.NA),
+            "pubmed_id": first_ref.get('pubmed_id', pd.NA),
+            "reference_count": len(references) if references else pd.NA,
+            "comment": genbank_data.get('comment', pd.NA),
         }
         
         data_for_df.append(row)
@@ -3368,26 +3918,11 @@ def save_genbank_metadata_to_csv(genbank_metadata, output_file, virus_metadata=N
     
     # Create DataFrame with the specified column order
     df = pd.DataFrame(data_for_df, columns=columns)
-    
-    # If virus metadata is provided, try to merge it
-    if virus_metadata:
-        logger.info("Merging with virus metadata (%d records)", len(virus_metadata))
-        try:
-            # Create virus metadata DataFrame
-            virus_df = pd.DataFrame(virus_metadata)
-            if 'accession' in virus_df.columns:
-                # Merge on accession number
-                df = pd.merge(df, virus_df, on='accession', how='outer', suffixes=('_genbank', '_virus'))
-                logger.info("✅ Successfully merged GenBank and virus metadata")
-            else:
-                logger.warning("Cannot merge: virus metadata missing 'accession' column")
-        except Exception as e:
-            logger.warning("❌ Failed to merge GenBank and virus metadata: %s", e)
 
     # Write DataFrame to CSV file
     try:
         df.to_csv(output_file, index=False, encoding='utf-8')
-        logger.info("✅ Merged GenBank metadata successfully saved to: %s", output_file)
+        logger.info("✅ GenBank metadata successfully saved to: %s", output_file)
         logger.info("CSV file contains %d rows and %d columns", len(df), len(df.columns)) 
     except Exception as e:
         logger.error("❌ Failed to save GenBank metadata CSV: %s", e)
@@ -3440,15 +3975,15 @@ def filter_metadata_only(
     
     # Convert date filters to datetime objects for proper comparison
     min_collection_date = (
-        parse_date(min_collection_date, filtername="min_collection_date", verbose=True) 
+        _parse_date(min_collection_date, filtername="min_collection_date", verbose=True) 
         if min_collection_date else None
     )
     max_collection_date = (
-        parse_date(max_collection_date, filtername="max_collection_date", verbose=True) 
+        _parse_date(max_collection_date, filtername="max_collection_date", verbose=True) 
         if max_collection_date else None
     )
     max_release_date = (
-        parse_date(max_release_date, filtername="max_release_date", verbose=True) 
+        _parse_date(max_release_date, filtername="max_release_date", verbose=True) 
         if max_release_date else None
     )
     
@@ -3582,7 +4117,7 @@ def filter_metadata_only(
         if min_collection_date is not None or max_collection_date is not None:
             date_str = metadata.get("isolate", {}).get("collection_date", "")
             
-            date = parse_date(date_str, filtername="collection_date")
+            date = _parse_date(date_str, filtername="collection_date")
             
             if date_str is None or date is None:
                 logger.debug("Skipping %s: missing or invalid collection date '%s'", accession, date_str)
@@ -3610,7 +4145,7 @@ def filter_metadata_only(
                 filter_stats['release_date'] += 1
                 continue
                 
-            release_date_value = parse_date(release_date_str.split("T")[0], filtername="release_date")
+            release_date_value = _parse_date(release_date_str.split("T")[0], filtername="release_date")
             
             if release_date_value is None:
                 logger.debug("Skipping %s: invalid release date '%s'", accession, release_date_str)
@@ -3786,12 +4321,6 @@ def virus(
 
     Returns:
         None: Files are saved to the output directory
-        
-    Note:
-        When genbank_metadata=True, an additional CSV file with detailed GenBank
-        metadata will be saved alongside the standard output files. This includes
-        collection dates, geographic information, host details, publication
-        references, and other fields extracted from GenBank records.
     """
     logger.info("Starting virus data retrieval process...")
     
@@ -3819,14 +4348,14 @@ def virus(
 
     if download_all_accessions:
         logger.info("ATTENTION: Download all accessions mode is active.")
-        logger.info("This will download all virus accessions from NCBI, which can be a very large dataset and take a long time.")
+        logger.info("This will download ALL virus accessions from NCBI, which can be a very large dataset and take a long time.")
         virus = NCBI_ALL_VIRUSES_TAXID  # NCBI taxonomy ID for all Viruses
         is_accession = False
-        logger.info("Overriding virus query to fetch all viruses using taxon ID: %s", virus)
+        logger.info("Overriding virus query to fetch all viruses using taxon ID: %s. Filters remain unchanged.", virus)
 
-    logger.info("Query parameters: virus='%s', is_accession=%s, outfolder='%s'", 
+    logger.info("Query parameters: virus='%s', is_accession=%s, outfolder='%s'",
                 virus, is_accession, outfolder)
-    logger.debug("Applied filters: host=%s, seq_length=(%s-%s), gene_count=(%s-%s), completeness=%s, annotated=%s, refseq_only=%s, keep_temp=%s, lab_passaged=%s, geo_location=%s, submitter_country=%s, collection_date=(%s-%s), release_date=(%s-%s), protein_count=(%s-%s), peptide_count=(%s-%s), max_ambiguous=%s, has_proteins=%s, proteins_complete=%s, genbank_metadata=%s, genbank_batch_size=%s",
+    logger.debug("Applied filters: host=%s, seq_length=(%s-%s), gene_count=(%s-%s), completeness=%s, annotated=%s, refseq_only=%s, keep_temp=%s, lab_passaged=%s, geographic_location=%s, submitter_country=%s, collection_date=(%s-%s), release_date=(%s-%s), protein_count=(%s-%s), mature_peptide_count=(%s-%s), max_ambiguous=%s, has_proteins=%s, proteins_complete=%s, genbank_metadata=%s, genbank_batch_size=%s",
     host, min_seq_length, max_seq_length, min_gene_count, max_gene_count, nuc_completeness, annotated, refseq_only, keep_temp, lab_passaged, geographic_location, submitter_country, min_collection_date, max_collection_date, min_release_date, max_release_date, min_protein_count, max_protein_count, min_mature_peptide_count, max_mature_peptide_count, max_ambiguous_chars, has_proteins, proteins_complete, genbank_metadata, genbank_batch_size)
 
     # SECTION 1: INPUT VALIDATION AND OUTPUT DIRECTORY SETUP
@@ -3882,7 +4411,6 @@ def virus(
             "Argument 'is_accession' must be a boolean (True or False)."
         )
     
-    # Validate GenBank metadata parameters
     if genbank_metadata is not None and not isinstance(genbank_metadata, bool):
         raise TypeError(
             "Argument 'genbank_metadata' must be a boolean (True or False)."
@@ -3896,7 +4424,6 @@ def virus(
         if genbank_batch_size > GENBANK_MAX_BATCH_SIZE_WARNING:
             logger.warning("Large genbank_batch_size (%d) may cause API timeouts. Consider using smaller batches.", genbank_batch_size)
     
-    # Log GenBank metadata configuration
     if genbank_metadata:
         logger.info("GenBank metadata retrieval enabled (batch_size=%d)", genbank_batch_size)
     else:
@@ -3945,12 +4472,15 @@ def virus(
 
     logger.info("Input validation completed successfully")
 
+    ##############
+    # Prepare output directory and all used file paths
     virus_clean = virus.replace(' ', '_').replace('/', '_')
+
     # Create and prepare output directory structure
     if outfolder is None:
         currentfolder = os.getcwd()
-        outfolder = f"{currentfolder}/{virus_clean}_{timestamp}"
-        logger.info("No output folder specified, creating a subdirectory in current directory: %s", outfolder)
+        outfolder = os.path.join(currentfolder, "output" , f"{virus_clean}_{timestamp}")
+        logger.info("No output folder specified, creating a subdirectory in current directory named 'output' and placing results in a folder named: %s", outfolder)
     else:
         logger.info("Using specified output folder: %s", outfolder)
     
@@ -3958,10 +4488,22 @@ def virus(
     os.makedirs(outfolder, exist_ok=True)
     logger.debug("Output folder ready: %s", outfolder)
     
-    # SECTION 2: SARS-CoV-2 CACHED DATA PROCESSING
-    # For SARS-CoV-2 queries, use cached data packages with hierarchical fallback
+    # Create temporary directory for intermediate processing
+    # This will be cleaned up at the end regardless of success or failure
+    temp_dir = os.path.join(outfolder, f"tmp_{timestamp}_{random_suffix}")
+    os.makedirs(temp_dir, exist_ok=True)
+    logger.debug("Created temporary processing directory: %s", temp_dir)
+
+    # File names which will be referenced later
+    genbank_csv_path = os.path.join(outfolder, f"{virus_clean}_genbank_metadata.csv")
+    genbank_full_xml_path = os.path.join(outfolder, f"{virus_clean}_genbank_metadata_full.xml")
+    genbank_full_csv_path = os.path.join(outfolder, f"{virus_clean}_genbank_metadata_full.csv")
+    output_api_metadata_jsonl = os.path.join(outfolder, f"{virus_clean}_api_metadata.jsonl")
+    
+
+    # SECTION 2: CHECKING FOR CACHED DATA PROCESSING
     logger.info("=" * 60)
-    logger.info("STEP 2: CHECKING FOR SARS-CoV-2 QUERY...")
+    logger.info("STEP 2: CHECKING FOR SARS-CoV-2 AND INFLUENZA A QUERIES TO APPLY OPTIMIZED CACHED PATHWAY")  
     logger.info("=" * 60)
     # Initialize variables to track cached download results
     cached_sequences = None
@@ -3969,10 +4511,9 @@ def virus(
     used_cached_download = False
     cached_zip_file = None  # Track zip file path for cleanup
 
-    # Skip cached download for accession-based queries, as accessions are specific sequences
-    # and should use the regular API-based accession download instead
-    if (is_sars_cov2 or is_sars_cov2_query(virus, is_accession)) and not is_accession:
-        logger.info("DETECTED SARS-CoV-2 QUERY - USING CACHED DATA PACKAGES")
+    # For SARS-CoV-2 queries, use cached data packages with hierarchical fallback
+    if (is_sars_cov2 or is_sars_cov2_query(virus, is_accession)):
+        logger.info("DETECTED SARS-CoV-2 QUERY - USING CACHED DATA PACKAGE PATHWAY")
         logger.info("SARS-CoV-2 queries will use NCBI's optimized cached data packages")
         logger.info("with hierarchical fallback from specific to general cached files.")
         
@@ -3993,7 +4534,7 @@ def virus(
         try:
             zip_file = download_sars_cov2_optimized(**params)
             
-            cached_sequences, cached_metadata_dict, used_cached_download = _process_cached_download(
+            cached_sequences, cached_metadata_dict, used_cached_download = process_cached_download(
                 zip_file, virus_type="SARS-CoV-2"
             )
             if used_cached_download:
@@ -4012,10 +4553,7 @@ def virus(
     
     # SECTION 2b: ALPHAINFLUENZA CACHED DATA PROCESSING
     # For Alphainfluenza queries, use cached data packages with hierarchical fallback
-    logger.info("=" * 60)
-    logger.info("STEP 2b: CHECKING FOR ALPHAINFLUENZA QUERY...")
-    logger.info("=" * 60)
-    if (is_alphainfluenza or is_alphainfluenza_query(virus, is_accession)) and not is_accession:
+    if (is_alphainfluenza or is_alphainfluenza_query(virus, is_accession)):
         logger.info("DETECTED ALPHAINFLUENZA QUERY - USING CACHED DATA PACKAGES")
         logger.info("Alphainfluenza queries will use NCBI's optimized cached data packages")
         logger.info("with hierarchical fallback from specific to general cached files.")
@@ -4036,7 +4574,7 @@ def virus(
         try:
             zip_file = download_alphainfluenza_optimized(**params)
             
-            cached_sequences, cached_metadata_dict, used_cached_download = _process_cached_download(
+            cached_sequences, cached_metadata_dict, used_cached_download = process_cached_download(
                 zip_file, virus_type="Alphainfluenza"
             )
             if used_cached_download:
@@ -4053,17 +4591,6 @@ def virus(
         logger.info(" Skipping this step. No Alphainfluenza query detected.")
     
 
-    # Create temporary directory for intermediate processing
-    # This will be cleaned up at the end regardless of success or failure
-    temp_dir = os.path.join(outfolder, f"tmp_{timestamp}_{random_suffix}")
-    os.makedirs(temp_dir, exist_ok=True)
-    logger.debug("Created temporary processing directory: %s", temp_dir)
-
-    # File names which will be referenced later
-    genbank_csv_path = os.path.join(outfolder, f"{virus_clean}_genbank_metadata.csv")
-    genbank_full_xml_path = os.path.join(outfolder, f"{virus_clean}_genbank_metadata_full.xml")
-    genbank_full_csv_path = os.path.join(outfolder, f"{virus_clean}_genbank_metadata_full.csv")
-    output_api_metadata_jsonl = os.path.join(outfolder, f"{virus_clean}_api_metadata.jsonl")
 
     try:
     # SECTION 3: METADATA RETRIEVAL WHILE APPLYING SERVER-SIDE FILTERS
@@ -4097,17 +4624,43 @@ def virus(
             logger.debug("Applying server-side filters: host=%s, geo_location=%s, annotated=%s, complete_only=%s, min_release_date=%s, refseq_only=%s", host, geographic_location, annotated, api_complete_filter, min_release_date, refseq_only)
             
             try:
-                api_reports = fetch_virus_metadata(
-                    virus,
-                    accession=is_accession,
-                    host=host,
-                    geographic_location=geographic_location,
-                    annotated=api_annotated_filter,
-                    complete_only=api_complete_filter,
-                    min_release_date=min_release_date,
-                    refseq_only=refseq_only,
-                    failed_commands=failed_commands,
-                )
+                # Check if this is a multi-accession query (list or file)
+                use_batched_fetch = False
+                if is_accession:
+                    parsed_accessions = _parse_accession_input(virus)
+                    if parsed_accessions['type'] in ('list', 'file'):
+                        use_batched_fetch = True
+                        accession_list = parsed_accessions['accessions']
+                        logger.info("Detected %d accessions from %s input", 
+                                   len(accession_list), parsed_accessions['type'])
+                
+                if use_batched_fetch:
+                    # Multiple accessions - use batched fetching
+                    api_reports = _fetch_metadata_for_accession_list(
+                        accessions=accession_list,
+                        host=host,
+                        geographic_location=geographic_location,
+                        annotated=api_annotated_filter,
+                        complete_only=api_complete_filter,
+                        min_release_date=min_release_date,
+                        refseq_only=refseq_only,
+                        failed_commands=failed_commands,
+                        temp_output_dir=temp_dir,
+                    )
+                else:
+                    # Single accession or taxon-based query - use standard fetch
+                    api_reports = fetch_virus_metadata(
+                        virus,
+                        accession=is_accession,
+                        host=host,
+                        geographic_location=geographic_location,
+                        annotated=api_annotated_filter,
+                        complete_only=api_complete_filter,
+                        min_release_date=min_release_date,
+                        refseq_only=refseq_only,
+                        failed_commands=failed_commands,
+                        temp_output_dir=temp_dir,
+                    )
 
                 # If fetch_virus_metadata returns None, it means the dataset is too large
                 # and we need to use the chunked download strategy
@@ -4123,6 +4676,7 @@ def virus(
                         min_release_date=min_release_date,
                         refseq_only=refseq_only,
                         failed_commands=failed_commands,
+                        temp_output_dir=temp_dir,
                     )
             except RuntimeError as e:
                 # Error has already been logged nicely by fetch_virus_metadata
@@ -4406,6 +4960,11 @@ def virus(
                         )
                         logger.info("✅ GenBank metadata CSV saved: %s (%.2f MB)", 
                                     genbank_csv_path, os.path.getsize(genbank_csv_path) / 1024 / 1024)
+                        
+                        # Merge with standard metadata CSV if it exists
+                        if os.path.exists(output_metadata_csv):
+                            merge_metadata_csvs(genbank_csv_path, output_metadata_csv)
+                        
                         output_files_dict['GenBank CSV Metadata'] = genbank_csv_path
                         if os.path.exists(genbank_full_xml_path):
                             output_files_dict['GenBank Full XML'] = genbank_full_xml_path
