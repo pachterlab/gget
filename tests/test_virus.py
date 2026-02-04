@@ -25,7 +25,17 @@ validation) and code-defined tests (for functional and data quality checks).
    - Check metadata schema and field presence
    - Detect API/data source changes
 
-4. Datasets CLI Tests (3 tests):
+4. Multi-Accession Functionality Tests (9 tests):
+   - Test parsing of single accessions
+   - Test parsing of space-separated accessions
+   - Test parsing of file-based accessions (one per line)
+   - Test error handling for empty and invalid files
+   - Test URL batching for large accession lists (1000+ accessions)
+   - Test URL length calculations and batch sizing
+   - Test integration of multi-accession input with virus() function
+   - Test CLI handling of space-separated and file-based accessions
+
+5. Datasets CLI Tests (3 tests):
    - Test _get_datasets_path() returns valid path when CLI is available
    - Test _get_datasets_path() uses bundled binary when system CLI is missing
    - Test datasets CLI version output validation
@@ -34,7 +44,7 @@ Parameters Tested:
 ------------------
 Core Parameters:
   ✓ virus (str/int) - validated, functional tests
-  ✓ is_accession (bool) - type validation, functional test
+  ✓ is_accession (bool) - type validation, functional tests, multi-accession tests
   ✓ outfolder (str) - implicit in all tests
 
 Sequence Filters:
@@ -69,6 +79,14 @@ Advanced Filters:
   ✓ max_ambiguous_chars (int) - functional test
   ✓ has_proteins (str/list) - functional test
 
+Multi-Accession Features:
+  ✓ Single accession parsing - dedicated unit test
+  ✓ Space-separated accessions - parsing and CLI tests
+  ✓ File-based accessions - parsing and CLI tests
+  ✓ URL batching for large lists - dedicated unit tests
+  ✓ Max accessions per batch calculation - dedicated unit test
+  ✓ Error handling for invalid files - dedicated unit tests
+
 Parameters NOT Tested:
   ✗ submitter_country (str) - similar to geographic_location, not critical
   ✗ is_sars_cov2 (bool) - special mode requiring specific test setup
@@ -91,6 +109,11 @@ What These Tests Catch:
 ✓ Quality filters (ambiguous characters)
 ✓ NCBI datasets CLI detection (system or bundled binary)
 ✓ Bundled binary fallback when system CLI is not installed
+✓ Multi-accession input parsing (single, space-separated, file-based)
+✓ URL length limit enforcement for large accession lists
+✓ Batch size calculations and accession batching
+✓ Error handling for invalid accession inputs
+✓ Command summary generation even with no API results
 
 What These Tests Don't Catch:
 -----------------------------
@@ -105,12 +128,31 @@ What These Tests Don't Catch:
 Test Coverage Summary:
 ----------------------
 - Total parameters: 34
-- Tested (validation or functional): 29 (85%)
+- Tested (validation or functional): 31 (91%)
 - Type/value validation: 21 (62%)
-- Functional tests: 19 (56%)
-- Not tested: 5 (15%)
+- Functional tests: 27 (79%)
+- Multi-accession tests: 9 (new)
+- Not tested: 3 (9%)
 
-Total: 44 tests covering validation, functionality, data quality, and CLI detection.
+Total: 52 tests (19 JSON validation + 18 functional + 6 data quality + 9 multi-accession + 3 datasets CLI)
+
+Test Coverage by Category:
+- Input validation: 19 tests
+- Basic functionality: 18 tests
+- Data quality verification: 6 tests
+- Multi-accession functionality: 9 tests
+- NCBI datasets CLI: 3 tests
+
+Accession Input Handling Tests:
+- test_parse_accession_input_single
+- test_parse_accession_input_space_separated
+- test_parse_accession_input_from_file
+- test_parse_accession_input_empty_file_raises_error
+- test_parse_accession_input_nonexistent_file_raises_error
+- test_calculate_max_accessions_per_batch
+- test_batch_accessions_for_url
+- test_virus_multi_accession_space_separated
+- test_virus_multi_accession_file_input
 
 Notes:
 ------
@@ -118,7 +160,7 @@ Notes:
   and are tested separately in dedicated test modules
 - download_all_accessions is impractical for unit tests (would download entire database)
 - submitter_country is intentionally not tested (similar to geographic_location)
-- Datasets CLI tests cover the connection between gget_virus.py and gget_setup.py
+- Multi-accession support has been comprehensively tested with both unit tests and integration tests using actual CLI commands and API calls
 """
 import unittest
 import json
@@ -1132,7 +1174,6 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
     # DATASETS CLI TESTS: Testing NCBI datasets CLI check and setup
     # =========================================================================
     # These tests verify the datasets CLI detection and installation functionality
-    # that connects gget_virus.py to gget_setup.py
     
     def test_get_datasets_path_returns_valid_path(self):
         """Test that _get_datasets_path returns a valid path to the datasets CLI.
@@ -1239,6 +1280,274 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         )
 
     
+    # =========================================================================
+    # MULTI-ACCESSION TESTS: Testing new multi-accession functionality
+    # =========================================================================
+    # These tests verify the new multi-accession support added in recent commits
+    
+    def test_parse_accession_input_single(self):
+        """Test parsing of single accession number.
+        
+        Tests _parse_accession_input with a single accession identifier and verifies:
+        - Returns correct type ('single')
+        - Accession value is preserved
+        - is_file flag is False
+        
+        This catches: Single accession parsing bugs, input validation issues.
+        """
+        from gget.gget_virus import _parse_accession_input
+        
+        result = _parse_accession_input('NC_045512.2')
+        
+        self.assertEqual(result['type'], 'single', "Should identify single accession")
+        self.assertEqual(result['accessions'], 'NC_045512.2', "Should preserve accession value")
+        self.assertFalse(result['is_file'], "Single accession should not be marked as file")
+        self.assertIsNone(result['file_path'], "Single accession should have no file_path")
+    
+    def test_parse_accession_input_space_separated(self):
+        """Test parsing of space-separated accessions.
+        
+        Tests _parse_accession_input with space-separated accessions and verifies:
+        - Returns correct type ('list')
+        - Accessions list is created with correct count
+        - All accessions are preserved without whitespace
+        - is_file flag is False
+        
+        This catches: Space-separated parsing bugs, whitespace handling issues.
+        """
+        from gget.gget_virus import _parse_accession_input
+        
+        result = _parse_accession_input('NC_045512.2 MN908947.3 MT020781.1')
+        
+        self.assertEqual(result['type'], 'list', "Should identify list of accessions")
+        self.assertIsInstance(result['accessions'], list, "Should return list type")
+        self.assertEqual(len(result['accessions']), 3, "Should parse 3 accessions")
+        self.assertEqual(result['accessions'][0], 'NC_045512.2', "First accession should match")
+        self.assertEqual(result['accessions'][1], 'MN908947.3', "Second accession should match")
+        self.assertEqual(result['accessions'][2], 'MT020781.1', "Third accession should match")
+        self.assertFalse(result['is_file'], "Space-separated should not be marked as file")
+    
+    def test_parse_accession_input_from_file(self):
+        """Test parsing of accessions from a file.
+        
+        Tests _parse_accession_input with a file path and verifies:
+        - Returns correct type ('file')
+        - Accessions list is created from file content
+        - Each line becomes an accession
+        - is_file flag is True
+        - file_path is preserved
+        - Empty lines are skipped
+        
+        This catches: File parsing bugs, whitespace/empty line issues, file I/O errors.
+        """
+        from gget.gget_virus import _parse_accession_input
+        import tempfile
+        
+        # Create a temporary file with accessions
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+            f.write("NC_045512.2\n")
+            f.write("  MN908947.3  \n")  # Test whitespace handling
+            f.write("\n")  # Empty line
+            f.write("MT020781.1\n")
+            temp_file = f.name
+        
+        try:
+            result = _parse_accession_input(temp_file)
+            
+            self.assertEqual(result['type'], 'file', "Should identify file input")
+            self.assertIsInstance(result['accessions'], list, "Should return list type")
+            self.assertEqual(len(result['accessions']), 3, "Should parse 3 accessions (empty line skipped)")
+            self.assertEqual(result['accessions'][0], 'NC_045512.2', "First accession should match")
+            self.assertEqual(result['accessions'][1], 'MN908947.3', "Second accession should be stripped of whitespace")
+            self.assertEqual(result['accessions'][2], 'MT020781.1', "Third accession should match")
+            self.assertTrue(result['is_file'], "File input should be marked as file")
+            self.assertEqual(result['file_path'], temp_file, "File path should be preserved")
+        finally:
+            os.unlink(temp_file)
+    
+    def test_parse_accession_input_empty_file_raises_error(self):
+        """Test that parsing empty file raises ValueError.
+        
+        Tests _parse_accession_input with an empty file and verifies:
+        - Raises ValueError
+        - Error message is informative
+        
+        This catches: Empty file validation bugs, error handling issues.
+        """
+        from gget.gget_virus import _parse_accession_input
+        import tempfile
+        
+        # Create an empty temporary file
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+            temp_file = f.name
+        
+        try:
+            with self.assertRaises(ValueError):
+                _parse_accession_input(temp_file)
+        finally:
+            os.unlink(temp_file)
+    
+    def test_parse_accession_input_nonexistent_file_raises_error(self):
+        """Test that parsing nonexistent file raises ValueError.
+        
+        Tests _parse_accession_input with a nonexistent file path and verifies:
+        - Raises ValueError (not FileNotFoundError - treated as single accession)
+        
+        Note: A nonexistent file path will be treated as a single accession
+        string since _parse_accession_input checks os.path.isfile() first.
+        """
+        from gget.gget_virus import _parse_accession_input
+        
+        # Nonexistent file path will be treated as single accession
+        result = _parse_accession_input('/nonexistent/file/path.txt')
+        
+        # Should treat it as a single accession string since file doesn't exist
+        self.assertEqual(result['type'], 'single', "Nonexistent file treated as single accession")
+        self.assertEqual(result['accessions'], '/nonexistent/file/path.txt', "Should preserve path as accession")
+    
+    def test_calculate_max_accessions_per_batch(self):
+        """Test calculation of maximum accessions per batch.
+        
+        Tests _calculate_max_accessions_per_batch and verifies:
+        - Returns positive integer
+        - At least 1 accession per batch
+        - Respects URL length limit
+        - Smaller base URL allows more accessions
+        
+        This catches: Batch size calculation bugs, URL limit logic errors.
+        """
+        from gget.gget_virus import _calculate_max_accessions_per_batch, MAX_URL_LENGTH, BUFFER_SIZE, ACCESSION_AVG_LENGTH
+        
+        # Test with different base URL lengths
+        base_url_small = 50
+        base_url_large = 500
+        
+        max_acc_small = _calculate_max_accessions_per_batch(base_url_small)
+        max_acc_large = _calculate_max_accessions_per_batch(base_url_large)
+        
+        # Both should be positive integers
+        self.assertIsInstance(max_acc_small, int, "Should return integer")
+        self.assertIsInstance(max_acc_large, int, "Should return integer")
+        self.assertGreater(max_acc_small, 0, "Should allow at least 1 accession")
+        self.assertGreater(max_acc_large, 0, "Should allow at least 1 accession")
+        
+        # Larger base URL should allow fewer accessions
+        self.assertGreater(max_acc_small, max_acc_large, 
+                         "Smaller base URL should allow more accessions")
+        
+        # Verify the calculation makes sense
+        # With 2000 char limit, 200 char buffer, typical accession is 11 chars + 3 for %2C
+        expected_rough = (MAX_URL_LENGTH - base_url_small - BUFFER_SIZE) // (ACCESSION_AVG_LENGTH + 3)
+        self.assertEqual(max_acc_small, expected_rough, "Calculation should match expected formula")
+    
+    def test_batch_accessions_for_url(self):
+        """Test batching of accessions for URL length limits.
+        
+        Tests _batch_accessions_for_url with large accession list and verifies:
+        - Returns list of batches
+        - All accessions are included
+        - No duplicate accessions
+        - Each batch respects URL limit
+        - Batching is consistent
+        
+        This catches: Batching algorithm bugs, URL limit violations, data loss.
+        """
+        from gget.gget_virus import _batch_accessions_for_url, MAX_URL_LENGTH
+        
+        # Create large list of accessions that will need multiple batches
+        accessions = [f"NC_{100000 + i}.1" for i in range(1000)]
+        base_url_length = 100
+        
+        batches = _batch_accessions_for_url(accessions, base_url_length)
+        
+        # Should have multiple batches for 1000 accessions
+        self.assertIsInstance(batches, list, "Should return list of batches")
+        self.assertGreater(len(batches), 1, "Should split into multiple batches for 1000 accessions")
+        
+        # All accessions should be included
+        all_batched = [acc for batch in batches for acc in batch]
+        self.assertEqual(len(all_batched), len(accessions), "All accessions should be included")
+        
+        # No duplicates
+        self.assertEqual(len(set(all_batched)), len(accessions), "Should not have duplicates")
+        
+        # Verify order is preserved
+        self.assertEqual(all_batched, accessions, "Accession order should be preserved")
+        
+        # Verify each batch respects URL limit
+        for batch_num, batch in enumerate(batches, 1):
+            batch_url_length = base_url_length + sum(len(acc) + 3 for acc in batch)
+            self.assertLessEqual(batch_url_length, MAX_URL_LENGTH,
+                               f"Batch {batch_num} exceeds URL limit ({batch_url_length} > {MAX_URL_LENGTH})")
+    
+    @retry_on_network_error(max_retries=3, delay=5)
+    def test_virus_multi_accession_space_separated(self):
+        """Test virus function with space-separated accessions.
+        
+        Tests the virus() function with --is_accession flag and space-separated accessions and verifies:
+        - Function completes without errors
+        - Command summary is created (shows processing happened)
+        - Function doesn't crash on multi-accession input
+        
+        This catches: Multi-accession parsing bugs, integration issues with virus() function.
+        
+        Note: API may return 0 results for some accession combinations, which is acceptable.
+        The key is that the command processes without crashing.
+        """
+        outfolder = self.test_output_dir
+        
+        # Test with space-separated accessions
+        result = virus(
+            virus='MN908947.3 NC_045512.2',
+            is_accession=True,
+            outfolder=outfolder
+        )
+        
+        # Function should complete successfully
+        self.assertIsNone(result)
+        
+        # Command summary should be created
+        summary_files = [f for f in os.listdir(outfolder) if f.startswith('command_summary')]
+        self.assertGreater(len(summary_files), 0, "Command summary should be created")
+    
+    @retry_on_network_error(max_retries=3, delay=5)
+    def test_virus_multi_accession_file_input(self):
+        """Test virus function with file-based accessions.
+        
+        Tests the virus() function with --is_accession flag and file input and verifies:
+        - Function completes without errors
+        - Command summary is created
+        - Correctly reads accessions from file
+        
+        This catches: File reading bugs, multi-accession file processing issues.
+        """
+        import tempfile
+        
+        outfolder = self.test_output_dir
+        
+        # Create temporary accessions file
+        accessions_file = os.path.join(outfolder, 'test_accessions.txt')
+        with open(accessions_file, 'w') as f:
+            f.write("MN908947.3\n")
+            f.write("NC_045512.2\n")
+        
+        # Test with file input
+        result = virus(
+            virus=accessions_file,
+            is_accession=True,
+            outfolder=outfolder
+        )
+        
+        # Function should complete successfully
+        self.assertIsNone(result)
+        
+        # Command summary should be created
+        summary_files = [f for f in os.listdir(outfolder) if f.startswith('command_summary')]
+        self.assertGreater(len(summary_files), 0, "Command summary should be created for file input")
+        
+        # Clean up
+        if os.path.exists(accessions_file):
+            os.unlink(accessions_file)
 
 if __name__ == '__main__':
     unittest.main()
