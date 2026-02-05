@@ -1,4 +1,12 @@
 ## ✨ What's new
+**Version ≥ 0.30.2** (Jan 23, 2026):  
+- [`gget virus`](virus.md): Metadata streaming optimization, improved protein filtering, and enhanced error handling
+  - Metadata now streams to disk during fetch to prevent memory exhaustion on large datasets (100,000+ records)
+  - Fixed metadata CSV mapping (camelCase → snake_case) for organism name, host, and collection date
+  - Enhanced protein filtering for segmented viruses with improved FASTA header parsing
+  - Added `annotated=False` option for filtering unannotated sequences
+  - Added progress bars to batched sequence downloads
+
 **Version ≥ 0.30.1** (Jan 22, 2026):  
 - [`gget virus`](virus.md): Improved reliability with enhanced error handling and retry logic
   - Fixed collection date naming bug

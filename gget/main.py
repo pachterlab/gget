@@ -2478,7 +2478,12 @@ def main():
         type=str,
         nargs="?",
         default=None,
-        help="Virus taxon name/ID to query, e.g. 'SARS-CoV-2', 'covid', 'influenza', or taxon ID '2697049'.",
+        help="Virus taxon name/ID to query, e.g. 'SARS-CoV-2', 'zika virus',, or taxon ID '1335626'.\n"
+             "When using --is_accession flag, can also be:\n"
+             "  - Single accession: 'NC_038294.1'\n"
+             "  - Space-separated accessions: 'NC_038294.1 NC_045512.2'\n"
+             "  - Path to text file: 'accessions.txt' (one accession per line)\n"
+             "For SARS-CoV-2 and Alphainfluenza cached downloads, multiple accessions are fully supported.",
     )
     parser_virus.add_argument(
         "-a",
@@ -2486,7 +2491,9 @@ def main():
         default=False,
         action="store_true",
         required=False,
-        help="Treat the virus argument as an accession number instead of a taxon name, e.g. 'NM_001744', 'NP_001735'.",
+        help="Treat the virus argument as an accession number (single, space-separated list, or text file path with one accession per line).\n"
+             "Single: 'NC_038294.1' | List: 'NC_038294.1 NC_045512.2' | File: 'accessions.txt'\n"
+             "For SARS-CoV-2 and Alphainfluenza cached downloads, multiple accessions are fully supported.",
     )
     parser_virus.add_argument(
         "-o",
@@ -2599,13 +2606,6 @@ def main():
         action="store_true",
         required=False,
         help="When querying Alphainfluenza (Influenza A), use this tag so the code optimizes by using NCBI's cached data packages for faster downloads.",
-    )
-    parser_virus.add_argument(
-        "--source_database",
-        type=str,
-        choices=["genbank", "refseq"],
-        required=False,
-        help="Source database filter: 'genbank' or 'refseq'.",
     )
     parser_virus.add_argument(
         "--min_release_date",
@@ -3792,7 +3792,6 @@ def main():
             keep_temp=args.keep_temp,
             is_sars_cov2=args.is_sars_cov2,
             is_alphainfluenza=args.is_alphainfluenza,
-            source_database=args.source_database,
             min_release_date=args.min_release_date,
             max_release_date=args.max_release_date,
             min_mature_peptide_count=args.min_mature_peptide_count,

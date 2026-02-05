@@ -11,7 +11,7 @@ This module was written by [Ferdous Nasri](https://github.com/ferbsx).
 
 **Positional argument**  
 `virus`  
-Virus taxon name (e.g. 'Zika virus'), taxon ID (e.g. 2697049), or accession number (e.g. 'NC\_045512.2').  
+Virus taxon name (e.g. 'Zika virus'), taxon ID (e.g. 2697049), accession number (e.g. 'NC\_045512.2'), space-separated list of accessions (e.g. 'NC\_045512.2 MN908947.3 MT020781.1'), or path to a text file containing accession numbers (one per line, when combined with `--is_accession`).  
 
 **Optional arguments**   
 `-o` `--out`  
@@ -81,9 +81,6 @@ Filter by geographic location of sample collection (e.g. 'USA', 'Asia').
 `--submitter_country`  
 Filter by the country of the sequence submitter.
 
-`--source_database`  
-Filter by source database. One of: 'genbank' or 'refseq'.
-
 _SARS-CoV-2 specific filters_
 
 `--lineage`  
@@ -91,7 +88,10 @@ Filter by SARS-CoV-2 lineage (e.g. 'B.1.1.7', 'P.1').
 
 **Flags**  
 `-a` `--is_accession`  
-Flag to indicate that the `virus` positional argument is an accession number.
+Flag to indicate that the `virus` positional argument is an accession number, space-separated list of accessions, or path to a text file containing accession numbers (one per line). For SARS-CoV-2 and Alphainfluenza cached downloads, supports:
+  - Single accession: `NC_045512.2`
+  - Space-separated list: `NC_045512.2 MN908947.3 MT020781.1`
+  - Text file path: `accessions.txt` (one accession per line)
 
 `--refseq_only`  
 Flag to limit search to RefSeq genomes only (higher quality, curated sequences).
@@ -665,66 +665,6 @@ virus()
   - **Failed sequence download batches**: Batch numbers, accession lists, and retry URLs
   - **Failed GenBank metadata batches**: Accession lists with individual retry URLs
   - All failed operations include exact commands/URLs that can be run manually for retry
-
-## Performance Characteristics
-
-### Scalability
-- **Small datasets** (< 1,000 sequences): Near-instantaneous processing
-- **Medium datasets** (1,000 - 10,000 sequences): Minutes to complete
-- **Large datasets** (> 10,000 sequences): Optimized pagination and filtering
-
-### Memory Usage
-- Streaming processing minimizes memory footprint
-- Metadata cached in memory for filtering operations
-- Large FASTA files processed in chunks
-
-### Network Efficiency
-- Minimal API calls due to server-side filtering
-- Targeted downloads reduce bandwidth usage
-- Automatic retry with exponential backoff
-
-## Error Handling
-
-### API Failures
-- Smart retry strategy with exponential backoff and jitter
-- Server-side error detection with specific guidance:
-  - Timeout handling for large datasets
-  - Geographic filter optimization suggestions
-  - Batch size adjustments for GenBank metadata
-- Connection pooling and session management
-- Detailed error logging with troubleshooting steps
-
-### Data Validation
-- Comprehensive input parameter validation:
-  - Type checking for all parameters
-  - Range validation for numeric values
-  - Date format and range validation
-  - Boolean parameter normalization
-- Sequence integrity verification:
-  - FASTA format validation
-  - Ambiguous character detection
-  - Protein/gene completeness checks
-- Metadata consistency validation:
-  - Required field presence checks
-  - Data type validation
-  - Cross-reference validation
-  - GenBank record validation
-
-### Recovery Mechanisms
-- Automatic temporary file cleanup
-- Partial result preservation:
-  - Intermediate metadata saving
-  - Progressive filtering state saving
-  - GenBank metadata caching
-- Hierarchical fallback strategies:
-  - SARS-CoV-2 optimized packages
-  - Cached data fallback
-  - API-based retrieval fallback
-- Detailed error reporting:
-  - Root cause analysis
-  - Alternative command suggestions
-  - Filter relaxation recommendations
-  - Performance optimization tips
 
 ## Usage Examples
 

@@ -1,4 +1,12 @@
 ## ✨ ¡Lo más reciente!  
+**Versión ≥ 0.30.2** (23 de enero de 2026):  
+- [`gget virus`](virus.md): Optimización de streaming de metadatos, filtrado mejorado de proteínas y manejo de errores mejorado
+  - Los metadatos ahora se transmiten al disco durante la búsqueda para evitar el agotamiento de memoria en conjuntos de datos grandes (100.000+ registros)
+  - Se corrigió el mapeo de CSV de metadatos (camelCase → snake_case) para nombre de organismo, host y fecha de recopilación
+  - Filtrado mejorado de proteínas para virus segmentados con análisis mejorado de encabezados FASTA
+  - Se agregó la opción `annotated=False` para filtrar secuencias sin anotar
+  - Se agregaron barras de progreso a las descargas de secuencias en lotes
+
 **Versión ≥ 0.30.0** (19 de enero de 2026):  
 - NUEVOS MÓDULOS:
   - [`gget 8cube`](8cube.md)
