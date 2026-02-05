@@ -4833,7 +4833,7 @@ def virus(
     check_min_max(
         min_release_date,
         max_release_date,
-        "release data (arguments: min_release_date and max_release_date)",
+        "release date (arguments: min_release_date and max_release_date)",
         date=True,  # Enable date parsing for comparison
     )
 
