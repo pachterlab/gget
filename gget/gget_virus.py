@@ -1025,7 +1025,23 @@ def fetch_virus_metadata(
             logger.debug("Next page token received, continuing pagination...")
             
         else:
-            # Page fetch failed after retries
+            # Page fetch failed after retries or returned empty data
+            # Handle case where success=True but page_data is empty (error_info will be None)
+            if not error_info:
+                # Success=True but no data returned - this shouldn't happen in normal operation
+                # but we should handle it gracefully
+                logger.warning("⚠️ API request succeeded but returned no data (page %d)", page_count)
+                if all_reports:
+                    logger.info("Continuing with %d records collected so far...", len(all_reports))
+                    loop = False
+                    break
+                else:
+                    error_msg = f"API request returned no data for {virus}. The dataset may be empty or unavailable. Please verify the virus name and filters, or try again later."
+                    if failed_commands is not None:
+                        failed_commands['empty_response'] = {'error': error_msg}
+                    logger.error(error_msg)
+                    raise RuntimeError(error_msg) from None
+            
             last_exception = error_info
             
             if isinstance(last_exception.get('exception_type'), str) and last_exception['exception_type'] == 'Timeout':
@@ -3137,6 +3153,18 @@ def save_command_summary(
                     f.write(f"   URL: {timeout_info.get('url', 'Unknown')}\n")
                     f.write(f"   Recommendation: Try again later or use different filters\n\n")
                 
+                # Check for empty API response
+                if failed_commands.get('empty_response'):
+                    has_failures = True
+                    if not has_failures:
+                        f.write("-" * 80 + "\n")
+                        f.write("⚠️ FAILED OPERATIONS - MANUAL RETRY REQUIRED\n")
+                        f.write("-" * 80 + "\n")
+                    empty_resp_info = failed_commands['empty_response']
+                    f.write(f"\n📍 EMPTY API RESPONSE:\n")
+                    f.write(f"   Error: {empty_resp_info.get('error', 'Unknown')}\n")
+                    f.write(f"   Recommendation: Check your virus identifier or try different filter parameters\n\n")
+                
                 # Check for failed API batches
                 if failed_commands.get('api_batches'):
                     has_failures = True
@@ -4701,6 +4729,7 @@ def virus(
     # Initialize failed commands tracker for tracking all types of failures
     failed_commands = {
         'api_timeout': None,
+        'empty_response': None,
         'sequence_batches': [],
         'genbank_batches': [],
         'api_batches': [],
@@ -5047,6 +5076,10 @@ def virus(
                     )
             except RuntimeError as e:
                 # Error has already been logged nicely by fetch_virus_metadata
+                # Ensure output folder exists for summary file
+                os.makedirs(outfolder, exist_ok=True)
+                logger.debug("Ensured output folder exists for error summary: %s", outfolder)
+                
                 # Save a summary file documenting the failure, then exit gracefully
                 logger.error("Failed to fetch virus metadata from NCBI API")
                 save_command_summary(
