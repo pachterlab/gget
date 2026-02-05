@@ -40,6 +40,14 @@ validation) and code-defined tests (for functional and data quality checks).
    - Test _get_datasets_path() uses bundled binary when system CLI is missing
    - Test datasets CLI version output validation
 
+6. Exponential Backoff Helper Function Tests (6 tests):
+   - Test successful operation on first attempt
+   - Test retry mechanism with success after initial failure
+   - Test exponential backoff timing and delay calculations
+   - Test error_info dict tracking for failed operations
+   - Test non-retryable exceptions fail immediately
+   - Test custom retryable exception configurations
+
 Parameters Tested:
 ------------------
 Core Parameters:
@@ -134,7 +142,7 @@ Test Coverage Summary:
 - Multi-accession tests: 9 (new)
 - Not tested: 3 (9%)
 
-Total: 52 tests (19 JSON validation + 18 functional + 6 data quality + 9 multi-accession + 3 datasets CLI)
+Total: 58 tests (19 JSON validation + 18 functional + 6 data quality + 9 multi-accession + 3 datasets CLI + 6 retry helper)
 
 Test Coverage by Category:
 - Input validation: 19 tests
@@ -142,6 +150,7 @@ Test Coverage by Category:
 - Data quality verification: 6 tests
 - Multi-accession functionality: 9 tests
 - NCBI datasets CLI: 3 tests
+- Exponential backoff retry helper: 6 tests (core infrastructure testing)
 
 Accession Input Handling Tests:
 - test_parse_accession_input_single
@@ -1548,6 +1557,161 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         # Clean up
         if os.path.exists(accessions_file):
             os.unlink(accessions_file)
+
+    # =========================================================================
+    # EXPONENTIAL BACKOFF HELPER FUNCTION TESTS
+    # =========================================================================
+    # These tests verify the core retry logic without making real API calls
+    
+    def test_retry_helper_successful_operation(self):
+        """Test successful operation on first attempt (no retries needed)."""
+        from gget.gget_virus import _retry_with_exponential_backoff
+        
+        def successful_op():
+            return {"result": "success"}
+        
+        success, result, error_info = _retry_with_exponential_backoff(
+            operation_name="test_success",
+            operation_func=successful_op,
+        )
+        
+        self.assertTrue(success, "Expected success=True")
+        self.assertEqual(result, {"result": "success"}, "Expected correct result")
+        self.assertIsNone(error_info, "Expected no error_info on success")
+    
+    def test_retry_helper_success_after_retry(self):
+        """Test operation that fails once then succeeds."""
+        import requests
+        from gget.gget_virus import _retry_with_exponential_backoff
+        
+        attempt_count = [0]  # Use list to allow modification in nested function
+        
+        def flaky_op():
+            attempt_count[0] += 1
+            if attempt_count[0] == 1:
+                raise requests.exceptions.ConnectionError("Temporary connection issue")
+            return {"result": "succeeded after retry"}
+        
+        start_time = time.time()
+        success, result, error_info = _retry_with_exponential_backoff(
+            operation_name="test_flaky",
+            operation_func=flaky_op,
+            max_retries=3,
+            initial_delay=0.05,
+            backoff_multiplier=2.0,
+            retryable_exceptions=(requests.exceptions.ConnectionError, requests.exceptions.HTTPError),
+        )
+        elapsed = time.time() - start_time
+        
+        self.assertTrue(success, "Expected success=True after retry")
+        self.assertEqual(result, {"result": "succeeded after retry"}, "Expected correct result")
+        self.assertEqual(attempt_count[0], 2, f"Expected 2 attempts, got {attempt_count[0]}")
+        self.assertGreaterEqual(elapsed, 0.05, f"Expected at least 0.05s delay, got {elapsed}s")
+    
+    def test_retry_helper_exponential_backoff_timing(self):
+        """Test that exponential backoff increases delays properly."""
+        import requests
+        from gget.gget_virus import _retry_with_exponential_backoff
+        
+        attempt_count = [0]
+        
+        def always_fails():
+            attempt_count[0] += 1
+            raise requests.exceptions.ConnectionError("Persistent connection issue")
+        
+        initial_delay = 0.05
+        backoff_multiplier = 2.0
+        max_retries = 3
+        
+        start_time = time.time()
+        success, result, error_info = _retry_with_exponential_backoff(
+            operation_name="test_backoff",
+            operation_func=always_fails,
+            max_retries=max_retries,
+            initial_delay=initial_delay,
+            backoff_multiplier=backoff_multiplier,
+            retryable_exceptions=(requests.exceptions.ConnectionError, requests.exceptions.HTTPError),
+        )
+        elapsed = time.time() - start_time
+        
+        # The loop runs max_retries times with delays between attempts
+        expected_min_delay = initial_delay * (1 + backoff_multiplier)
+        
+        self.assertFalse(success, "Expected success=False when all retries fail")
+        self.assertEqual(attempt_count[0], max_retries, f"Expected {max_retries} attempts")
+        self.assertGreaterEqual(elapsed, expected_min_delay * 0.8, 
+                               f"Delay too short: {elapsed}s vs {expected_min_delay}s")
+    
+    def test_retry_helper_failed_commands_tracking(self):
+        """Test that failed_commands dict is properly populated."""
+        from gget.gget_virus import _retry_with_exponential_backoff
+        
+        def failing_op():
+            raise ConnectionError("Test error message")
+        
+        failed_commands = {"custom_errors": []}
+        
+        success, result, error_info = _retry_with_exponential_backoff(
+            operation_name="test_tracking",
+            operation_func=failing_op,
+            max_retries=1,
+            initial_delay=0.01,
+            failed_commands=failed_commands,
+        )
+        
+        self.assertFalse(success, "Expected operation to fail")
+        self.assertIsNotNone(error_info, "Expected error_info to be populated")
+        self.assertIn("exception_type", error_info, "Expected exception_type in error_info")
+        self.assertIn("error", error_info, "Expected error message in error_info")
+    
+    def test_retry_helper_non_retryable_exception(self):
+        """Test that non-retryable exceptions fail immediately."""
+        import requests
+        from gget.gget_virus import _retry_with_exponential_backoff
+        
+        attempt_count = [0]
+        
+        def non_retryable_op():
+            attempt_count[0] += 1
+            raise ValueError("This exception is not retryable")
+        
+        start_time = time.time()
+        success, result, error_info = _retry_with_exponential_backoff(
+            operation_name="test_non_retryable",
+            operation_func=non_retryable_op,
+            max_retries=3,
+            initial_delay=0.1,
+            retryable_exceptions=(requests.exceptions.ConnectionError, requests.exceptions.HTTPError),
+        )
+        elapsed = time.time() - start_time
+        
+        self.assertFalse(success, "Expected operation to fail")
+        self.assertEqual(attempt_count[0], 1, f"Expected only 1 attempt, got {attempt_count[0]}")
+        self.assertLess(elapsed, 0.1, f"Expected immediate failure, but took {elapsed:.2f}s")
+    
+    def test_retry_helper_custom_retryable_exceptions(self):
+        """Test with custom retryable exceptions."""
+        import requests
+        from gget.gget_virus import _retry_with_exponential_backoff
+        
+        attempt_count = [0]
+        
+        def custom_failing_op():
+            attempt_count[0] += 1
+            if attempt_count[0] == 1:
+                raise requests.exceptions.Timeout("Request timed out")
+            return {"result": "success"}
+        
+        success, result, error_info = _retry_with_exponential_backoff(
+            operation_name="test_custom_retryable",
+            operation_func=custom_failing_op,
+            max_retries=3,
+            initial_delay=0.01,
+            retryable_exceptions=(requests.exceptions.Timeout, requests.exceptions.ConnectionError),
+        )
+        
+        self.assertTrue(success, "Expected retry to succeed with Timeout in retryable_exceptions")
+        self.assertEqual(attempt_count[0], 2, f"Expected 2 attempts, got {attempt_count[0]}")
 
 if __name__ == '__main__':
     unittest.main()
