@@ -140,6 +140,107 @@ else:
 _datasets_path_cache = None
 
 
+# =============================================================================
+# HELPER FUNCTIONS FOR RETRIES AND ERROR TRACKING
+# =============================================================================
+
+def _retry_with_exponential_backoff(
+    operation_name,
+    operation_func,
+    max_retries=API_MAX_RETRIES,
+    initial_delay=API_INITIAL_RETRY_DELAY,
+    backoff_multiplier=API_RETRY_BACKOFF_MULTIPLIER,
+    retryable_exceptions=(requests.exceptions.ConnectionError, requests.exceptions.HTTPError),
+    failed_commands=None,
+):
+    """
+    Execute an operation with exponential backoff retry logic.
+    
+    This is a reusable helper that consolidates the exponential backoff retry
+    pattern used throughout the module. It handles retryable exceptions with
+    configurable delays and logging.
+    
+    Args:
+        operation_name (str): Name of the operation for logging (e.g., "batch_10").
+        operation_func (callable): Function to execute, should raise an exception on failure.
+        max_retries (int): Maximum number of retry attempts.
+        initial_delay (float): Initial delay in seconds between retries.
+        backoff_multiplier (float): Multiplier for exponential backoff.
+        retryable_exceptions (tuple): Exception types to retry on.
+        failed_commands (dict, optional): Dictionary to track failed operations.
+        
+    Returns:
+        tuple: (success, result, error_info)
+            - success (bool): True if operation succeeded.
+            - result: Return value of operation_func (or None if failed).
+            - error_info (dict): Details about the failure (if any).
+    """
+    retry_delay = initial_delay
+    last_exception = None
+    
+    for attempt in range(max_retries):
+        try:
+            result = operation_func()
+            return True, result, None
+            
+        except retryable_exceptions as e:
+            last_exception = e
+            is_retryable = True
+            
+            # For HTTPError, check if it's a server error (5xx)
+            if isinstance(e, requests.exceptions.HTTPError) and hasattr(e, 'response') and e.response:
+                is_retryable = 500 <= e.response.status_code < 600
+            
+            if attempt < max_retries - 1 and is_retryable:
+                logger.warning(
+                    "⚠️ %s failed (attempt %d/%d): %s. Retrying in %.1f seconds...",
+                    operation_name, attempt + 1, max_retries, e, retry_delay
+                )
+                time.sleep(retry_delay)
+                retry_delay *= backoff_multiplier
+                continue
+            else:
+                # Out of retries or non-retryable error
+                break
+                
+        except Exception as e:
+            # Non-retryable exception types
+            last_exception = e
+            break
+    
+    # Operation failed after retries
+    error_info = {
+        'error': str(last_exception),
+        'exception_type': type(last_exception).__name__,
+    }
+    
+    return False, None, error_info
+
+
+def _track_failed_operation(failed_commands, operation_type, batch_info, error_info):
+    """
+    Track a failed operation in the failed_commands dictionary.
+    
+    This ensures consistent error tracking across all operation types for
+    later reporting in the command summary.
+    
+    Args:
+        failed_commands (dict): Dictionary to track failures.
+        operation_type (str): Type of operation ('metadata_batch', 'sequence_batch', 'pagination', etc.).
+        batch_info (dict): Information about the failed batch/operation.
+        error_info (dict): Error details from the operation.
+    """
+    if failed_commands is None:
+        return
+    
+    if operation_type not in failed_commands:
+        failed_commands[operation_type] = []
+    
+    failure_record = {**batch_info, **error_info}
+    failed_commands[operation_type].append(failure_record)
+    logger.debug("Tracked failed %s: %s", operation_type, failure_record)
+
+
 def _validate_datasets_binary(path):
     """
     Validate that a datasets binary exists and is functional.
@@ -496,12 +597,13 @@ def _fetch_metadata_for_accession_list(
     temp_output_dir=None,
 ):
     """
-    Fetch metadata for a list of accessions, handling URL length limits.
+    Fetch metadata for a list of accessions, handling URL length limits with retries.
     
     This function fetches metadata for multiple accessions by:
     1. Splitting the accession list into batches that fit within URL limits
-    2. Making separate API calls for each batch
+    2. Making separate API calls for each batch with exponential backoff retries
     3. Combining all results into a single list
+    4. Continuing processing even if some batches fail (graceful degradation)
     
     The NCBI API URL format for multiple accessions is:
     https://api.ncbi.nlm.nih.gov/datasets/v2/virus/accession/ACC1%2CACC2%2CACC3/dataset_report
@@ -518,7 +620,8 @@ def _fetch_metadata_for_accession_list(
         temp_output_dir (str, optional): Directory for temporary files.
         
     Returns:
-        list: Combined list of metadata records from all batches.
+        list: Combined list of metadata records from all batches. 
+              Returns partial results even if some batches fail.
         
     Raises:
         RuntimeError: If all batches fail to fetch.
@@ -526,6 +629,10 @@ def _fetch_metadata_for_accession_list(
     if not accessions:
         logger.warning("No accessions provided to fetch metadata for")
         return []
+    
+    # Initialize failed_commands tracking if not already done
+    if failed_commands is not None and 'api_batches' not in failed_commands:
+        failed_commands['api_batches'] = []
     
     # Calculate base URL length for batch sizing
     # BUFFER_SIZE accounts for query parameters (filters) added by fetch_virus_metadata
@@ -537,7 +644,8 @@ def _fetch_metadata_for_accession_list(
     all_reports = []
     failed_batches = []
     
-    logger.info("Fetching metadata for %d accessions in %d batch(es)", len(accessions), len(batches))
+    logger.info("Fetching metadata for %d accessions in %d batch(es) with exponential backoff retries", 
+               len(accessions), len(batches))
     
     for batch_num, batch in enumerate(batches, 1):
         logger.info("Processing accession batch %d/%d (%d accessions)", 
@@ -546,10 +654,10 @@ def _fetch_metadata_for_accession_list(
         # Join accessions with URL-encoded comma for the API URL
         accession_string = ACCESSION_URL_ENCODING.join(batch)
         
-        try:
-            # Fetch metadata for this batch using the existing function
-            # We pass the joined accession string as a single "virus" parameter
-            batch_reports = fetch_virus_metadata(
+        # Define the fetch operation for retries
+        def fetch_batch_metadata():
+            """Callable for retry helper"""
+            return fetch_virus_metadata(
                 virus=accession_string,
                 accession=True,  # This is an accession-based query
                 host=host,
@@ -561,31 +669,59 @@ def _fetch_metadata_for_accession_list(
                 failed_commands=failed_commands,
                 temp_output_dir=temp_output_dir,
             )
+        
+        # Use exponential backoff helper for batch retries
+        success, batch_reports, error_info = _retry_with_exponential_backoff(
+            operation_name=f"Accession batch {batch_num}/{len(batches)} ({len(batch)} accessions)",
+            operation_func=fetch_batch_metadata,
+            max_retries=API_MAX_RETRIES,
+            initial_delay=API_INITIAL_RETRY_DELAY,
+            backoff_multiplier=API_RETRY_BACKOFF_MULTIPLIER,
+            retryable_exceptions=(requests.exceptions.ConnectionError, requests.exceptions.HTTPError, requests.exceptions.Timeout),
+            failed_commands=failed_commands,
+        )
+        
+        if success and batch_reports:
+            all_reports.extend(batch_reports)
+            logger.info("✅ Batch %d: Retrieved %d records", batch_num, len(batch_reports))
+        else:
+            # Batch failed or returned empty
+            error_msg = error_info['error'] if error_info else "No data returned"
+            logger.warning("❌ Batch %d failed after %d retries: %s", batch_num, API_MAX_RETRIES, error_msg)
             
-            if batch_reports:
-                all_reports.extend(batch_reports)
-                logger.info("Batch %d: Retrieved %d records", batch_num, len(batch_reports))
-            else:
-                logger.warning("Batch %d: No records returned", batch_num)
-                
-        except Exception as e:
-            logger.warning("Batch %d failed: %s", batch_num, e)
-            failed_batches.append({
+            # Build URL with applied filters for manual retry
+            base_url = f"{NCBI_API_BASE}/virus/accession/{accession_string}/dataset_report"
+            query_params = []
+            if refseq_only:
+                query_params.append("filter.refseq_only=true")
+            if annotated is True:
+                query_params.append("filter.annotated_only=true")
+            if complete_only:
+                query_params.append("filter.complete_only=true")
+            if host:
+                query_params.append(f"filter.host={host.replace('_', ' ')}")
+            if geographic_location:
+                query_params.append(f"filter.geo_location={geographic_location.replace('_', ' ')}")
+            if min_release_date:
+                query_params.append(f"filter.released_since={min_release_date}T00:00:00.000Z")
+            
+            api_url = base_url + ("?" + "&".join(query_params) if query_params else "")
+            
+            failed_batch_info = {
                 'batch_num': batch_num,
+                'accession_count': len(batch),
                 'accessions': batch,
-                'error': str(e)
-            })
+                'api_url': api_url,
+            }
+            failed_batches.append(failed_batch_info)
             
-            # Track in failed_commands if provided
-            if failed_commands is not None:
-                if 'api_batches' not in failed_commands:
-                    failed_commands['api_batches'] = []
-                
-                failed_commands['api_batches'].append({
-                    'batch_num': batch_num,
-                    'accessions': batch,
-                    'error': str(e),
-                })
+            # Track in failed_commands for later reporting
+            _track_failed_operation(
+                failed_commands,
+                'api_batches',
+                failed_batch_info,
+                error_info if error_info else {'error': 'No data returned', 'exception_type': 'EmptyResponse'}
+            )
         
         # Add a small delay between batches to respect rate limits
         if batch_num < len(batches):
@@ -593,20 +729,31 @@ def _fetch_metadata_for_accession_list(
     
     # Log summary
     if failed_batches:
-        logger.warning("%d out of %d batches failed", len(failed_batches), len(batches))
+        logger.warning("⚠️ %d out of %d accession batches failed to fetch metadata", 
+                      len(failed_batches), len(batches))
         for fb in failed_batches:
-            logger.debug("Failed batch %d: %s", fb['batch_num'], fb['error'])
+            logger.debug("Failed batch %d (%d accessions): %s", 
+                        fb['batch_num'], fb['accession_count'], fb['accessions'][:3])
     
-    if not all_reports and failed_batches:
+    # Continue with partial results if at least some batches succeeded
+    if all_reports:
+        logger.info("Successfully retrieved %d total metadata records from %d batches", 
+                   len(all_reports), len(batches) - len(failed_batches))
+        if failed_batches:
+            logger.warning("⚠️ Continuing pipeline with partial results (%d/%d batches succeeded)", 
+                          len(batches) - len(failed_batches), len(batches))
+        return all_reports
+    
+    # Only raise if ALL batches failed
+    if failed_batches:
         raise RuntimeError(
             f"All {len(batches)} accession batches failed to fetch metadata. "
-            f"Last error: {failed_batches[-1]['error']}"
+            f"Last error: {failed_batches[-1]['accessions']}"
         )
     
-    logger.info("Successfully retrieved %d total metadata records from %d accessions", 
-               len(all_reports), len(accessions))
-    
-    return all_reports
+    # Fallback (shouldn't reach here)
+    logger.warning("No accession batches were processed")
+    return []
 
 
 def _try_modified_virus_names(
@@ -802,10 +949,6 @@ def fetch_virus_metadata(
     
     # Main pagination loop - continue until all pages are retrieved
     loop = True
-    # Retry logic for handling intermittent server issues
-    max_retries = API_MAX_RETRIES
-    retry_delay = API_INITIAL_RETRY_DELAY
-    last_exception = None
     while loop:
         page_count += 1
         logger.info("Fetching page %d of results...", page_count)
@@ -813,259 +956,317 @@ def fetch_virus_metadata(
         # Add pagination token if we're not on the first page
         if page_token:
             params['page_token'] = page_token
+        
+        def fetch_single_page():
+            """Callable that fetches a single page of results"""
+            # Make the HTTP GET request to the NCBI API  
+            logger.debug("Making API request to: %s", url)
+            logger.debug("Request parameters: %s", params)
+            response = requests.get(url, params=params, timeout=API_REQUEST_TIMEOUT)
+            logger.debug("Explicit URL request sent: %s", response.url)
             
-        for attempt in range(max_retries):
-            try:
-                # Make the HTTP GET request to the NCBI API  
-                logger.debug("Making API request to: %s (attempt %d/%d)", url, attempt + 1, max_retries)
-                logger.debug("Request parameters: %s", params)
-                response = requests.get(url, params=params, timeout=API_REQUEST_TIMEOUT)
-                logger.debug("Explicit URL request sent: %s", response.url)
-                
-                # Raise an exception if the HTTP request failed (4xx or 5xx status codes)
-                response.raise_for_status()
-                
-                # Parse the JSON response
-                data = response.json()
-                logger.debug("Received response with %d bytes", len(response.content))
-                
-                # Extract the virus reports from the response
-                reports = data.get('reports', [])
-                logger.info("Page %d contains %d virus records", page_count, len(reports))
-                
-                # Stream reports to temporary file if available
-                if metadata_file and reports:
-                    try:
-                        for report in reports:
-                            metadata_file.write(json.dumps(report) + '\n')
-                        metadata_file.flush()  # Ensure data is written to disk
-                        logger.debug("Streamed %d records to temporary metadata file", len(reports))
-                    except IOError as e:
-                        logger.warning("Error writing to temporary metadata file: %s", e)
-                
-                # Add this page's reports to our complete collection
-                all_reports.extend(reports)
-                
-                # Check if there are more pages to retrieve
-                next_page_token = data.get('next_page_token')
-                if not next_page_token:
-                    logger.debug("No more pages available, pagination complete")
+            # Raise an exception if the HTTP request failed (4xx or 5xx status codes)
+            response.raise_for_status()
+            
+            # Parse the JSON response
+            data = response.json()
+            logger.debug("Received response with %d bytes", len(response.content))
+            
+            return data
+        
+        # Use exponential backoff helper for single page fetch
+        success, page_data, error_info = _retry_with_exponential_backoff(
+            operation_name=f"API page {page_count}",
+            operation_func=fetch_single_page,
+            max_retries=API_MAX_RETRIES,
+            initial_delay=API_INITIAL_RETRY_DELAY,
+            backoff_multiplier=API_RETRY_BACKOFF_MULTIPLIER,
+            retryable_exceptions=(requests.exceptions.ConnectionError, requests.exceptions.HTTPError),
+            failed_commands=failed_commands,
+        )
+        
+        # Handle page fetch result
+        if success and page_data:
+            # Extract the virus reports from the response
+            reports = page_data.get('reports', [])
+            logger.info("Page %d contains %d virus records", page_count, len(reports))
+            
+            # Stream reports to temporary file if available
+            if metadata_file and reports:
+                try:
+                    for report in reports:
+                        metadata_file.write(json.dumps(report) + '\n')
+                    metadata_file.flush()  # Ensure data is written to disk
+                    logger.debug("Streamed %d records to temporary metadata file", len(reports))
+                except IOError as e:
+                    logger.warning("Error writing to temporary metadata file: %s", e)
+            
+            # Add this page's reports to our complete collection
+            all_reports.extend(reports)
+            
+            # Check if there are more pages to retrieve
+            next_page_token = page_data.get('next_page_token')
+            if not next_page_token:
+                logger.debug("No more pages available, pagination complete")
+                loop = False
+                break
+            
+            # Set up for the next page
+            page_token = next_page_token
+            logger.debug("Next page token received, continuing pagination...")
+            
+        else:
+            # Page fetch failed after retries
+            last_exception = error_info
+            
+            if isinstance(last_exception.get('exception_type'), str) and last_exception['exception_type'] == 'Timeout':
+                # For pagination timeouts, we can continue with partial results
+                if page_count > 1 and all_reports:
+                    # We have collected some pages already
+                    logger.warning("⚠️ Request timed out while fetching additional pages (page %d)", page_count)
+                    logger.info("Continuing with %d records collected so far...", len(all_reports))
+                    
+                    # Track timeout in failed_commands for user reference
+                    if failed_commands is not None:
+                        if 'pagination_timeouts' not in failed_commands:
+                            failed_commands['pagination_timeouts'] = []
+                        failed_commands['pagination_timeouts'].append({
+                            'page': page_count,
+                            'error': 'API request timeout',
+                            'url': url,
+                            'records_retrieved': len(all_reports),
+                        })
+                    
+                    # Break pagination loop and return partial results
                     loop = False
                     break
-                
-                # Set up for the next page
-                page_token = next_page_token
-                logger.debug("Next page token received, continuing pagination...")
-                
-                # If we got here, the request succeeded, so break out of retry loop
-                break
-                
-            except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError) as e:
-                last_exception = e
-                # Check if this is a retryable error (5xx server errors or connection issues)
-                is_retryable = False
-                if isinstance(e, requests.exceptions.ConnectionError):
-                    is_retryable = True
-                elif isinstance(e, requests.exceptions.HTTPError) and hasattr(e, 'response') and e.response:
-                    # Check if it's a 5xx server error
-                    is_retryable = 500 <= e.response.status_code < 600
-                
-                if attempt < max_retries - 1 and is_retryable:
-                    logger.warning("⚠️ Request failed (attempt %d/%d): %s. Retrying in %.1f seconds...", 
-                                 attempt + 1, max_retries, e, retry_delay)
-                    time.sleep(retry_delay)
-                    retry_delay *= API_RETRY_BACKOFF_MULTIPLIER  # Exponential backoff
-                    continue
                 else:
-                    # Either we've exhausted retries or this is a non-retryable error
-                    # Break out of retry loop and handle the error below
-                    break
-            
-            except (requests.exceptions.Timeout, requests.exceptions.RequestException) as e:
-                last_exception = e
-                # For timeout and other request exceptions, don't retry
-                break
-        
-        # If we have an exception to handle, process it with the original error handling logic
-        if last_exception:
-            if isinstance(last_exception, requests.exceptions.Timeout):
-                # Handle timeout errors with specific guidance for known problematic filters
-                error_msg = f"Request timed out while fetching virus metadata: {last_exception}"
-                
-                # Track API timeout information for summary
-                if failed_commands is not None:
-                    # api_url = f"{NCBI_API_BASE}?virusTaxId={taxid}" if not accession else f"{NCBI_API_BASE}?accession={accession}"
-                    failed_commands['api_timeout'] = {
-                        'error': 'API request timeout',
-                        'url': url,
-                        'alternative_command': None
-                    }
-                
-                if geographic_location:
-                    error_msg += (
-                        f"\n\n🔧 TIMEOUT LIKELY DUE TO GEOGRAPHIC FILTER: "
-                        f"The combination of '{virus}' + geographic location '{geographic_location}' "
-                        f"is known to cause server timeouts. Try removing the geographic_location parameter "
-                        f"and filter the results manually after download."
-                    )
-                
-                # Log the timeout error before raising
-                logger.error("=" * 80)
-                logger.error("❌ REQUEST TIMEOUT")
-                logger.error("=" * 80)
-                logger.error(error_msg)
-                logger.error("=" * 80)
-                
-                # Close temporary file before raising exception
-                if metadata_file:
-                    try:
-                        metadata_file.close()
-                    except:
-                        pass
-                        
-                raise RuntimeError(error_msg) from last_exception
-                
-            elif isinstance(last_exception, requests.exceptions.ConnectionError):
-                # Handle connection errors (network issues, DNS failures, etc.)
-                # Try retrying with modified virus names (up to 2 retry strategies)
-                retry_result = _try_modified_virus_names(
-                    virus=virus,
-                    accession=accession,
-                    host=host,
-                    geographic_location=geographic_location,
-                    annotated=annotated,
-                    complete_only=complete_only,
-                    min_release_date=min_release_date,
-                    refseq_only=refseq_only,
-                    failed_commands=failed_commands,
-                    _retry_attempt=_retry_attempt,
-                    error_type="Connection error",
-                    temp_output_dir=temp_output_dir
-                )
-                if retry_result is not None:
-                    return retry_result
-                
-                # Log the connection error before raising
-                error_msg = f"Connection error while fetching virus metadata: {last_exception}"
-                logger.error("=" * 80)
-                logger.error("❌ CONNECTION ERROR")
-                logger.error("=" * 80)
-                logger.error(error_msg)
-                logger.error("Please check your internet connection and try again.")
-                logger.error("=" * 80)
-                
-                # Close temporary file before raising exception
-                if metadata_file:
-                    try:
-                        metadata_file.close()
-                    except:
-                        pass
-                        
-                raise RuntimeError(error_msg) from last_exception
-                
-            elif isinstance(last_exception, requests.exceptions.HTTPError):
-                # Handle HTTP errors with specific guidance for known issues
-                error_msg = f"HTTP error while fetching virus metadata: {last_exception}"
-                
-                # Check for specific server error patterns (5xx errors indicate server unreachability)
-                is_server_error = False
-                http_status_code = None
-                if hasattr(last_exception, 'response') and last_exception.response is not None:
-                    http_status_code = last_exception.response.status_code
-                    is_server_error = 500 <= http_status_code < 600
-                elif "500" in str(last_exception) or "502" in str(last_exception) or "503" in str(last_exception) or "504" in str(last_exception):
-                    is_server_error = True
-                
-                if is_server_error:
-                    # Special handling for "all viruses" query
-                    # If this is the first page and we're querying all viruses without date filters,
-                    # the dataset is too large for NCBI to handle - need to chunk by date
-                    if virus == NCBI_ALL_VIRUSES_TAXID and not accession and page_count == 1 and not min_release_date:
-                        logger.warning("⚠️ NCBI API cannot handle 'all viruses' query in a single request")
-                        logger.info("🔄 Automatically switching to date-chunked download strategy...")
-                        logger.info("This will split the download into yearly chunks to avoid server overload")
-                        
-                        # Close temporary file before returning None
-                        if metadata_file:
-                            try:
-                                metadata_file.close()
-                            except:
-                                pass
-                        
-                        # Return None to signal that chunking is needed
-                        # The calling function will handle the chunking strategy
-                        return None
+                    # Handle timeout error with specific guidance for known problematic filters
+                    error_msg = f"Request timed out while fetching virus metadata: {last_exception.get('error', 'Unknown')}"
                     
-                    # Special handling for numeric taxon IDs that fail with 500 errors
-                    # These are often transient issues with NCBI's server
-                    if virus.isdigit():
-                        logger.warning("⚠️ Server error (HTTP %d) for numeric taxon ID: %s", http_status_code or 500, virus)
-                        logger.info("Numeric taxon IDs sometimes encounter temporary server issues at NCBI.")
-                        logger.info("This may be a transient problem. Recommendations:")
-                        logger.info("  1. Wait a few minutes and try again")
-                        logger.info("  2. Try using the virus name instead of the taxon ID")
-                        logger.info("  3. Consider using more specific filters to reduce the dataset size")
+                    # Track API timeout information for summary
+                    if failed_commands is not None:
+                        failed_commands['api_timeout'] = {
+                            'error': 'API request timeout',
+                            'url': url,
+                            'alternative_command': None
+                        }
                     
-                    # Try retrying with modified virus names (skip for numeric IDs since they won't have modified versions)
-                    if not virus.isdigit():
-                        retry_result = _try_modified_virus_names(
-                            virus=virus,
-                            accession=accession,
-                            host=host,
-                            geographic_location=geographic_location,
-                            annotated=annotated,
-                            complete_only=complete_only,
-                            min_release_date=min_release_date,
-                            refseq_only=refseq_only,
-                            failed_commands=failed_commands,
-                            _retry_attempt=_retry_attempt,
-                            error_type="Server error (5xx)",
-                            temp_output_dir=temp_output_dir
+                    if geographic_location:
+                        error_msg += (
+                            f"\n\n🔧 TIMEOUT LIKELY DUE TO GEOGRAPHIC FILTER: "
+                            f"The combination of '{virus}' + geographic location '{geographic_location}' "
+                            f"is known to cause server timeouts. Try removing the geographic_location parameter "
+                            f"and filter the results manually after download."
                         )
-                        if retry_result is not None:
-                            return retry_result
                     
-                    error_msg += (
-                        f"\n\n🔧 SERVER ERROR (HTTP {http_status_code or 500}) DETECTED: "
-                        f"NCBI's API is experiencing temporary server-side issues. "
-                        f"This could be due to the specific virus/taxon ID or a genuine server problem. Try again in a few minutes, "
-                        f"or consider using different parameters to reduce the dataset size."
+                    # Log the timeout error before raising
+                    logger.error("=" * 80)
+                    logger.error("❌ REQUEST TIMEOUT")
+                    logger.error("=" * 80)
+                    logger.error(error_msg)
+                    logger.error("=" * 80)
+                    
+                    # Close temporary file before raising exception
+                    if metadata_file:
+                        try:
+                            metadata_file.close()
+                        except:
+                            pass
+                            
+                    raise RuntimeError(error_msg) from None
+                
+            elif last_exception.get('exception_type') == 'ConnectionError':
+                # For pagination connection errors, continue with partial results if available
+                if page_count > 1 and all_reports:
+                    logger.warning("⚠️ Connection error while fetching additional pages (page %d)", page_count)
+                    logger.info("Continuing with %d records collected so far...", len(all_reports))
+                    
+                    # Track error in failed_commands
+                    if failed_commands is not None:
+                        if 'pagination_errors' not in failed_commands:
+                            failed_commands['pagination_errors'] = []
+                        failed_commands['pagination_errors'].append({
+                            'page': page_count,
+                            'error_type': 'ConnectionError',
+                            'error': last_exception.get('error', 'Unknown'),
+                            'records_retrieved': len(all_reports),
+                        })
+                    
+                    loop = False
+                    break
+                else:
+                    # Handle connection errors (network issues, DNS failures, etc.)
+                    # Try retrying with modified virus names (up to 2 retry strategies)
+                    retry_result = _try_modified_virus_names(
+                        virus=virus,
+                        accession=accession,
+                        host=host,
+                        geographic_location=geographic_location,
+                        annotated=annotated,
+                        complete_only=complete_only,
+                        min_release_date=min_release_date,
+                        refseq_only=refseq_only,
+                        failed_commands=failed_commands,
+                        _retry_attempt=_retry_attempt,
+                        error_type="Connection error",
+                        temp_output_dir=temp_output_dir
                     )
+                    if retry_result is not None:
+                        return retry_result
+                    
+                    # Log the connection error before raising
+                    error_msg = f"Connection error while fetching virus metadata: {last_exception.get('error', 'Unknown')}"
+                    logger.error("=" * 80)
+                    logger.error("❌ CONNECTION ERROR")
+                    logger.error("=" * 80)
+                    logger.error(error_msg)
+                    logger.error("Please check your internet connection and try again.")
+                    logger.error("=" * 80)
+                    
+                    # Close temporary file before raising exception
+                    if metadata_file:
+                        try:
+                            metadata_file.close()
+                        except:
+                            pass
+                            
+                    raise RuntimeError(error_msg) from None
                 
-                # Log the error details before raising
-                logger.error("=" * 80)
-                logger.error("❌ API REQUEST FAILED")
-                logger.error("=" * 80)
-                logger.error(error_msg)
-                logger.error("=" * 80)
-                
-                # Close temporary file before raising exception
-                if metadata_file:
-                    try:
-                        metadata_file.close()
-                    except:
-                        pass
-                
-                raise RuntimeError(error_msg) from last_exception
+            elif last_exception.get('exception_type') == 'HTTPError':
+                # For pagination HTTP errors, continue with partial results if available
+                if page_count > 1 and all_reports:
+                    logger.warning("⚠️ HTTP error while fetching additional pages (page %d): %s", page_count, last_exception.get('error'))
+                    logger.info("Continuing with %d records collected so far...", len(all_reports))
+                    
+                    # Track error in failed_commands
+                    if failed_commands is not None:
+                        if 'pagination_errors' not in failed_commands:
+                            failed_commands['pagination_errors'] = []
+                        failed_commands['pagination_errors'].append({
+                            'page': page_count,
+                            'error_type': 'HTTPError',
+                            'error': last_exception.get('error', 'Unknown'),
+                            'records_retrieved': len(all_reports),
+                        })
+                    
+                    loop = False
+                    break
+                else:
+                    # Handle HTTP errors with specific guidance for known issues
+                    error_msg = f"HTTP error while fetching virus metadata: {last_exception.get('error', 'Unknown')}"
+                    
+                    # Check for specific server error patterns (5xx errors indicate server unreachability)
+                    is_server_error = '500' in last_exception.get('error', '') or '502' in last_exception.get('error', '') or '503' in last_exception.get('error', '') or '504' in last_exception.get('error', '')
+                    
+                    if is_server_error:
+                        # Special handling for "all viruses" query
+                        # If this is the first page and we're querying all viruses without date filters,
+                        # the dataset is too large for NCBI to handle - need to chunk by date
+                        if virus == NCBI_ALL_VIRUSES_TAXID and not accession and page_count == 1 and not min_release_date:
+                            logger.warning("⚠️ NCBI API cannot handle 'all viruses' query in a single request")
+                            logger.info("🔄 Automatically switching to date-chunked download strategy...")
+                            logger.info("This will split the download into yearly chunks to avoid server overload")
+                            
+                            # Close temporary file before returning None
+                            if metadata_file:
+                                try:
+                                    metadata_file.close()
+                                except:
+                                    pass
+                            
+                            # Return None to signal that chunking is needed
+                            # The calling function will handle the chunking strategy
+                            return None
+                        
+                        # Special handling for numeric taxon IDs that fail with 500 errors
+                        # These are often transient issues with NCBI's server
+                        if virus.isdigit():
+                            logger.warning("⚠️ Server error for numeric taxon ID: %s", virus)
+                            logger.info("Numeric taxon IDs sometimes encounter temporary server issues at NCBI.")
+                            logger.info("This may be a transient problem. Recommendations:")
+                            logger.info("  1. Wait a few minutes and try again")
+                            logger.info("  2. Try using the virus name instead of the taxon ID")
+                            logger.info("  3. Consider using more specific filters to reduce the dataset size")
+                        
+                        # Try retrying with modified virus names (skip for numeric IDs since they won't have modified versions)
+                        if not virus.isdigit():
+                            retry_result = _try_modified_virus_names(
+                                virus=virus,
+                                accession=accession,
+                                host=host,
+                                geographic_location=geographic_location,
+                                annotated=annotated,
+                                complete_only=complete_only,
+                                min_release_date=min_release_date,
+                                refseq_only=refseq_only,
+                                failed_commands=failed_commands,
+                                _retry_attempt=_retry_attempt,
+                                error_type="Server error (5xx)",
+                                temp_output_dir=temp_output_dir
+                            )
+                            if retry_result is not None:
+                                return retry_result
+                        
+                        error_msg += (
+                            f"\n\n🔧 SERVER ERROR DETECTED: "
+                            f"NCBI's API is experiencing temporary server-side issues. "
+                            f"This could be due to the specific virus/taxon ID or a genuine server problem. Try again in a few minutes, "
+                            f"or consider using different parameters to reduce the dataset size."
+                        )
+                    
+                    # Log the error details before raising
+                    logger.error("=" * 80)
+                    logger.error("❌ API REQUEST FAILED")
+                    logger.error("=" * 80)
+                    logger.error(error_msg)
+                    logger.error("=" * 80)
+                    
+                    # Close temporary file before raising exception
+                    if metadata_file:
+                        try:
+                            metadata_file.close()
+                        except:
+                            pass
+                    
+                    raise RuntimeError(error_msg) from None
                 
             else:
                 # Handle any other request-related errors
-                error_msg = f"❌ Failed to fetch virus metadata: {last_exception}"
-                logger.error("=" * 80)
-                logger.error("❌ REQUEST FAILED")
-                logger.error("=" * 80)
-                logger.error(error_msg)
-                logger.error("=" * 80)
-                
-                # Close temporary file before raising exception
-                if metadata_file:
-                    try:
-                        metadata_file.close()
-                    except:
-                        pass
-                
-                raise RuntimeError(error_msg) from last_exception
-
+                # For pagination errors with partial results, continue
+                if page_count > 1 and all_reports:
+                    logger.warning("⚠️ Error while fetching additional pages (page %d): %s", page_count, last_exception.get('error'))
+                    logger.info("Continuing with %d records collected so far...", len(all_reports))
+                    
+                    # Track error in failed_commands
+                    if failed_commands is not None:
+                        if 'pagination_errors' not in failed_commands:
+                            failed_commands['pagination_errors'] = []
+                        failed_commands['pagination_errors'].append({
+                            'page': page_count,
+                            'error_type': last_exception.get('exception_type', 'Unknown'),
+                            'error': last_exception.get('error', 'Unknown'),
+                            'records_retrieved': len(all_reports),
+                        })
+                    
+                    loop = False
+                    break
+                else:
+                    error_msg = f"❌ Failed to fetch virus metadata: {last_exception.get('error', 'Unknown')}"
+                    logger.error("=" * 80)
+                    logger.error("❌ REQUEST FAILED")
+                    logger.error("=" * 80)
+                    logger.error(error_msg)
+                    logger.error("=" * 80)
+                    
+                    # Close temporary file before raising exception
+                    if metadata_file:
+                        try:
+                            metadata_file.close()
+                        except:
+                            pass
+                    
+                    raise RuntimeError(error_msg) from None
     
     # Close the temporary metadata file if it was created
     if metadata_file:
@@ -2068,11 +2269,12 @@ def download_sequences_by_accessions(accessions, outdir=None, batch_size=200, fa
 
 def _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE, fasta_path, failed_commands=None):
     """
-    Download sequences in a single E-utilities request.
+    Download sequences in a single E-utilities request with exponential backoff retries.
     
     This function handles downloading virus sequences for a list of accessions
     using a single HTTP request to NCBI E-utilities. It's optimized for
-    smaller batches (< 200 accessions) to avoid URL length limitations.
+    smaller batches (< 200 accessions) to avoid URL length limitations. Includes
+    exponential backoff retries for transient failures.
     
     Args:
         accessions (list): List of accession numbers to download.
@@ -2084,12 +2286,13 @@ def _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE, fasta_path, f
         str: Path to the saved FASTA file.
         
     Raises:
-        RuntimeError: If the download fails or response is invalid
+        RuntimeError: If the download fails after retries or response is invalid
         
     Note:
         - Validates FASTA format before saving
         - Includes extended timeout for large datasets
-        - Automatically retries with batching if URL is too long
+        - Implements exponential backoff retries for transient failures
+        - Automatically falls back to batching if URL is too long
         
     Example:
         >>> accessions = ['NC_045512.2', 'MN908947.3']
@@ -2098,48 +2301,77 @@ def _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE, fasta_path, f
     
     # Build accession string (E-utils supports comma-separated IDs)
     accession_string = ",".join(accessions)
-    params = {
-        'db': 'nucleotide',
-        'id': accession_string,
-        'rettype': 'fasta',
-        'retmode': 'text'
-    }
     
-    try:
-        logger.info("Initiating E-utilities request for %d accessions", len(accessions))
+    def execute_request():
+        params = {
+            'db': 'nucleotide',
+            'id': accession_string,
+            'rettype': 'fasta',
+            'retmode': 'text'
+        }
         logger.debug("E-utilities URL: %s", NCBI_EUTILS_BASE)
-        
-        # Make the request with extended timeout for large datasets
         response = requests.get(NCBI_EUTILS_BASE, params=params, timeout=EUTILS_TIMEOUT)
-        
-        # Check if the request was successful
         response.raise_for_status()
         
         # Verify we got FASTA data
         if not response.text.strip().startswith('>'):
             raise RuntimeError(f"Invalid FASTA response: {response.text[:100]}")
         
+        return response.text
+    
+    logger.info("Initiating E-utilities request for %d accessions", len(accessions))
+    
+    # Use exponential backoff helper for retries
+    success, response_text, error_info = _retry_with_exponential_backoff(
+        operation_name=f"E-utilities request ({len(accessions)} accessions)",
+        operation_func=execute_request,
+        max_retries=API_MAX_RETRIES,
+        initial_delay=API_INITIAL_RETRY_DELAY,
+        backoff_multiplier=API_RETRY_BACKOFF_MULTIPLIER,
+        retryable_exceptions=(requests.exceptions.ConnectionError, requests.exceptions.HTTPError, requests.exceptions.Timeout),
+        failed_commands=failed_commands,
+    )
+    
+    if not success:
+        # Check for specific URL length error
+        error_msg = error_info['error']
+        if "414" in error_msg or "Request-URI Too Long" in error_msg:
+            logger.info("URL too long error detected. Retrying with batch processing...")
+            # Retry with smaller batches (half of default)
+            return _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_size=EUTILS_DEFAULT_BATCH_SIZE // 2, failed_commands=failed_commands)
+        
+        # Log and track the failure
+        logger.error("❌ E-utilities request failed after %d retries: %s", API_MAX_RETRIES, error_msg)
+        
+        # Track failed operation for later reporting in command summary
+        retry_url = f"{NCBI_EUTILS_BASE}?db=nucleotide&id={accession_string}&rettype=fasta&retmode=text"
+        _track_failed_operation(
+            failed_commands, 
+            'sequence_fetch',
+            {
+                'operation': 'single_batch_download',
+                'accession_count': len(accessions),
+                'retry_url': retry_url,
+            },
+            error_info
+        )
+        
+        raise RuntimeError(f"❌ Failed to download virus sequences via E-utilities after {API_MAX_RETRIES} retries: {error_msg}") from None
+    
+    # Save to file
+    try:
         # Count sequences in response
-        sequence_count = response.text.count('>')
+        sequence_count = response_text.count('>')
         logger.info("Received %d sequences from E-utilities", sequence_count)
         
         # Write FASTA data to file
         with open(fasta_path, 'w', encoding='utf-8') as f:
-            f.write(response.text)
+            f.write(response_text)
             
         logger.info("Successfully saved sequences to: %s (%.2f MB)", 
-                   fasta_path, len(response.text.encode('utf-8')) / 1024 / 1024)
+                   fasta_path, len(response_text.encode('utf-8')) / 1024 / 1024)
         return fasta_path
         
-    except requests.exceptions.RequestException as e:
-        logger.error("❌ E-utilities request failed: %s", e)
-        
-        # Check for specific URL length error
-        if "414" in str(e) or "Request-URI Too Long" in str(e):
-            logger.info("URL too long error detected. Retrying with batch processing...")
-            # Retry with smaller batches (half of default)
-            return _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_size=EUTILS_DEFAULT_BATCH_SIZE // 2, failed_commands=failed_commands)
-        raise RuntimeError(f"❌ Failed to download virus sequences via E-utilities: {e}") from e
     except IOError as e:
         logger.error("❌ Failed to save FASTA file: %s", e)
         raise RuntimeError(f"❌ Failed to save downloaded sequences: {e}") from e
@@ -2151,14 +2383,15 @@ def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_
     
     This function handles large sequence downloads by splitting them into smaller
     batches and writing results incrementally to avoid memory issues. It includes
-    robust error handling with automatic retries for failed batches.
+    robust error handling with automatic exponential backoff retries for failed batches.
     
     Key features:
     - Batched requests to avoid URL length limits
+    - Exponential backoff retries for each batch
     - Incremental file writing to manage memory
-    - Automatic retry with smaller batch sizes for failures
+    - Automatic retry with smaller batch sizes for URL length failures
     - Progress tracking and detailed logging
-    - Graceful handling of partial failures
+    - Graceful handling of partial failures (continues after batch failures)
     
     Args:
         accessions (list): List of accession numbers to download.
@@ -2175,6 +2408,7 @@ def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_
         
     Note:
         - Respects NCBI rate limits with 0.5s delays between batches
+        - Implements exponential backoff for individual batch retries
         - Automatically reduces batch size for URL length errors
         - Continues processing even if some batches fail
         - Writes sequences immediately to reduce memory usage
@@ -2183,6 +2417,10 @@ def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_
         >>> large_accession_list = ['NC_045512.2', 'MN908947.3', ...]  # 1000+ accessions
         >>> path = _download_sequences_batched(large_accession_list, BASE_URL, 'out.fasta', 200)
     """
+    
+    # Initialize failed_commands tracking if not already done
+    if failed_commands is not None and 'sequence_batches' not in failed_commands:
+        failed_commands['sequence_batches'] = []
     
     # Split accessions into batches
     batches = [accessions[i:i + batch_size] for i in range(0, len(accessions), batch_size)]
@@ -2199,59 +2437,58 @@ def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_
                 
                 # Build accession string for this batch
                 accession_string = ",".join(batch_accessions)
-                params = {
-                    'db': 'nucleotide',
-                    'id': accession_string,
-                    'rettype': 'fasta',
-                    'retmode': 'text'
-                }
                 
-                try:
-                    # Make the request with timeout
+                def download_batch():
+                    """Callable for retry helper function"""
+                    params = {
+                        'db': 'nucleotide',
+                        'id': accession_string,
+                        'rettype': 'fasta',
+                        'retmode': 'text'
+                    }
                     response = requests.get(NCBI_EUTILS_BASE, params=params, timeout=EUTILS_TIMEOUT)
                     response.raise_for_status()
                     
                     # Verify we got FASTA data
                     if not response.text.strip().startswith('>'):
-                        tqdm.write(f"WARNING: Batch {batch_num} returned invalid FASTA data: {response.text[:100]}")
-                        batch_failed_count += 1
-                        continue
+                        raise RuntimeError(f"Invalid FASTA response: {response.text[:100]}")
                     
+                    return response.text
+                
+                # Use exponential backoff helper for batch retries
+                success, batch_response_text, error_info = _retry_with_exponential_backoff(
+                    operation_name=f"Batch {batch_num}/{len(batches)} ({len(batch_accessions)} accessions)",
+                    operation_func=download_batch,
+                    max_retries=API_MAX_RETRIES,
+                    initial_delay=API_INITIAL_RETRY_DELAY,
+                    backoff_multiplier=API_RETRY_BACKOFF_MULTIPLIER,
+                    retryable_exceptions=(requests.exceptions.ConnectionError, requests.exceptions.HTTPError, requests.exceptions.Timeout),
+                    failed_commands=failed_commands,
+                )
+                
+                if success:
                     # Count sequences in this batch
-                    batch_sequence_count = response.text.count('>')
+                    batch_sequence_count = batch_response_text.count('>')
                     total_downloaded += batch_sequence_count
                     
                     # Write sequences immediately to file (incremental write)
-                    f.write(response.text)
-                    if not response.text.endswith('\n'):
+                    f.write(batch_response_text)
+                    if not batch_response_text.endswith('\n'):
                         f.write('\n')  # Ensure proper line endings between batches
                     f.flush()  # Force write to disk immediately
                     
                     # Update progress bar description with current stats
-                    batch_size_mb = len(response.text.encode('utf-8')) / BYTES_PER_MB
-                    tqdm.write(f"Batch {batch_num}: Downloaded and wrote {batch_sequence_count} sequences ({batch_size_mb:.2f} MB)")
+                    batch_size_mb = len(batch_response_text.encode('utf-8')) / BYTES_PER_MB
+                    tqdm.write(f"✓ Batch {batch_num}: Downloaded {batch_sequence_count} sequences ({batch_size_mb:.2f} MB)")
                     
-                    # Add small delay between requests to be respectful to NCBI servers
-                    if batch_num < len(batches):  # Don't delay after the last batch
-                        time.sleep(EUTILS_INTER_BATCH_DELAY)
-                        
-                except requests.exceptions.RequestException as e:
-                    tqdm.write(f"ERROR: Batch {batch_num} failed: {e}")
+                else:
+                    # Batch failed after retries
+                    error_msg = error_info['error']
                     batch_failed_count += 1
                     
-                    # Track failed batch for summary (if tracking is enabled)
-                    if failed_commands is not None:
-                        retry_url = f"{NCBI_EUTILS_BASE}?db=nucleotide&id={','.join(batch_accessions)}&rettype=fasta&retmode=text"
-                        failed_commands['sequence_batches'].append({
-                            'batch_num': batch_num,
-                            'accessions': batch_accessions,
-                            'error': str(e),
-                            'retry_url': retry_url
-                        })
-                    
-                    # Check for URL length error even in batch mode
-                    if "414" in str(e) and batch_size > EUTILS_MIN_BATCH_SIZE_FOR_SPLIT:
-                        tqdm.write(f"⚠️ WARNING: URL still too long for batch size {batch_size}. Retrying batch {batch_num} with smaller size...")
+                    # Check for URL length error
+                    if "414" in error_msg and batch_size > EUTILS_MIN_BATCH_SIZE_FOR_SPLIT:
+                        tqdm.write(f"⚠️ WARNING: Batch {batch_num} URL too long (size={batch_size}). Retrying with smaller batch...")
                         # Recursively retry this batch with smaller size by splitting it further
                         temp_batch_path = f"temp_batch_{batch_num}.fasta"
                         try:
@@ -2272,17 +2509,46 @@ def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_
                                 tqdm.write(f"✓ Recovered batch {batch_num} with smaller size: {recovered_count} sequences")
                             os.remove(temp_batch_path)  # Clean up temp file
                         except Exception as file_error:
-                            tqdm.write(f"❌ Failed to recover batch {batch_num} with smaller size: {file_error}")
+                            tqdm.write(f"❌ Failed to recover batch {batch_num}: {file_error}")
+                            # Track the failed batch
+                            _track_failed_operation(
+                                failed_commands,
+                                'sequence_batches',
+                                {
+                                    'batch_num': batch_num,
+                                    'accession_count': len(batch_accessions),
+                                    'accessions': batch_accessions,
+                                    'retry_url': f"{NCBI_EUTILS_BASE}?db=nucleotide&id={accession_string}&rettype=fasta&retmode=text",
+                                },
+                                error_info
+                            )
                             continue
                     else:
-                        tqdm.write(f"❌ Batch {batch_num} failed and will be skipped: {e}")
+                        # Track the failed batch for later reporting
+                        tqdm.write(f"❌ Batch {batch_num} failed after {API_MAX_RETRIES} retries: {error_msg}")
+                        _track_failed_operation(
+                            failed_commands,
+                            'sequence_batches',
+                            {
+                                'batch_num': batch_num,
+                                'accession_count': len(batch_accessions),
+                                'accessions': batch_accessions,
+                                'retry_url': f"{NCBI_EUTILS_BASE}?db=nucleotide&id={accession_string}&rettype=fasta&retmode=text",
+                            },
+                            error_info
+                        )
                         continue
+                
+                # Add small delay between requests to be respectful to NCBI servers
+                if batch_num < len(batches):  # Don't delay after the last batch
+                    time.sleep(EUTILS_INTER_BATCH_DELAY)
         
         # Check if we downloaded anything
         if total_downloaded == 0:
             raise RuntimeError("❌ All batches failed. No sequences were downloaded.")
         
         if batch_failed_count > 0:
+            logger.warning(f"⚠️ WARNING: {batch_failed_count} out of {len(batches)} batches failed. Successfully downloaded {total_downloaded} sequences.")
             tqdm.write(f"⚠️ WARNING: {batch_failed_count} out of {len(batches)} batches failed. Successfully downloaded {total_downloaded} sequences.")
         
         file_size = os.path.getsize(fasta_path)
@@ -2846,6 +3112,95 @@ def save_command_summary(
             else:
                 f.write("No output files generated\n")
             f.write("\n")
+            
+            # Failed operations - if any occurred
+            if failed_commands:
+                has_failures = False
+                
+                # Check for API timeouts
+                if failed_commands.get('api_timeout'):
+                    has_failures = True
+                    f.write("-" * 80 + "\n")
+                    f.write("⚠️ FAILED OPERATIONS - MANUAL RETRY REQUIRED\n")
+                    f.write("-" * 80 + "\n")
+                    timeout_info = failed_commands['api_timeout']
+                    f.write(f"\n📍 API TIMEOUT:\n")
+                    f.write(f"   Error: {timeout_info.get('error', 'Unknown')}\n")
+                    f.write(f"   URL: {timeout_info.get('url', 'Unknown')}\n")
+                    f.write(f"   Recommendation: Try again later or use different filters\n\n")
+                
+                # Check for failed API batches
+                if failed_commands.get('api_batches'):
+                    has_failures = True
+                    if not has_failures:
+                        f.write("-" * 80 + "\n")
+                        f.write("⚠️ FAILED OPERATIONS - MANUAL RETRY REQUIRED\n")
+                        f.write("-" * 80 + "\n")
+                        has_failures = True
+                    f.write(f"\n📍 FAILED METADATA BATCHES ({len(failed_commands['api_batches'])} batches):\n")
+                    for batch_info in failed_commands['api_batches'][:5]:  # Show first 5
+                        f.write(f"\n   Batch {batch_info.get('batch_num', '?')}: {batch_info.get('accession_count', '?')} accessions\n")
+                        f.write(f"   Error: {batch_info.get('error', 'Unknown')}\n")
+                        f.write(f"   API URL: {batch_info.get('api_url', 'Unknown')}\n")
+                    if len(failed_commands['api_batches']) > 5:
+                        f.write(f"\n   ... and {len(failed_commands['api_batches']) - 5} more failed batches\n")
+                    f.write("\n")
+                
+                # Check for pagination errors/timeouts
+                if failed_commands.get('pagination_timeouts') or failed_commands.get('pagination_errors'):
+                    has_failures = True
+                    if not (failed_commands.get('api_batches') or failed_commands.get('api_timeout')):
+                        f.write("-" * 80 + "\n")
+                        f.write("⚠️ FAILED OPERATIONS - PARTIAL RESULTS OBTAINED\n")
+                        f.write("-" * 80 + "\n")
+                    
+                    if failed_commands.get('pagination_timeouts'):
+                        f.write(f"\n📍 PAGINATION TIMEOUTS ({len(failed_commands['pagination_timeouts'])} pages):\n")
+                        for page_info in failed_commands['pagination_timeouts'][:3]:
+                            f.write(f"   Page {page_info.get('page', '?')}: {page_info.get('records_retrieved', 0)} records retrieved\n")
+                            f.write(f"   Error: {page_info.get('error', 'Unknown')}\n")
+                    
+                    if failed_commands.get('pagination_errors'):
+                        f.write(f"\n📍 PAGINATION ERRORS ({len(failed_commands['pagination_errors'])} pages):\n")
+                        for page_info in failed_commands['pagination_errors'][:3]:
+                            f.write(f"   Page {page_info.get('page', '?')}: {page_info.get('error_type', 'Unknown')} error\n")
+                            f.write(f"   Error: {page_info.get('error', 'Unknown')}\n")
+                
+                # Check for sequence download failures
+                if failed_commands.get('sequence_batches'):
+                    has_failures = True
+                    if not (failed_commands.get('api_batches') or failed_commands.get('api_timeout') or 
+                           failed_commands.get('pagination_timeouts') or failed_commands.get('pagination_errors')):
+                        f.write("-" * 80 + "\n")
+                        f.write("⚠️ FAILED OPERATIONS - MANUAL RETRY AVAILABLE\n")
+                        f.write("-" * 80 + "\n")
+                    
+                    f.write(f"\n📍 FAILED SEQUENCE DOWNLOAD BATCHES ({len(failed_commands['sequence_batches'])} batches):\n")
+                    for batch_info in failed_commands['sequence_batches'][:5]:
+                        f.write(f"\n   Batch {batch_info.get('batch_num', '?')}\n")
+                        f.write(f"   Error: {batch_info.get('error', 'Unknown')}\n")
+                        f.write(f"   Retry URL: {batch_info.get('retry_url', 'Unknown')}\n")
+                    if len(failed_commands['sequence_batches']) > 5:
+                        f.write(f"\n   ... and {len(failed_commands['sequence_batches']) - 5} more failed batches\n")
+                
+                # Check for single sequence fetch failures
+                if failed_commands.get('sequence_fetch'):
+                    has_failures = True
+                    f.write(f"\n📍 SEQUENCE FETCH FAILURES ({len(failed_commands['sequence_fetch'])} operations):\n")
+                    for fetch_info in failed_commands['sequence_fetch'][:3]:
+                        f.write(f"\n   Operation: {fetch_info.get('operation', 'Unknown')}\n")
+                        f.write(f"   Accessions: {fetch_info.get('accession_count', '?')}\n")
+                        f.write(f"   Error: {fetch_info.get('error', 'Unknown')}\n")
+                        f.write(f"   Retry URL: {fetch_info.get('retry_url', 'Unknown')}\n")
+                    if len(failed_commands['sequence_fetch']) > 3:
+                        f.write(f"\n   ... and {len(failed_commands['sequence_fetch']) - 3} more failures\n")
+                
+                if has_failures:
+                    f.write("\n💡 RECOVERY INSTRUCTIONS:\n")
+                    f.write("   1. Copy the URL from above and paste it into your browser\n")
+                    f.write("   2. Save the downloaded file manually\n")
+                    f.write("   3. Retry the command with updated filters (e.g., stricter date ranges)\n")
+                    f.write("   4. If the issue persists, NCBI servers may be temporarily unavailable\n\n")
             
             # Footer
             f.write("=" * 80 + "\n")
@@ -4335,11 +4690,15 @@ def virus(
     final_metadata_for_summary = []
     filtered_sequences = []  
     
-    # Initialize failed commands tracker
+    # Initialize failed commands tracker for tracking all types of failures
     failed_commands = {
         'api_timeout': None,
         'sequence_batches': [],
-        'genbank_batches': []
+        'genbank_batches': [],
+        'api_batches': [],
+        'pagination_timeouts': [],
+        'pagination_errors': [],
+        'sequence_fetch': [],
     }
     
     # Track if GenBank metadata was successfully retrieved
