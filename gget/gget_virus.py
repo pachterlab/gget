@@ -647,7 +647,7 @@ def _fetch_metadata_for_accession_list(
     logger.info("Fetching metadata for %d accessions in %d batch(es) with exponential backoff retries", 
                len(accessions), len(batches))
     
-    for batch_num, batch in enumerate(batches, 1):
+    for batch_num, batch in tqdm(enumerate(batches, 1), total=len(batches), desc="Fetching accession batches", unit="batch", disable=len(batches)==1):
         logger.info("Processing accession batch %d/%d (%d accessions)", 
                    batch_num, len(batches), len(batch))
         
@@ -683,11 +683,11 @@ def _fetch_metadata_for_accession_list(
         
         if success and batch_reports:
             all_reports.extend(batch_reports)
-            logger.info("✅ Batch %d: Retrieved %d records", batch_num, len(batch_reports))
+            tqdm.write(f"✅ Batch {batch_num}: Retrieved {len(batch_reports)} records")
         else:
             # Batch failed or returned empty
             error_msg = error_info['error'] if error_info else "No data returned"
-            logger.warning("❌ Batch %d failed after %d retries: %s", batch_num, API_MAX_RETRIES, error_msg)
+            tqdm.write(f"❌ Batch {batch_num} failed after {API_MAX_RETRIES} retries: {error_msg}")
             
             # Build URL with applied filters for manual retry
             base_url = f"{NCBI_API_BASE}/virus/accession/{accession_string}/dataset_report"
@@ -933,6 +933,7 @@ def fetch_virus_metadata(
     all_reports = []      # Will store all metadata records across all pages
     page_token = None     # Token for accessing subsequent pages
     page_count = 0        # Track number of pages processed for logging
+    pages_pbar = None     # Progress bar for pagination (created when we know total pages)
     
     # Create a temporary file to stream metadata as it arrives from the API
     # This prevents large datasets from consuming all system RAM
@@ -951,7 +952,6 @@ def fetch_virus_metadata(
     loop = True
     while loop:
         page_count += 1
-        logger.info("Fetching page %d of results...", page_count)
         
         # Add pagination token if we're not on the first page
         if page_token:
@@ -989,7 +989,15 @@ def fetch_virus_metadata(
         if success and page_data:
             # Extract the virus reports from the response
             reports = page_data.get('reports', [])
-            logger.info("Page %d contains %d virus records", page_count, len(reports))
+            # Create progress bar on first page when we know total pages
+            if pages_pbar is None and page_count == 1:
+                total_pages = page_data.get('total_count', 0)
+                if total_pages > 0:
+                    total_pages = (total_pages + API_PAGE_SIZE - 1) // API_PAGE_SIZE
+                pages_pbar = tqdm(total=max(total_pages, 1), desc="Fetching pages", unit="page", leave=False)
+            if pages_pbar:
+                pages_pbar.update(1)
+                pages_pbar.set_postfix({"records": len(all_reports)})
             
             # Stream reports to temporary file if available
             if metadata_file and reports:
@@ -1007,7 +1015,8 @@ def fetch_virus_metadata(
             # Check if there are more pages to retrieve
             next_page_token = page_data.get('next_page_token')
             if not next_page_token:
-                logger.debug("No more pages available, pagination complete")
+                if pages_pbar:
+                    pages_pbar.close()
                 loop = False
                 break
             
@@ -1067,7 +1076,9 @@ def fetch_virus_metadata(
                     logger.error(error_msg)
                     logger.error("=" * 80)
                     
-                    # Close temporary file before raising exception
+                    # Close temporary file and progress bar before raising exception
+                    if pages_pbar:
+                        pages_pbar.close()
                     if metadata_file:
                         try:
                             metadata_file.close()
@@ -1249,6 +1260,8 @@ def fetch_virus_metadata(
                             'records_retrieved': len(all_reports),
                         })
                     
+                    if pages_pbar:
+                        pages_pbar.close()
                     loop = False
                     break
                 else:
@@ -1346,7 +1359,7 @@ def fetch_virus_metadata_chunked(
     logger.info(f"Will process {total_chunks} year(s) from {start_year} to {current_year}")
     logger.info("=" * 80)
     
-    for year in range(start_year, current_year + 1):
+    for year in tqdm(range(start_year, current_year + 1), total=total_chunks, desc="Fetching yearly chunks", unit="year"):
         chunk_start = f"{year}-01-01"
         chunk_end = f"{year}-12-31"
         
@@ -1355,11 +1368,7 @@ def fetch_virus_metadata_chunked(
             chunk_end = current_date.strftime("%Y-%m-%d")
         
         chunk_num = year - start_year + 1
-        logger.info("")
-        logger.info("=" * 80)
-        logger.info(f"📥 Chunk {chunk_num}/{total_chunks}: Fetching data for year {year}")
-        logger.info(f"   Date range: {chunk_start} to {chunk_end}")
-        logger.info("=" * 80)
+        tqdm.write(f"📥 Chunk {chunk_num}/{total_chunks}: Fetching data for year {year} ({chunk_start} to {chunk_end})")
         
         try:
             # Fetch metadata for this date chunk
@@ -1385,8 +1394,7 @@ def fetch_virus_metadata_chunked(
             chunk_count = len(chunk_reports)
             all_reports.extend(chunk_reports)
             
-            logger.info(f"✅ Chunk {chunk_num}/{total_chunks} complete: Retrieved {chunk_count:,} records")
-            logger.info(f"   Running total: {len(all_reports):,} records")
+            tqdm.write(f"✅ Chunk {chunk_num}/{total_chunks}: Retrieved {chunk_count:,} records (total: {len(all_reports):,})")
             
             # Add a small delay between chunks to be respectful to NCBI servers
             if year < current_year:
