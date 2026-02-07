@@ -14,9 +14,6 @@ This module was written by [Ferdous Nasri](https://github.com/ferbsx).
 Virus taxon name (e.g. 'Zika virus'), taxon ID (e.g. 2697049), or accession number (e.g. 'NC\_045512.2').  
 
 **Optional arguments**   
-`-o` `--out`  
-Path to the folder where results will be saved. Default: current working directory.
-Python: `outfolder="path/to/folder"`
 
 _Host filters_  
 
@@ -89,6 +86,15 @@ _SARS-CoV-2 specific filters_
 `--lineage`  
 Filter by SARS-CoV-2 lineage (e.g. 'B.1.1.7', 'P.1').
 
+_Retrieval settings_
+
+`--genbank_batch_size`  
+Batch size for GenBank metadata API requests. Default: 200. Larger batches are faster but may be more prone to timeouts.  
+
+`-o` `--out`  
+Path to the folder where results will be saved. Default: current working directory.  
+Python: `outfolder="path/to/folder"`
+
 **Flags**  
 `-a` `--is_accession`  
 Flag to indicate that the `virus` positional argument is an accession number.
@@ -104,9 +110,6 @@ Use NCBI's optimized cached data packages for an Alphainfluenza (Influenza A vir
 
 `-g` `--genbank_metadata`  
 Fetch and save additional detailed metadata from GenBank, including collection dates, host details, and publication references, in a separate `{virus}_genbank_metadata.csv` file (plus full XML/CSV dumps).
-
-`--genbank_batch_size`  
-Batch size for GenBank metadata API requests. Default: 200. Larger batches are faster but may be more prone to timeouts.  
 
 `--annotated`  
 Filter for sequences that have been annotated with gene/protein information.  
