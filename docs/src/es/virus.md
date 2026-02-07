@@ -14,9 +14,6 @@ Este módulo fue escrito por [Ferdous Nasri](https://github.com/ferbsx).
 Nombre del taxón del virus (p. ej. 'Zika virus'), ID taxonómico (p. ej. 2697049) o número de acceso (p. ej. 'NC\_045512.2').  
 
 **Argumentos opcionales**   
-`-o` `--out`  
-Ruta a la carpeta donde se guardarán los resultados. Por defecto: directorio de trabajo actual.
-Python: `outfolder="path/to/folder"`
 
 _Filtros de hospedador_  
 
@@ -89,6 +86,15 @@ _Filtros específicos de SARS-CoV-2_
 `--lineage`  
 Filtra por linaje de SARS-CoV-2 (p. ej. 'B.1.1.7', 'P.1').
 
+_Configuración del pipeline_
+
+`--genbank_batch_size`  
+Tamaño de lote para solicitudes a la API de metadatos de GenBank. Por defecto: 200. Lotes más grandes son más rápidos pero pueden ser más propensos a timeouts.  
+
+`-o` `--out`  
+Ruta a la carpeta donde se guardarán los resultados. Por defecto: directorio de trabajo actual.  
+Python: `outfolder="path/to/folder"`
+
 **Banderas**  
 `-a` `--is_accession`  
 Bandera para indicar que el argumento posicional `virus` es un número de acceso.
@@ -104,9 +110,6 @@ Usa los paquetes de datos optimizados en caché de NCBI para una consulta de Alp
 
 `-g` `--genbank_metadata`  
 Obtiene y guarda metadatos adicionales detallados desde GenBank, incluyendo fechas de recolección, detalles del hospedador y referencias de publicaciones, en un archivo separado `{virus}_genbank_metadata.csv` (además de volcados completos XML/CSV dumps).
-
-`--genbank_batch_size`  
-Tamaño de lote para solicitudes a la API de metadatos de GenBank. Por defecto: 200. Lotes más grandes son más rápidos pero pueden ser más propensos a timeouts.  
 
 `--annotated`  
 Filtra por secuencias que han sido anotadas con información de genes/proteínas.  
