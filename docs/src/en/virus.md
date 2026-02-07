@@ -86,7 +86,7 @@ _SARS-CoV-2 specific filters_
 `--lineage`  
 Filter by SARS-CoV-2 lineage (e.g. 'B.1.1.7', 'P.1').
 
-_Retrieval settings_
+_Workflow configurations_
 
 `--genbank_batch_size`  
 Batch size for GenBank metadata API requests. Default: 200. Larger batches are faster but may be more prone to timeouts.  
