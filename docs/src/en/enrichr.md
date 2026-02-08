@@ -1,3 +1,5 @@
+[<kbd> View page source on GitHub </kbd>](https://github.com/pachterlab/gget/blob/main/docs/src/en/enrichr.md)
+
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
 # gget enrichr 💰
 Perform an enrichment analysis on a list of genes using [Enrichr](https://maayanlab.cloud/Enrichr/) or [modEnrichr](https://maayanlab.cloud/modEnrichr/).  

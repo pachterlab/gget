@@ -1,3 +1,5 @@
+[<kbd> View page source on GitHub </kbd>](https://github.com/pachterlab/gget/blob/main/docs/src/en/updates.md)
+
 ## ✨ What's new
 **Version ≥ 0.30.2** (Feb 08, 2026):  
 - [`gget virus`](virus.md): Metadata streaming optimization, improved protein filtering, and enhanced error handling and retry logic

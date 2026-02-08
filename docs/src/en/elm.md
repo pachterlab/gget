@@ -1,3 +1,5 @@
+[<kbd> View page source on GitHub </kbd>](https://github.com/pachterlab/gget/blob/main/docs/src/en/elm.md)
+
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
 # gget elm 🎭
 Locally predict Eukaryotic Linear Motifs from an amino acid sequence or UniProt Acc using data from the [ELM database](http://elm.eu.org/).   

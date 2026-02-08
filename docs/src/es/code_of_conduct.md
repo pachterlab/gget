@@ -1,3 +1,5 @@
+[<kbd> Ver el codigo fuente de la pagina en GitHub </kbd>](https://github.com/pachterlab/gget/blob/main/docs/src/es/code_of_conduct.md)
+
 
 # Código de Conducta convenido para Contribuyentes
 

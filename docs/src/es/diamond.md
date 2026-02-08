@@ -1,3 +1,5 @@
+[<kbd> Ver el codigo fuente de la pagina en GitHub </kbd>](https://github.com/pachterlab/gget/blob/main/docs/src/es/diamond.md)
+
 > Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Las banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
 # gget diamond 💎
 Alinee múltiples proteínas o secuencias de ADN traducidas usando [DIAMOND](https://www.nature.com/articles/nmeth.3176) (DIAMOND es similar a BLAST, pero este es un cálculo local).       
