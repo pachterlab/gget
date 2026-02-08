@@ -5,6 +5,7 @@ import requests
 # import time
 import re
 import os
+import sys
 import uuid
 import pandas as pd
 import numpy as np
@@ -64,6 +65,14 @@ def flatten(xss):
     Function to flatten a list of lists.
     """
     return [x for xs in xss for x in xs]
+
+
+def print_sys(s):
+    """system print
+    Args:
+        s (str): the string to print
+    """
+    print(s, flush = True, file = sys.stderr)
 
 
 def get_latest_cosmic():

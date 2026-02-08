@@ -284,6 +284,7 @@ def setup(module, verbose=True, out=None):
         # Core AlphaFold dependencies (Colab/CPU friendly set)
         alphafold_deps = [
             "absl-py>=2.1,<3",
+            "biopython",
             "dm-haiku<=0.0.12",          # dont upgrade to avoid clash with jax
             "dm-tree>=0.1.8",
             "filelock>=3.12",
