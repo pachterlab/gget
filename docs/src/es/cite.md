@@ -1,3 +1,5 @@
+[<kbd> Ver el codigo fuente de la pagina en GitHub </kbd>](https://github.com/pachterlab/gget/blob/main/docs/src/es/cite.md)
+
 [![license](https://img.shields.io/pypi/l/gget)](https://github.com/pachterlab/gget/blob/main/LICENSE)
 
 # Citar

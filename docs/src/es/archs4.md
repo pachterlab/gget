@@ -1,3 +1,5 @@
+[<kbd> Ver el codigo fuente de la pagina en GitHub </kbd>](https://github.com/pachterlab/gget/blob/main/docs/src/es/archs4.md)
+
 > Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no es especificado de otra manera. Las banderas son designadas como cierto o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede obtener desde Terminal con la bandera `-h` `--help`.  
 # gget archs4 🐁
 Encuentra los genes más correlacionados a un gen de interés, o bién, encuentra los tejidos donde un gen se expresa usando la base de datos [ARCHS4](https://maayanlab.cloud/archs4/).  
