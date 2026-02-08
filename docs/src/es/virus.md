@@ -11,7 +11,7 @@ Este módulo fue escrito por [Ferdous Nasri](https://github.com/ferbsx).
 
 **Argumento posicional**  
 `virus`  
-Nombre del taxón del virus (p. ej. 'Zika virus'), ID taxonómico (p. ej. 2697049) o número de acceso (p. ej. 'NC\_045512.2').  
+Nombre del taxón del virus (p. ej. 'Zika virus'), ID taxonómico (p. ej. 2697049), número de acceso (p. ej. 'NC\_045512.2'), lista de accesiones separadas por espacios (p. ej. 'NC\_045512.2 MN908947.3 MT020781.1'), o ruta a un archivo de texto que contiene números de acceso (uno por línea, cuando se combina con `--is_accession`).  
 
 **Argumentos opcionales**   
 
@@ -78,9 +78,6 @@ Filtra por ubicación geográfica de la recolección de la muestra (p. ej. 'USA'
 `--submitter_country`  
 Filtra por el país del remitente de la secuencia.
 
-`--source_database`  
-Filtra por base de datos de origen. Uno de: 'genbank' o 'refseq'.
-
 _Filtros específicos de SARS-CoV-2_
 
 `--lineage`  
@@ -97,7 +94,10 @@ Python: `outfolder="path/to/folder"`
 
 **Banderas**  
 `-a` `--is_accession`  
-Bandera para indicar que el argumento posicional `virus` es un número de acceso.
+Bandera para indicar que el argumento posicional `virus` es un número de acceso, una lista de accesiones separadas por espacios, o una ruta a un archivo de texto que contiene números de acceso (uno por línea). Para descargas en caché de SARS-CoV-2 y Alphainfluenza, soporta:
+  - Acceso único: `NC_045512.2`
+  - Lista separada por espacios: `NC_045512.2 MN908947.3 MT020781.1`
+  - Ruta de archivo de texto: `accessions.txt` (uno por línea)
 
 `--refseq_only`  
 Bandera para limitar la búsqueda solo a genomas RefSeq (secuencias de mayor calidad, curadas).

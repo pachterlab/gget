@@ -173,7 +173,7 @@
             "outfolder": "test_output"
         },
         "expected_result": "ValueError",
-        "expected_msg": "Min value (2020-12-31 00:00:00) cannot be greater than max value (2020-01-01 00:00:00) for release data (arguments: min_release_date and max_release_date)."
+        "expected_msg": "Min value (2020-12-31 00:00:00) cannot be greater than max value (2020-01-01 00:00:00) for release date (arguments: min_release_date and max_release_date)."
     },
     "test_virus_specific_accession_file_creation": {
         "type": "code_defined",
