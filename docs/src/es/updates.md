@@ -1,5 +1,5 @@
 ## ✨ ¡Lo más reciente!  
-**Versión ≥ 0.30.1** (08 de febrero de 2026):  
+**Versión ≥ 0.30.2** (08 de febrero de 2026):  
 - [`gget virus`](virus.md): Optimización del streaming de metadatos, mejora del filtrado de proteínas y manejo de errores y lógica de reintentos mejorados  
   - Los metadatos ahora se escriben en disco durante la descarga para evitar el agotamiento de memoria en conjuntos de datos grandes (100.000+ registros)
   - Corrección del mapeo del CSV de metadatos (camelCase → snake_case) para nombre del organismo, hospedador y fecha de recolección
