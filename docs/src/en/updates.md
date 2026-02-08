@@ -1,5 +1,5 @@
 ## ✨ What's new
-**Version ≥ 0.30.1** (Feb 08, 2026):  
+**Version ≥ 0.30.2** (Feb 08, 2026):  
 - [`gget virus`](virus.md): Metadata streaming optimization, improved protein filtering, and enhanced error handling and retry logic
   - Metadata now streams to disk during fetch to prevent memory exhaustion on large datasets (100,000+ records)
   - Fixed metadata CSV mapping (camelCase → snake_case) for organism name, host, and collection date
