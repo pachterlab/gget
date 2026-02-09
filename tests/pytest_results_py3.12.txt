@@ -1,4 +1,4 @@
-Pytest results (Python 3.12) - 2026-02-05T16:22:28Z
+Pytest results (Python 3.12) - 2026-02-09T16:26:02Z
 
 ============================= test session starts ==============================
 platform linux -- Python 3.12.12, pytest-9.0.2, pluggy-1.6.0 -- /opt/hostedtoolcache/Python/3.12.12/x64/bin/python
@@ -6,230 +6,243 @@ cachedir: .pytest_cache
 rootdir: /home/runner/work/gget/gget
 configfile: pyproject.toml
 plugins: zarr-3.1.5, fast-array-utils-1.3.1, cov-7.0.0
-collecting ... collected 250 items
+collecting ... collected 264 items
 
 tests/test_8cube.py::TestSpecificity::test_specificity_basic PASSED      [  0%]
 tests/test_8cube.py::TestPsiBlock::test_psi_block_basic PASSED           [  0%]
 tests/test_8cube.py::TestGeneExpression::test_gene_expression_basic PASSED [  1%]
 tests/test_archs4.py::TestArchs4::test_archs4_bad_ensembl PASSED         [  1%]
-tests/test_archs4.py::TestArchs4::test_archs4_bad_gene PASSED            [  2%]
+tests/test_archs4.py::TestArchs4::test_archs4_bad_gene PASSED            [  1%]
 tests/test_archs4.py::TestArchs4::test_archs4_bad_gene_tissue PASSED     [  2%]
 tests/test_archs4.py::TestArchs4::test_archs4_bad_species PASSED         [  2%]
 tests/test_archs4.py::TestArchs4::test_archs4_bad_which PASSED           [  3%]
 tests/test_archs4.py::TestArchs4::test_archs4_defaults PASSED            [  3%]
-tests/test_archs4.py::TestArchs4::test_archs4_mouse_json_ensembl PASSED  [  4%]
+tests/test_archs4.py::TestArchs4::test_archs4_mouse_json_ensembl PASSED  [  3%]
 tests/test_archs4.py::TestArchs4::test_archs4_tissue PASSED              [  4%]
 tests/test_archs4.py::TestArchs4::test_archs4_tissue_ensembl PASSED      [  4%]
-tests/test_archs4.py::TestArchs4::test_archs4_tissue_json PASSED         [  5%]
+tests/test_archs4.py::TestArchs4::test_archs4_tissue_json PASSED         [  4%]
 tests/test_archs4.py::TestArchs4::test_archs4_tissue_mouse PASSED        [  5%]
-tests/test_bgee.py::TestBgee::test_bgee_expression PASSED                [  6%]
+tests/test_bgee.py::TestBgee::test_bgee_expression PASSED                [  5%]
 tests/test_bgee.py::TestBgee::test_bgee_expression_multiple PASSED       [  6%]
 tests/test_bgee.py::TestBgee::test_bgee_orthologs PASSED                 [  6%]
-tests/test_bgee.py::TestBgee::test_error_bgee_expression_no_exist PASSED [  7%]
+tests/test_bgee.py::TestBgee::test_error_bgee_expression_no_exist PASSED [  6%]
 tests/test_bgee.py::TestBgee::test_error_bgee_orthologs_no_exist PASSED  [  7%]
-tests/test_bgee.py::TestBgee::test_error_bgee_unknown_type PASSED        [  8%]
-tests/test_blast.py::TestBlast::test_blast_bad_db1 PASSED                [  8%]
+tests/test_bgee.py::TestBgee::test_error_bgee_unknown_type PASSED        [  7%]
+tests/test_blast.py::TestBlast::test_blast_bad_db1 PASSED                [  7%]
 tests/test_blast.py::TestBlast::test_blast_bad_db2 PASSED                [  8%]
-tests/test_blast.py::TestBlast::test_blast_bad_fasta PASSED              [  9%]
+tests/test_blast.py::TestBlast::test_blast_bad_fasta PASSED              [  8%]
 tests/test_blast.py::TestBlast::test_blast_bad_program PASSED            [  9%]
-tests/test_blast.py::TestBlast::test_blast_bad_seq PASSED                [ 10%]
-tests/test_blast.py::TestBlast::test_blast_db_missing PASSED             [ 10%]
+tests/test_blast.py::TestBlast::test_blast_bad_seq PASSED                [  9%]
+tests/test_blast.py::TestBlast::test_blast_db_missing PASSED             [  9%]
 tests/test_blast.py::TestBlast::test_blast_nt PASSED                     [ 10%]
-tests/test_blat.py::TestBlat::test_blat_aa PASSED                        [ 11%]
-tests/test_blat.py::TestBlat::test_blat_aa_RNA PASSED                    [ 11%]
-tests/test_blat.py::TestBlat::test_blat_aa_protein PASSED                [ 12%]
-tests/test_blat.py::TestBlat::test_blat_bad_assembly PASSED              [ 12%]
+tests/test_blat.py::TestBlat::test_blat_aa PASSED                        [ 10%]
+tests/test_blat.py::TestBlat::test_blat_aa_RNA PASSED                    [ 10%]
+tests/test_blat.py::TestBlat::test_blat_aa_protein PASSED                [ 11%]
+tests/test_blat.py::TestBlat::test_blat_bad_assembly PASSED              [ 11%]
 tests/test_blat.py::TestBlat::test_blat_bad_fasta PASSED                 [ 12%]
-tests/test_blat.py::TestBlat::test_blat_bad_fileformat PASSED            [ 13%]
-tests/test_blat.py::TestBlat::test_blat_bad_seqtype PASSED               [ 13%]
-tests/test_blat.py::TestBlat::test_blat_bad_txt PASSED                   [ 14%]
-tests/test_blat.py::TestBlat::test_blat_nt PASSED                        [ 14%]
+tests/test_blat.py::TestBlat::test_blat_bad_fileformat PASSED            [ 12%]
+tests/test_blat.py::TestBlat::test_blat_bad_seqtype PASSED               [ 12%]
+tests/test_blat.py::TestBlat::test_blat_bad_txt PASSED                   [ 13%]
+tests/test_blat.py::TestBlat::test_blat_nt PASSED                        [ 13%]
 tests/test_blat.py::TestBlat::test_blat_nt_DNA PASSED                    [ 14%]
-tests/test_blat.py::TestBlat::test_blat_nt_RNA PASSED                    [ 15%]
-tests/test_blat.py::TestBlat::test_blat_nt_fasta PASSED                  [ 15%]
-tests/test_blat.py::TestBlat::test_blat_nt_json PASSED                   [ 16%]
-tests/test_blat.py::TestBlat::test_blat_nt_protein PASSED                [ 16%]
-tests/test_blat.py::TestBlat::test_blat_nt_transDNA PASSED               [ 16%]
-tests/test_blat.py::TestBlat::test_blat_nt_txt PASSED                    [ 17%]
-tests/test_blat.py::TestBlat::test_blat_shortseq PASSED                  [ 17%]
-tests/test_cbio.py::TestCbioSearch::test_cbio_search FAILED              [ 18%]
-tests/test_cbio.py::TestCbio::test_cbio_download PASSED                  [ 18%]
-tests/test_cbio.py::TestCbio::test_cbio_download_partially_existing_files PASSED [ 18%]
-tests/test_cbio.py::TestCbio::test_error_cbio_download PASSED            [ 19%]
-tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata PASSED      [ 19%]
-tests/test_cellxgene.py::TestCellxgene::test_cellxgene_metadata PASSED   [ 20%]
-tests/test_compile.py::TestCompilerWindows::test_compiler_windows PASSED [ 20%]
-tests/test_cosmic.py::TestCosmicWorkflow::test_cosmic_defaults PASSED    [ 20%]
-tests/test_diamond.py::TestDiamond::test_diamond_JSON_out PASSED         [ 21%]
-tests/test_diamond.py::TestDiamond::test_diamond_both_files PASSED       [ 21%]
-tests/test_diamond.py::TestDiamond::test_diamond_query_file PASSED       [ 22%]
-tests/test_diamond.py::TestDiamond::test_diamond_ref_file PASSED         [ 22%]
-tests/test_diamond.py::TestDiamond::test_diamond_seqs_multiple PASSED    [ 22%]
-tests/test_diamond.py::TestDiamond::test_diamond_seqs_single PASSED      [ 23%]
-tests/test_elm.py::TestELM::test_elm_uniprot_aminoacidseq PASSED         [ 23%]
-tests/test_elm.py::TestELM::test_elm_uniprot_id_in_elm PASSED            [ 24%]
-tests/test_elm.py::TestELM::test_elm_uniprot_id_new PASSED               [ 24%]
-tests/test_enrichr.py::TestEnrichr::test_enrichr_background PASSED       [ 24%]
-tests/test_enrichr.py::TestEnrichr::test_enrichr_background_ensembl PASSED [ 25%]
-tests/test_enrichr.py::TestEnrichr::test_enrichr_bad_background PASSED   [ 25%]
-tests/test_enrichr.py::TestEnrichr::test_enrichr_bad_background_list PASSED [ 26%]
-tests/test_enrichr.py::TestEnrichr::test_enrichr_bad_database_shortcut PASSED [ 26%]
-tests/test_enrichr.py::TestEnrichr::test_enrichr_bad_gene PASSED         [ 26%]
-tests/test_enrichr.py::TestEnrichr::test_enrichr_bad_species PASSED      [ 27%]
-tests/test_enrichr.py::TestEnrichr::test_enrichr_celltypes PASSED        [ 27%]
-tests/test_enrichr.py::TestEnrichr::test_enrichr_diseases_drugs PASSED   [ 28%]
-tests/test_enrichr.py::TestEnrichr::test_enrichr_ensembl_ids PASSED      [ 28%]
-tests/test_enrichr.py::TestEnrichr::test_enrichr_fish PASSED             [ 28%]
-tests/test_enrichr.py::TestEnrichr::test_enrichr_fly PASSED              [ 29%]
-tests/test_enrichr.py::TestEnrichr::test_enrichr_json PASSED             [ 29%]
-tests/test_enrichr.py::TestEnrichr::test_enrichr_kinase_interactions PASSED [ 30%]
-tests/test_enrichr.py::TestEnrichr::test_enrichr_mouse_is_human PASSED   [ 30%]
-tests/test_enrichr.py::TestEnrichr::test_enrichr_none PASSED             [ 30%]
-tests/test_enrichr.py::TestEnrichr::test_enrichr_ontology PASSED         [ 31%]
-tests/test_enrichr.py::TestEnrichr::test_enrichr_pathway PASSED          [ 31%]
-tests/test_enrichr.py::TestEnrichr::test_enrichr_plot PASSED             [ 32%]
-tests/test_enrichr.py::TestEnrichr::test_enrichr_transcription PASSED    [ 32%]
-tests/test_enrichr.py::TestEnrichr::test_enrichr_worm PASSED             [ 32%]
-tests/test_enrichr.py::TestEnrichr::test_enrichr_yeast PASSED            [ 33%]
-tests/test_gpt.py::TestGpt::test_gpt PASSED                              [ 33%]
-tests/test_info.py::TestInfo::test_info_WB_transcript PASSED             [ 34%]
-tests/test_info.py::TestInfo::test_info_exon PASSED                      [ 34%]
-tests/test_info.py::TestInfo::test_info_gene PASSED                      [ 34%]
-tests/test_info.py::TestInfo::test_info_gene_list_non_model PASSED       [ 35%]
-tests/test_info.py::TestInfo::test_info_mix PASSED                       [ 35%]
-tests/test_info.py::TestInfo::test_info_ncbifalse_uniprotfalse PASSED    [ 36%]
-tests/test_info.py::TestInfo::test_info_ncbifalse_uniprottrue PASSED     [ 36%]
-tests/test_info.py::TestInfo::test_info_ncbitrue_uniprotfalse PASSED     [ 36%]
-tests/test_info.py::TestInfo::test_info_transcript PASSED                [ 37%]
-tests/test_muscle.py::TestMuscle::test_muscle_nt PASSED                  [ 37%]
-tests/test_muscle.py::TestMuscle::test_muscle_nt_txt PASSED              [ 38%]
-tests/test_muscle.py::TestMuscleSuper::test_muscle_nt_super5 PASSED      [ 38%]
-tests/test_muscle.py::TestMuscleAA::test_muscle_aa PASSED                [ 38%]
-tests/test_muscle.py::TestMuscleSeqsInput::test_muscle_seqs_as_input PASSED [ 39%]
-tests/test_muscle.py::TestMuscleAASuper::test_muscle_aa_super5 PASSED    [ 39%]
-tests/test_muscle.py::TestMusclePrints::test_muscle_print_nt PASSED      [ 40%]
-tests/test_mutate.py::TestMutate::test_ambiguous_mutation PASSED         [ 40%]
-tests/test_mutate.py::TestMutate::test_index_error PASSED                [ 40%]
-tests/test_mutate.py::TestMutate::test_intron_mutation_minus PASSED      [ 41%]
-tests/test_mutate.py::TestMutate::test_intron_mutation_plus PASSED       [ 41%]
-tests/test_mutate.py::TestMutate::test_inversion_with_overlaps PASSED    [ 42%]
-tests/test_mutate.py::TestMutate::test_large_k PASSED                    [ 42%]
-tests/test_mutate.py::TestMutate::test_list_of_mutations PASSED          [ 42%]
-tests/test_mutate.py::TestMutate::test_multi_deletion PASSED             [ 43%]
-tests/test_mutate.py::TestMutate::test_multi_deletion_with_right_repeats PASSED [ 43%]
-tests/test_mutate.py::TestMutate::test_multi_delins PASSED               [ 44%]
-tests/test_mutate.py::TestMutate::test_multi_delins_with_psuedo_left_repeats PASSED [ 44%]
-tests/test_mutate.py::TestMutate::test_multi_delins_with_true_left_repeats PASSED [ 44%]
-tests/test_mutate.py::TestMutate::test_multi_delins_with_true_right_repeats PASSED [ 45%]
-tests/test_mutate.py::TestMutate::test_multi_dup PASSED                  [ 45%]
-tests/test_mutate.py::TestMutate::test_multi_insertion PASSED            [ 46%]
-tests/test_mutate.py::TestMutate::test_multi_insertion_with_left_repeats PASSED [ 46%]
-tests/test_mutate.py::TestMutate::test_posttranslational_mutation PASSED [ 46%]
-tests/test_mutate.py::TestMutate::test_single_deletion PASSED            [ 47%]
-tests/test_mutate.py::TestMutate::test_single_deletion_with_left_repeats PASSED [ 47%]
-tests/test_mutate.py::TestMutate::test_single_deletion_with_right_repeats PASSED [ 48%]
-tests/test_mutate.py::TestMutate::test_single_delins PASSED              [ 48%]
-tests/test_mutate.py::TestMutate::test_single_dup PASSED                 [ 48%]
-tests/test_mutate.py::TestMutate::test_single_insertion PASSED           [ 49%]
-tests/test_mutate.py::TestMutate::test_single_substitution PASSED        [ 49%]
-tests/test_mutate.py::TestMutate::test_single_substitution_near_left_end PASSED [ 50%]
-tests/test_mutate.py::TestMutate::test_single_substitution_near_right_end PASSED [ 50%]
-tests/test_mutate.py::TestMutate::test_uncertain_mutation PASSED         [ 50%]
-tests/test_mutate.py::test_csv_of_mutations PASSED                       [ 51%]
-tests/test_mutate.py::test_mismatch_error PASSED                         [ 51%]
-tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_bad_limit PASSED [ 52%]
-tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_bad_resource PASSED [ 52%]
-tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_diseases_filter PASSED [ 52%]
-tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_drugs_invalid_filter PASSED [ 53%]
-tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_nonexistent_id PASSED [ 53%]
-tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_tractability_limit PASSED [ 54%]
-tests/test_opentargets.py::TestOpenTargets::test_opentargets PASSED      [ 54%]
-tests/test_opentargets.py::TestOpenTargets::test_opentargets_depmap PASSED [ 54%]
-tests/test_opentargets.py::TestOpenTargets::test_opentargets_depmap_filter PASSED [ 55%]
-tests/test_opentargets.py::TestOpenTargets::test_opentargets_drugs PASSED [ 55%]
-tests/test_opentargets.py::TestOpenTargets::test_opentargets_drugs_no_limit PASSED [ 56%]
-tests/test_opentargets.py::TestOpenTargets::test_opentargets_expression_no_limit PASSED [ 56%]
-tests/test_opentargets.py::TestOpenTargets::test_opentargets_interactions_no_limit PASSED [ 56%]
-tests/test_opentargets.py::TestOpenTargets::test_opentargets_interactions_simple_filter PASSED [ 57%]
-tests/test_opentargets.py::TestOpenTargets::test_opentargets_no_limit PASSED [ 57%]
-tests/test_opentargets.py::TestOpenTargets::test_opentargets_no_limit_accurate_coverage PASSED [ 58%]
-tests/test_opentargets.py::TestOpenTargets::test_opentargets_pharmacogenetics_filter_or PASSED [ 58%]
-tests/test_opentargets.py::TestOpenTargets::test_opentargets_pharmacogenetics_no_limit PASSED [ 58%]
-tests/test_opentargets.py::TestOpenTargets::test_opentargets_tractability PASSED [ 59%]
-tests/test_pdb.py::TestPDB::test_pdb_assembly FAILED                     [ 59%]
-tests/test_pdb.py::TestPDB::test_pdb_pdb PASSED                          [ 60%]
-tests/test_ref.py::TestRef::test_ref PASSED                              [ 60%]
-tests/test_ref.py::TestRef::test_ref_bad_rel PASSED                      [ 60%]
-tests/test_ref.py::TestRef::test_ref_bad_species PASSED                  [ 61%]
-tests/test_ref.py::TestRef::test_ref_bad_which PASSED                    [ 61%]
-tests/test_ref.py::TestRef::test_ref_ftp PASSED                          [ 62%]
-tests/test_ref.py::TestRef::test_ref_list PASSED                         [ 62%]
-tests/test_ref.py::TestRef::test_ref_plant PASSED                        [ 62%]
-tests/test_ref.py::TestRef::test_ref_rel PASSED                          [ 63%]
-tests/test_ref.py::TestRef::test_ref_rel_ftp PASSED                      [ 63%]
-tests/test_ref.py::TestRef::test_ref_rel_ftp_octopus PASSED              [ 64%]
-tests/test_ref.py::TestRef::test_ref_rel_protist PASSED                  [ 64%]
-tests/test_ref.py::TestRef::test_ref_which PASSED                        [ 64%]
-tests/test_ref.py::TestRef::test_ref_which_plant PASSED                  [ 65%]
-tests/test_search.py::TestSearch::test_search_db PASSED                  [ 65%]
-tests/test_search.py::TestSearch::test_search_gene_bad_andor PASSED      [ 66%]
-tests/test_search.py::TestSearch::test_search_gene_bad_species PASSED    [ 66%]
-tests/test_search.py::TestSearch::test_search_gene_one_sw PASSED         [ 66%]
-tests/test_search.py::TestSearch::test_search_gene_one_sw_json PASSED    [ 67%]
-tests/test_search.py::TestSearch::test_search_gene_one_sw_limit PASSED   [ 67%]
-tests/test_search.py::TestSearch::test_search_gene_two_sw_and PASSED     [ 68%]
-tests/test_search.py::TestSearch::test_search_gene_two_sw_limit PASSED   [ 68%]
-tests/test_search.py::TestSearch::test_search_gene_two_sw_or PASSED      [ 68%]
-tests/test_search.py::TestSearch::test_search_octopus PASSED             [ 69%]
-tests/test_search.py::TestSearch::test_search_plant PASSED               [ 69%]
-tests/test_search.py::TestSearch::test_search_plant_db PASSED            [ 70%]
-tests/test_search.py::TestSearch::test_search_release PASSED             [ 70%]
-tests/test_search.py::TestSearch::test_search_transcript_bad_andor PASSED [ 70%]
-tests/test_search.py::TestSearch::test_search_transcript_bad_species PASSED [ 71%]
-tests/test_search.py::TestSearch::test_search_transcript_one_sw PASSED   [ 71%]
-tests/test_search.py::TestSearch::test_search_transcript_two_sw_and PASSED [ 72%]
-tests/test_search.py::TestSearch::test_search_transcript_two_sw_or PASSED [ 72%]
-tests/test_seq.py::TestSeq::test_seq_gene PASSED                         [ 72%]
-tests/test_seq.py::TestSeq::test_seq_gene_iso PASSED                     [ 73%]
-tests/test_seq.py::TestSeq::test_seq_gene_transcript_iso PASSED          [ 73%]
-tests/test_seq.py::TestSeq::test_seq_missing_uniprot_gene_name PASSED    [ 74%]
-tests/test_seq.py::TestSeq::test_seq_transcript PASSED                   [ 74%]
-tests/test_seq.py::TestSeq::test_seq_transcript_gene PASSED              [ 74%]
-tests/test_seq.py::TestSeq::test_seq_transcript_gene_WB PASSED           [ 75%]
-tests/test_seq.py::TestSeq::test_seq_transcript_gene_iso PASSED          [ 75%]
-tests/test_seq.py::TestSeq::test_seq_transcript_transcript_WB PASSED     [ 76%]
-tests/test_seq.py::TestSeq::test_seq_transcript_transcript_iso PASSED    [ 76%]
-tests/test_utils.py::TestUtils::test_aa_colors PASSED                    [ 76%]
-tests/test_utils.py::TestUtils::test_find_latest_ens_rel PASSED          [ 77%]
-tests/test_utils.py::TestUtils::test_get_uniprot_info_gene PASSED        [ 77%]
-tests/test_utils.py::TestUtils::test_get_uniprot_info_transcript PASSED  [ 78%]
-tests/test_utils.py::TestUtils::test_get_uniprot_seqs PASSED             [ 78%]
-tests/test_utils.py::TestUtils::test_n_colors PASSED                     [ 78%]
-tests/test_utils.py::TestUtils::test_read_fasta PASSED                   [ 79%]
-tests/test_utils.py::TestUtils::test_ref_iv_species_options PASSED       [ 79%]
-tests/test_utils.py::TestUtils::test_ref_species_options PASSED          [ 80%]
-tests/test_utils.py::TestUtils::test_ref_species_options_bad_type PASSED [ 80%]
-tests/test_utils.py::TestUtils::test_rest_query PASSED                   [ 80%]
-tests/test_utils.py::TestUtils::test_rest_query_bad_type PASSED          [ 81%]
-tests/test_utils.py::TestUtils::test_search_iv_species_options PASSED    [ 81%]
-tests/test_utils.py::TestUtils::test_search_species_options PASSED       [ 82%]
-tests/test_utils.py::TestUtils::test_search_species_options_bad_type PASSED [ 82%]
-tests/test_virus.py::TestVirus::test_datasets_cli_version_output PASSED  [ 82%]
-tests/test_virus.py::TestVirus::test_get_datasets_path_returns_valid_path PASSED [ 83%]
-tests/test_virus.py::TestVirus::test_get_datasets_path_uses_bundled_binary PASSED [ 83%]
+tests/test_blat.py::TestBlat::test_blat_nt_RNA PASSED                    [ 14%]
+tests/test_blat.py::TestBlat::test_blat_nt_fasta PASSED                  [ 14%]
+tests/test_blat.py::TestBlat::test_blat_nt_json PASSED                   [ 15%]
+tests/test_blat.py::TestBlat::test_blat_nt_protein PASSED                [ 15%]
+tests/test_blat.py::TestBlat::test_blat_nt_transDNA PASSED               [ 15%]
+tests/test_blat.py::TestBlat::test_blat_nt_txt PASSED                    [ 16%]
+tests/test_blat.py::TestBlat::test_blat_shortseq PASSED                  [ 16%]
+tests/test_cbio.py::TestCbioSearch::test_cbio_search FAILED              [ 17%]
+tests/test_cbio.py::TestCbio::test_cbio_download PASSED                  [ 17%]
+tests/test_cbio.py::TestCbio::test_cbio_download_partially_existing_files PASSED [ 17%]
+tests/test_cbio.py::TestCbio::test_error_cbio_download PASSED            [ 18%]
+tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata PASSED      [ 18%]
+tests/test_cellxgene.py::TestCellxgene::test_cellxgene_metadata PASSED   [ 18%]
+tests/test_compile.py::TestCompilerWindows::test_compiler_windows PASSED [ 19%]
+tests/test_cosmic.py::TestCosmicWorkflow::test_cosmic_defaults PASSED    [ 19%]
+tests/test_diamond.py::TestDiamond::test_diamond_JSON_out PASSED         [ 20%]
+tests/test_diamond.py::TestDiamond::test_diamond_both_files PASSED       [ 20%]
+tests/test_diamond.py::TestDiamond::test_diamond_query_file PASSED       [ 20%]
+tests/test_diamond.py::TestDiamond::test_diamond_ref_file PASSED         [ 21%]
+tests/test_diamond.py::TestDiamond::test_diamond_seqs_multiple PASSED    [ 21%]
+tests/test_diamond.py::TestDiamond::test_diamond_seqs_single PASSED      [ 21%]
+tests/test_elm.py::TestELM::test_elm_uniprot_aminoacidseq PASSED         [ 22%]
+tests/test_elm.py::TestELM::test_elm_uniprot_id_in_elm PASSED            [ 22%]
+tests/test_elm.py::TestELM::test_elm_uniprot_id_new PASSED               [ 23%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_background PASSED       [ 23%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_background_ensembl PASSED [ 23%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_bad_background PASSED   [ 24%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_bad_background_list PASSED [ 24%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_bad_database_shortcut PASSED [ 25%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_bad_gene PASSED         [ 25%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_bad_species PASSED      [ 25%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_celltypes PASSED        [ 26%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_diseases_drugs PASSED   [ 26%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_ensembl_ids PASSED      [ 26%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_fish PASSED             [ 27%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_fly PASSED              [ 27%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_json PASSED             [ 28%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_kinase_interactions PASSED [ 28%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_mouse_is_human PASSED   [ 28%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_none PASSED             [ 29%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_ontology PASSED         [ 29%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_pathway PASSED          [ 29%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_plot PASSED             [ 30%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_transcription PASSED    [ 30%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_worm PASSED             [ 31%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_yeast PASSED            [ 31%]
+tests/test_gpt.py::TestGpt::test_gpt PASSED                              [ 31%]
+tests/test_info.py::TestInfo::test_info_WB_transcript PASSED             [ 32%]
+tests/test_info.py::TestInfo::test_info_exon PASSED                      [ 32%]
+tests/test_info.py::TestInfo::test_info_gene PASSED                      [ 32%]
+tests/test_info.py::TestInfo::test_info_gene_list_non_model PASSED       [ 33%]
+tests/test_info.py::TestInfo::test_info_mix PASSED                       [ 33%]
+tests/test_info.py::TestInfo::test_info_ncbifalse_uniprotfalse PASSED    [ 34%]
+tests/test_info.py::TestInfo::test_info_ncbifalse_uniprottrue PASSED     [ 34%]
+tests/test_info.py::TestInfo::test_info_ncbitrue_uniprotfalse PASSED     [ 34%]
+tests/test_info.py::TestInfo::test_info_transcript PASSED                [ 35%]
+tests/test_muscle.py::TestMuscle::test_muscle_nt PASSED                  [ 35%]
+tests/test_muscle.py::TestMuscle::test_muscle_nt_txt PASSED              [ 35%]
+tests/test_muscle.py::TestMuscleSuper::test_muscle_nt_super5 PASSED      [ 36%]
+tests/test_muscle.py::TestMuscleAA::test_muscle_aa PASSED                [ 36%]
+tests/test_muscle.py::TestMuscleSeqsInput::test_muscle_seqs_as_input PASSED [ 37%]
+tests/test_muscle.py::TestMuscleAASuper::test_muscle_aa_super5 PASSED    [ 37%]
+tests/test_muscle.py::TestMusclePrints::test_muscle_print_nt PASSED      [ 37%]
+tests/test_mutate.py::TestMutate::test_ambiguous_mutation PASSED         [ 38%]
+tests/test_mutate.py::TestMutate::test_index_error PASSED                [ 38%]
+tests/test_mutate.py::TestMutate::test_intron_mutation_minus PASSED      [ 39%]
+tests/test_mutate.py::TestMutate::test_intron_mutation_plus PASSED       [ 39%]
+tests/test_mutate.py::TestMutate::test_inversion_with_overlaps PASSED    [ 39%]
+tests/test_mutate.py::TestMutate::test_large_k PASSED                    [ 40%]
+tests/test_mutate.py::TestMutate::test_list_of_mutations PASSED          [ 40%]
+tests/test_mutate.py::TestMutate::test_multi_deletion PASSED             [ 40%]
+tests/test_mutate.py::TestMutate::test_multi_deletion_with_right_repeats PASSED [ 41%]
+tests/test_mutate.py::TestMutate::test_multi_delins PASSED               [ 41%]
+tests/test_mutate.py::TestMutate::test_multi_delins_with_psuedo_left_repeats PASSED [ 42%]
+tests/test_mutate.py::TestMutate::test_multi_delins_with_true_left_repeats PASSED [ 42%]
+tests/test_mutate.py::TestMutate::test_multi_delins_with_true_right_repeats PASSED [ 42%]
+tests/test_mutate.py::TestMutate::test_multi_dup PASSED                  [ 43%]
+tests/test_mutate.py::TestMutate::test_multi_insertion PASSED            [ 43%]
+tests/test_mutate.py::TestMutate::test_multi_insertion_with_left_repeats PASSED [ 43%]
+tests/test_mutate.py::TestMutate::test_posttranslational_mutation PASSED [ 44%]
+tests/test_mutate.py::TestMutate::test_single_deletion PASSED            [ 44%]
+tests/test_mutate.py::TestMutate::test_single_deletion_with_left_repeats PASSED [ 45%]
+tests/test_mutate.py::TestMutate::test_single_deletion_with_right_repeats PASSED [ 45%]
+tests/test_mutate.py::TestMutate::test_single_delins PASSED              [ 45%]
+tests/test_mutate.py::TestMutate::test_single_dup PASSED                 [ 46%]
+tests/test_mutate.py::TestMutate::test_single_insertion PASSED           [ 46%]
+tests/test_mutate.py::TestMutate::test_single_substitution PASSED        [ 46%]
+tests/test_mutate.py::TestMutate::test_single_substitution_near_left_end PASSED [ 47%]
+tests/test_mutate.py::TestMutate::test_single_substitution_near_right_end PASSED [ 47%]
+tests/test_mutate.py::TestMutate::test_uncertain_mutation PASSED         [ 48%]
+tests/test_mutate.py::test_csv_of_mutations PASSED                       [ 48%]
+tests/test_mutate.py::test_mismatch_error PASSED                         [ 48%]
+tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_bad_limit PASSED [ 49%]
+tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_bad_resource PASSED [ 49%]
+tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_diseases_filter PASSED [ 50%]
+tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_drugs_invalid_filter PASSED [ 50%]
+tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_nonexistent_id PASSED [ 50%]
+tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_tractability_limit PASSED [ 51%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets PASSED      [ 51%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_depmap PASSED [ 51%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_depmap_filter PASSED [ 52%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_drugs PASSED [ 52%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_drugs_no_limit PASSED [ 53%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_expression_no_limit PASSED [ 53%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_interactions_no_limit PASSED [ 53%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_interactions_simple_filter PASSED [ 54%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_no_limit PASSED [ 54%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_no_limit_accurate_coverage PASSED [ 54%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_pharmacogenetics_filter_or PASSED [ 55%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_pharmacogenetics_no_limit PASSED [ 55%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_tractability PASSED [ 56%]
+tests/test_pdb.py::TestPDB::test_pdb_assembly PASSED                     [ 56%]
+tests/test_pdb.py::TestPDB::test_pdb_pdb PASSED                          [ 56%]
+tests/test_ref.py::TestRef::test_ref PASSED                              [ 57%]
+tests/test_ref.py::TestRef::test_ref_bad_rel PASSED                      [ 57%]
+tests/test_ref.py::TestRef::test_ref_bad_species PASSED                  [ 57%]
+tests/test_ref.py::TestRef::test_ref_bad_which PASSED                    [ 58%]
+tests/test_ref.py::TestRef::test_ref_ftp PASSED                          [ 58%]
+tests/test_ref.py::TestRef::test_ref_list PASSED                         [ 59%]
+tests/test_ref.py::TestRef::test_ref_plant PASSED                        [ 59%]
+tests/test_ref.py::TestRef::test_ref_rel PASSED                          [ 59%]
+tests/test_ref.py::TestRef::test_ref_rel_ftp PASSED                      [ 60%]
+tests/test_ref.py::TestRef::test_ref_rel_ftp_octopus PASSED              [ 60%]
+tests/test_ref.py::TestRef::test_ref_rel_protist PASSED                  [ 60%]
+tests/test_ref.py::TestRef::test_ref_which PASSED                        [ 61%]
+tests/test_ref.py::TestRef::test_ref_which_plant PASSED                  [ 61%]
+tests/test_search.py::TestSearch::test_search_db PASSED                  [ 62%]
+tests/test_search.py::TestSearch::test_search_gene_bad_andor PASSED      [ 62%]
+tests/test_search.py::TestSearch::test_search_gene_bad_species PASSED    [ 62%]
+tests/test_search.py::TestSearch::test_search_gene_one_sw PASSED         [ 63%]
+tests/test_search.py::TestSearch::test_search_gene_one_sw_json PASSED    [ 63%]
+tests/test_search.py::TestSearch::test_search_gene_one_sw_limit PASSED   [ 64%]
+tests/test_search.py::TestSearch::test_search_gene_two_sw_and PASSED     [ 64%]
+tests/test_search.py::TestSearch::test_search_gene_two_sw_limit PASSED   [ 64%]
+tests/test_search.py::TestSearch::test_search_gene_two_sw_or PASSED      [ 65%]
+tests/test_search.py::TestSearch::test_search_octopus PASSED             [ 65%]
+tests/test_search.py::TestSearch::test_search_plant PASSED               [ 65%]
+tests/test_search.py::TestSearch::test_search_plant_db PASSED            [ 66%]
+tests/test_search.py::TestSearch::test_search_release PASSED             [ 66%]
+tests/test_search.py::TestSearch::test_search_transcript_bad_andor PASSED [ 67%]
+tests/test_search.py::TestSearch::test_search_transcript_bad_species PASSED [ 67%]
+tests/test_search.py::TestSearch::test_search_transcript_one_sw PASSED   [ 67%]
+tests/test_search.py::TestSearch::test_search_transcript_two_sw_and PASSED [ 68%]
+tests/test_search.py::TestSearch::test_search_transcript_two_sw_or PASSED [ 68%]
+tests/test_seq.py::TestSeq::test_seq_gene PASSED                         [ 68%]
+tests/test_seq.py::TestSeq::test_seq_gene_iso PASSED                     [ 69%]
+tests/test_seq.py::TestSeq::test_seq_gene_transcript_iso PASSED          [ 69%]
+tests/test_seq.py::TestSeq::test_seq_missing_uniprot_gene_name PASSED    [ 70%]
+tests/test_seq.py::TestSeq::test_seq_transcript PASSED                   [ 70%]
+tests/test_seq.py::TestSeq::test_seq_transcript_gene PASSED              [ 70%]
+tests/test_seq.py::TestSeq::test_seq_transcript_gene_WB PASSED           [ 71%]
+tests/test_seq.py::TestSeq::test_seq_transcript_gene_iso PASSED          [ 71%]
+tests/test_seq.py::TestSeq::test_seq_transcript_transcript_WB PASSED     [ 71%]
+tests/test_seq.py::TestSeq::test_seq_transcript_transcript_iso PASSED    [ 72%]
+tests/test_utils.py::TestUtils::test_aa_colors PASSED                    [ 72%]
+tests/test_utils.py::TestUtils::test_find_latest_ens_rel PASSED          [ 73%]
+tests/test_utils.py::TestUtils::test_get_uniprot_info_gene PASSED        [ 73%]
+tests/test_utils.py::TestUtils::test_get_uniprot_info_transcript PASSED  [ 73%]
+tests/test_utils.py::TestUtils::test_get_uniprot_seqs PASSED             [ 74%]
+tests/test_utils.py::TestUtils::test_n_colors PASSED                     [ 74%]
+tests/test_utils.py::TestUtils::test_read_fasta PASSED                   [ 75%]
+tests/test_utils.py::TestUtils::test_ref_iv_species_options PASSED       [ 75%]
+tests/test_utils.py::TestUtils::test_ref_species_options PASSED          [ 75%]
+tests/test_utils.py::TestUtils::test_ref_species_options_bad_type PASSED [ 76%]
+tests/test_utils.py::TestUtils::test_rest_query PASSED                   [ 76%]
+tests/test_utils.py::TestUtils::test_rest_query_bad_type PASSED          [ 76%]
+tests/test_utils.py::TestUtils::test_search_iv_species_options PASSED    [ 77%]
+tests/test_utils.py::TestUtils::test_search_species_options PASSED       [ 77%]
+tests/test_utils.py::TestUtils::test_search_species_options_bad_type PASSED [ 78%]
+tests/test_virus.py::TestVirus::test_batch_accessions_for_url PASSED     [ 78%]
+tests/test_virus.py::TestVirus::test_calculate_max_accessions_per_batch PASSED [ 78%]
+tests/test_virus.py::TestVirus::test_datasets_cli_version_output PASSED  [ 79%]
+tests/test_virus.py::TestVirus::test_get_datasets_path_returns_valid_path PASSED [ 79%]
+tests/test_virus.py::TestVirus::test_get_datasets_path_uses_bundled_binary PASSED [ 79%]
+tests/test_virus.py::TestVirus::test_parse_accession_input_empty_file_raises_error PASSED [ 80%]
+tests/test_virus.py::TestVirus::test_parse_accession_input_from_file PASSED [ 80%]
+tests/test_virus.py::TestVirus::test_parse_accession_input_nonexistent_file_raises_error PASSED [ 81%]
+tests/test_virus.py::TestVirus::test_parse_accession_input_single PASSED [ 81%]
+tests/test_virus.py::TestVirus::test_parse_accession_input_space_separated PASSED [ 81%]
+tests/test_virus.py::TestVirus::test_retry_helper_custom_retryable_exceptions PASSED [ 82%]
+tests/test_virus.py::TestVirus::test_retry_helper_exponential_backoff_timing PASSED [ 82%]
+tests/test_virus.py::TestVirus::test_retry_helper_failed_commands_tracking PASSED [ 82%]
+tests/test_virus.py::TestVirus::test_retry_helper_non_retryable_exception PASSED [ 83%]
+tests/test_virus.py::TestVirus::test_retry_helper_success_after_retry PASSED [ 83%]
+tests/test_virus.py::TestVirus::test_retry_helper_successful_operation PASSED [ 84%]
 tests/test_virus.py::TestVirus::test_virus_completeness_filter_verification PASSED [ 84%]
 tests/test_virus.py::TestVirus::test_virus_empty_virus_name PASSED       [ 84%]
-tests/test_virus.py::TestVirus::test_virus_host_filter_verification PASSED [ 84%]
+tests/test_virus.py::TestVirus::test_virus_host_filter_verification PASSED [ 85%]
 tests/test_virus.py::TestVirus::test_virus_integer_virus_id PASSED       [ 85%]
 tests/test_virus.py::TestVirus::test_virus_invalid_annotated_type PASSED [ 85%]
 tests/test_virus.py::TestVirus::test_virus_invalid_completeness PASSED   [ 86%]
 tests/test_virus.py::TestVirus::test_virus_invalid_genbank_batch_size_negative PASSED [ 86%]
-tests/test_virus.py::TestVirus::test_virus_invalid_genbank_batch_size_type PASSED [ 86%]
+tests/test_virus.py::TestVirus::test_virus_invalid_genbank_batch_size_type PASSED [ 87%]
 tests/test_virus.py::TestVirus::test_virus_invalid_genbank_batch_size_zero PASSED [ 87%]
 tests/test_virus.py::TestVirus::test_virus_invalid_genbank_metadata_type PASSED [ 87%]
 tests/test_virus.py::TestVirus::test_virus_invalid_is_accession_type PASSED [ 88%]
 tests/test_virus.py::TestVirus::test_virus_invalid_keep_temp_type PASSED [ 88%]
-tests/test_virus.py::TestVirus::test_virus_invalid_lab_passaged_type PASSED [ 88%]
+tests/test_virus.py::TestVirus::test_virus_invalid_lab_passaged_type PASSED [ 89%]
 tests/test_virus.py::TestVirus::test_virus_invalid_proteins_complete_type PASSED [ 89%]
 tests/test_virus.py::TestVirus::test_virus_invalid_refseq_only_type PASSED [ 89%]
 tests/test_virus.py::TestVirus::test_virus_metadata_schema_validation PASSED [ 90%]
@@ -239,25 +252,26 @@ tests/test_virus.py::TestVirus::test_virus_min_greater_than_max_peptide_count PA
 tests/test_virus.py::TestVirus::test_virus_min_greater_than_max_protein_count PASSED [ 91%]
 tests/test_virus.py::TestVirus::test_virus_min_greater_than_max_release_date PASSED [ 92%]
 tests/test_virus.py::TestVirus::test_virus_min_greater_than_max_seq_length PASSED [ 92%]
-tests/test_virus.py::TestVirus::test_virus_multiple_filters_relationship_check PASSED [ 92%]
+tests/test_virus.py::TestVirus::test_virus_multi_accession_file_input PASSED [ 92%]
+tests/test_virus.py::TestVirus::test_virus_multi_accession_space_separated PASSED [ 93%]
+tests/test_virus.py::TestVirus::test_virus_multiple_filters_relationship_check PASSED [ 93%]
 tests/test_virus.py::TestVirus::test_virus_none_virus_name PASSED        [ 93%]
-tests/test_virus.py::TestVirus::test_virus_relationship_check_counts_match PASSED [ 93%]
+tests/test_virus.py::TestVirus::test_virus_relationship_check_counts_match PASSED [ 94%]
 tests/test_virus.py::TestVirus::test_virus_release_date_filter_verification PASSED [ 94%]
-tests/test_virus.py::TestVirus::test_virus_specific_accession_file_creation PASSED [ 94%]
-tests/test_virus.py::TestVirus::test_virus_with_annotated_filter PASSED  [ 94%]
+tests/test_virus.py::TestVirus::test_virus_specific_accession_file_creation PASSED [ 95%]
+tests/test_virus.py::TestVirus::test_virus_with_annotated_filter PASSED  [ 95%]
 tests/test_virus.py::TestVirus::test_virus_with_collection_date_filters PASSED [ 95%]
-tests/test_virus.py::TestVirus::test_virus_with_completeness_filter PASSED [ 95%]
+tests/test_virus.py::TestVirus::test_virus_with_completeness_filter PASSED [ 96%]
 tests/test_virus.py::TestVirus::test_virus_with_genbank_metadata_retrieval PASSED [ 96%]
 tests/test_virus.py::TestVirus::test_virus_with_geographic_location_filter PASSED [ 96%]
-tests/test_virus.py::TestVirus::test_virus_with_has_proteins_filter PASSED [ 96%]
+tests/test_virus.py::TestVirus::test_virus_with_has_proteins_filter PASSED [ 97%]
 tests/test_virus.py::TestVirus::test_virus_with_host_filter PASSED       [ 97%]
-tests/test_virus.py::TestVirus::test_virus_with_lab_passaged_filter PASSED [ 97%]
+tests/test_virus.py::TestVirus::test_virus_with_lab_passaged_filter PASSED [ 98%]
 tests/test_virus.py::TestVirus::test_virus_with_length_filters PASSED    [ 98%]
 tests/test_virus.py::TestVirus::test_virus_with_max_ambiguous_chars_filter PASSED [ 98%]
-tests/test_virus.py::TestVirus::test_virus_with_multiple_filters PASSED  [ 98%]
+tests/test_virus.py::TestVirus::test_virus_with_multiple_filters PASSED  [ 99%]
 tests/test_virus.py::TestVirus::test_virus_with_protein_count_filters PASSED [ 99%]
-tests/test_virus.py::TestVirus::test_virus_with_refseq_filter PASSED     [ 99%]
-tests/test_virus.py::TestVirus::test_virus_with_source_database_filter PASSED [100%]
+tests/test_virus.py::TestVirus::test_virus_with_refseq_filter PASSED     [100%]
 
 =================================== FAILURES ===================================
 _______________________ TestCbioSearch.test_cbio_search ________________________
@@ -273,7 +287,7 @@ self = <tests.test_cbio.TestCbioSearch testMethod=test_cbio_search>
 tests/from_json.py:65: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-func = <function cbio_search at 0x7f3bb31f59e0>
+func = <function cbio_search at 0x7f9fd3ba5d00>
 args = {'key_words': ['esophag', 'ovary', 'ovarian']}
 
     def do_call(func, args):
@@ -358,7 +372,7 @@ config = {'validate_requests': False, 'validate_responses': False, 'validate_swa
 /opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/bravado/client.py:98: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-self = <bravado.swagger_model.Loader object at 0x7f3bb1aed3a0>
+self = <bravado.swagger_model.Loader object at 0x7f9fd2554440>
 spec_url = 'https://www.cbioportal.org/api/v2/api-docs', base_url = None
 
     def load_spec(self, spec_url, base_url=None):
@@ -378,7 +392,7 @@ spec_url = 'https://www.cbioportal.org/api/v2/api-docs', base_url = None
 /opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/bravado/swagger_model.py:105: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-self = <bravado.http_future.HttpFuture object at 0x7f3bb1aed4c0>, timeout = None
+self = <bravado.http_future.HttpFuture object at 0x7f9fd25545c0>, timeout = None
 
     def result(
         self,
@@ -411,151 +425,6 @@ self = <bravado.http_future.HttpFuture object at 0x7f3bb1aed4c0>, timeout = None
 E       bravado.exception.HTTPTooManyRequests: 429 Too Many Requests
 
 /opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/bravado/http_future.py:282: HTTPTooManyRequests
-__________________________ TestPDB.test_pdb_assembly ___________________________
-
-self = <tests.test_pdb.TestPDB testMethod=test_pdb_assembly>
-
-    def test_pdb_assembly(self):
-        test = "test1"
-        expected_result = pdb_dict[test]["expected_result"]
-        result_to_test = pdb(**pdb_dict[test]["args"])
-    
->       self.assertEqual(result_to_test, expected_result)
-E       AssertionError: {'pdb[2345 chars]: 2316.9225073146845, 'total_number_interface_[977 chars]2.2'} != {'pdb[2345 chars]: 2315.334008113287, 'total_number_interface_r[976 chars]1.1'}
-E         {'pdbx_struct_assembly': {'details': 'author_and_software_defined_assembly',
-E                                   'id': '1',
-E                                   'method_details': 'PISA',
-E                                   'oligomeric_count': 3,
-E                                   'oligomeric_details': 'trimeric',
-E                                   'rcsb_candidate_assembly': 'Y',
-E                                   'rcsb_details': 'author_and_software_defined_assembly'},
-E          'pdbx_struct_assembly_gen': [{'assembly_id': '1',
-E                                        'asym_id_list': ['A',
-E                                                         'B',
-E                                                         'C',
-E                                                         'G',
-E                                                         'H',
-E                                                         'I',
-E                                                         'J',
-E                                                         'K',
-E                                                         'O',
-E                                                         'P',
-E                                                         'Q'],
-E                                        'oper_expression': '1',
-E                                        'ordinal': 1}],
-E          'pdbx_struct_oper_list': [{'id': '1',
-E                                     'matrix11': 1.0,
-E                                     'matrix12': 0.0,
-E                                     'matrix13': 0.0,
-E                                     'matrix21': 0.0,
-E                                     'matrix22': 1.0,
-E                                     'matrix23': 0.0,
-E                                     'matrix31': 0.0,
-E                                     'matrix32': 0.0,
-E                                     'matrix33': 1.0,
-E                                     'name': '1_555',
-E                                     'symmetry_operation': 'x,y,z',
-E                                     'type': 'identity operation',
-E                                     'vector1': 0.0,
-E                                     'vector2': 0.0,
-E                                     'vector3': 0.0}],
-E          'rcsb_assembly_container_identifiers': {'assembly_id': '1',
-E                                                  'entry_id': '1RH7',
-E                                                  'interface_ids': ['1', '2', '3'],
-E                                                  'rcsb_id': '1RH7-1'},
-E          'rcsb_assembly_info': {'assembly_id': '1',
-E                                 'atom_count': 1762,
-E                                 'branched_atom_count': 0,
-E                                 'branched_entity_count': 0,
-E                                 'branched_entity_instance_count': 0,
-E                                 'deuterated_water_count': 0,
-E                                 'entry_id': '1RH7',
-E                                 'hydrogen_atom_count': 0,
-E                                 'modeled_polymer_monomer_count': 243,
-E                                 'na_polymer_entity_types': 'Other',
-E                                 'nonpolymer_atom_count': 29,
-E                                 'nonpolymer_entity_count': 2,
-E                                 'nonpolymer_entity_instance_count': 5,
-E                                 'num_heterologous_interface_entities': 0,
-E                                 'num_heteromeric_interface_entities': 0,
-E                                 'num_homomeric_interface_entities': 1,
-E                                 'num_interface_entities': 1,
-E                                 'num_interfaces': 3,
-E                                 'num_isologous_interface_entities': 1,
-E                                 'num_na_interface_entities': 0,
-E                                 'num_prot_na_interface_entities': 0,
-E                                 'num_protein_interface_entities': 1,
-E                                 'polymer_atom_count': 1658,
-E                                 'polymer_composition': 'homomeric protein',
-E                                 'polymer_entity_count': 1,
-E                                 'polymer_entity_count_dna': 0,
-E                                 'polymer_entity_count_nucleic_acid': 0,
-E                                 'polymer_entity_count_nucleic_acid_hybrid': 0,
-E                                 'polymer_entity_count_protein': 1,
-E                                 'polymer_entity_count_rna': 0,
-E                                 'polymer_entity_instance_count': 3,
-E                                 'polymer_entity_instance_count_dna': 0,
-E                                 'polymer_entity_instance_count_nucleic_acid': 0,
-E                                 'polymer_entity_instance_count_nucleic_acid_hybrid': 0,
-E                                 'polymer_entity_instance_count_protein': 3,
-E                                 'polymer_entity_instance_count_rna': 0,
-E                                 'polymer_monomer_count': 243,
-E                                 'selected_polymer_entity_types': 'Protein (only)',
-E                                 'solvent_atom_count': 75,
-E                                 'solvent_entity_count': 1,
-E                                 'solvent_entity_instance_count': 3,
-E       -                         'total_assembly_buried_surface_area': 2316.9225073146845,
-E       ?                                                                  ^ ^ ^^^ -------
-E       
-E       +                         'total_assembly_buried_surface_area': 2315.334008113287,
-E       ?                                                                  ^ ^^^^^^^^^ ^
-E       
-E       -                         'total_number_interface_residues': 160,
-E       ?                                                              ^
-E       
-E       +                         'total_number_interface_residues': 161,
-E       ?                                                              ^
-E       
-E                                 'unmodeled_polymer_monomer_count': 0},
-E          'rcsb_id': '1RH7-1',
-E          'rcsb_struct_symmetry': [{'clusters': [{'avg_rmsd': 0.8418294327358263,
-E                                                  'members': [{'asym_id': 'A',
-E                                                               'pdbx_struct_oper_list_ids': ['1']},
-E                                                              {'asym_id': 'C',
-E                                                               'pdbx_struct_oper_list_ids': ['1']},
-E                                                              {'asym_id': 'B',
-E                                                               'pdbx_struct_oper_list_ids': ['1']}]}],
-E                                    'kind': 'Global Symmetry',
-E                                    'oligomeric_state': 'Homo 3-mer',
-E                                    'rotation_axes': [{'end': [13.473746075056361,
-E                                                               41.0962265805248,
-E                                                               -5.777587727129287],
-E                                                       'order': 3,
-E                                                       'start': [13.838143875349235,
-E                                                                 28.581996104345052,
-E                                                                 78.43743587115125]}],
-E                                    'stoichiometry': ['A3'],
-E                                    'symbol': 'C3',
-E                                    'type': 'Cyclic'}],
-E          'rcsb_struct_symmetry_lineage': [{'depth': 0,
-E                                            'id': 'Global Symmetry',
-E                                            'name': 'Global Symmetry'},
-E                                           {'depth': 2,
-E                                            'id': 'Global Symmetry.Cyclic.C3',
-E                                            'name': 'C3'},
-E                                           {'depth': 3,
-E                                            'id': 'Global Symmetry.Cyclic.C3.Homo 3-mer',
-E                                            'name': 'Homo 3-mer'},
-E                                           {'depth': 1,
-E                                            'id': 'Global Symmetry.Cyclic',
-E                                            'name': 'Cyclic'}],
-E       -  'rcsb_struct_symmetry_provenance_code': 'biojava-7.2.2'}
-E       ?                                                     ^ ^
-E       
-E       +  'rcsb_struct_symmetry_provenance_code': 'biojava-7.1.1'}
-E       ?                                                     ^ ^
-
-tests/test_pdb.py:19: AssertionError
 =============================== warnings summary ===============================
 tests/test_blast.py::TestBlast::test_blast_nt
   /home/runner/work/gget/gget/gget/gget_blast.py:327: FutureWarning: Passing literal html to 'read_html' is deprecated and will be removed in a future version. To read from a literal string, wrap it in a 'StringIO' object.
@@ -663,7 +532,7 @@ gget/gget_8cube.py            83     28    66%   26-27, 34-43, 93, 105, 112, 115
 gget/gget_alphafold.py       362    321    11%   86-108, 115-116, 123-149, 181-186, 233-867
 gget/gget_archs4.py           79     13    84%   75-78, 84, 107, 123-126, 139-142, 148, 170, 198-201, 207
 gget/gget_bgee.py             56      6    89%   60, 83, 103, 130, 154, 175
-gget/gget_blast.py           127     36    72%   92, 124-142, 163-165, 204, 207, 251-255, 296-299, 302-303, 322-325, 332-333, 336-341, 346, 351-354
+gget/gget_blast.py           127     41    68%   92, 124-142, 163-165, 204, 207, 246-248, 277, 290-293, 296-299, 302-303, 322-325, 332-333, 336-341, 346, 351-354
 gget/gget_blat.py             86     10    88%   58-62, 95, 136, 139, 168, 232-233, 239
 gget/gget_cbio.py            524    415    21%   28, 39-67, 77-87, 136-137, 143-147, 154-157, 161, 164, 172-177, 208, 226, 265, 271-275, 278, 282-294, 296, 302-305, 322-331, 334, 345-372, 376-389, 393-416, 420-441, 447-450, 454-473, 477, 494-537, 540-757, 760-789, 802-1164, 1218-1254
 gget/gget_cellxgene.py        53      9    83%   21-22, 140-149, 176, 215, 231, 247
@@ -681,155 +550,22 @@ gget/gget_ref.py             215     57    73%   32, 97-98, 117-118, 124-152, 16
 gget/gget_search.py          142     23    84%   84-87, 96, 113, 117, 125, 149-150, 157, 165-171, 213-222, 308-309, 315-316, 368-369, 376-377, 385
 gget/gget_seq.py             146     24    84%   44-47, 49, 119, 140-143, 177-178, 207-208, 245-248, 271-272, 293, 312-315, 334, 356, 365, 402-405
 gget/gget_setup.py           215    149    31%   49-90, 108, 113, 116, 128-138, 152, 175-176, 189, 199, 209, 221-466
-gget/gget_virus.py          1962    950    52%   131, 154, 158, 169-170, 211-215, 220-234, 241, 252-253, 271-276, 305-331, 480-504, 508-614, 652-736, 764-765, 801-802, 835-970, 995-1035, 1085-1220, 1268-1362, 1416-1505, 1539, 1546-1547, 1617, 1631-1642, 1714-1717, 1726, 1753-1777, 1784, 1795-1797, 1813-1833, 1900-1901, 1943-1950, 1987-1995, 2046, 2244-2245, 2249-2251, 2288, 2291-2292, 2294-2296, 2332, 2335-2336, 2338-2340, 2352-2353, 2366-2369, 2503-2505, 2540-2542, 2614, 2617, 2629-2630, 2659-2660, 2664-2672, 2676-2693, 2703, 2706, 2710-2714, 2779-2781, 2812, 2822-2887, 3005, 3042-3048, 3058, 3103-3106, 3133-3136, 3146, 3149-3150, 3215, 3258, 3270-3273, 3405-3407, 3414-3416, 3485, 3518-3520, 3534-3548, 3552-3562, 3566-3570, 3575-3577, 3581-3594, 3607-3617, 3623-3625, 3635-3653, 3657-3676, 3688-3691, 3694-3697, 3841-3845, 3917, 3971-3973, 3993-4019, 4028-4053, 4075-4091, 4117-4118, 4131-4133, 4150-4151, 4220-4221, 4230-4249, 4254, 4298, 4311-4313, 4322-4325, 4359-4373, 4391-4400, 4433-4436, 4455-4603, 4618-4624, 4633
-gget/main.py                 838    838     0%   1-3773
+gget/gget_virus.py          2409   1189    51%   131, 192, 234, 237, 255, 259, 270-271, 312-316, 321-335, 342, 353-354, 372-377, 414-453, 506, 630-631, 635, 685-686, 696, 698, 700, 702, 704, 706, 728, 740-745, 755-756, 795-826, 947-949, 1009-1010, 1035-1037, 1045-1298, 1307-1308, 1350-1430, 1455-1456, 1489-1490, 1523-1661, 1686-1726, 1776-1911, 1959-2071, 2125-2232, 2266, 2273-2274, 2342, 2361-2383, 2399-2401, 2447, 2478, 2501, 2510-2564, 2572, 2575-2576, 2583-2585, 2596-2610, 2677-2678, 2716-2723, 2730, 2768, 2774-2780, 2808-2814, 2826-2832, 2863, 2877-2878, 3026-3027, 3070, 3073-3074, 3076-3078, 3114, 3117-3118, 3120-3122, 3134-3135, 3146-3154, 3160-3162, 3172-3175, 3182, 3187-3203, 3207-3220, 3224-3232, 3250-3253, 3272-3273, 3327-3330, 3492-3494, 3524-3526, 3559, 3562, 3574-3575, 3604-3605, 3609-3617, 3621-3638, 3648, 3651, 3655-3659, 3702-3704, 3735, 3745-3810, 3905, 3942-3948, 3958, 3987-3990, 4017-4020, 4030, 4033-4034, 4099, 4142, 4154-4157, 4318-4320, 4386, 4419-4421, 4435-4449, 4453-4463, 4467-4471, 4476-4478, 4484-4488, 4492-4505, 4532-4550, 4554-4573, 4585-4588, 4591-4594, 4607-4614, 4746-4750, 4821, 4877-4879, 4912-4945, 4953-4985, 4995-5011, 5064-5065, 5100-5115, 5132-5133, 5176-5192, 5203-5204, 5213-5232, 5237, 5280, 5293-5295, 5304-5309, 5338-5352, 5375-5384, 5417-5420, 5439-5585, 5600-5601, 5606-5617, 5619, 5622-5625, 5628-5632, 5642
+gget/main.py                 837    837     0%   1-3773
 gget/utils.py                448     77    83%   31, 36-42, 72, 95, 119, 122, 186, 193, 245, 257, 285, 296, 347, 367, 378, 411-412, 452-453, 468-469, 476-478, 494-495, 501-502, 623-639, 676, 695, 757, 797, 837, 953, 961, 969-989, 994, 999, 1005-1006, 1024-1025, 1116, 1140-1141, 1156, 1164
 --------------------------------------------------------
-TOTAL                       7255   3575    51%
+TOTAL                       7701   3818    50%
 ============================= slowest 10 durations =============================
-20144.13s call     tests/test_blast.py::TestBlast::test_blast_nt
-55.23s call     tests/test_virus.py::TestVirus::test_virus_with_lab_passaged_filter
-51.63s call     tests/test_virus.py::TestVirus::test_virus_with_annotated_filter
-46.40s call     tests/test_virus.py::TestVirus::test_virus_host_filter_verification
-45.95s call     tests/test_virus.py::TestVirus::test_virus_with_host_filter
-30.95s call     tests/test_virus.py::TestVirus::test_virus_with_has_proteins_filter
-30.32s call     tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
-28.98s call     tests/test_virus.py::TestVirus::test_virus_with_max_ambiguous_chars_filter
-28.19s call     tests/test_virus.py::TestVirus::test_virus_integer_virus_id
-27.75s call     tests/test_virus.py::TestVirus::test_virus_with_source_database_filter
+273.47s call     tests/test_blast.py::TestBlast::test_blast_nt
+52.35s call     tests/test_virus.py::TestVirus::test_virus_host_filter_verification
+51.73s call     tests/test_virus.py::TestVirus::test_virus_with_host_filter
+28.90s call     tests/test_virus.py::TestVirus::test_virus_with_lab_passaged_filter
+28.75s call     tests/test_virus.py::TestVirus::test_virus_with_has_proteins_filter
+27.76s call     tests/test_virus.py::TestVirus::test_virus_integer_virus_id
+27.42s call     tests/test_virus.py::TestVirus::test_virus_with_annotated_filter
+26.92s call     tests/test_search.py::TestSearch::test_search_gene_two_sw_limit
+26.25s call     tests/test_virus.py::TestVirus::test_virus_with_max_ambiguous_chars_filter
+23.65s call     tests/test_virus.py::TestVirus::test_virus_with_protein_count_filters
 =========================== short test summary info ============================
 FAILED tests/test_cbio.py::TestCbioSearch::test_cbio_search - bravado.exception.HTTPTooManyRequests: 429 Too Many Requests
-FAILED tests/test_pdb.py::TestPDB::test_pdb_assembly - AssertionError: {'pdb[2345 chars]: 2316.9225073146845, 'total_number_interface_[977 chars]2.2'} != {'pdb[2345 chars]: 2315.334008113287, 'total_number_interface_r[976 chars]1.1'}
-  {'pdbx_struct_assembly': {'details': 'author_and_software_defined_assembly',
-                            'id': '1',
-                            'method_details': 'PISA',
-                            'oligomeric_count': 3,
-                            'oligomeric_details': 'trimeric',
-                            'rcsb_candidate_assembly': 'Y',
-                            'rcsb_details': 'author_and_software_defined_assembly'},
-   'pdbx_struct_assembly_gen': [{'assembly_id': '1',
-                                 'asym_id_list': ['A',
-                                                  'B',
-                                                  'C',
-                                                  'G',
-                                                  'H',
-                                                  'I',
-                                                  'J',
-                                                  'K',
-                                                  'O',
-                                                  'P',
-                                                  'Q'],
-                                 'oper_expression': '1',
-                                 'ordinal': 1}],
-   'pdbx_struct_oper_list': [{'id': '1',
-                              'matrix11': 1.0,
-                              'matrix12': 0.0,
-                              'matrix13': 0.0,
-                              'matrix21': 0.0,
-                              'matrix22': 1.0,
-                              'matrix23': 0.0,
-                              'matrix31': 0.0,
-                              'matrix32': 0.0,
-                              'matrix33': 1.0,
-                              'name': '1_555',
-                              'symmetry_operation': 'x,y,z',
-                              'type': 'identity operation',
-                              'vector1': 0.0,
-                              'vector2': 0.0,
-                              'vector3': 0.0}],
-   'rcsb_assembly_container_identifiers': {'assembly_id': '1',
-                                           'entry_id': '1RH7',
-                                           'interface_ids': ['1', '2', '3'],
-                                           'rcsb_id': '1RH7-1'},
-   'rcsb_assembly_info': {'assembly_id': '1',
-                          'atom_count': 1762,
-                          'branched_atom_count': 0,
-                          'branched_entity_count': 0,
-                          'branched_entity_instance_count': 0,
-                          'deuterated_water_count': 0,
-                          'entry_id': '1RH7',
-                          'hydrogen_atom_count': 0,
-                          'modeled_polymer_monomer_count': 243,
-                          'na_polymer_entity_types': 'Other',
-                          'nonpolymer_atom_count': 29,
-                          'nonpolymer_entity_count': 2,
-                          'nonpolymer_entity_instance_count': 5,
-                          'num_heterologous_interface_entities': 0,
-                          'num_heteromeric_interface_entities': 0,
-                          'num_homomeric_interface_entities': 1,
-                          'num_interface_entities': 1,
-                          'num_interfaces': 3,
-                          'num_isologous_interface_entities': 1,
-                          'num_na_interface_entities': 0,
-                          'num_prot_na_interface_entities': 0,
-                          'num_protein_interface_entities': 1,
-                          'polymer_atom_count': 1658,
-                          'polymer_composition': 'homomeric protein',
-                          'polymer_entity_count': 1,
-                          'polymer_entity_count_dna': 0,
-                          'polymer_entity_count_nucleic_acid': 0,
-                          'polymer_entity_count_nucleic_acid_hybrid': 0,
-                          'polymer_entity_count_protein': 1,
-                          'polymer_entity_count_rna': 0,
-                          'polymer_entity_instance_count': 3,
-                          'polymer_entity_instance_count_dna': 0,
-                          'polymer_entity_instance_count_nucleic_acid': 0,
-                          'polymer_entity_instance_count_nucleic_acid_hybrid': 0,
-                          'polymer_entity_instance_count_protein': 3,
-                          'polymer_entity_instance_count_rna': 0,
-                          'polymer_monomer_count': 243,
-                          'selected_polymer_entity_types': 'Protein (only)',
-                          'solvent_atom_count': 75,
-                          'solvent_entity_count': 1,
-                          'solvent_entity_instance_count': 3,
--                         'total_assembly_buried_surface_area': 2316.9225073146845,
-?                                                                  ^ ^ ^^^ -------
-
-+                         'total_assembly_buried_surface_area': 2315.334008113287,
-?                                                                  ^ ^^^^^^^^^ ^
-
--                         'total_number_interface_residues': 160,
-?                                                              ^
-
-+                         'total_number_interface_residues': 161,
-?                                                              ^
-
-                          'unmodeled_polymer_monomer_count': 0},
-   'rcsb_id': '1RH7-1',
-   'rcsb_struct_symmetry': [{'clusters': [{'avg_rmsd': 0.8418294327358263,
-                                           'members': [{'asym_id': 'A',
-                                                        'pdbx_struct_oper_list_ids': ['1']},
-                                                       {'asym_id': 'C',
-                                                        'pdbx_struct_oper_list_ids': ['1']},
-                                                       {'asym_id': 'B',
-                                                        'pdbx_struct_oper_list_ids': ['1']}]}],
-                             'kind': 'Global Symmetry',
-                             'oligomeric_state': 'Homo 3-mer',
-                             'rotation_axes': [{'end': [13.473746075056361,
-                                                        41.0962265805248,
-                                                        -5.777587727129287],
-                                                'order': 3,
-                                                'start': [13.838143875349235,
-                                                          28.581996104345052,
-                                                          78.43743587115125]}],
-                             'stoichiometry': ['A3'],
-                             'symbol': 'C3',
-                             'type': 'Cyclic'}],
-   'rcsb_struct_symmetry_lineage': [{'depth': 0,
-                                     'id': 'Global Symmetry',
-                                     'name': 'Global Symmetry'},
-                                    {'depth': 2,
-                                     'id': 'Global Symmetry.Cyclic.C3',
-                                     'name': 'C3'},
-                                    {'depth': 3,
-                                     'id': 'Global Symmetry.Cyclic.C3.Homo 3-mer',
-                                     'name': 'Homo 3-mer'},
-                                    {'depth': 1,
-                                     'id': 'Global Symmetry.Cyclic',
-                                     'name': 'Cyclic'}],
--  'rcsb_struct_symmetry_provenance_code': 'biojava-7.2.2'}
-?                                                     ^ ^
-
-+  'rcsb_struct_symmetry_provenance_code': 'biojava-7.1.1'}
-?                                                     ^ ^
-========== 2 failed, 248 passed, 257 warnings in 20897.52s (5:48:17) ===========
+=========== 1 failed, 263 passed, 257 warnings in 1032.83s (0:17:12) ===========
