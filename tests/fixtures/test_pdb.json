@@ -108,8 +108,8 @@
                 "solvent_atom_count": 75,
                 "solvent_entity_count": 1,
                 "solvent_entity_instance_count": 3,
-                "total_assembly_buried_surface_area": 2315.334008113287,
-                "total_number_interface_residues": 161,
+                "total_assembly_buried_surface_area": 2316.9225073146845,
+                "total_number_interface_residues": 160,
                 "unmodeled_polymer_monomer_count": 0
             },
             "rcsb_struct_symmetry": [
@@ -186,7 +186,7 @@
                 }
             ],
             "rcsb_id": "1RH7-1",
-            "rcsb_struct_symmetry_provenance_code": "biojava-7.1.1"
+            "rcsb_struct_symmetry_provenance_code": "biojava-7.2.2"
         }
     },
     "test2": {
