@@ -1644,7 +1644,7 @@ def process_cached_download(zip_file, virus_type="virus"):
     if not cached_metadata_dict:
         logger.info("Creating basic metadata from FASTA headers (no data_report.jsonl available)")
         for seq in all_cached_sequences:
-            accession = seq.id.split('.')[0]  # Remove version if present
+            accession = seq.id  # Use full accession with version if present
             cached_metadata_dict[accession] = {
                 'accession': accession,
                 'description': seq.description,
@@ -5213,8 +5213,8 @@ def virus(
             logger.info("Using sequences from cached download (skipping sequence download)")
             
             # Filter cached sequences based on filtered_accessions
-            # Create a mapping of accession to sequence
-            cached_seq_dict = {seq.id.split('.')[0]: seq for seq in cached_sequences}
+            # Create a mapping of accession to sequence using full accessions
+            cached_seq_dict = {seq.id: seq for seq in cached_sequences}
             
             # Get only the sequences that passed metadata filtering
             filtered_cached_seqs = []
