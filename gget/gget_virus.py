@@ -3909,6 +3909,13 @@ def _genbank_xml_to_csv(xml_path, csv_path, chunk_size=None):
     # Stream-parse XML
     for event, elem in ET.iterparse(xml_path, events=("end",)):
         if _local_name(elem.tag) == "GBSeq":
+            # Skip protein sequences (AA type) - we only want nucleotide sequences
+            moltype_elem = elem.findtext(".//GBSeq_moltype", "").strip()
+            if moltype_elem == "AA":
+                logger.debug("Skipping protein sequence (AA type) in XML to CSV conversion")
+                elem.clear()
+                continue
+            
             accession = elem.findtext(".//GBSeq_accession-version", "").strip()
             sequence = elem.findtext(".//GBSeq_sequence", "").strip()
             features = elem.findall(".//GBFeature")
@@ -4054,6 +4061,12 @@ def _parse_genbank_xml(xml_content):
     # Process each GenBank sequence record in the XML
     for gbseq in root.findall('.//GBSeq'):
         try:
+            # Skip protein sequences (AA type) - we only want nucleotide sequences
+            moltype_elem = gbseq.find('GBSeq_moltype')
+            if moltype_elem is not None and moltype_elem.text == 'AA':
+                logger.debug("Skipping protein sequence (AA type)")
+                continue
+            
             # Extract accession number as the primary key
             accession_elem = gbseq.find('GBSeq_accession-version')
             if accession_elem is None:
