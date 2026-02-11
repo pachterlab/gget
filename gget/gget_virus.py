@@ -106,8 +106,9 @@ HTTP_RETRY_STATUS_CODES = [429, 500, 502, 503, 504]  # Status codes to retry on
 HTTP_MAX_LOCAL_RETRIES = 3  # Maximum local retry attempts
 HTTP_INITIAL_BACKOFF = 1.0  # Initial backoff in seconds
 
-# File Size Display Divisor
-BYTES_PER_MB = 1024 * 1024  # Bytes in a megabyte for file size display
+# File Size Configuration
+BYTES_PER_MB = 1024 * 1024  # Bytes in a megabyte for file size display diviser
+MIN_VALID_ZIP_SIZE = 100 * 1024  # 100 KB in bytes (minimum size for a valid ZIP file from cached downloads)
 
 # URL Length Configuration
 # Most browsers and servers support URLs up to ~2000-8000 chars, but NCBI recommends keeping under 2000
@@ -1757,7 +1758,10 @@ def _download_optimized_cached(
         requested_filters (dict, optional): Dictionary of originally requested filters.
         
     Returns:
-        str: Path to the successfully downloaded ZIP file.
+        tuple: (zip_path, applied_filters, missing_filters)
+            - zip_path (str): Path to the successfully downloaded ZIP file.
+            - applied_filters (list): List of filter names applied in successful strategy.
+            - missing_filters (list): List of filter names not applied (need post-processing).
         
     Raises:
         RuntimeError: If all strategies fail or datasets CLI is not available.
@@ -1767,7 +1771,7 @@ def _download_optimized_cached(
         ...     ("Strategy 1 (specific)", ["datasets", "download", ...], ["complete-only"]),
         ...     ("Strategy 2 (general)", ["datasets", "download", ...], [])
         ... ]
-        >>> zip_file = _download_optimized_cached(
+        >>> zip_file, applied, missing = _download_optimized_cached(
         ...     "SARS-CoV-2", strategies, "/path/to/output.zip", "/output/dir"
         ... )
     """
@@ -1822,6 +1826,18 @@ def _download_optimized_cached(
             # Check if the command was successful
             if result.returncode == 0 and os.path.exists(zip_path):
                 file_size = os.path.getsize(zip_path)
+                
+                # Check if file is too small (likely empty result) - if so, try next strategy. It's not zero since the folder always comes with a generic (readme) files.
+                if file_size < MIN_VALID_ZIP_SIZE:
+                    logger.warning("⚠️ %s resulted in file that's too small (%.2f MB, < 100 KB minimum). Trying next strategy...", 
+                                 strategy_name, file_size / 1024 / 1024)
+                    # Clean up invalid file
+                    try:
+                        os.remove(zip_path)
+                    except OSError:
+                        pass
+                    continue
+                
                 logger.info("✅ %s successful: %s (%.2f MB)", 
                            strategy_name, os.path.basename(zip_path), file_size / 1024 / 1024)
                 
@@ -1833,10 +1849,14 @@ def _download_optimized_cached(
                 if requested_filters:
                     requested_filter_list = []
                     for key, value in requested_filters.items():
+                        logger.debug("Requested filter: %s=%s", key, value)
                         if value is not None and value is not False:
+                            logger.debug("Adding filter to requested list: %s=%s", key, value)
                             if isinstance(value, bool):
+                                logger.debug("Boolean filter detected, adding key only: %s", key)
                                 requested_filter_list.append(key)
                             else:
+                                logger.debug("Non-boolean filter detected, adding key=value: %s=%s", key, value)
                                 requested_filter_list.append(f"{key}={value}")
                     
                     missing_filters = [f for f in requested_filter_list if f not in applied_filters]
@@ -1845,8 +1865,10 @@ def _download_optimized_cached(
                         logger.warning("   Filters applied: %s", ", ".join(applied_filters) if applied_filters else "none")
                         logger.warning("   Filters missing: %s", ", ".join(missing_filters))
                         logger.warning("   These filters will need to be applied through post-processing")
+                else:
+                    missing_filters = []
                 
-                return zip_path
+                return zip_path, applied_filters, missing_filters
             else:
                 # Strategy failed, prepare error message
                 error_msg = f"❌ {strategy_name} failed with return code {result.returncode}"
@@ -2067,6 +2089,14 @@ def download_sars_cov2_optimized(
         'host': host,
         'annotated': annotated
     }
+    logger.debug("========================SARSCOV2 DOWNLOAD STRATEGIES DEFINED========================")
+    logger.debug("Total strategies defined: %d", len(strategies))
+    for i, (name, cmd, filters) in enumerate(strategies, 1):
+        logger.debug("Strategy %d: %s", i, name)
+        logger.debug("  Command: %s", " ".join(cmd))
+        logger.debug("  Applied filters: %s", ", ".join(filters) if filters else "none")
+    logger.debug("====================================================================================")
+
     
     return _download_optimized_cached(
         virus_type="SARS-CoV-2",
@@ -4320,6 +4350,200 @@ def save_genbank_metadata_to_csv(genbank_metadata, output_file, virus_metadata=N
         raise RuntimeError(f"❌ Failed to save GenBank metadata to {output_file}: {e}") from e
     
 
+def filter_cached_metadata_for_unused_filters(
+    metadata_dict,
+    host=None,
+    complete_only=None,
+    annotated=None,
+    lineage=None,
+    geographic_location=None,
+    refseq_only=None,
+    min_release_date=None,
+    applied_strategy_filters=None,
+):
+    """
+    Apply filters that were not used in the cached download strategy.
+    
+    This is Step 3 of the cached download pipeline. It applies:
+    1. Server-side filters not used in the successful cached strategy: host, complete_only, annotated, lineage
+    2. API-only filters that couldn't be applied server-side: geographic_location, refseq_only, min_release_date
+    
+    Args:
+        metadata_dict (dict): Dictionary mapping accession numbers to metadata from cached download.
+        host (str, optional): Host organism filter (not applied if in applied_strategy_filters).
+        complete_only (bool, optional): Complete genome filter (not applied if in applied_strategy_filters).
+        annotated (bool, optional): Annotation filter (not applied if in applied_strategy_filters).
+        lineage (str, optional): Lineage filter for SARS-CoV-2 (not applied if in applied_strategy_filters).
+        geographic_location (str, optional): Geographic location filter (API-only, always applied if specified).
+        refseq_only (bool, optional): RefSeq only filter (API-only, always applied if specified).
+        min_release_date (str, optional): Minimum release date filter (API-only, always applied if specified).
+        applied_strategy_filters (list, optional): List of filter names that were applied during cached strategy.
+            Includes: 'host', 'complete-only', 'annotated', 'lineage'
+        
+    Returns:
+        tuple: (filtered_accessions, filtered_metadata_list)
+    """
+
+    if applied_strategy_filters is None and geographic_location is None and refseq_only is None and min_release_date is None:
+        logger.debug("No filters specified for post-cached-download filtering. Returning all metadata unchanged.")
+        return list(metadata_dict.keys()), list(metadata_dict.values())
+    
+    if applied_strategy_filters is None:
+        applied_strategy_filters = []
+    
+    logger.info("="*60)
+    logger.info("STEP 3b: Applying post-cached-download filters")
+    logger.info("="*60)
+    logger.debug("Filters applied during cached strategy: %s", applied_strategy_filters)
+    
+    # Determine which filters to apply based on what wasn't used in strategy
+    filters_to_apply = {}
+    
+    # Server-side filters (only apply if not already applied in strategy)
+    if 'host' not in applied_strategy_filters and host:
+        filters_to_apply['host'] = host
+        logger.debug("Will apply host filter: %s (not used in cached strategy)", host)
+    
+    if 'complete-only' not in applied_strategy_filters and complete_only:
+        filters_to_apply['complete_only'] = complete_only
+        logger.debug("Will apply complete-only filter (not used in cached strategy)")
+    
+    if 'annotated' not in applied_strategy_filters and annotated:
+        filters_to_apply['annotated'] = annotated
+        logger.debug("Will apply annotated filter (not used in cached strategy)")
+    
+    if 'lineage' not in applied_strategy_filters and lineage:
+        filters_to_apply['lineage'] = lineage
+        logger.debug("Will apply lineage filter: %s (not used in cached strategy)", lineage)
+    
+    # API-only filters (always apply if specified since they're never in cached strategy)
+    if geographic_location:
+        filters_to_apply['geographic_location'] = geographic_location
+        logger.debug("Will apply geographic_location filter: %s (API-only)", geographic_location)
+    
+    if refseq_only:
+        filters_to_apply['refseq_only'] = refseq_only
+        logger.debug("Will apply refseq_only filter (API-only)")
+    
+    if min_release_date:
+        filters_to_apply['min_release_date'] = min_release_date
+        logger.debug("Will apply min_release_date filter: %s (API-only)", min_release_date)
+    
+    # If no filters to apply, return all metadata unchanged
+    if not filters_to_apply:
+        logger.debug("No post-cached-download filters to apply. All %d records will proceed.", len(metadata_dict))
+        return list(metadata_dict.keys()), list(metadata_dict.values())
+    
+    logger.info("Applying post-cached-download filters: %s", list(filters_to_apply.keys()))
+    
+    # Parse min_release_date once for efficiency
+    min_release_date_parsed = None
+    if 'min_release_date' in filters_to_apply:
+        min_release_date_parsed = _parse_date(min_release_date, filtername="min_release_date", verbose=True)
+    
+    # Apply filters to each metadata record
+    filtered_accessions = []
+    filtered_metadata_list = []
+    filter_stats = {
+        'host': 0,
+        'complete_only': 0,
+        'annotated': 0,
+        'lineage': 0,
+        'geographic_location': 0,
+        'refseq_only': 0,
+        'min_release_date': 0,
+    }
+    
+    for accession, metadata in metadata_dict.items():
+        # Apply each filter - if any fails, skip this record
+        
+        # Host filter
+        if 'host' in filters_to_apply:
+            host_name = metadata.get('host_name', '')
+            if not host_name:
+                logger.debug("Skipping %s: missing host metadata", accession)
+                filter_stats['host'] += 1
+                continue
+            if host.lower() not in host_name.lower():
+                logger.debug("Skipping %s: host '%s' does not match '%s'", accession, host_name, host)
+                filter_stats['host'] += 1
+                continue
+        
+        # Complete-only filter
+        if 'complete_only' in filters_to_apply:
+            nuc_completeness = metadata.get('nuc_completeness', '')
+            if not nuc_completeness or nuc_completeness.lower() != 'complete':
+                logger.debug("Skipping %s: completeness '%s' != 'complete'", accession, nuc_completeness)
+                filter_stats['complete_only'] += 1
+                continue
+        
+        # Annotated filter
+        if 'annotated' in filters_to_apply:
+            is_annotated = metadata.get('is_annotated', False)
+            if not is_annotated:
+                logger.debug("Skipping %s: not annotated", accession)
+                filter_stats['annotated'] += 1
+                continue
+        
+        # Lineage filter (SARS-CoV-2 specific)
+        if 'lineage' in filters_to_apply:
+            virus_pangolin = metadata.get('virus_pangolin_classification', '')
+            if not virus_pangolin or lineage.lower() not in virus_pangolin.lower():
+                logger.debug("Skipping %s: lineage '%s' does not match '%s'", accession, virus_pangolin, lineage)
+                filter_stats['lineage'] += 1
+                continue
+        
+        # Geographic location filter (API-only)
+        if 'geographic_location' in filters_to_apply:
+            geo_loc = metadata.get('geo_location', '')
+            if not geo_loc:
+                logger.debug("Skipping %s: missing geographic location metadata", accession)
+                filter_stats['geographic_location'] += 1
+                continue
+            if geographic_location.lower() not in geo_loc.lower():
+                logger.debug("Skipping %s: geo_location '%s' does not match '%s'", accession, geo_loc, geographic_location)
+                filter_stats['geographic_location'] += 1
+                continue
+        
+        # RefSeq only filter (API-only)
+        if 'refseq_only' in filters_to_apply:
+            is_refseq = metadata.get('is_refseq', False)
+            if not is_refseq:
+                logger.debug("Skipping %s: not RefSeq (refseq_only=True)", accession)
+                filter_stats['refseq_only'] += 1
+                continue
+        
+        # Minimum release date filter (API-only)
+        if 'min_release_date' in filters_to_apply:
+            release_date_str = metadata.get('release_date', '')
+            if not release_date_str:
+                logger.debug("Skipping %s: missing release date metadata", accession)
+                filter_stats['min_release_date'] += 1
+                continue
+            release_date = _parse_date(release_date_str.split("T")[0], filtername="release_date")
+            if not release_date or (min_release_date_parsed and release_date < min_release_date_parsed):
+                logger.debug("Skipping %s: release date %s < min %s", accession, release_date, min_release_date_parsed)
+                filter_stats['min_release_date'] += 1
+                continue
+        
+        # All filters passed
+        filtered_accessions.append(accession)
+        filtered_metadata_list.append(metadata)
+    
+    # Log comprehensive filtering statistics
+    logger.info("✅ Post-cached-download filtering complete: %d -> %d records",
+                len(metadata_dict), len(filtered_accessions))
+    
+    total_filtered = sum(filter_stats.values())
+    if total_filtered > 0:
+        logger.info("Filter statistics (records excluded):")
+        for filter_name, count in filter_stats.items():
+            if count > 0:
+                logger.info("  %s: %d records", filter_name, count)
+    
+    return filtered_accessions, filtered_metadata_list
+
+
 def filter_metadata_only(
     metadata_dict,
     min_seq_length=None,
@@ -4923,12 +5147,14 @@ def virus(
             'accession': virus,
             'use_accession': is_accession
         }
-            
-        zip_file = download_sars_cov2_optimized(**params)
-        cached_zip_file = zip_file  # Track for cleanup
-        
+                    
         try:
-            zip_file = download_sars_cov2_optimized(**params)
+            download_result = download_sars_cov2_optimized(**params)
+            # Unpack tuple: (zip_path, applied_filters, missing_filters)
+            zip_file = download_result[0]
+            applied_filters = download_result[1]
+            missing_filters = download_result[2]
+            cached_zip_file = zip_file  # Track for cleanup
             
             cached_sequences, cached_metadata_dict, used_cached_download = process_cached_download(
                 zip_file, virus_type="SARS-CoV-2"
@@ -4936,6 +5162,8 @@ def virus(
             if used_cached_download:
                 logger.info("Cached download completed. Server-side filters (host, complete_only, annotated, lineage) applied.")
                 logger.info("All other filters will be applied in the unified filtering pipeline.")
+                logger.debug("Applied filters: %s", applied_filters)
+                logger.debug("Missing filters (to apply in Step 3b): %s", missing_filters)
         except Exception as cache_error:
             logger.warning("❌ SARS-CoV-2 cached download failed: %s", cache_error)
             logger.info("Falling back to regular API workflow...")
@@ -4963,12 +5191,14 @@ def virus(
             'accession': virus,
             'use_accession': is_accession
         }
-            
-        zip_file = download_alphainfluenza_optimized(**params)
-        cached_zip_file = zip_file  # Track for cleanup
-        
+                    
         try:
-            zip_file = download_alphainfluenza_optimized(**params)
+            download_result = download_alphainfluenza_optimized(**params)
+            # Unpack tuple: (zip_path, applied_filters, missing_filters)
+            zip_file = download_result[0]
+            applied_filters = download_result[1]
+            missing_filters = download_result[2]
+            cached_zip_file = zip_file  # Track for cleanup
             
             cached_sequences, cached_metadata_dict, used_cached_download = process_cached_download(
                 zip_file, virus_type="Alphainfluenza"
@@ -4976,6 +5206,8 @@ def virus(
             if used_cached_download:
                 logger.info("Cached download completed. Server-side filters (host, complete_only, annotated) applied.")
                 logger.info("All other filters will be applied in the unified filtering pipeline.")
+                logger.debug("Applied filters: %s", applied_filters)
+                logger.debug("Missing filters (to apply in Step 3b): %s", missing_filters)
         except Exception as cache_error:
             logger.warning("❌ Alphainfluenza cached download failed: %s", cache_error)
             logger.info("Falling back to regular API workflow...")
@@ -4989,11 +5221,11 @@ def virus(
 
 
     try:
-    # SECTION 3: METADATA RETRIEVAL WHILE APPLYING SERVER-SIDE FILTERS
+    # SECTION 3: METADATA RETRIEVAL AND FILTERING
         # Check if we're using cached download data
         if used_cached_download and cached_metadata_dict:
             logger.info("=" * 60)
-            logger.info("STEP 3: Saving metadata from cached download")
+            logger.info("STEP 3: Applying metadata filters for cached download")
             logger.info("=" * 60)
             logger.info("Using metadata from cached download (skipping API metadata fetch)")
             metadata_dict = cached_metadata_dict
@@ -5009,6 +5241,29 @@ def virus(
                 logger.info("✅ Saved cached metadata JSONL: %s", output_api_metadata_jsonl)
             except Exception as e:
                 logger.warning("❌ Failed to save cached metadata JSONL: %s", e)
+            
+            # STEP 3b: Apply filters that were not used in the cached strategy
+            # Use the missing_filters directly from the cached download execution
+            # These are the filters that were requested but not applied by the strategy
+            logger.debug("Using missing_filters from cached strategy: %s", missing_filters)
+            
+            # Apply post-cached-download filters (unused server-side filters + API-only filters)
+            filtered_accessions_step3, filtered_metadata_step3 = filter_cached_metadata_for_unused_filters(
+                metadata_dict,
+                host=host,
+                complete_only=(nuc_completeness == "complete"),
+                annotated=annotated,
+                lineage=lineage,
+                geographic_location=geographic_location,
+                refseq_only=refseq_only,
+                min_release_date=min_release_date,
+                applied_strategy_filters=missing_filters,
+            )
+            
+            # Update metadata_dict and accessions for next steps
+            metadata_dict = {acc: md for acc, md in zip(filtered_accessions_step3, filtered_metadata_step3)}
+            logger.info("After post-cached-download filtering: %d records remain", len(metadata_dict))
+            
         else:
             # Regular API metadata fetch
             logger.info("=" * 60)
