@@ -1,4 +1,4 @@
-Pytest results (Python 3.12) - 2026-02-09T16:26:02Z
+Pytest results (Python 3.12) - 2026-02-12T16:25:17Z
 
 ============================= test session starts ==============================
 platform linux -- Python 3.12.12, pytest-9.0.2, pluggy-1.6.0 -- /opt/hostedtoolcache/Python/3.12.12/x64/bin/python
@@ -52,7 +52,7 @@ tests/test_blat.py::TestBlat::test_blat_nt_protein PASSED                [ 15%]
 tests/test_blat.py::TestBlat::test_blat_nt_transDNA PASSED               [ 15%]
 tests/test_blat.py::TestBlat::test_blat_nt_txt PASSED                    [ 16%]
 tests/test_blat.py::TestBlat::test_blat_shortseq PASSED                  [ 16%]
-tests/test_cbio.py::TestCbioSearch::test_cbio_search FAILED              [ 17%]
+tests/test_cbio.py::TestCbioSearch::test_cbio_search PASSED              [ 17%]
 tests/test_cbio.py::TestCbio::test_cbio_download PASSED                  [ 17%]
 tests/test_cbio.py::TestCbio::test_cbio_download_partially_existing_files PASSED [ 17%]
 tests/test_cbio.py::TestCbio::test_error_cbio_download PASSED            [ 18%]
@@ -273,158 +273,6 @@ tests/test_virus.py::TestVirus::test_virus_with_multiple_filters PASSED  [ 99%]
 tests/test_virus.py::TestVirus::test_virus_with_protein_count_filters PASSED [ 99%]
 tests/test_virus.py::TestVirus::test_virus_with_refseq_filter PASSED     [100%]
 
-=================================== FAILURES ===================================
-_______________________ TestCbioSearch.test_cbio_search ________________________
-
-self = <tests.test_cbio.TestCbioSearch testMethod=test_cbio_search>
-
-    def assert_equal(self: unittest.TestCase):
-        test = name
-        expected_result = td[test]["expected_result"]
->       result_to_test = do_call(func, td[test]["args"])
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-tests/from_json.py:65: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-func = <function cbio_search at 0x7f9fd3ba5d00>
-args = {'key_words': ['esophag', 'ovary', 'ovarian']}
-
-    def do_call(func, args):
-        if isinstance(args, dict):
->           return func(**args)
-                   ^^^^^^^^^^^^
-
-tests/from_json.py:57: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-key_words = ['esophag', 'ovary', 'ovarian']
-
-    def cbio_search(key_words):
-        """
-        Find cBioPortal study IDs by keyword.
-    
-        Args:
-        key_words           list of keywords to search for - use tissues related to tissue or cancer type of interest (e.g., esophag, ovarian, etc)
-    
-        Return:
-    
-        :return:            list of study IDs that match the keywords
-        """
-    
-        try:
-            from bravado.client import SwaggerClient
-        except ImportError:
-            logger.error(
-                """
-                Some third-party dependencies are missing. Please run the following command:
-                >>> gget.setup('cbio') or $ gget setup cbio
-    
-                Alternative: Install the bravado package using pip (https://pypi.org/project/bravado).
-                """
-            )
-            return []
-    
-        if isinstance(key_words, str):
-            key_words = [key_words]
-    
->       api = SwaggerClient.from_url(
-            "https://www.cbioportal.org/api/v2/api-docs",
-            config={
-                "validate_requests": False,
-                "validate_responses": False,
-                "validate_swagger_spec": False,
-            },
-        )
-
-gget/gget_cbio.py:336: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-cls = <class 'bravado.client.SwaggerClient'>
-spec_url = 'https://www.cbioportal.org/api/v2/api-docs'
-http_client = <class 'bravado.requests_client.RequestsClient'>()
-request_headers = None
-config = {'validate_requests': False, 'validate_responses': False, 'validate_swagger_spec': False}
-
-    @classmethod
-    def from_url(cls, spec_url, http_client=None, request_headers=None, config=None):
-        """Build a :class:`SwaggerClient` from a url to the Swagger
-        specification for a RESTful API.
-    
-        :param spec_url: url pointing at the swagger API specification
-        :type spec_url: str
-        :param http_client: an HTTP client used to perform requests
-        :type  http_client: :class:`bravado.http_client.HttpClient`
-        :param request_headers: Headers to pass with http requests
-        :type  request_headers: dict
-        :param config: Config dict for bravado and bravado_core.
-            See CONFIG_DEFAULTS in :module:`bravado_core.spec`.
-            See CONFIG_DEFAULTS in :module:`bravado.client`.
-    
-        :rtype: :class:`SwaggerClient`
-        """
-        log.debug(u"Loading from %s", spec_url)
-        http_client = http_client or RequestsClient()
-        loader = Loader(http_client, request_headers=request_headers)
->       spec_dict = loader.load_spec(spec_url)
-                    ^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/bravado/client.py:98: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-self = <bravado.swagger_model.Loader object at 0x7f9fd2554440>
-spec_url = 'https://www.cbioportal.org/api/v2/api-docs', base_url = None
-
-    def load_spec(self, spec_url, base_url=None):
-        """Load a Swagger Spec from the given URL
-    
-        :param spec_url: URL to swagger.json
-        :param base_url: TODO: need this?
-        :returns: json spec in dict form
-        """
-        response = request(
-            self.http_client,
-            spec_url,
-            self.request_headers,
->       ).result()
-          ^^^^^^^^
-
-/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/bravado/swagger_model.py:105: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-self = <bravado.http_future.HttpFuture object at 0x7f9fd25545c0>, timeout = None
-
-    def result(
-        self,
-            timeout=None,  # type: typing.Optional[float]
-    ):
-        # type: (...) -> typing.Union[T, IncomingResponse, typing.Tuple[T, IncomingResponse]]
-        """DEPRECATED: please use the `response()` method instead.
-    
-        Blocking call to wait for and return the unmarshalled swagger result.
-    
-        :param timeout: Number of seconds to wait for a response. Defaults to
-            None which means wait indefinitely.
-        :type timeout: float
-        :return: Depends on the value of also_return_response sent in
-            to the constructor.
-        """
-        incoming_response = self._get_incoming_response(timeout)
-        swagger_result = self._get_swagger_result(incoming_response)
-    
-        if self.operation is not None:
-            swagger_result = typing.cast(T, swagger_result)
-            if self.request_config.also_return_response:
-                return swagger_result, incoming_response
-            return swagger_result
-    
-        if 200 <= incoming_response.status_code < 300:
-            return incoming_response
-    
->       raise make_http_exception(response=incoming_response)
-E       bravado.exception.HTTPTooManyRequests: 429 Too Many Requests
-
-/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/bravado/http_future.py:282: HTTPTooManyRequests
 =============================== warnings summary ===============================
 tests/test_blast.py::TestBlast::test_blast_nt
   /home/runner/work/gget/gget/gget/gget_blast.py:327: FutureWarning: Passing literal html to 'read_html' is deprecated and will be removed in a future version. To read from a literal string, wrap it in a 'StringIO' object.
@@ -451,6 +299,10 @@ tests/test_cbio.py::TestCbioSearch::test_cbio_search
 tests/test_cbio.py::TestCbioSearch::test_cbio_search
   /opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/bravado_core/spec.py:14: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
     from jsonschema.validators import RefResolver
+
+tests/test_cbio.py: 16 warnings
+  /opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/bravado_core/model.py:888: DeprecationWarning: jsonschema.RefResolver.in_scope is deprecated and will be removed in a future release.
+    with spec.resolver.in_scope(additional_uri):
 
 tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
   /home/runner/work/gget/gget/gget/gget_cellxgene.py:222: FutureWarning: The argument `column_names` is deprecated and will be removed in a future release. Please use `obs_column_names` and `var_column_names` instead.
@@ -532,9 +384,9 @@ gget/gget_8cube.py            83     28    66%   26-27, 34-43, 93, 105, 112, 115
 gget/gget_alphafold.py       362    321    11%   86-108, 115-116, 123-149, 181-186, 233-867
 gget/gget_archs4.py           79     13    84%   75-78, 84, 107, 123-126, 139-142, 148, 170, 198-201, 207
 gget/gget_bgee.py             56      6    89%   60, 83, 103, 130, 154, 175
-gget/gget_blast.py           127     41    68%   92, 124-142, 163-165, 204, 207, 246-248, 277, 290-293, 296-299, 302-303, 322-325, 332-333, 336-341, 346, 351-354
+gget/gget_blast.py           127     36    72%   92, 124-142, 163-165, 204, 207, 251-255, 296-299, 302-303, 322-325, 332-333, 336-341, 346, 351-354
 gget/gget_blat.py             86     10    88%   58-62, 95, 136, 139, 168, 232-233, 239
-gget/gget_cbio.py            524    415    21%   28, 39-67, 77-87, 136-137, 143-147, 154-157, 161, 164, 172-177, 208, 226, 265, 271-275, 278, 282-294, 296, 302-305, 322-331, 334, 345-372, 376-389, 393-416, 420-441, 447-450, 454-473, 477, 494-537, 540-757, 760-789, 802-1164, 1218-1254
+gget/gget_cbio.py            524    403    23%   28, 39-67, 77-87, 136-137, 143-147, 154-157, 161, 164, 172-177, 208, 226, 265, 271-275, 278, 282-294, 296, 322-331, 334, 376-389, 393-416, 420-441, 447-450, 454-473, 477, 494-537, 540-757, 760-789, 802-1164, 1218-1254
 gget/gget_cellxgene.py        53      9    83%   21-22, 140-149, 176, 215, 231, 247
 gget/gget_cosmic.py          277    153    45%   24-26, 30-82, 94-109, 112-114, 117-119, 122-126, 131-135, 140-142, 155-168, 189-202, 220, 242-243, 283-308, 311, 396-398, 410, 416, 424, 427-429, 454-472, 496-621, 637-646, 649, 651, 653, 852-855, 868-870, 879-891, 896-901
 gget/gget_diamond.py          98     26    73%   16, 69, 75, 77, 95, 98-99, 105, 111, 117-121, 130-132, 145, 147, 160, 162, 181, 184, 216-217, 223
@@ -554,18 +406,16 @@ gget/gget_virus.py          2409   1189    51%   131, 192, 234, 237, 255, 259, 2
 gget/main.py                 837    837     0%   1-3773
 gget/utils.py                448     77    83%   31, 36-42, 72, 95, 119, 122, 186, 193, 245, 257, 285, 296, 347, 367, 378, 411-412, 452-453, 468-469, 476-478, 494-495, 501-502, 623-639, 676, 695, 757, 797, 837, 953, 961, 969-989, 994, 999, 1005-1006, 1024-1025, 1116, 1140-1141, 1156, 1164
 --------------------------------------------------------
-TOTAL                       7701   3818    50%
+TOTAL                       7701   3801    51%
 ============================= slowest 10 durations =============================
-273.47s call     tests/test_blast.py::TestBlast::test_blast_nt
-52.35s call     tests/test_virus.py::TestVirus::test_virus_host_filter_verification
-51.73s call     tests/test_virus.py::TestVirus::test_virus_with_host_filter
-28.90s call     tests/test_virus.py::TestVirus::test_virus_with_lab_passaged_filter
-28.75s call     tests/test_virus.py::TestVirus::test_virus_with_has_proteins_filter
-27.76s call     tests/test_virus.py::TestVirus::test_virus_integer_virus_id
-27.42s call     tests/test_virus.py::TestVirus::test_virus_with_annotated_filter
-26.92s call     tests/test_search.py::TestSearch::test_search_gene_two_sw_limit
-26.25s call     tests/test_virus.py::TestVirus::test_virus_with_max_ambiguous_chars_filter
-23.65s call     tests/test_virus.py::TestVirus::test_virus_with_protein_count_filters
-=========================== short test summary info ============================
-FAILED tests/test_cbio.py::TestCbioSearch::test_cbio_search - bravado.exception.HTTPTooManyRequests: 429 Too Many Requests
-=========== 1 failed, 263 passed, 257 warnings in 1032.83s (0:17:12) ===========
+625.93s call     tests/test_blast.py::TestBlast::test_blast_nt
+57.05s call     tests/test_virus.py::TestVirus::test_virus_with_has_proteins_filter
+47.98s call     tests/test_virus.py::TestVirus::test_virus_with_collection_date_filters
+39.21s call     tests/test_search.py::TestSearch::test_search_gene_two_sw_limit
+36.95s call     tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
+29.56s call     tests/test_virus.py::TestVirus::test_virus_integer_virus_id
+29.43s call     tests/test_virus.py::TestVirus::test_virus_with_lab_passaged_filter
+27.40s call     tests/test_virus.py::TestVirus::test_virus_with_max_ambiguous_chars_filter
+24.29s call     tests/test_virus.py::TestVirus::test_virus_with_protein_count_filters
+23.72s call     tests/test_virus.py::TestVirus::test_virus_with_annotated_filter
+================ 264 passed, 273 warnings in 1329.65s (0:22:09) ================
