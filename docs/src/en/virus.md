@@ -13,14 +13,15 @@ This module was written by [Ferdous Nasri](https://github.com/ferbsx).
 
 **Positional argument**  
 `virus`  
-Virus taxon name (e.g. 'Zika virus'), taxon ID (e.g. 2697049), accession number (e.g. 'NC\_045512.2'), space-separated list of accessions (e.g. 'NC\_045512.2 MN908947.3 MT020781.1'), or path to a text file containing accession numbers (one per line, when combined with `--is_accession`).  
+Virus taxon name (e.g. 'Zika virus'), taxon ID (e.g. '2697049'), NCBI accession number (e.g. 'NC\_045512.2'), space-separated list of accessions (e.g. 'NC\_045512.2 MN908947.3 MT020781.1'), or path to a text file containing accession numbers (one per line) (e.g. 'path/to/text.txt').  
+Add `--is_accession` when passing an NCBI accession number. Add `--is_sars_cov2` or `is_alphainfluenza` for optimized download of SARS-CoV2 or Alphainfluenza sequences, respectively.
 
 **Optional arguments**   
 
 _Host filters_  
 
 `--host`  
-Filter by host organism name or NCBI Taxonomy ID (e.g. 'human', 'Aedes aegypti', `1335626`).
+Filter by host organism name or NCBI Taxonomy ID (e.g., 'human', 'Aedes aegypti', `1335626`).
 
 _Sequence & Gene filters_  
 
@@ -55,7 +56,7 @@ Filter by maximum number of mature peptides.
 Filter by maximum number of ambiguous nucleotide characters (N's).
 
 `--has_proteins`  
-Filter for sequences containing specific proteins or genes (e.g. 'spike', 'ORF1ab'). Can be a single protein name or a list of protein names.
+Filter for sequences containing specific proteins or genes (e.g., 'spike', 'ORF1ab'). Can be a single protein name or a list of protein names.  
 Python: `has_proteins="spike"` or `has_proteins=["spike", "ORF1ab"]`
 
 _Date filters_  
@@ -75,7 +76,7 @@ Filter by maximum sequence release date (YYYY-MM-DD).
 _Location & Submitter filters_
 
 `--geographic_location`  
-Filter by geographic location of sample collection (e.g. 'USA', 'Asia').
+Filter by geographic location of sample collection (e.g., 'USA', 'Asia').
 
 `--submitter_country`  
 Filter by the country of the sequence submitter.
@@ -96,19 +97,19 @@ Python: `outfolder="path/to/folder"`
 
 **Flags**  
 `-a` `--is_accession`  
-Flag to indicate that the `virus` positional argument is an accession number, space-separated list of accessions, or path to a text file containing accession numbers (one per line). For SARS-CoV-2 and Alphainfluenza cached downloads, supports:
-  - Single accession: `NC_045512.2`
-  - Space-separated list: `NC_045512.2 MN908947.3 MT020781.1`
+Flag to indicate that the `virus` positional argument is an accession number, a space-separated list of accessions, or a path to a text file containing accession numbers (one per line). For SARS-CoV-2 and Alphainfluenza cached downloads, supports:  
+  - Single accession: `NC_045512.2`  
+  - Space-separated list: `NC_045512.2 MN908947.3 MT020781.1`  
   - Text file path: `accessions.txt` (one accession per line)
 
 `--refseq_only`  
 Flag to limit search to RefSeq genomes only (higher quality, curated sequences).
 
 `--is_sars_cov2`  
-Use NCBI's optimized cached data packages for a SARS-CoV-2 query. This provides faster and more reliable downloads. The system can auto-detect SARS-CoV-2 taxon-name queries, but for accession-based queries you must set this flag explicitly.
+Use NCBI's optimized cached data packages for a SARS-CoV-2 query. This provides faster and more reliable downloads. The system can auto-detect SARS-CoV-2 taxon-name queries, but for accession-based queries, you must set this flag explicitly.
 
 `--is_alphainfluenza`  
-Use NCBI's optimized cached data packages for an Alphainfluenza (Influenza A virus) query. This provides faster and more reliable downloads for large Influenza A datasets. The system can auto-detect Alphainfluenza taxon-name queries, but for accession-based queries you must set this flag explicitly.
+Use NCBI's optimized cached data packages for an Alphainfluenza (Influenza A virus) query. This provides faster and more reliable downloads for large Influenza A datasets. The system can auto-detect Alphainfluenza taxon-name queries, but for accession-based queries, you must set this flag explicitly.
 
 `-g` `--genbank_metadata`  
 Fetch and save additional detailed metadata from GenBank, including collection dates, host details, and publication references, in a separate `{virus}_genbank_metadata.csv` file (plus full XML/CSV dumps).
