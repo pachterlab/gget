@@ -26,7 +26,8 @@ Filter by host organism name or NCBI Taxonomy ID (e.g., 'human', 'Aedes aegypti'
 _Sequence & Gene filters_  
 
 `--nuc_completeness`  
-Filter by nucleotide completeness. One of: 'complete' or 'partial'.
+Filter by nucleotide completeness. One of: 'complete' or 'partial'.  
+Set to 'complete' to only return full-length viral genomes; set to 'partial' to only return sequences that are NOT full-length viral genomes.  
 
 `--min_seq_length`  
 Filter by minimum sequence length.
