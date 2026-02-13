@@ -133,7 +133,7 @@ Bandera para conservar todos los archivos intermedios/temporales generados duran
 ⚠️ **ADVERTENCIA**: Descarga TODAS las accesiones de virus desde NCBI (toda la taxonomía de Virus, taxon ID 10239). Este es un conjunto de datos extremadamente grande que puede tardar muchas horas en descargarse y requerir un espacio considerable en disco. Úsalo con precaución y asegúrate de tener almacenamiento y ancho de banda adecuados. Cuando esta bandera está activa, el argumento `virus` se ignora.
 
 `-q` `--quiet`  
-Solo línea de comandos. Evita que se muestre información de progreso.  
+Uso limitado para Terminal. Impide la información de progreso de ser exhibida durante la ejecución del programa.  
 Para Python, usa `verbose=False`.  
 
 ### Ejemplo
