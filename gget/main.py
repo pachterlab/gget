@@ -2663,6 +2663,12 @@ def main():
         help="Filter for sequences with complete protein annotations (protein_count > 0 or gene_count > 0).",
     )
     parser_virus.add_argument(
+        "--segment",
+        type=str,
+        required=False,
+        help="Filter for sequences with specific segment(s). Can be a single segment name (e.g., 'HA') or comma-separated list (e.g., 'HA,NA,PB1'). Case-insensitive matching against metadata 'segment' field. Any matching segment will keep the sequence.",
+    )
+    parser_virus.add_argument(
         "--lineage",
         type=str,
         required=False,
@@ -3770,6 +3776,11 @@ def main():
         if has_proteins_arg and ',' in has_proteins_arg:
             has_proteins_arg = [p.strip() for p in has_proteins_arg.split(',')]
         
+        # Parse segment argument - convert comma-separated string to list
+        segment_arg = args.segment
+        if segment_arg and ',' in segment_arg:
+            segment_arg = [s.strip() for s in segment_arg.split(',')]
+        
         virus(
             virus=args.virus,
             is_accession=args.is_accession,
@@ -3799,8 +3810,10 @@ def main():
             min_protein_count=args.min_protein_count,
             max_protein_count=args.max_protein_count,
             max_ambiguous_chars=args.max_ambiguous_chars,
+            segment=segment_arg,
             lineage=args.lineage,
             genbank_metadata=args.genbank_metadata,
             genbank_batch_size=args.genbank_batch_size,
             download_all_accessions=args.download_all_accessions,
+            verbose=args.quiet,
         )
