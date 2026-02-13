@@ -133,7 +133,8 @@ Flag to keep all intermediate/temporary files generated during processing. By de
 ⚠️ **WARNING**: Downloads ALL virus accessions from NCBI (entire Viruses taxonomy, taxon ID 10239). This is an extremely large dataset that can take many hours to download and require significant disk space. Use with caution and ensure you have adequate storage and bandwidth. When this flag is set, the `virus` argument is ignored.
 
 `-q` `--quiet`  
-Command-line only. Prevents progress information from being displayed.
+Command-line only. Prevents progress information from being displayed.  
+Python: Use `verbose=False` to prevent progress information from being displayed. 
 
 ### Example
 
