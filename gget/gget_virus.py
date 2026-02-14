@@ -49,6 +49,7 @@ GENBANK_INTER_BATCH_DELAY = 0.5  # Delay in seconds between GenBank batch reques
 GENBANK_MAX_BATCH_SIZE_WARNING = 500  # Warn user if batch size exceeds this
 GENBANK_RETRY_ATTEMPTS = 5  # Number of retry attempts for GenBank requests
 GENBANK_XML_CHUNK_SIZE = 10000  # Rows to process before writing to CSV
+GENBANK_COMPLEXITY = 1 # Complexity level with only the accessions requested. All levels explained here: https://www.ncbi.nlm.nih.gov/books/NBK25499/#chapter4.EFetch
 
 # Subprocess and Download Configuration
 SUBPROCESS_VERSION_TIMEOUT = 5  # Timeout for version check commands
@@ -1620,6 +1621,9 @@ def process_cached_download(zip_file, virus_type="virus"):
                             # Extract segment
                             metadata['segment'] = report.get('segment')
                             
+                            # Extract vaccine strain flag
+                            metadata['is_vaccine_strain'] = report.get('is_vaccine_strain', False)
+                            
                             cached_metadata_dict[accession] = metadata
                             
                 logger.info("Loaded %d metadata records from %s", len(cached_metadata_dict), metadata_file)
@@ -2689,6 +2693,7 @@ def load_metadata_from_api_reports(api_reports):
                 "proteinCount": report.get("protein_count"),  # Number of proteins
                 "maturePeptideCount": report.get("mature_peptide_count"),  # Number of mature peptides
                 "segment": report.get("segment"),  # Virus segment identifier (e.g., 'HA', 'NA', 'PB1')
+                "isVaccineStrain": report.get("is_vaccine_strain", False),  # Whether this is a vaccine strain
             }
             
             # Store the metadata using accession as the key
@@ -3395,6 +3400,7 @@ def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_fil
         "Nuc Completeness",   # Completeness status (complete/partial)
         "Proteins/Segments",  # Protein/segment information from FASTA headers
         "Segment",            # Virus segment identifier (e.g., 'HA', 'NA', '4', '6')
+        "Is Vaccine Strain",  # Whether this sequence is from a vaccine strain
         "Geographic Region",  # Geographic region where sample was collected
         "Geographic Location",# Specific geographic location
         "Host",               # Host organism name
@@ -3459,7 +3465,8 @@ def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_fil
             "Length": metadata.get("length", pd.NA),
             "Nuc Completeness": metadata.get("completeness", pd.NA),
             "Proteins/Segments": protein_headers[i] if i < len(protein_headers) else pd.NA,
-            "Segment": metadata.get("segment", pd.NA),  # Virus segment identifier
+            "Segment": metadata.get("segment", pd.NA), 
+            "Is Vaccine Strain": metadata.get("isVaccineStrain", metadata.get("is_vaccine_strain", pd.NA)),
             
             # Geographic information
             "Geographic Region": metadata.get("region", pd.NA),
@@ -3715,7 +3722,7 @@ def _fetch_genbank_batch(accessions, failed_log_path=None):
         'id': accession_string,       # Comma-separated accession numbers
         'rettype': 'gb',              # GenBank format
         'retmode': 'xml',             # XML output for structured parsing
-        'complexity': 0,              # Requesting the entire blob of data content to be returned
+        'complexity': GENBANK_COMPLEXITY,              
     }
     
     # Create a requests.Session with urllib3 Retry/HTTPAdapter for robust retries
@@ -4233,6 +4240,7 @@ def save_genbank_metadata_to_csv(genbank_metadata, output_file, virus_metadata=N
         "Nuc Completeness",   # Completeness status (complete/partial)
         "Proteins/Segments",  # Protein/segment information from FASTA headers
         "Segment",            # Virus segment identifier (e.g., 'HA', 'NA', '4', '6')
+        "Is Vaccine Strain",  # Whether this sequence is from a vaccine strain
         "Geographic Region",  # Geographic region where sample was collected
         "Geographic Location",# Specific geographic location
         "Host",               # Host organism name
@@ -4304,6 +4312,7 @@ def save_genbank_metadata_to_csv(genbank_metadata, output_file, virus_metadata=N
             "Nuc Completeness": metadata.get('completeness', pd.NA),
             "Proteins/Segments": pd.NA,  # Not available from GenBank XML parsing
             "Segment": metadata.get('segment', pd.NA),  # Virus segment identifier
+            "Is Vaccine Strain": metadata.get('isVaccineStrain', metadata.get('is_vaccine_strain', pd.NA)),
             
             # Geographic information
             "Geographic Region": metadata.get('region', pd.NA),
@@ -4575,6 +4584,7 @@ def filter_metadata_only(
     max_protein_count=None,
     annotated=None,
     segment=None,
+    is_vaccine_strain=False,
 ):
     """
     Filter metadata records based on metadata-only criteria.
@@ -4595,12 +4605,12 @@ def filter_metadata_only(
     logger.debug("Applying metadata-only filters: seq_length(%s-%s), gene_count(%s-%s), "
                 "completeness(%s), lab_passaged(%s), annotated(%s), "
                 "submitter_country(%s), collection_date(%s-%s), max_release_date(%s), "
-                "peptide_count(%s-%s), protein_count(%s-%s), segment(%s)",
+                "peptide_count(%s-%s), protein_count(%s-%s), segment(%s), is_vaccine_strain(%s)",
                 min_seq_length, max_seq_length, min_gene_count, max_gene_count,
                 nuc_completeness, lab_passaged, annotated,
                 submitter_country, min_collection_date, max_collection_date, max_release_date, 
                 min_mature_peptide_count, max_mature_peptide_count,
-                min_protein_count, max_protein_count, segment)
+                min_protein_count, max_protein_count, segment, is_vaccine_strain)
     
     # Convert date filters to datetime objects for proper comparison
     min_collection_date = (
@@ -4641,6 +4651,7 @@ def filter_metadata_only(
         'mature_peptide_count': 0,
         'protein_count': 0,
         'segment': 0,
+        'is_vaccine_strain': 0,
     }
 
     logger.info("Processing %d metadata records...", total_sequences)
@@ -4855,6 +4866,14 @@ def filter_metadata_only(
                 filter_stats['segment'] += 1
                 continue
 
+        # FILTER 12: Vaccine strain filter
+        if is_vaccine_strain:
+            is_vaccine = metadata.get("isVaccineStrain", metadata.get("is_vaccine_strain", False))
+            if not is_vaccine:
+                logger.debug("Skipping %s: not a vaccine strain", accession)
+                filter_stats['is_vaccine_strain'] += 1
+                continue
+
         # If we reach this point, the metadata record has passed all filters
         filtered_accessions.append(accession)
         filtered_metadata_list.append(metadata)
@@ -4923,6 +4942,7 @@ def virus(
     is_sars_cov2=False,
     is_alphainfluenza=False,
     segment=None,
+    is_vaccine_strain=False,
     lineage=None,
     genbank_metadata=False,
     genbank_batch_size=200,
@@ -4968,6 +4988,8 @@ def virus(
         max_ambiguous_chars (int): Maximum ambiguous nucleotide character filter
         is_sars_cov2 (bool): Flag to indicate if the accession is for SARS-CoV-2, enabling optimized download method (default: False)
         is_alphainfluenza (bool): Flag to indicate if the query is for Alphainfluenza, enabling optimized download method (default: False)
+        segment (str/list): Virus segment filter (e.g., 'HA', 'NA', or 'HA,NA')
+        is_vaccine_strain (bool): Filter for vaccine strains only. If True, only sequences marked as vaccine strains will be returned (default: False)
         lineage (str): Virus lineage filter (SARS-CoV-2 specific)
         genbank_metadata (bool): Whether to fetch detailed GenBank metadata (default: False)
         genbank_batch_size (int): Batch size for GenBank API requests (default: 200)
@@ -5021,8 +5043,8 @@ def virus(
 
     logger.info("Query parameters: virus='%s', is_accession=%s, outfolder='%s'",
                 virus, is_accession, outfolder)
-    logger.debug("Applied filters: host=%s, seq_length=(%s-%s), gene_count=(%s-%s), completeness=%s, annotated=%s, refseq_only=%s, keep_temp=%s, lab_passaged=%s, geographic_location=%s, submitter_country=%s, collection_date=(%s-%s), release_date=(%s-%s), protein_count=(%s-%s), mature_peptide_count=(%s-%s), max_ambiguous=%s, has_proteins=%s, proteins_complete=%s, genbank_metadata=%s, genbank_batch_size=%s",
-    host, min_seq_length, max_seq_length, min_gene_count, max_gene_count, nuc_completeness, annotated, refseq_only, keep_temp, lab_passaged, geographic_location, submitter_country, min_collection_date, max_collection_date, min_release_date, max_release_date, min_protein_count, max_protein_count, min_mature_peptide_count, max_mature_peptide_count, max_ambiguous_chars, has_proteins, proteins_complete, genbank_metadata, genbank_batch_size)
+    logger.debug("Applied filters: host=%s, seq_length=(%s-%s), gene_count=(%s-%s), completeness=%s, annotated=%s, refseq_only=%s, keep_temp=%s, lab_passaged=%s, geographic_location=%s, submitter_country=%s, collection_date=(%s-%s), release_date=(%s-%s), protein_count=(%s-%s), mature_peptide_count=(%s-%s), max_ambiguous=%s, has_proteins=%s, proteins_complete=%s, segment=%s, is_vaccine_strain=%s, genbank_metadata=%s, genbank_batch_size=%s",
+    host, min_seq_length, max_seq_length, min_gene_count, max_gene_count, nuc_completeness, annotated, refseq_only, keep_temp, lab_passaged, geographic_location, submitter_country, min_collection_date, max_collection_date, min_release_date, max_release_date, min_protein_count, max_protein_count, min_mature_peptide_count, max_mature_peptide_count, max_ambiguous_chars, has_proteins, proteins_complete, segment, is_vaccine_strain, genbank_metadata, genbank_batch_size)
 
     # SECTION 1: INPUT VALIDATION AND OUTPUT DIRECTORY SETUP
     # Validate and normalize input arguments before proceeding
@@ -5080,6 +5102,11 @@ def virus(
     if genbank_metadata is not None and not isinstance(genbank_metadata, bool):
         raise TypeError(
             "Argument 'genbank_metadata' must be a boolean (True or False)."
+        )
+
+    if is_vaccine_strain is not None and not isinstance(is_vaccine_strain, bool):
+        raise TypeError(
+            "Argument 'is_vaccine_strain' must be a boolean (True or False)."
         )
     
     if genbank_batch_size is not None:
@@ -5455,6 +5482,7 @@ def virus(
             # annotated=False needs client-side filtering (annotated=True is handled server-side)
             "annotated": annotated if annotated is False else None,
             "segment": segment,
+            "is_vaccine_strain": is_vaccine_strain,
         }
 
         all_metadata_filters_none_except_nuc = all(
