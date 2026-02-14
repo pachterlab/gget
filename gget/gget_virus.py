@@ -32,10 +32,10 @@ from .compile import PACKAGE_PATH
 
 # API and Network Configuration
 API_PAGE_SIZE = 1000  # Maximum records per API request (NCBI limit)
-API_REQUEST_TIMEOUT = 30  # Timeout in seconds for API requests
+API_REQUEST_TIMEOUT = 120  # Timeout in seconds for API requests (increased for large pages)
 API_MAX_RETRIES = 3  # Maximum retry attempts for failed API requests
 API_INITIAL_RETRY_DELAY = 2.0  # Initial delay in seconds between retries
-API_RETRY_BACKOFF_MULTIPLIER = 1.5  # Multiplier for exponential backoff
+API_RETRY_BACKOFF_MULTIPLIER = 3.0  # Multiplier for exponential backoff
 
 # E-utilities Configuration
 EUTILS_TIMEOUT = 300  # Timeout in seconds for E-utilities requests
@@ -982,7 +982,7 @@ def fetch_virus_metadata(
             max_retries=API_MAX_RETRIES,
             initial_delay=API_INITIAL_RETRY_DELAY,
             backoff_multiplier=API_RETRY_BACKOFF_MULTIPLIER,
-            retryable_exceptions=(requests.exceptions.ConnectionError, requests.exceptions.HTTPError),
+            retryable_exceptions=(requests.exceptions.ConnectionError, requests.exceptions.HTTPError, requests.exceptions.Timeout),
             failed_commands=failed_commands,
         )
         
@@ -1617,6 +1617,9 @@ def process_cached_download(zip_file, virus_type="virus"):
                             metadata['protein_count'] = report.get('protein_count')
                             metadata['mature_peptide_count'] = report.get('mature_peptide_count')
                             
+                            # Extract segment
+                            metadata['segment'] = report.get('segment')
+                            
                             cached_metadata_dict[accession] = metadata
                             
                 logger.info("Loaded %d metadata records from %s", len(cached_metadata_dict), metadata_file)
@@ -1707,7 +1710,7 @@ def _monitor_subprocess_with_progress(process, cmd, timeout=None, progress_timeo
             # If we see any progress indicator, update the last_progress time
             if any(indicator.lower() in stderr.lower() for indicator in PROGRESS_INDICATORS):
                 last_progress = time.time()
-                logger.debug("Progress detected, updating last_progress time")
+                # logger.debug("Progress detected, updating last_progress time")
         
         # Check timeout conditions:
         # 1. Less than total timeout, continue
@@ -1786,19 +1789,19 @@ def _download_optimized_cached(
         if cmd and cmd[0] == "datasets":
             cmd = [datasets_path] + cmd[1:]
         
-        logger.info("🔄 Trying %s...", strategy_name)
+        logger.info("🔄 Trying optimised strategy download with %s...", strategy_name)
         
         if applied_filters:
-            logger.debug("Applied filters: %s", ", ".join(applied_filters))
+            logger.info("Applied filters: %s", ", ".join(applied_filters))
         else:
-            logger.debug("No specific filters applied")
+            logger.info("No specific filters applied")
         
         logger.debug("Command: %s", " ".join(cmd))
         
         try:
             # Log the exact command being executed
             cmd_str = " ".join(cmd)
-            logger.info("📋 Executing command: %s", cmd_str)
+            logger.debug("📋 Executing command: %s", cmd_str)
 
             # Start subprocess for progress monitoring
             # Note: We don't use cwd=outdir because the command already includes full paths
@@ -2693,14 +2696,15 @@ def load_metadata_from_api_reports(api_reports):
                 "biosample": report.get("biosample"),  # BioSample ID 
                 "proteinCount": report.get("protein_count"),  # Number of proteins
                 "maturePeptideCount": report.get("mature_peptide_count"),  # Number of mature peptides
+                "segment": report.get("segment"),  # Virus segment identifier (e.g., 'HA', 'NA', 'PB1')
             }
             
             # Store the metadata using accession as the key
             metadata_dict[accession] = metadata
-            logger.debug("Processed metadata for accession: %s (length: %s, host: %s)", 
-                        accession, 
-                        metadata.get("length"), 
-                        metadata.get("host", {}).get("organism_name", "Unknown"))
+            # logger.debug("Processed metadata for accession: %s (length: %s, host: %s)", 
+            #             accession, 
+            #             metadata.get("length"), 
+            #             metadata.get("host", {}).get("organism_name", "Unknown"))
             
         else:
             # Skip reports without accession numbers
@@ -3398,6 +3402,7 @@ def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_fil
         "Length",             # Sequence length in base pairs
         "Nuc Completeness",   # Completeness status (complete/partial)
         "Proteins/Segments",  # Protein/segment information from FASTA headers
+        "Segment",            # Virus segment identifier (e.g., 'HA', 'NA', '4', '6')
         "Geographic Region",  # Geographic region where sample was collected
         "Geographic Location",# Specific geographic location
         "Host",               # Host organism name
@@ -3462,6 +3467,7 @@ def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_fil
             "Length": metadata.get("length", pd.NA),
             "Nuc Completeness": metadata.get("completeness", pd.NA),
             "Proteins/Segments": protein_headers[i] if i < len(protein_headers) else pd.NA,
+            "Segment": metadata.get("segment", pd.NA),  # Virus segment identifier
             
             # Geographic information
             "Geographic Region": metadata.get("region", pd.NA),
@@ -4234,6 +4240,7 @@ def save_genbank_metadata_to_csv(genbank_metadata, output_file, virus_metadata=N
         "Length",             # Sequence length in base pairs
         "Nuc Completeness",   # Completeness status (complete/partial)
         "Proteins/Segments",  # Protein/segment information from FASTA headers
+        "Segment",            # Virus segment identifier (e.g., 'HA', 'NA', '4', '6')
         "Geographic Region",  # Geographic region where sample was collected
         "Geographic Location",# Specific geographic location
         "Host",               # Host organism name
@@ -4304,6 +4311,7 @@ def save_genbank_metadata_to_csv(genbank_metadata, output_file, virus_metadata=N
             "Length": genbank_data.get('sequence_length', pd.NA),
             "Nuc Completeness": metadata.get('completeness', pd.NA),
             "Proteins/Segments": pd.NA,  # Not available from GenBank XML parsing
+            "Segment": metadata.get('segment', pd.NA),  # Virus segment identifier
             
             # Geographic information
             "Geographic Region": metadata.get('region', pd.NA),
@@ -4574,6 +4582,7 @@ def filter_metadata_only(
     min_protein_count=None,
     max_protein_count=None,
     annotated=None,
+    segment=None,
 ):
     """
     Filter metadata records based on metadata-only criteria.
@@ -4594,12 +4603,12 @@ def filter_metadata_only(
     logger.debug("Applying metadata-only filters: seq_length(%s-%s), gene_count(%s-%s), "
                 "completeness(%s), lab_passaged(%s), annotated(%s), "
                 "submitter_country(%s), collection_date(%s-%s), max_release_date(%s), "
-                "peptide_count(%s-%s), protein_count(%s-%s)",
+                "peptide_count(%s-%s), protein_count(%s-%s), segment(%s)",
                 min_seq_length, max_seq_length, min_gene_count, max_gene_count,
                 nuc_completeness, lab_passaged, annotated,
                 submitter_country, min_collection_date, max_collection_date, max_release_date, 
                 min_mature_peptide_count, max_mature_peptide_count,
-                min_protein_count, max_protein_count)
+                min_protein_count, max_protein_count, segment)
     
     # Convert date filters to datetime objects for proper comparison
     min_collection_date = (
@@ -4639,12 +4648,13 @@ def filter_metadata_only(
         'release_date': 0,
         'mature_peptide_count': 0,
         'protein_count': 0,
+        'segment': 0,
     }
 
     logger.info("Processing %d metadata records...", total_sequences)
     
     for accession, metadata in metadata_dict.items():
-        logger.debug("Processing metadata for: %s", accession)
+        # logger.debug("Processing metadata for: %s", accession)
         
         # Apply filters sequentially - each filter can exclude the record
         # If any filter fails, we continue to the next record
@@ -4830,6 +4840,29 @@ def filter_metadata_only(
                 filter_stats['protein_count'] += 1
                 continue
 
+        # FILTER 11: Segment filter - simple case-insensitive matching
+        if segment is not None:
+            # Convert segment to list if it's a string
+            segment_list = [segment] if isinstance(segment, str) else segment
+            
+            # Get segment from metadata
+            metadata_segment = metadata.get("segment")
+            
+            if not metadata_segment:
+                filter_stats['segment'] += 1
+                continue
+            
+            # Build set of acceptable segment values (case-insensitive)
+            acceptable_segments = {s.lower().strip() for s in segment_list}
+            
+            # Check if metadata segment matches any acceptable value (case-insensitive)
+            metadata_segment_lower = str(metadata_segment).lower().strip()
+            if metadata_segment_lower not in acceptable_segments:
+                logger.debug("Skipping %s: segment '%s' not in required list %s", 
+                           accession, metadata_segment, segment_list)
+                filter_stats['segment'] += 1
+                continue
+
         # If we reach this point, the metadata record has passed all filters
         filtered_accessions.append(accession)
         filtered_metadata_list.append(metadata)
@@ -4897,10 +4930,12 @@ def virus(
     max_ambiguous_chars=None,
     is_sars_cov2=False,
     is_alphainfluenza=False,
+    segment=None,
     lineage=None,
     genbank_metadata=False,
     genbank_batch_size=200,
     download_all_accessions=False,
+    verbose=True,
     ):
     """
     Download a virus genome dataset from the NCBI Virus database (https://www.ncbi.nlm.nih.gov/labs/virus/).
@@ -4946,10 +4981,16 @@ def virus(
         genbank_batch_size (int): Batch size for GenBank API requests (default: 200)
         keep_temp (bool): Flag to indicate if all output files should be saved, including intermediate files (default: False)
         refseq_only (bool): Whether to restrict to RefSeq sequences only
+        verbose (bool): Whether to print progress information. (default: True)
 
     Returns:
         None: Files are saved to the output directory
     """
+    # Save the original logger level and set it based on verbose parameter
+    original_logger_level = logger.level
+    # if verbose:
+    #     logger.setLevel(logging.INFO)
+    
     logger.info("Starting virus data retrieval process...")
     
     # Capture the command line for summary
@@ -5185,7 +5226,7 @@ def virus(
             cached_metadata_dict = None
             used_cached_download = False
     else:
-        logger.info(" Skipping this step. No SARS-CoV-2 query detected.")
+        logger.info("No SARS-CoV-2 query detected.")
 
     
     # SECTION 2b: ALPHAINFLUENZA CACHED DATA PROCESSING
@@ -5229,9 +5270,8 @@ def virus(
             cached_metadata_dict = None
             used_cached_download = False
     else:
-        logger.info(" Skipping this step. No Alphainfluenza query detected.")
+        logger.info("No Alphainfluenza query detected.")
     
-
 
     try:
     # SECTION 3: METADATA RETRIEVAL AND FILTERING
@@ -5422,6 +5462,7 @@ def virus(
             "max_protein_count": max_protein_count,
             # annotated=False needs client-side filtering (annotated=True is handled server-side)
             "annotated": annotated if annotated is False else None,
+            "segment": segment,
         }
 
         all_metadata_filters_none_except_nuc = all(
@@ -5903,6 +5944,9 @@ def virus(
                 
         
         logger.info("NCBI virus data retrieval process completed.")
+    
+    # Restore the original logger level
+    logger.setLevel(original_logger_level)
 
 
 if __name__ == "__main__":
