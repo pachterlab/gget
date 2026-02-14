@@ -2092,14 +2092,6 @@ def download_sars_cov2_optimized(
         'host': host,
         'annotated': annotated
     }
-    logger.debug("========================SARSCOV2 DOWNLOAD STRATEGIES DEFINED========================")
-    logger.debug("Total strategies defined: %d", len(strategies))
-    for i, (name, cmd, filters) in enumerate(strategies, 1):
-        logger.debug("Strategy %d: %s", i, name)
-        logger.debug("  Command: %s", " ".join(cmd))
-        logger.debug("  Applied filters: %s", ", ".join(filters) if filters else "none")
-    logger.debug("====================================================================================")
-
     
     return _download_optimized_cached(
         virus_type="SARS-CoV-2",
