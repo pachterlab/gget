@@ -2702,7 +2702,7 @@ def main():
         default=True,
         action="store_false",
         required=False,
-        help="Does not print progress information.",
+        help="Does not print progress information. For large datasets, it is recommended to set this flag to False to monitor progress.",
     )
 
     ### Define return values
