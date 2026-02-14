@@ -2669,6 +2669,13 @@ def main():
         help="Filter for sequences with specific segment(s). Can be a single segment name (e.g., 'HA') or comma-separated list (e.g., 'HA,NA,PB1'). Case-insensitive matching against metadata 'segment' field. Any matching segment will keep the sequence.",
     )
     parser_virus.add_argument(
+        "--is_vaccine_strain",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Filter for vaccine strains only. If set, only sequences marked as vaccine strains will be returned.",
+    )
+    parser_virus.add_argument(
         "--lineage",
         type=str,
         required=False,
@@ -3811,6 +3818,7 @@ def main():
             max_protein_count=args.max_protein_count,
             max_ambiguous_chars=args.max_ambiguous_chars,
             segment=segment_arg,
+            is_vaccine_strain=args.is_vaccine_strain,
             lineage=args.lineage,
             genbank_metadata=args.genbank_metadata,
             genbank_batch_size=args.genbank_batch_size,
