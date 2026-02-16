@@ -1,4 +1,4 @@
-Pytest results (Python 3.12) - 2026-02-12T16:25:17Z
+Pytest results (Python 3.12) - 2026-02-16T16:19:33Z
 
 ============================= test session starts ==============================
 platform linux -- Python 3.12.12, pytest-9.0.2, pluggy-1.6.0 -- /opt/hostedtoolcache/Python/3.12.12/x64/bin/python
@@ -408,14 +408,14 @@ gget/utils.py                448     77    83%   31, 36-42, 72, 95, 119, 122, 18
 --------------------------------------------------------
 TOTAL                       7701   3801    51%
 ============================= slowest 10 durations =============================
-625.93s call     tests/test_blast.py::TestBlast::test_blast_nt
-57.05s call     tests/test_virus.py::TestVirus::test_virus_with_has_proteins_filter
-47.98s call     tests/test_virus.py::TestVirus::test_virus_with_collection_date_filters
-39.21s call     tests/test_search.py::TestSearch::test_search_gene_two_sw_limit
-36.95s call     tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
-29.56s call     tests/test_virus.py::TestVirus::test_virus_integer_virus_id
-29.43s call     tests/test_virus.py::TestVirus::test_virus_with_lab_passaged_filter
-27.40s call     tests/test_virus.py::TestVirus::test_virus_with_max_ambiguous_chars_filter
-24.29s call     tests/test_virus.py::TestVirus::test_virus_with_protein_count_filters
-23.72s call     tests/test_virus.py::TestVirus::test_virus_with_annotated_filter
-================ 264 passed, 273 warnings in 1329.65s (0:22:09) ================
+459.01s call     tests/test_seq.py::TestSeq::test_seq_gene_iso
+261.15s call     tests/test_info.py::TestInfo::test_info_mix
+259.02s call     tests/test_seq.py::TestSeq::test_seq_gene_transcript_iso
+236.86s call     tests/test_enrichr.py::TestEnrichr::test_enrichr_background_ensembl
+178.53s call     tests/test_info.py::TestInfo::test_info_gene_list_non_model
+141.15s call     tests/test_info.py::TestInfo::test_info_ncbifalse_uniprottrue
+123.44s call     tests/test_info.py::TestInfo::test_info_exon
+99.91s call     tests/test_info.py::TestInfo::test_info_gene
+95.14s call     tests/test_archs4.py::TestArchs4::test_archs4_mouse_json_ensembl
+93.02s call     tests/test_seq.py::TestSeq::test_seq_transcript_gene_iso
+================ 264 passed, 273 warnings in 3485.37s (0:58:05) ================
