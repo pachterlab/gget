@@ -110,6 +110,7 @@ HTTP_INITIAL_BACKOFF = 1.0  # Initial backoff in seconds
 # File Size Configuration
 BYTES_PER_MB = 1024 * 1024  # Bytes in a megabyte for file size display diviser
 MIN_VALID_ZIP_SIZE = 100 * 1024  # 100 KB in bytes (minimum size for a valid ZIP file from cached downloads)
+MIN_VALID_FASTA_SIZE_MB = 0.1  # Minimum size in MB for a valid FASTA file (100 KB)
 
 # URL Length Configuration
 # Most browsers and servers support URLs up to ~2000-8000 chars, but NCBI recommends keeping under 2000
@@ -1552,14 +1553,42 @@ def process_cached_download(zip_file, virus_type="virus"):
         logger.info("Found %d metadata file(s) in cached download", len(metadata_files))
         for metadata_file in metadata_files:
             try:
+                # Get file size for progress bar estimation
+                file_size = os.path.getsize(metadata_file)
+                file_size_mb = file_size / BYTES_PER_MB
+                logger.debug("Loading metadata file: %s (%.1f MB)", metadata_file, file_size_mb)
+                
+                # Track record count for logging during progress
+                record_count = 0
+                
                 with open(metadata_file, 'r', encoding='utf-8') as f:
+                    # Use tqdm to show progress while reading the file
+                    # Total is file size in bytes, updated as we read lines
+                    pbar = tqdm(
+                        total=file_size,
+                        unit='B',
+                        unit_scale=True,
+                        unit_divisor=1024,
+                        desc="Processing metadata",
+                        ncols=80,
+                        leave=True
+                    )
+                    
                     for line in f:
                         if line.strip():
+                            # Update progress based on bytes read
+                            pbar.update(len(line.encode('utf-8')))
+                            
                             report = json.loads(line)
                             # Extract accession from the report
                             accession = report.get('accession', '')
                             if not accession:
                                 continue
+                            
+                            record_count += 1
+                            
+                            # Update progress bar description with record count
+                            pbar.set_description(f"Processing metadata ({record_count:,} records)")
                             
                             # Transform the NCBI report format to our internal metadata format
                             # This mirrors the logic in load_metadata_from_api_reports
@@ -1571,45 +1600,41 @@ def process_cached_download(zip_file, virus_type="virus"):
                             
                             # Extract virus info
                             virus_info = report.get('virus', {})
-                            metadata['virus_name'] = virus_info.get('sci_name')
-                            metadata['virus_tax_id'] = virus_info.get('tax_id')
-                            metadata['virus_pangolin_classification'] = virus_info.get('pangolin_classification')
+                            metadata['virus_name'] = virus_info.get('organismName')
+                            metadata['virus_tax_id'] = virus_info.get('taxId')
+                            metadata['virus_pangolin_classification'] = virus_info.get('pangolinClassification')
                             
                             # Extract host info
                             host_info = report.get('host', {})
-                            metadata['host_name'] = host_info.get('sci_name')
-                            metadata['host_common_name'] = host_info.get('common_name')
-                            metadata['host_tax_id'] = host_info.get('tax_id')
+                            metadata['host_name'] = host_info.get('organismName') 
+                            metadata['host_common_name'] = host_info.get('common_name')  # May not exist, but try anyway
+                            metadata['host_tax_id'] = host_info.get('taxId') 
                             
                             # Extract biosample info
-                            biosample_info = report.get('biosample_info', {})
-                            metadata['biosample_accession'] = biosample_info.get('accession')
+                            metadata['biosample_accession'] = report.get('biosample')
                             
-                            # Extract isolate info - NOTE: datasets CLI uses camelCase (collectionDate)
-                            # but we need to store in the format filter_metadata_only expects
+                            # Extract isolate info 
                             isolate_info = report.get('isolate', {})
                             metadata['isolate_name'] = isolate_info.get('name')
                             # Store isolate as nested dict to match filter_metadata_only expectations
-                            # CLI uses 'collectionDate' (camelCase), we convert to 'collection_date' (snake_case)
                             metadata['isolate'] = {
                                 'name': isolate_info.get('name'),
-                                'collection_date': isolate_info.get('collectionDate'),  # CLI uses camelCase
+                                'collection_date': isolate_info.get('collectionDate'),  
                                 'source': isolate_info.get('source'),
                             }
                             
                             # Extract location info
                             location_info = report.get('location', {})
-                            metadata['geo_location'] = location_info.get('geo_location')
-                            metadata['usa_state'] = location_info.get('usa_state')
+                            metadata['geo_location'] = location_info.get('geographicLocation')
+                            metadata['usa_state'] = location_info.get('usa_state') # May not exist, but try anyway
                             
                             # Extract nucleotide completeness
-                            completeness_info = report.get('nucleotide_completeness', {})
-                            metadata['nuc_completeness'] = completeness_info.get('value')
+                            metadata['nuc_completeness'] = report.get('completeness')
                             
                             # Extract other fields
-                            metadata['release_date'] = report.get('release_date')
-                            metadata['update_date'] = report.get('update_date')
-                            metadata['is_annotated'] = report.get('annotation', {}).get('is_annotated', False)
+                            metadata['release_date'] = report.get('releaseDate')
+                            metadata['update_date'] = report.get('updateDate')
+                            metadata['is_annotated'] = report.get('annotation', {}).get('is_annotated', False) if report.get('annotation') else False
                             metadata['is_refseq'] = report.get('is_refseq', False)
                             metadata['is_lab_host'] = report.get('is_lab_host', False)
                             
@@ -1625,58 +1650,112 @@ def process_cached_download(zip_file, virus_type="virus"):
                             metadata['is_vaccine_strain'] = report.get('is_vaccine_strain', False)
                             
                             cached_metadata_dict[accession] = metadata
-                            
-                logger.info("Loaded %d metadata records from %s", len(cached_metadata_dict), metadata_file)
+                    
+                    pbar.close()
+                    
+                logger.info("✅ Loaded %d metadata records from %s", len(cached_metadata_dict), metadata_file)
             except Exception as e:
                 logger.warning("❌ Failed to load metadata file %s: %s", metadata_file, e)
                 continue
     else:
         logger.warning("No data_report.jsonl found in cached download. Post-download filters may be limited.")
     
-    # Process all available FASTA files
-    all_cached_sequences = []
-    for fasta_file in fasta_files:
-        try:
-            sequences = list(FastaIO.parse(fasta_file, "fasta"))
-            all_cached_sequences.extend(sequences)
-            logger.info("Loaded %d sequences from %s", len(sequences), fasta_file)
-        except Exception as e:
-            logger.warning("❌ Failed to load FASTA file %s: %s", fasta_file, e)
-            continue
+    if not fasta_files:
+        logger.error("❌ No FASTA files found in cached data.")
+        raise RuntimeError("No FASTA files found in cached data")
     
-    if not all_cached_sequences:
-        logger.warning("No valid sequences found in cached data.")
-        raise RuntimeError("No valid sequences found in cached data")
+    for fasta_file in fasta_files:
+        file_size = os.path.getsize(fasta_file)
+        file_size_mb = file_size / BYTES_PER_MB
+        if file_size_mb < MIN_VALID_FASTA_SIZE_MB:
+            logger.warning("⚠️ FASTA file %s is smaller than expected (%.1f MB). It may not contain valid sequences.", fasta_file, file_size_mb)
+        else:
+            logger.info("✅ Cached FASTA file available for streaming: %s (%.1f MB)", fasta_file, file_size_mb)
     
     # If no rich metadata was loaded, create minimal metadata from FASTA headers
     if not cached_metadata_dict:
         logger.info("Creating basic metadata from FASTA headers (no data_report.jsonl available)")
-        for seq in all_cached_sequences:
-            accession = seq.id  # Use full accession with version if present
-            cached_metadata_dict[accession] = {
-                'accession': accession,
-                'description': seq.description,
-                'length': len(seq.seq),
-                'source': 'cached_fasta_header'
-            }
+        logger.info("Streaming FASTA files to extract minimal metadata...")
+        
+        for fasta_file in fasta_files:
+            try:
+                file_size = os.path.getsize(fasta_file)
+                
+                with open(fasta_file, 'r', encoding='utf-8') as f:
+                    pbar = tqdm(
+                        total=file_size,
+                        unit='B',
+                        unit_scale=True,
+                        unit_divisor=1024,
+                        desc="Extracting FASTA metadata",
+                        ncols=80,
+                        leave=True
+                    )
+                    
+                    current_accession = None
+                    sequence_length = 0
+                    description = ""
+                    
+                    for line in f:
+                        pbar.update(len(line.encode('utf-8')))
+                        
+                        if line.startswith('>'):
+                            # Save previous sequence if exists
+                            if current_accession and current_accession not in cached_metadata_dict:
+                                cached_metadata_dict[current_accession] = {
+                                    'accession': current_accession,
+                                    'description': description,
+                                    'length': sequence_length,
+                                    'source': 'cached_fasta_header'
+                                }
+                            
+                            # Parse new header
+                            header = line[1:].strip()
+                            current_accession = header.split()[0]
+                            description = header
+                            sequence_length = 0
+                            
+                        else:
+                            # Count bases in sequence (not including whitespace)
+                            sequence_length += len(line.strip())
+                    
+                    # Save last sequence
+                    if current_accession and current_accession not in cached_metadata_dict:
+                        cached_metadata_dict[current_accession] = {
+                            'accession': current_accession,
+                            'description': description,
+                            'length': sequence_length,
+                            'source': 'cached_fasta_header'
+                        }
+                    
+                    pbar.close()
+                    
+                logger.info("✅ Extracted metadata for %d sequences from %s", 
+                           len([acc for acc in cached_metadata_dict if cached_metadata_dict[acc].get('source') == 'cached_fasta_header']), 
+                           fasta_file)
+                
+            except Exception as e:
+                logger.warning("❌ Failed to extract metadata from FASTA %s: %s", fasta_file, e)
+                continue
+        
         logger.info("Created basic metadata for %d sequences", len(cached_metadata_dict))
     
     logger.info("🎉 CACHED DATA LOADING SUCCESSFUL!")
-    logger.info("Loaded %d sequences from cached %s data", len(all_cached_sequences), virus_type)
+    logger.debug("Cached %s sequences will be streamed on-demand (not loaded to RAM)", virus_type)
     if metadata_files:
         logger.info("Rich metadata available from data_report.jsonl for post-download filtering")
     
-    return all_cached_sequences, cached_metadata_dict, True
+    # Return the cached FASTA file path (not the sequences themselves)
+    # Sequences will be streamed on-demand when needed
+    cached_fasta_file = fasta_files[0] if fasta_files else None
+    return cached_fasta_file, cached_metadata_dict, True
 
 
 def _monitor_subprocess_with_progress(process, cmd, timeout=None, progress_timeout=None):
     """
     Monitor a subprocess with progress tracking and timeout handling.
     
-    This helper function monitors a running subprocess, checking for progress
-    indicators in stderr output. It implements a two-tier timeout strategy:
-        - Overall timeout: Maximum total execution time.
-        - Progress timeout: Maximum time without seeing progress.
+    This helper function monitors a running subprocess. When stdout/stderr are piped, it checks for progress indicators. When they're not piped (output goes to console), it simply polls for completion.
     
     Args:
         process: subprocess.Popen instance to monitor.
@@ -1705,16 +1784,18 @@ def _monitor_subprocess_with_progress(process, cmd, timeout=None, progress_timeo
         if retcode is not None:
             break
             
-        # Read stderr without blocking
-        stderr = process.stderr.readline()
-        if stderr:
-            # Log the stderr for debugging
-            logger.debug("Progress output: %s", stderr.strip())
-            
-            # If we see any progress indicator, update the last_progress time
-            if any(indicator.lower() in stderr.lower() for indicator in PROGRESS_INDICATORS):
-                last_progress = time.time()
-                # logger.debug("Progress detected, updating last_progress time")
+        # Only check for progress if stderr was captured (is not None)
+        if process.stderr is not None:
+            # Read stderr without blocking
+            stderr = process.stderr.readline()
+            if stderr:
+                # Log the stderr for debugging
+                # logger.debug("Progress output: %s", stderr.strip())
+                
+                # If we see any progress indicator, update the last_progress time
+                if any(indicator.lower() in stderr.lower() for indicator in PROGRESS_INDICATORS):
+                    last_progress = time.time()
+                    # logger.debug("Progress detected, updating last_progress time")
         
         # Check timeout conditions:
         # 1. Less than total timeout, continue
@@ -1730,7 +1811,14 @@ def _monitor_subprocess_with_progress(process, cmd, timeout=None, progress_timeo
         
         time.sleep(DOWNLOAD_PROGRESS_CHECK_INTERVAL)  # Prevent CPU spin
     
-    stdout, stderr = process.communicate()
+    # Only call communicate if process was created with pipes, otherwise just wait
+    if process.stdout is not None or process.stderr is not None:
+        stdout, stderr = process.communicate()
+    else:
+        stdout = None
+        stderr = None
+        process.wait()
+    
     return subprocess.CompletedProcess(
         args=cmd,
         returncode=retcode,
@@ -1812,8 +1900,8 @@ def _download_optimized_cached(
             try:
                 process = subprocess.Popen(
                     cmd,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
+                    stdout=None,
+                    stderr=None,
                     text=True
                 )
             except FileNotFoundError as fnf_error:
@@ -1849,8 +1937,8 @@ def _download_optimized_cached(
                            strategy_name, os.path.basename(zip_path), file_size / 1024 / 1024)
                 
                 # Log any important output from the datasets CLI
-                if result.stdout:
-                    logger.debug("datasets CLI output: %s", result.stdout.strip())
+                # if result.stdout:
+                #     logger.debug("datasets CLI output: %s", result.stdout.strip())
                 
                 # Check which filters from the original request weren't applied in this strategy
                 if requested_filters:
@@ -5199,7 +5287,7 @@ def virus(
     logger.info("STEP 2: CHECKING FOR SARS-CoV-2 AND INFLUENZA A QUERIES TO APPLY OPTIMIZED CACHED PATHWAY")  
     logger.info("=" * 60)
     # Initialize variables to track cached download results
-    cached_sequences = None
+    cached_fasta_file = None  # Path to cached FASTA file (sequences streamed on-demand)
     cached_metadata_dict = None
     used_cached_download = False
     cached_zip_file = None  # Track zip file path for cleanup
@@ -5229,7 +5317,7 @@ def virus(
             missing_filters = download_result[2]
             cached_zip_file = zip_file  # Track for cleanup
             
-            cached_sequences, cached_metadata_dict, used_cached_download = process_cached_download(
+            cached_fasta_file, cached_metadata_dict, used_cached_download = process_cached_download(
                 zip_file, virus_type="SARS-CoV-2"
             )
             if used_cached_download:
@@ -5241,7 +5329,7 @@ def virus(
             logger.warning("❌ SARS-CoV-2 cached download failed: %s", cache_error)
             logger.info("Falling back to regular API workflow...")
             # Reset cached download state to ensure regular API workflow is used
-            cached_sequences = None
+            cached_fasta_file = None
             cached_metadata_dict = None
             used_cached_download = False
     else:
@@ -5273,7 +5361,7 @@ def virus(
             missing_filters = download_result[2]
             cached_zip_file = zip_file  # Track for cleanup
             
-            cached_sequences, cached_metadata_dict, used_cached_download = process_cached_download(
+            cached_fasta_file, cached_metadata_dict, used_cached_download = process_cached_download(
                 zip_file, virus_type="Alphainfluenza"
             )
             if used_cached_download:
@@ -5285,7 +5373,7 @@ def virus(
             logger.warning("❌ Alphainfluenza cached download failed: %s", cache_error)
             logger.info("Falling back to regular API workflow...")
             # Reset cached download state to ensure regular API workflow is used
-            cached_sequences = None
+            cached_fasta_file = None
             cached_metadata_dict = None
             used_cached_download = False
     else:
@@ -5538,27 +5626,32 @@ def virus(
         logger.info("=" * 60)
 
         # Check if we're using cached sequences
-        if used_cached_download and cached_sequences:
+        if used_cached_download and cached_fasta_file:
             logger.info("Using sequences from cached download (skipping sequence download)")
+            logger.info("Streaming and filtering cached FASTA file on-demand...")
             
-            # Filter cached sequences based on filtered_accessions
-            # Create a mapping of accession to sequence using full accessions
-            cached_seq_dict = {seq.id: seq for seq in cached_sequences}
+            # Create filtered accessions set for faster lookup
+            filtered_acc_set = set(filtered_accessions)
             
-            # Get only the sequences that passed metadata filtering
-            filtered_cached_seqs = []
-            for acc in filtered_accessions:
-                if acc in cached_seq_dict:
-                    filtered_cached_seqs.append(cached_seq_dict[acc])
-                else:
-                    logger.debug("Accession %s not found in cached sequences", acc)
-            
-            logger.info("After metadata filtering: %d sequences from cache", len(filtered_cached_seqs))
-            
-            # Save to temporary FASTA file for consistency with regular pipeline
+            # Stream through cached FASTA and write only filtered sequences
+            # This avoids loading the entire file into RAM
             fna_file = os.path.join(temp_dir, f"{virus_clean}_cached_sequences.fasta")
-            FastaIO.write(filtered_cached_seqs, fna_file, "fasta")
-            logger.info("Saved filtered cached sequences to temporary file: %s", fna_file)
+            filtered_count = 0
+            
+            try:
+                # Generator expression: yields only sequences in filtered_accessions
+                filtered_records = (r for r in FastaIO.parse(cached_fasta_file, "fasta") if r.id in filtered_acc_set)
+                FastaIO.write(filtered_records, fna_file, "fasta")
+                
+                # Count the written sequences
+                for _ in FastaIO.parse(fna_file, "fasta"):
+                    filtered_count += 1
+                
+                logger.info("✅ Streamed and wrote %d filtered sequences from cached FASTA", filtered_count)
+                logger.info("   Output: %s", fna_file)
+            except Exception as e:
+                logger.error("❌ Failed to filter and write cached FASTA: %s", e)
+                raise RuntimeError(f"Failed to process cached FASTA file: {e}") from e
         else:
             # Regular sequence download
             fna_file = download_sequences_by_accessions(filtered_accessions, outdir=temp_dir, failed_commands=failed_commands)
