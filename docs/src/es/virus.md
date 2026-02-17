@@ -22,10 +22,16 @@ _Filtros de hospedador_
 `--host`  
 Filtra por nombre del organismo hospedador o ID de Taxonomía de NCBI (p. ej. 'human', 'Aedes aegypti', `1335626`).
 
+`--lab_passaged`  
+`'true'` o `'false'`. Filtra a favor o en contra de muestras pasadas por laboratorio (*lab-passaged*).  
+Línea de comandos: `--lab_passaged true` para obtener únicamente muestras pasadas por laboratorio, o `--lab_passaged false` para excluirlas.  
+Python: `lab_passaged=True` o `lab_passaged=False` (`lab_passaged=None` para no aplicar ningún filtro).
+
 _Filtros de Secuencia y Gen_  
 
 `--nuc_completeness`  
-Filtra por completitud nucleotídica. Uno de: 'complete' o 'partial'.
+Filtrar por integridad del nucleótido. Una de las siguientes opciones: 'complete' o 'partial'.  
+Establezca 'complete' para devolver únicamente secuencias de nucleótidos marcadas como completas; establezca 'partial' para devolver únicamente secuencias marcadas como parciales.
 
 `--min_seq_length`  
 Filtra por longitud mínima de secuencia.
@@ -57,6 +63,11 @@ Filtra por número máximo de caracteres nucleotídicos ambiguos (N).
 `--has_proteins`  
 Filtra por secuencias que contengan proteínas o genes específicos (p. ej. 'spike', 'ORF1ab'). Puede ser un solo nombre de proteína o una lista de nombres de proteínas.
 Python: `has_proteins="spike"` o `has_proteins=["spike", "ORF1ab"]`
+
+`--annotated`  
+`'true'` o `'false'`. Filtra por secuencias que han sido anotadas con información de genes/proteínas.  
+Línea de comandos: `--annotated true` para obtener únicamente secuencias anotadas con información de genes/proteínas, o `--annotated false` para excluirlas.  
+Python: `annotated=True` o `annotated=False` (`annotated=None` para no aplicar ningún filtro).  
 
 _Filtros de fecha_  
 
@@ -112,16 +123,6 @@ Usa los paquetes de datos optimizados en caché de NCBI para una consulta de Alp
 
 `-g` `--genbank_metadata`  
 Obtiene y guarda metadatos adicionales detallados desde GenBank, incluyendo fechas de recolección, detalles del hospedador y referencias de publicaciones, en un archivo separado `{virus}_genbank_metadata.csv` (además de volcados completos XML/CSV dumps).
-
-`--annotated`  
-Filtra por secuencias que han sido anotadas con información de genes/proteínas.  
-Línea de comandos: `--annotated true` o `--annotated false`.   
-Python: `annotated=True` o `annotated=False`.
-
-`--lab_passaged`  
-Filtra a favor o en contra de muestras pasadas en laboratorio.   
-Línea de comandos: `--lab_passaged true` para obtener solo muestras pasadas en laboratorio, o `--lab_passaged false` para excluirlas.  
-Python: `lab_passaged=True` o `lab_passaged=False`.
 
 `--proteins_complete`  
 Bandera para incluir solo secuencias donde todas las proteínas anotadas estén completas.  
