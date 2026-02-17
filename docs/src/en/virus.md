@@ -23,11 +23,16 @@ _Host filters_
 `--host`  
 Filter by host organism name or NCBI Taxonomy ID (e.g., 'human', 'Aedes aegypti', `1335626`).
 
+`--lab_passaged`  
+'true' or 'false'. Filter for or against lab-passaged samples.   
+Command line: `--lab_passaged true` to fetch only lab-passaged samples, or `--lab_passaged false` to exclude them.  
+Python: `lab_passaged=True` or `lab_passaged=False` (`lab_passaged=None` for no filter).
+
 _Sequence & Gene filters_  
 
 `--nuc_completeness`  
 Filter by nucleotide completeness. One of: 'complete' or 'partial'.  
-Set to 'complete' to only return full-length viral genomes; set to 'partial' to only return sequences that are NOT full-length viral genomes.  
+Set to 'complete' to only return nucleotide sequences marked as complete; set to 'partial' to only return sequences that are marked as partial.  
 
 `--min_seq_length`  
 Filter by minimum sequence length.
@@ -59,6 +64,11 @@ Filter by maximum number of ambiguous nucleotide characters (N's).
 `--has_proteins`  
 Filter for sequences containing specific proteins or genes (e.g., 'spike', 'ORF1ab'). Can be a single protein name or a list of protein names.  
 Python: `has_proteins="spike"` or `has_proteins=["spike", "ORF1ab"]`
+
+`--annotated`  
+'true' or 'false'. Filter for sequences that have been annotated with gene/protein information.  
+Command line: `--annotated true` to fetch only that have been annotated with gene/protein information, or `--annotated false` to exclude them.  
+Python: `annotated=True` or `annotated=False` (`annotated=None` for no filter).
 
 _Date filters_  
 
@@ -114,16 +124,6 @@ Use NCBI's optimized cached data packages for an Alphainfluenza (Influenza A vir
 
 `-g` `--genbank_metadata`  
 Fetch and save additional detailed metadata from GenBank, including collection dates, host details, and publication references, in a separate `{virus}_genbank_metadata.csv` file (plus full XML/CSV dumps).
-
-`--annotated`  
-Filter for sequences that have been annotated with gene/protein information.  
-Command line: `--annotated true` or `--annotated false`.   
-Python: `annotated=True` or `annotated=False`.
-
-`--lab_passaged`  
-Filter for or against lab-passaged samples.   
-Command line: `--lab_passaged true` to fetch only lab-passaged samples, or `--lab_passaged false` to exclude them.  
-Python: `lab_passaged=True` or `lab_passaged=False`.
 
 `--proteins_complete`  
 Flag to only include sequences where all annotated proteins are complete.  
