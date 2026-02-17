@@ -1025,6 +1025,16 @@ def fetch_virus_metadata(
                                current_page_size, page_size_retry_count)
                     # Update the global page_size for remaining pages if successful
                     params['page_size'] = current_page_size
+                    
+                    # If progress bar exists, recalculate total pages based on new page size
+                    if pages_pbar is not None and page_data:
+                        total_count = page_data.get('total_count', 0)
+                        if total_count > 0:
+                            new_total_pages = (total_count + current_page_size - 1) // current_page_size
+                            # Update progress bar total to reflect the new page size
+                            logger.debug("📊 Recalculating progress bar: page_size changed to %d, total pages now: %d", 
+                                       current_page_size, new_total_pages)
+                            pages_pbar.total = new_total_pages
                     break
             
             # If still failed after trying all page sizes down to minimum
@@ -1036,10 +1046,12 @@ def fetch_virus_metadata(
             # Extract the virus reports from the response
             reports = page_data.get('reports', [])
             # Create progress bar on first page when we know total pages
+            # Use current page_size (which may have been reduced) for accurate total page calculation
             if pages_pbar is None and page_count == 1:
                 total_pages = page_data.get('total_count', 0)
+                current_page_size = params['page_size']
                 if total_pages > 0:
-                    total_pages = (total_pages + API_PAGE_SIZE - 1) // API_PAGE_SIZE
+                    total_pages = (total_pages + current_page_size - 1) // current_page_size
                 pages_pbar = tqdm(total=max(total_pages, 1), desc="Fetching pages", unit="page", leave=False)
             if pages_pbar:
                 pages_pbar.update(1)
