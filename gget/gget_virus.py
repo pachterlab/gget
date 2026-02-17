@@ -36,6 +36,8 @@ API_REQUEST_TIMEOUT = 120  # Timeout in seconds for API requests (increased for 
 API_MAX_RETRIES = 3  # Maximum retry attempts for failed API requests
 API_INITIAL_RETRY_DELAY = 2.0  # Initial delay in seconds between retries
 API_RETRY_BACKOFF_MULTIPLIER = 3.0  # Multiplier for exponential backoff
+MIN_PAGE_SIZE_FALLBACK = 20  # Minimum page size to try before giving up
+PAGE_SIZE_FALLBACK_DECREMENT = 100  # Decrease page size by this amount on retry
 
 # E-utilities Configuration
 EUTILS_TIMEOUT = 300  # Timeout in seconds for E-utilities requests
@@ -987,6 +989,47 @@ def fetch_virus_metadata(
             retryable_exceptions=(requests.exceptions.ConnectionError, requests.exceptions.HTTPError, requests.exceptions.Timeout),
             failed_commands=failed_commands,
         )
+        
+        # If the initial page fetch failed, try with a smaller page size before giving up
+        if not success and params['page_size'] > MIN_PAGE_SIZE_FALLBACK:
+            logger.debug("⚠️ Page fetch failed with page_size=%d. Retrying with smaller page sizes...", params['page_size'])
+            
+            # Try decreasing page size until we succeed or reach minimum
+            current_page_size = params['page_size']
+            page_size_retry_count = 0
+            
+            while not success and current_page_size > MIN_PAGE_SIZE_FALLBACK:
+                # Decrease page size for next retry
+                current_page_size = max(MIN_PAGE_SIZE_FALLBACK, current_page_size - PAGE_SIZE_FALLBACK_DECREMENT)
+                page_size_retry_count += 1
+                
+                logger.debug("📉 Attempting retry #%d with page_size=%d (page %d)", 
+                           page_size_retry_count, current_page_size, page_count)
+                
+                # Update params with new page size
+                params['page_size'] = current_page_size
+                
+                # Retry the fetch with the smaller page size
+                success, page_data, error_info = _retry_with_exponential_backoff(
+                    operation_name=f"API page {page_count} (page_size={current_page_size})",
+                    operation_func=fetch_single_page,
+                    max_retries=API_MAX_RETRIES,
+                    initial_delay=API_INITIAL_RETRY_DELAY,
+                    backoff_multiplier=API_RETRY_BACKOFF_MULTIPLIER,
+                    retryable_exceptions=(requests.exceptions.ConnectionError, requests.exceptions.HTTPError, requests.exceptions.Timeout),
+                    failed_commands=failed_commands,
+                )
+                
+                if success:
+                    logger.debug("✅ Successfully fetched page with page_size=%d after %d retry attempt(s)", 
+                               current_page_size, page_size_retry_count)
+                    # Update the global page_size for remaining pages if successful
+                    params['page_size'] = current_page_size
+                    break
+            
+            # If still failed after trying all page sizes down to minimum
+            if not success:
+                logger.warning("⚠️ All page size fallback attempts failed (page %d)", page_count)
         
         # Handle page fetch result
         if success and page_data:
