@@ -1,4 +1,4 @@
-Pytest results (Python 3.12) - 2026-02-16T16:19:33Z
+Pytest results (Python 3.12) - 2026-02-19T16:22:48Z
 
 ============================= test session starts ==============================
 platform linux -- Python 3.12.12, pytest-9.0.2, pluggy-1.6.0 -- /opt/hostedtoolcache/Python/3.12.12/x64/bin/python
@@ -78,7 +78,7 @@ tests/test_enrichr.py::TestEnrichr::test_enrichr_bad_gene PASSED         [ 25%]
 tests/test_enrichr.py::TestEnrichr::test_enrichr_bad_species PASSED      [ 25%]
 tests/test_enrichr.py::TestEnrichr::test_enrichr_celltypes PASSED        [ 26%]
 tests/test_enrichr.py::TestEnrichr::test_enrichr_diseases_drugs PASSED   [ 26%]
-tests/test_enrichr.py::TestEnrichr::test_enrichr_ensembl_ids PASSED      [ 26%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_ensembl_ids FAILED      [ 26%]
 tests/test_enrichr.py::TestEnrichr::test_enrichr_fish PASSED             [ 27%]
 tests/test_enrichr.py::TestEnrichr::test_enrichr_fly PASSED              [ 27%]
 tests/test_enrichr.py::TestEnrichr::test_enrichr_json PASSED             [ 28%]
@@ -267,12 +267,2225 @@ tests/test_virus.py::TestVirus::test_virus_with_geographic_location_filter PASSE
 tests/test_virus.py::TestVirus::test_virus_with_has_proteins_filter PASSED [ 97%]
 tests/test_virus.py::TestVirus::test_virus_with_host_filter PASSED       [ 97%]
 tests/test_virus.py::TestVirus::test_virus_with_lab_passaged_filter PASSED [ 98%]
-tests/test_virus.py::TestVirus::test_virus_with_length_filters PASSED    [ 98%]
+tests/test_virus.py::TestVirus::test_virus_with_length_filters FAILED    [ 98%]
 tests/test_virus.py::TestVirus::test_virus_with_max_ambiguous_chars_filter PASSED [ 98%]
 tests/test_virus.py::TestVirus::test_virus_with_multiple_filters PASSED  [ 99%]
 tests/test_virus.py::TestVirus::test_virus_with_protein_count_filters PASSED [ 99%]
 tests/test_virus.py::TestVirus::test_virus_with_refseq_filter PASSED     [100%]
 
+=================================== FAILURES ===================================
+_____________________ TestEnrichr.test_enrichr_ensembl_ids _____________________
+
+self = <urllib3.connectionpool.HTTPConnectionPool object at 0x7f6ae85b7e00>
+method = 'POST', url = '/lookup/id/'
+body = b'{"ids": ["ENSG00000106443", "ENSG00000102317", "ENSG00000188895", "ENSG00000135365"], "expand": true}'
+headers = {'User-Agent': 'python-requests/2.32.5', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive', 'Content-Type': 'application/json', 'Content-Length': '101'}
+retries = Retry(total=0, connect=None, read=False, redirect=None, status=None)
+redirect = False, assert_same_host = False
+timeout = Timeout(connect=None, read=None, total=None), pool_timeout = None
+release_conn = False, chunked = False, body_pos = None, preload_content = False
+decode_content = False, response_kw = {}
+parsed_url = Url(scheme=None, auth=None, host=None, port=None, path='/lookup/id/', query=None, fragment=None)
+destination_scheme = None, conn = None, release_this_conn = True
+http_tunnel_required = False, err = None, clean_exit = False
+
+    def urlopen(  # type: ignore[override]
+        self,
+        method: str,
+        url: str,
+        body: _TYPE_BODY | None = None,
+        headers: typing.Mapping[str, str] | None = None,
+        retries: Retry | bool | int | None = None,
+        redirect: bool = True,
+        assert_same_host: bool = True,
+        timeout: _TYPE_TIMEOUT = _DEFAULT_TIMEOUT,
+        pool_timeout: int | None = None,
+        release_conn: bool | None = None,
+        chunked: bool = False,
+        body_pos: _TYPE_BODY_POSITION | None = None,
+        preload_content: bool = True,
+        decode_content: bool = True,
+        **response_kw: typing.Any,
+    ) -> BaseHTTPResponse:
+        """
+        Get a connection from the pool and perform an HTTP request. This is the
+        lowest level call for making a request, so you'll need to specify all
+        the raw details.
+    
+        .. note::
+    
+           More commonly, it's appropriate to use a convenience method
+           such as :meth:`request`.
+    
+        .. note::
+    
+           `release_conn` will only behave as expected if
+           `preload_content=False` because we want to make
+           `preload_content=False` the default behaviour someday soon without
+           breaking backwards compatibility.
+    
+        :param method:
+            HTTP request method (such as GET, POST, PUT, etc.)
+    
+        :param url:
+            The URL to perform the request on.
+    
+        :param body:
+            Data to send in the request body, either :class:`str`, :class:`bytes`,
+            an iterable of :class:`str`/:class:`bytes`, or a file-like object.
+    
+        :param headers:
+            Dictionary of custom headers to send, such as User-Agent,
+            If-None-Match, etc. If None, pool headers are used. If provided,
+            these headers completely replace any pool-specific headers.
+    
+        :param retries:
+            Configure the number of retries to allow before raising a
+            :class:`~urllib3.exceptions.MaxRetryError` exception.
+    
+            If ``None`` (default) will retry 3 times, see ``Retry.DEFAULT``. Pass a
+            :class:`~urllib3.util.retry.Retry` object for fine-grained control
+            over different types of retries.
+            Pass an integer number to retry connection errors that many times,
+            but no other types of errors. Pass zero to never retry.
+    
+            If ``False``, then retries are disabled and any exception is raised
+            immediately. Also, instead of raising a MaxRetryError on redirects,
+            the redirect response will be returned.
+    
+        :type retries: :class:`~urllib3.util.retry.Retry`, False, or an int.
+    
+        :param redirect:
+            If True, automatically handle redirects (status codes 301, 302,
+            303, 307, 308). Each redirect counts as a retry. Disabling retries
+            will disable redirect, too.
+    
+        :param assert_same_host:
+            If ``True``, will make sure that the host of the pool requests is
+            consistent else will raise HostChangedError. When ``False``, you can
+            use the pool on an HTTP proxy and request foreign hosts.
+    
+        :param timeout:
+            If specified, overrides the default timeout for this one
+            request. It may be a float (in seconds) or an instance of
+            :class:`urllib3.util.Timeout`.
+    
+        :param pool_timeout:
+            If set and the pool is set to block=True, then this method will
+            block for ``pool_timeout`` seconds and raise EmptyPoolError if no
+            connection is available within the time period.
+    
+        :param bool preload_content:
+            If True, the response's body will be preloaded into memory.
+    
+        :param bool decode_content:
+            If True, will attempt to decode the body based on the
+            'content-encoding' header.
+    
+        :param release_conn:
+            If False, then the urlopen call will not release the connection
+            back into the pool once a response is received (but will release if
+            you read the entire contents of the response such as when
+            `preload_content=True`). This is useful if you're not preloading
+            the response's content immediately. You will need to call
+            ``r.release_conn()`` on the response ``r`` to return the connection
+            back into the pool. If None, it takes the value of ``preload_content``
+            which defaults to ``True``.
+    
+        :param bool chunked:
+            If True, urllib3 will send the body using chunked transfer
+            encoding. Otherwise, urllib3 will send the body using the standard
+            content-length form. Defaults to False.
+    
+        :param int body_pos:
+            Position to seek to in file-like body in the event of a retry or
+            redirect. Typically this won't need to be set because urllib3 will
+            auto-populate the value when needed.
+        """
+        parsed_url = parse_url(url)
+        destination_scheme = parsed_url.scheme
+    
+        if headers is None:
+            headers = self.headers
+    
+        if not isinstance(retries, Retry):
+            retries = Retry.from_int(retries, redirect=redirect, default=self.retries)
+    
+        if release_conn is None:
+            release_conn = preload_content
+    
+        # Check host
+        if assert_same_host and not self.is_same_host(url):
+            raise HostChangedError(self, url, retries)
+    
+        # Ensure that the URL we're connecting to is properly encoded
+        if url.startswith("/"):
+            url = to_str(_encode_target(url))
+        else:
+            url = to_str(parsed_url.url)
+    
+        conn = None
+    
+        # Track whether `conn` needs to be released before
+        # returning/raising/recursing. Update this variable if necessary, and
+        # leave `release_conn` constant throughout the function. That way, if
+        # the function recurses, the original value of `release_conn` will be
+        # passed down into the recursive call, and its value will be respected.
+        #
+        # See issue #651 [1] for details.
+        #
+        # [1] <https://github.com/urllib3/urllib3/issues/651>
+        release_this_conn = release_conn
+    
+        http_tunnel_required = connection_requires_http_tunnel(
+            self.proxy, self.proxy_config, destination_scheme
+        )
+    
+        # Merge the proxy headers. Only done when not using HTTP CONNECT. We
+        # have to copy the headers dict so we can safely change it without those
+        # changes being reflected in anyone else's copy.
+        if not http_tunnel_required:
+            headers = headers.copy()  # type: ignore[attr-defined]
+            headers.update(self.proxy_headers)  # type: ignore[union-attr]
+    
+        # Must keep the exception bound to a separate variable or else Python 3
+        # complains about UnboundLocalError.
+        err = None
+    
+        # Keep track of whether we cleanly exited the except block. This
+        # ensures we do proper cleanup in finally.
+        clean_exit = False
+    
+        # Rewind body position, if needed. Record current position
+        # for future rewinds in the event of a redirect/retry.
+        body_pos = set_file_position(body, body_pos)
+    
+        try:
+            # Request a connection from the queue.
+            timeout_obj = self._get_timeout(timeout)
+            conn = self._get_conn(timeout=pool_timeout)
+    
+            conn.timeout = timeout_obj.connect_timeout  # type: ignore[assignment]
+    
+            # Is this a closed/new connection that requires CONNECT tunnelling?
+            if self.proxy is not None and http_tunnel_required and conn.is_closed:
+                try:
+                    self._prepare_proxy(conn)
+                except (BaseSSLError, OSError, SocketTimeout) as e:
+                    self._raise_timeout(
+                        err=e, url=self.proxy.url, timeout_value=conn.timeout
+                    )
+                    raise
+    
+            # If we're going to release the connection in ``finally:``, then
+            # the response doesn't need to know about the connection. Otherwise
+            # it will also try to release it and we'll have a double-release
+            # mess.
+            response_conn = conn if not release_conn else None
+    
+            # Make the request on the HTTPConnection object
+>           response = self._make_request(
+                conn,
+                method,
+                url,
+                timeout=timeout_obj,
+                body=body,
+                headers=headers,
+                chunked=chunked,
+                retries=retries,
+                response_conn=response_conn,
+                preload_content=preload_content,
+                decode_content=decode_content,
+                **response_kw,
+            )
+
+/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/urllib3/connectionpool.py:787: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <urllib3.connectionpool.HTTPConnectionPool object at 0x7f6ae85b7e00>
+conn = <HTTPConnection(host='rest.ensembl.org', port=80) at 0x7f6ad8befd70>
+method = 'POST', url = '/lookup/id/'
+body = b'{"ids": ["ENSG00000106443", "ENSG00000102317", "ENSG00000188895", "ENSG00000135365"], "expand": true}'
+headers = {'User-Agent': 'python-requests/2.32.5', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive', 'Content-Type': 'application/json', 'Content-Length': '101'}
+retries = Retry(total=0, connect=None, read=False, redirect=None, status=None)
+timeout = Timeout(connect=None, read=None, total=None), chunked = False
+response_conn = <HTTPConnection(host='rest.ensembl.org', port=80) at 0x7f6ad8befd70>
+preload_content = False, decode_content = False, enforce_content_length = True
+
+    def _make_request(
+        self,
+        conn: BaseHTTPConnection,
+        method: str,
+        url: str,
+        body: _TYPE_BODY | None = None,
+        headers: typing.Mapping[str, str] | None = None,
+        retries: Retry | None = None,
+        timeout: _TYPE_TIMEOUT = _DEFAULT_TIMEOUT,
+        chunked: bool = False,
+        response_conn: BaseHTTPConnection | None = None,
+        preload_content: bool = True,
+        decode_content: bool = True,
+        enforce_content_length: bool = True,
+    ) -> BaseHTTPResponse:
+        """
+        Perform a request on a given urllib connection object taken from our
+        pool.
+    
+        :param conn:
+            a connection from one of our connection pools
+    
+        :param method:
+            HTTP request method (such as GET, POST, PUT, etc.)
+    
+        :param url:
+            The URL to perform the request on.
+    
+        :param body:
+            Data to send in the request body, either :class:`str`, :class:`bytes`,
+            an iterable of :class:`str`/:class:`bytes`, or a file-like object.
+    
+        :param headers:
+            Dictionary of custom headers to send, such as User-Agent,
+            If-None-Match, etc. If None, pool headers are used. If provided,
+            these headers completely replace any pool-specific headers.
+    
+        :param retries:
+            Configure the number of retries to allow before raising a
+            :class:`~urllib3.exceptions.MaxRetryError` exception.
+    
+            Pass ``None`` to retry until you receive a response. Pass a
+            :class:`~urllib3.util.retry.Retry` object for fine-grained control
+            over different types of retries.
+            Pass an integer number to retry connection errors that many times,
+            but no other types of errors. Pass zero to never retry.
+    
+            If ``False``, then retries are disabled and any exception is raised
+            immediately. Also, instead of raising a MaxRetryError on redirects,
+            the redirect response will be returned.
+    
+        :type retries: :class:`~urllib3.util.retry.Retry`, False, or an int.
+    
+        :param timeout:
+            If specified, overrides the default timeout for this one
+            request. It may be a float (in seconds) or an instance of
+            :class:`urllib3.util.Timeout`.
+    
+        :param chunked:
+            If True, urllib3 will send the body using chunked transfer
+            encoding. Otherwise, urllib3 will send the body using the standard
+            content-length form. Defaults to False.
+    
+        :param response_conn:
+            Set this to ``None`` if you will handle releasing the connection or
+            set the connection to have the response release it.
+    
+        :param preload_content:
+          If True, the response's body will be preloaded during construction.
+    
+        :param decode_content:
+            If True, will attempt to decode the body based on the
+            'content-encoding' header.
+    
+        :param enforce_content_length:
+            Enforce content length checking. Body returned by server must match
+            value of Content-Length header, if present. Otherwise, raise error.
+        """
+        self.num_requests += 1
+    
+        timeout_obj = self._get_timeout(timeout)
+        timeout_obj.start_connect()
+        conn.timeout = Timeout.resolve_default_timeout(timeout_obj.connect_timeout)
+    
+        try:
+            # Trigger any extra validation we need to do.
+            try:
+                self._validate_conn(conn)
+            except (SocketTimeout, BaseSSLError) as e:
+                self._raise_timeout(err=e, url=url, timeout_value=conn.timeout)
+                raise
+    
+        # _validate_conn() starts the connection to an HTTPS proxy
+        # so we need to wrap errors with 'ProxyError' here too.
+        except (
+            OSError,
+            NewConnectionError,
+            TimeoutError,
+            BaseSSLError,
+            CertificateError,
+            SSLError,
+        ) as e:
+            new_e: Exception = e
+            if isinstance(e, (BaseSSLError, CertificateError)):
+                new_e = SSLError(e)
+            # If the connection didn't successfully connect to it's proxy
+            # then there
+            if isinstance(
+                new_e, (OSError, NewConnectionError, TimeoutError, SSLError)
+            ) and (conn and conn.proxy and not conn.has_connected_to_proxy):
+                new_e = _wrap_proxy_error(new_e, conn.proxy.scheme)
+            raise new_e
+    
+        # conn.request() calls http.client.*.request, not the method in
+        # urllib3.request. It also calls makefile (recv) on the socket.
+        try:
+            conn.request(
+                method,
+                url,
+                body=body,
+                headers=headers,
+                chunked=chunked,
+                preload_content=preload_content,
+                decode_content=decode_content,
+                enforce_content_length=enforce_content_length,
+            )
+    
+        # We are swallowing BrokenPipeError (errno.EPIPE) since the server is
+        # legitimately able to close the connection after sending a valid response.
+        # With this behaviour, the received response is still readable.
+        except BrokenPipeError:
+            pass
+        except OSError as e:
+            # MacOS/Linux
+            # EPROTOTYPE and ECONNRESET are needed on macOS
+            # https://erickt.github.io/blog/2014/11/19/adventures-in-debugging-a-potential-osx-kernel-bug/
+            # Condition changed later to emit ECONNRESET instead of only EPROTOTYPE.
+            if e.errno != errno.EPROTOTYPE and e.errno != errno.ECONNRESET:
+                raise
+    
+        # Reset the timeout for the recv() on the socket
+        read_timeout = timeout_obj.read_timeout
+    
+        if not conn.is_closed:
+            # In Python 3 socket.py will catch EAGAIN and return None when you
+            # try and read into the file pointer created by http.client, which
+            # instead raises a BadStatusLine exception. Instead of catching
+            # the exception and assuming all BadStatusLine exceptions are read
+            # timeouts, check for a zero timeout before making the request.
+            if read_timeout == 0:
+                raise ReadTimeoutError(
+                    self, url, f"Read timed out. (read timeout={read_timeout})"
+                )
+            conn.timeout = read_timeout
+    
+        # Receive the response from the server
+        try:
+>           response = conn.getresponse()
+                       ^^^^^^^^^^^^^^^^^^
+
+/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/urllib3/connectionpool.py:534: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <HTTPConnection(host='rest.ensembl.org', port=80) at 0x7f6ad8befd70>
+
+    def getresponse(  # type: ignore[override]
+        self,
+    ) -> HTTPResponse:
+        """
+        Get the response from the server.
+    
+        If the HTTPConnection is in the correct state, returns an instance of HTTPResponse or of whatever object is returned by the response_class variable.
+    
+        If a request has not been sent or if a previous response has not be handled, ResponseNotReady is raised. If the HTTP response indicates that the connection should be closed, then it will be closed before the response is returned. When the connection is closed, the underlying socket is closed.
+        """
+        # Raise the same error as http.client.HTTPConnection
+        if self._response_options is None:
+            raise ResponseNotReady()
+    
+        # Reset this attribute for being used again.
+        resp_options = self._response_options
+        self._response_options = None
+    
+        # Since the connection's timeout value may have been updated
+        # we need to set the timeout on the socket.
+        self.sock.settimeout(self.timeout)
+    
+        # This is needed here to avoid circular import errors
+        from .response import HTTPResponse
+    
+        # Save a reference to the shutdown function before ownership is passed
+        # to httplib_response
+        # TODO should we implement it everywhere?
+        _shutdown = getattr(self.sock, "shutdown", None)
+    
+        # Get the response from http.client.HTTPConnection
+>       httplib_response = super().getresponse()
+                           ^^^^^^^^^^^^^^^^^^^^^
+
+/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/urllib3/connection.py:571: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <HTTPConnection(host='rest.ensembl.org', port=80) at 0x7f6ad8befd70>
+
+    def getresponse(self):
+        """Get the response from the server.
+    
+        If the HTTPConnection is in the correct state, returns an
+        instance of HTTPResponse or of whatever object is returned by
+        the response_class variable.
+    
+        If a request has not been sent or if a previous response has
+        not be handled, ResponseNotReady is raised.  If the HTTP
+        response indicates that the connection should be closed, then
+        it will be closed before the response is returned.  When the
+        connection is closed, the underlying socket is closed.
+        """
+    
+        # if a prior response has been completed, then forget about it.
+        if self.__response and self.__response.isclosed():
+            self.__response = None
+    
+        # if a prior response exists, then it must be completed (otherwise, we
+        # cannot read this response's header to determine the connection-close
+        # behavior)
+        #
+        # note: if a prior response existed, but was connection-close, then the
+        # socket and response were made independent of this HTTPConnection
+        # object since a new request requires that we open a whole new
+        # connection
+        #
+        # this means the prior response had one of two states:
+        #   1) will_close: this connection was reset and the prior socket and
+        #                  response operate independently
+        #   2) persistent: the response was retained and we await its
+        #                  isclosed() status to become true.
+        #
+        if self.__state != _CS_REQ_SENT or self.__response:
+            raise ResponseNotReady(self.__state)
+    
+        if self.debuglevel > 0:
+            response = self.response_class(self.sock, self.debuglevel,
+                                           method=self._method)
+        else:
+            response = self.response_class(self.sock, method=self._method)
+    
+        try:
+            try:
+>               response.begin()
+
+/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/http/client.py:1430: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.client.HTTPResponse object at 0x7f6afc90ba60>
+
+    def begin(self):
+        if self.headers is not None:
+            # we've already started reading the response
+            return
+    
+        # read until we get a non-100 response
+        while True:
+>           version, status, reason = self._read_status()
+                                      ^^^^^^^^^^^^^^^^^^^
+
+/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/http/client.py:331: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.client.HTTPResponse object at 0x7f6afc90ba60>
+
+    def _read_status(self):
+>       line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/http/client.py:292: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <socket.SocketIO object at 0x7f6ad8bef220>
+b = <memory at 0x7f6ae88dc7c0>
+
+    def readinto(self, b):
+        """Read up to len(b) bytes into the writable buffer *b* and return
+        the number of bytes read.  If the socket is non-blocking and no bytes
+        are available, None is returned.
+    
+        If *b* is non-empty, a 0 return value indicates that the connection
+        was shutdown at the other end.
+        """
+        self._checkClosed()
+        self._checkReadable()
+        if self._timeout_occurred:
+            raise OSError("cannot read from timed out object")
+        while True:
+            try:
+>               return self._sock.recv_into(b)
+                       ^^^^^^^^^^^^^^^^^^^^^^^
+E               ConnectionResetError: [Errno 104] Connection reset by peer
+
+/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/socket.py:720: ConnectionResetError
+
+During handling of the above exception, another exception occurred:
+
+self = <requests.adapters.HTTPAdapter object at 0x7f6ae85b71a0>
+request = <PreparedRequest [POST]>, stream = False
+timeout = Timeout(connect=None, read=None, total=None), verify = True
+cert = None, proxies = OrderedDict()
+
+    def send(
+        self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None
+    ):
+        """Sends PreparedRequest object. Returns Response object.
+    
+        :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
+        :param stream: (optional) Whether to stream the request content.
+        :param timeout: (optional) How long to wait for the server to send
+            data before giving up, as a float, or a :ref:`(connect timeout,
+            read timeout) <timeouts>` tuple.
+        :type timeout: float or tuple or urllib3 Timeout object
+        :param verify: (optional) Either a boolean, in which case it controls whether
+            we verify the server's TLS certificate, or a string, in which case it
+            must be a path to a CA bundle to use
+        :param cert: (optional) Any user-provided SSL certificate to be trusted.
+        :param proxies: (optional) The proxies dictionary to apply to the request.
+        :rtype: requests.Response
+        """
+    
+        try:
+            conn = self.get_connection_with_tls_context(
+                request, verify, proxies=proxies, cert=cert
+            )
+        except LocationValueError as e:
+            raise InvalidURL(e, request=request)
+    
+        self.cert_verify(conn, request.url, verify, cert)
+        url = self.request_url(request, proxies)
+        self.add_headers(
+            request,
+            stream=stream,
+            timeout=timeout,
+            verify=verify,
+            cert=cert,
+            proxies=proxies,
+        )
+    
+        chunked = not (request.body is None or "Content-Length" in request.headers)
+    
+        if isinstance(timeout, tuple):
+            try:
+                connect, read = timeout
+                timeout = TimeoutSauce(connect=connect, read=read)
+            except ValueError:
+                raise ValueError(
+                    f"Invalid timeout {timeout}. Pass a (connect, read) timeout tuple, "
+                    f"or a single float to set both timeouts to the same value."
+                )
+        elif isinstance(timeout, TimeoutSauce):
+            pass
+        else:
+            timeout = TimeoutSauce(connect=timeout, read=timeout)
+    
+        try:
+>           resp = conn.urlopen(
+                method=request.method,
+                url=url,
+                body=request.body,
+                headers=request.headers,
+                redirect=False,
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                retries=self.max_retries,
+                timeout=timeout,
+                chunked=chunked,
+            )
+
+/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/requests/adapters.py:644: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <urllib3.connectionpool.HTTPConnectionPool object at 0x7f6ae85b7e00>
+method = 'POST', url = '/lookup/id/'
+body = b'{"ids": ["ENSG00000106443", "ENSG00000102317", "ENSG00000188895", "ENSG00000135365"], "expand": true}'
+headers = {'User-Agent': 'python-requests/2.32.5', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive', 'Content-Type': 'application/json', 'Content-Length': '101'}
+retries = Retry(total=0, connect=None, read=False, redirect=None, status=None)
+redirect = False, assert_same_host = False
+timeout = Timeout(connect=None, read=None, total=None), pool_timeout = None
+release_conn = False, chunked = False, body_pos = None, preload_content = False
+decode_content = False, response_kw = {}
+parsed_url = Url(scheme=None, auth=None, host=None, port=None, path='/lookup/id/', query=None, fragment=None)
+destination_scheme = None, conn = None, release_this_conn = True
+http_tunnel_required = False, err = None, clean_exit = False
+
+    def urlopen(  # type: ignore[override]
+        self,
+        method: str,
+        url: str,
+        body: _TYPE_BODY | None = None,
+        headers: typing.Mapping[str, str] | None = None,
+        retries: Retry | bool | int | None = None,
+        redirect: bool = True,
+        assert_same_host: bool = True,
+        timeout: _TYPE_TIMEOUT = _DEFAULT_TIMEOUT,
+        pool_timeout: int | None = None,
+        release_conn: bool | None = None,
+        chunked: bool = False,
+        body_pos: _TYPE_BODY_POSITION | None = None,
+        preload_content: bool = True,
+        decode_content: bool = True,
+        **response_kw: typing.Any,
+    ) -> BaseHTTPResponse:
+        """
+        Get a connection from the pool and perform an HTTP request. This is the
+        lowest level call for making a request, so you'll need to specify all
+        the raw details.
+    
+        .. note::
+    
+           More commonly, it's appropriate to use a convenience method
+           such as :meth:`request`.
+    
+        .. note::
+    
+           `release_conn` will only behave as expected if
+           `preload_content=False` because we want to make
+           `preload_content=False` the default behaviour someday soon without
+           breaking backwards compatibility.
+    
+        :param method:
+            HTTP request method (such as GET, POST, PUT, etc.)
+    
+        :param url:
+            The URL to perform the request on.
+    
+        :param body:
+            Data to send in the request body, either :class:`str`, :class:`bytes`,
+            an iterable of :class:`str`/:class:`bytes`, or a file-like object.
+    
+        :param headers:
+            Dictionary of custom headers to send, such as User-Agent,
+            If-None-Match, etc. If None, pool headers are used. If provided,
+            these headers completely replace any pool-specific headers.
+    
+        :param retries:
+            Configure the number of retries to allow before raising a
+            :class:`~urllib3.exceptions.MaxRetryError` exception.
+    
+            If ``None`` (default) will retry 3 times, see ``Retry.DEFAULT``. Pass a
+            :class:`~urllib3.util.retry.Retry` object for fine-grained control
+            over different types of retries.
+            Pass an integer number to retry connection errors that many times,
+            but no other types of errors. Pass zero to never retry.
+    
+            If ``False``, then retries are disabled and any exception is raised
+            immediately. Also, instead of raising a MaxRetryError on redirects,
+            the redirect response will be returned.
+    
+        :type retries: :class:`~urllib3.util.retry.Retry`, False, or an int.
+    
+        :param redirect:
+            If True, automatically handle redirects (status codes 301, 302,
+            303, 307, 308). Each redirect counts as a retry. Disabling retries
+            will disable redirect, too.
+    
+        :param assert_same_host:
+            If ``True``, will make sure that the host of the pool requests is
+            consistent else will raise HostChangedError. When ``False``, you can
+            use the pool on an HTTP proxy and request foreign hosts.
+    
+        :param timeout:
+            If specified, overrides the default timeout for this one
+            request. It may be a float (in seconds) or an instance of
+            :class:`urllib3.util.Timeout`.
+    
+        :param pool_timeout:
+            If set and the pool is set to block=True, then this method will
+            block for ``pool_timeout`` seconds and raise EmptyPoolError if no
+            connection is available within the time period.
+    
+        :param bool preload_content:
+            If True, the response's body will be preloaded into memory.
+    
+        :param bool decode_content:
+            If True, will attempt to decode the body based on the
+            'content-encoding' header.
+    
+        :param release_conn:
+            If False, then the urlopen call will not release the connection
+            back into the pool once a response is received (but will release if
+            you read the entire contents of the response such as when
+            `preload_content=True`). This is useful if you're not preloading
+            the response's content immediately. You will need to call
+            ``r.release_conn()`` on the response ``r`` to return the connection
+            back into the pool. If None, it takes the value of ``preload_content``
+            which defaults to ``True``.
+    
+        :param bool chunked:
+            If True, urllib3 will send the body using chunked transfer
+            encoding. Otherwise, urllib3 will send the body using the standard
+            content-length form. Defaults to False.
+    
+        :param int body_pos:
+            Position to seek to in file-like body in the event of a retry or
+            redirect. Typically this won't need to be set because urllib3 will
+            auto-populate the value when needed.
+        """
+        parsed_url = parse_url(url)
+        destination_scheme = parsed_url.scheme
+    
+        if headers is None:
+            headers = self.headers
+    
+        if not isinstance(retries, Retry):
+            retries = Retry.from_int(retries, redirect=redirect, default=self.retries)
+    
+        if release_conn is None:
+            release_conn = preload_content
+    
+        # Check host
+        if assert_same_host and not self.is_same_host(url):
+            raise HostChangedError(self, url, retries)
+    
+        # Ensure that the URL we're connecting to is properly encoded
+        if url.startswith("/"):
+            url = to_str(_encode_target(url))
+        else:
+            url = to_str(parsed_url.url)
+    
+        conn = None
+    
+        # Track whether `conn` needs to be released before
+        # returning/raising/recursing. Update this variable if necessary, and
+        # leave `release_conn` constant throughout the function. That way, if
+        # the function recurses, the original value of `release_conn` will be
+        # passed down into the recursive call, and its value will be respected.
+        #
+        # See issue #651 [1] for details.
+        #
+        # [1] <https://github.com/urllib3/urllib3/issues/651>
+        release_this_conn = release_conn
+    
+        http_tunnel_required = connection_requires_http_tunnel(
+            self.proxy, self.proxy_config, destination_scheme
+        )
+    
+        # Merge the proxy headers. Only done when not using HTTP CONNECT. We
+        # have to copy the headers dict so we can safely change it without those
+        # changes being reflected in anyone else's copy.
+        if not http_tunnel_required:
+            headers = headers.copy()  # type: ignore[attr-defined]
+            headers.update(self.proxy_headers)  # type: ignore[union-attr]
+    
+        # Must keep the exception bound to a separate variable or else Python 3
+        # complains about UnboundLocalError.
+        err = None
+    
+        # Keep track of whether we cleanly exited the except block. This
+        # ensures we do proper cleanup in finally.
+        clean_exit = False
+    
+        # Rewind body position, if needed. Record current position
+        # for future rewinds in the event of a redirect/retry.
+        body_pos = set_file_position(body, body_pos)
+    
+        try:
+            # Request a connection from the queue.
+            timeout_obj = self._get_timeout(timeout)
+            conn = self._get_conn(timeout=pool_timeout)
+    
+            conn.timeout = timeout_obj.connect_timeout  # type: ignore[assignment]
+    
+            # Is this a closed/new connection that requires CONNECT tunnelling?
+            if self.proxy is not None and http_tunnel_required and conn.is_closed:
+                try:
+                    self._prepare_proxy(conn)
+                except (BaseSSLError, OSError, SocketTimeout) as e:
+                    self._raise_timeout(
+                        err=e, url=self.proxy.url, timeout_value=conn.timeout
+                    )
+                    raise
+    
+            # If we're going to release the connection in ``finally:``, then
+            # the response doesn't need to know about the connection. Otherwise
+            # it will also try to release it and we'll have a double-release
+            # mess.
+            response_conn = conn if not release_conn else None
+    
+            # Make the request on the HTTPConnection object
+            response = self._make_request(
+                conn,
+                method,
+                url,
+                timeout=timeout_obj,
+                body=body,
+                headers=headers,
+                chunked=chunked,
+                retries=retries,
+                response_conn=response_conn,
+                preload_content=preload_content,
+                decode_content=decode_content,
+                **response_kw,
+            )
+    
+            # Everything went great!
+            clean_exit = True
+    
+        except EmptyPoolError:
+            # Didn't get a connection from the pool, no need to clean up
+            clean_exit = True
+            release_this_conn = False
+            raise
+    
+        except (
+            TimeoutError,
+            HTTPException,
+            OSError,
+            ProtocolError,
+            BaseSSLError,
+            SSLError,
+            CertificateError,
+            ProxyError,
+        ) as e:
+            # Discard the connection for these exceptions. It will be
+            # replaced during the next _get_conn() call.
+            clean_exit = False
+            new_e: Exception = e
+            if isinstance(e, (BaseSSLError, CertificateError)):
+                new_e = SSLError(e)
+            if isinstance(
+                new_e,
+                (
+                    OSError,
+                    NewConnectionError,
+                    TimeoutError,
+                    SSLError,
+                    HTTPException,
+                ),
+            ) and (conn and conn.proxy and not conn.has_connected_to_proxy):
+                new_e = _wrap_proxy_error(new_e, conn.proxy.scheme)
+            elif isinstance(new_e, (OSError, HTTPException)):
+                new_e = ProtocolError("Connection aborted.", new_e)
+    
+>           retries = retries.increment(
+                method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+            )
+
+/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/urllib3/connectionpool.py:841: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = Retry(total=0, connect=None, read=False, redirect=None, status=None)
+method = 'POST', url = '/lookup/id/', response = None
+error = ProtocolError('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))
+_pool = <urllib3.connectionpool.HTTPConnectionPool object at 0x7f6ae85b7e00>
+_stacktrace = <traceback object at 0x7f6ae88b4280>
+
+    def increment(
+        self,
+        method: str | None = None,
+        url: str | None = None,
+        response: BaseHTTPResponse | None = None,
+        error: Exception | None = None,
+        _pool: ConnectionPool | None = None,
+        _stacktrace: TracebackType | None = None,
+    ) -> Self:
+        """Return a new Retry object with incremented retry counters.
+    
+        :param response: A response object, or None, if the server did not
+            return a response.
+        :type response: :class:`~urllib3.response.BaseHTTPResponse`
+        :param Exception error: An error encountered during the request, or
+            None if the response was received successfully.
+    
+        :return: A new ``Retry`` object.
+        """
+        if self.total is False and error:
+            # Disabled, indicate to re-raise the error.
+            raise reraise(type(error), error, _stacktrace)
+    
+        total = self.total
+        if total is not None:
+            total -= 1
+    
+        connect = self.connect
+        read = self.read
+        redirect = self.redirect
+        status_count = self.status
+        other = self.other
+        cause = "unknown"
+        status = None
+        redirect_location = None
+    
+        if error and self._is_connection_error(error):
+            # Connect retry?
+            if connect is False:
+                raise reraise(type(error), error, _stacktrace)
+            elif connect is not None:
+                connect -= 1
+    
+        elif error and self._is_read_error(error):
+            # Read retry?
+            if read is False or method is None or not self._is_method_retryable(method):
+>               raise reraise(type(error), error, _stacktrace)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/urllib3/util/retry.py:490: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+tp = <class 'urllib3.exceptions.ProtocolError'>, value = None, tb = None
+
+    def reraise(
+        tp: type[BaseException] | None,
+        value: BaseException,
+        tb: TracebackType | None = None,
+    ) -> typing.NoReturn:
+        try:
+            if value.__traceback__ is not tb:
+>               raise value.with_traceback(tb)
+
+/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/urllib3/util/util.py:38: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <urllib3.connectionpool.HTTPConnectionPool object at 0x7f6ae85b7e00>
+method = 'POST', url = '/lookup/id/'
+body = b'{"ids": ["ENSG00000106443", "ENSG00000102317", "ENSG00000188895", "ENSG00000135365"], "expand": true}'
+headers = {'User-Agent': 'python-requests/2.32.5', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive', 'Content-Type': 'application/json', 'Content-Length': '101'}
+retries = Retry(total=0, connect=None, read=False, redirect=None, status=None)
+redirect = False, assert_same_host = False
+timeout = Timeout(connect=None, read=None, total=None), pool_timeout = None
+release_conn = False, chunked = False, body_pos = None, preload_content = False
+decode_content = False, response_kw = {}
+parsed_url = Url(scheme=None, auth=None, host=None, port=None, path='/lookup/id/', query=None, fragment=None)
+destination_scheme = None, conn = None, release_this_conn = True
+http_tunnel_required = False, err = None, clean_exit = False
+
+    def urlopen(  # type: ignore[override]
+        self,
+        method: str,
+        url: str,
+        body: _TYPE_BODY | None = None,
+        headers: typing.Mapping[str, str] | None = None,
+        retries: Retry | bool | int | None = None,
+        redirect: bool = True,
+        assert_same_host: bool = True,
+        timeout: _TYPE_TIMEOUT = _DEFAULT_TIMEOUT,
+        pool_timeout: int | None = None,
+        release_conn: bool | None = None,
+        chunked: bool = False,
+        body_pos: _TYPE_BODY_POSITION | None = None,
+        preload_content: bool = True,
+        decode_content: bool = True,
+        **response_kw: typing.Any,
+    ) -> BaseHTTPResponse:
+        """
+        Get a connection from the pool and perform an HTTP request. This is the
+        lowest level call for making a request, so you'll need to specify all
+        the raw details.
+    
+        .. note::
+    
+           More commonly, it's appropriate to use a convenience method
+           such as :meth:`request`.
+    
+        .. note::
+    
+           `release_conn` will only behave as expected if
+           `preload_content=False` because we want to make
+           `preload_content=False` the default behaviour someday soon without
+           breaking backwards compatibility.
+    
+        :param method:
+            HTTP request method (such as GET, POST, PUT, etc.)
+    
+        :param url:
+            The URL to perform the request on.
+    
+        :param body:
+            Data to send in the request body, either :class:`str`, :class:`bytes`,
+            an iterable of :class:`str`/:class:`bytes`, or a file-like object.
+    
+        :param headers:
+            Dictionary of custom headers to send, such as User-Agent,
+            If-None-Match, etc. If None, pool headers are used. If provided,
+            these headers completely replace any pool-specific headers.
+    
+        :param retries:
+            Configure the number of retries to allow before raising a
+            :class:`~urllib3.exceptions.MaxRetryError` exception.
+    
+            If ``None`` (default) will retry 3 times, see ``Retry.DEFAULT``. Pass a
+            :class:`~urllib3.util.retry.Retry` object for fine-grained control
+            over different types of retries.
+            Pass an integer number to retry connection errors that many times,
+            but no other types of errors. Pass zero to never retry.
+    
+            If ``False``, then retries are disabled and any exception is raised
+            immediately. Also, instead of raising a MaxRetryError on redirects,
+            the redirect response will be returned.
+    
+        :type retries: :class:`~urllib3.util.retry.Retry`, False, or an int.
+    
+        :param redirect:
+            If True, automatically handle redirects (status codes 301, 302,
+            303, 307, 308). Each redirect counts as a retry. Disabling retries
+            will disable redirect, too.
+    
+        :param assert_same_host:
+            If ``True``, will make sure that the host of the pool requests is
+            consistent else will raise HostChangedError. When ``False``, you can
+            use the pool on an HTTP proxy and request foreign hosts.
+    
+        :param timeout:
+            If specified, overrides the default timeout for this one
+            request. It may be a float (in seconds) or an instance of
+            :class:`urllib3.util.Timeout`.
+    
+        :param pool_timeout:
+            If set and the pool is set to block=True, then this method will
+            block for ``pool_timeout`` seconds and raise EmptyPoolError if no
+            connection is available within the time period.
+    
+        :param bool preload_content:
+            If True, the response's body will be preloaded into memory.
+    
+        :param bool decode_content:
+            If True, will attempt to decode the body based on the
+            'content-encoding' header.
+    
+        :param release_conn:
+            If False, then the urlopen call will not release the connection
+            back into the pool once a response is received (but will release if
+            you read the entire contents of the response such as when
+            `preload_content=True`). This is useful if you're not preloading
+            the response's content immediately. You will need to call
+            ``r.release_conn()`` on the response ``r`` to return the connection
+            back into the pool. If None, it takes the value of ``preload_content``
+            which defaults to ``True``.
+    
+        :param bool chunked:
+            If True, urllib3 will send the body using chunked transfer
+            encoding. Otherwise, urllib3 will send the body using the standard
+            content-length form. Defaults to False.
+    
+        :param int body_pos:
+            Position to seek to in file-like body in the event of a retry or
+            redirect. Typically this won't need to be set because urllib3 will
+            auto-populate the value when needed.
+        """
+        parsed_url = parse_url(url)
+        destination_scheme = parsed_url.scheme
+    
+        if headers is None:
+            headers = self.headers
+    
+        if not isinstance(retries, Retry):
+            retries = Retry.from_int(retries, redirect=redirect, default=self.retries)
+    
+        if release_conn is None:
+            release_conn = preload_content
+    
+        # Check host
+        if assert_same_host and not self.is_same_host(url):
+            raise HostChangedError(self, url, retries)
+    
+        # Ensure that the URL we're connecting to is properly encoded
+        if url.startswith("/"):
+            url = to_str(_encode_target(url))
+        else:
+            url = to_str(parsed_url.url)
+    
+        conn = None
+    
+        # Track whether `conn` needs to be released before
+        # returning/raising/recursing. Update this variable if necessary, and
+        # leave `release_conn` constant throughout the function. That way, if
+        # the function recurses, the original value of `release_conn` will be
+        # passed down into the recursive call, and its value will be respected.
+        #
+        # See issue #651 [1] for details.
+        #
+        # [1] <https://github.com/urllib3/urllib3/issues/651>
+        release_this_conn = release_conn
+    
+        http_tunnel_required = connection_requires_http_tunnel(
+            self.proxy, self.proxy_config, destination_scheme
+        )
+    
+        # Merge the proxy headers. Only done when not using HTTP CONNECT. We
+        # have to copy the headers dict so we can safely change it without those
+        # changes being reflected in anyone else's copy.
+        if not http_tunnel_required:
+            headers = headers.copy()  # type: ignore[attr-defined]
+            headers.update(self.proxy_headers)  # type: ignore[union-attr]
+    
+        # Must keep the exception bound to a separate variable or else Python 3
+        # complains about UnboundLocalError.
+        err = None
+    
+        # Keep track of whether we cleanly exited the except block. This
+        # ensures we do proper cleanup in finally.
+        clean_exit = False
+    
+        # Rewind body position, if needed. Record current position
+        # for future rewinds in the event of a redirect/retry.
+        body_pos = set_file_position(body, body_pos)
+    
+        try:
+            # Request a connection from the queue.
+            timeout_obj = self._get_timeout(timeout)
+            conn = self._get_conn(timeout=pool_timeout)
+    
+            conn.timeout = timeout_obj.connect_timeout  # type: ignore[assignment]
+    
+            # Is this a closed/new connection that requires CONNECT tunnelling?
+            if self.proxy is not None and http_tunnel_required and conn.is_closed:
+                try:
+                    self._prepare_proxy(conn)
+                except (BaseSSLError, OSError, SocketTimeout) as e:
+                    self._raise_timeout(
+                        err=e, url=self.proxy.url, timeout_value=conn.timeout
+                    )
+                    raise
+    
+            # If we're going to release the connection in ``finally:``, then
+            # the response doesn't need to know about the connection. Otherwise
+            # it will also try to release it and we'll have a double-release
+            # mess.
+            response_conn = conn if not release_conn else None
+    
+            # Make the request on the HTTPConnection object
+>           response = self._make_request(
+                conn,
+                method,
+                url,
+                timeout=timeout_obj,
+                body=body,
+                headers=headers,
+                chunked=chunked,
+                retries=retries,
+                response_conn=response_conn,
+                preload_content=preload_content,
+                decode_content=decode_content,
+                **response_kw,
+            )
+
+/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/urllib3/connectionpool.py:787: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <urllib3.connectionpool.HTTPConnectionPool object at 0x7f6ae85b7e00>
+conn = <HTTPConnection(host='rest.ensembl.org', port=80) at 0x7f6ad8befd70>
+method = 'POST', url = '/lookup/id/'
+body = b'{"ids": ["ENSG00000106443", "ENSG00000102317", "ENSG00000188895", "ENSG00000135365"], "expand": true}'
+headers = {'User-Agent': 'python-requests/2.32.5', 'Accept-Encoding': 'gzip, deflate', 'Accept': '*/*', 'Connection': 'keep-alive', 'Content-Type': 'application/json', 'Content-Length': '101'}
+retries = Retry(total=0, connect=None, read=False, redirect=None, status=None)
+timeout = Timeout(connect=None, read=None, total=None), chunked = False
+response_conn = <HTTPConnection(host='rest.ensembl.org', port=80) at 0x7f6ad8befd70>
+preload_content = False, decode_content = False, enforce_content_length = True
+
+    def _make_request(
+        self,
+        conn: BaseHTTPConnection,
+        method: str,
+        url: str,
+        body: _TYPE_BODY | None = None,
+        headers: typing.Mapping[str, str] | None = None,
+        retries: Retry | None = None,
+        timeout: _TYPE_TIMEOUT = _DEFAULT_TIMEOUT,
+        chunked: bool = False,
+        response_conn: BaseHTTPConnection | None = None,
+        preload_content: bool = True,
+        decode_content: bool = True,
+        enforce_content_length: bool = True,
+    ) -> BaseHTTPResponse:
+        """
+        Perform a request on a given urllib connection object taken from our
+        pool.
+    
+        :param conn:
+            a connection from one of our connection pools
+    
+        :param method:
+            HTTP request method (such as GET, POST, PUT, etc.)
+    
+        :param url:
+            The URL to perform the request on.
+    
+        :param body:
+            Data to send in the request body, either :class:`str`, :class:`bytes`,
+            an iterable of :class:`str`/:class:`bytes`, or a file-like object.
+    
+        :param headers:
+            Dictionary of custom headers to send, such as User-Agent,
+            If-None-Match, etc. If None, pool headers are used. If provided,
+            these headers completely replace any pool-specific headers.
+    
+        :param retries:
+            Configure the number of retries to allow before raising a
+            :class:`~urllib3.exceptions.MaxRetryError` exception.
+    
+            Pass ``None`` to retry until you receive a response. Pass a
+            :class:`~urllib3.util.retry.Retry` object for fine-grained control
+            over different types of retries.
+            Pass an integer number to retry connection errors that many times,
+            but no other types of errors. Pass zero to never retry.
+    
+            If ``False``, then retries are disabled and any exception is raised
+            immediately. Also, instead of raising a MaxRetryError on redirects,
+            the redirect response will be returned.
+    
+        :type retries: :class:`~urllib3.util.retry.Retry`, False, or an int.
+    
+        :param timeout:
+            If specified, overrides the default timeout for this one
+            request. It may be a float (in seconds) or an instance of
+            :class:`urllib3.util.Timeout`.
+    
+        :param chunked:
+            If True, urllib3 will send the body using chunked transfer
+            encoding. Otherwise, urllib3 will send the body using the standard
+            content-length form. Defaults to False.
+    
+        :param response_conn:
+            Set this to ``None`` if you will handle releasing the connection or
+            set the connection to have the response release it.
+    
+        :param preload_content:
+          If True, the response's body will be preloaded during construction.
+    
+        :param decode_content:
+            If True, will attempt to decode the body based on the
+            'content-encoding' header.
+    
+        :param enforce_content_length:
+            Enforce content length checking. Body returned by server must match
+            value of Content-Length header, if present. Otherwise, raise error.
+        """
+        self.num_requests += 1
+    
+        timeout_obj = self._get_timeout(timeout)
+        timeout_obj.start_connect()
+        conn.timeout = Timeout.resolve_default_timeout(timeout_obj.connect_timeout)
+    
+        try:
+            # Trigger any extra validation we need to do.
+            try:
+                self._validate_conn(conn)
+            except (SocketTimeout, BaseSSLError) as e:
+                self._raise_timeout(err=e, url=url, timeout_value=conn.timeout)
+                raise
+    
+        # _validate_conn() starts the connection to an HTTPS proxy
+        # so we need to wrap errors with 'ProxyError' here too.
+        except (
+            OSError,
+            NewConnectionError,
+            TimeoutError,
+            BaseSSLError,
+            CertificateError,
+            SSLError,
+        ) as e:
+            new_e: Exception = e
+            if isinstance(e, (BaseSSLError, CertificateError)):
+                new_e = SSLError(e)
+            # If the connection didn't successfully connect to it's proxy
+            # then there
+            if isinstance(
+                new_e, (OSError, NewConnectionError, TimeoutError, SSLError)
+            ) and (conn and conn.proxy and not conn.has_connected_to_proxy):
+                new_e = _wrap_proxy_error(new_e, conn.proxy.scheme)
+            raise new_e
+    
+        # conn.request() calls http.client.*.request, not the method in
+        # urllib3.request. It also calls makefile (recv) on the socket.
+        try:
+            conn.request(
+                method,
+                url,
+                body=body,
+                headers=headers,
+                chunked=chunked,
+                preload_content=preload_content,
+                decode_content=decode_content,
+                enforce_content_length=enforce_content_length,
+            )
+    
+        # We are swallowing BrokenPipeError (errno.EPIPE) since the server is
+        # legitimately able to close the connection after sending a valid response.
+        # With this behaviour, the received response is still readable.
+        except BrokenPipeError:
+            pass
+        except OSError as e:
+            # MacOS/Linux
+            # EPROTOTYPE and ECONNRESET are needed on macOS
+            # https://erickt.github.io/blog/2014/11/19/adventures-in-debugging-a-potential-osx-kernel-bug/
+            # Condition changed later to emit ECONNRESET instead of only EPROTOTYPE.
+            if e.errno != errno.EPROTOTYPE and e.errno != errno.ECONNRESET:
+                raise
+    
+        # Reset the timeout for the recv() on the socket
+        read_timeout = timeout_obj.read_timeout
+    
+        if not conn.is_closed:
+            # In Python 3 socket.py will catch EAGAIN and return None when you
+            # try and read into the file pointer created by http.client, which
+            # instead raises a BadStatusLine exception. Instead of catching
+            # the exception and assuming all BadStatusLine exceptions are read
+            # timeouts, check for a zero timeout before making the request.
+            if read_timeout == 0:
+                raise ReadTimeoutError(
+                    self, url, f"Read timed out. (read timeout={read_timeout})"
+                )
+            conn.timeout = read_timeout
+    
+        # Receive the response from the server
+        try:
+>           response = conn.getresponse()
+                       ^^^^^^^^^^^^^^^^^^
+
+/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/urllib3/connectionpool.py:534: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <HTTPConnection(host='rest.ensembl.org', port=80) at 0x7f6ad8befd70>
+
+    def getresponse(  # type: ignore[override]
+        self,
+    ) -> HTTPResponse:
+        """
+        Get the response from the server.
+    
+        If the HTTPConnection is in the correct state, returns an instance of HTTPResponse or of whatever object is returned by the response_class variable.
+    
+        If a request has not been sent or if a previous response has not be handled, ResponseNotReady is raised. If the HTTP response indicates that the connection should be closed, then it will be closed before the response is returned. When the connection is closed, the underlying socket is closed.
+        """
+        # Raise the same error as http.client.HTTPConnection
+        if self._response_options is None:
+            raise ResponseNotReady()
+    
+        # Reset this attribute for being used again.
+        resp_options = self._response_options
+        self._response_options = None
+    
+        # Since the connection's timeout value may have been updated
+        # we need to set the timeout on the socket.
+        self.sock.settimeout(self.timeout)
+    
+        # This is needed here to avoid circular import errors
+        from .response import HTTPResponse
+    
+        # Save a reference to the shutdown function before ownership is passed
+        # to httplib_response
+        # TODO should we implement it everywhere?
+        _shutdown = getattr(self.sock, "shutdown", None)
+    
+        # Get the response from http.client.HTTPConnection
+>       httplib_response = super().getresponse()
+                           ^^^^^^^^^^^^^^^^^^^^^
+
+/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/urllib3/connection.py:571: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <HTTPConnection(host='rest.ensembl.org', port=80) at 0x7f6ad8befd70>
+
+    def getresponse(self):
+        """Get the response from the server.
+    
+        If the HTTPConnection is in the correct state, returns an
+        instance of HTTPResponse or of whatever object is returned by
+        the response_class variable.
+    
+        If a request has not been sent or if a previous response has
+        not be handled, ResponseNotReady is raised.  If the HTTP
+        response indicates that the connection should be closed, then
+        it will be closed before the response is returned.  When the
+        connection is closed, the underlying socket is closed.
+        """
+    
+        # if a prior response has been completed, then forget about it.
+        if self.__response and self.__response.isclosed():
+            self.__response = None
+    
+        # if a prior response exists, then it must be completed (otherwise, we
+        # cannot read this response's header to determine the connection-close
+        # behavior)
+        #
+        # note: if a prior response existed, but was connection-close, then the
+        # socket and response were made independent of this HTTPConnection
+        # object since a new request requires that we open a whole new
+        # connection
+        #
+        # this means the prior response had one of two states:
+        #   1) will_close: this connection was reset and the prior socket and
+        #                  response operate independently
+        #   2) persistent: the response was retained and we await its
+        #                  isclosed() status to become true.
+        #
+        if self.__state != _CS_REQ_SENT or self.__response:
+            raise ResponseNotReady(self.__state)
+    
+        if self.debuglevel > 0:
+            response = self.response_class(self.sock, self.debuglevel,
+                                           method=self._method)
+        else:
+            response = self.response_class(self.sock, method=self._method)
+    
+        try:
+            try:
+>               response.begin()
+
+/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/http/client.py:1430: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.client.HTTPResponse object at 0x7f6afc90ba60>
+
+    def begin(self):
+        if self.headers is not None:
+            # we've already started reading the response
+            return
+    
+        # read until we get a non-100 response
+        while True:
+>           version, status, reason = self._read_status()
+                                      ^^^^^^^^^^^^^^^^^^^
+
+/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/http/client.py:331: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <http.client.HTTPResponse object at 0x7f6afc90ba60>
+
+    def _read_status(self):
+>       line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/http/client.py:292: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <socket.SocketIO object at 0x7f6ad8bef220>
+b = <memory at 0x7f6ae88dc7c0>
+
+    def readinto(self, b):
+        """Read up to len(b) bytes into the writable buffer *b* and return
+        the number of bytes read.  If the socket is non-blocking and no bytes
+        are available, None is returned.
+    
+        If *b* is non-empty, a 0 return value indicates that the connection
+        was shutdown at the other end.
+        """
+        self._checkClosed()
+        self._checkReadable()
+        if self._timeout_occurred:
+            raise OSError("cannot read from timed out object")
+        while True:
+            try:
+>               return self._sock.recv_into(b)
+                       ^^^^^^^^^^^^^^^^^^^^^^^
+E               urllib3.exceptions.ProtocolError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))
+
+/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/socket.py:720: ProtocolError
+
+During handling of the above exception, another exception occurred:
+
+self = <tests.test_enrichr.TestEnrichr testMethod=test_enrichr_ensembl_ids>
+
+    def assert_equal(self: unittest.TestCase):
+        test = name
+        expected_result = td[test]["expected_result"]
+>       result_to_test = do_call(func, td[test]["args"])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/from_json.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+func = <function enrichr at 0x7f6aff296980>
+args = {'database': 'ontology', 'ensembl': True, 'genes': ['ENSG00000106443.2', 'ENSG00000102317', 'ENSG00000188895.4', 'ENSG00000135365']}
+
+    def do_call(func, args):
+        if isinstance(args, dict):
+>           return func(**args)
+                   ^^^^^^^^^^^^
+
+tests/from_json.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+genes = ['ENSG00000106443.2', 'ENSG00000102317', 'ENSG00000188895.4', 'ENSG00000135365']
+database = 'GO_Biological_Process_2021', species = 'human'
+background_list = None, background = False, ensembl = True, ensembl_bkg = False
+plot = False, figsize = (10, 10), ax = None, kegg_out = None, kegg_rank = 1
+json = False, save = False, verbose = True
+
+    def enrichr(
+        genes,
+        database,
+        species="human",
+        background_list=None,
+        background=False,
+        ensembl=False,
+        ensembl_bkg=False,
+        plot=False,
+        figsize=(10, 10),
+        ax=None,
+        kegg_out=None,
+        kegg_rank=1,
+        json=False,
+        save=False,
+        verbose=True,
+    ):
+        """
+        Perform an enrichment analysis on a list of genes using Enrichr (https://maayanlab.cloud/Enrichr/).
+    
+        Args:
+        - genes             List of Entrez gene symbols to perform enrichment analysis on, passed as a list of strings, e.g. ['PHF14', 'RBM3', 'MSL1', 'PHF21A'].
+                            Set 'ensembl = True' to input a list of Ensembl gene IDs, e.g. ['ENSG00000106443', 'ENSG00000102317', 'ENSG00000188895'].
+        - database          Database to use as reference for the enrichment analysis.
+                            Supported shortcuts (and their default database), ONLY SUPPORTED FOR HUMAN/MOUSE SPECIES (other species must specify the full database name):
+                            'pathway' (KEGG_2021_Human)
+                            'transcription' (ChEA_2016)
+                            'ontology' (GO_Biological_Process_2021)
+                            'diseases_drugs' (GWAS_Catalog_2019)
+                            'celltypes' (PanglaoDB_Augmented_2021)
+                            'kinase_interactions' (KEA_2015)
+                            or any database listed under Gene-set Library at: https://maayanlab.cloud/Enrichr/#libraries or the species-specific libraries listed below
+        - species           Enrichr species database to query. Options:
+                            'human' (default) [H. sapiens] - https://maayanlab.cloud/Enrichr/#libraries
+                            'mouse' [M. musculus] - equivalent to 'human'
+                            'fly' [D. melanogaster] - https://maayanlab.cloud/FlyEnrichr/#stats
+                            'yeast' [S. cerevisiae] - https://maayanlab.cloud/YeastEnrichr/#stats
+                            'worm' [C. elegans] - https://maayanlab.cloud/WormEnrichr/#stats
+                            'fish' [D. rerio] - https://maayanlab.cloud/FishEnrichr/#stats
+        - background_list   List of gene names/Ensembl IDs to be used as background genes. ONLY SUPPORTED FOR HUMAN/MOUSE SPECIES (Default: None)
+        - background        If True, use set of > 20,000 default background genes listed here: https://github.com/pachterlab/gget/blob/main/gget/constants/enrichr_bkg_genes.txt.
+                            ONLY SUPPORTED FOR HUMAN/MOUSE SPECIES (Default: False)
+        - ensembl           Define as 'True' if 'genes' is a list of Ensembl gene IDs. (Default: False)
+        - ensembl_bkg       Define as 'True' if 'background_list' is a list of Ensembl gene IDs. (Default: False)
+        - plot              True/False whether to provide a graphical overview of the first 15 results. (Default: False)
+        - figsize           (width, height) of plot in inches. (Default: (10,10))
+        - ax                Pass a matplotlib axes object for further customization of the plot. (Default: None)
+        - kegg_out          Path to file to save the highlighted KEGG pathway image, e.g. path/to/folder/kegg_pathway.png. (Default: None)
+        - kegg_rank         Candidate pathway rank to be plotted in KEGG pathway image. (Default: 1)
+        - json              If True, returns results in json format instead of data frame. (Default: False)
+        - save              True/False whether to save the results in the local directory. (Default: False)
+        - verbose           True/False whether to print progress information. (Default: True)
+    
+        Returns a data frame with the Enrichr results.
+        """
+    
+        if species not in ["human", "mouse", "fly", "yeast", "worm", "fish"]:
+            raise ValueError(
+                f"Argument 'species' must be one of 'human', 'mouse', 'fly', 'yeast', 'worm', or 'fish'."
+            )
+    
+        if species == "mouse":
+            species = "human"
+    
+        species_enrichr = f"{species.capitalize()}Enrichr"
+        if species == "human":
+            species_enrichr = "Enrichr"
+    
+        if species != "human":
+            if database in [
+                "pathway",
+                "transcription",
+                "ontology",
+                "diseases_drugs",
+                "celltypes",
+                "kinase_interactions",
+            ]:
+                raise ValueError(
+                    f"Database '{database}' is not supported for species '{species}'."
+                    f" Please select a database from the species-specific libraries listed at:"
+                    f" https://maayanlab.cloud/{species_enrichr}/#stats."
+                )
+    
+            if background:
+                raise ValueError(
+                    f"Background genes are only supported for species 'human' and 'mouse', not for species '{species}'."
+                    f" Please set 'background=False' or leave it unspecified."
+                )
+    
+            if background_list:
+                raise ValueError(
+                    f"Background genes are only supported for species 'human' and 'mouse', not for species '{species}'."
+                    f" Please do not provide a value for 'background_list'."
+                )
+    
+        # Define database
+        # All available libraries: https://maayanlab.cloud/Enrichr/#libraries
+        if species == "human":
+            db_message = f"""
+            Please note that there might be a more appropriate database for your application.
+            Go to https://maayanlab.cloud/{species_enrichr}/#libraries for a full list of supported databases.
+            """
+        else:
+            db_message = f"""
+            Please note that there might be a more appropriate database for your application.
+            Go to https://maayanlab.cloud/{species_enrichr}/#stats for a full list of supported databases.
+            """
+        if not isinstance(background, bool):
+            raise ValueError(
+                f"Argument`background` must be a boolean True/False. If you are adding a background list, use the argument `background_list` instead."
+            )
+    
+        # Handle database shortcuts
+        if database == "pathway":
+            database = "KEGG_2021_Human"
+            if verbose:
+                logger.info(
+                    f"Performing Enrichr analysis using database {database}. " + db_message
+                )
+    
+        elif database == "transcription":
+            database = "ChEA_2016"
+            if verbose:
+                logger.info(
+                    f"Performing Enrichr analysis using database {database}. " + db_message
+                )
+    
+        elif database == "ontology":
+            database = "GO_Biological_Process_2021"
+            if verbose:
+                logger.info(
+                    f"Performing Enrichr analysis using database {database}. " + db_message
+                )
+    
+        elif database == "diseases_drugs":
+            database = "GWAS_Catalog_2019"
+            if verbose:
+                logger.info(
+                    f"Performing Enrichr analysis using database {database}. " + db_message
+                )
+    
+        elif database == "celltypes":
+            database = "PanglaoDB_Augmented_2021"
+            if verbose:
+                logger.info(
+                    f"Performing Enrichr analysis using database {database}. " + db_message
+                )
+    
+        elif database == "kinase_interactions":
+            database = "KEA_2015"
+            if verbose:
+                logger.info(
+                    f"Performing Enrichr analysis using database {database}. " + db_message
+                )
+    
+        else:
+            database = database
+            if verbose:
+                logger.info(f"Performing Enrichr analysis using database {database}.")
+    
+        # To generate a KEGG pathway image, confirm that the database is a KEGG database and pykegg is installed
+        if kegg_out:
+            if not database.startswith("KEGG"):
+                logger.error(
+                    "Please specify a KEGG database when generating a KEGG pathway image."
+                )
+                return
+            try:
+                import pykegg
+            except ImportError:
+                logger.error(
+                    "Please install `pykegg` to generate a KEGG pathway image. Pykegg can be installed using pip: 'pip install pykegg'"
+                )
+                return
+    
+        # If single gene passed as string, convert to list
+        if isinstance(genes, str):
+            genes = [genes]
+    
+        ## Transform Ensembl IDs to gene symbols
+        if ensembl:
+            if verbose:
+                logger.info("Getting gene symbols from Ensembl IDs.")
+    
+>           genes_v2 = ensembl_to_gene_names(genes)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+gget/gget_enrichr.py:248: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ensembl_ids = ['ENSG00000106443', 'ENSG00000102317', 'ENSG00000188895', 'ENSG00000135365']
+
+    def ensembl_to_gene_names(ensembl_ids):
+        """
+        Function to fetch gene names from a list of Ensembl IDs using gget info.
+        """
+        genes_v2 = []
+    
+        # Remove version number if passed
+        ensembl_ids = [gene_id.split(".")[0] for gene_id in ensembl_ids]
+    
+>       info_df = info(ensembl_ids, pdb=False, ncbi=False, uniprot=False, verbose=False)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+gget/gget_enrichr.py:34: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ens_ids = ['ENSG00000106443', 'ENSG00000102317', 'ENSG00000188895', 'ENSG00000135365']
+wrap_text = False, ncbi = False, uniprot = False, pdb = False, json = False
+verbose = False, save = False, expand = False, ensembl_only = False
+
+    def info(
+        ens_ids,
+        wrap_text=False,
+        ncbi=True,
+        uniprot=True,
+        pdb=False,
+        json=False,
+        verbose=True,
+        save=False,
+        expand=False,
+        ensembl_only=False,
+    ):
+        """
+        Fetch gene and transcript metadata using Ensembl IDs.
+    
+        Args:
+        - ens_ids       One or more Ensembl IDs to look up (string or list of strings).
+                        Also supports WormBase and Flybase IDs.
+        - wrap_text     If True, displays data frame with wrapped text for easy reading. Default: False.
+        - ncbi          If False, does not return data from NCBI. Default: True.
+        - uniprot       If False, does not return data from UniProt. Default: True.
+        - pdb           If True, also returns PDB IDs (might increase run time). Default: False.
+        - json          If True, returns results in json/dictionary format instead of data frame. Default: False.
+        - verbose       True/False whether to print progress information. Default True.
+        - save          True/False wether to save csv with query results in current working directory. Default: False.
+    
+        Returns a data frame containing the requested information.
+    
+        Deprecated arguments:
+        - expand        (gget info now always returns all of the available information)
+        - ensembl_only  If True, only returns results from Ensembl (excludes PDB, UniProt, and NCBI results). Default: False.
+        """
+        # Handle deprecated arguments
+        if expand:
+            if verbose:
+                logger.warning(
+                    "'expand' argument deprecated! gget info now always returns all of the available information."
+                )
+        if ensembl_only:
+            if verbose:
+                logger.warning(
+                    "'ensembl_only' argument deprecated! Please use arguments 'ncbi=False' and 'uniprot=False'."
+                )
+    
+        # Set synonyms found by each database initially to none
+        ncbi_synonyms = None
+        df_uniprot = None
+        df_pdb = pd.DataFrame()
+        df_ncbi = pd.DataFrame()
+    
+        # Rename pdb, uniprot, ncbi arguments
+        fetch_ncbi = ncbi
+        fetch_uniprot = uniprot
+        fetch_pdb = pdb
+    
+        # Define Ensembl REST API server
+        server = ENSEMBL_REST_API
+        # Define type of returned content from REST
+        content_type = "application/json"
+    
+        ## Clean up Ensembl IDs
+        # If single Ensembl ID passed as string, convert to list
+        if type(ens_ids) == str:
+            ens_ids = [ens_ids]
+        # Remove Ensembl ID version if passed
+        ens_ids_clean = []
+        temp = 0
+        for ensembl_ID in ens_ids:
+            # But only for Ensembl ID (and not for flybase/wormbase IDs)
+            if ensembl_ID.startswith("ENS"):
+                ens_ids_clean.append(ensembl_ID.split(".")[0])
+    
+                if "." in ensembl_ID and temp == 0:
+                    if verbose is True:
+                        logger.info(
+                            "We noticed that you passed a version number with your Ensembl ID.\n"
+                            "Please note that gget info will always return information linked to the latest Ensembl ID version (see 'ensembl_id')."
+                        )
+                    temp = +1
+    
+            else:
+                ens_ids_clean.append(ensembl_ID)
+    
+        # Remove duplicates in the Ensembl ID list without changing their order
+        ens_ids_clean = sorted(set(ens_ids_clean), key=ens_ids_clean.index)
+        # Create second clean list of Ensembl IDs which will not include IDs that were not found
+        ens_ids_clean_2 = ens_ids_clean.copy()
+    
+        # Initiate dictionary to save results for all IDs in
+        master_dict = {}
+    
+        # Query REST APIs from https://rest.ensembl.org/
+        endpoint = "lookup/id/"
+        query = {"ids": ens_ids_clean, "expand": True}
+    
+>       results_dict = post_query(server, endpoint, query)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+gget/gget_info.py:119: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+server = 'http://rest.ensembl.org/', endpoint = 'lookup/id/'
+query = {'expand': True, 'ids': ['ENSG00000106443', 'ENSG00000102317', 'ENSG00000188895', 'ENSG00000135365']}
+
+    def post_query(server, endpoint, query):
+        """
+        Function to perform a POST API query.
+    
+        :param server:  Server to query .
+        :param endpoint: Server endpoint
+        :param query:   Query that is passed to server.
+    
+        :return: server output
+        """
+    
+>       r = requests.post(
+            server + endpoint, json=query, headers={"Content-Type": "application/json"}
+        )
+
+gget/utils.py:690: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+url = 'http://rest.ensembl.org/lookup/id/', data = None
+json = {'expand': True, 'ids': ['ENSG00000106443', 'ENSG00000102317', 'ENSG00000188895', 'ENSG00000135365']}
+kwargs = {'headers': {'Content-Type': 'application/json'}}
+
+    def post(url, data=None, json=None, **kwargs):
+        r"""Sends a POST request.
+    
+        :param url: URL for the new :class:`Request` object.
+        :param data: (optional) Dictionary, list of tuples, bytes, or file-like
+            object to send in the body of the :class:`Request`.
+        :param json: (optional) A JSON serializable Python object to send in the body of the :class:`Request`.
+        :param \*\*kwargs: Optional arguments that ``request`` takes.
+        :return: :class:`Response <Response>` object
+        :rtype: requests.Response
+        """
+    
+>       return request("post", url, data=data, json=json, **kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/requests/api.py:115: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+method = 'post', url = 'http://rest.ensembl.org/lookup/id/'
+kwargs = {'data': None, 'headers': {'Content-Type': 'application/json'}, 'json': {'expand': True, 'ids': ['ENSG00000106443', 'ENSG00000102317', 'ENSG00000188895', 'ENSG00000135365']}}
+session = <requests.sessions.Session object at 0x7f6ae85b72f0>
+
+    def request(method, url, **kwargs):
+        """Constructs and sends a :class:`Request <Request>`.
+    
+        :param method: method for the new :class:`Request` object: ``GET``, ``OPTIONS``, ``HEAD``, ``POST``, ``PUT``, ``PATCH``, or ``DELETE``.
+        :param url: URL for the new :class:`Request` object.
+        :param params: (optional) Dictionary, list of tuples or bytes to send
+            in the query string for the :class:`Request`.
+        :param data: (optional) Dictionary, list of tuples, bytes, or file-like
+            object to send in the body of the :class:`Request`.
+        :param json: (optional) A JSON serializable Python object to send in the body of the :class:`Request`.
+        :param headers: (optional) Dictionary of HTTP Headers to send with the :class:`Request`.
+        :param cookies: (optional) Dict or CookieJar object to send with the :class:`Request`.
+        :param files: (optional) Dictionary of ``'name': file-like-objects`` (or ``{'name': file-tuple}``) for multipart encoding upload.
+            ``file-tuple`` can be a 2-tuple ``('filename', fileobj)``, 3-tuple ``('filename', fileobj, 'content_type')``
+            or a 4-tuple ``('filename', fileobj, 'content_type', custom_headers)``, where ``'content_type'`` is a string
+            defining the content type of the given file and ``custom_headers`` a dict-like object containing additional headers
+            to add for the file.
+        :param auth: (optional) Auth tuple to enable Basic/Digest/Custom HTTP Auth.
+        :param timeout: (optional) How many seconds to wait for the server to send data
+            before giving up, as a float, or a :ref:`(connect timeout, read
+            timeout) <timeouts>` tuple.
+        :type timeout: float or tuple
+        :param allow_redirects: (optional) Boolean. Enable/disable GET/OPTIONS/POST/PUT/PATCH/DELETE/HEAD redirection. Defaults to ``True``.
+        :type allow_redirects: bool
+        :param proxies: (optional) Dictionary mapping protocol to the URL of the proxy.
+        :param verify: (optional) Either a boolean, in which case it controls whether we verify
+                the server's TLS certificate, or a string, in which case it must be a path
+                to a CA bundle to use. Defaults to ``True``.
+        :param stream: (optional) if ``False``, the response content will be immediately downloaded.
+        :param cert: (optional) if String, path to ssl client cert file (.pem). If Tuple, ('cert', 'key') pair.
+        :return: :class:`Response <Response>` object
+        :rtype: requests.Response
+    
+        Usage::
+    
+          >>> import requests
+          >>> req = requests.request('GET', 'https://httpbin.org/get')
+          >>> req
+          <Response [200]>
+        """
+    
+        # By using the 'with' statement we are sure the session is closed, thus we
+        # avoid leaving sockets open which can trigger a ResourceWarning in some
+        # cases, and look like a memory leak in others.
+        with sessions.Session() as session:
+>           return session.request(method=method, url=url, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/requests/api.py:59: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <requests.sessions.Session object at 0x7f6ae85b72f0>, method = 'post'
+url = 'http://rest.ensembl.org/lookup/id/', params = None, data = None
+headers = {'Content-Type': 'application/json'}, cookies = None, files = None
+auth = None, timeout = None, allow_redirects = True, proxies = {}, hooks = None
+stream = None, verify = None, cert = None
+json = {'expand': True, 'ids': ['ENSG00000106443', 'ENSG00000102317', 'ENSG00000188895', 'ENSG00000135365']}
+
+    def request(
+        self,
+        method,
+        url,
+        params=None,
+        data=None,
+        headers=None,
+        cookies=None,
+        files=None,
+        auth=None,
+        timeout=None,
+        allow_redirects=True,
+        proxies=None,
+        hooks=None,
+        stream=None,
+        verify=None,
+        cert=None,
+        json=None,
+    ):
+        """Constructs a :class:`Request <Request>`, prepares it and sends it.
+        Returns :class:`Response <Response>` object.
+    
+        :param method: method for the new :class:`Request` object.
+        :param url: URL for the new :class:`Request` object.
+        :param params: (optional) Dictionary or bytes to be sent in the query
+            string for the :class:`Request`.
+        :param data: (optional) Dictionary, list of tuples, bytes, or file-like
+            object to send in the body of the :class:`Request`.
+        :param json: (optional) json to send in the body of the
+            :class:`Request`.
+        :param headers: (optional) Dictionary of HTTP Headers to send with the
+            :class:`Request`.
+        :param cookies: (optional) Dict or CookieJar object to send with the
+            :class:`Request`.
+        :param files: (optional) Dictionary of ``'filename': file-like-objects``
+            for multipart encoding upload.
+        :param auth: (optional) Auth tuple or callable to enable
+            Basic/Digest/Custom HTTP Auth.
+        :param timeout: (optional) How many seconds to wait for the server to send
+            data before giving up, as a float, or a :ref:`(connect timeout,
+            read timeout) <timeouts>` tuple.
+        :type timeout: float or tuple
+        :param allow_redirects: (optional) Set to True by default.
+        :type allow_redirects: bool
+        :param proxies: (optional) Dictionary mapping protocol or protocol and
+            hostname to the URL of the proxy.
+        :param hooks: (optional) Dictionary mapping hook name to one event or
+            list of events, event must be callable.
+        :param stream: (optional) whether to immediately download the response
+            content. Defaults to ``False``.
+        :param verify: (optional) Either a boolean, in which case it controls whether we verify
+            the server's TLS certificate, or a string, in which case it must be a path
+            to a CA bundle to use. Defaults to ``True``. When set to
+            ``False``, requests will accept any TLS certificate presented by
+            the server, and will ignore hostname mismatches and/or expired
+            certificates, which will make your application vulnerable to
+            man-in-the-middle (MitM) attacks. Setting verify to ``False``
+            may be useful during local development or testing.
+        :param cert: (optional) if String, path to ssl client cert file (.pem).
+            If Tuple, ('cert', 'key') pair.
+        :rtype: requests.Response
+        """
+        # Create the Request.
+        req = Request(
+            method=method.upper(),
+            url=url,
+            headers=headers,
+            files=files,
+            data=data or {},
+            json=json,
+            params=params or {},
+            auth=auth,
+            cookies=cookies,
+            hooks=hooks,
+        )
+        prep = self.prepare_request(req)
+    
+        proxies = proxies or {}
+    
+        settings = self.merge_environment_settings(
+            prep.url, proxies, stream, verify, cert
+        )
+    
+        # Send the request.
+        send_kwargs = {
+            "timeout": timeout,
+            "allow_redirects": allow_redirects,
+        }
+        send_kwargs.update(settings)
+>       resp = self.send(prep, **send_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/requests/sessions.py:589: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <requests.sessions.Session object at 0x7f6ae85b72f0>
+request = <PreparedRequest [POST]>
+kwargs = {'cert': None, 'proxies': OrderedDict(), 'stream': False, 'timeout': None, ...}
+allow_redirects = True, stream = False, hooks = {'response': []}
+adapter = <requests.adapters.HTTPAdapter object at 0x7f6ae85b71a0>
+start = 1771519186.1576684
+
+    def send(self, request, **kwargs):
+        """Send a given PreparedRequest.
+    
+        :rtype: requests.Response
+        """
+        # Set defaults that the hooks can utilize to ensure they always have
+        # the correct parameters to reproduce the previous request.
+        kwargs.setdefault("stream", self.stream)
+        kwargs.setdefault("verify", self.verify)
+        kwargs.setdefault("cert", self.cert)
+        if "proxies" not in kwargs:
+            kwargs["proxies"] = resolve_proxies(request, self.proxies, self.trust_env)
+    
+        # It's possible that users might accidentally send a Request object.
+        # Guard against that specific failure case.
+        if isinstance(request, Request):
+            raise ValueError("You can only send PreparedRequests.")
+    
+        # Set up variables needed for resolve_redirects and dispatching of hooks
+        allow_redirects = kwargs.pop("allow_redirects", True)
+        stream = kwargs.get("stream")
+        hooks = request.hooks
+    
+        # Get the appropriate adapter to use
+        adapter = self.get_adapter(url=request.url)
+    
+        # Start time (approximately) of the request
+        start = preferred_clock()
+    
+        # Send the request
+>       r = adapter.send(request, **kwargs)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/requests/sessions.py:703: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <requests.adapters.HTTPAdapter object at 0x7f6ae85b71a0>
+request = <PreparedRequest [POST]>, stream = False
+timeout = Timeout(connect=None, read=None, total=None), verify = True
+cert = None, proxies = OrderedDict()
+
+    def send(
+        self, request, stream=False, timeout=None, verify=True, cert=None, proxies=None
+    ):
+        """Sends PreparedRequest object. Returns Response object.
+    
+        :param request: The :class:`PreparedRequest <PreparedRequest>` being sent.
+        :param stream: (optional) Whether to stream the request content.
+        :param timeout: (optional) How long to wait for the server to send
+            data before giving up, as a float, or a :ref:`(connect timeout,
+            read timeout) <timeouts>` tuple.
+        :type timeout: float or tuple or urllib3 Timeout object
+        :param verify: (optional) Either a boolean, in which case it controls whether
+            we verify the server's TLS certificate, or a string, in which case it
+            must be a path to a CA bundle to use
+        :param cert: (optional) Any user-provided SSL certificate to be trusted.
+        :param proxies: (optional) The proxies dictionary to apply to the request.
+        :rtype: requests.Response
+        """
+    
+        try:
+            conn = self.get_connection_with_tls_context(
+                request, verify, proxies=proxies, cert=cert
+            )
+        except LocationValueError as e:
+            raise InvalidURL(e, request=request)
+    
+        self.cert_verify(conn, request.url, verify, cert)
+        url = self.request_url(request, proxies)
+        self.add_headers(
+            request,
+            stream=stream,
+            timeout=timeout,
+            verify=verify,
+            cert=cert,
+            proxies=proxies,
+        )
+    
+        chunked = not (request.body is None or "Content-Length" in request.headers)
+    
+        if isinstance(timeout, tuple):
+            try:
+                connect, read = timeout
+                timeout = TimeoutSauce(connect=connect, read=read)
+            except ValueError:
+                raise ValueError(
+                    f"Invalid timeout {timeout}. Pass a (connect, read) timeout tuple, "
+                    f"or a single float to set both timeouts to the same value."
+                )
+        elif isinstance(timeout, TimeoutSauce):
+            pass
+        else:
+            timeout = TimeoutSauce(connect=timeout, read=timeout)
+    
+        try:
+            resp = conn.urlopen(
+                method=request.method,
+                url=url,
+                body=request.body,
+                headers=request.headers,
+                redirect=False,
+                assert_same_host=False,
+                preload_content=False,
+                decode_content=False,
+                retries=self.max_retries,
+                timeout=timeout,
+                chunked=chunked,
+            )
+    
+        except (ProtocolError, OSError) as err:
+>           raise ConnectionError(err, request=request)
+E           requests.exceptions.ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))
+
+/opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/requests/adapters.py:659: ConnectionError
+------------------------------ Captured log call -------------------------------
+INFO     gget.utils:gget_enrichr.py:194 Performing Enrichr analysis using database GO_Biological_Process_2021. 
+        Please note that there might be a more appropriate database for your application. 
+        Go to https://maayanlab.cloud/Enrichr/#libraries for a full list of supported databases.
+        
+INFO     gget.utils:gget_enrichr.py:246 Getting gene symbols from Ensembl IDs.
+___________________ TestVirus.test_virus_with_length_filters ___________________
+
+self = <tests.test_virus.TestVirus testMethod=test_virus_with_length_filters>
+
+    @retry_on_network_error(max_retries=3, delay=5)
+    def test_virus_with_length_filters(self):
+        """Test that sequence length filters work correctly."""
+        virus_name = "Zika virus"
+        outfolder = self.test_output_dir
+    
+        result = virus(
+            virus=virus_name,
+            min_seq_length=10000,
+            max_seq_length=11000,
+            outfolder=outfolder
+        )
+    
+        self.assertIsNone(result)
+    
+        files = self._check_output_files(virus_name, outfolder)
+>       self.assertTrue(files["fasta"]["exists"], "FASTA file not created with length filters")
+E       AssertionError: False is not true : FASTA file not created with length filters
+
+tests/test_virus.py:504: AssertionError
+------------------------------ Captured log call -------------------------------
+INFO     gget.utils:gget_virus.py:4716 Starting virus data retrieval process...
+INFO     gget.utils:gget_virus.py:4752 Query parameters: virus='Zika virus', is_accession=False, outfolder='test_virus_output'
+INFO     gget.utils:gget_virus.py:4759 ============================================================
+INFO     gget.utils:gget_virus.py:4760 STEP 1: VALIDATING INPUT ARGUMENTS AND OUTPUT DIRECTORY SETUP...
+INFO     gget.utils:gget_virus.py:4761 ============================================================
+INFO     gget.utils:gget_virus.py:4869 Input validation completed successfully
+INFO     gget.utils:gget_virus.py:4881 Using specified output folder: test_virus_output
+INFO     gget.utils:gget_virus.py:4901 ============================================================
+INFO     gget.utils:gget_virus.py:4902 STEP 2: CHECKING FOR SARS-CoV-2 AND INFLUENZA A QUERIES TO APPLY OPTIMIZED CACHED PATHWAY
+INFO     gget.utils:gget_virus.py:4903 ============================================================
+INFO     gget.utils:gget_virus.py:4947  Skipping this step. No SARS-CoV-2 query detected.
+INFO     gget.utils:gget_virus.py:4987  Skipping this step. No Alphainfluenza query detected.
+INFO     gget.utils:gget_virus.py:5014 ============================================================
+INFO     gget.utils:gget_virus.py:5015 STEP 3: Fetching virus metadata from NCBI API
+INFO     gget.utils:gget_virus.py:5016 ============================================================
+INFO     gget.utils:gget_virus.py:946 Streaming API metadata to temporary file: test_virus_output/tmp_20260219_162256_52f5b9/gget_metadata_20260219_162256_52f5b9.jsonl
+ERROR    gget.utils:gget_virus.py:1285 ================================================================================
+ERROR    gget.utils:gget_virus.py:1286 ❌ REQUEST FAILED
+ERROR    gget.utils:gget_virus.py:1287 ================================================================================
+ERROR    gget.utils:gget_virus.py:1288 ❌ Failed to fetch virus metadata: HTTPSConnectionPool(host='api.ncbi.nlm.nih.gov', port=443): Read timed out. (read timeout=30)
+ERROR    gget.utils:gget_virus.py:1289 ================================================================================
+ERROR    gget.utils:gget_virus.py:5084 Failed to fetch virus metadata from NCBI API
+INFO     gget.utils:gget_virus.py:3246 ============================================================
+INFO     gget.utils:gget_virus.py:3247 ✅ Command summary saved: test_virus_output/command_summary.txt
+INFO     gget.utils:gget_virus.py:5637 NCBI virus data retrieval process completed.
 =============================== warnings summary ===============================
 tests/test_blast.py::TestBlast::test_blast_nt
   /home/runner/work/gget/gget/gget/gget_blast.py:327: FutureWarning: Passing literal html to 'read_html' is deprecated and will be removed in a future version. To read from a literal string, wrap it in a 'StringIO' object.
@@ -384,7 +2597,7 @@ gget/gget_8cube.py            83     28    66%   26-27, 34-43, 93, 105, 112, 115
 gget/gget_alphafold.py       362    321    11%   86-108, 115-116, 123-149, 181-186, 233-867
 gget/gget_archs4.py           79     13    84%   75-78, 84, 107, 123-126, 139-142, 148, 170, 198-201, 207
 gget/gget_bgee.py             56      6    89%   60, 83, 103, 130, 154, 175
-gget/gget_blast.py           127     36    72%   92, 124-142, 163-165, 204, 207, 251-255, 296-299, 302-303, 322-325, 332-333, 336-341, 346, 351-354
+gget/gget_blast.py           127     36    72%   92, 124-142, 163-165, 204, 207, 246-248, 296-299, 302-303, 322-325, 332-333, 336-341, 346, 351-354
 gget/gget_blat.py             86     10    88%   58-62, 95, 136, 139, 168, 232-233, 239
 gget/gget_cbio.py            524    403    23%   28, 39-67, 77-87, 136-137, 143-147, 154-157, 161, 164, 172-177, 208, 226, 265, 271-275, 278, 282-294, 296, 322-331, 334, 376-389, 393-416, 420-441, 447-450, 454-473, 477, 494-537, 540-757, 760-789, 802-1164, 1218-1254
 gget/gget_cellxgene.py        53      9    83%   21-22, 140-149, 176, 215, 231, 247
@@ -402,20 +2615,23 @@ gget/gget_ref.py             215     57    73%   32, 97-98, 117-118, 124-152, 16
 gget/gget_search.py          142     23    84%   84-87, 96, 113, 117, 125, 149-150, 157, 165-171, 213-222, 308-309, 315-316, 368-369, 376-377, 385
 gget/gget_seq.py             146     24    84%   44-47, 49, 119, 140-143, 177-178, 207-208, 245-248, 271-272, 293, 312-315, 334, 356, 365, 402-405
 gget/gget_setup.py           215    149    31%   49-90, 108, 113, 116, 128-138, 152, 175-176, 189, 199, 209, 221-466
-gget/gget_virus.py          2409   1189    51%   131, 192, 234, 237, 255, 259, 270-271, 312-316, 321-335, 342, 353-354, 372-377, 414-453, 506, 630-631, 635, 685-686, 696, 698, 700, 702, 704, 706, 728, 740-745, 755-756, 795-826, 947-949, 1009-1010, 1035-1037, 1045-1298, 1307-1308, 1350-1430, 1455-1456, 1489-1490, 1523-1661, 1686-1726, 1776-1911, 1959-2071, 2125-2232, 2266, 2273-2274, 2342, 2361-2383, 2399-2401, 2447, 2478, 2501, 2510-2564, 2572, 2575-2576, 2583-2585, 2596-2610, 2677-2678, 2716-2723, 2730, 2768, 2774-2780, 2808-2814, 2826-2832, 2863, 2877-2878, 3026-3027, 3070, 3073-3074, 3076-3078, 3114, 3117-3118, 3120-3122, 3134-3135, 3146-3154, 3160-3162, 3172-3175, 3182, 3187-3203, 3207-3220, 3224-3232, 3250-3253, 3272-3273, 3327-3330, 3492-3494, 3524-3526, 3559, 3562, 3574-3575, 3604-3605, 3609-3617, 3621-3638, 3648, 3651, 3655-3659, 3702-3704, 3735, 3745-3810, 3905, 3942-3948, 3958, 3987-3990, 4017-4020, 4030, 4033-4034, 4099, 4142, 4154-4157, 4318-4320, 4386, 4419-4421, 4435-4449, 4453-4463, 4467-4471, 4476-4478, 4484-4488, 4492-4505, 4532-4550, 4554-4573, 4585-4588, 4591-4594, 4607-4614, 4746-4750, 4821, 4877-4879, 4912-4945, 4953-4985, 4995-5011, 5064-5065, 5100-5115, 5132-5133, 5176-5192, 5203-5204, 5213-5232, 5237, 5280, 5293-5295, 5304-5309, 5338-5352, 5375-5384, 5417-5420, 5439-5585, 5600-5601, 5606-5617, 5619, 5622-5625, 5628-5632, 5642
+gget/gget_virus.py          2409   1174    51%   131, 192, 234, 237, 255, 259, 270-271, 312-316, 321-335, 342, 353-354, 372-377, 414-453, 506, 630-631, 635, 685-686, 696, 698, 700, 702, 704, 706, 728, 740-745, 755-756, 795-826, 947-949, 1009-1010, 1035-1037, 1049-1104, 1108-1161, 1165-1259, 1265-1282, 1295-1296, 1307-1308, 1350-1430, 1455-1456, 1489-1490, 1523-1661, 1686-1726, 1776-1911, 1959-2071, 2125-2232, 2266, 2273-2274, 2342, 2361-2383, 2399-2401, 2447, 2478, 2501, 2510-2564, 2572, 2575-2576, 2583-2585, 2596-2610, 2677-2678, 2716-2723, 2730, 2768, 2774-2780, 2808-2814, 2826-2832, 2863, 2877-2878, 3026-3027, 3070, 3073-3074, 3076-3078, 3114, 3117-3118, 3120-3122, 3134-3135, 3146-3154, 3160-3162, 3172-3175, 3182, 3187-3203, 3207-3220, 3224-3232, 3250-3253, 3272-3273, 3327-3330, 3492-3494, 3524-3526, 3559, 3562, 3574-3575, 3604-3605, 3609-3617, 3621-3638, 3648, 3651, 3655-3659, 3702-3704, 3735, 3745-3810, 3905, 3942-3948, 3958, 3987-3990, 4017-4020, 4030, 4033-4034, 4099, 4142, 4154-4157, 4318-4320, 4386, 4419-4421, 4435-4449, 4453-4463, 4467-4471, 4476-4478, 4484-4488, 4492-4505, 4532-4550, 4554-4573, 4585-4588, 4591-4594, 4607-4614, 4746-4750, 4821, 4877-4879, 4912-4945, 4953-4985, 4995-5011, 5064-5065, 5100-5115, 5132-5133, 5176-5192, 5203-5204, 5213-5232, 5237, 5280, 5293-5295, 5304-5309, 5338-5352, 5375-5384, 5417-5420, 5439-5585, 5600-5601, 5606-5617, 5619, 5622-5625, 5628-5632, 5642
 gget/main.py                 837    837     0%   1-3773
 gget/utils.py                448     77    83%   31, 36-42, 72, 95, 119, 122, 186, 193, 245, 257, 285, 296, 347, 367, 378, 411-412, 452-453, 468-469, 476-478, 494-495, 501-502, 623-639, 676, 695, 757, 797, 837, 953, 961, 969-989, 994, 999, 1005-1006, 1024-1025, 1116, 1140-1141, 1156, 1164
 --------------------------------------------------------
-TOTAL                       7701   3801    51%
+TOTAL                       7701   3786    51%
 ============================= slowest 10 durations =============================
-459.01s call     tests/test_seq.py::TestSeq::test_seq_gene_iso
-261.15s call     tests/test_info.py::TestInfo::test_info_mix
-259.02s call     tests/test_seq.py::TestSeq::test_seq_gene_transcript_iso
-236.86s call     tests/test_enrichr.py::TestEnrichr::test_enrichr_background_ensembl
-178.53s call     tests/test_info.py::TestInfo::test_info_gene_list_non_model
-141.15s call     tests/test_info.py::TestInfo::test_info_ncbifalse_uniprottrue
-123.44s call     tests/test_info.py::TestInfo::test_info_exon
-99.91s call     tests/test_info.py::TestInfo::test_info_gene
-95.14s call     tests/test_archs4.py::TestArchs4::test_archs4_mouse_json_ensembl
-93.02s call     tests/test_seq.py::TestSeq::test_seq_transcript_gene_iso
-================ 264 passed, 273 warnings in 3485.37s (0:58:05) ================
+459.24s call     tests/test_enrichr.py::TestEnrichr::test_enrichr_background_ensembl
+344.32s call     tests/test_info.py::TestInfo::test_info_exon
+282.44s call     tests/test_enrichr.py::TestEnrichr::test_enrichr_ensembl_ids
+261.27s call     tests/test_info.py::TestInfo::test_info_gene
+242.16s call     tests/test_info.py::TestInfo::test_info_mix
+239.02s call     tests/test_blast.py::TestBlast::test_blast_nt
+236.77s call     tests/test_info.py::TestInfo::test_info_transcript
+235.27s call     tests/test_info.py::TestInfo::test_info_WB_transcript
+163.02s call     tests/test_archs4.py::TestArchs4::test_archs4_tissue_ensembl
+148.20s call     tests/test_info.py::TestInfo::test_info_gene_list_non_model
+=========================== short test summary info ============================
+FAILED tests/test_enrichr.py::TestEnrichr::test_enrichr_ensembl_ids - requests.exceptions.ConnectionError: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))
+FAILED tests/test_virus.py::TestVirus::test_virus_with_length_filters - AssertionError: False is not true : FASTA file not created with length filters
+=========== 2 failed, 262 passed, 273 warnings in 4257.89s (1:10:57) ===========
