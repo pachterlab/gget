@@ -2704,6 +2704,13 @@ def main():
         help="Maximum number of accessions to fetch in each GenBank metadata request. Smaller batches are slower but more reliable for large datasets. Only used when --genbank_metadata is True. Default: 200",
     )
     parser_virus.add_argument(
+        "--_skip_cache",
+        default=False,
+        action="store_true",
+        required=False,
+        help=argparse.SUPPRESS,  # Hidden parameter for internal/testing use
+    )
+    parser_virus.add_argument(
         "-q",
         "--quiet",
         default=True,
@@ -3824,4 +3831,5 @@ def main():
             genbank_batch_size=args.genbank_batch_size,
             download_all_accessions=args.download_all_accessions,
             verbose=args.quiet,
+            _skip_cache=args._skip_cache,
         )

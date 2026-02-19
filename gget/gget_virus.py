@@ -5091,6 +5091,7 @@ def virus(
     genbank_batch_size=200,
     download_all_accessions=False,
     verbose=True,
+    _skip_cache=False,
     ):
     """
     Download a virus genome dataset from the NCBI Virus database (https://www.ncbi.nlm.nih.gov/labs/virus/).
@@ -5139,6 +5140,7 @@ def virus(
         keep_temp (bool): Flag to indicate if all output files should be saved, including intermediate files (default: False)
         refseq_only (bool): Whether to restrict to RefSeq sequences only
         verbose (bool): Whether to print progress information. (default: True)
+        _skip_cache (bool): Internal/hidden parameter. If True, bypass cached download pathway and use API method. For testing/internal use only. (default: False)
 
     Returns:
         None: Files are saved to the output directory
@@ -5348,7 +5350,9 @@ def virus(
     cached_zip_file = None  # Track zip file path for cleanup
 
     # For SARS-CoV-2 queries, use cached data packages with hierarchical fallback
-    if (is_sars_cov2 or is_sars_cov2_query(virus, is_accession)):
+    if _skip_cache:
+        logger.info("⏭️  SKIPPING CACHED PATHWAY - Using API method directly (via _skip_cache flag)")
+    elif (is_sars_cov2 or is_sars_cov2_query(virus, is_accession)):
         logger.info("DETECTED SARS-CoV-2 QUERY - USING CACHED DATA PACKAGE PATHWAY")
         logger.info("SARS-CoV-2 queries will use NCBI's optimized cached data packages")
         logger.info("with hierarchical fallback from specific to general cached files.")
@@ -5393,7 +5397,9 @@ def virus(
     
     # SECTION 2b: ALPHAINFLUENZA CACHED DATA PROCESSING
     # For Alphainfluenza queries, use cached data packages with hierarchical fallback
-    if (is_alphainfluenza or is_alphainfluenza_query(virus, is_accession)):
+    if _skip_cache:
+        logger.info("⏭️  SKIPPING CACHED PATHWAY - Using API method directly (via _skip_cache flag)")
+    elif (is_alphainfluenza or is_alphainfluenza_query(virus, is_accession)):
         logger.info("DETECTED ALPHAINFLUENZA QUERY - USING CACHED DATA PACKAGES")
         logger.info("Alphainfluenza queries will use NCBI's optimized cached data packages")
         logger.info("with hierarchical fallback from specific to general cached files.")
