@@ -14,7 +14,8 @@ This module was written by [Ferdous Nasri](https://github.com/ferbsx).
 **Positional argument**  
 `virus`  
 Virus taxon name (e.g. 'Zika virus'), taxon ID (e.g. '2697049'), NCBI accession number (e.g. 'NC\_045512.2'), space-separated list of accessions (e.g. 'NC\_045512.2 MN908947.3 MT020781.1'), or path to a text file containing accession numbers (one per line) (e.g. 'path/to/text.txt').  
-Add `--is_accession` when passing an NCBI accession number. Add `--is_sars_cov2` or `is_alphainfluenza` for optimized download of SARS-CoV2 or Alphainfluenza sequences, respectively.
+Add `--is_accession` when passing an NCBI accession number. Add `--is_sars_cov2` or `is_alphainfluenza` for optimized download of SARS-CoV2 or Alphainfluenza sequences, respectively.  
+Use flag `--download_all_accessions` to apply filters without searching for a specific virus.
 
 **Optional arguments**   
 
@@ -113,6 +114,10 @@ Flag to indicate that the `virus` positional argument is an accession number, a 
   - Space-separated list: `NC_045512.2 MN908947.3 MT020781.1`  
   - Text file path: `accessions.txt` (one accession per line)
 
+`--download_all_accessions`   
+Use this flag when applying filters without searching for a specific virus.    
+⚠️ **WARNING**: If you do not specify additional filters, this flag downloads ALL available viral sequences from NCBI (entire Viruses taxonomy, taxon ID 10239). This is an extremely large dataset that can take many hours to download and require significant disk space. Use with caution and ensure you have adequate storage and bandwidth. When this flag is set, the `virus` argument is ignored.
+
 `--refseq_only`  
 Flag to limit search to RefSeq genomes only (higher quality, curated sequences).
 
@@ -130,9 +135,6 @@ Flag to only include sequences where all annotated proteins are complete.
 
 `-kt` `--keep_temp`  
 Flag to keep all intermediate/temporary files generated during processing. By default, only final output files are retained.
-
-`--download_all_accessions`  
-⚠️ **WARNING**: Downloads ALL virus accessions from NCBI (entire Viruses taxonomy, taxon ID 10239). This is an extremely large dataset that can take many hours to download and require significant disk space. Use with caution and ensure you have adequate storage and bandwidth. When this flag is set, the `virus` argument is ignored.
 
 `-q` `--quiet`  
 Command-line only. Prevents progress information from being displayed.  
