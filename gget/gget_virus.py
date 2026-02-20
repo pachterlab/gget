@@ -111,7 +111,7 @@ HTTP_INITIAL_BACKOFF = 1.0  # Initial backoff in seconds
 
 # File Size Configuration
 BYTES_PER_MB = 1024 * 1024  # Bytes in a megabyte for file size display diviser
-MIN_VALID_ZIP_SIZE = 100 * 1024  # 100 KB in bytes (minimum size for a valid ZIP file from cached downloads)
+MIN_VALID_ZIP_SIZE = 5 * 1024  # 100 KB in bytes (minimum size for a valid ZIP file from cached downloads)
 MIN_VALID_FASTA_SIZE_MB = 0.1  # Minimum size in MB for a valid FASTA file (100 KB)
 
 # URL Length Configuration
@@ -143,7 +143,6 @@ else:
 
 # Cache for the datasets path to avoid repeated checks
 _datasets_path_cache = None
-
 
 # =============================================================================
 # HELPER FUNCTIONS FOR RETRIES AND ERROR TRACKING
@@ -382,6 +381,49 @@ def _get_datasets_path():
     raise RuntimeError(
         f"NCBI datasets binary at {datasets_path} failed verification."
     )
+
+
+def _get_datasets_version():
+    """
+    Get the version of the NCBI datasets CLI if available.
+    
+    Attempts to retrieve the version string from the datasets binary.
+    Returns None if datasets is not available or version check fails.
+    
+    Returns:
+        str or None: Version string from datasets (e.g., "16.11.0") or None if unavailable.
+    """
+    try:
+        datasets_path = _get_datasets_path()
+        result = subprocess.run(
+            [datasets_path, "--version"],
+            capture_output=True,
+            text=True,
+            timeout=SUBPROCESS_VERSION_TIMEOUT,
+        )
+        if result.returncode == 0:
+            # Extract version from output (e.g., "datasets version 16.11.0")
+            version_output = result.stdout.strip()
+            logger.debug("Datasets version output: %s", version_output)
+            return version_output
+    except (RuntimeError, subprocess.TimeoutExpired, OSError) as e:
+        logger.debug("Could not retrieve datasets version: %s", e)
+    
+    return None
+
+
+def _get_gget_version():
+    """
+    Get the version of gget.
+    
+    Returns:
+        str: Version string (e.g., "1.2.0") or "unknown" if not available.
+    """
+    try:
+        from . import __version__
+        return __version__
+    except (ImportError, AttributeError):
+        return "unknown"
 
 
 def _get_modified_virus_name(virus_name, attempt=1):
@@ -3160,10 +3202,12 @@ def save_command_summary(
     total_final_sequences,
     output_files,
     filtered_metadata,
+    datasets_version,
     success=True,
     error_message=None,
     failed_commands=None,
-    genbank_error=None
+    genbank_error=None,
+    gget_version=None
 ):
     """
     Save a summary file documenting the command execution and results.
@@ -3171,6 +3215,10 @@ def save_command_summary(
     Creates a comprehensive summary including command line, statistics,
     output files, and any errors encountered.
     """
+    
+    # Get versions if not provided
+    if gget_version is None:
+        gget_version = _get_gget_version()
     
     summary_file = os.path.join(outfolder, "command_summary.txt")
     
@@ -3184,6 +3232,15 @@ def save_command_summary(
             # Timestamp
             f.write(f"Execution Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
             f.write(f"Output Folder: {outfolder}\n\n")
+            
+            # Version information
+            f.write("-" * 80 + "\n")
+            f.write("SOFTWARE VERSIONS\n")
+            f.write("-" * 80 + "\n")
+            f.write(f"gget version: {gget_version}\n")
+            if datasets_version is not None:
+                f.write(f"{datasets_version}\n")
+            f.write("\n")
             
             # Command line
             f.write("-" * 80 + "\n")
@@ -5348,6 +5405,7 @@ def virus(
     cached_metadata_dict = None
     used_cached_download = False
     cached_zip_file = None  # Track zip file path for cleanup
+    datasets_version = None  # Track datasets version for logging and summary
 
     # For SARS-CoV-2 queries, use cached data packages with hierarchical fallback
     if _skip_cache:
@@ -5375,6 +5433,7 @@ def virus(
             applied_filters = download_result[1]
             missing_filters = download_result[2]
             cached_zip_file = zip_file  # Track for cleanup
+            datasets_version = _get_datasets_version()
             
             cached_fasta_file, cached_metadata_dict, used_cached_download = process_cached_download(
                 zip_file, virus_type="SARS-CoV-2"
@@ -5421,6 +5480,7 @@ def virus(
             applied_filters = download_result[1]
             missing_filters = download_result[2]
             cached_zip_file = zip_file  # Track for cleanup
+            datasets_version = _get_datasets_version()
             
             cached_fasta_file, cached_metadata_dict, used_cached_download = process_cached_download(
                 zip_file, virus_type="Alphainfluenza"
@@ -5566,6 +5626,7 @@ def virus(
                     total_final_sequences=0,
                     output_files={},
                     filtered_metadata=[],
+                    datasets_version=datasets_version,
                     success=False,
                     error_message=str(e),
                     failed_commands=failed_commands,
@@ -5584,6 +5645,7 @@ def virus(
                     total_final_sequences=0,
                     output_files={},
                     filtered_metadata=[],
+                    datasets_version=datasets_version,
                     success=True,
                     error_message="No virus records found matching the specified criteria (API returned 0 records)",
                     failed_commands=failed_commands
@@ -5663,6 +5725,7 @@ def virus(
                     total_final_sequences=0,
                     output_files=output_files_dict,
                     filtered_metadata=[],
+                    datasets_version=datasets_version,
                     success=True,
                     error_message="No sequences passed the metadata filters",
                     failed_commands=failed_commands
@@ -5913,6 +5976,7 @@ def virus(
                 total_final_sequences=total_final_sequences,
                 output_files=output_files_dict,
                 filtered_metadata=final_metadata_for_summary,
+                datasets_version=datasets_version,
                 success=True,
                 error_message=None,
                 failed_commands=failed_commands,
@@ -5939,6 +6003,7 @@ def virus(
                 total_final_sequences=0,
                 output_files=output_files_dict,
                 filtered_metadata=[],
+                datasets_version=datasets_version,
                 success=True,
                 error_message="No sequences passed all filters",
                 failed_commands=failed_commands
@@ -6060,6 +6125,7 @@ def virus(
             total_final_sequences=total_final_sequences,
             output_files=output_files_dict,
             filtered_metadata=final_metadata_for_summary,
+            datasets_version=datasets_version,
             success=False,
             error_message=str(e),
             failed_commands=failed_commands
