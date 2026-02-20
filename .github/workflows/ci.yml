@@ -1,0 +1,113 @@
+name: CI
+
+on:
+  schedule:
+    - cron: "0 16 * * 1,4"
+  push:
+    paths:
+      - 'gget/**'
+      - 'tests/**'
+      - '!tests/pytest_results_py*.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.11', '3.12']
+        os: ['ubuntu-22.04']
+    name: Test on Python ${{ matrix.python }}
+
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt && pip install -r dev-requirements.txt
+
+      # Always run tests on push
+      - name: Run tests
+        if: github.event_name == 'push'
+        run: pytest -ra -v --tb=long --maxfail=5 --durations=10 --cov=gget --cov-report=term-missing tests
+
+      # On schedule/manual, run tests AND save output (and capture real pytest exit code)
+      - name: Run tests (save output to file)
+        id: pytest_saved
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          OUT="tests/pytest_results_py${{ matrix.python }}.txt"
+          echo "Pytest results (Python ${{ matrix.python }}) - $(date -u +"%Y-%m-%dT%H:%M:%SZ")" > "$OUT"
+          echo "" >> "$OUT"
+
+          pytest -ra -v --tb=long --maxfail=5 --durations=10 \
+            --cov=gget --cov-report=term-missing tests 2>&1 | tee -a "$OUT"
+
+          code=${PIPESTATUS[0]}
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          echo "pytest exit code: $code"
+
+      - name: Upload pytest results artifact
+        # create and commit results only for one python version to avoid matrix push races
+        if: always() && matrix.python == '3.12' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-results-py${{ matrix.python }}
+          path: tests/pytest_results_py${{ matrix.python }}.txt
+
+      - name: Commit and push pytest results
+        # create and commit results only for one python version to avoid matrix push races
+        if: always() && matrix.python == '3.12' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+        shell: bash
+        run: |
+          set -euo pipefail
+      
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      
+          git add -A tests/pytest_results_py*.txt
+      
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+      
+          git commit -m "CI: update pytest results"
+      
+          # Keep branch up-to-date (handles concurrent updates) + retry push
+          for attempt in 1 2 3 4 5; do
+            echo "Push attempt $attempt..."
+            # autostash prevents "cannot rebase: You have unstaged changes" if anything is modified locally
+            git pull --rebase --autostash origin main || true
+            if git push origin main; then
+              exit 0
+            fi
+            sleep $((attempt * 5))
+          done
+
+          echo "Push failed after retries."
+          exit 1
+
+      # Make schedule/manual runs still fail if pytest failed
+      - name: Fail job if pytest failed
+        if: always() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+        shell: bash
+        run: |
+          code="${{ steps.pytest_saved.outputs.exit_code }}"
+          if [ -n "$code" ] && [ "$code" != "0" ]; then
+            exit "$code"
+          fi
