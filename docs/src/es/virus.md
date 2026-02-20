@@ -14,6 +14,7 @@ Este módulo fue escrito por [Ferdous Nasri](https://github.com/ferbsx).
 **Argumento posicional**  
 `virus`  
 Nombre del taxón del virus (p. ej. 'Zika virus'), ID taxonómico (p. ej. 2697049), número de acceso (p. ej. 'NC\_045512.2'), lista de accesiones separadas por espacios (p. ej. 'NC\_045512.2 MN908947.3 MT020781.1'), o ruta a un archivo de texto que contiene números de acceso (uno por línea, cuando se combina con `--is_accession`).  
+Use la bandera `--download_all_accessions` para aplicar filtros sin buscar un virus específico.
 
 **Argumentos opcionales**   
 
@@ -112,6 +113,10 @@ Bandera para indicar que el argumento posicional `virus` es un número de acceso
   - Lista separada por espacios: `NC_045512.2 MN908947.3 MT020781.1`
   - Ruta de archivo de texto: `accessions.txt` (uno por línea)
 
+`--download_all_accessions`  
+Use esta bandera al aplicar filtros sin buscar un virus específico (deje el argumento `virus` vacío).  
+⚠️ **ADVERTENCIA**: Si no especifica filtros adicionales, esta bandera descargará TODAS las secuencias virales disponibles de NCBI (toda la taxonomía de Virus, taxon ID 10239). Este es un conjunto de datos extremadamente grande que puede tardar muchas horas en descargarse y requerir un espacio considerable en disco. Úsela con precaución y asegúrese de contar con suficiente almacenamiento y ancho de banda. Cuando esta bandera está activada, el argumento `virus` se ignora.
+
 `--refseq_only`  
 Bandera para limitar la búsqueda solo a genomas RefSeq (secuencias de mayor calidad, curadas).
 
@@ -129,9 +134,6 @@ Bandera para incluir solo secuencias donde todas las proteínas anotadas estén 
 
 `-kt` `--keep_temp`  
 Bandera para conservar todos los archivos intermedios/temporales generados durante el procesamiento. Por defecto, solo se conservan los archivos de salida finales.
-
-`--download_all_accessions`  
-⚠️ **ADVERTENCIA**: Descarga TODAS las accesiones de virus desde NCBI (toda la taxonomía de Virus, taxon ID 10239). Este es un conjunto de datos extremadamente grande que puede tardar muchas horas en descargarse y requerir un espacio considerable en disco. Úsalo con precaución y asegúrate de tener almacenamiento y ancho de banda adecuados. Cuando esta bandera está activa, el argumento `virus` se ignora.
 
 `-q` `--quiet`  
 Uso limitado para Terminal. Impide la información de progreso de ser exhibida durante la ejecución del programa.  
