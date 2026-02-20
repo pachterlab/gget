@@ -3716,8 +3716,8 @@ def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_fil
     # Create DataFrame with the specified column order
     df = pd.DataFrame(data_for_df, columns=columns)
     
-    logger.debug("DataFrame shape: %s", df.shape)
-    logger.debug("DataFrame columns: %s", list(df.columns))
+    # logger.debug("DataFrame shape: %s", df.shape)
+    # logger.debug("DataFrame columns: %s", list(df.columns))
 
     # Write DataFrame to CSV file
     try:
@@ -5447,6 +5447,7 @@ def virus(
             logger.warning("❌ SARS-CoV-2 cached download failed: %s", cache_error)
             logger.info("Falling back to regular API workflow...")
             # Reset cached download state to ensure regular API workflow is used
+            cached_zip_file = None
             cached_fasta_file = None
             cached_metadata_dict = None
             used_cached_download = False
@@ -5494,6 +5495,7 @@ def virus(
             logger.warning("❌ Alphainfluenza cached download failed: %s", cache_error)
             logger.info("Falling back to regular API workflow...")
             # Reset cached download state to ensure regular API workflow is used
+            cached_zip_file = None
             cached_fasta_file = None
             cached_metadata_dict = None
             used_cached_download = False
@@ -6151,10 +6153,13 @@ def virus(
         
         # Clean up cached download files (zip file and extracted directory)
         # This ensures the folder structure is identical whether using cached or API-based downloads
+        logger.debug("Checking for cached download files to clean up...")
         if cached_zip_file and keep_temp is False:
+            logger.debug("in cached zip file and not keep_temp case")
             try:
                 # Remove the zip file
                 if os.path.exists(cached_zip_file):
+                    logger.debug("Removing cached zip file: %s", cached_zip_file)
                     os.remove(cached_zip_file)
                     logger.debug("✅ Cleaned up cached zip file: %s", cached_zip_file)
                 # Remove the extracted directory (same path without .zip extension)
