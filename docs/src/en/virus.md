@@ -78,6 +78,9 @@ Filter by geographic location of sample collection (e.g. 'USA', 'Asia').
 `--submitter_country`  
 Filter by the country of the sequence submitter.
 
+`--source_database`
+Filter by source database. One of: 'genbank' or 'refseq'.
+
 _SARS-CoV-2 specific filters_
 
 `--lineage`  
@@ -98,9 +101,6 @@ Flag to indicate that the `virus` positional argument is an accession number, sp
   - Single accession: `NC_045512.2`
   - Space-separated list: `NC_045512.2 MN908947.3 MT020781.1`
   - Text file path: `accessions.txt` (one accession per line)
-
-`--refseq_only`  
-Flag to limit search to RefSeq genomes only (higher quality, curated sequences).
 
 `--is_sars_cov2`  
 Use NCBI's optimized cached data packages for a SARS-CoV-2 query. This provides faster and more reliable downloads. The system can auto-detect SARS-CoV-2 taxon-name queries, but for accession-based queries you must set this flag explicitly.
@@ -585,93 +585,6 @@ virus()
 └── save_command_summary()                   [Step 9: Execution summary]
     └── Failed operations tracking
 ```
-
-## Optimization Features
-
-### 1. **Server-Side Filtering**
-- Applies filters at the NCBI API level to reduce data transfer
-- Supported filters: host, geographic location, release date, genome completeness
-- Automatic validation of filter compatibility and values
-
-### 2. **Multi-Stage Filtering**
-- **Stage 1**: Metadata-only filters (fast, no sequence download)
-- **Stage 2**: Sequence-dependent filters (pre-filtered set)
-- **Stage 3**: GenBank metadata integration and filtering
-- **Stage 4**: Final validation and quality checks
-
-### 3. **Optimized Downloads**
-- Configurable batch sizes for different data types
-- Connection pooling for improved performance
-- Stream handling for large downloads
-- Rate limiting and retry mechanisms
-
-### 4. **Optimized Cached Downloads**
-- Special handling for SARS-CoV-2 and Alphainfluenza queries using NCBI's cached data packages
-- Automatic detection or explicit flags (`--is_sars_cov2`, `--is_alphainfluenza`)
-- Hierarchical fallback strategies to standard API if cached download fails
-- Significantly faster downloads for large datasets
-- **Pipeline continuation**: Cached downloads now continue through all workflow steps
-- **Post-download filtering**: Filters not applied during cached download are applied afterward
-- **GenBank metadata**: Available for cached downloads when `--genbank_metadata` flag is used
-- **Filter categories**:
-  - Applied during download: `host`, `complete_only`, `annotated`, `lineage` (COVID)
-  - Applied post-download: All other filters (sequence length, gene counts, dates, etc.)
-
-### 5. **Efficient Data Structures**
-- Accession-based dictionaries for O(1) lookups
-- Streaming parsers for JSON and XML
-- Memory-efficient FASTA handling
-- Optimized metadata merging
-
-## Output Files
-
-### 1. **FASTA Sequences** (`{virus}_sequences.fasta`)
-- Contains nucleotide sequences for filtered results
-- Standard FASTA format with detailed headers
-- Original orientation from NCBI preserved
-- Optional protein/segment annotations in headers
-
-### 2. **CSV Metadata** (`{virus}_metadata.csv`)
-- Tabular format for spreadsheet analysis
-- Standardized column structure
-- Geographic and taxonomic information
-- Collection and submission details
-- Quality metrics and annotations
-
-### 3. **GenBank Metadata** (`{virus}_genbank_metadata.csv`) [Optional]
-- 23+ detailed metadata columns
-- Publication references
-- Feature annotations
-- Cross-references to other databases
-- Strain and isolate details
-
-### 4. **JSONL Metadata** (`{virus}_metadata.jsonl`)
-- JSON Lines format for virus metadata after metadata-only filtering
-- Streaming-friendly format for programmatic access
-- One JSON object per sequence with the same fields as the CSV metadata
-- GenBank-specific fields are stored separately in `{virus}_genbank_metadata.csv` when `--genbank_metadata` is used
-
-### 5. **Command Summary** (`command_summary.txt`)
-- Automatically generated summary of the command execution
-- Records the exact command line that was run
-- Execution status (success/failure with error messages)
-- Filtering statistics at each stage:
-  - Total records from API
-  - Records after metadata filtering
-  - Final sequences after all filters
-- Detailed statistics:
-  - Unique hosts with counts (up to top 20 listed)
-  - Unique geographic locations with counts (up to top 20 listed)
-  - Sequence length range and average
-  - Completeness breakdown (complete vs partial)
-  - Source database breakdown (GenBank vs RefSeq)
-  - Unique submitter countries with counts (up to top 20 listed)
-- List of all generated output files with sizes
-- **Failed Operations Tracking** (when applicable):
-  - **API timeout failures**: Exact URL that timed out with alternative command suggestions
-  - **Failed sequence download batches**: Batch numbers, accession lists, and retry URLs
-  - **Failed GenBank metadata batches**: Accession lists with individual retry URLs
-  - All failed operations include exact commands/URLs that can be run manually for retry
 
 ## Usage Examples
 

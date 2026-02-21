@@ -78,6 +78,9 @@ Filtra por ubicación geográfica de la recolección de la muestra (p. ej. 'USA'
 `--submitter_country`  
 Filtra por el país del remitente de la secuencia.
 
+`--source_database`  
+Filtra por base de datos de origen. Uno de: 'genbank' o 'refseq'.
+
 _Filtros específicos de SARS-CoV-2_
 
 `--lineage`  
@@ -98,9 +101,6 @@ Bandera para indicar que el argumento posicional `virus` es un número de acceso
   - Acceso único: `NC_045512.2`
   - Lista separada por espacios: `NC_045512.2 MN908947.3 MT020781.1`
   - Ruta de archivo de texto: `accessions.txt` (uno por línea)
-
-`--refseq_only`  
-Bandera para limitar la búsqueda solo a genomas RefSeq (secuencias de mayor calidad, curadas).
 
 `--is_sars_cov2`  
 Usa los paquetes de datos optimizados en caché de NCBI para una consulta de SARS-CoV-2. Esto proporciona descargas más rápidas y confiables. El sistema puede detectar automáticamente consultas por nombre de taxón de SARS-CoV-2, pero para consultas basadas en accesiones debes establecer esta bandera explícitamente.
