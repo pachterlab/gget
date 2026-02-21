@@ -2578,13 +2578,13 @@ def main():
         required=False,
         help="Annotation status filter: 'true' or 'false'.",
     )
-    parser_virus.add_argument(
-        "--refseq_only",
-        default=False,
-        action="store_true",
-        required=False,
-        help="Only fetch RefSeq genomes. If not set, both RefSeq and GenBank genomes will be fetched.",
-    )
+    # parser_virus.add_argument(
+    #     "--refseq_only",
+    #     default=False,
+    #     action="store_true",
+    #     required=False,
+    #     help="Only fetch RefSeq genomes. If not set, both RefSeq and GenBank genomes will be fetched.",
+    # )
     parser_virus.add_argument(
         "-kt",
         "--keep_temp",
@@ -2606,6 +2606,12 @@ def main():
         action="store_true",
         required=False,
         help="When querying Alphainfluenza (Influenza A), use this tag so the code optimizes by using NCBI's cached data packages for faster downloads.",
+    )
+    parser_virus.add_argument(
+        "--source_database",
+        type=str,
+        required=False,
+        help="Source database filter: 'refseq' or 'genbank'.",
     )
     parser_virus.add_argument(
         "--min_release_date",
@@ -3813,10 +3819,11 @@ def main():
             min_collection_date=args.min_collection_date,
             max_collection_date=args.max_collection_date,
             annotated=args.annotated,
-            refseq_only=args.refseq_only,
+            # refseq_only=args.refseq_only,
             keep_temp=args.keep_temp,
             is_sars_cov2=args.is_sars_cov2,
             is_alphainfluenza=args.is_alphainfluenza,
+            source_database=args.source_database,
             min_release_date=args.min_release_date,
             max_release_date=args.max_release_date,
             min_mature_peptide_count=args.min_mature_peptide_count,
