@@ -1,4 +1,13 @@
 ## ✨ ¡Lo más reciente!  
+**Versión ≥ 0.30.3** (22 de febrero de 2026):  
+- [`gget virus`](virus.md): Nuevas opciones de filtrado, modo silencioso y mejora en la fiabilidad de descargas
+  - Se añadió el filtro `--segment` para virus segmentados (por ejemplo, segmentos de Influenza A como 'HA', 'NA', 'PB1')
+  - Se añadió el filtro `--vaccine_strain` para incluir o excluir secuencias de cepas vacunales
+  - Se añadió el filtro `--source_database` para seleccionar secuencias de 'genbank' o 'refseq' (reemplaza `refseqOnly`)
+  - Se añadió la bandera `-q` / `--quiet` para suprimir la información de progreso
+  - Se extendieron las estrategias de respaldo para mejorar la fiabilidad de descarga en conjuntos de datos grandes
+  - El archivo de resumen de comandos ahora incluye la versión del software
+
 **Versión ≥ 0.30.2** (08 de febrero de 2026):  
 - [`gget virus`](virus.md): Optimización del streaming de metadatos, mejora del filtrado de proteínas y manejo de errores y lógica de reintentos mejorados  
   - Los metadatos ahora se escriben en disco durante la descarga para evitar el agotamiento de memoria en conjuntos de datos grandes (100.000+ registros)

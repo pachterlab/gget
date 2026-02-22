@@ -1,4 +1,13 @@
 ## ✨ What's new
+**Version ≥ 0.30.3** (Feb 22, 2026):  
+- [`gget virus`](virus.md): New filtering options, quiet mode, and improved download reliability
+  - Added `--segment` filter for segmented viruses (e.g., Influenza A segments like 'HA', 'NA', 'PB1')
+  - Added `--vaccine_strain` filter to include or exclude vaccine strain sequences
+  - Added `--source_database` filter to select sequences from 'genbank' or 'refseq' (replaces `refseqOnly`)
+  - Added `-q` / `--quiet` flag to suppress progress information
+  - Extended fallback strategies for improved download reliability on large datasets
+  - Command summary file now includes software version
+
 **Version ≥ 0.30.2** (Feb 08, 2026):  
 - [`gget virus`](virus.md): Metadata streaming optimization, improved protein filtering, and enhanced error handling and retry logic
   - Metadata now streams to disk during fetch to prevent memory exhaustion on large datasets (100,000+ records)
