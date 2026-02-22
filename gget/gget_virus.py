@@ -5357,10 +5357,10 @@ def virus(
             "Argument 'vaccine_strain' must be a boolean (True or False) or None."
         )
 
-    if provirus is not None and not isinstance(provirus, bool):
-        raise TypeError(
-            "Argument 'provirus' must be a boolean (True or False) or None."
-        )
+    # if provirus is not None and not isinstance(provirus, bool):
+    #     raise TypeError(
+    #         "Argument 'provirus' must be a boolean (True or False) or None."
+    #     )
     
     if genbank_batch_size is not None:
         if not isinstance(genbank_batch_size, int) or genbank_batch_size <= 0:
