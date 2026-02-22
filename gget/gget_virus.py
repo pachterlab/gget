@@ -942,7 +942,7 @@ def fetch_virus_metadata(
     # Add API-level filters to reduce the amount of data we need to download
     # These filters are applied server-side before results are returned
     if refseq_only:
-        # Limit results to RefSeq database entries only (higher quality, curated sequences)
+        # Limit results to RefSeq database entries only
         params['filter.refseq_only'] = 'true'
         logger.debug("Applied RefSeq-only filter")
     
