@@ -958,12 +958,17 @@ def fetch_virus_metadata(
         
     if host:
         # Filter by host organism name, replacing underscores with spaces for API compatibility
-        params['filter.host'] = host.replace('_', ' ')
+        host = host.strip('"\'-_<|>`\'')
+        host = host.replace('-', '+').replace('_', '+').replace(' ', '+')
+        params['filter.host'] = host
         logger.debug("Applied host filter: %s", host)
         
     if geographic_location:
         # Filter by geographic location, replacing underscores with spaces for API compatibility
-        params['filter.geo_location'] = geographic_location.replace('_', ' ')
+        geographic_location = geographic_location.strip('"-_<|>`')
+        geographic_location = geographic_location.replace("'", "%27").replace("`", "%27")
+        geographic_location = geographic_location.replace('-', '+').replace('_', '+').replace(' ', '+')
+        params['filter.geo_location'] = geographic_location
         logger.debug("Applied geographic location filter: %s", geographic_location)
 
     if min_release_date:
