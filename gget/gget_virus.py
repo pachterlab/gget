@@ -4797,6 +4797,7 @@ def filter_metadata_only(
     submitter_country=None,
     min_collection_date=None,
     max_collection_date=None,
+    source_database=None,
     max_release_date=None,
     min_mature_peptide_count=None,
     max_mature_peptide_count=None,
@@ -4804,7 +4805,7 @@ def filter_metadata_only(
     max_protein_count=None,
     annotated=None,
     segment=None,
-    is_vaccine_strain=False,
+    vaccine_strain=None,
 ):
     """
     Filter metadata records based on metadata-only criteria.
@@ -4824,13 +4825,13 @@ def filter_metadata_only(
     logger.info("Starting metadata-only filtering process...")
     logger.debug("Applying metadata-only filters: seq_length(%s-%s), gene_count(%s-%s), "
                 "completeness(%s), lab_passaged(%s), annotated(%s), "
-                "submitter_country(%s), collection_date(%s-%s), max_release_date(%s), "
-                "peptide_count(%s-%s), protein_count(%s-%s), segment(%s), is_vaccine_strain(%s)",
+                "submitter_country(%s), collection_date(%s-%s), source_database(%s), max_release_date(%s), "
+                "peptide_count(%s-%s), protein_count(%s-%s), segment(%s), vaccine_strain(%s), "
                 min_seq_length, max_seq_length, min_gene_count, max_gene_count,
                 nuc_completeness, lab_passaged, annotated,
-                submitter_country, min_collection_date, max_collection_date, max_release_date, 
+                submitter_country, min_collection_date, max_collection_date, source_database, max_release_date, 
                 min_mature_peptide_count, max_mature_peptide_count,
-                min_protein_count, max_protein_count, segment, is_vaccine_strain)
+                min_protein_count, max_protein_count, segment, vaccine_strain,
     
     # Convert date filters to datetime objects for proper comparison
     min_collection_date = (
@@ -4867,11 +4868,12 @@ def filter_metadata_only(
         'annotated': 0,
         'submitter_country': 0,
         'collection_date': 0,
+        'source_database': 0,
         'release_date': 0,
         'mature_peptide_count': 0,
         'protein_count': 0,
         'segment': 0,
-        'is_vaccine_strain': 0,
+        'vaccine_strain': 0,
     }
 
     logger.info("Processing %d metadata records...", total_sequences)
@@ -4976,7 +4978,7 @@ def filter_metadata_only(
 
         # FILTER 7: Collection date range filter
         if min_collection_date is not None or max_collection_date is not None:
-            date_str = metadata.get("isolate", {}).get("collection_date", "")
+            date_str = metadata.get("isolate", {}).get("collectionDate", "")
             
             date = _parse_date(date_str, filtername="collection_date")
             
@@ -5087,11 +5089,31 @@ def filter_metadata_only(
                 continue
 
         # FILTER 12: Vaccine strain filter
-        if is_vaccine_strain:
+        if vaccine_strain is not None:
             is_vaccine = metadata.get("isVaccineStrain", metadata.get("is_vaccine_strain", False))
-            if not is_vaccine:
-                logger.debug("Skipping %s: not a vaccine strain", accession)
-                filter_stats['is_vaccine_strain'] += 1
+            if vaccine_strain:
+                if not is_vaccine:
+                    logger.debug("Skipping %s: not a vaccine strain (required)", accession)
+                    filter_stats['vaccine_strain'] += 1
+                    continue
+            if vaccine_strain == False:
+                if is_vaccine:
+                    logger.debug("Skipping %s: is a vaccine strain (not allowed)", accession)
+                    filter_stats['vaccine_strain'] += 1
+                    continue
+
+        # FILTER 17: Source database filter
+        if source_database is not None:
+            source_db = metadata.get("sourceDatabase", "").lower()
+            if not source_db:
+                logger.debug("Skipping %s: missing source database", accession)
+                filter_stats['source_database'] += 1
+                continue
+                
+            if source_db != source_database.lower():
+                logger.debug("Skipping %s: source database '%s' != required '%s'", 
+                           accession, source_db, source_database.lower())
+                filter_stats['source_database'] += 1
                 continue
 
         # If we reach this point, the metadata record has passed all filters
