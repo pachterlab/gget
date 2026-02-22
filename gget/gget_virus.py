@@ -2924,20 +2924,19 @@ def load_metadata_from_api_reports(api_reports):
     return metadata_dict
 
 
-def _parse_date(date_str, filtername="", verbose=False):
+def _parse_date(date_str, filtername=""):
     """
     Parse various date formats into a datetime object.
     
     Args:
         date_str (str): Date string to parse (various formats accepted).
         filtername (str): Name of the filter/field for error reporting.
-        verbose (bool): Whether to raise detailed exceptions on parse errors.
         
     Returns:
-        datetime: Parsed datetime object, or None if parsing fails (when verbose=False).
+        datetime: Parsed datetime object, or None if parsing fails.
         
     Raises:
-        ValueError: If date parsing fails and verbose=True
+        ValueError: If date parsing fails
         
     Note:
         Uses a default date of year 1500 for incomplete date strings to ensure
@@ -2951,25 +2950,20 @@ def _parse_date(date_str, filtername="", verbose=False):
         return parsed_date
         
     except (ValueError, TypeError) as exc:
-        # Handle parsing errors based on verbosity setting
-        if verbose:
-            # In verbose mode, raise detailed error with helpful message
-            error_msg = (
-                f"Invalid date detected for argument {filtername}: '{date_str}'.\n"
-                "Note: Please check for errors such as incorrect day values "
-                "(e.g., June 31st does not exist) or typos in the date format "
-                "(should be YYYY-MM-DD)."
-            )
-            logger.error("❌ Date parsing failed: %s", error_msg)
-            raise ValueError(error_msg) from exc
-        else:
-            # In non-verbose mode, log at appropriate level and return None
-            # Use debug level for empty/missing dates (common case), warning for actual invalid dates
-            if not date_str or not date_str.strip():
-                logger.debug("Empty or missing date for filter '%s'", filtername)
-            else:
-                logger.warning("⚠️ Failed to parse date '%s' for filter '%s': %s", date_str, filtername, exc)
-            return None
+        error_msg = (
+            f"Invalid date detected for argument {filtername}: '{date_str}'.\n"
+            "Note: Please check for errors such as incorrect day values "
+            "(e.g., June 31st does not exist) or typos in the date format "
+            "(should be YYYY-MM-DD)."
+        )
+        logger.error("❌ Date parsing failed: %s", error_msg)
+        raise ValueError(error_msg) from exc
+        # if not verbose:
+        #     if not date_str or not date_str.strip():
+        #         logger.debug("Empty or missing date for filter '%s'", filtername)
+        #     else:
+        #         logger.warning("⚠️ Failed to parse date '%s' for filter '%s': %s", date_str, filtername, exc)
+        #     return None
 
 
 def _check_protein_requirements(record, metadata, has_proteins, proteins_complete):
