@@ -1732,8 +1732,7 @@ def process_cached_download(zip_file, virus_type="virus"):
                             metadata['location'] = location_info.get('geographicLocation')
                             metadata['region'] = location_info.get('geographicRegion')
                             # metadata['usa_state'] = location_info.get('usaState') # May not exist, but try anyway
-                            
-                            
+                                                        
                             # Extract other fields
                             metadata['releaseDate'] = report.get('releaseDate')
                             # metadata['updateDate'] = report.get('updateDate')
@@ -5171,8 +5170,9 @@ def virus(
     submitter_country=None,
     min_collection_date=None,
     max_collection_date=None,
+    source_database=None,
     annotated=None,
-    refseq_only=False,
+    # refseq_only=False,
     keep_temp=False,
     min_release_date=None,
     max_release_date=None,
@@ -5184,13 +5184,13 @@ def virus(
     is_sars_cov2=False,
     is_alphainfluenza=False,
     segment=None,
-    is_vaccine_strain=False,
+    vaccine_strain=None,
     lineage=None,
     genbank_metadata=False,
-    genbank_batch_size=200,
+    genbank_batch_size=GENBANK_DEFAULT_BATCH_SIZE,
     download_all_accessions=False,
-    verbose=True,
     _skip_cache=False,
+    quiet=False,
     ):
     """
     Download a virus genome dataset from the NCBI Virus database (https://www.ncbi.nlm.nih.gov/labs/virus/).
@@ -5246,8 +5246,8 @@ def virus(
     """
     # Save the original logger level and set it based on verbose parameter
     original_logger_level = logger.level
-    # if verbose:
-    #     logger.setLevel(logging.INFO)
+    if quiet:
+        logger.setLevel(logging.CRITICAL)
     
     logger.info("Starting virus data retrieval process...")
     
@@ -5261,6 +5261,8 @@ def virus(
     output_files_dict = {}
     final_metadata_for_summary = []
     filtered_sequences = []  
+    refseq_only = False
+
     
     # Initialize failed commands tracker for tracking all types of failures
     failed_commands = {
@@ -5281,14 +5283,14 @@ def virus(
     if download_all_accessions:
         logger.info("ATTENTION: Download all accessions mode is active.")
         logger.info("This will download ALL virus accessions from NCBI, which can be a very large dataset and take a long time.")
-        virus = NCBI_ALL_VIRUSES_TAXID  # NCBI taxonomy ID for all Viruses
+        virus = NCBI_ALL_VIRUSES_TAXID # NCBI taxonomy ID for all Viruses
         is_accession = False
-        logger.info("Overriding virus query to fetch all viruses using taxon ID: %s. Filters remain unchanged.", virus)
+        logger.info("Overriding virus query and accession tag to fetch all viruses using taxon ID: %s. Filters remain unchanged.", virus)
 
     logger.info("Query parameters: virus='%s', is_accession=%s, outfolder='%s'",
                 virus, is_accession, outfolder)
-    logger.debug("Applied filters: host=%s, seq_length=(%s-%s), gene_count=(%s-%s), completeness=%s, annotated=%s, refseq_only=%s, keep_temp=%s, lab_passaged=%s, geographic_location=%s, submitter_country=%s, collection_date=(%s-%s), release_date=(%s-%s), protein_count=(%s-%s), mature_peptide_count=(%s-%s), max_ambiguous=%s, has_proteins=%s, proteins_complete=%s, segment=%s, is_vaccine_strain=%s, genbank_metadata=%s, genbank_batch_size=%s",
-    host, min_seq_length, max_seq_length, min_gene_count, max_gene_count, nuc_completeness, annotated, refseq_only, keep_temp, lab_passaged, geographic_location, submitter_country, min_collection_date, max_collection_date, min_release_date, max_release_date, min_protein_count, max_protein_count, min_mature_peptide_count, max_mature_peptide_count, max_ambiguous_chars, has_proteins, proteins_complete, segment, is_vaccine_strain, genbank_metadata, genbank_batch_size)
+    # logger.debug("Applied filters: host=%s, seq_length=(%s-%s), gene_count=(%s-%s), completeness=%s, annotated=%s, source_db(%s), keep_temp=%s, lab_passaged=%s, geographic_location=%s, submitter_country=%s, submitter_name=%s, submitter_institution=%s, collection_date=(%s-%s), release_date=(%s-%s), protein_count=(%s-%s), mature_peptide_count=(%s-%s), max_ambiguous=%s, has_proteins=%s, proteins_complete=%s, segment=%s, vaccine_strain=%s, lineage=%s, provirus=%s, isolate=%s, genotype=%s, isolation_source=%s, env_source=%s, gen_mol_type=%s, genbank_metadata=%s, genbank_batch_size=%s",
+    # host, min_seq_length, max_seq_length, min_gene_count, max_gene_count, nuc_completeness, annotated, refseq_only, keep_temp, lab_passaged, geographic_location, submitter_country, min_collection_date, max_collection_date, min_release_date, max_release_date, min_protein_count, max_protein_count, min_mature_peptide_count, max_mature_peptide_count, max_ambiguous_chars, has_proteins, proteins_complete, segment, vaccine_strain, genbank_metadata, genbank_batch_size)
 
     # SECTION 1: INPUT VALIDATION AND OUTPUT DIRECTORY SETUP
     # Validate and normalize input arguments before proceeding
@@ -5310,6 +5312,18 @@ def virus(
                 "Argument 'nuc_completeness' must be 'partial', 'complete', or None."
             )
         logger.debug("Nucleotide completeness filter set to: %s", nuc_completeness)
+
+    # Validate source database argument
+    if source_database is not None:
+        source_database = source_database.lower()  # Normalize to lowercase
+        if source_database not in ["refseq", "genbank"]:
+            raise ValueError(
+                "Argument 'source_database' must be 'refseq', 'genbank', or None."
+            )
+        elif source_database == "refseq":
+            refseq_only = True
+            logger.debug("Source database filter set to RefSeq only")
+        logger.debug("Source database filter set to: %s", source_database)
     
     # Validate boolean arguments with proper type checking
     if annotated is not None and not isinstance(annotated, bool):
@@ -5327,10 +5341,10 @@ def virus(
             "Argument 'proteins_complete' must be a boolean (True or False)."
         )
 
-    if refseq_only is not None and not isinstance(refseq_only, bool):
-        raise TypeError(
-            "Argument 'refseq_only' must be a boolean (True or False)."
-        )
+    # if refseq_only is not None and not isinstance(refseq_only, bool):
+    #     raise TypeError(
+    #         "Argument 'refseq_only' must be a boolean (True or False)."
+        # )
     
     if keep_temp is not None and not isinstance(keep_temp, bool):
         raise TypeError(
@@ -5338,7 +5352,6 @@ def virus(
         )
 
     if is_accession is not None and not isinstance(is_accession, bool):
-        accession = is_accession
         raise TypeError(
             "Argument 'is_accession' must be a boolean (True or False)."
         )
@@ -5348,9 +5361,14 @@ def virus(
             "Argument 'genbank_metadata' must be a boolean (True or False)."
         )
 
-    if is_vaccine_strain is not None and not isinstance(is_vaccine_strain, bool):
+    if vaccine_strain is not None and not isinstance(vaccine_strain, bool):
         raise TypeError(
-            "Argument 'is_vaccine_strain' must be a boolean (True or False)."
+            "Argument 'vaccine_strain' must be a boolean (True or False) or None."
+        )
+
+    if provirus is not None and not isinstance(provirus, bool):
+        raise TypeError(
+            "Argument 'provirus' must be a boolean (True or False) or None."
         )
     
     if genbank_batch_size is not None:
@@ -5371,6 +5389,10 @@ def virus(
     if isinstance(virus, int):
         virus = str(virus)
         logger.debug("Converted integer virus ID to string: %s", virus)
+
+    if isinstance(host, int):
+        host = str(host)
+        logger.debug("Converted integer host ID to string: %s", host)
 
     # Validate min/max argument pairs to ensure logical consistency
     logger.debug("Validating min/max argument pairs...")
@@ -5398,26 +5420,26 @@ def virus(
         min_collection_date,
         max_collection_date,
         "collection date (arguments: min_collection_date and max_collection_date)",
-        date=True,  # Enable date parsing for comparison
+        date=True,
     )
     check_min_max(
         min_release_date,
         max_release_date,
         "release date (arguments: min_release_date and max_release_date)",
-        date=True,  # Enable date parsing for comparison
+        date=True,
     )
 
     logger.info("Input validation completed successfully")
 
     ##############
     # Prepare output directory and all used file paths
-    virus_clean = virus.replace(' ', '_').replace('/', '_')
+    virus_clean = virus.replace(' ', '_').replace('/', '_').replace('-', '_')
 
     # Create and prepare output directory structure
     if outfolder is None:
         currentfolder = os.getcwd()
-        outfolder = os.path.join(currentfolder, "output" , f"{virus_clean}_{timestamp}")
-        logger.info("No output folder specified, creating a subdirectory in current directory named 'output' and placing results in a folder named: %s", outfolder)
+        outfolder = os.path.join(currentfolder, "gget_virus_output" , f"{virus_clean}_{timestamp}")
+        logger.info("No output folder specified, creating a subdirectory in current directory named 'gget_virus_output' and placing results in a folder named: %s", outfolder)
     else:
         logger.info("Using specified output folder: %s", outfolder)
     
@@ -5724,11 +5746,12 @@ def virus(
             "max_seq_length": max_seq_length,
             "min_gene_count": min_gene_count,
             "max_gene_count": max_gene_count,
-            "nuc_completeness": nuc_completeness, #only for partial cases
+            "nuc_completeness": nuc_completeness if nuc_completeness and nuc_completeness.lower() == 'partial' else None, #only for partial cases
             "lab_passaged": lab_passaged,
             "submitter_country": submitter_country,
             "min_collection_date": min_collection_date,
             "max_collection_date": max_collection_date,
+            "source_database": source_database if source_database and source_database.lower() == 'genbank' else None,
             "max_release_date": max_release_date,
             "min_mature_peptide_count": min_mature_peptide_count,
             "max_mature_peptide_count": max_mature_peptide_count,
@@ -5737,19 +5760,15 @@ def virus(
             # annotated=False needs client-side filtering (annotated=True is handled server-side)
             "annotated": annotated if annotated is False else None,
             "segment": segment,
-            "is_vaccine_strain": is_vaccine_strain,
-        }
-
-        all_metadata_filters_none_except_nuc = all(
-            v is None for k, v in filters.items() if k not in ("nuc_completeness", "annotated")
-        ) and annotated is not False
+            "vaccine_strain": vaccine_strain,
+        all_metadata_filters_none = all(v is None for k, v in filters.items())
 
         # Prepare output file paths (defined early for use in cleanup even if filters return early)
         output_fasta_file = os.path.join(outfolder, f"{virus_clean}_sequences.fasta")
         output_metadata_csv = os.path.join(outfolder, f"{virus_clean}_metadata.csv")
         output_metadata_jsonl = os.path.join(outfolder, f"{virus_clean}_metadata.jsonl")
 
-        if all_metadata_filters_none_except_nuc and filters["nuc_completeness"]!="partial":
+        if all_metadata_filters_none:
             logger.info("No metadata-only filters specified, skipping this step.")
             filtered_accessions = list(metadata_dict.keys())
             filtered_metadata = list(metadata_dict.values())
