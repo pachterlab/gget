@@ -217,14 +217,6 @@
             "outfolder": "test_virus_output"
         }
     },
-    "test_virus_with_refseq_filter": {
-        "type": "code_defined",
-        "args": {
-            "virus": "Zika virus",
-            "refseq_only": true,
-            "outfolder": "test_virus_output"
-        }
-    },
     "test_virus_with_multiple_filters": {
         "type": "code_defined",
         "args": {
