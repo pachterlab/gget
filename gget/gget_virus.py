@@ -5752,6 +5752,8 @@ def virus(
             "annotated": annotated if annotated is False else None,
             "segment": segment,
             "vaccine_strain": vaccine_strain,
+        }
+
         all_metadata_filters_none = all(v is None for k, v in filters.items())
 
         # Prepare output file paths (defined early for use in cleanup even if filters return early)
