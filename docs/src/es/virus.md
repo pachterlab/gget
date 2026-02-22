@@ -56,6 +56,10 @@ Filtra por número máximo de caracteres nucleotídicos ambiguos (N).
 Filtra por secuencias que contengan proteínas o genes específicos (p. ej. 'spike', 'ORF1ab'). Puede ser un solo nombre de proteína o una lista de nombres de proteínas.
 Python: `has_proteins="spike"` o `has_proteins=["spike", "ORF1ab"]`
 
+`--segment`  
+Filtra por secuencias con segmento(s) específico(s) (p. ej. 'HA', 'NA'). Puede ser un solo nombre de segmento o una lista de nombres de segmentos.
+Python: `segment="HA"` o `segment=["HA", "NA", "PB1"]`
+
 _Filtros de fecha_  
 
 `--min_collection_date`  
@@ -76,7 +80,7 @@ _Filtros de ubicación y remitente_
 Filtra por ubicación geográfica de la recolección de la muestra (p. ej. 'USA', 'Asia').
 
 `--submitter_country`  
-Filtra por el país del remitente de la secuencia.
+Filtra por el país del remitente de la secuencia. Puede ser un solo país o una lista separada por comas.
 
 `--source_database`  
 Filtra por base de datos de origen. Uno de: 'genbank' o 'refseq'.
@@ -84,7 +88,8 @@ Filtra por base de datos de origen. Uno de: 'genbank' o 'refseq'.
 _Filtros específicos de SARS-CoV-2_
 
 `--lineage`  
-Filtra por linaje de SARS-CoV-2 (p. ej. 'B.1.1.7', 'P.1').
+Filtra por linaje de SARS-CoV-2 (p. ej. 'B.1.1.7', 'P.1'). Puede ser un solo linaje o una lista de linajes.
+Python: `lineage="B.1.1.7"` o `lineage=["B.1.1.7", "P.1"]`
 
 _Configuración del pipeline_
 
@@ -121,6 +126,11 @@ Filtra a favor o en contra de muestras pasadas en laboratorio.
 Línea de comandos: `--lab_passaged true` para obtener solo muestras pasadas en laboratorio, o `--lab_passaged false` para excluirlas.  
 Python: `lab_passaged=True` o `lab_passaged=False`.
 
+`--vaccine_strain`  
+Filtra a favor o en contra de secuencias de cepas de vacunas.  
+Línea de comandos: `--vaccine_strain true` para obtener solo cepas de vacunas, o `--vaccine_strain false` para excluirlas.  
+Python: `vaccine_strain=True` o `vaccine_strain=False`.
+
 `--proteins_complete`  
 Bandera para incluir solo secuencias donde todas las proteínas anotadas estén completas.  
 
@@ -153,103 +163,6 @@ gget.virus(
 
 → Descarga genomas completos de Zika virus de hospedadores humanos. Los resultados se guardan en la carpeta `zika_data` como `Zika_virus_sequences.fasta`, `Zika_virus_metadata.csv`, `Zika_virus_metadata.jsonl` y `command_summary.txt`.
 
-El archivo CSV de metadatos se verá así:
-
-| accession  | Organism Name | GenBank/RefSeq | Release date | Length | Nuc Completeness | Geographic Location | Host         | ... |
-| ---------- | ------------- | -------------- | ------------ | ------ | ---------------- | ------------------- | ------------ | --- |
-| KX198135.1 | Zika virus    | GenBank        | 2016-05-18   | 10807  | complete         | Americas:Haiti      | Homo sapiens | ... |
-| . . .      | . . .         | . . .          | . . .        | . . .  | . . .            | . . .               | . . .        | ... |
-
-El archivo de resumen del comando (`command_summary.txt`) contendrá, por ejemplo:
-
-```
-================================================================================
-GGET VIRUS COMMAND SUMMARY
-================================================================================
-
-Execution Date: 2025-12-15 13:33:39
-Output Folder: zika_data
-
---------------------------------------------------------------------------------
-COMMAND LINE
---------------------------------------------------------------------------------
-gget virus "Zika virus" --nuc_completeness complete --host human --out zika_data
-
---------------------------------------------------------------------------------
-EXECUTION STATUS
---------------------------------------------------------------------------------
-✓ Command completed successfully
-
---------------------------------------------------------------------------------
-SEQUENCE STATISTICS
---------------------------------------------------------------------------------
-Total records from API: 234
-After metadata filtering: 234
-Final sequences (after all filters): 234
-
---------------------------------------------------------------------------------
-DETAILED STATISTICS
---------------------------------------------------------------------------------
-Unique hosts: 1
-  - Homo sapiens
-
-Unique geographic locations: 15
-  - Americas:Brazil
-  - Americas:Colombia
-  - ... (showing top 20)
-
-Sequence length range: 10272 - 11155 bp
-Average sequence length: 10742 bp
-
-Completeness breakdown:
-  - complete: 234
-
-Source database breakdown:
-  - GenBank: 233
-  - RefSeq: 1
-
-Unique submitter countries: 12
-  - USA
-  - Brazil
-  - ... (showing top 20)
-
---------------------------------------------------------------------------------
-OUTPUT FILES
---------------------------------------------------------------------------------
-FASTA Sequences: Zika_virus_sequences.fasta (2.45 MB)
-JSONL Metadata: Zika_virus_metadata.jsonl (0.53 MB)
-CSV Metadata: Zika_virus_metadata.csv (0.42 MB)
-
-================================================================================
-END OF SUMMARY
-================================================================================
-```
-
-**Nota**: Si alguna operación falla durante la ejecución (timeouts de API, fallos de descarga de secuencias, fallos de metadatos de GenBank), el resumen incluirá una sección "FAILED OPERATIONS - RETRY COMMANDS" con comandos y URLs exactas que pueden ejecutarse manualmente para reintentar las operaciones fallidas. Por ejemplo:
-
-```
---------------------------------------------------------------------------------
-FAILED OPERATIONS - RETRY COMMANDS
---------------------------------------------------------------------------------
-Some operations failed during execution. You can retry them manually:
-
-[Failed Sequence Download Batches]
-Total failed batches: 2
-
-Batch 15: 200 sequences
-Error: HTTPError: 500 Server Error
-Accessions: NC_045512.2, MN908947.3, MT020781.1 ... and 197 more
-Retry URL: https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nucleotide&id=NC_045512.2,MN908947.3,...&rettype=fasta&retmode=text
-
-[Failed GenBank Metadata Batches]
-Total failed batches: 1
-See detailed log file: genbank_failed_batches.log
-
-Accessions: NC_045512.2, MN908947.3, MT020781.1 ... and 2 more
-Retry URL: https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nucleotide&id=NC_045512.2,MN908947.3,...&rettype=gb&retmode=xml
-
---------------------------------------------------------------------------------
-```
 
 <br><br>
 **Descargar un genoma de referencia específico de SARS-CoV-2 usando su número de acceso:**
