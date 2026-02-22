@@ -4679,7 +4679,7 @@ def filter_cached_metadata_for_unused_filters(
     # Parse min_release_date once for efficiency
     min_release_date_parsed = None
     if 'min_release_date' in filters_to_apply:
-        min_release_date_parsed = _parse_date(min_release_date, filtername="min_release_date", verbose=True)
+        min_release_date_parsed = _parse_date(min_release_date, filtername="min_release_date")
     
     # Apply filters to each metadata record
     filtered_accessions = []
@@ -4823,17 +4823,18 @@ def filter_metadata_only(
     
     logger.info("Starting metadata-only filtering process...")
     logger.debug("Applying metadata-only filters: seq_length(%s-%s), gene_count(%s-%s), completeness(%s), lab_passaged(%s), annotated(%s), submitter_country(%s), collection_date(%s-%s), source_database(%s), max_release_date(%s), peptide_count(%s-%s), protein_count(%s-%s), segment(%s), vaccine_strain(%s)", min_seq_length, max_seq_length, min_gene_count, max_gene_count, nuc_completeness, lab_passaged, annotated, submitter_country, min_collection_date, max_collection_date, source_database, max_release_date, min_mature_peptide_count, max_mature_peptide_count, min_protein_count, max_protein_count, segment, vaccine_strain)
+
     # Convert date filters to datetime objects for proper comparison
     min_collection_date = (
-        _parse_date(min_collection_date, filtername="min_collection_date", verbose=True) 
+        _parse_date(min_collection_date, filtername="min_collection_date") 
         if min_collection_date else None
     )
     max_collection_date = (
-        _parse_date(max_collection_date, filtername="max_collection_date", verbose=True) 
+        _parse_date(max_collection_date, filtername="max_collection_date") 
         if max_collection_date else None
     )
     max_release_date = (
-        _parse_date(max_release_date, filtername="max_release_date", verbose=True) 
+        _parse_date(max_release_date, filtername="max_release_date") 
         if max_release_date else None
     )
     
@@ -4952,7 +4953,7 @@ def filter_metadata_only(
         # FILTER 6: Submitter country filter
         if submitter_country is not None:
             submitter_country_value = "_".join(
-                metadata.get("submitter", {}).get("country", "").split(" ")
+                metadata.get("submitterCountry", "").split(" ")
             ).lower()
             
             if not submitter_country_value:
@@ -4970,9 +4971,20 @@ def filter_metadata_only(
         if min_collection_date is not None or max_collection_date is not None:
             date_str = metadata.get("isolate", {}).get("collectionDate", "")
             
-            date = _parse_date(date_str, filtername="collection_date")
+            # Skip records with empty or missing collection date
+            if not date_str:
+                logger.debug("Skipping %s: missing or empty collection date", accession)
+                filter_stats['collection_date'] += 1
+                continue
             
-            if date_str is None or date is None:
+            try:
+                date = _parse_date(date_str, filtername="collection_date")
+            except ValueError:
+                logger.debug("Skipping %s: invalid collection date format '%s'", accession, date_str)
+                filter_stats['collection_date'] += 1
+                continue
+            
+            if date is None:
                 logger.debug("Skipping %s: missing or invalid collection date '%s'", accession, date_str)
                 filter_stats['collection_date'] += 1
                 continue
@@ -6111,6 +6123,8 @@ def virus(
                     cmd_parts.append(f"min_collection_date='{min_collection_date}'")
                 if max_collection_date:
                     cmd_parts.append(f"max_collection_date='{max_collection_date}'")
+                if source_database:
+                    cmd_parts.append(f"source_database='{source_database}'")
                 if min_release_date:
                     cmd_parts.append(f"min_release_date='{min_release_date}'")
                 if max_release_date:
