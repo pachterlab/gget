@@ -4822,16 +4822,7 @@ def filter_metadata_only(
     """
     
     logger.info("Starting metadata-only filtering process...")
-    logger.debug("Applying metadata-only filters: seq_length(%s-%s), gene_count(%s-%s), "
-                "completeness(%s), lab_passaged(%s), annotated(%s), "
-                "submitter_country(%s), collection_date(%s-%s), source_database(%s), max_release_date(%s), "
-                "peptide_count(%s-%s), protein_count(%s-%s), segment(%s), vaccine_strain(%s), "
-                min_seq_length, max_seq_length, min_gene_count, max_gene_count,
-                nuc_completeness, lab_passaged, annotated,
-                submitter_country, min_collection_date, max_collection_date, source_database, max_release_date, 
-                min_mature_peptide_count, max_mature_peptide_count,
-                min_protein_count, max_protein_count, segment, vaccine_strain,
-    
+    logger.debug("Applying metadata-only filters: seq_length(%s-%s), gene_count(%s-%s), completeness(%s), lab_passaged(%s), annotated(%s), submitter_country(%s), collection_date(%s-%s), source_database(%s), max_release_date(%s), peptide_count(%s-%s), protein_count(%s-%s), segment(%s), vaccine_strain(%s)", min_seq_length, max_seq_length, min_gene_count, max_gene_count, nuc_completeness, lab_passaged, annotated, submitter_country, min_collection_date, max_collection_date, source_database, max_release_date, min_mature_peptide_count, max_mature_peptide_count, min_protein_count, max_protein_count, segment, vaccine_strain)
     # Convert date filters to datetime objects for proper comparison
     min_collection_date = (
         _parse_date(min_collection_date, filtername="min_collection_date", verbose=True) 
