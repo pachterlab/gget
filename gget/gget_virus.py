@@ -1697,59 +1697,65 @@ def process_cached_download(zip_file, virus_type="virus"):
                             metadata = {
                                 'accession': accession,
                                 'length': report.get('length'),
-                                'source': 'cached_data_report',
+                                # 'source': 'cached_data_report',
+                                'geneCount': report.get('geneCount'),
+                                'completeness': report.get('completeness', '').lower(),
                             }
                             
                             # Extract virus info
                             virus_info = report.get('virus', {})
-                            metadata['virus_name'] = virus_info.get('organismName')
-                            metadata['virus_tax_id'] = virus_info.get('taxId')
-                            metadata['virus_pangolin_classification'] = virus_info.get('pangolinClassification')
+                            metadata['virusName'] = virus_info.get('organismName')
+                            metadata['virusTaxId'] = virus_info.get('taxId')
+                            metadata['virusPangolinClassification'] = virus_info.get('pangolinClassification')
                             
                             # Extract host info
                             host_info = report.get('host', {})
-                            metadata['host_name'] = host_info.get('organismName') 
-                            metadata['host_common_name'] = host_info.get('common_name')  # May not exist, but try anyway
-                            metadata['host_tax_id'] = host_info.get('taxId') 
+                            metadata['hostName'] = host_info.get('organismName') 
+                            # metadata['hostCommonName'] = host_info.get('commonName')  # May not exist, but try anyway
+                            metadata['hostTaxId'] = host_info.get('taxId') 
                             
                             # Extract biosample info
-                            metadata['biosample_accession'] = report.get('biosample')
+                            # metadata['biosampleAccession'] = report.get('biosample') # May not exist, but try anyway
                             
                             # Extract isolate info 
                             isolate_info = report.get('isolate', {})
-                            metadata['isolate_name'] = isolate_info.get('name')
+                            metadata['isolateName'] = isolate_info.get('name')
                             # Store isolate as nested dict to match filter_metadata_only expectations
                             metadata['isolate'] = {
-                                'name': isolate_info.get('name'),
-                                'collection_date': isolate_info.get('collectionDate'),  
+                                # 'name': isolate_info.get('name'),
+                                'collectionDate': isolate_info.get('collectionDate'),  
                                 'source': isolate_info.get('source'),
                             }
                             
                             # Extract location info
                             location_info = report.get('location', {})
-                            metadata['geo_location'] = location_info.get('geographicLocation')
-                            metadata['usa_state'] = location_info.get('usa_state') # May not exist, but try anyway
+                            metadata['location'] = location_info.get('geographicLocation')
+                            metadata['region'] = location_info.get('geographicRegion')
+                            # metadata['usa_state'] = location_info.get('usaState') # May not exist, but try anyway
                             
-                            # Extract nucleotide completeness
-                            metadata['nuc_completeness'] = report.get('completeness')
                             
                             # Extract other fields
-                            metadata['release_date'] = report.get('releaseDate')
-                            metadata['update_date'] = report.get('updateDate')
-                            metadata['is_annotated'] = report.get('annotation', {}).get('is_annotated', False) if report.get('annotation') else False
-                            metadata['is_refseq'] = report.get('is_refseq', False)
-                            metadata['is_lab_host'] = report.get('is_lab_host', False)
+                            metadata['releaseDate'] = report.get('releaseDate')
+                            # metadata['updateDate'] = report.get('updateDate')
+                            metadata['isAnnotated'] = report.get('isAnnotated', False)
+                            # metadata['isRefSeq'] = report.get('isRefSeq', False)
+                            metadata['sourceDatabase'] = report.get('sourceDatabase')
+                            metadata['isLabHost'] = report.get('isLabHost', False)
                             
                             # Gene and protein counts
-                            metadata['gene_count'] = report.get('gene_count')
-                            metadata['protein_count'] = report.get('protein_count')
-                            metadata['mature_peptide_count'] = report.get('mature_peptide_count')
+                            metadata['proteinCount'] = report.get('proteinCount')
+                            metadata['maturePeptideCount'] = report.get('maturePeptideCount')
                             
                             # Extract segment
                             metadata['segment'] = report.get('segment')
                             
                             # Extract vaccine strain flag
-                            metadata['is_vaccine_strain'] = report.get('is_vaccine_strain', False)
+                            metadata['isVaccineStrain'] = report.get('isVaccineStrain', False)
+
+                            submitter_info = report.get('submitter', {})
+                            metadata['submitterName'] = submitter_info.get('names')
+                            metadata['submitterCountry'] = submitter_info.get('country')
+                            metadata['submitterInstitution'] = submitter_info.get('affiliation')
                             
                             cached_metadata_dict[accession] = metadata
                     
@@ -2864,26 +2870,40 @@ def load_metadata_from_api_reports(api_reports):
             metadata = {
                 "accession": accession,
                 "length": report.get("length"),  # Sequence length in nucleotides
+                # "source": "NCBI_REST_API",
                 "geneCount": report.get("gene_count"),  # Number of genes annotated
                 "completeness": report.get("completeness", "").lower(), # Completeness status (e.g., complete, partial)
                 "host": report.get("host", {}),  # Host organism details
+                "hostName": report.get("host", {}).get("organism_name", ""),  # Host organism name
+                "hostTaxId": report.get("host", {}).get("tax_id", None),  # Host taxonomy ID
                 "isLabHost": report.get("host", {}).get("is_lab_host", False),  # Lab-passaged flag
                 "labHost": report.get("host", {}).get("is_lab_host", False),  # Alternative field name
                 "location": report.get("location", {}).get("geographic_location", None),  # Geographic location details
                 "region": report.get("location", {}).get("geographic_region", None),  # Broad region
                 "submitter": report.get("submitters", [{}])[0] if report.get("submitters") else {},
                 "sourceDatabase": report.get("source_database", ""),  # GenBank, RefSeq, etc.
-                "isolate": report.get("isolate", {}),  # Sample/isolate details
-                "virus": report.get("virus", {}),  # Virus taxonomy and classification
+                # "isolate_info": report.get("isolate", {}),  # Sample/isolate details
+                "isolateName": report.get("isolate", {}).get("name", ""),  # Isolate name
+                "isolate": {
+                    # 'name': report.get("isolate", {}).get("name", ""),
+                    'collectionDate': report.get("isolate", {}).get("collection_date", ""),
+                    'source': report.get("isolate", {}).get("source", ""),
+                },
+                "virusTaxId": report.get("virus", {}).get("tax_id", None),  # Virus taxonomy and classification
+                "virusName": report.get("virus", {}).get("organism_name", ""),  # Virus name
                 "isAnnotated": report.get("is_annotated", False),  # Whether sequence is annotated
                 "releaseDate": report.get("release_date", ""),  # When sequence was released
-                "sraAccessions": report.get("sra_accessions", []),  # SRA read data accessions 
-                "bioprojects": report.get("bioprojects", []),  # Associated BioProject IDs 
-                "biosample": report.get("biosample"),  # BioSample ID 
+                # "sraAccessions": report.get("sra_accessions", []),  # SRA read data accessions 
+                # "bioprojects": report.get("bioprojects", []),  # Associated BioProject IDs 
+                # "biosample": report.get("biosample"),  # BioSample ID 
                 "proteinCount": report.get("protein_count"),  # Number of proteins
                 "maturePeptideCount": report.get("mature_peptide_count"),  # Number of mature peptides
                 "segment": report.get("segment"),  # Virus segment identifier (e.g., 'HA', 'NA', 'PB1')
                 "isVaccineStrain": report.get("is_vaccine_strain", False),  # Whether this is a vaccine strain
+                "virusPangolinClassification" : report.get("virus", {}).get("pangolin_classification", {}),  # Pangolin lineage classification
+                "submitterName" : report.get("submitter", {}).get("names", ""),  # Submitter names
+                "submitterCountry" : report.get("submitter", {}).get("country", ""),  # Submitter country
+                "submitterInstitution" : report.get("submitter", {}).get("affiliation", "")  # Submitter institution
             }
             
             # Store the metadata using accession as the key
