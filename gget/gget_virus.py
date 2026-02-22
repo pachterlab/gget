@@ -4700,7 +4700,7 @@ def filter_cached_metadata_for_unused_filters(
         
         # Host filter
         if 'host' in filters_to_apply:
-            host_name = metadata.get('host_name', '')
+            host_name = metadata.get('hostName', '')
             if not host_name:
                 logger.debug("Skipping %s: missing host metadata", accession)
                 filter_stats['host'] += 1
@@ -4712,7 +4712,7 @@ def filter_cached_metadata_for_unused_filters(
         
         # Complete-only filter
         if 'complete_only' in filters_to_apply:
-            nuc_completeness = metadata.get('nuc_completeness', '')
+            nuc_completeness = metadata.get('completeness', '')
             if not nuc_completeness or nuc_completeness.lower() != 'complete':
                 logger.debug("Skipping %s: completeness '%s' != 'complete'", accession, nuc_completeness)
                 filter_stats['complete_only'] += 1
@@ -4720,7 +4720,7 @@ def filter_cached_metadata_for_unused_filters(
         
         # Annotated filter
         if 'annotated' in filters_to_apply:
-            is_annotated = metadata.get('is_annotated', False)
+            is_annotated = metadata.get('isAnnotated', False)
             if not is_annotated:
                 logger.debug("Skipping %s: not annotated", accession)
                 filter_stats['annotated'] += 1
@@ -4728,7 +4728,7 @@ def filter_cached_metadata_for_unused_filters(
         
         # Lineage filter (SARS-CoV-2 specific)
         if 'lineage' in filters_to_apply:
-            virus_pangolin = metadata.get('virus_pangolin_classification', '')
+            virus_pangolin = metadata.get('virusPangolinClassification', '')
             if not virus_pangolin or lineage.lower() not in virus_pangolin.lower():
                 logger.debug("Skipping %s: lineage '%s' does not match '%s'", accession, virus_pangolin, lineage)
                 filter_stats['lineage'] += 1
@@ -4736,19 +4736,20 @@ def filter_cached_metadata_for_unused_filters(
         
         # Geographic location filter (API-only)
         if 'geographic_location' in filters_to_apply:
-            geo_loc = metadata.get('geo_location', '')
+            geo_loc = metadata.get('location', '')
+            geo_region = metadata.get('region', '')
             if not geo_loc:
                 logger.debug("Skipping %s: missing geographic location metadata", accession)
                 filter_stats['geographic_location'] += 1
                 continue
-            if geographic_location.lower() not in geo_loc.lower():
-                logger.debug("Skipping %s: geo_location '%s' does not match '%s'", accession, geo_loc, geographic_location)
+            if geographic_location.lower() not in geo_loc.lower() and geographic_location.lower() not in geo_region.lower():
+                logger.debug("Skipping %s: geo_location '%s' does not match '%s' or '%s'", accession, geo_loc, geographic_location, geo_region)
                 filter_stats['geographic_location'] += 1
                 continue
         
         # RefSeq only filter (API-only)
         if 'refseq_only' in filters_to_apply:
-            is_refseq = metadata.get('is_refseq', False)
+            is_refseq = metadata.get('sourceDatabase', '').lower() == 'refseq'
             if not is_refseq:
                 logger.debug("Skipping %s: not RefSeq (refseq_only=True)", accession)
                 filter_stats['refseq_only'] += 1
@@ -4756,7 +4757,7 @@ def filter_cached_metadata_for_unused_filters(
         
         # Minimum release date filter (API-only)
         if 'min_release_date' in filters_to_apply:
-            release_date_str = metadata.get('release_date', '')
+            release_date_str = metadata.get('releaseDate', '')
             if not release_date_str:
                 logger.debug("Skipping %s: missing release date metadata", accession)
                 filter_stats['min_release_date'] += 1
