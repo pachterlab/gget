@@ -21,6 +21,7 @@ import urllib3
 from urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
 from urllib.parse import quote
+import calendar
 
 # Internal imports for logging, unique ID generation, and FASTA parsing
 from .utils import set_up_logger, FastaIO
@@ -2937,6 +2938,136 @@ def _unzip_file(zip_file_path, extract_to_path):
         raise FileNotFoundError(f"ZIP file not found: {zip_file_path}") from e
 
 
+def _parse_date(date_str, filtername=""):
+    """
+    Parse various date formats into a datetime object.
+    
+    Args:
+        date_str (str): Date string to parse (various formats accepted).
+        filtername (str): Name of the filter/field for error reporting.
+        
+    Returns:
+        datetime: Parsed datetime object, or None if parsing fails.
+        
+    Raises:
+        ValueError: If date parsing fails
+        
+    Note:
+        Uses a default date of year 1500 for incomplete date strings to ensure
+        proper comparison behavior with minimum date filters.
+    """
+    try:
+        # Use dateutil parser for flexible date parsing
+        # Default to a very early year for partial dates to handle edge cases properly
+        parsed_date = parser.parse(date_str, default=datetime(DATE_PARSE_DEFAULT_YEAR, 1, 1))
+        logger.debug("Successfully parsed date '%s' as %s", date_str, parsed_date)
+        return parsed_date
+        
+    except (ValueError, TypeError) as exc:
+        error_msg = (
+            f"Invalid date detected for argument {filtername}: '{date_str}'.\n"
+            "Note: Please check for errors such as incorrect day values "
+            "(e.g., June 31st does not exist) or typos in the date format "
+            "(should be YYYY-MM-DD)."
+        )
+        logger.error("❌ Date parsing failed: %s", error_msg)
+        raise ValueError(error_msg) from exc
+        # if not verbose:
+        #     if not date_str or not date_str.strip():
+        #         logger.debug("Empty or missing date for filter '%s'", filtername)
+        #     else:
+        #         logger.warning("⚠️ Failed to parse date '%s' for filter '%s': %s", date_str, filtername, exc)
+        #     return None
+
+
+def _parse_partial_date_for_range_check(date_str, for_min_comparison=True, filtername=""):
+    """
+    Parse partial dates with range-aware handling for comparison.
+    
+    When comparing partial dates (year-only or year-month) against specific dates,
+    we need to handle them based on the comparison direction:
+    
+    - For min_collection_date comparisons: use the END of the partial range
+      (e.g., "2015" -> 2015-12-31, "2015-06" -> 2015-06-30)
+      This ensures records from that year/month are included if they COULD be >= min.
+      
+    - For max_collection_date comparisons: use the START of the partial range
+      (e.g., "2015" -> 2015-01-01, "2015-06" -> 2015-06-01)
+      This ensures records from that year/month are included if they COULD be <= max.
+    
+    Args:
+        date_str (str): Date string to parse (various formats).
+        for_min_comparison (bool): True if comparing against min date, False for max date.
+        filtername (str): Name of the filter for error messages.
+        
+    Returns:
+        datetime: Parsed datetime object with partial dates adjusted appropriately.
+        
+    Raises:
+        ValueError: If date parsing fails.
+    """    
+    if not date_str or not date_str.strip():
+        raise ValueError(f"Empty date string for {filtername}")
+    
+    date_str = date_str.strip()
+    
+    # Detect date precision based on format
+    # Year-only: "2015" or "2015" (4 digits)
+    # Year-month: "2015-06", "2015/06", "Jun 2015", etc.
+    # Full date: "2015-06-15", "2015/06/15", "Jun 15, 2015", etc.
+    
+    year_only_pattern = r'^(\d{4})$'
+    year_month_pattern = r'^(\d{4})[-/](\d{1,2})$'
+    
+    year_match = re.match(year_only_pattern, date_str)
+    year_month_match = re.match(year_month_pattern, date_str)
+    
+    try:
+        if year_match:
+            # Year-only date like "2015"
+            year = int(year_match.group(1))
+            if for_min_comparison:
+                # For min comparison, use end of year (Dec 31)
+                result = datetime(year, 12, 31)
+                logger.debug("Parsed year-only date '%s' as %s (end of year for min comparison)", 
+                           date_str, result)
+            else:
+                # For max comparison, use start of year (Jan 1)
+                result = datetime(year, 1, 1)
+                logger.debug("Parsed year-only date '%s' as %s (start of year for max comparison)", 
+                           date_str, result)
+            return result
+            
+        elif year_month_match:
+            # Year-month date like "2015-06"
+            year = int(year_month_match.group(1))
+            month = int(year_month_match.group(2))
+            if for_min_comparison:
+                # For min comparison, use end of month
+                _, last_day = calendar.monthrange(year, month)
+                result = datetime(year, month, last_day)
+                logger.debug("Parsed year-month date '%s' as %s (end of month for min comparison)", 
+                           date_str, result)
+            else:
+                # For max comparison, use start of month
+                result = datetime(year, month, 1)
+                logger.debug("Parsed year-month date '%s' as %s (start of month for max comparison)", 
+                           date_str, result)
+            return result
+        else:
+            # Full date - use standard parsing
+            return _parse_date(date_str, filtername=filtername)
+            
+    except (ValueError, TypeError) as exc:
+        error_msg = (
+            f"Invalid date detected for argument {filtername}: '{date_str}'.\n"
+            "Note: Please check for errors such as incorrect day values "
+            "(e.g., June 31st does not exist) or typos in the date format."
+        )
+        logger.error("❌ Date parsing failed: %s", error_msg)
+        raise ValueError(error_msg) from exc
+
+
 def load_metadata_from_api_reports(api_reports):
     """
     Load metadata from API response reports into a dictionary.
@@ -3026,46 +3157,6 @@ def load_metadata_from_api_reports(api_reports):
     return metadata_dict
 
 
-def _parse_date(date_str, filtername=""):
-    """
-    Parse various date formats into a datetime object.
-    
-    Args:
-        date_str (str): Date string to parse (various formats accepted).
-        filtername (str): Name of the filter/field for error reporting.
-        
-    Returns:
-        datetime: Parsed datetime object, or None if parsing fails.
-        
-    Raises:
-        ValueError: If date parsing fails
-        
-    Note:
-        Uses a default date of year 1500 for incomplete date strings to ensure
-        proper comparison behavior with minimum date filters.
-    """
-    try:
-        # Use dateutil parser for flexible date parsing
-        # Default to a very early year for partial dates to handle edge cases properly
-        parsed_date = parser.parse(date_str, default=datetime(DATE_PARSE_DEFAULT_YEAR, 1, 1))
-        logger.debug("Successfully parsed date '%s' as %s", date_str, parsed_date)
-        return parsed_date
-        
-    except (ValueError, TypeError) as exc:
-        error_msg = (
-            f"Invalid date detected for argument {filtername}: '{date_str}'.\n"
-            "Note: Please check for errors such as incorrect day values "
-            "(e.g., June 31st does not exist) or typos in the date format "
-            "(should be YYYY-MM-DD)."
-        )
-        logger.error("❌ Date parsing failed: %s", error_msg)
-        raise ValueError(error_msg) from exc
-        # if not verbose:
-        #     if not date_str or not date_str.strip():
-        #         logger.debug("Empty or missing date for filter '%s'", filtername)
-        #     else:
-        #         logger.warning("⚠️ Failed to parse date '%s' for filter '%s': %s", date_str, filtername, exc)
-        #     return None
 
 
 def _check_protein_requirements(record, metadata, has_proteins, proteins_complete):
@@ -4908,6 +4999,7 @@ def filter_metadata_only(
     annotated=None,
     segment=None,
     vaccine_strain=None,
+    geographic_location=None,
 ):
     """
     Filter metadata records based on metadata-only criteria.
@@ -4928,17 +5020,23 @@ def filter_metadata_only(
     logger.debug("Applying metadata-only filters: seq_length(%s-%s), gene_count(%s-%s), completeness(%s), lab_passaged(%s), annotated(%s), submitter_country(%s), collection_date(%s-%s), source_database(%s), max_release_date(%s), peptide_count(%s-%s), protein_count(%s-%s), segment(%s), vaccine_strain(%s)", min_seq_length, max_seq_length, min_gene_count, max_gene_count, nuc_completeness, lab_passaged, annotated, submitter_country, min_collection_date, max_collection_date, source_database, max_release_date, min_mature_peptide_count, max_mature_peptide_count, min_protein_count, max_protein_count, segment, vaccine_strain)
 
     # Convert date filters to datetime objects for proper comparison
+    # Parse user-provided filter dates with appropriate partial date handling:
+    # - min dates: use START of range (e.g., "2015" -> 2015-01-01)
+    # - max dates: use END of range (e.g., "2024" -> 2024-12-31)
     min_collection_date = (
-        _parse_date(min_collection_date, filtername="min_collection_date") 
-        if min_collection_date else None
+        _parse_partial_date_for_range_check(
+            min_collection_date, for_min_comparison=False, filtername="min_collection_date"
+        ) if min_collection_date else None
     )
     max_collection_date = (
-        _parse_date(max_collection_date, filtername="max_collection_date") 
-        if max_collection_date else None
+        _parse_partial_date_for_range_check(
+            max_collection_date, for_min_comparison=True, filtername="max_collection_date"
+        ) if max_collection_date else None
     )
     max_release_date = (
-        _parse_date(max_release_date, filtername="max_release_date") 
-        if max_release_date else None
+        _parse_partial_date_for_range_check(
+            max_release_date, for_min_comparison=True, filtername="max_release_date"
+        ) if max_release_date else None
     )
     
     if min_collection_date:
@@ -4968,6 +5066,7 @@ def filter_metadata_only(
         'protein_count': 0,
         'segment': 0,
         'vaccine_strain': 0,
+        'geographic_location': 0,
     }
 
     logger.info("Processing %d metadata records...", total_sequences)
@@ -5080,28 +5179,57 @@ def filter_metadata_only(
                 filter_stats['collection_date'] += 1
                 continue
             
-            try:
-                date = _parse_date(date_str, filtername="collection_date")
-            except ValueError:
-                logger.debug("Skipping %s: invalid collection date format '%s'", accession, date_str)
-                filter_stats['collection_date'] += 1
-                continue
+            # Handle partial dates (year-only or year-month) appropriately for range checks
+            # For min_collection_date: use end of partial range (record COULD be >= min)
+            # For max_collection_date: use start of partial range (record COULD be <= max)
             
-            if date is None:
-                logger.debug("Skipping %s: missing or invalid collection date '%s'", accession, date_str)
-                filter_stats['collection_date'] += 1
-                continue
-                
-            if min_collection_date and date < min_collection_date:
-                logger.debug("Skipping %s: collection date %s < min %s", 
-                           accession, date, min_collection_date)
-                filter_stats['collection_date'] += 1
-                continue
-                
-            if max_collection_date and date > max_collection_date:
-                logger.debug("Skipping %s: collection date %s > max %s", 
-                           accession, date, max_collection_date)
-                filter_stats['collection_date'] += 1
+            skip_record = False
+            
+            if min_collection_date:
+                try:
+                    # Parse with for_min_comparison=True to use end of range for partial dates
+                    date_for_min = _parse_partial_date_for_range_check(
+                        date_str, for_min_comparison=True, filtername="collection_date"
+                    )
+                except ValueError:
+                    logger.debug("Skipping %s: invalid collection date format '%s'", accession, date_str)
+                    filter_stats['collection_date'] += 1
+                    continue
+                    
+                if date_for_min is None:
+                    logger.debug("Skipping %s: missing or invalid collection date '%s'", accession, date_str)
+                    filter_stats['collection_date'] += 1
+                    continue
+                    
+                if date_for_min < min_collection_date:
+                    logger.debug("Skipping %s: collection date %s (from '%s') < min %s", 
+                               accession, date_for_min, date_str, min_collection_date)
+                    filter_stats['collection_date'] += 1
+                    skip_record = True
+                    
+            if not skip_record and max_collection_date:
+                try:
+                    # Parse with for_min_comparison=False to use start of range for partial dates
+                    date_for_max = _parse_partial_date_for_range_check(
+                        date_str, for_min_comparison=False, filtername="collection_date"
+                    )
+                except ValueError:
+                    logger.debug("Skipping %s: invalid collection date format '%s'", accession, date_str)
+                    filter_stats['collection_date'] += 1
+                    continue
+                    
+                if date_for_max is None:
+                    logger.debug("Skipping %s: missing or invalid collection date '%s'", accession, date_str)
+                    filter_stats['collection_date'] += 1
+                    continue
+                    
+                if date_for_max > max_collection_date:
+                    logger.debug("Skipping %s: collection date %s (from '%s') > max %s", 
+                               accession, date_for_max, date_str, max_collection_date)
+                    filter_stats['collection_date'] += 1
+                    skip_record = True
+            
+            if skip_record:
                 continue
 
         # FILTER 8: Maximum release date filter
@@ -5112,8 +5240,20 @@ def filter_metadata_only(
                 logger.debug("Skipping %s: missing release date", accession)
                 filter_stats['release_date'] += 1
                 continue
-                
-            release_date_value = _parse_date(release_date_str.split("T")[0], filtername="release_date")
+            
+            # Strip time portion if present (e.g., "2024-02-14T00:00:00Z" -> "2024-02-14")
+            release_date_str_clean = release_date_str.split("T")[0]
+            
+            try:
+                # For max comparison, use START of range for partial dates
+                # so that records that COULD be within range are included
+                release_date_value = _parse_partial_date_for_range_check(
+                    release_date_str_clean, for_min_comparison=False, filtername="release_date"
+                )
+            except ValueError:
+                logger.debug("Skipping %s: invalid release date format '%s'", accession, release_date_str)
+                filter_stats['release_date'] += 1
+                continue
             
             if release_date_value is None:
                 logger.debug("Skipping %s: invalid release date '%s'", accession, release_date_str)
@@ -5121,8 +5261,8 @@ def filter_metadata_only(
                 continue
                 
             if release_date_value > max_release_date:
-                logger.debug("Skipping %s: release date %s > max %s", 
-                           accession, release_date_value, max_release_date)
+                logger.debug("Skipping %s: release date %s (from '%s') > max %s", 
+                           accession, release_date_value, release_date_str, max_release_date)
                 filter_stats['release_date'] += 1
                 continue
 
