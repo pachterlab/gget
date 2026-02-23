@@ -2558,18 +2558,18 @@ def main():
         required=False,
         help="Submitter country filter.",
     )
-    parser_virus.add_argument(
-        "--min_collection_date",
-        type=str,
-        required=False,
-        help="Minimum collection date filter (YYYY-MM-DD format).",
-    )
-    parser_virus.add_argument(
-        "--max_collection_date",
-        type=str,
-        required=False,
-        help="Maximum collection date filter (YYYY-MM-DD format).",
-    )
+    # parser_virus.add_argument(
+    #     "--submitter_name",
+    #     type=str,
+    #     required=False,
+    #     help="Submitter name filter. Can be a single name (e.g., 'John Doe') or comma-separated list (e.g., 'John Doe,Jane Smith'). Any matching name will keep the sequence.",
+    # )
+    # parser_virus.add_argument(
+    #     "--submitter_institution",
+    #     type=str,
+    #     required=False,
+    #     help="Submitter institution filter. Can be a single institution name (e.g., 'CDC') or comma-separated list (e.g., 'CDC,NIH,WHO'). Any matching institution will keep the sequence.",
+    # )
     parser_virus.add_argument(
         "--annotated",
         type=str_to_bool_or_none,
@@ -2689,10 +2689,39 @@ def main():
         default=None,
         help="Lab passaging status filter: 'true' or 'false' or None. True will only keep sequences that have been lab passaged. False filters out sequences that have been lab passaged. None (Default) will not filter based on lab passaging status.",
     )
-        type=str,
-        required=False,
-        help="Virus lineage filter (e.g., for SARS-CoV-2: 'B.1.1.7', 'P.1').",
-    )
+    # parser_virus.add_argument(
+    #     "--provirus",
+    #     type=str_to_bool_or_none,
+    #     nargs='?',
+    #     const=True,
+    #     required=False,
+    #     default=None,
+    #     help="Proviral or integrated status filter: 'true' or 'false' or None. True will only keep proviral sequences. False filters out proviral sequences. None (Default) will not filter based on proviral status.",
+    # )
+    # parser_virus.add_argument(
+    #     "--isolation_source",
+    #     type=str,
+    #     required=False,
+    #     help="Isolation source filter, or 'Tissue/ Specimen / Source' filter, e.g. 'blood'. Can be a single source name (e.g., 'blood') or comma-separated list (e.g., 'blood,serum,plasma'). Any matching source will keep the sequence.",
+    # )
+    # parser_virus.add_argument(
+    #     "--env_source",
+    #     type=str,
+    #     required=False,
+    #     help="Environmental source filter, e.g. 'water' or 'sewage'. Excludes any sequences with named hosts. Do NOT combine with host filter. Can be a single source name (e.g., 'water') or comma-separated list (e.g., 'water,soil,air'). Any matching source will keep the sequence.",
+    # )
+    # parser_virus.add_argument(
+    #     "--genotype",
+    #     type=str,
+    #     required=False,
+    #     help="Genotype filter, e.g. 'H5N1'. Can be a single genotype (e.g., 'H5N1') or comma-separated list (e.g., 'H5N1,H3N2'). Any matching genotype will keep the sequence.",
+    # )
+    # parser_virus.add_argument(
+    #     "--gen_mol_type",
+    #     type=str,
+    #     required=False,
+    #     help="Genomic molecule type filter. Can be a single type name (e.g., 'dsDNA') or comma-separated list (e.g., 'RNA,dsRNA'). Any matching molecule type will keep the sequence.",
+    # )
     parser_virus.add_argument(
         "-g",
         "--genbank_metadata",
