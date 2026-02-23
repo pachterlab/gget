@@ -2974,7 +2974,7 @@ def load_metadata_from_api_reports(api_reports):
                 "length": report.get("length"),  # Sequence length in nucleotides
                 # "source": "NCBI_REST_API",
                 "geneCount": report.get("gene_count"),  # Number of genes annotated
-                "completeness": report.get("completeness", "").lower(), # Completeness status (e.g., complete, partial)
+                "completeness": (report.get("completeness") or "").lower(), # Completeness status (e.g., complete, partial)
                 "host": report.get("host", {}),  # Host organism details
                 "hostName": report.get("host", {}).get("organism_name", ""),  # Host organism name
                 "hostTaxId": report.get("host", {}).get("tax_id", None),  # Host taxonomy ID
@@ -5056,7 +5056,7 @@ def filter_metadata_only(
         # FILTER 6: Submitter country filter
         if submitter_country is not None:
             submitter_country_value = "_".join(
-                metadata.get("submitterCountry", "").split(" ")
+                (metadata.get("submitterCountry") or "").split(" ")
             ).lower()
             
             if not submitter_country_value:
@@ -5901,6 +5901,7 @@ def virus(
             "annotated": annotated if annotated is False else None,
             "segment": segment,
             "vaccine_strain": vaccine_strain,
+            "geographic_location": deferred_filters.get('geographic_location') if deferred_filters else None,
         }
 
         all_metadata_filters_none = all(v is None for k, v in filters.items())
