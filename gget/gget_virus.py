@@ -1073,6 +1073,7 @@ def fetch_virus_metadata(
             current_page_size = params['page_size']
             page_size_retry_count = 0
             tried_without_geo_location = False  # Track if we've tried removing geographic_location
+            tried_without_host = False  # Track if we've tried removing host
             
             while not success and current_page_size > MIN_PAGE_SIZE_FALLBACK:
                 # Decrease page size for next retry
@@ -1117,9 +1118,9 @@ def fetch_virus_metadata(
                 # This happens once at page_size = API_PAGE_SIZE - PAGE_SIZE_FALLBACK_DECREMENT (e.g., 900)
                 if not success and not tried_without_geo_location and geographic_location and _retry_attempt == 0:
                     tried_without_geo_location = True
-                    logger.warning("=" * 80)
+                    # logger.warning("=" * 80)
                     logger.warning("🔄 PAGE SIZE REDUCTION FAILED - ATTEMPTING WITHOUT GEOGRAPHIC FILTER")
-                    logger.warning("=" * 80)
+                    # logger.warning("=" * 80)
                     logger.warning("Page size %d with geographic location '%s' failed.", current_page_size, geographic_location)
                     logger.warning("Retrying without the geographic_location filter (will be applied later)...")
                     
@@ -1157,6 +1158,68 @@ def fetch_virus_metadata(
                             return retry_reports, {'geographic_location': geographic_location}
                     except Exception as retry_error:
                         logger.warning("❌ Retry without geographic filter also failed: %s", retry_error)
+                        logger.info("Continuing with smaller page sizes...")
+                        # Re-open temp file for continued attempts
+                        try:
+                            metadata_file = open(temp_metadata_file, 'a', encoding='utf-8')
+                        except IOError:
+                            metadata_file = None
+                        # Continue the page size reduction loop
+                
+                # After geo_location retry (if applicable), try without host filter
+                # This happens if we have a host filter and haven't tried removing it yet
+                if not success and not tried_without_host and host and _retry_attempt == 0:
+                    tried_without_host = True
+                    # logger.warning("=" * 80)
+                    logger.warning("🔄 PAGE SIZE REDUCTION FAILED - ATTEMPTING WITHOUT HOST FILTER")
+                    # logger.warning("=" * 80)
+                    logger.warning("Page size %d with host '%s' failed.", current_page_size, host)
+                    
+                    # If geo_location retry was also attempted and failed, remove both filters
+                    also_defer_geo = tried_without_geo_location and geographic_location
+                    if also_defer_geo:
+                        logger.warning("Also removing geographic_location filter (both filters will be applied later)...")
+                    else:
+                        logger.warning("Retrying without the host filter (will be applied later)...")
+                    
+                    # Close temporary files before retry
+                    if pages_pbar:
+                        pages_pbar.close()
+                        pages_pbar = None
+                    if metadata_file:
+                        try:
+                            metadata_file.close()
+                        except:
+                            pass
+                    
+                    try:
+                        # Retry the fetch without host (and optionally without geo_location)
+                        retry_reports, _ = fetch_virus_metadata(
+                            virus=virus,
+                            accession=accession,
+                            host=None,  # Remove host filter
+                            geographic_location=None if also_defer_geo else geographic_location,
+                            annotated=annotated,
+                            complete_only=complete_only,
+                            min_release_date=min_release_date,
+                            refseq_only=refseq_only,
+                            failed_commands=failed_commands,
+                            _retry_attempt=1,  # Mark as retry to prevent infinite loops
+                            temp_output_dir=temp_output_dir,
+                        )
+                        
+                        if retry_reports is not None:
+                            logger.info("✅ Successfully retrieved %d records without host filter", len(retry_reports))
+                            logger.info("Host filter '%s' will be applied during metadata filtering", host)
+                            
+                            # Return with deferred filter info (include geo_location if also deferred)
+                            deferred = {'host': host}
+                            if also_defer_geo:
+                                deferred['geographic_location'] = geographic_location
+                                logger.info("Geographic location filter '%s' will also be applied during metadata filtering", geographic_location)
+                            return retry_reports, deferred
+                    except Exception as retry_error:
+                        logger.warning("❌ Retry without host filter also failed: %s", retry_error)
                         logger.info("Continuing with smaller page sizes...")
                         # Re-open temp file for continued attempts
                         try:
@@ -5008,6 +5071,7 @@ def filter_metadata_only(
     segment=None,
     vaccine_strain=None,
     geographic_location=None,
+    host=None,
 ):
     """
     Filter metadata records based on metadata-only criteria.
@@ -5075,6 +5139,7 @@ def filter_metadata_only(
         'segment': 0,
         'vaccine_strain': 0,
         'geographic_location': 0,
+        'host': 0,
     }
 
     logger.info("Processing %d metadata records...", total_sequences)
@@ -5434,6 +5499,42 @@ def filter_metadata_only(
                 logger.debug("Skipping %s: location '%s', region '%s', virusName '%s' do not match required '%s'", 
                            accession, metadata_location, metadata_region, metadata_virus_name, geo_location_list)
                 filter_stats['geographic_location'] += 1
+                continue
+
+        # FILTER 19: Host filter (deferred from API when server-side filter fails)
+        if host is not None:
+            # Convert host to list if it's a string
+            host_list = [host] if isinstance(host, str) else host
+            
+            # Get host from metadata - stored in "hostName" field
+            metadata_host = metadata.get("hostName", "") or ""
+            
+            if not metadata_host:
+                logger.debug("Skipping %s: missing hostName", accession)
+                filter_stats['host'] += 1
+                continue
+            
+            # Build set of acceptable host values (case-insensitive)
+            acceptable_hosts = set()
+            for h in host_list:
+                h_normalized = h.lower().strip()
+                acceptable_hosts.add(h_normalized)
+            
+            # Normalize metadata host for comparison
+            metadata_host_lower = str(metadata_host).lower().strip()
+            
+            # Check for partial/substring match in host
+            host_match = False
+            for acceptable_host in acceptable_hosts:
+                # Check if acceptable host is in metadata host or vice versa
+                if acceptable_host in metadata_host_lower or metadata_host_lower in acceptable_host:
+                    host_match = True
+                    break
+            
+            if not host_match:
+                logger.debug("Skipping %s: hostName '%s' does not match required '%s'", 
+                           accession, metadata_host, host_list)
+                filter_stats['host'] += 1
                 continue
 
         # If we reach this point, the metadata record has passed all filters
@@ -6117,6 +6218,7 @@ def virus(
             "segment": segment,
             "vaccine_strain": vaccine_strain,
             "geographic_location": deferred_filters.get('geographic_location') if deferred_filters else None,
+            "host": deferred_filters.get('host') if deferred_filters else None,
         }
 
         all_metadata_filters_none = all(v is None for k, v in filters.items())
