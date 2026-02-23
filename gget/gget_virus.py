@@ -20,6 +20,7 @@ import http.client
 import urllib3
 from urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
+from urllib.parse import quote
 
 # Internal imports for logging, unique ID generation, and FASTA parsing
 from .utils import set_up_logger, FastaIO
@@ -1011,10 +1012,19 @@ def fetch_virus_metadata(
         
         def fetch_single_page():
             """Callable that fetches a single page of results"""
+            # Build the query string manually to preserve '+' characters in filter values
+            # The requests library would URL-encode '+' to '%2B', but NCBI API expects literal '+'
+            query_parts = []
+            for key, value in params.items():
+                # Only encode special characters, but preserve '+' which NCBI uses for spaces
+                encoded_value = quote(str(value), safe="+:")
+                query_parts.append(f"{key}={encoded_value}")
+            full_url = url + ("?" + "&".join(query_parts) if query_parts else "")
+            
             # Make the HTTP GET request to the NCBI API  
             logger.debug("Making API request to: %s", url)
             logger.debug("Request parameters: %s", params)
-            response = requests.get(url, params=params, timeout=API_REQUEST_TIMEOUT)
+            response = requests.get(full_url, timeout=API_REQUEST_TIMEOUT)
             logger.debug("Explicit URL request sent: %s", response.url)
             
             # Raise an exception if the HTTP request failed (4xx or 5xx status codes)
