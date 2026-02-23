@@ -61,7 +61,6 @@ Sequence Filters:
   ✓ nuc_completeness (str) - value validation, functional test
   ✓ host (str) - functional test with verification
   ✓ annotated (bool) - type validation, functional test
-  ✓ refseq_only (bool) - type validation, functional test
 
 Count Filters:
   ✓ min_gene_count (int) - min/max validation, functional test
@@ -78,6 +77,7 @@ Date Filters:
   ✓ max_collection_date (str) - min/max validation, functional test
 
 Advanced Filters:
+  ✓ source_database (str) - functional test
   ✓ lab_passaged (bool) - type validation, functional test
   ✓ proteins_complete (bool) - type validation only
   ✓ keep_temp (bool) - type validation only
@@ -525,24 +525,6 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         files = self._check_output_files(virus_name, outfolder)
         self.assertTrue(files["fasta"]["exists"], "FASTA file not created with annotated filter")
         self.assertGreater(files["fasta"]["size"], 0, "FASTA file is empty with annotated filter")
-    
-    @retry_on_network_error(max_retries=3, delay=5)
-    def test_virus_with_refseq_filter(self):
-        """Test that RefSeq filter works correctly."""
-        virus_name = "Zika virus"
-        outfolder = self.test_output_dir
-        
-        result = virus(
-            virus=virus_name,
-            refseq_only=True,
-            outfolder=outfolder
-        )
-        
-        self.assertIsNone(result)
-        
-        files = self._check_output_files(virus_name, outfolder)
-        self.assertTrue(files["fasta"]["exists"], "FASTA file not created with RefSeq filter")
-        self.assertGreater(files["fasta"]["size"], 0, "FASTA file is empty with RefSeq filter")
     
     @retry_on_network_error(max_retries=3, delay=5)
     def test_virus_with_multiple_filters(self):
@@ -1030,6 +1012,49 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
             self.assertIn("Protein count", records[0].keys(), 
                          f"Protein count field not found. Available fields: {list(records[0].keys())}")
     
+    @retry_on_network_error(max_retries=3, delay=5)
+    def test_virus_with_source_database_filter(self):
+        """Test that source database filter works correctly.
+        
+        Downloads Zika virus from GenBank database and verifies:
+        - Files are created successfully
+        - Records are returned
+        - Source database field exists in metadata
+        
+        This catches: Source database filter bugs, API parameter issues.
+        """
+        virus_name = "Zika virus"
+        outfolder = self.test_output_dir
+        
+        result = virus(
+            virus=virus_name,
+            source_database="GenBank",
+            outfolder=outfolder
+        )
+        
+        self.assertIsNone(result)
+        
+        files = self._check_output_files(virus_name, outfolder)
+        self.assertTrue(files["fasta"]["exists"], "FASTA file not created with source database filter")
+        
+        # Parse CSV metadata
+        records = self._parse_csv_metadata(files["csv"]["path"])
+        
+        # Should have some records
+        self.assertGreater(len(records), 0, "No records returned with source database filter")
+        
+        # Check that source database field exists
+        if records:
+            db_field = None
+            for possible_field in ["GenBank/RefSeq", "Source Database", "Database"]:
+                if possible_field in records[0].keys():
+                    db_field = possible_field
+                    break
+            
+            self.assertIsNotNone(db_field, 
+                               f"Source database field not found. Available fields: {list(records[0].keys())}")
+            
+
     @retry_on_network_error(max_retries=3, delay=5)
     def test_virus_with_lab_passaged_filter(self):
         """Test that lab_passaged filter works correctly.

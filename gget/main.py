@@ -72,6 +72,16 @@ def int_or_str(value):
         return int(value)
     except ValueError:
         return value
+    
+def str_to_bool_or_none(value):
+    if value is None or value.lower() in ('none', 'null', ''):
+        return None
+    if value.lower() in ('true', 'yes', 't', '1'):
+        return True
+    if value.lower() in ('false', 'no', 'f', '0'):
+        return False
+    # If it's not a clear boolean/None, treat as a string or raise error
+    return value 
 
 
 def main():
@@ -2502,7 +2512,7 @@ def main():
         required=False,
         help=(
             "Path to the output folder where results will be saved, e.g. path/to/directory.\n"
-            "Default: Current working directory."
+            "Default: A directory named 'gget_virus_output' in the current working directory."
         ),
     )
     parser_virus.add_argument(
@@ -2510,6 +2520,19 @@ def main():
         type=str,
         required=False,
         help="Host organism name (scientific or common) at any taxonomic rank or NCBI Taxonomy ID filter, e.g. 'human', 'mouse', '1335626'. Place in quotation marks if multiple words.",
+    )
+    parser_virus.add_argument(
+        "--nuc_completeness",
+        type=str,
+        choices=["complete", "partial"],
+        required=False,
+        help="Nucleotide completeness filter: 'complete' or 'partial'.",
+    )
+    parser_virus.add_argument(
+        "--source_database",
+        type=str,
+        required=False,
+        help="Source database filter: 'refseq' or 'genbank'.",
     )
     parser_virus.add_argument(
         "--min_seq_length",
@@ -2524,31 +2547,6 @@ def main():
         help="Maximum sequence length filter (in base pairs).",
     )
     parser_virus.add_argument(
-        "--min_gene_count",
-        type=int,
-        required=False,
-        help="Minimum number of genes filter.",
-    )
-    parser_virus.add_argument(
-        "--max_gene_count",
-        type=int,
-        required=False,
-        help="Maximum number of genes filter.",
-    )
-    parser_virus.add_argument(
-        "--nuc_completeness",
-        type=str,
-        choices=["complete", "partial"],
-        required=False,
-        help="Nucleotide completeness filter: 'complete' or 'partial'.",
-    )
-    parser_virus.add_argument(
-        "--lab_passaged",
-        type=lambda x: x.lower() == 'true',
-        required=False,
-        help="Lab passaging status filter: 'true' or 'false'.",
-    )
-    parser_virus.add_argument(
         "--geographic_location",
         type=str,
         required=False,
@@ -2559,6 +2557,46 @@ def main():
         type=str,
         required=False,
         help="Submitter country filter.",
+    )
+    # parser_virus.add_argument(
+    #     "--submitter_name",
+    #     type=str,
+    #     required=False,
+    #     help="Submitter name filter. Can be a single name (e.g., 'John Doe') or comma-separated list (e.g., 'John Doe,Jane Smith'). Any matching name will keep the sequence.",
+    # )
+    # parser_virus.add_argument(
+    #     "--submitter_institution",
+    #     type=str,
+    #     required=False,
+    #     help="Submitter institution filter. Can be a single institution name (e.g., 'CDC') or comma-separated list (e.g., 'CDC,NIH,WHO'). Any matching institution will keep the sequence.",
+    # )
+    parser_virus.add_argument(
+        "--annotated",
+        type=str_to_bool_or_none,
+        nargs='?',
+        const=True,
+        required=False,
+        default=None,
+        help="Annotation status filter: 'true' or 'false' or None. True will keep only sequences with annotations, False will keep only sequences without annotations, and None (default) will not filter based on annotation status.",
+    )
+    # parser_virus.add_argument(
+    #     "--refseq_only",
+    #     default=False,
+    #     action="store_true",
+    #     required=False,
+    #     help="Only fetch RefSeq genomes. If not set, both RefSeq and GenBank genomes will be fetched.",
+    # )
+    parser_virus.add_argument(
+        "--min_release_date",
+        type=str,
+        required=False,
+        help="Minimum release date filter (YYYY-MM-DD format).",
+    )
+    parser_virus.add_argument(
+        "--max_release_date",
+        type=str,
+        required=False,
+        help="Maximum release date filter (YYYY-MM-DD format).",
     )
     parser_virus.add_argument(
         "--min_collection_date",
@@ -2573,63 +2611,22 @@ def main():
         help="Maximum collection date filter (YYYY-MM-DD format).",
     )
     parser_virus.add_argument(
-        "--annotated",
-        type=lambda x: x.lower() == 'true',
-        required=False,
-        help="Annotation status filter: 'true' or 'false'.",
-    )
-    parser_virus.add_argument(
-        "--refseq_only",
-        default=False,
-        action="store_true",
-        required=False,
-        help="Only fetch RefSeq genomes. If not set, both RefSeq and GenBank genomes will be fetched.",
-    )
-    parser_virus.add_argument(
-        "-kt",
-        "--keep_temp",
-        default=False,
-        action="store_true",
-        required=False,
-        help="Save all output files, including intermediate files.",
-    )
-    parser_virus.add_argument(
-        "--is_sars_cov2",
-        default=False,
-        action="store_true",
-        required=False,
-        help="When using SARS-CoV-2 accessions, use this tag so the code optimizes in using the correct SARS-CoV-2 pathway.",
-    )
-    parser_virus.add_argument(
-        "--is_alphainfluenza",
-        default=False,
-        action="store_true",
-        required=False,
-        help="When querying Alphainfluenza (Influenza A), use this tag so the code optimizes by using NCBI's cached data packages for faster downloads.",
-    )
-    parser_virus.add_argument(
-        "--min_release_date",
-        type=str,
-        required=False,
-        help="Minimum release date filter (YYYY-MM-DD format).",
-    )
-    parser_virus.add_argument(
-        "--max_release_date",
-        type=str,
-        required=False,
-        help="Maximum release date filter (YYYY-MM-DD format).",
-    )
-    parser_virus.add_argument(
-        "--min_mature_peptide_count",
+        "--max_ambiguous_chars",
         type=int,
         required=False,
-        help="Minimum mature peptide count filter.",
+        help="Maximum number of ambiguous nucleotide characters ('N') allowed.",
     )
     parser_virus.add_argument(
-        "--max_mature_peptide_count",
+        "--min_gene_count",
         type=int,
         required=False,
-        help="Maximum mature peptide count filter.",
+        help="Minimum number of genes filter.",
+    )
+    parser_virus.add_argument(
+        "--max_gene_count",
+        type=int,
+        required=False,
+        help="Maximum number of genes filter.",
     )
     parser_virus.add_argument(
         "--min_protein_count",
@@ -2644,10 +2641,16 @@ def main():
         help="Maximum protein count filter.",
     )
     parser_virus.add_argument(
-        "--max_ambiguous_chars",
+        "--min_mature_peptide_count",
         type=int,
         required=False,
-        help="Maximum number of ambiguous nucleotide characters ('N') allowed.",
+        help="Minimum mature peptide count filter.",
+    )
+    parser_virus.add_argument(
+        "--max_mature_peptide_count",
+        type=int,
+        required=False,
+        help="Maximum mature peptide count filter.",
     )
     parser_virus.add_argument(
         "--has_proteins",
@@ -2663,25 +2666,69 @@ def main():
         help="Filter for sequences with complete protein annotations (protein_count > 0 or gene_count > 0).",
     )
     parser_virus.add_argument(
-        "--lineage",
+        "--segment",
         type=str,
         required=False,
-        help="Virus lineage filter (e.g., for SARS-CoV-2: 'B.1.1.7', 'P.1').",
+        help="Filter for sequences with specific segment(s). Can be a single segment name (e.g., 'HA') or comma-separated list (e.g., 'HA,NA,PB1'). Any matching segment will keep the sequence.",
     )
+    parser_virus.add_argument(
+        "--vaccine_strain",
+        default=None,
+        type=str_to_bool_or_none,
+        nargs='?',
+        const=True,
+        required=False,
+        help="Vaccine strain filter: 'true' or 'false' or None. True will only keep sequences marked as vaccine strains. False filters out vaccine strains. and None (Default) will not filter based on vaccine strain status.",
+    )
+    parser_virus.add_argument(
+        "--lab_passaged",
+        type=str_to_bool_or_none,
+        nargs='?',
+        const=True,
+        required=False,
+        default=None,
+        help="Lab passaging status filter: 'true' or 'false' or None. True will only keep sequences that have been lab passaged. False filters out sequences that have been lab passaged. None (Default) will not filter based on lab passaging status.",
+    )
+    # parser_virus.add_argument(
+    #     "--provirus",
+    #     type=str_to_bool_or_none,
+    #     nargs='?',
+    #     const=True,
+    #     required=False,
+    #     default=None,
+    #     help="Proviral or integrated status filter: 'true' or 'false' or None. True will only keep proviral sequences. False filters out proviral sequences. None (Default) will not filter based on proviral status.",
+    # )
+    # parser_virus.add_argument(
+    #     "--isolation_source",
+    #     type=str,
+    #     required=False,
+    #     help="Isolation source filter, or 'Tissue/ Specimen / Source' filter, e.g. 'blood'. Can be a single source name (e.g., 'blood') or comma-separated list (e.g., 'blood,serum,plasma'). Any matching source will keep the sequence.",
+    # )
+    # parser_virus.add_argument(
+    #     "--env_source",
+    #     type=str,
+    #     required=False,
+    #     help="Environmental source filter, e.g. 'water' or 'sewage'. Excludes any sequences with named hosts. Do NOT combine with host filter. Can be a single source name (e.g., 'water') or comma-separated list (e.g., 'water,soil,air'). Any matching source will keep the sequence.",
+    # )
+    # parser_virus.add_argument(
+    #     "--genotype",
+    #     type=str,
+    #     required=False,
+    #     help="Genotype filter, e.g. 'H5N1'. Can be a single genotype (e.g., 'H5N1') or comma-separated list (e.g., 'H5N1,H3N2'). Any matching genotype will keep the sequence.",
+    # )
+    # parser_virus.add_argument(
+    #     "--gen_mol_type",
+    #     type=str,
+    #     required=False,
+    #     help="Genomic molecule type filter. Can be a single type name (e.g., 'dsDNA') or comma-separated list (e.g., 'RNA,dsRNA'). Any matching molecule type will keep the sequence.",
+    # )
     parser_virus.add_argument(
         "-g",
         "--genbank_metadata",
         default=False,
         action="store_true",
         required=False,
-        help="Also fetch detailed GenBank metadata for the sequences that pass all filters. The metadata will be saved in a separate CSV file.",
-    )
-    parser_virus.add_argument(
-        "--download_all_accessions",
-        default=False,
-        action="store_true",
-        required=False,
-        help="Download ALL virus accessions from NCBI (entire Viruses taxonomy). WARNING: This is an extremely large dataset that can take many hours and require significant disk space. When set, the virus argument is ignored.",
+        help="Also fetch detailed GenBank metadata for the sequences that pass all filters. The metadata will be saved in separate CSV and XML files. Automatically turned on if GenBank-level filters are used.",
     )
     parser_virus.add_argument(
         "--genbank_batch_size",
@@ -2691,12 +2738,55 @@ def main():
         help="Maximum number of accessions to fetch in each GenBank metadata request. Smaller batches are slower but more reliable for large datasets. Only used when --genbank_metadata is True. Default: 200",
     )
     parser_virus.add_argument(
+        "--download_all_accessions",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Download ALL virus accessions from NCBI (entire Viruses taxonomy). WARNING: This is a very large dataset that can take an hour or more and require significant disk space. When set, the virus argument is ignored.",
+    )
+
+    parser_virus.add_argument(
+        "--is_sars_cov2",
+        default=False,
+        action="store_true",
+        required=False,
+        help="When using SARS-CoV-2 accessions, use this tag so the code optimizes in using the correct SARS-CoV-2 pathway.",
+    )
+    parser_virus.add_argument(
+        "--lineage",
+        type=str,
+        required=False,
+        help="Only for SARS-CoV-2 pangolineages. Can be a single lineage name (e.g., 'P.1') or comma-separated list (e.g., 'B.1.1.7,P.1'). Any matching lineage will keep the sequence.",
+    )
+    parser_virus.add_argument(
+        "--is_alphainfluenza",
+        default=False,
+        action="store_true",
+        required=False,
+        help="When querying Alphainfluenza (Influenza A), use this tag so the code optimizes by using NCBI's cached data packages for faster downloads.",
+    )
+    parser_virus.add_argument(
+        "--_skip_cache",
+        default=False,
+        action="store_true",
+        required=False,
+        help=argparse.SUPPRESS,  # Hidden parameter for internal/testing use
+    )
+    parser_virus.add_argument(
+        "-kt",
+        "--keep_temp",
+        default=False,
+        action="store_true",
+        required=False,
+        help="Save all output files, including intermediate files.",
+    )
+    parser_virus.add_argument(
         "-q",
         "--quiet",
-        default=True,
-        action="store_false",
+        default=False,
+        action="store_true",
         required=False,
-        help="Does not print progress information.",
+        help="Does not print progress information. For large datasets, it is recommended to set this flag to False to monitor progress.",
     )
 
     ### Define return values
@@ -3770,6 +3860,15 @@ def main():
         if has_proteins_arg and ',' in has_proteins_arg:
             has_proteins_arg = [p.strip() for p in has_proteins_arg.split(',')]
         
+        segment_arg = args.segment
+        if segment_arg and ',' in segment_arg:
+            segment_arg = [s.strip() for s in segment_arg.split(',')]
+        submitter_country_arg = args.submitter_country
+        if submitter_country_arg and ',' in submitter_country_arg:
+            submitter_country_arg = [c.strip() for c in submitter_country_arg.split(',')]
+        lineage_arg = args.lineage
+        if lineage_arg and ',' in lineage_arg:
+            lineage_arg = [l.strip() for l in lineage_arg.split(',')]
         virus(
             virus=args.virus,
             is_accession=args.is_accession,
@@ -3784,14 +3883,13 @@ def main():
             proteins_complete=args.proteins_complete,
             lab_passaged=args.lab_passaged,
             geographic_location=args.geographic_location,
-            submitter_country=args.submitter_country,
+            submitter_country=submitter_country_arg,
             min_collection_date=args.min_collection_date,
             max_collection_date=args.max_collection_date,
+            source_database=args.source_database,
             annotated=args.annotated,
-            refseq_only=args.refseq_only,
+            # refseq_only=args.refseq_only,
             keep_temp=args.keep_temp,
-            is_sars_cov2=args.is_sars_cov2,
-            is_alphainfluenza=args.is_alphainfluenza,
             min_release_date=args.min_release_date,
             max_release_date=args.max_release_date,
             min_mature_peptide_count=args.min_mature_peptide_count,
@@ -3799,8 +3897,14 @@ def main():
             min_protein_count=args.min_protein_count,
             max_protein_count=args.max_protein_count,
             max_ambiguous_chars=args.max_ambiguous_chars,
-            lineage=args.lineage,
+            is_sars_cov2=args.is_sars_cov2,
+            is_alphainfluenza=args.is_alphainfluenza,
+            segment=segment_arg,
+            vaccine_strain=args.vaccine_strain,
+            lineage=lineage_arg,
             genbank_metadata=args.genbank_metadata,
             genbank_batch_size=args.genbank_batch_size,
             download_all_accessions=args.download_all_accessions,
+            _skip_cache=args._skip_cache,
+            quiet=args.quiet,
         )

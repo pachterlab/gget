@@ -20,6 +20,8 @@ import http.client
 import urllib3
 from urllib3.util.retry import Retry
 from requests.adapters import HTTPAdapter
+from urllib.parse import quote
+import calendar
 
 # Internal imports for logging, unique ID generation, and FASTA parsing
 from .utils import set_up_logger, FastaIO
@@ -32,10 +34,12 @@ from .compile import PACKAGE_PATH
 
 # API and Network Configuration
 API_PAGE_SIZE = 1000  # Maximum records per API request (NCBI limit)
-API_REQUEST_TIMEOUT = 30  # Timeout in seconds for API requests
-API_MAX_RETRIES = 3  # Maximum retry attempts for failed API requests
+API_REQUEST_TIMEOUT = 120  # Timeout in seconds for API requests (increased for large pages)
+API_MAX_RETRIES = 2  # Maximum retry attempts for failed API requests
 API_INITIAL_RETRY_DELAY = 2.0  # Initial delay in seconds between retries
-API_RETRY_BACKOFF_MULTIPLIER = 1.5  # Multiplier for exponential backoff
+API_RETRY_BACKOFF_MULTIPLIER = 3.0  # Multiplier for exponential backoff
+MIN_PAGE_SIZE_FALLBACK = 20  # Minimum page size to try before giving up
+PAGE_SIZE_FALLBACK_DECREMENT = 100  # Decrease page size by this amount on retry
 
 # E-utilities Configuration
 EUTILS_TIMEOUT = 300  # Timeout in seconds for E-utilities requests
@@ -49,6 +53,7 @@ GENBANK_INTER_BATCH_DELAY = 0.5  # Delay in seconds between GenBank batch reques
 GENBANK_MAX_BATCH_SIZE_WARNING = 500  # Warn user if batch size exceeds this
 GENBANK_RETRY_ATTEMPTS = 5  # Number of retry attempts for GenBank requests
 GENBANK_XML_CHUNK_SIZE = 10000  # Rows to process before writing to CSV
+GENBANK_COMPLEXITY = 1 # Complexity level with only the accessions requested. All levels explained here: https://www.ncbi.nlm.nih.gov/books/NBK25499/#chapter4.EFetch
 
 # Subprocess and Download Configuration
 SUBPROCESS_VERSION_TIMEOUT = 5  # Timeout for version check commands
@@ -106,8 +111,10 @@ HTTP_RETRY_STATUS_CODES = [429, 500, 502, 503, 504]  # Status codes to retry on
 HTTP_MAX_LOCAL_RETRIES = 3  # Maximum local retry attempts
 HTTP_INITIAL_BACKOFF = 1.0  # Initial backoff in seconds
 
-# File Size Display Divisor
-BYTES_PER_MB = 1024 * 1024  # Bytes in a megabyte for file size display
+# File Size Configuration
+BYTES_PER_MB = 1024 * 1024  # Bytes in a megabyte for file size display diviser
+MIN_VALID_ZIP_SIZE = 5 * 1024  # 100 KB in bytes (minimum size for a valid ZIP file from cached downloads)
+MIN_VALID_FASTA_SIZE_MB = 0.1  # Minimum size in MB for a valid FASTA file (100 KB)
 
 # URL Length Configuration
 # Most browsers and servers support URLs up to ~2000-8000 chars, but NCBI recommends keeping under 2000
@@ -138,7 +145,6 @@ else:
 
 # Cache for the datasets path to avoid repeated checks
 _datasets_path_cache = None
-
 
 # =============================================================================
 # HELPER FUNCTIONS FOR RETRIES AND ERROR TRACKING
@@ -377,6 +383,49 @@ def _get_datasets_path():
     raise RuntimeError(
         f"NCBI datasets binary at {datasets_path} failed verification."
     )
+
+
+def _get_datasets_version():
+    """
+    Get the version of the NCBI datasets CLI if available.
+    
+    Attempts to retrieve the version string from the datasets binary.
+    Returns None if datasets is not available or version check fails.
+    
+    Returns:
+        str or None: Version string from datasets (e.g., "16.11.0") or None if unavailable.
+    """
+    try:
+        datasets_path = _get_datasets_path()
+        result = subprocess.run(
+            [datasets_path, "--version"],
+            capture_output=True,
+            text=True,
+            timeout=SUBPROCESS_VERSION_TIMEOUT,
+        )
+        if result.returncode == 0:
+            # Extract version from output (e.g., "datasets version 16.11.0")
+            version_output = result.stdout.strip()
+            logger.debug("Datasets version output: %s", version_output)
+            return version_output
+    except (RuntimeError, subprocess.TimeoutExpired, OSError) as e:
+        logger.debug("Could not retrieve datasets version: %s", e)
+    
+    return None
+
+
+def _get_gget_version():
+    """
+    Get the version of gget.
+    
+    Returns:
+        str: Version string (e.g., "1.2.0") or "unknown" if not available.
+    """
+    try:
+        from . import __version__
+        return __version__
+    except (ImportError, AttributeError):
+        return "unknown"
 
 
 def _get_modified_virus_name(virus_name, attempt=1):
@@ -643,6 +692,7 @@ def _fetch_metadata_for_accession_list(
     
     all_reports = []
     failed_batches = []
+    aggregated_deferred_filters = None  # Track deferred filters from batches
     
     logger.info("Fetching metadata for %d accessions in %d batch(es) with exponential backoff retries", 
                len(accessions), len(batches))
@@ -671,7 +721,7 @@ def _fetch_metadata_for_accession_list(
             )
         
         # Use exponential backoff helper for batch retries
-        success, batch_reports, error_info = _retry_with_exponential_backoff(
+        success, batch_result, error_info = _retry_with_exponential_backoff(
             operation_name=f"Accession batch {batch_num}/{len(batches)} ({len(batch)} accessions)",
             operation_func=fetch_batch_metadata,
             max_retries=API_MAX_RETRIES,
@@ -681,8 +731,22 @@ def _fetch_metadata_for_accession_list(
             failed_commands=failed_commands,
         )
         
+        # Unpack the tuple result from fetch_virus_metadata
+        batch_reports = None
+        batch_deferred_filters = None
+        if success and batch_result is not None:
+            if isinstance(batch_result, tuple):
+                batch_reports, batch_deferred_filters = batch_result
+            else:
+                # Backward compatibility if result is just a list
+                batch_reports = batch_result
+        
         if success and batch_reports:
             all_reports.extend(batch_reports)
+            # Track deferred filters (should be the same across all batches if any)
+            if batch_deferred_filters and aggregated_deferred_filters is None:
+                aggregated_deferred_filters = batch_deferred_filters
+                logger.debug("Batch %d has deferred filters: %s", batch_num, batch_deferred_filters)
             tqdm.write(f"✅ Batch {batch_num}: Retrieved {len(batch_reports)} records")
         else:
             # Batch failed or returned empty
@@ -742,7 +806,9 @@ def _fetch_metadata_for_accession_list(
         if failed_batches:
             logger.warning("⚠️ Continuing pipeline with partial results (%d/%d batches succeeded)", 
                           len(batches) - len(failed_batches), len(batches))
-        return all_reports
+        if aggregated_deferred_filters:
+            logger.info("Deferred filters will be applied in metadata filtering stage: %s", aggregated_deferred_filters)
+        return all_reports, aggregated_deferred_filters
     
     # Only raise if ALL batches failed
     if failed_batches:
@@ -753,7 +819,7 @@ def _fetch_metadata_for_accession_list(
     
     # Fallback (shouldn't reach here)
     logger.warning("No accession batches were processed")
-    return []
+    return [], None
 
 
 def _try_modified_virus_names(
@@ -895,7 +961,7 @@ def fetch_virus_metadata(
     # Add API-level filters to reduce the amount of data we need to download
     # These filters are applied server-side before results are returned
     if refseq_only:
-        # Limit results to RefSeq database entries only (higher quality, curated sequences)
+        # Limit results to RefSeq database entries only
         params['filter.refseq_only'] = 'true'
         logger.debug("Applied RefSeq-only filter")
     
@@ -911,12 +977,17 @@ def fetch_virus_metadata(
         
     if host:
         # Filter by host organism name, replacing underscores with spaces for API compatibility
-        params['filter.host'] = host.replace('_', ' ')
+        host = host.strip('"\'-_<|>`\'')
+        host = host.replace('-', '+').replace('_', '+').replace(' ', '+')
+        params['filter.host'] = host
         logger.debug("Applied host filter: %s", host)
         
     if geographic_location:
         # Filter by geographic location, replacing underscores with spaces for API compatibility
-        params['filter.geo_location'] = geographic_location.replace('_', ' ')
+        geographic_location = geographic_location.strip('"-_<|>`')
+        geographic_location = geographic_location.replace("'", "%27").replace("`", "%27")
+        geographic_location = geographic_location.replace('-', '+').replace('_', '+').replace(' ', '+')
+        params['filter.geo_location'] = geographic_location
         logger.debug("Applied geographic location filter: %s", geographic_location)
 
     if min_release_date:
@@ -959,10 +1030,19 @@ def fetch_virus_metadata(
         
         def fetch_single_page():
             """Callable that fetches a single page of results"""
+            # Build the query string manually to preserve '+' characters in filter values
+            # The requests library would URL-encode '+' to '%2B', but NCBI API expects literal '+'
+            query_parts = []
+            for key, value in params.items():
+                # Only encode special characters, but preserve '+' which NCBI uses for spaces
+                encoded_value = quote(str(value), safe="+:")
+                query_parts.append(f"{key}={encoded_value}")
+            full_url = url + ("?" + "&".join(query_parts) if query_parts else "")
+            
             # Make the HTTP GET request to the NCBI API  
             logger.debug("Making API request to: %s", url)
             logger.debug("Request parameters: %s", params)
-            response = requests.get(url, params=params, timeout=API_REQUEST_TIMEOUT)
+            response = requests.get(full_url, timeout=API_REQUEST_TIMEOUT)
             logger.debug("Explicit URL request sent: %s", response.url)
             
             # Raise an exception if the HTTP request failed (4xx or 5xx status codes)
@@ -981,19 +1061,188 @@ def fetch_virus_metadata(
             max_retries=API_MAX_RETRIES,
             initial_delay=API_INITIAL_RETRY_DELAY,
             backoff_multiplier=API_RETRY_BACKOFF_MULTIPLIER,
-            retryable_exceptions=(requests.exceptions.ConnectionError, requests.exceptions.HTTPError),
+            retryable_exceptions=(requests.exceptions.ConnectionError, requests.exceptions.HTTPError, requests.exceptions.Timeout),
             failed_commands=failed_commands,
         )
+        
+        # If the initial page fetch failed, try with a smaller page size before giving up
+        if not success and params['page_size'] > MIN_PAGE_SIZE_FALLBACK:
+            logger.debug("⚠️ Page fetch failed with page_size=%d. Retrying with smaller page sizes...", params['page_size'])
+            
+            # Try decreasing page size until we succeed or reach minimum
+            current_page_size = params['page_size']
+            page_size_retry_count = 0
+            tried_without_geo_location = False  # Track if we've tried removing geographic_location
+            tried_without_host = False  # Track if we've tried removing host
+            
+            while not success and current_page_size > MIN_PAGE_SIZE_FALLBACK:
+                # Decrease page size for next retry
+                current_page_size = max(MIN_PAGE_SIZE_FALLBACK, current_page_size - PAGE_SIZE_FALLBACK_DECREMENT)
+                page_size_retry_count += 1
+                
+                logger.debug("📉 Attempting retry #%d with page_size=%d (page %d)", 
+                           page_size_retry_count, current_page_size, page_count)
+                
+                # Update params with new page size
+                params['page_size'] = current_page_size
+                
+                # Retry the fetch with the smaller page size
+                success, page_data, error_info = _retry_with_exponential_backoff(
+                    operation_name=f"API page {page_count} (page_size={current_page_size})",
+                    operation_func=fetch_single_page,
+                    max_retries=API_MAX_RETRIES,
+                    initial_delay=API_INITIAL_RETRY_DELAY,
+                    backoff_multiplier=API_RETRY_BACKOFF_MULTIPLIER,
+                    retryable_exceptions=(requests.exceptions.ConnectionError, requests.exceptions.HTTPError, requests.exceptions.Timeout),
+                    failed_commands=failed_commands,
+                )
+                
+                if success:
+                    logger.debug("✅ Successfully fetched page with page_size=%d after %d retry attempt(s)", 
+                               current_page_size, page_size_retry_count)
+                    # Update the global page_size for remaining pages if successful
+                    params['page_size'] = current_page_size
+                    
+                    # If progress bar exists, recalculate total pages based on new page size
+                    if pages_pbar is not None and page_data:
+                        total_count = page_data.get('total_count', 0)
+                        if total_count > 0:
+                            new_total_pages = (total_count + current_page_size - 1) // current_page_size
+                            # Update progress bar total to reflect the new page size
+                            logger.debug("📊 Recalculating progress bar: page_size changed to %d, total pages now: %d", 
+                                       current_page_size, new_total_pages)
+                            pages_pbar.total = new_total_pages
+                    break
+                
+                # After FIRST page size reduction fails, try without geographic_location filter
+                # This happens once at page_size = API_PAGE_SIZE - PAGE_SIZE_FALLBACK_DECREMENT (e.g., 900)
+                if not success and not tried_without_geo_location and geographic_location and _retry_attempt == 0:
+                    tried_without_geo_location = True
+                    # logger.warning("=" * 80)
+                    logger.warning("🔄 PAGE SIZE REDUCTION FAILED - ATTEMPTING WITHOUT GEOGRAPHIC FILTER")
+                    # logger.warning("=" * 80)
+                    logger.warning("Page size %d with geographic location '%s' failed.", current_page_size, geographic_location)
+                    logger.warning("Retrying without the geographic_location filter (will be applied later)...")
+                    
+                    # Close temporary files before retry
+                    if pages_pbar:
+                        pages_pbar.close()
+                        pages_pbar = None
+                    if metadata_file:
+                        try:
+                            metadata_file.close()
+                        except:
+                            pass
+                    
+                    try:
+                        # Retry the fetch without geographic_location
+                        retry_reports, _ = fetch_virus_metadata(
+                            virus=virus,
+                            accession=accession,
+                            host=host,
+                            geographic_location=None,  # Remove geo filter
+                            annotated=annotated,
+                            complete_only=complete_only,
+                            min_release_date=min_release_date,
+                            refseq_only=refseq_only,
+                            failed_commands=failed_commands,
+                            _retry_attempt=1,  # Mark as retry to prevent infinite loops
+                            temp_output_dir=temp_output_dir,
+                        )
+                        
+                        if retry_reports is not None:
+                            logger.info("✅ Successfully retrieved %d records without geographic filter", len(retry_reports))
+                            logger.info("Geographic location filter '%s' will be applied during metadata filtering", geographic_location)
+                            
+                            # Return with deferred filter info
+                            return retry_reports, {'geographic_location': geographic_location}
+                    except Exception as retry_error:
+                        logger.warning("❌ Retry without geographic filter also failed: %s", retry_error)
+                        logger.info("Continuing with smaller page sizes...")
+                        # Re-open temp file for continued attempts
+                        try:
+                            metadata_file = open(temp_metadata_file, 'a', encoding='utf-8')
+                        except IOError:
+                            metadata_file = None
+                        # Continue the page size reduction loop
+                
+                # After geo_location retry (if applicable), try without host filter
+                # This happens if we have a host filter and haven't tried removing it yet
+                if not success and not tried_without_host and host and _retry_attempt == 0:
+                    tried_without_host = True
+                    # logger.warning("=" * 80)
+                    logger.warning("🔄 PAGE SIZE REDUCTION FAILED - ATTEMPTING WITHOUT HOST FILTER")
+                    # logger.warning("=" * 80)
+                    logger.warning("Page size %d with host '%s' failed.", current_page_size, host)
+                    
+                    # If geo_location retry was also attempted and failed, remove both filters
+                    also_defer_geo = tried_without_geo_location and geographic_location
+                    if also_defer_geo:
+                        logger.warning("Also removing geographic_location filter (both filters will be applied later)...")
+                    else:
+                        logger.warning("Retrying without the host filter (will be applied later)...")
+                    
+                    # Close temporary files before retry
+                    if pages_pbar:
+                        pages_pbar.close()
+                        pages_pbar = None
+                    if metadata_file:
+                        try:
+                            metadata_file.close()
+                        except:
+                            pass
+                    
+                    try:
+                        # Retry the fetch without host (and optionally without geo_location)
+                        retry_reports, _ = fetch_virus_metadata(
+                            virus=virus,
+                            accession=accession,
+                            host=None,  # Remove host filter
+                            geographic_location=None if also_defer_geo else geographic_location,
+                            annotated=annotated,
+                            complete_only=complete_only,
+                            min_release_date=min_release_date,
+                            refseq_only=refseq_only,
+                            failed_commands=failed_commands,
+                            _retry_attempt=1,  # Mark as retry to prevent infinite loops
+                            temp_output_dir=temp_output_dir,
+                        )
+                        
+                        if retry_reports is not None:
+                            logger.info("✅ Successfully retrieved %d records without host filter", len(retry_reports))
+                            logger.info("Host filter '%s' will be applied during metadata filtering", host)
+                            
+                            # Return with deferred filter info (include geo_location if also deferred)
+                            deferred = {'host': host}
+                            if also_defer_geo:
+                                deferred['geographic_location'] = geographic_location
+                                logger.info("Geographic location filter '%s' will also be applied during metadata filtering", geographic_location)
+                            return retry_reports, deferred
+                    except Exception as retry_error:
+                        logger.warning("❌ Retry without host filter also failed: %s", retry_error)
+                        logger.info("Continuing with smaller page sizes...")
+                        # Re-open temp file for continued attempts
+                        try:
+                            metadata_file = open(temp_metadata_file, 'a', encoding='utf-8')
+                        except IOError:
+                            metadata_file = None
+                        # Continue the page size reduction loop
+            
+            # If still failed after trying all page sizes down to minimum
+            if not success:
+                logger.warning("⚠️ All page size fallback attempts failed (page %d)", page_count)
         
         # Handle page fetch result
         if success and page_data:
             # Extract the virus reports from the response
             reports = page_data.get('reports', [])
             # Create progress bar on first page when we know total pages
+            # Use current page_size (which may have been reduced) for accurate total page calculation
             if pages_pbar is None and page_count == 1:
                 total_pages = page_data.get('total_count', 0)
+                current_page_size = params['page_size']
                 if total_pages > 0:
-                    total_pages = (total_pages + API_PAGE_SIZE - 1) // API_PAGE_SIZE
+                    total_pages = (total_pages + current_page_size - 1) // current_page_size
                 pages_pbar = tqdm(total=max(total_pages, 1), desc="Fetching pages", unit="page", leave=False)
             if pages_pbar:
                 pages_pbar.update(1)
@@ -1077,12 +1326,15 @@ def fetch_virus_metadata(
                             'alternative_command': None
                         }
                     
+                    # Note: Retry without geographic_location is now handled in the page size
+                    # reduction loop above, after the first smaller page size fails
+                    
                     if geographic_location:
                         error_msg += (
                             f"\n\n🔧 TIMEOUT LIKELY DUE TO GEOGRAPHIC FILTER: "
                             f"The combination of '{virus}' + geographic location '{geographic_location}' "
-                            f"is known to cause server timeouts. Try removing the geographic_location parameter "
-                            f"and filter the results manually after download."
+                            f"is known to cause server timeouts. All page size and filter removal retries "
+                            f"have been exhausted."
                         )
                     
                     # Log the timeout error before raising
@@ -1235,11 +1487,14 @@ def fetch_virus_metadata(
                             if retry_result is not None:
                                 return retry_result
                         
+                        # Note: Retry without geographic_location is now handled in the page size
+                        # reduction loop above, after the first smaller page size fails
+                        
                         error_msg += (
                             f"\n\n🔧 SERVER ERROR DETECTED: "
                             f"NCBI's API is experiencing temporary server-side issues. "
-                            f"This could be due to the specific virus/taxon ID or a genuine server problem. Try again in a few minutes, "
-                            f"or consider using different parameters to reduce the dataset size."
+                            f"This could be due to the specific virus/taxon ID or a genuine server problem. "
+                            f"All page size and filter removal retries have been exhausted."
                         )
                     
                     # Log the error details before raising
@@ -1315,7 +1570,7 @@ def fetch_virus_metadata(
         file_size_mb = os.path.getsize(temp_metadata_file) / (1024 * 1024)
         logger.info("Temporary metadata file size: %.2f MB", file_size_mb)
     
-    return all_reports
+    return all_reports, None  # (reports, deferred_filters) - None means no deferred filters
 
 
 def fetch_virus_metadata_chunked(
@@ -1370,6 +1625,7 @@ def fetch_virus_metadata_chunked(
     current_year = current_date.year
     
     all_reports = []
+    aggregated_deferred_filters = None  # Track deferred filters from chunks
     total_chunks = current_year - start_year + 1
     
     logger.info(f"Will process {total_chunks} year(s) from {start_year} to {current_year}")
@@ -1388,7 +1644,7 @@ def fetch_virus_metadata_chunked(
         
         try:
             # Fetch metadata for this date chunk
-            chunk_reports = fetch_virus_metadata(
+            chunk_result = fetch_virus_metadata(
                 virus=virus,
                 accession=accession,
                 host=host,
@@ -1401,11 +1657,25 @@ def fetch_virus_metadata_chunked(
                 temp_output_dir=temp_output_dir
             )
             
+            # Handle tuple return (reports, deferred_filters)
+            chunk_reports = None
+            chunk_deferred_filters = None
+            if chunk_result is not None:
+                if isinstance(chunk_result, tuple):
+                    chunk_reports, chunk_deferred_filters = chunk_result
+                else:
+                    chunk_reports = chunk_result
+            
             # If we got None, it means even this chunk is too large (shouldn't happen for yearly chunks)
             if chunk_reports is None:
                 logger.error(f"❌ Chunk for year {year} is too large even for NCBI to handle")
                 logger.error("This is unexpected and may indicate an API issue")
                 raise RuntimeError(f"Year {year} chunk failed - dataset too large even when split by year")
+            
+            # Track deferred filters (should be the same across all chunks if any)
+            if chunk_deferred_filters and aggregated_deferred_filters is None:
+                aggregated_deferred_filters = chunk_deferred_filters
+                logger.debug("Chunk %d has deferred filters: %s", chunk_num, chunk_deferred_filters)
             
             chunk_count = len(chunk_reports)
             all_reports.extend(chunk_reports)
@@ -1425,9 +1695,11 @@ def fetch_virus_metadata_chunked(
     logger.info(f"✅ CHUNKED DOWNLOAD COMPLETE")
     logger.info(f"   Total records retrieved: {len(all_reports):,}")
     logger.info(f"   Total chunks processed: {total_chunks}")
+    if aggregated_deferred_filters:
+        logger.info("   Deferred filters to apply: %s", aggregated_deferred_filters)
     logger.info("=" * 80)
     
-    return all_reports
+    return all_reports, aggregated_deferred_filters
 
 
 def is_sars_cov2_query(virus, accession=False):
@@ -1550,125 +1822,214 @@ def process_cached_download(zip_file, virus_type="virus"):
         logger.info("Found %d metadata file(s) in cached download", len(metadata_files))
         for metadata_file in metadata_files:
             try:
+                # Get file size for progress bar estimation
+                file_size = os.path.getsize(metadata_file)
+                file_size_mb = file_size / BYTES_PER_MB
+                logger.debug("Loading metadata file: %s (%.1f MB)", metadata_file, file_size_mb)
+                
+                # Track record count for logging during progress
+                record_count = 0
+                
                 with open(metadata_file, 'r', encoding='utf-8') as f:
+                    # Use tqdm to show progress while reading the file
+                    # Total is file size in bytes, updated as we read lines
+                    pbar = tqdm(
+                        total=file_size,
+                        unit='B',
+                        unit_scale=True,
+                        unit_divisor=1024,
+                        desc="Processing metadata",
+                        ncols=80,
+                        leave=True
+                    )
+                    
                     for line in f:
                         if line.strip():
+                            # Update progress based on bytes read
+                            pbar.update(len(line.encode('utf-8')))
+                            
                             report = json.loads(line)
                             # Extract accession from the report
                             accession = report.get('accession', '')
                             if not accession:
                                 continue
                             
+                            record_count += 1
+                            
+                            # Update progress bar description with record count
+                            pbar.set_description(f"Processing metadata ({record_count:,} records)")
+                            
                             # Transform the NCBI report format to our internal metadata format
                             # This mirrors the logic in load_metadata_from_api_reports
                             metadata = {
                                 'accession': accession,
                                 'length': report.get('length'),
-                                'source': 'cached_data_report',
+                                # 'source': 'cached_data_report',
+                                'geneCount': report.get('geneCount'),
+                                'completeness': report.get('completeness', '').lower(),
                             }
                             
                             # Extract virus info
                             virus_info = report.get('virus', {})
-                            metadata['virus_name'] = virus_info.get('sci_name')
-                            metadata['virus_tax_id'] = virus_info.get('tax_id')
-                            metadata['virus_pangolin_classification'] = virus_info.get('pangolin_classification')
+                            metadata['virusName'] = virus_info.get('organismName')
+                            metadata['virusTaxId'] = virus_info.get('taxId')
+                            metadata['virusPangolinClassification'] = virus_info.get('pangolinClassification')
                             
                             # Extract host info
                             host_info = report.get('host', {})
-                            metadata['host_name'] = host_info.get('sci_name')
-                            metadata['host_common_name'] = host_info.get('common_name')
-                            metadata['host_tax_id'] = host_info.get('tax_id')
+                            metadata['hostName'] = host_info.get('organismName') 
+                            # metadata['hostCommonName'] = host_info.get('commonName')  # May not exist, but try anyway
+                            metadata['hostTaxId'] = host_info.get('taxId') 
                             
                             # Extract biosample info
-                            biosample_info = report.get('biosample_info', {})
-                            metadata['biosample_accession'] = biosample_info.get('accession')
+                            # metadata['biosampleAccession'] = report.get('biosample') # May not exist, but try anyway
                             
-                            # Extract isolate info - NOTE: datasets CLI uses camelCase (collectionDate)
-                            # but we need to store in the format filter_metadata_only expects
+                            # Extract isolate info 
                             isolate_info = report.get('isolate', {})
-                            metadata['isolate_name'] = isolate_info.get('name')
+                            metadata['isolateName'] = isolate_info.get('name')
                             # Store isolate as nested dict to match filter_metadata_only expectations
-                            # CLI uses 'collectionDate' (camelCase), we convert to 'collection_date' (snake_case)
                             metadata['isolate'] = {
-                                'name': isolate_info.get('name'),
-                                'collection_date': isolate_info.get('collectionDate'),  # CLI uses camelCase
+                                # 'name': isolate_info.get('name'),
+                                'collectionDate': isolate_info.get('collectionDate'),  
                                 'source': isolate_info.get('source'),
                             }
                             
                             # Extract location info
                             location_info = report.get('location', {})
-                            metadata['geo_location'] = location_info.get('geo_location')
-                            metadata['usa_state'] = location_info.get('usa_state')
-                            
-                            # Extract nucleotide completeness
-                            completeness_info = report.get('nucleotide_completeness', {})
-                            metadata['nuc_completeness'] = completeness_info.get('value')
-                            
+                            metadata['location'] = location_info.get('geographicLocation')
+                            metadata['region'] = location_info.get('geographicRegion')
+                            # metadata['usa_state'] = location_info.get('usaState') # May not exist, but try anyway
+                                                        
                             # Extract other fields
-                            metadata['release_date'] = report.get('release_date')
-                            metadata['update_date'] = report.get('update_date')
-                            metadata['is_annotated'] = report.get('annotation', {}).get('is_annotated', False)
-                            metadata['is_refseq'] = report.get('is_refseq', False)
-                            metadata['is_lab_host'] = report.get('is_lab_host', False)
+                            metadata['releaseDate'] = report.get('releaseDate')
+                            # metadata['updateDate'] = report.get('updateDate')
+                            metadata['isAnnotated'] = report.get('isAnnotated', False)
+                            # metadata['isRefSeq'] = report.get('isRefSeq', False)
+                            metadata['sourceDatabase'] = report.get('sourceDatabase')
+                            metadata['isLabHost'] = report.get('isLabHost', False)
                             
                             # Gene and protein counts
-                            metadata['gene_count'] = report.get('gene_count')
-                            metadata['protein_count'] = report.get('protein_count')
-                            metadata['mature_peptide_count'] = report.get('mature_peptide_count')
+                            metadata['proteinCount'] = report.get('proteinCount')
+                            metadata['maturePeptideCount'] = report.get('maturePeptideCount')
+                            
+                            # Extract segment
+                            metadata['segment'] = report.get('segment')
+                            
+                            # Extract vaccine strain flag
+                            metadata['isVaccineStrain'] = report.get('isVaccineStrain', False)
+
+                            submitter_info = report.get('submitter', {})
+                            metadata['submitterName'] = submitter_info.get('names')
+                            metadata['submitterCountry'] = submitter_info.get('country')
+                            metadata['submitterInstitution'] = submitter_info.get('affiliation')
                             
                             cached_metadata_dict[accession] = metadata
-                            
-                logger.info("Loaded %d metadata records from %s", len(cached_metadata_dict), metadata_file)
+                    
+                    pbar.close()
+                    
+                logger.info("✅ Loaded %d metadata records from %s", len(cached_metadata_dict), metadata_file)
             except Exception as e:
                 logger.warning("❌ Failed to load metadata file %s: %s", metadata_file, e)
                 continue
     else:
         logger.warning("No data_report.jsonl found in cached download. Post-download filters may be limited.")
     
-    # Process all available FASTA files
-    all_cached_sequences = []
-    for fasta_file in fasta_files:
-        try:
-            sequences = list(FastaIO.parse(fasta_file, "fasta"))
-            all_cached_sequences.extend(sequences)
-            logger.info("Loaded %d sequences from %s", len(sequences), fasta_file)
-        except Exception as e:
-            logger.warning("❌ Failed to load FASTA file %s: %s", fasta_file, e)
-            continue
+    if not fasta_files:
+        logger.error("❌ No FASTA files found in cached data.")
+        raise RuntimeError("No FASTA files found in cached data")
     
-    if not all_cached_sequences:
-        logger.warning("No valid sequences found in cached data.")
-        raise RuntimeError("No valid sequences found in cached data")
+    for fasta_file in fasta_files:
+        file_size = os.path.getsize(fasta_file)
+        file_size_mb = file_size / BYTES_PER_MB
+        if file_size_mb < MIN_VALID_FASTA_SIZE_MB:
+            logger.warning("⚠️ FASTA file %s is smaller than expected (%.1f MB). It may not contain valid sequences.", fasta_file, file_size_mb)
+        else:
+            logger.info("✅ Cached FASTA file available for streaming: %s (%.1f MB)", fasta_file, file_size_mb)
     
     # If no rich metadata was loaded, create minimal metadata from FASTA headers
     if not cached_metadata_dict:
         logger.info("Creating basic metadata from FASTA headers (no data_report.jsonl available)")
-        for seq in all_cached_sequences:
-            accession = seq.id.split('.')[0]  # Remove version if present
-            cached_metadata_dict[accession] = {
-                'accession': accession,
-                'description': seq.description,
-                'length': len(seq.seq),
-                'source': 'cached_fasta_header'
-            }
+        logger.info("Streaming FASTA files to extract minimal metadata...")
+        
+        for fasta_file in fasta_files:
+            try:
+                file_size = os.path.getsize(fasta_file)
+                
+                with open(fasta_file, 'r', encoding='utf-8') as f:
+                    pbar = tqdm(
+                        total=file_size,
+                        unit='B',
+                        unit_scale=True,
+                        unit_divisor=1024,
+                        desc="Extracting FASTA metadata",
+                        ncols=80,
+                        leave=True
+                    )
+                    
+                    current_accession = None
+                    sequence_length = 0
+                    description = ""
+                    
+                    for line in f:
+                        pbar.update(len(line.encode('utf-8')))
+                        
+                        if line.startswith('>'):
+                            # Save previous sequence if exists
+                            if current_accession and current_accession not in cached_metadata_dict:
+                                cached_metadata_dict[current_accession] = {
+                                    'accession': current_accession,
+                                    'description': description,
+                                    'length': sequence_length,
+                                    'source': 'cached_fasta_header'
+                                }
+                            
+                            # Parse new header
+                            header = line[1:].strip()
+                            current_accession = header.split()[0]
+                            description = header
+                            sequence_length = 0
+                            
+                        else:
+                            # Count bases in sequence (not including whitespace)
+                            sequence_length += len(line.strip())
+                    
+                    # Save last sequence
+                    if current_accession and current_accession not in cached_metadata_dict:
+                        cached_metadata_dict[current_accession] = {
+                            'accession': current_accession,
+                            'description': description,
+                            'length': sequence_length,
+                            'source': 'cached_fasta_header'
+                        }
+                    
+                    pbar.close()
+                    
+                logger.info("✅ Extracted metadata for %d sequences from %s", 
+                           len([acc for acc in cached_metadata_dict if cached_metadata_dict[acc].get('source') == 'cached_fasta_header']), 
+                           fasta_file)
+                
+            except Exception as e:
+                logger.warning("❌ Failed to extract metadata from FASTA %s: %s", fasta_file, e)
+                continue
+        
         logger.info("Created basic metadata for %d sequences", len(cached_metadata_dict))
     
     logger.info("🎉 CACHED DATA LOADING SUCCESSFUL!")
-    logger.info("Loaded %d sequences from cached %s data", len(all_cached_sequences), virus_type)
+    logger.debug("Cached %s sequences will be streamed on-demand (not loaded to RAM)", virus_type)
     if metadata_files:
         logger.info("Rich metadata available from data_report.jsonl for post-download filtering")
     
-    return all_cached_sequences, cached_metadata_dict, True
+    # Return the cached FASTA file path (not the sequences themselves)
+    # Sequences will be streamed on-demand when needed
+    cached_fasta_file = fasta_files[0] if fasta_files else None
+    return cached_fasta_file, cached_metadata_dict, True
 
 
 def _monitor_subprocess_with_progress(process, cmd, timeout=None, progress_timeout=None):
     """
     Monitor a subprocess with progress tracking and timeout handling.
     
-    This helper function monitors a running subprocess, checking for progress
-    indicators in stderr output. It implements a two-tier timeout strategy:
-        - Overall timeout: Maximum total execution time.
-        - Progress timeout: Maximum time without seeing progress.
+    This helper function monitors a running subprocess. When stdout/stderr are piped, it checks for progress indicators. When they're not piped (output goes to console), it simply polls for completion.
     
     Args:
         process: subprocess.Popen instance to monitor.
@@ -1697,16 +2058,18 @@ def _monitor_subprocess_with_progress(process, cmd, timeout=None, progress_timeo
         if retcode is not None:
             break
             
-        # Read stderr without blocking
-        stderr = process.stderr.readline()
-        if stderr:
-            # Log the stderr for debugging
-            logger.debug("Progress output: %s", stderr.strip())
-            
-            # If we see any progress indicator, update the last_progress time
-            if any(indicator.lower() in stderr.lower() for indicator in PROGRESS_INDICATORS):
-                last_progress = time.time()
-                logger.debug("Progress detected, updating last_progress time")
+        # Only check for progress if stderr was captured (is not None)
+        if process.stderr is not None:
+            # Read stderr without blocking
+            stderr = process.stderr.readline()
+            if stderr:
+                # Log the stderr for debugging
+                # logger.debug("Progress output: %s", stderr.strip())
+                
+                # If we see any progress indicator, update the last_progress time
+                if any(indicator.lower() in stderr.lower() for indicator in PROGRESS_INDICATORS):
+                    last_progress = time.time()
+                    # logger.debug("Progress detected, updating last_progress time")
         
         # Check timeout conditions:
         # 1. Less than total timeout, continue
@@ -1722,7 +2085,14 @@ def _monitor_subprocess_with_progress(process, cmd, timeout=None, progress_timeo
         
         time.sleep(DOWNLOAD_PROGRESS_CHECK_INTERVAL)  # Prevent CPU spin
     
-    stdout, stderr = process.communicate()
+    # Only call communicate if process was created with pipes, otherwise just wait
+    if process.stdout is not None or process.stderr is not None:
+        stdout, stderr = process.communicate()
+    else:
+        stdout = None
+        stderr = None
+        process.wait()
+    
     return subprocess.CompletedProcess(
         args=cmd,
         returncode=retcode,
@@ -1757,7 +2127,10 @@ def _download_optimized_cached(
         requested_filters (dict, optional): Dictionary of originally requested filters.
         
     Returns:
-        str: Path to the successfully downloaded ZIP file.
+        tuple: (zip_path, applied_filters, missing_filters)
+            - zip_path (str): Path to the successfully downloaded ZIP file.
+            - applied_filters (list): List of filter names applied in successful strategy.
+            - missing_filters (list): List of filter names not applied (need post-processing).
         
     Raises:
         RuntimeError: If all strategies fail or datasets CLI is not available.
@@ -1767,7 +2140,7 @@ def _download_optimized_cached(
         ...     ("Strategy 1 (specific)", ["datasets", "download", ...], ["complete-only"]),
         ...     ("Strategy 2 (general)", ["datasets", "download", ...], [])
         ... ]
-        >>> zip_file = _download_optimized_cached(
+        >>> zip_file, applied, missing = _download_optimized_cached(
         ...     "SARS-CoV-2", strategies, "/path/to/output.zip", "/output/dir"
         ... )
     """
@@ -1782,27 +2155,27 @@ def _download_optimized_cached(
         if cmd and cmd[0] == "datasets":
             cmd = [datasets_path] + cmd[1:]
         
-        logger.info("🔄 Trying %s...", strategy_name)
+        logger.info("🔄 Trying optimised strategy download with %s...", strategy_name)
         
         if applied_filters:
-            logger.debug("Applied filters: %s", ", ".join(applied_filters))
+            logger.info("Applied filters: %s", ", ".join(applied_filters))
         else:
-            logger.debug("No specific filters applied")
+            logger.info("No specific filters applied")
         
         logger.debug("Command: %s", " ".join(cmd))
         
         try:
             # Log the exact command being executed
             cmd_str = " ".join(cmd)
-            logger.info("📋 Executing command: %s", cmd_str)
+            logger.debug("📋 Executing command: %s", cmd_str)
 
             # Start subprocess for progress monitoring
             # Note: We don't use cwd=outdir because the command already includes full paths
             try:
                 process = subprocess.Popen(
                     cmd,
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE,
+                    stdout=None,
+                    stderr=None,
                     text=True
                 )
             except FileNotFoundError as fnf_error:
@@ -1822,21 +2195,37 @@ def _download_optimized_cached(
             # Check if the command was successful
             if result.returncode == 0 and os.path.exists(zip_path):
                 file_size = os.path.getsize(zip_path)
+                
+                # Check if file is too small (likely empty result) - if so, try next strategy. It's not zero since the folder always comes with a generic (readme) files.
+                if file_size < MIN_VALID_ZIP_SIZE:
+                    logger.warning("⚠️ %s resulted in file that's too small (%.2f MB, < 100 KB minimum). Trying next strategy...", 
+                                 strategy_name, file_size / 1024 / 1024)
+                    # Clean up invalid file
+                    try:
+                        os.remove(zip_path)
+                    except OSError:
+                        pass
+                    continue
+                
                 logger.info("✅ %s successful: %s (%.2f MB)", 
                            strategy_name, os.path.basename(zip_path), file_size / 1024 / 1024)
                 
                 # Log any important output from the datasets CLI
-                if result.stdout:
-                    logger.debug("datasets CLI output: %s", result.stdout.strip())
+                # if result.stdout:
+                #     logger.debug("datasets CLI output: %s", result.stdout.strip())
                 
                 # Check which filters from the original request weren't applied in this strategy
                 if requested_filters:
                     requested_filter_list = []
                     for key, value in requested_filters.items():
+                        logger.debug("Requested filter: %s=%s", key, value)
                         if value is not None and value is not False:
+                            logger.debug("Adding filter to requested list: %s=%s", key, value)
                             if isinstance(value, bool):
+                                logger.debug("Boolean filter detected, adding key only: %s", key)
                                 requested_filter_list.append(key)
                             else:
+                                logger.debug("Non-boolean filter detected, adding key=value: %s=%s", key, value)
                                 requested_filter_list.append(f"{key}={value}")
                     
                     missing_filters = [f for f in requested_filter_list if f not in applied_filters]
@@ -1845,8 +2234,10 @@ def _download_optimized_cached(
                         logger.warning("   Filters applied: %s", ", ".join(applied_filters) if applied_filters else "none")
                         logger.warning("   Filters missing: %s", ", ".join(missing_filters))
                         logger.warning("   These filters will need to be applied through post-processing")
+                else:
+                    missing_filters = []
                 
-                return zip_path
+                return zip_path, applied_filters, missing_filters
             else:
                 # Strategy failed, prepare error message
                 error_msg = f"❌ {strategy_name} failed with return code {result.returncode}"
@@ -2610,6 +3001,136 @@ def _unzip_file(zip_file_path, extract_to_path):
         raise FileNotFoundError(f"ZIP file not found: {zip_file_path}") from e
 
 
+def _parse_date(date_str, filtername=""):
+    """
+    Parse various date formats into a datetime object.
+    
+    Args:
+        date_str (str): Date string to parse (various formats accepted).
+        filtername (str): Name of the filter/field for error reporting.
+        
+    Returns:
+        datetime: Parsed datetime object, or None if parsing fails.
+        
+    Raises:
+        ValueError: If date parsing fails
+        
+    Note:
+        Uses a default date of year 1500 for incomplete date strings to ensure
+        proper comparison behavior with minimum date filters.
+    """
+    try:
+        # Use dateutil parser for flexible date parsing
+        # Default to a very early year for partial dates to handle edge cases properly
+        parsed_date = parser.parse(date_str, default=datetime(DATE_PARSE_DEFAULT_YEAR, 1, 1))
+        logger.debug("Successfully parsed date '%s' as %s", date_str, parsed_date)
+        return parsed_date
+        
+    except (ValueError, TypeError) as exc:
+        error_msg = (
+            f"Invalid date detected for argument {filtername}: '{date_str}'.\n"
+            "Note: Please check for errors such as incorrect day values "
+            "(e.g., June 31st does not exist) or typos in the date format "
+            "(should be YYYY-MM-DD)."
+        )
+        logger.error("❌ Date parsing failed: %s", error_msg)
+        raise ValueError(error_msg) from exc
+        # if not verbose:
+        #     if not date_str or not date_str.strip():
+        #         logger.debug("Empty or missing date for filter '%s'", filtername)
+        #     else:
+        #         logger.warning("⚠️ Failed to parse date '%s' for filter '%s': %s", date_str, filtername, exc)
+        #     return None
+
+
+def _parse_partial_date_for_range_check(date_str, for_min_comparison=True, filtername=""):
+    """
+    Parse partial dates with range-aware handling for comparison.
+    
+    When comparing partial dates (year-only or year-month) against specific dates,
+    we need to handle them based on the comparison direction:
+    
+    - For min_collection_date comparisons: use the END of the partial range
+      (e.g., "2015" -> 2015-12-31, "2015-06" -> 2015-06-30)
+      This ensures records from that year/month are included if they COULD be >= min.
+      
+    - For max_collection_date comparisons: use the START of the partial range
+      (e.g., "2015" -> 2015-01-01, "2015-06" -> 2015-06-01)
+      This ensures records from that year/month are included if they COULD be <= max.
+    
+    Args:
+        date_str (str): Date string to parse (various formats).
+        for_min_comparison (bool): True if comparing against min date, False for max date.
+        filtername (str): Name of the filter for error messages.
+        
+    Returns:
+        datetime: Parsed datetime object with partial dates adjusted appropriately.
+        
+    Raises:
+        ValueError: If date parsing fails.
+    """    
+    if not date_str or not date_str.strip():
+        raise ValueError(f"Empty date string for {filtername}")
+    
+    date_str = date_str.strip()
+    
+    # Detect date precision based on format
+    # Year-only: "2015" or "2015" (4 digits)
+    # Year-month: "2015-06", "2015/06", "Jun 2015", etc.
+    # Full date: "2015-06-15", "2015/06/15", "Jun 15, 2015", etc.
+    
+    year_only_pattern = r'^(\d{4})$'
+    year_month_pattern = r'^(\d{4})[-/](\d{1,2})$'
+    
+    year_match = re.match(year_only_pattern, date_str)
+    year_month_match = re.match(year_month_pattern, date_str)
+    
+    try:
+        if year_match:
+            # Year-only date like "2015"
+            year = int(year_match.group(1))
+            if for_min_comparison:
+                # For min comparison, use end of year (Dec 31)
+                result = datetime(year, 12, 31)
+                logger.debug("Parsed year-only date '%s' as %s (end of year for min comparison)", 
+                           date_str, result)
+            else:
+                # For max comparison, use start of year (Jan 1)
+                result = datetime(year, 1, 1)
+                logger.debug("Parsed year-only date '%s' as %s (start of year for max comparison)", 
+                           date_str, result)
+            return result
+            
+        elif year_month_match:
+            # Year-month date like "2015-06"
+            year = int(year_month_match.group(1))
+            month = int(year_month_match.group(2))
+            if for_min_comparison:
+                # For min comparison, use end of month
+                _, last_day = calendar.monthrange(year, month)
+                result = datetime(year, month, last_day)
+                logger.debug("Parsed year-month date '%s' as %s (end of month for min comparison)", 
+                           date_str, result)
+            else:
+                # For max comparison, use start of month
+                result = datetime(year, month, 1)
+                logger.debug("Parsed year-month date '%s' as %s (start of month for max comparison)", 
+                           date_str, result)
+            return result
+        else:
+            # Full date - use standard parsing
+            return _parse_date(date_str, filtername=filtername)
+            
+    except (ValueError, TypeError) as exc:
+        error_msg = (
+            f"Invalid date detected for argument {filtername}: '{date_str}'.\n"
+            "Note: Please check for errors such as incorrect day values "
+            "(e.g., June 31st does not exist) or typos in the date format."
+        )
+        logger.error("❌ Date parsing failed: %s", error_msg)
+        raise ValueError(error_msg) from exc
+
+
 def load_metadata_from_api_reports(api_reports):
     """
     Load metadata from API response reports into a dictionary.
@@ -2645,32 +3166,48 @@ def load_metadata_from_api_reports(api_reports):
             metadata = {
                 "accession": accession,
                 "length": report.get("length"),  # Sequence length in nucleotides
+                # "source": "NCBI_REST_API",
                 "geneCount": report.get("gene_count"),  # Number of genes annotated
-                "completeness": report.get("completeness", "").lower(), # Completeness status (e.g., complete, partial)
+                "completeness": (report.get("completeness") or "").lower(), # Completeness status (e.g., complete, partial)
                 "host": report.get("host", {}),  # Host organism details
-                "isLabHost": report.get("host", {}).get("is_lab_host", False),  # Lab-passaged flag
-                "labHost": report.get("host", {}).get("is_lab_host", False),  # Alternative field name
+                "hostName": report.get("host", {}).get("organism_name", ""),  # Host organism name
+                "hostTaxId": report.get("host", {}).get("tax_id", None),  # Host taxonomy ID
+                "isLabHost": report.get("is_lab_host", False),  # Lab-passaged flag (top-level field)
+                "labHost": report.get("is_lab_host", False),  # Alternative field name (top-level field)
                 "location": report.get("location", {}).get("geographic_location", None),  # Geographic location details
                 "region": report.get("location", {}).get("geographic_region", None),  # Broad region
                 "submitter": report.get("submitters", [{}])[0] if report.get("submitters") else {},
                 "sourceDatabase": report.get("source_database", ""),  # GenBank, RefSeq, etc.
-                "isolate": report.get("isolate", {}),  # Sample/isolate details
-                "virus": report.get("virus", {}),  # Virus taxonomy and classification
+                # "isolate_info": report.get("isolate", {}),  # Sample/isolate details
+                "isolateName": report.get("isolate", {}).get("name", ""),  # Isolate name
+                "isolate": {
+                    # 'name': report.get("isolate", {}).get("name", ""),
+                    'collectionDate': report.get("isolate", {}).get("collection_date", ""),
+                    'source': report.get("isolate", {}).get("source", ""),
+                },
+                "virusTaxId": report.get("virus", {}).get("tax_id", None),  # Virus taxonomy and classification
+                "virusName": report.get("virus", {}).get("organism_name", ""),  # Virus name
                 "isAnnotated": report.get("is_annotated", False),  # Whether sequence is annotated
                 "releaseDate": report.get("release_date", ""),  # When sequence was released
-                "sraAccessions": report.get("sra_accessions", []),  # SRA read data accessions 
-                "bioprojects": report.get("bioprojects", []),  # Associated BioProject IDs 
-                "biosample": report.get("biosample"),  # BioSample ID 
+                # "sraAccessions": report.get("sra_accessions", []),  # SRA read data accessions 
+                # "bioprojects": report.get("bioprojects", []),  # Associated BioProject IDs 
+                # "biosample": report.get("biosample"),  # BioSample ID 
                 "proteinCount": report.get("protein_count"),  # Number of proteins
                 "maturePeptideCount": report.get("mature_peptide_count"),  # Number of mature peptides
+                "segment": report.get("segment"),  # Virus segment identifier (e.g., 'HA', 'NA', 'PB1')
+                "isVaccineStrain": report.get("is_vaccine_strain", False),  # Whether this is a vaccine strain
+                "virusPangolinClassification" : report.get("virus", {}).get("pangolin_classification", {}),  # Pangolin lineage classification
+                "submitterName" : report.get("submitter", {}).get("names", ""),  # Submitter names
+                "submitterCountry" : report.get("submitter", {}).get("country", ""),  # Submitter country
+                "submitterInstitution" : report.get("submitter", {}).get("affiliation", "")  # Submitter institution
             }
             
             # Store the metadata using accession as the key
             metadata_dict[accession] = metadata
-            logger.debug("Processed metadata for accession: %s (length: %s, host: %s)", 
-                        accession, 
-                        metadata.get("length"), 
-                        metadata.get("host", {}).get("organism_name", "Unknown"))
+            # logger.debug("Processed metadata for accession: %s (length: %s, host: %s)", 
+            #             accession, 
+            #             metadata.get("length"), 
+            #             metadata.get("host", {}).get("organism_name", "Unknown"))
             
         else:
             # Skip reports without accession numbers
@@ -2683,52 +3220,6 @@ def load_metadata_from_api_reports(api_reports):
     return metadata_dict
 
 
-def _parse_date(date_str, filtername="", verbose=False):
-    """
-    Parse various date formats into a datetime object.
-    
-    Args:
-        date_str (str): Date string to parse (various formats accepted).
-        filtername (str): Name of the filter/field for error reporting.
-        verbose (bool): Whether to raise detailed exceptions on parse errors.
-        
-    Returns:
-        datetime: Parsed datetime object, or None if parsing fails (when verbose=False).
-        
-    Raises:
-        ValueError: If date parsing fails and verbose=True
-        
-    Note:
-        Uses a default date of year 1500 for incomplete date strings to ensure
-        proper comparison behavior with minimum date filters.
-    """
-    try:
-        # Use dateutil parser for flexible date parsing
-        # Default to a very early year for partial dates to handle edge cases properly
-        parsed_date = parser.parse(date_str, default=datetime(DATE_PARSE_DEFAULT_YEAR, 1, 1))
-        logger.debug("Successfully parsed date '%s' as %s", date_str, parsed_date)
-        return parsed_date
-        
-    except (ValueError, TypeError) as exc:
-        # Handle parsing errors based on verbosity setting
-        if verbose:
-            # In verbose mode, raise detailed error with helpful message
-            error_msg = (
-                f"Invalid date detected for argument {filtername}: '{date_str}'.\n"
-                "Note: Please check for errors such as incorrect day values "
-                "(e.g., June 31st does not exist) or typos in the date format "
-                "(should be YYYY-MM-DD)."
-            )
-            logger.error("❌ Date parsing failed: %s", error_msg)
-            raise ValueError(error_msg) from exc
-        else:
-            # In non-verbose mode, log at appropriate level and return None
-            # Use debug level for empty/missing dates (common case), warning for actual invalid dates
-            if not date_str or not date_str.strip():
-                logger.debug("Empty or missing date for filter '%s'", filtername)
-            else:
-                logger.warning("⚠️ Failed to parse date '%s' for filter '%s': %s", date_str, filtername, exc)
-            return None
 
 
 def _check_protein_requirements(record, metadata, has_proteins, proteins_complete):
@@ -2986,10 +3477,12 @@ def save_command_summary(
     total_final_sequences,
     output_files,
     filtered_metadata,
+    datasets_version,
     success=True,
     error_message=None,
     failed_commands=None,
-    genbank_error=None
+    genbank_error=None,
+    gget_version=None
 ):
     """
     Save a summary file documenting the command execution and results.
@@ -2997,6 +3490,10 @@ def save_command_summary(
     Creates a comprehensive summary including command line, statistics,
     output files, and any errors encountered.
     """
+    
+    # Get versions if not provided
+    if gget_version is None:
+        gget_version = _get_gget_version()
     
     summary_file = os.path.join(outfolder, "command_summary.txt")
     
@@ -3010,6 +3507,15 @@ def save_command_summary(
             # Timestamp
             f.write(f"Execution Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
             f.write(f"Output Folder: {outfolder}\n\n")
+            
+            # Version information
+            f.write("-" * 80 + "\n")
+            f.write("SOFTWARE VERSIONS\n")
+            f.write("-" * 80 + "\n")
+            f.write(f"gget version: {gget_version}\n")
+            if datasets_version is not None:
+                f.write(f"{datasets_version}\n")
+            f.write("\n")
             
             # Command line
             f.write("-" * 80 + "\n")
@@ -3368,6 +3874,8 @@ def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_fil
         "Length",             # Sequence length in base pairs
         "Nuc Completeness",   # Completeness status (complete/partial)
         "Proteins/Segments",  # Protein/segment information from FASTA headers
+        "Segment",            # Virus segment identifier (e.g., 'HA', 'NA', '4', '6')
+        "Is Vaccine Strain",  # Whether this sequence is from a vaccine strain
         "Geographic Region",  # Geographic region where sample was collected
         "Geographic Location",# Specific geographic location
         "Host",               # Host organism name
@@ -3432,6 +3940,8 @@ def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_fil
             "Length": metadata.get("length", pd.NA),
             "Nuc Completeness": metadata.get("completeness", pd.NA),
             "Proteins/Segments": protein_headers[i] if i < len(protein_headers) else pd.NA,
+            "Segment": metadata.get("segment", pd.NA), 
+            "Is Vaccine Strain": metadata.get("isVaccineStrain", metadata.get("is_vaccine_strain", pd.NA)),
             
             # Geographic information
             "Geographic Region": metadata.get("region", pd.NA),
@@ -3481,8 +3991,8 @@ def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_fil
     # Create DataFrame with the specified column order
     df = pd.DataFrame(data_for_df, columns=columns)
     
-    logger.debug("DataFrame shape: %s", df.shape)
-    logger.debug("DataFrame columns: %s", list(df.columns))
+    # logger.debug("DataFrame shape: %s", df.shape)
+    # logger.debug("DataFrame columns: %s", list(df.columns))
 
     # Write DataFrame to CSV file
     try:
@@ -3687,7 +4197,7 @@ def _fetch_genbank_batch(accessions, failed_log_path=None):
         'id': accession_string,       # Comma-separated accession numbers
         'rettype': 'gb',              # GenBank format
         'retmode': 'xml',             # XML output for structured parsing
-        'complexity': 0,              # Requesting the entire blob of data content to be returned
+        'complexity': GENBANK_COMPLEXITY,              
     }
     
     # Create a requests.Session with urllib3 Retry/HTTPAdapter for robust retries
@@ -3879,6 +4389,13 @@ def _genbank_xml_to_csv(xml_path, csv_path, chunk_size=None):
     # Stream-parse XML
     for event, elem in ET.iterparse(xml_path, events=("end",)):
         if _local_name(elem.tag) == "GBSeq":
+            # # Skip protein sequences (AA type) - we only want nucleotide sequences
+            # moltype_elem = elem.findtext(".//GBSeq_moltype", "").strip()
+            # if moltype_elem == "AA":
+            #     logger.debug("Skipping protein sequence (AA type) in XML to CSV conversion")
+            #     elem.clear()
+            #     continue
+            
             accession = elem.findtext(".//GBSeq_accession-version", "").strip()
             sequence = elem.findtext(".//GBSeq_sequence", "").strip()
             features = elem.findall(".//GBFeature")
@@ -4024,6 +4541,12 @@ def _parse_genbank_xml(xml_content):
     # Process each GenBank sequence record in the XML
     for gbseq in root.findall('.//GBSeq'):
         try:
+            # # Skip protein sequences (AA type) - we only want nucleotide sequences
+            # moltype_elem = gbseq.find('GBSeq_moltype')
+            # if moltype_elem is not None and moltype_elem.text == 'AA':
+            #     logger.debug("Skipping protein sequence (AA type)")
+            #     continue
+            
             # Extract accession number as the primary key
             accession_elem = gbseq.find('GBSeq_accession-version')
             if accession_elem is None:
@@ -4191,6 +4714,8 @@ def save_genbank_metadata_to_csv(genbank_metadata, output_file, virus_metadata=N
         "Length",             # Sequence length in base pairs
         "Nuc Completeness",   # Completeness status (complete/partial)
         "Proteins/Segments",  # Protein/segment information from FASTA headers
+        "Segment",            # Virus segment identifier (e.g., 'HA', 'NA', '4', '6')
+        "Is Vaccine Strain",  # Whether this sequence is from a vaccine strain
         "Geographic Region",  # Geographic region where sample was collected
         "Geographic Location",# Specific geographic location
         "Host",               # Host organism name
@@ -4261,6 +4786,8 @@ def save_genbank_metadata_to_csv(genbank_metadata, output_file, virus_metadata=N
             "Length": genbank_data.get('sequence_length', pd.NA),
             "Nuc Completeness": metadata.get('completeness', pd.NA),
             "Proteins/Segments": pd.NA,  # Not available from GenBank XML parsing
+            "Segment": metadata.get('segment', pd.NA),  # Virus segment identifier
+            "Is Vaccine Strain": metadata.get('isVaccineStrain', metadata.get('is_vaccine_strain', pd.NA)),
             
             # Geographic information
             "Geographic Region": metadata.get('region', pd.NA),
@@ -4320,6 +4847,209 @@ def save_genbank_metadata_to_csv(genbank_metadata, output_file, virus_metadata=N
         raise RuntimeError(f"❌ Failed to save GenBank metadata to {output_file}: {e}") from e
     
 
+def filter_cached_metadata_for_unused_filters(
+    metadata_dict,
+    host=None,
+    complete_only=None,
+    annotated=None,
+    lineage=None,
+    geographic_location=None,
+    refseq_only=None,
+    min_release_date=None,
+    applied_strategy_filters=None,
+):
+    """
+    Apply filters that were not used in the cached download strategy.
+    
+    This is Step 3 of the cached download pipeline. It applies:
+    1. Server-side filters not used in the successful cached strategy: host, complete_only, annotated, lineage
+    2. API-only filters that couldn't be applied server-side: geographic_location, refseq_only, min_release_date
+    
+    Args:
+        metadata_dict (dict): Dictionary mapping accession numbers to metadata from cached download.
+        host (str, optional): Host organism filter (not applied if in applied_strategy_filters).
+        complete_only (bool, optional): Complete genome filter (not applied if in applied_strategy_filters).
+        annotated (bool, optional): Annotation filter (not applied if in applied_strategy_filters).
+        lineage (str, optional): Lineage filter for SARS-CoV-2 (not applied if in applied_strategy_filters).
+        geographic_location (str, optional): Geographic location filter (API-only, always applied if specified).
+        refseq_only (bool, optional): RefSeq only filter (API-only, always applied if specified).
+        min_release_date (str, optional): Minimum release date filter (API-only, always applied if specified).
+        applied_strategy_filters (list, optional): List of filter names that were applied during cached strategy.
+            Includes: 'host', 'complete-only', 'annotated', 'lineage'
+        
+    Returns:
+        tuple: (filtered_accessions, filtered_metadata_list)
+    """
+
+    if applied_strategy_filters is None and geographic_location is None and refseq_only is None and min_release_date is None:
+        logger.debug("No filters specified for post-cached-download filtering. Returning all metadata unchanged.")
+        return list(metadata_dict.keys()), list(metadata_dict.values())
+    
+    if applied_strategy_filters is None:
+        applied_strategy_filters = []
+    
+    logger.info("="*60)
+    logger.info("STEP 3b: Applying post-cached-download filters")
+    logger.info("="*60)
+    logger.debug("Filters applied during cached strategy: %s", applied_strategy_filters)
+    
+    # Determine which filters to apply based on what wasn't used in strategy
+    filters_to_apply = {}
+    
+    # Server-side filters (only apply if not already applied in strategy)
+    if 'host' not in applied_strategy_filters and host:
+        filters_to_apply['host'] = host
+        logger.debug("Will apply host filter: %s (not used in cached strategy)", host)
+    
+    if 'complete-only' not in applied_strategy_filters and complete_only:
+        filters_to_apply['complete_only'] = complete_only
+        logger.debug("Will apply complete-only filter (not used in cached strategy)")
+    
+    if 'annotated' not in applied_strategy_filters and annotated:
+        filters_to_apply['annotated'] = annotated
+        logger.debug("Will apply annotated filter (not used in cached strategy)")
+    
+    if 'lineage' not in applied_strategy_filters and lineage:
+        filters_to_apply['lineage'] = lineage
+        logger.debug("Will apply lineage filter: %s (not used in cached strategy)", lineage)
+    
+    # API-only filters (always apply if specified since they're never in cached strategy)
+    if geographic_location:
+        filters_to_apply['geographic_location'] = geographic_location
+        logger.debug("Will apply geographic_location filter: %s (API-only)", geographic_location)
+    
+    if refseq_only:
+        filters_to_apply['refseq_only'] = refseq_only
+        logger.debug("Will apply refseq_only filter (API-only)")
+    
+    if min_release_date:
+        filters_to_apply['min_release_date'] = min_release_date
+        logger.debug("Will apply min_release_date filter: %s (API-only)", min_release_date)
+    
+    # If no filters to apply, return all metadata unchanged
+    if not filters_to_apply:
+        logger.debug("No post-cached-download filters to apply. All %d records will proceed.", len(metadata_dict))
+        return list(metadata_dict.keys()), list(metadata_dict.values())
+    
+    logger.info("Applying post-cached-download filters: %s", list(filters_to_apply.keys()))
+    
+    # Parse min_release_date once for efficiency
+    min_release_date_parsed = None
+    if 'min_release_date' in filters_to_apply:
+        min_release_date_parsed = _parse_date(min_release_date, filtername="min_release_date")
+    
+    # Apply filters to each metadata record
+    filtered_accessions = []
+    filtered_metadata_list = []
+    filter_stats = {
+        'host': 0,
+        'complete_only': 0,
+        'annotated': 0,
+        'lineage': 0,
+        'geographic_location': 0,
+        'refseq_only': 0,
+        'min_release_date': 0,
+    }
+    
+    for accession, metadata in metadata_dict.items():
+        # Apply each filter - if any fails, skip this record
+        
+        # Host filter
+        if 'host' in filters_to_apply:
+            host_name = metadata.get('hostName', '')
+            if not host_name:
+                logger.debug("Skipping %s: missing host metadata", accession)
+                filter_stats['host'] += 1
+                continue
+            if host.lower() not in host_name.lower():
+                logger.debug("Skipping %s: host '%s' does not match '%s'", accession, host_name, host)
+                filter_stats['host'] += 1
+                continue
+        
+        # Complete-only filter
+        if 'complete_only' in filters_to_apply:
+            nuc_completeness = metadata.get('completeness', '')
+            if not nuc_completeness or nuc_completeness.lower() != 'complete':
+                logger.debug("Skipping %s: completeness '%s' != 'complete'", accession, nuc_completeness)
+                filter_stats['complete_only'] += 1
+                continue
+        
+        # Annotated filter
+        if 'annotated' in filters_to_apply:
+            is_annotated = metadata.get('isAnnotated', False)
+            if not is_annotated:
+                logger.debug("Skipping %s: not annotated", accession)
+                filter_stats['annotated'] += 1
+                continue
+        
+        # Lineage filter (SARS-CoV-2 specific)
+        if 'lineage' in filters_to_apply:
+            virus_pangolin = metadata.get('virusPangolinClassification', '')
+            if not virus_pangolin or lineage.lower() not in virus_pangolin.lower():
+                logger.debug("Skipping %s: lineage '%s' does not match '%s'", accession, virus_pangolin, lineage)
+                filter_stats['lineage'] += 1
+                continue
+        
+        # Geographic location filter (API-only)
+        if 'geographic_location' in filters_to_apply:
+            geo_loc = metadata.get('location', '') or ''
+            geo_region = metadata.get('region', '') or ''
+            virus_name = metadata.get('virusName', '') or ''
+            # Only skip if ALL location sources are empty
+            if not geo_loc and not geo_region and not virus_name:
+                logger.debug("Skipping %s: missing location, region, and virusName metadata", accession)
+                filter_stats['geographic_location'] += 1
+                continue
+            # Check if filter matches location, region, or virusName (fallback for older records)
+            geo_filter = geographic_location.lower()
+            loc_matches = geo_loc and geo_filter in geo_loc.lower()
+            region_matches = geo_region and geo_filter in geo_region.lower()
+            # Also check virusName as fallback (e.g., "B/USA/65/2002" contains location in name)
+            virus_name_matches = virus_name and geo_filter in virus_name.lower()
+            if not loc_matches and not region_matches and not virus_name_matches:
+                logger.debug("Skipping %s: geo_location '%s', region '%s', virusName '%s' do not match '%s'", accession, geo_loc, geo_region, virus_name, geographic_location)
+                filter_stats['geographic_location'] += 1
+                continue
+        
+        # RefSeq only filter (API-only)
+        if 'refseq_only' in filters_to_apply:
+            is_refseq = metadata.get('sourceDatabase', '').lower() == 'refseq'
+            if not is_refseq:
+                logger.debug("Skipping %s: not RefSeq (refseq_only=True)", accession)
+                filter_stats['refseq_only'] += 1
+                continue
+        
+        # Minimum release date filter (API-only)
+        if 'min_release_date' in filters_to_apply:
+            release_date_str = metadata.get('releaseDate', '')
+            if not release_date_str:
+                logger.debug("Skipping %s: missing release date metadata", accession)
+                filter_stats['min_release_date'] += 1
+                continue
+            release_date = _parse_date(release_date_str.split("T")[0], filtername="release_date")
+            if not release_date or (min_release_date_parsed and release_date < min_release_date_parsed):
+                logger.debug("Skipping %s: release date %s < min %s", accession, release_date, min_release_date_parsed)
+                filter_stats['min_release_date'] += 1
+                continue
+        
+        # All filters passed
+        filtered_accessions.append(accession)
+        filtered_metadata_list.append(metadata)
+    
+    # Log comprehensive filtering statistics
+    logger.info("✅ Post-cached-download filtering complete: %d -> %d records",
+                len(metadata_dict), len(filtered_accessions))
+    
+    total_filtered = sum(filter_stats.values())
+    if total_filtered > 0:
+        logger.info("Filter statistics (records excluded):")
+        for filter_name, count in filter_stats.items():
+            if count > 0:
+                logger.info("  %s: %d records", filter_name, count)
+    
+    return filtered_accessions, filtered_metadata_list
+
+
 def filter_metadata_only(
     metadata_dict,
     min_seq_length=None,
@@ -4331,12 +5061,17 @@ def filter_metadata_only(
     submitter_country=None,
     min_collection_date=None,
     max_collection_date=None,
+    source_database=None,
     max_release_date=None,
     min_mature_peptide_count=None,
     max_mature_peptide_count=None,
     min_protein_count=None,
     max_protein_count=None,
     annotated=None,
+    segment=None,
+    vaccine_strain=None,
+    geographic_location=None,
+    host=None,
 ):
     """
     Filter metadata records based on metadata-only criteria.
@@ -4354,28 +5089,26 @@ def filter_metadata_only(
     """
     
     logger.info("Starting metadata-only filtering process...")
-    logger.debug("Applying metadata-only filters: seq_length(%s-%s), gene_count(%s-%s), "
-                "completeness(%s), lab_passaged(%s), annotated(%s), "
-                "submitter_country(%s), collection_date(%s-%s), max_release_date(%s), "
-                "peptide_count(%s-%s), protein_count(%s-%s)",
-                min_seq_length, max_seq_length, min_gene_count, max_gene_count,
-                nuc_completeness, lab_passaged, annotated,
-                submitter_country, min_collection_date, max_collection_date, max_release_date, 
-                min_mature_peptide_count, max_mature_peptide_count,
-                min_protein_count, max_protein_count)
-    
+    logger.debug("Applying metadata-only filters: seq_length(%s-%s), gene_count(%s-%s), completeness(%s), lab_passaged(%s), annotated(%s), submitter_country(%s), collection_date(%s-%s), source_database(%s), max_release_date(%s), peptide_count(%s-%s), protein_count(%s-%s), segment(%s), vaccine_strain(%s)", min_seq_length, max_seq_length, min_gene_count, max_gene_count, nuc_completeness, lab_passaged, annotated, submitter_country, min_collection_date, max_collection_date, source_database, max_release_date, min_mature_peptide_count, max_mature_peptide_count, min_protein_count, max_protein_count, segment, vaccine_strain)
+
     # Convert date filters to datetime objects for proper comparison
+    # Parse user-provided filter dates with appropriate partial date handling:
+    # - min dates: use START of range (e.g., "2015" -> 2015-01-01)
+    # - max dates: use END of range (e.g., "2024" -> 2024-12-31)
     min_collection_date = (
-        _parse_date(min_collection_date, filtername="min_collection_date", verbose=True) 
-        if min_collection_date else None
+        _parse_partial_date_for_range_check(
+            min_collection_date, for_min_comparison=False, filtername="min_collection_date"
+        ) if min_collection_date else None
     )
     max_collection_date = (
-        _parse_date(max_collection_date, filtername="max_collection_date", verbose=True) 
-        if max_collection_date else None
+        _parse_partial_date_for_range_check(
+            max_collection_date, for_min_comparison=True, filtername="max_collection_date"
+        ) if max_collection_date else None
     )
     max_release_date = (
-        _parse_date(max_release_date, filtername="max_release_date", verbose=True) 
-        if max_release_date else None
+        _parse_partial_date_for_range_check(
+            max_release_date, for_min_comparison=True, filtername="max_release_date"
+        ) if max_release_date else None
     )
     
     if min_collection_date:
@@ -4399,15 +5132,20 @@ def filter_metadata_only(
         'annotated': 0,
         'submitter_country': 0,
         'collection_date': 0,
+        'source_database': 0,
         'release_date': 0,
         'mature_peptide_count': 0,
         'protein_count': 0,
+        'segment': 0,
+        'vaccine_strain': 0,
+        'geographic_location': 0,
+        'host': 0,
     }
 
     logger.info("Processing %d metadata records...", total_sequences)
     
     for accession, metadata in metadata_dict.items():
-        logger.debug("Processing metadata for: %s", accession)
+        # logger.debug("Processing metadata for: %s", accession)
         
         # Apply filters sequentially - each filter can exclude the record
         # If any filter fails, we continue to the next record
@@ -4490,7 +5228,7 @@ def filter_metadata_only(
         # FILTER 6: Submitter country filter
         if submitter_country is not None:
             submitter_country_value = "_".join(
-                metadata.get("submitter", {}).get("country", "").split(" ")
+                (metadata.get("submitterCountry") or "").split(" ")
             ).lower()
             
             if not submitter_country_value:
@@ -4506,25 +5244,65 @@ def filter_metadata_only(
 
         # FILTER 7: Collection date range filter
         if min_collection_date is not None or max_collection_date is not None:
-            date_str = metadata.get("isolate", {}).get("collection_date", "")
+            date_str = metadata.get("isolate", {}).get("collectionDate", "")
             
-            date = _parse_date(date_str, filtername="collection_date")
-            
-            if date_str is None or date is None:
-                logger.debug("Skipping %s: missing or invalid collection date '%s'", accession, date_str)
+            # Skip records with empty or missing collection date
+            if not date_str:
+                logger.debug("Skipping %s: missing or empty collection date", accession)
                 filter_stats['collection_date'] += 1
                 continue
-                
-            if min_collection_date and date < min_collection_date:
-                logger.debug("Skipping %s: collection date %s < min %s", 
-                           accession, date, min_collection_date)
-                filter_stats['collection_date'] += 1
-                continue
-                
-            if max_collection_date and date > max_collection_date:
-                logger.debug("Skipping %s: collection date %s > max %s", 
-                           accession, date, max_collection_date)
-                filter_stats['collection_date'] += 1
+            
+            # Handle partial dates (year-only or year-month) appropriately for range checks
+            # For min_collection_date: use end of partial range (record COULD be >= min)
+            # For max_collection_date: use start of partial range (record COULD be <= max)
+            
+            skip_record = False
+            
+            if min_collection_date:
+                try:
+                    # Parse with for_min_comparison=True to use end of range for partial dates
+                    date_for_min = _parse_partial_date_for_range_check(
+                        date_str, for_min_comparison=True, filtername="collection_date"
+                    )
+                except ValueError:
+                    logger.debug("Skipping %s: invalid collection date format '%s'", accession, date_str)
+                    filter_stats['collection_date'] += 1
+                    continue
+                    
+                if date_for_min is None:
+                    logger.debug("Skipping %s: missing or invalid collection date '%s'", accession, date_str)
+                    filter_stats['collection_date'] += 1
+                    continue
+                    
+                if date_for_min < min_collection_date:
+                    logger.debug("Skipping %s: collection date %s (from '%s') < min %s", 
+                               accession, date_for_min, date_str, min_collection_date)
+                    filter_stats['collection_date'] += 1
+                    skip_record = True
+                    
+            if not skip_record and max_collection_date:
+                try:
+                    # Parse with for_min_comparison=False to use start of range for partial dates
+                    date_for_max = _parse_partial_date_for_range_check(
+                        date_str, for_min_comparison=False, filtername="collection_date"
+                    )
+                except ValueError:
+                    logger.debug("Skipping %s: invalid collection date format '%s'", accession, date_str)
+                    filter_stats['collection_date'] += 1
+                    continue
+                    
+                if date_for_max is None:
+                    logger.debug("Skipping %s: missing or invalid collection date '%s'", accession, date_str)
+                    filter_stats['collection_date'] += 1
+                    continue
+                    
+                if date_for_max > max_collection_date:
+                    logger.debug("Skipping %s: collection date %s (from '%s') > max %s", 
+                               accession, date_for_max, date_str, max_collection_date)
+                    filter_stats['collection_date'] += 1
+                    skip_record = True
+            
+            if skip_record:
                 continue
 
         # FILTER 8: Maximum release date filter
@@ -4535,8 +5313,20 @@ def filter_metadata_only(
                 logger.debug("Skipping %s: missing release date", accession)
                 filter_stats['release_date'] += 1
                 continue
-                
-            release_date_value = _parse_date(release_date_str.split("T")[0], filtername="release_date")
+            
+            # Strip time portion if present (e.g., "2024-02-14T00:00:00Z" -> "2024-02-14")
+            release_date_str_clean = release_date_str.split("T")[0]
+            
+            try:
+                # For max comparison, use START of range for partial dates
+                # so that records that COULD be within range are included
+                release_date_value = _parse_partial_date_for_range_check(
+                    release_date_str_clean, for_min_comparison=False, filtername="release_date"
+                )
+            except ValueError:
+                logger.debug("Skipping %s: invalid release date format '%s'", accession, release_date_str)
+                filter_stats['release_date'] += 1
+                continue
             
             if release_date_value is None:
                 logger.debug("Skipping %s: invalid release date '%s'", accession, release_date_str)
@@ -4544,8 +5334,8 @@ def filter_metadata_only(
                 continue
                 
             if release_date_value > max_release_date:
-                logger.debug("Skipping %s: release date %s > max %s", 
-                           accession, release_date_value, max_release_date)
+                logger.debug("Skipping %s: release date %s (from '%s') > max %s", 
+                           accession, release_date_value, release_date_str, max_release_date)
                 filter_stats['release_date'] += 1
                 continue
 
@@ -4591,6 +5381,160 @@ def filter_metadata_only(
                 logger.debug("Skipping %s: protein count %d > max %d", 
                            accession, protein_count, max_protein_count)
                 filter_stats['protein_count'] += 1
+                continue
+
+        # FILTER 11: Segment filter - simple case-insensitive matching
+        if segment is not None:
+            # Convert segment to list if it's a string
+            segment_list = [segment] if isinstance(segment, str) else segment
+            
+            # Get segment from metadata
+            metadata_segment = metadata.get("segment")
+            
+            if not metadata_segment:
+                filter_stats['segment'] += 1
+                continue
+            
+            # Build set of acceptable segment values (case-insensitive)
+            acceptable_segments = {s.lower().strip() for s in segment_list}
+            
+            # Check if metadata segment matches any acceptable value (case-insensitive)
+            metadata_segment_lower = str(metadata_segment).lower().strip()
+            if metadata_segment_lower not in acceptable_segments:
+                logger.debug("Skipping %s: segment '%s' not in required list %s", 
+                           accession, metadata_segment, segment_list)
+                filter_stats['segment'] += 1
+                continue
+
+        # FILTER 12: Vaccine strain filter
+        if vaccine_strain is not None:
+            is_vaccine = metadata.get("isVaccineStrain", metadata.get("is_vaccine_strain", False))
+            if vaccine_strain:
+                if not is_vaccine:
+                    logger.debug("Skipping %s: not a vaccine strain (required)", accession)
+                    filter_stats['vaccine_strain'] += 1
+                    continue
+            if vaccine_strain == False:
+                if is_vaccine:
+                    logger.debug("Skipping %s: is a vaccine strain (not allowed)", accession)
+                    filter_stats['vaccine_strain'] += 1
+                    continue
+
+        # FILTER 17: Source database filter
+        if source_database is not None:
+            source_db = (metadata.get("sourceDatabase") or "").lower()
+            if not source_db:
+                logger.debug("Skipping %s: missing source database", accession)
+                filter_stats['source_database'] += 1
+                continue
+                
+            if source_db != source_database.lower():
+                logger.debug("Skipping %s: source database '%s' != required '%s'", 
+                           accession, source_db, source_database.lower())
+                filter_stats['source_database'] += 1
+                continue
+
+        # FILTER 18: Geographic location filter (deferred from API when server-side filter fails)
+        if geographic_location is not None:
+            # Convert geographic_location to list if it's a string
+            geo_location_list = [geographic_location] if isinstance(geographic_location, str) else geographic_location
+            
+            # Get geographic location from metadata - stored in "location", "region", and "virusName" fields
+            metadata_location = metadata.get("location", "") or ""
+            metadata_region = metadata.get("region", "") or ""
+            metadata_virus_name = metadata.get("virusName", "") or ""
+            
+            # Only skip if ALL location sources are empty
+            if not metadata_location and not metadata_region and not metadata_virus_name:
+                logger.debug("Skipping %s: missing location, region, and virusName", accession)
+                filter_stats['geographic_location'] += 1
+                continue
+            
+            # Build set of acceptable location values (case-insensitive)
+            # Normalize the filter values: remove special chars and create variations
+            acceptable_locations = set()
+            for loc in geo_location_list:
+                loc_normalized = loc.lower().strip()
+                # Remove common separators and create variations
+                loc_normalized = loc_normalized.replace('-', ' ').replace('_', ' ').replace('+', ' ')
+                acceptable_locations.add(loc_normalized)
+                # Also add version without spaces for matching
+                acceptable_locations.add(loc_normalized.replace(' ', ''))
+            
+            # Normalize metadata location and region for comparison
+            metadata_location_lower = str(metadata_location).lower().strip()
+            metadata_location_normalized = metadata_location_lower.replace('-', ' ').replace('_', ' ')
+            metadata_location_no_spaces = metadata_location_normalized.replace(' ', '')
+            
+            metadata_region_lower = str(metadata_region).lower().strip()
+            metadata_region_normalized = metadata_region_lower.replace('-', ' ').replace('_', ' ')
+            metadata_region_no_spaces = metadata_region_normalized.replace(' ', '')
+            metadata_virus_name_lower = str(metadata_virus_name).lower().strip()
+            
+            # Check for partial/substring match in location, region, OR virusName
+            location_match = False
+            for acceptable_loc in acceptable_locations:
+                # Check location field
+                if metadata_location_normalized and (acceptable_loc in metadata_location_normalized or acceptable_loc in metadata_location_no_spaces):
+                    location_match = True
+                    break
+                # Also check if metadata location is contained in acceptable location
+                if metadata_location_normalized and (metadata_location_normalized in acceptable_loc or metadata_location_no_spaces in acceptable_loc):
+                    location_match = True
+                    break
+                # Check region field
+                if metadata_region_normalized and (acceptable_loc in metadata_region_normalized or acceptable_loc in metadata_region_no_spaces):
+                    location_match = True
+                    break
+                # Also check if metadata region is contained in acceptable location
+                if metadata_region_normalized and (metadata_region_normalized in acceptable_loc or metadata_region_no_spaces in acceptable_loc):
+                    location_match = True
+                    break
+                # Check virusName as fallback (for older records where location is in the name)
+                if metadata_virus_name_lower and acceptable_loc in metadata_virus_name_lower:
+                    location_match = True
+                    break
+            
+            if not location_match:
+                logger.debug("Skipping %s: location '%s', region '%s', virusName '%s' do not match required '%s'", 
+                           accession, metadata_location, metadata_region, metadata_virus_name, geo_location_list)
+                filter_stats['geographic_location'] += 1
+                continue
+
+        # FILTER 19: Host filter (deferred from API when server-side filter fails)
+        if host is not None:
+            # Convert host to list if it's a string
+            host_list = [host] if isinstance(host, str) else host
+            
+            # Get host from metadata - stored in "hostName" field
+            metadata_host = metadata.get("hostName", "") or ""
+            
+            if not metadata_host:
+                logger.debug("Skipping %s: missing hostName", accession)
+                filter_stats['host'] += 1
+                continue
+            
+            # Build set of acceptable host values (case-insensitive)
+            acceptable_hosts = set()
+            for h in host_list:
+                h_normalized = h.lower().strip()
+                acceptable_hosts.add(h_normalized)
+            
+            # Normalize metadata host for comparison
+            metadata_host_lower = str(metadata_host).lower().strip()
+            
+            # Check for partial/substring match in host
+            host_match = False
+            for acceptable_host in acceptable_hosts:
+                # Check if acceptable host is in metadata host or vice versa
+                if acceptable_host in metadata_host_lower or metadata_host_lower in acceptable_host:
+                    host_match = True
+                    break
+            
+            if not host_match:
+                logger.debug("Skipping %s: hostName '%s' does not match required '%s'", 
+                           accession, metadata_host, host_list)
+                filter_stats['host'] += 1
                 continue
 
         # If we reach this point, the metadata record has passed all filters
@@ -4648,8 +5592,9 @@ def virus(
     submitter_country=None,
     min_collection_date=None,
     max_collection_date=None,
+    source_database=None,
     annotated=None,
-    refseq_only=False,
+    # refseq_only=False,
     keep_temp=False,
     min_release_date=None,
     max_release_date=None,
@@ -4660,10 +5605,14 @@ def virus(
     max_ambiguous_chars=None,
     is_sars_cov2=False,
     is_alphainfluenza=False,
+    segment=None,
+    vaccine_strain=None,
     lineage=None,
     genbank_metadata=False,
-    genbank_batch_size=200,
+    genbank_batch_size=GENBANK_DEFAULT_BATCH_SIZE,
     download_all_accessions=False,
+    _skip_cache=False,
+    quiet=False,
     ):
     """
     Download a virus genome dataset from the NCBI Virus database (https://www.ncbi.nlm.nih.gov/labs/virus/).
@@ -4704,15 +5653,24 @@ def virus(
         max_ambiguous_chars (int): Maximum ambiguous nucleotide character filter
         is_sars_cov2 (bool): Flag to indicate if the accession is for SARS-CoV-2, enabling optimized download method (default: False)
         is_alphainfluenza (bool): Flag to indicate if the query is for Alphainfluenza, enabling optimized download method (default: False)
+        segment (str/list): Virus segment filter (e.g., 'HA', 'NA', or 'HA,NA')
+        is_vaccine_strain (bool): Filter for vaccine strains only. If True, only sequences marked as vaccine strains will be returned (default: False)
         lineage (str): Virus lineage filter (SARS-CoV-2 specific)
         genbank_metadata (bool): Whether to fetch detailed GenBank metadata (default: False)
         genbank_batch_size (int): Batch size for GenBank API requests (default: 200)
         keep_temp (bool): Flag to indicate if all output files should be saved, including intermediate files (default: False)
         refseq_only (bool): Whether to restrict to RefSeq sequences only
+        verbose (bool): Whether to print progress information. (default: True)
+        _skip_cache (bool): Internal/hidden parameter. If True, bypass cached download pathway and use API method. For testing/internal use only. (default: False)
 
     Returns:
         None: Files are saved to the output directory
     """
+    # Save the original logger level and set it based on verbose parameter
+    original_logger_level = logger.level
+    if quiet:
+        logger.setLevel(logging.CRITICAL)
+    
     logger.info("Starting virus data retrieval process...")
     
     # Capture the command line for summary
@@ -4725,6 +5683,8 @@ def virus(
     output_files_dict = {}
     final_metadata_for_summary = []
     filtered_sequences = []  
+    refseq_only = False
+
     
     # Initialize failed commands tracker for tracking all types of failures
     failed_commands = {
@@ -4745,14 +5705,14 @@ def virus(
     if download_all_accessions:
         logger.info("ATTENTION: Download all accessions mode is active.")
         logger.info("This will download ALL virus accessions from NCBI, which can be a very large dataset and take a long time.")
-        virus = NCBI_ALL_VIRUSES_TAXID  # NCBI taxonomy ID for all Viruses
+        virus = NCBI_ALL_VIRUSES_TAXID # NCBI taxonomy ID for all Viruses
         is_accession = False
-        logger.info("Overriding virus query to fetch all viruses using taxon ID: %s. Filters remain unchanged.", virus)
+        logger.info("Overriding virus query and accession tag to fetch all viruses using taxon ID: %s. Filters remain unchanged.", virus)
 
     logger.info("Query parameters: virus='%s', is_accession=%s, outfolder='%s'",
                 virus, is_accession, outfolder)
-    logger.debug("Applied filters: host=%s, seq_length=(%s-%s), gene_count=(%s-%s), completeness=%s, annotated=%s, refseq_only=%s, keep_temp=%s, lab_passaged=%s, geographic_location=%s, submitter_country=%s, collection_date=(%s-%s), release_date=(%s-%s), protein_count=(%s-%s), mature_peptide_count=(%s-%s), max_ambiguous=%s, has_proteins=%s, proteins_complete=%s, genbank_metadata=%s, genbank_batch_size=%s",
-    host, min_seq_length, max_seq_length, min_gene_count, max_gene_count, nuc_completeness, annotated, refseq_only, keep_temp, lab_passaged, geographic_location, submitter_country, min_collection_date, max_collection_date, min_release_date, max_release_date, min_protein_count, max_protein_count, min_mature_peptide_count, max_mature_peptide_count, max_ambiguous_chars, has_proteins, proteins_complete, genbank_metadata, genbank_batch_size)
+    # logger.debug("Applied filters: host=%s, seq_length=(%s-%s), gene_count=(%s-%s), completeness=%s, annotated=%s, source_db(%s), keep_temp=%s, lab_passaged=%s, geographic_location=%s, submitter_country=%s, submitter_name=%s, submitter_institution=%s, collection_date=(%s-%s), release_date=(%s-%s), protein_count=(%s-%s), mature_peptide_count=(%s-%s), max_ambiguous=%s, has_proteins=%s, proteins_complete=%s, segment=%s, vaccine_strain=%s, lineage=%s, provirus=%s, isolate=%s, genotype=%s, isolation_source=%s, env_source=%s, gen_mol_type=%s, genbank_metadata=%s, genbank_batch_size=%s",
+    # host, min_seq_length, max_seq_length, min_gene_count, max_gene_count, nuc_completeness, annotated, refseq_only, keep_temp, lab_passaged, geographic_location, submitter_country, min_collection_date, max_collection_date, min_release_date, max_release_date, min_protein_count, max_protein_count, min_mature_peptide_count, max_mature_peptide_count, max_ambiguous_chars, has_proteins, proteins_complete, segment, vaccine_strain, genbank_metadata, genbank_batch_size)
 
     # SECTION 1: INPUT VALIDATION AND OUTPUT DIRECTORY SETUP
     # Validate and normalize input arguments before proceeding
@@ -4766,6 +5726,11 @@ def virus(
             "Argument 'virus' must be a non-empty string (virus name, taxon ID, or accession number)."
         )
     
+    # Normalize host parameter: convert "human" to "Homo sapiens" for NCBI API compatibility
+    if host is not None and host.strip().lower() == "human":
+        logger.debug("Normalizing host 'human' to 'Homo sapiens' for NCBI API compatibility")
+        host = "Homo sapiens"
+    
     # Validate nucleotide completeness argument
     if nuc_completeness is not None:
         nuc_completeness = nuc_completeness.lower()  # Normalize to lowercase
@@ -4774,6 +5739,18 @@ def virus(
                 "Argument 'nuc_completeness' must be 'partial', 'complete', or None."
             )
         logger.debug("Nucleotide completeness filter set to: %s", nuc_completeness)
+
+    # Validate source database argument
+    if source_database is not None:
+        source_database = source_database.lower()  # Normalize to lowercase
+        if source_database not in ["refseq", "genbank"]:
+            raise ValueError(
+                "Argument 'source_database' must be 'refseq', 'genbank', or None."
+            )
+        elif source_database == "refseq":
+            refseq_only = True
+            logger.debug("Source database filter set to RefSeq only")
+        logger.debug("Source database filter set to: %s", source_database)
     
     # Validate boolean arguments with proper type checking
     if annotated is not None and not isinstance(annotated, bool):
@@ -4791,10 +5768,10 @@ def virus(
             "Argument 'proteins_complete' must be a boolean (True or False)."
         )
 
-    if refseq_only is not None and not isinstance(refseq_only, bool):
-        raise TypeError(
-            "Argument 'refseq_only' must be a boolean (True or False)."
-        )
+    # if refseq_only is not None and not isinstance(refseq_only, bool):
+    #     raise TypeError(
+    #         "Argument 'refseq_only' must be a boolean (True or False)."
+        # )
     
     if keep_temp is not None and not isinstance(keep_temp, bool):
         raise TypeError(
@@ -4802,7 +5779,6 @@ def virus(
         )
 
     if is_accession is not None and not isinstance(is_accession, bool):
-        accession = is_accession
         raise TypeError(
             "Argument 'is_accession' must be a boolean (True or False)."
         )
@@ -4811,6 +5787,16 @@ def virus(
         raise TypeError(
             "Argument 'genbank_metadata' must be a boolean (True or False)."
         )
+
+    if vaccine_strain is not None and not isinstance(vaccine_strain, bool):
+        raise TypeError(
+            "Argument 'vaccine_strain' must be a boolean (True or False) or None."
+        )
+
+    # if provirus is not None and not isinstance(provirus, bool):
+    #     raise TypeError(
+    #         "Argument 'provirus' must be a boolean (True or False) or None."
+    #     )
     
     if genbank_batch_size is not None:
         if not isinstance(genbank_batch_size, int) or genbank_batch_size <= 0:
@@ -4830,6 +5816,10 @@ def virus(
     if isinstance(virus, int):
         virus = str(virus)
         logger.debug("Converted integer virus ID to string: %s", virus)
+
+    if isinstance(host, int):
+        host = str(host)
+        logger.debug("Converted integer host ID to string: %s", host)
 
     # Validate min/max argument pairs to ensure logical consistency
     logger.debug("Validating min/max argument pairs...")
@@ -4857,26 +5847,26 @@ def virus(
         min_collection_date,
         max_collection_date,
         "collection date (arguments: min_collection_date and max_collection_date)",
-        date=True,  # Enable date parsing for comparison
+        date=True,
     )
     check_min_max(
         min_release_date,
         max_release_date,
         "release date (arguments: min_release_date and max_release_date)",
-        date=True,  # Enable date parsing for comparison
+        date=True,
     )
 
     logger.info("Input validation completed successfully")
 
     ##############
     # Prepare output directory and all used file paths
-    virus_clean = virus.replace(' ', '_').replace('/', '_')
+    virus_clean = virus.replace(' ', '_').replace('/', '_').replace('-', '_')
 
     # Create and prepare output directory structure
     if outfolder is None:
         currentfolder = os.getcwd()
-        outfolder = os.path.join(currentfolder, "output" , f"{virus_clean}_{timestamp}")
-        logger.info("No output folder specified, creating a subdirectory in current directory named 'output' and placing results in a folder named: %s", outfolder)
+        outfolder = os.path.join(currentfolder, "gget_virus_output" , f"{virus_clean}_{timestamp}")
+        logger.info("No output folder specified, creating a subdirectory in current directory named 'gget_virus_output' and placing results in a folder named: %s", outfolder)
     else:
         logger.info("Using specified output folder: %s", outfolder)
     
@@ -4902,13 +5892,16 @@ def virus(
     logger.info("STEP 2: CHECKING FOR SARS-CoV-2 AND INFLUENZA A QUERIES TO APPLY OPTIMIZED CACHED PATHWAY")  
     logger.info("=" * 60)
     # Initialize variables to track cached download results
-    cached_sequences = None
+    cached_fasta_file = None  # Path to cached FASTA file (sequences streamed on-demand)
     cached_metadata_dict = None
     used_cached_download = False
     cached_zip_file = None  # Track zip file path for cleanup
+    datasets_version = None  # Track datasets version for logging and summary
 
     # For SARS-CoV-2 queries, use cached data packages with hierarchical fallback
-    if (is_sars_cov2 or is_sars_cov2_query(virus, is_accession)):
+    if _skip_cache:
+        logger.info("⏭️  SKIPPING CACHED PATHWAY - Using API method directly (via _skip_cache flag)")
+    elif (is_sars_cov2 or is_sars_cov2_query(virus, is_accession)):
         logger.info("DETECTED SARS-CoV-2 QUERY - USING CACHED DATA PACKAGE PATHWAY")
         logger.info("SARS-CoV-2 queries will use NCBI's optimized cached data packages")
         logger.info("with hierarchical fallback from specific to general cached files.")
@@ -4923,33 +5916,41 @@ def virus(
             'accession': virus,
             'use_accession': is_accession
         }
-            
-        zip_file = download_sars_cov2_optimized(**params)
-        cached_zip_file = zip_file  # Track for cleanup
-        
+                    
         try:
-            zip_file = download_sars_cov2_optimized(**params)
+            download_result = download_sars_cov2_optimized(**params)
+            # Unpack tuple: (zip_path, applied_filters, missing_filters)
+            zip_file = download_result[0]
+            applied_filters = download_result[1]
+            missing_filters = download_result[2]
+            cached_zip_file = zip_file  # Track for cleanup
+            datasets_version = _get_datasets_version()
             
-            cached_sequences, cached_metadata_dict, used_cached_download = process_cached_download(
+            cached_fasta_file, cached_metadata_dict, used_cached_download = process_cached_download(
                 zip_file, virus_type="SARS-CoV-2"
             )
             if used_cached_download:
                 logger.info("Cached download completed. Server-side filters (host, complete_only, annotated, lineage) applied.")
                 logger.info("All other filters will be applied in the unified filtering pipeline.")
+                logger.debug("Applied filters: %s", applied_filters)
+                logger.debug("Missing filters (to apply in Step 3b): %s", missing_filters)
         except Exception as cache_error:
             logger.warning("❌ SARS-CoV-2 cached download failed: %s", cache_error)
             logger.info("Falling back to regular API workflow...")
             # Reset cached download state to ensure regular API workflow is used
-            cached_sequences = None
+            cached_zip_file = None
+            cached_fasta_file = None
             cached_metadata_dict = None
             used_cached_download = False
     else:
-        logger.info(" Skipping this step. No SARS-CoV-2 query detected.")
+        logger.info("No SARS-CoV-2 query detected.")
 
     
     # SECTION 2b: ALPHAINFLUENZA CACHED DATA PROCESSING
     # For Alphainfluenza queries, use cached data packages with hierarchical fallback
-    if (is_alphainfluenza or is_alphainfluenza_query(virus, is_accession)):
+    if _skip_cache:
+        logger.info("⏭️  SKIPPING CACHED PATHWAY - Using API method directly (via _skip_cache flag)")
+    elif (is_alphainfluenza or is_alphainfluenza_query(virus, is_accession)):
         logger.info("DETECTED ALPHAINFLUENZA QUERY - USING CACHED DATA PACKAGES")
         logger.info("Alphainfluenza queries will use NCBI's optimized cached data packages")
         logger.info("with hierarchical fallback from specific to general cached files.")
@@ -4963,37 +5964,44 @@ def virus(
             'accession': virus,
             'use_accession': is_accession
         }
-            
-        zip_file = download_alphainfluenza_optimized(**params)
-        cached_zip_file = zip_file  # Track for cleanup
-        
+                    
         try:
-            zip_file = download_alphainfluenza_optimized(**params)
+            download_result = download_alphainfluenza_optimized(**params)
+            # Unpack tuple: (zip_path, applied_filters, missing_filters)
+            zip_file = download_result[0]
+            applied_filters = download_result[1]
+            missing_filters = download_result[2]
+            cached_zip_file = zip_file  # Track for cleanup
+            datasets_version = _get_datasets_version()
             
-            cached_sequences, cached_metadata_dict, used_cached_download = process_cached_download(
+            cached_fasta_file, cached_metadata_dict, used_cached_download = process_cached_download(
                 zip_file, virus_type="Alphainfluenza"
             )
             if used_cached_download:
                 logger.info("Cached download completed. Server-side filters (host, complete_only, annotated) applied.")
                 logger.info("All other filters will be applied in the unified filtering pipeline.")
+                logger.debug("Applied filters: %s", applied_filters)
+                logger.debug("Missing filters (to apply in Step 3b): %s", missing_filters)
         except Exception as cache_error:
             logger.warning("❌ Alphainfluenza cached download failed: %s", cache_error)
             logger.info("Falling back to regular API workflow...")
             # Reset cached download state to ensure regular API workflow is used
-            cached_sequences = None
+            cached_zip_file = None
+            cached_fasta_file = None
             cached_metadata_dict = None
             used_cached_download = False
     else:
-        logger.info(" Skipping this step. No Alphainfluenza query detected.")
+        logger.info("No Alphainfluenza query detected.")
     
-
+    # Initialize deferred_filters for tracking filters that couldn't be applied server-side
+    deferred_filters = None
 
     try:
-    # SECTION 3: METADATA RETRIEVAL WHILE APPLYING SERVER-SIDE FILTERS
+    # SECTION 3: METADATA RETRIEVAL AND FILTERING
         # Check if we're using cached download data
         if used_cached_download and cached_metadata_dict:
             logger.info("=" * 60)
-            logger.info("STEP 3: Saving metadata from cached download")
+            logger.info("STEP 3: Applying metadata filters for cached download")
             logger.info("=" * 60)
             logger.info("Using metadata from cached download (skipping API metadata fetch)")
             metadata_dict = cached_metadata_dict
@@ -5009,6 +6017,29 @@ def virus(
                 logger.info("✅ Saved cached metadata JSONL: %s", output_api_metadata_jsonl)
             except Exception as e:
                 logger.warning("❌ Failed to save cached metadata JSONL: %s", e)
+            
+            # STEP 3b: Apply filters that were not used in the cached strategy
+            # Use the missing_filters directly from the cached download execution
+            # These are the filters that were requested but not applied by the strategy
+            logger.debug("Using missing_filters from cached strategy: %s", missing_filters)
+            
+            # Apply post-cached-download filters (unused server-side filters + API-only filters)
+            filtered_accessions_step3, filtered_metadata_step3 = filter_cached_metadata_for_unused_filters(
+                metadata_dict,
+                host=host,
+                complete_only=(nuc_completeness == "complete"),
+                annotated=annotated,
+                lineage=lineage,
+                geographic_location=geographic_location,
+                refseq_only=refseq_only,
+                min_release_date=min_release_date,
+                applied_strategy_filters=missing_filters,
+            )
+            
+            # Update metadata_dict and accessions for next steps
+            metadata_dict = {acc: md for acc, md in zip(filtered_accessions_step3, filtered_metadata_step3)}
+            logger.info("After post-cached-download filtering: %d records remain", len(metadata_dict))
+            
         else:
             # Regular API metadata fetch
             logger.info("=" * 60)
@@ -5018,6 +6049,9 @@ def virus(
             api_complete_filter = True if nuc_completeness=="complete" else False
 
             logger.debug("Applying server-side filters: host=%s, geo_location=%s, annotated=%s, complete_only=%s, min_release_date=%s, refseq_only=%s", host, geographic_location, annotated, api_complete_filter, min_release_date, refseq_only)
+            
+            # Track deferred filters that couldn't be applied server-side
+            deferred_filters = None
             
             try:
                 # Check if this is a multi-accession query (list or file)
@@ -5032,7 +6066,7 @@ def virus(
                 
                 if use_batched_fetch:
                     # Multiple accessions - use batched fetching
-                    api_reports = _fetch_metadata_for_accession_list(
+                    api_result = _fetch_metadata_for_accession_list(
                         accessions=accession_list,
                         host=host,
                         geographic_location=geographic_location,
@@ -5043,9 +6077,14 @@ def virus(
                         failed_commands=failed_commands,
                         temp_output_dir=temp_dir,
                     )
+                    # Unpack tuple result
+                    if isinstance(api_result, tuple):
+                        api_reports, deferred_filters = api_result
+                    else:
+                        api_reports = api_result
                 else:
                     # Single accession or taxon-based query - use standard fetch
-                    api_reports = fetch_virus_metadata(
+                    api_result = fetch_virus_metadata(
                         virus,
                         accession=is_accession,
                         host=host,
@@ -5057,12 +6096,17 @@ def virus(
                         failed_commands=failed_commands,
                         temp_output_dir=temp_dir,
                     )
+                    # Unpack tuple result
+                    if isinstance(api_result, tuple):
+                        api_reports, deferred_filters = api_result
+                    else:
+                        api_reports = api_result
 
                 # If fetch_virus_metadata returns None, it means the dataset is too large
                 # and we need to use the chunked download strategy
                 if api_reports is None:
                     logger.info("Standard download failed due to dataset size - switching to chunked download")
-                    api_reports = fetch_virus_metadata_chunked(
+                    api_result = fetch_virus_metadata_chunked(
                         virus,
                         accession=is_accession,
                         host=host,
@@ -5074,6 +6118,20 @@ def virus(
                         failed_commands=failed_commands,
                         temp_output_dir=temp_dir,
                     )
+                    # Unpack tuple result
+                    if isinstance(api_result, tuple):
+                        api_reports, deferred_filters = api_result
+                    else:
+                        api_reports = api_result
+                
+                # Log deferred filters if any
+                if deferred_filters:
+                    logger.info("=" * 60)
+                    logger.info("⚠️ DEFERRED FILTERS: Some server-side filters could not be applied")
+                    logger.info("   The following filters will be applied during metadata filtering:")
+                    for filter_name, filter_value in deferred_filters.items():
+                        logger.info("   - %s: %s", filter_name, filter_value)
+                    logger.info("=" * 60)
             except RuntimeError as e:
                 # Error has already been logged nicely by fetch_virus_metadata
                 # Ensure output folder exists for summary file
@@ -5090,6 +6148,7 @@ def virus(
                     total_final_sequences=0,
                     output_files={},
                     filtered_metadata=[],
+                    datasets_version=datasets_version,
                     success=False,
                     error_message=str(e),
                     failed_commands=failed_commands,
@@ -5108,6 +6167,7 @@ def virus(
                     total_final_sequences=0,
                     output_files={},
                     filtered_metadata=[],
+                    datasets_version=datasets_version,
                     success=True,
                     error_message="No virus records found matching the specified criteria (API returned 0 records)",
                     failed_commands=failed_commands
@@ -5142,11 +6202,12 @@ def virus(
             "max_seq_length": max_seq_length,
             "min_gene_count": min_gene_count,
             "max_gene_count": max_gene_count,
-            "nuc_completeness": nuc_completeness, #only for partial cases
+            "nuc_completeness": nuc_completeness if nuc_completeness and nuc_completeness.lower() == 'partial' else None, #only for partial cases
             "lab_passaged": lab_passaged,
             "submitter_country": submitter_country,
             "min_collection_date": min_collection_date,
             "max_collection_date": max_collection_date,
+            "source_database": source_database if source_database and source_database.lower() == 'genbank' else None,
             "max_release_date": max_release_date,
             "min_mature_peptide_count": min_mature_peptide_count,
             "max_mature_peptide_count": max_mature_peptide_count,
@@ -5154,18 +6215,20 @@ def virus(
             "max_protein_count": max_protein_count,
             # annotated=False needs client-side filtering (annotated=True is handled server-side)
             "annotated": annotated if annotated is False else None,
+            "segment": segment,
+            "vaccine_strain": vaccine_strain,
+            "geographic_location": deferred_filters.get('geographic_location') if deferred_filters else None,
+            "host": deferred_filters.get('host') if deferred_filters else None,
         }
 
-        all_metadata_filters_none_except_nuc = all(
-            v is None for k, v in filters.items() if k not in ("nuc_completeness", "annotated")
-        ) and annotated is not False
+        all_metadata_filters_none = all(v is None for k, v in filters.items())
 
         # Prepare output file paths (defined early for use in cleanup even if filters return early)
         output_fasta_file = os.path.join(outfolder, f"{virus_clean}_sequences.fasta")
         output_metadata_csv = os.path.join(outfolder, f"{virus_clean}_metadata.csv")
         output_metadata_jsonl = os.path.join(outfolder, f"{virus_clean}_metadata.jsonl")
 
-        if all_metadata_filters_none_except_nuc and filters["nuc_completeness"]!="partial":
+        if all_metadata_filters_none:
             logger.info("No metadata-only filters specified, skipping this step.")
             filtered_accessions = list(metadata_dict.keys())
             filtered_metadata = list(metadata_dict.values())
@@ -5185,6 +6248,7 @@ def virus(
                     total_final_sequences=0,
                     output_files=output_files_dict,
                     filtered_metadata=[],
+                    datasets_version=datasets_version,
                     success=True,
                     error_message="No sequences passed the metadata filters",
                     failed_commands=failed_commands
@@ -5209,27 +6273,32 @@ def virus(
         logger.info("=" * 60)
 
         # Check if we're using cached sequences
-        if used_cached_download and cached_sequences:
+        if used_cached_download and cached_fasta_file:
             logger.info("Using sequences from cached download (skipping sequence download)")
+            logger.info("Streaming and filtering cached FASTA file on-demand...")
             
-            # Filter cached sequences based on filtered_accessions
-            # Create a mapping of accession to sequence
-            cached_seq_dict = {seq.id.split('.')[0]: seq for seq in cached_sequences}
+            # Create filtered accessions set for faster lookup
+            filtered_acc_set = set(filtered_accessions)
             
-            # Get only the sequences that passed metadata filtering
-            filtered_cached_seqs = []
-            for acc in filtered_accessions:
-                if acc in cached_seq_dict:
-                    filtered_cached_seqs.append(cached_seq_dict[acc])
-                else:
-                    logger.debug("Accession %s not found in cached sequences", acc)
-            
-            logger.info("After metadata filtering: %d sequences from cache", len(filtered_cached_seqs))
-            
-            # Save to temporary FASTA file for consistency with regular pipeline
+            # Stream through cached FASTA and write only filtered sequences
+            # This avoids loading the entire file into RAM
             fna_file = os.path.join(temp_dir, f"{virus_clean}_cached_sequences.fasta")
-            FastaIO.write(filtered_cached_seqs, fna_file, "fasta")
-            logger.info("Saved filtered cached sequences to temporary file: %s", fna_file)
+            filtered_count = 0
+            
+            try:
+                # Generator expression: yields only sequences in filtered_accessions
+                filtered_records = (r for r in FastaIO.parse(cached_fasta_file, "fasta") if r.id in filtered_acc_set)
+                FastaIO.write(filtered_records, fna_file, "fasta")
+                
+                # Count the written sequences
+                for _ in FastaIO.parse(fna_file, "fasta"):
+                    filtered_count += 1
+                
+                logger.info("✅ Streamed and wrote %d filtered sequences from cached FASTA", filtered_count)
+                logger.info("   Output: %s", fna_file)
+            except Exception as e:
+                logger.error("❌ Failed to filter and write cached FASTA: %s", e)
+                raise RuntimeError(f"Failed to process cached FASTA file: {e}") from e
         else:
             # Regular sequence download
             fna_file = download_sequences_by_accessions(filtered_accessions, outdir=temp_dir, failed_commands=failed_commands)
@@ -5430,6 +6499,7 @@ def virus(
                 total_final_sequences=total_final_sequences,
                 output_files=output_files_dict,
                 filtered_metadata=final_metadata_for_summary,
+                datasets_version=datasets_version,
                 success=True,
                 error_message=None,
                 failed_commands=failed_commands,
@@ -5456,6 +6526,7 @@ def virus(
                 total_final_sequences=0,
                 output_files=output_files_dict,
                 filtered_metadata=[],
+                datasets_version=datasets_version,
                 success=True,
                 error_message="No sequences passed all filters",
                 failed_commands=failed_commands
@@ -5507,6 +6578,8 @@ def virus(
                     cmd_parts.append(f"min_collection_date='{min_collection_date}'")
                 if max_collection_date:
                     cmd_parts.append(f"max_collection_date='{max_collection_date}'")
+                if source_database:
+                    cmd_parts.append(f"source_database='{source_database}'")
                 if min_release_date:
                     cmd_parts.append(f"min_release_date='{min_release_date}'")
                 if max_release_date:
@@ -5577,6 +6650,7 @@ def virus(
             total_final_sequences=total_final_sequences,
             output_files=output_files_dict,
             filtered_metadata=final_metadata_for_summary,
+            datasets_version=datasets_version,
             success=False,
             error_message=str(e),
             failed_commands=failed_commands
@@ -5602,10 +6676,13 @@ def virus(
         
         # Clean up cached download files (zip file and extracted directory)
         # This ensures the folder structure is identical whether using cached or API-based downloads
+        logger.debug("Checking for cached download files to clean up...")
         if cached_zip_file and keep_temp is False:
+            logger.debug("in cached zip file and not keep_temp case")
             try:
                 # Remove the zip file
                 if os.path.exists(cached_zip_file):
+                    logger.debug("Removing cached zip file: %s", cached_zip_file)
                     os.remove(cached_zip_file)
                     logger.debug("✅ Cleaned up cached zip file: %s", cached_zip_file)
                 # Remove the extracted directory (same path without .zip extension)
@@ -5635,6 +6712,9 @@ def virus(
                 
         
         logger.info("NCBI virus data retrieval process completed.")
+    
+    # Restore the original logger level
+    logger.setLevel(original_logger_level)
 
 
 if __name__ == "__main__":

@@ -39,16 +39,6 @@
         "expected_result": "TypeError",
         "expected_msg": "Argument 'proteins_complete' must be a boolean (True or False)."
     },
-    "test_virus_invalid_refseq_only_type": {
-        "type": "error",
-        "args": {
-            "virus": "Zika virus",
-            "refseq_only": "yes",
-            "outfolder": "test_output"
-        },
-        "expected_result": "TypeError",
-        "expected_msg": "Argument 'refseq_only' must be a boolean (True or False)."
-    },
     "test_virus_invalid_keep_temp_type": {
         "type": "error",
         "args": {
@@ -214,14 +204,6 @@
         "args": {
             "virus": "Zika virus",
             "annotated": true,
-            "outfolder": "test_virus_output"
-        }
-    },
-    "test_virus_with_refseq_filter": {
-        "type": "code_defined",
-        "args": {
-            "virus": "Zika virus",
-            "refseq_only": true,
             "outfolder": "test_virus_output"
         }
     },

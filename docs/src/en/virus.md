@@ -24,11 +24,6 @@ _Host filters_
 `--host`  
 Filter by host organism name or NCBI Taxonomy ID (e.g., 'human', 'Aedes aegypti', `1335626`).
 
-`--lab_passaged`  
-'true' or 'false'. Filter for or against lab-passaged samples.   
-Command line: `--lab_passaged true` to fetch only lab-passaged samples, or `--lab_passaged false` to exclude them.  
-Python: `lab_passaged=True` or `lab_passaged=False` (`lab_passaged=None` for no filter).
-
 _Sequence & Gene filters_  
 
 `--nuc_completeness`  
@@ -71,6 +66,20 @@ Python: `has_proteins="spike"` or `has_proteins=["spike", "ORF1ab"]`
 Command line: `--annotated true` to fetch only that have been annotated with gene/protein information, or `--annotated false` to exclude them.  
 Python: `annotated=True` or `annotated=False` (`annotated=None` for no filter).
 
+`--lab_passaged`  
+'true' or 'false'. Filter for or against lab-passaged samples.   
+Command line: `--lab_passaged true` to fetch only lab-passaged samples, or `--lab_passaged false` to exclude them.  
+Python: `lab_passaged=True` or `lab_passaged=False` (`lab_passaged=None` for no filter).
+
+`--vaccine_strain`  
+Filter for or against vaccine strain sequences.  
+Command line: `--vaccine_strain true` to fetch only vaccine strains, or `--vaccine_strain false` to exclude them.  
+Python: `vaccine_strain=True` or `vaccine_strain=False` (`vaccine_strain=None` for no filter).
+
+`--segment`  
+Filter for sequences with specific segment(s) (e.g. 'HA', 'NA'). Can be a single segment name or a list of segment names.
+Python: `segment="HA"` or `segment=["HA", "NA", "PB1"]`
+
 _Date filters_  
 
 `--min_collection_date`  
@@ -91,12 +100,16 @@ _Location & Submitter filters_
 Filter by geographic location of sample collection (e.g., 'USA', 'Asia').
 
 `--submitter_country`  
-Filter by the country of the sequence submitter.
+Filter by the country of the sequence submitter. Can be a single country or a comma-separated list.
+
+`--source_database`
+Filter by source database. One of: 'genbank' or 'refseq'.
 
 _SARS-CoV-2 specific filters_
 
 `--lineage`  
-Filter by SARS-CoV-2 lineage (e.g. 'B.1.1.7', 'P.1').
+Filter by SARS-CoV-2 lineage (e.g. 'B.1.1.7', 'P.1'). Can be a single lineage or a list of lineages.
+Python: `lineage="B.1.1.7"` or `lineage=["B.1.1.7", "P.1"]`
 
 _Workflow configurations_
 
@@ -117,9 +130,6 @@ Flag to indicate that the `virus` positional argument is an accession number, a 
 `--download_all_accessions`   
 Use this flag when applying filters without searching for a specific virus (leave `virus` argument empty).     
 ⚠️ **WARNING**: If you do not specify additional filters, this flag downloads ALL available viral sequences from NCBI (entire Viruses taxonomy, taxon ID 10239). This is an extremely large dataset that can take many hours to download and require significant disk space. Use with caution and ensure you have adequate storage and bandwidth. When this flag is set, the `virus` argument is ignored.
-
-`--refseq_only`  
-Flag to limit search to RefSeq genomes only (higher quality, curated sequences).
 
 `--is_sars_cov2`  
 Use NCBI's optimized cached data packages for a SARS-CoV-2 query. This provides faster and more reliable downloads. The system can auto-detect SARS-CoV-2 taxon-name queries, but for accession-based queries, you must set this flag explicitly.
@@ -160,102 +170,6 @@ gget.virus(
 
 → Downloads complete Zika virus genomes from human hosts. Results are saved in the `zika_data` folder as `Zika_virus_sequences.fasta`, `Zika_virus_metadata.csv`, `Zika_virus_metadata.jsonl`, and `command_summary.txt`.
 
-The metadata CSV file will look like this:
-
-| accession | Organism Name | GenBank/RefSeq | Release date | Length | Nuc Completeness | Geographic Location | Host | ... |
-|---|---|---|---|---|---|---|---|---|
-| KX198135.1 | Zika virus | GenBank | 2016-05-18 | 10807 | complete | Americas:Haiti | Homo sapiens | ... |
-| . . . | . . . | . . . | . . . | . . . | . . . | . . . | . . . | ... |
-
-The command summary file (`command_summary.txt`) will contain, for example:
-```
-================================================================================
-GGET VIRUS COMMAND SUMMARY
-================================================================================
-
-Execution Date: 2025-12-15 13:33:39
-Output Folder: zika_data
-
---------------------------------------------------------------------------------
-COMMAND LINE
---------------------------------------------------------------------------------
-gget virus "Zika virus" --nuc_completeness complete --host human --out zika_data
-
---------------------------------------------------------------------------------
-EXECUTION STATUS
---------------------------------------------------------------------------------
-✓ Command completed successfully
-
---------------------------------------------------------------------------------
-SEQUENCE STATISTICS
---------------------------------------------------------------------------------
-Total records from API: 234
-After metadata filtering: 234
-Final sequences (after all filters): 234
-
---------------------------------------------------------------------------------
-DETAILED STATISTICS
---------------------------------------------------------------------------------
-Unique hosts: 1
-  - Homo sapiens
-
-Unique geographic locations: 15
-  - Americas:Brazil
-  - Americas:Colombia
-  - ... (showing top 20)
-
-Sequence length range: 10272 - 11155 bp
-Average sequence length: 10742 bp
-
-Completeness breakdown:
-  - complete: 234
-
-Source database breakdown:
-  - GenBank: 233
-  - RefSeq: 1
-
-Unique submitter countries: 12
-  - USA
-  - Brazil
-  - ... (showing top 20)
-
---------------------------------------------------------------------------------
-OUTPUT FILES
---------------------------------------------------------------------------------
-FASTA Sequences: Zika_virus_sequences.fasta (2.45 MB)
-JSONL Metadata: Zika_virus_metadata.jsonl (0.53 MB)
-CSV Metadata: Zika_virus_metadata.csv (0.42 MB)
-
-================================================================================
-END OF SUMMARY
-================================================================================
-```
-
-**Note**: If any operations fail during execution (API timeouts, sequence download failures, GenBank metadata failures), the summary will include a "FAILED OPERATIONS - RETRY COMMANDS" section with exact commands and URLs that can be run manually to retry the failed operations. For example:
-
-```
---------------------------------------------------------------------------------
-FAILED OPERATIONS - RETRY COMMANDS
---------------------------------------------------------------------------------
-Some operations failed during execution. You can retry them manually:
-
-[Failed Sequence Download Batches]
-Total failed batches: 2
-
-Batch 15: 200 sequences
-Error: HTTPError: 500 Server Error
-Accessions: NC_045512.2, MN908947.3, MT020781.1 ... and 197 more
-Retry URL: https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nucleotide&id=NC_045512.2,MN908947.3,...&rettype=fasta&retmode=text
-
-[Failed GenBank Metadata Batches]
-Total failed batches: 1
-See detailed log file: genbank_failed_batches.log
-
-Accessions: NC_045512.2, MN908947.3, MT020781.1 ... and 2 more
-Retry URL: https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nucleotide&id=NC_045512.2,MN908947.3,...&rettype=gb&retmode=xml
-
---------------------------------------------------------------------------------
-```
 
 <br><br>
 **Download a specific SARS-CoV-2 reference genome using its accession number:**
@@ -592,93 +506,6 @@ virus()
 └── save_command_summary()                   [Step 9: Execution summary]
     └── Failed operations tracking
 ```
-
-## Optimization Features
-
-### 1. **Server-Side Filtering**
-- Applies filters at the NCBI API level to reduce data transfer
-- Supported filters: host, geographic location, release date, genome completeness
-- Automatic validation of filter compatibility and values
-
-### 2. **Multi-Stage Filtering**
-- **Stage 1**: Metadata-only filters (fast, no sequence download)
-- **Stage 2**: Sequence-dependent filters (pre-filtered set)
-- **Stage 3**: GenBank metadata integration and filtering
-- **Stage 4**: Final validation and quality checks
-
-### 3. **Optimized Downloads**
-- Configurable batch sizes for different data types
-- Connection pooling for improved performance
-- Stream handling for large downloads
-- Rate limiting and retry mechanisms
-
-### 4. **Optimized Cached Downloads**
-- Special handling for SARS-CoV-2 and Alphainfluenza queries using NCBI's cached data packages
-- Automatic detection or explicit flags (`--is_sars_cov2`, `--is_alphainfluenza`)
-- Hierarchical fallback strategies to standard API if cached download fails
-- Significantly faster downloads for large datasets
-- **Pipeline continuation**: Cached downloads now continue through all workflow steps
-- **Post-download filtering**: Filters not applied during cached download are applied afterward
-- **GenBank metadata**: Available for cached downloads when `--genbank_metadata` flag is used
-- **Filter categories**:
-  - Applied during download: `host`, `complete_only`, `annotated`, `lineage` (COVID)
-  - Applied post-download: All other filters (sequence length, gene counts, dates, etc.)
-
-### 5. **Efficient Data Structures**
-- Accession-based dictionaries for O(1) lookups
-- Streaming parsers for JSON and XML
-- Memory-efficient FASTA handling
-- Optimized metadata merging
-
-## Output Files
-
-### 1. **FASTA Sequences** (`{virus}_sequences.fasta`)
-- Contains nucleotide sequences for filtered results
-- Standard FASTA format with detailed headers
-- Original orientation from NCBI preserved
-- Optional protein/segment annotations in headers
-
-### 2. **CSV Metadata** (`{virus}_metadata.csv`)
-- Tabular format for spreadsheet analysis
-- Standardized column structure
-- Geographic and taxonomic information
-- Collection and submission details
-- Quality metrics and annotations
-
-### 3. **GenBank Metadata** (`{virus}_genbank_metadata.csv`) [Optional]
-- 23+ detailed metadata columns
-- Publication references
-- Feature annotations
-- Cross-references to other databases
-- Strain and isolate details
-
-### 4. **JSONL Metadata** (`{virus}_metadata.jsonl`)
-- JSON Lines format for virus metadata after metadata-only filtering
-- Streaming-friendly format for programmatic access
-- One JSON object per sequence with the same fields as the CSV metadata
-- GenBank-specific fields are stored separately in `{virus}_genbank_metadata.csv` when `--genbank_metadata` is used
-
-### 5. **Command Summary** (`command_summary.txt`)
-- Automatically generated summary of the command execution
-- Records the exact command line that was run
-- Execution status (success/failure with error messages)
-- Filtering statistics at each stage:
-  - Total records from API
-  - Records after metadata filtering
-  - Final sequences after all filters
-- Detailed statistics:
-  - Unique hosts with counts (up to top 20 listed)
-  - Unique geographic locations with counts (up to top 20 listed)
-  - Sequence length range and average
-  - Completeness breakdown (complete vs partial)
-  - Source database breakdown (GenBank vs RefSeq)
-  - Unique submitter countries with counts (up to top 20 listed)
-- List of all generated output files with sizes
-- **Failed Operations Tracking** (when applicable):
-  - **API timeout failures**: Exact URL that timed out with alternative command suggestions
-  - **Failed sequence download batches**: Batch numbers, accession lists, and retry URLs
-  - **Failed GenBank metadata batches**: Accession lists with individual retry URLs
-  - All failed operations include exact commands/URLs that can be run manually for retry
 
 ## Usage Examples
 
