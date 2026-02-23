@@ -5410,6 +5410,11 @@ def virus(
             "Argument 'virus' must be a non-empty string (virus name, taxon ID, or accession number)."
         )
     
+    # Normalize host parameter: convert "human" to "Homo sapiens" for NCBI API compatibility
+    if host is not None and host.strip().lower() == "human":
+        logger.debug("Normalizing host 'human' to 'Homo sapiens' for NCBI API compatibility")
+        host = "Homo sapiens"
+    
     # Validate nucleotide completeness argument
     if nuc_completeness is not None:
         nuc_completeness = nuc_completeness.lower()  # Normalize to lowercase
