@@ -2885,8 +2885,8 @@ def load_metadata_from_api_reports(api_reports):
                 "host": report.get("host", {}),  # Host organism details
                 "hostName": report.get("host", {}).get("organism_name", ""),  # Host organism name
                 "hostTaxId": report.get("host", {}).get("tax_id", None),  # Host taxonomy ID
-                "isLabHost": report.get("host", {}).get("is_lab_host", False),  # Lab-passaged flag
-                "labHost": report.get("host", {}).get("is_lab_host", False),  # Alternative field name
+                "isLabHost": report.get("is_lab_host", False),  # Lab-passaged flag (top-level field)
+                "labHost": report.get("is_lab_host", False),  # Alternative field name (top-level field)
                 "location": report.get("location", {}).get("geographic_location", None),  # Geographic location details
                 "region": report.get("location", {}).get("geographic_region", None),  # Broad region
                 "submitter": report.get("submitters", [{}])[0] if report.get("submitters") else {},
