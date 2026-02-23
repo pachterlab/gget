@@ -4929,14 +4929,19 @@ def filter_cached_metadata_for_unused_filters(
         
         # Geographic location filter (API-only)
         if 'geographic_location' in filters_to_apply:
-            geo_loc = metadata.get('location', '')
-            geo_region = metadata.get('region', '')
-            if not geo_loc:
-                logger.debug("Skipping %s: missing geographic location metadata", accession)
+            geo_loc = metadata.get('location', '') or ''
+            geo_region = metadata.get('region', '') or ''
+            # Only skip if BOTH location and region are empty
+            if not geo_loc and not geo_region:
+                logger.debug("Skipping %s: missing both location and region metadata", accession)
                 filter_stats['geographic_location'] += 1
                 continue
-            if geographic_location.lower() not in geo_loc.lower() and geographic_location.lower() not in geo_region.lower():
-                logger.debug("Skipping %s: geo_location '%s' does not match '%s' or '%s'", accession, geo_loc, geographic_location, geo_region)
+            # Check if filter matches either location or region
+            geo_filter = geographic_location.lower()
+            loc_matches = geo_loc and geo_filter in geo_loc.lower()
+            region_matches = geo_region and geo_filter in geo_region.lower()
+            if not loc_matches and not region_matches:
+                logger.debug("Skipping %s: geo_location '%s' and region '%s' do not match '%s'", accession, geo_loc, geo_region, geographic_location)
                 filter_stats['geographic_location'] += 1
                 continue
         
@@ -5366,11 +5371,13 @@ def filter_metadata_only(
             # Convert geographic_location to list if it's a string
             geo_location_list = [geographic_location] if isinstance(geographic_location, str) else geographic_location
             
-            # Get geographic location from metadata - stored in "location" field
-            metadata_location = metadata.get("location", "")
+            # Get geographic location from metadata - stored in "location" and "region" fields
+            metadata_location = metadata.get("location", "") or ""
+            metadata_region = metadata.get("region", "") or ""
             
-            if not metadata_location:
-                logger.debug("Skipping %s: missing geographic location", accession)
+            # Only skip if BOTH location and region are empty
+            if not metadata_location and not metadata_region:
+                logger.debug("Skipping %s: missing both location and region", accession)
                 filter_stats['geographic_location'] += 1
                 continue
             
@@ -5385,25 +5392,39 @@ def filter_metadata_only(
                 # Also add version without spaces for matching
                 acceptable_locations.add(loc_normalized.replace(' ', ''))
             
-            # Normalize metadata location for comparison
+            # Normalize metadata location and region for comparison
             metadata_location_lower = str(metadata_location).lower().strip()
             metadata_location_normalized = metadata_location_lower.replace('-', ' ').replace('_', ' ')
             metadata_location_no_spaces = metadata_location_normalized.replace(' ', '')
             
-            # Check for partial/substring match (e.g., "Gabon" should match "Gabon: Libreville")
+            metadata_region_lower = str(metadata_region).lower().strip()
+            metadata_region_normalized = metadata_region_lower.replace('-', ' ').replace('_', ' ')
+            metadata_region_no_spaces = metadata_region_normalized.replace(' ', '')
+            
+            # Check for partial/substring match in EITHER location OR region
+            # (e.g., "North America" should match region="North America" even if location is empty)
             location_match = False
             for acceptable_loc in acceptable_locations:
-                if acceptable_loc in metadata_location_normalized or acceptable_loc in metadata_location_no_spaces:
+                # Check location field
+                if metadata_location_normalized and (acceptable_loc in metadata_location_normalized or acceptable_loc in metadata_location_no_spaces):
                     location_match = True
                     break
                 # Also check if metadata location is contained in acceptable location
-                if metadata_location_normalized in acceptable_loc or metadata_location_no_spaces in acceptable_loc:
+                if metadata_location_normalized and (metadata_location_normalized in acceptable_loc or metadata_location_no_spaces in acceptable_loc):
+                    location_match = True
+                    break
+                # Check region field
+                if metadata_region_normalized and (acceptable_loc in metadata_region_normalized or acceptable_loc in metadata_region_no_spaces):
+                    location_match = True
+                    break
+                # Also check if metadata region is contained in acceptable location
+                if metadata_region_normalized and (metadata_region_normalized in acceptable_loc or metadata_region_no_spaces in acceptable_loc):
                     location_match = True
                     break
             
             if not location_match:
-                logger.debug("Skipping %s: geographic location '%s' does not match required '%s'", 
-                           accession, metadata_location, geo_location_list)
+                logger.debug("Skipping %s: location '%s' and region '%s' do not match required '%s'", 
+                           accession, metadata_location, metadata_region, geo_location_list)
                 filter_stats['geographic_location'] += 1
                 continue
 
