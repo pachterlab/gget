@@ -5361,6 +5361,52 @@ def filter_metadata_only(
                 filter_stats['source_database'] += 1
                 continue
 
+        # FILTER 18: Geographic location filter (deferred from API when server-side filter fails)
+        if geographic_location is not None:
+            # Convert geographic_location to list if it's a string
+            geo_location_list = [geographic_location] if isinstance(geographic_location, str) else geographic_location
+            
+            # Get geographic location from metadata - stored in "location" field
+            metadata_location = metadata.get("location", "")
+            
+            if not metadata_location:
+                logger.debug("Skipping %s: missing geographic location", accession)
+                filter_stats['geographic_location'] += 1
+                continue
+            
+            # Build set of acceptable location values (case-insensitive)
+            # Normalize the filter values: remove special chars and create variations
+            acceptable_locations = set()
+            for loc in geo_location_list:
+                loc_normalized = loc.lower().strip()
+                # Remove common separators and create variations
+                loc_normalized = loc_normalized.replace('-', ' ').replace('_', ' ').replace('+', ' ')
+                acceptable_locations.add(loc_normalized)
+                # Also add version without spaces for matching
+                acceptable_locations.add(loc_normalized.replace(' ', ''))
+            
+            # Normalize metadata location for comparison
+            metadata_location_lower = str(metadata_location).lower().strip()
+            metadata_location_normalized = metadata_location_lower.replace('-', ' ').replace('_', ' ')
+            metadata_location_no_spaces = metadata_location_normalized.replace(' ', '')
+            
+            # Check for partial/substring match (e.g., "Gabon" should match "Gabon: Libreville")
+            location_match = False
+            for acceptable_loc in acceptable_locations:
+                if acceptable_loc in metadata_location_normalized or acceptable_loc in metadata_location_no_spaces:
+                    location_match = True
+                    break
+                # Also check if metadata location is contained in acceptable location
+                if metadata_location_normalized in acceptable_loc or metadata_location_no_spaces in acceptable_loc:
+                    location_match = True
+                    break
+            
+            if not location_match:
+                logger.debug("Skipping %s: geographic location '%s' does not match required '%s'", 
+                           accession, metadata_location, geo_location_list)
+                filter_stats['geographic_location'] += 1
+                continue
+
         # If we reach this point, the metadata record has passed all filters
         filtered_accessions.append(accession)
         filtered_metadata_list.append(metadata)
