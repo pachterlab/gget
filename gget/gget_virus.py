@@ -5349,7 +5349,7 @@ def filter_metadata_only(
 
         # FILTER 17: Source database filter
         if source_database is not None:
-            source_db = metadata.get("sourceDatabase", "").lower()
+            source_db = (metadata.get("sourceDatabase") or "").lower()
             if not source_db:
                 logger.debug("Skipping %s: missing source database", accession)
                 filter_stats['source_database'] += 1
