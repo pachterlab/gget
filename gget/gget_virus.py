@@ -4931,17 +4931,20 @@ def filter_cached_metadata_for_unused_filters(
         if 'geographic_location' in filters_to_apply:
             geo_loc = metadata.get('location', '') or ''
             geo_region = metadata.get('region', '') or ''
-            # Only skip if BOTH location and region are empty
-            if not geo_loc and not geo_region:
-                logger.debug("Skipping %s: missing both location and region metadata", accession)
+            virus_name = metadata.get('virusName', '') or ''
+            # Only skip if ALL location sources are empty
+            if not geo_loc and not geo_region and not virus_name:
+                logger.debug("Skipping %s: missing location, region, and virusName metadata", accession)
                 filter_stats['geographic_location'] += 1
                 continue
-            # Check if filter matches either location or region
+            # Check if filter matches location, region, or virusName (fallback for older records)
             geo_filter = geographic_location.lower()
             loc_matches = geo_loc and geo_filter in geo_loc.lower()
             region_matches = geo_region and geo_filter in geo_region.lower()
-            if not loc_matches and not region_matches:
-                logger.debug("Skipping %s: geo_location '%s' and region '%s' do not match '%s'", accession, geo_loc, geo_region, geographic_location)
+            # Also check virusName as fallback (e.g., "B/USA/65/2002" contains location in name)
+            virus_name_matches = virus_name and geo_filter in virus_name.lower()
+            if not loc_matches and not region_matches and not virus_name_matches:
+                logger.debug("Skipping %s: geo_location '%s', region '%s', virusName '%s' do not match '%s'", accession, geo_loc, geo_region, virus_name, geographic_location)
                 filter_stats['geographic_location'] += 1
                 continue
         
@@ -5371,13 +5374,14 @@ def filter_metadata_only(
             # Convert geographic_location to list if it's a string
             geo_location_list = [geographic_location] if isinstance(geographic_location, str) else geographic_location
             
-            # Get geographic location from metadata - stored in "location" and "region" fields
+            # Get geographic location from metadata - stored in "location", "region", and "virusName" fields
             metadata_location = metadata.get("location", "") or ""
             metadata_region = metadata.get("region", "") or ""
+            metadata_virus_name = metadata.get("virusName", "") or ""
             
-            # Only skip if BOTH location and region are empty
-            if not metadata_location and not metadata_region:
-                logger.debug("Skipping %s: missing both location and region", accession)
+            # Only skip if ALL location sources are empty
+            if not metadata_location and not metadata_region and not metadata_virus_name:
+                logger.debug("Skipping %s: missing location, region, and virusName", accession)
                 filter_stats['geographic_location'] += 1
                 continue
             
@@ -5400,9 +5404,9 @@ def filter_metadata_only(
             metadata_region_lower = str(metadata_region).lower().strip()
             metadata_region_normalized = metadata_region_lower.replace('-', ' ').replace('_', ' ')
             metadata_region_no_spaces = metadata_region_normalized.replace(' ', '')
+            metadata_virus_name_lower = str(metadata_virus_name).lower().strip()
             
-            # Check for partial/substring match in EITHER location OR region
-            # (e.g., "North America" should match region="North America" even if location is empty)
+            # Check for partial/substring match in location, region, OR virusName
             location_match = False
             for acceptable_loc in acceptable_locations:
                 # Check location field
@@ -5421,10 +5425,14 @@ def filter_metadata_only(
                 if metadata_region_normalized and (metadata_region_normalized in acceptable_loc or metadata_region_no_spaces in acceptable_loc):
                     location_match = True
                     break
+                # Check virusName as fallback (for older records where location is in the name)
+                if metadata_virus_name_lower and acceptable_loc in metadata_virus_name_lower:
+                    location_match = True
+                    break
             
             if not location_match:
-                logger.debug("Skipping %s: location '%s' and region '%s' do not match required '%s'", 
-                           accession, metadata_location, metadata_region, geo_location_list)
+                logger.debug("Skipping %s: location '%s', region '%s', virusName '%s' do not match required '%s'", 
+                           accession, metadata_location, metadata_region, metadata_virus_name, geo_location_list)
                 filter_stats['geographic_location'] += 1
                 continue
 
