@@ -1,3 +1,5 @@
+[<kbd> View page source on GitHub </kbd>](https://github.com/pachterlab/gget/blob/main/docs/src/en/updates.md)
+
 ## ✨ What's new
 **Version ≥ 0.30.3** (Feb 22, 2026):  
 - [`gget virus`](virus.md): New filtering options, quiet mode, and improved download reliability

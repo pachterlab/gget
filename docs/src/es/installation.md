@@ -1,3 +1,5 @@
+[<kbd> Ver el codigo fuente de la pagina en GitHub </kbd>](https://github.com/pachterlab/gget/blob/main/docs/src/es/installation.md)
+
 [![pypi version](https://img.shields.io/pypi/v/gget)](https://pypi.org/project/gget)
 
 # Instalación

@@ -1,3 +1,5 @@
+[<kbd> View page source on GitHub </kbd>](https://github.com/pachterlab/gget/blob/main/docs/src/en/virus.md)
+
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.  
 # gget virus 🦠  
 
@@ -7,23 +9,26 @@ Return format: FASTA, CSV, and JSONL files saved to an output folder.
 
 This module was written by [Ferdous Nasri](https://github.com/ferbsx).
 
-**Note**: For SARS-CoV-2 and Alphainfluenza (Influenza A) queries, `gget virus` uses NCBI's optimized cached data packages via the [NCBI datasets CLI](https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/). The datasets CLI binary is bundled with gget for all major platforms—no additional installation required. If you already have the `datasets` CLI installed on your system, gget will automatically use your existing installation.
+**Note**: For SARS-CoV-2 and Alphainfluenza (Influenza A) queries, `gget virus` uses NCBI's optimized cached data packages via the [NCBI datasets CLI](https://www.ncbi.nlm.nih.gov/datasets/docs/v2/reference-docs/command-line/datasets/). The datasets CLI binary is bundled with gget for all major platforms—no additional installation required. If you already have the NCBI datasets CLI installed on your system, gget will automatically use your existing installation.
 
 **Positional argument**  
 `virus`  
-Virus taxon name (e.g. 'Zika virus'), taxon ID (e.g. 2697049), accession number (e.g. 'NC\_045512.2'), space-separated list of accessions (e.g. 'NC\_045512.2 MN908947.3 MT020781.1'), or path to a text file containing accession numbers (one per line, when combined with `--is_accession`).  
+Virus taxon name (e.g. 'Zika virus'), taxon ID (e.g. '2697049'), NCBI accession number (e.g. 'NC\_045512.2'), space-separated list of accessions (e.g. 'NC\_045512.2 MN908947.3 MT020781.1'), or path to a text file containing accession numbers (one per line) (e.g. 'path/to/text.txt').  
+Add `--is_accession` when passing an NCBI accession number. Add `--is_sars_cov2` or `is_alphainfluenza` for optimized download of SARS-CoV2 or Alphainfluenza sequences, respectively.  
+Use flag `--download_all_accessions` to apply filters without searching for a specific virus.  
 
 **Optional arguments**   
 
 _Host filters_  
 
 `--host`  
-Filter by host organism name or NCBI Taxonomy ID (e.g. 'human', 'Aedes aegypti', `1335626`).
+Filter by host organism name or NCBI Taxonomy ID (e.g., 'human', 'Aedes aegypti', `1335626`).
 
 _Sequence & Gene filters_  
 
 `--nuc_completeness`  
-Filter by nucleotide completeness. One of: 'complete' or 'partial'.
+Filter by nucleotide completeness. One of: 'complete' or 'partial'.  
+Set to 'complete' to only return nucleotide sequences marked as complete; set to 'partial' to only return sequences that are marked as partial.  
 
 `--min_seq_length`  
 Filter by minimum sequence length.
@@ -53,8 +58,23 @@ Filter by maximum number of mature peptides.
 Filter by maximum number of ambiguous nucleotide characters (N's).
 
 `--has_proteins`  
-Filter for sequences containing specific proteins or genes (e.g. 'spike', 'ORF1ab'). Can be a single protein name or a list of protein names.
+Filter for sequences containing specific proteins or genes (e.g., 'spike', 'ORF1ab'). Can be a single protein name or a list of protein names.  
 Python: `has_proteins="spike"` or `has_proteins=["spike", "ORF1ab"]`
+
+`--annotated`  
+'true' or 'false'. Filter for sequences that have been annotated with gene/protein information.  
+Command line: `--annotated true` to fetch only that have been annotated with gene/protein information, or `--annotated false` to exclude them.  
+Python: `annotated=True` or `annotated=False` (`annotated=None` for no filter).
+
+`--lab_passaged`  
+'true' or 'false'. Filter for or against lab-passaged samples.   
+Command line: `--lab_passaged true` to fetch only lab-passaged samples, or `--lab_passaged false` to exclude them.  
+Python: `lab_passaged=True` or `lab_passaged=False` (`lab_passaged=None` for no filter).
+
+`--vaccine_strain`  
+Filter for or against vaccine strain sequences.  
+Command line: `--vaccine_strain true` to fetch only vaccine strains, or `--vaccine_strain false` to exclude them.  
+Python: `vaccine_strain=True` or `vaccine_strain=False` (`vaccine_strain=None` for no filter).
 
 `--segment`  
 Filter for sequences with specific segment(s) (e.g. 'HA', 'NA'). Can be a single segment name or a list of segment names.
@@ -77,7 +97,7 @@ Filter by maximum sequence release date (YYYY-MM-DD).
 _Location & Submitter filters_
 
 `--geographic_location`  
-Filter by geographic location of sample collection (e.g. 'USA', 'Asia').
+Filter by geographic location of sample collection (e.g., 'USA', 'Asia').
 
 `--submitter_country`  
 Filter by the country of the sequence submitter. Can be a single country or a comma-separated list.
@@ -102,34 +122,23 @@ Python: `outfolder="path/to/folder"`
 
 **Flags**  
 `-a` `--is_accession`  
-Flag to indicate that the `virus` positional argument is an accession number, space-separated list of accessions, or path to a text file containing accession numbers (one per line). For SARS-CoV-2 and Alphainfluenza cached downloads, supports:
-  - Single accession: `NC_045512.2`
-  - Space-separated list: `NC_045512.2 MN908947.3 MT020781.1`
+Flag to indicate that the `virus` positional argument is an accession number, a space-separated list of accessions, or a path to a text file containing accession numbers (one per line). For SARS-CoV-2 and Alphainfluenza cached downloads, supports:  
+  - Single accession: `NC_045512.2`  
+  - Space-separated list: `NC_045512.2 MN908947.3 MT020781.1`  
   - Text file path: `accessions.txt` (one accession per line)
 
+`--download_all_accessions`   
+Use this flag when applying filters without searching for a specific virus (leave `virus` argument empty).     
+⚠️ **WARNING**: If you do not specify additional filters, this flag downloads ALL available viral sequences from NCBI (entire Viruses taxonomy, taxon ID 10239). This is an extremely large dataset that can take many hours to download and require significant disk space. Use with caution and ensure you have adequate storage and bandwidth. When this flag is set, the `virus` argument is ignored.
+
 `--is_sars_cov2`  
-Use NCBI's optimized cached data packages for a SARS-CoV-2 query. This provides faster and more reliable downloads. The system can auto-detect SARS-CoV-2 taxon-name queries, but for accession-based queries you must set this flag explicitly.
+Use NCBI's optimized cached data packages for a SARS-CoV-2 query. This provides faster and more reliable downloads. The system can auto-detect SARS-CoV-2 taxon-name queries, but for accession-based queries, you must set this flag explicitly.
 
 `--is_alphainfluenza`  
-Use NCBI's optimized cached data packages for an Alphainfluenza (Influenza A virus) query. This provides faster and more reliable downloads for large Influenza A datasets. The system can auto-detect Alphainfluenza taxon-name queries, but for accession-based queries you must set this flag explicitly.
+Use NCBI's optimized cached data packages for an Alphainfluenza (Influenza A virus) query. This provides faster and more reliable downloads for large Influenza A datasets. The system can auto-detect Alphainfluenza taxon-name queries, but for accession-based queries, you must set this flag explicitly.
 
 `-g` `--genbank_metadata`  
 Fetch and save additional detailed metadata from GenBank, including collection dates, host details, and publication references, in a separate `{virus}_genbank_metadata.csv` file (plus full XML/CSV dumps).
-
-`--annotated`  
-Filter for sequences that have been annotated with gene/protein information.  
-Command line: `--annotated true` or `--annotated false`.   
-Python: `annotated=True` or `annotated=False`.
-
-`--lab_passaged`  
-Filter for or against lab-passaged samples.   
-Command line: `--lab_passaged true` to fetch only lab-passaged samples, or `--lab_passaged false` to exclude them.  
-Python: `lab_passaged=True` or `lab_passaged=False`.
-
-`--vaccine_strain`  
-Filter for or against vaccine strain sequences.  
-Command line: `--vaccine_strain true` to fetch only vaccine strains, or `--vaccine_strain false` to exclude them.  
-Python: `vaccine_strain=True` or `vaccine_strain=False`.
 
 `--proteins_complete`  
 Flag to only include sequences where all annotated proteins are complete.  
@@ -137,11 +146,9 @@ Flag to only include sequences where all annotated proteins are complete.
 `-kt` `--keep_temp`  
 Flag to keep all intermediate/temporary files generated during processing. By default, only final output files are retained.
 
-`--download_all_accessions`  
-⚠️ **WARNING**: Downloads ALL virus accessions from NCBI (entire Viruses taxonomy, taxon ID 10239). This is an extremely large dataset that can take many hours to download and require significant disk space. Use with caution and ensure you have adequate storage and bandwidth. When this flag is set, the `virus` argument is ignored.
-
 `-q` `--quiet`  
-Command-line only. Prevents progress information from being displayed.
+Command-line only. Prevents progress information from being displayed.  
+Python: Use `verbose=False` to prevent progress information from being displayed. 
 
 ### Example
 

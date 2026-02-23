@@ -1,3 +1,5 @@
+[<kbd> View page source on GitHub </kbd>](https://github.com/pachterlab/gget/blob/main/docs/src/en/code_of_conduct.md)
+
 # Contributor Covenant Code of Conduct
 
 ## Our Pledge

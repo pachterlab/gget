@@ -1,3 +1,5 @@
+[<kbd> Ver el codigo fuente de la pagina en GitHub </kbd>](https://github.com/pachterlab/gget/blob/main/docs/src/es/virus.md)
+
 > Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
 # gget virus 🦠  
 
@@ -12,6 +14,7 @@ Este módulo fue escrito por [Ferdous Nasri](https://github.com/ferbsx).
 **Argumento posicional**  
 `virus`  
 Nombre del taxón del virus (p. ej. 'Zika virus'), ID taxonómico (p. ej. 2697049), número de acceso (p. ej. 'NC\_045512.2'), lista de accesiones separadas por espacios (p. ej. 'NC\_045512.2 MN908947.3 MT020781.1'), o ruta a un archivo de texto que contiene números de acceso (uno por línea, cuando se combina con `--is_accession`).  
+Use la bandera `--download_all_accessions` para aplicar filtros sin buscar un virus específico.
 
 **Argumentos opcionales**   
 
@@ -23,7 +26,8 @@ Filtra por nombre del organismo hospedador o ID de Taxonomía de NCBI (p. ej. 'h
 _Filtros de Secuencia y Gen_  
 
 `--nuc_completeness`  
-Filtra por completitud nucleotídica. Uno de: 'complete' o 'partial'.
+Filtrar por integridad del nucleótido. Una de las siguientes opciones: 'complete' o 'partial'.  
+Establezca 'complete' para devolver únicamente secuencias de nucleótidos marcadas como completas; establezca 'partial' para devolver únicamente secuencias marcadas como parciales.
 
 `--min_seq_length`  
 Filtra por longitud mínima de secuencia.
@@ -55,6 +59,21 @@ Filtra por número máximo de caracteres nucleotídicos ambiguos (N).
 `--has_proteins`  
 Filtra por secuencias que contengan proteínas o genes específicos (p. ej. 'spike', 'ORF1ab'). Puede ser un solo nombre de proteína o una lista de nombres de proteínas.
 Python: `has_proteins="spike"` o `has_proteins=["spike", "ORF1ab"]`
+
+`--annotated`  
+`'true'` o `'false'`. Filtra por secuencias que han sido anotadas con información de genes/proteínas.  
+Línea de comandos: `--annotated true` para obtener únicamente secuencias anotadas con información de genes/proteínas, o `--annotated false` para excluirlas.  
+Python: `annotated=True` o `annotated=False` (`annotated=None` para no aplicar ningún filtro).  
+
+`--lab_passaged`  
+`'true'` o `'false'`. Filtra a favor o en contra de muestras pasadas por laboratorio (*lab-passaged*).  
+Línea de comandos: `--lab_passaged true` para obtener únicamente muestras pasadas por laboratorio, o `--lab_passaged false` para excluirlas.  
+Python: `lab_passaged=True` o `lab_passaged=False` (`lab_passaged=None` para no aplicar ningún filtro).
+
+`--vaccine_strain`  
+Filtra a favor o en contra de secuencias de cepas de vacunas.  
+Línea de comandos: `--vaccine_strain true` para obtener solo cepas de vacunas, o `--vaccine_strain false` para excluirlas.  
+Python: `vaccine_strain=True` o `vaccine_strain=False` (`vaccine_strain=None` para no aplicar ningún filtro).
 
 `--segment`  
 Filtra por secuencias con segmento(s) específico(s) (p. ej. 'HA', 'NA'). Puede ser un solo nombre de segmento o una lista de nombres de segmentos.
@@ -107,6 +126,10 @@ Bandera para indicar que el argumento posicional `virus` es un número de acceso
   - Lista separada por espacios: `NC_045512.2 MN908947.3 MT020781.1`
   - Ruta de archivo de texto: `accessions.txt` (uno por línea)
 
+`--download_all_accessions`  
+Use esta bandera al aplicar filtros sin buscar un virus específico (deje el argumento `virus` vacío).  
+⚠️ **ADVERTENCIA**: Si no especifica filtros adicionales, esta bandera descargará TODAS las secuencias virales disponibles de NCBI (toda la taxonomía de Virus, taxon ID 10239). Este es un conjunto de datos extremadamente grande que puede tardar muchas horas en descargarse y requerir un espacio considerable en disco. Úsela con precaución y asegúrese de contar con suficiente almacenamiento y ancho de banda. Cuando esta bandera está activada, el argumento `virus` se ignora.
+
 `--is_sars_cov2`  
 Usa los paquetes de datos optimizados en caché de NCBI para una consulta de SARS-CoV-2. Esto proporciona descargas más rápidas y confiables. El sistema puede detectar automáticamente consultas por nombre de taxón de SARS-CoV-2, pero para consultas basadas en accesiones debes establecer esta bandera explícitamente.
 
@@ -116,32 +139,15 @@ Usa los paquetes de datos optimizados en caché de NCBI para una consulta de Alp
 `-g` `--genbank_metadata`  
 Obtiene y guarda metadatos adicionales detallados desde GenBank, incluyendo fechas de recolección, detalles del hospedador y referencias de publicaciones, en un archivo separado `{virus}_genbank_metadata.csv` (además de volcados completos XML/CSV dumps).
 
-`--annotated`  
-Filtra por secuencias que han sido anotadas con información de genes/proteínas.  
-Línea de comandos: `--annotated true` o `--annotated false`.   
-Python: `annotated=True` o `annotated=False`.
-
-`--lab_passaged`  
-Filtra a favor o en contra de muestras pasadas en laboratorio.   
-Línea de comandos: `--lab_passaged true` para obtener solo muestras pasadas en laboratorio, o `--lab_passaged false` para excluirlas.  
-Python: `lab_passaged=True` o `lab_passaged=False`.
-
-`--vaccine_strain`  
-Filtra a favor o en contra de secuencias de cepas de vacunas.  
-Línea de comandos: `--vaccine_strain true` para obtener solo cepas de vacunas, o `--vaccine_strain false` para excluirlas.  
-Python: `vaccine_strain=True` o `vaccine_strain=False`.
-
 `--proteins_complete`  
 Bandera para incluir solo secuencias donde todas las proteínas anotadas estén completas.  
 
 `-kt` `--keep_temp`  
 Bandera para conservar todos los archivos intermedios/temporales generados durante el procesamiento. Por defecto, solo se conservan los archivos de salida finales.
 
-`--download_all_accessions`  
-⚠️ **ADVERTENCIA**: Descarga TODAS las accesiones de virus desde NCBI (toda la taxonomía de Virus, taxon ID 10239). Este es un conjunto de datos extremadamente grande que puede tardar muchas horas en descargarse y requerir un espacio considerable en disco. Úsalo con precaución y asegúrate de tener almacenamiento y ancho de banda adecuados. Cuando esta bandera está activa, el argumento `virus` se ignora.
-
 `-q` `--quiet`  
-Solo línea de comandos. Evita que se muestre información de progreso.
+Uso limitado para Terminal. Impide la información de progreso de ser exhibida durante la ejecución del programa.  
+Para Python, usa `verbose=False`.  
 
 ### Ejemplo
 
