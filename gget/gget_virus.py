@@ -34,7 +34,7 @@ from .compile import PACKAGE_PATH
 # API and Network Configuration
 API_PAGE_SIZE = 1000  # Maximum records per API request (NCBI limit)
 API_REQUEST_TIMEOUT = 120  # Timeout in seconds for API requests (increased for large pages)
-API_MAX_RETRIES = 3  # Maximum retry attempts for failed API requests
+API_MAX_RETRIES = 2  # Maximum retry attempts for failed API requests
 API_INITIAL_RETRY_DELAY = 2.0  # Initial delay in seconds between retries
 API_RETRY_BACKOFF_MULTIPLIER = 3.0  # Multiplier for exponential backoff
 MIN_PAGE_SIZE_FALLBACK = 20  # Minimum page size to try before giving up
@@ -691,6 +691,7 @@ def _fetch_metadata_for_accession_list(
     
     all_reports = []
     failed_batches = []
+    aggregated_deferred_filters = None  # Track deferred filters from batches
     
     logger.info("Fetching metadata for %d accessions in %d batch(es) with exponential backoff retries", 
                len(accessions), len(batches))
@@ -719,7 +720,7 @@ def _fetch_metadata_for_accession_list(
             )
         
         # Use exponential backoff helper for batch retries
-        success, batch_reports, error_info = _retry_with_exponential_backoff(
+        success, batch_result, error_info = _retry_with_exponential_backoff(
             operation_name=f"Accession batch {batch_num}/{len(batches)} ({len(batch)} accessions)",
             operation_func=fetch_batch_metadata,
             max_retries=API_MAX_RETRIES,
@@ -729,8 +730,22 @@ def _fetch_metadata_for_accession_list(
             failed_commands=failed_commands,
         )
         
+        # Unpack the tuple result from fetch_virus_metadata
+        batch_reports = None
+        batch_deferred_filters = None
+        if success and batch_result is not None:
+            if isinstance(batch_result, tuple):
+                batch_reports, batch_deferred_filters = batch_result
+            else:
+                # Backward compatibility if result is just a list
+                batch_reports = batch_result
+        
         if success and batch_reports:
             all_reports.extend(batch_reports)
+            # Track deferred filters (should be the same across all batches if any)
+            if batch_deferred_filters and aggregated_deferred_filters is None:
+                aggregated_deferred_filters = batch_deferred_filters
+                logger.debug("Batch %d has deferred filters: %s", batch_num, batch_deferred_filters)
             tqdm.write(f"✅ Batch {batch_num}: Retrieved {len(batch_reports)} records")
         else:
             # Batch failed or returned empty
@@ -790,7 +805,9 @@ def _fetch_metadata_for_accession_list(
         if failed_batches:
             logger.warning("⚠️ Continuing pipeline with partial results (%d/%d batches succeeded)", 
                           len(batches) - len(failed_batches), len(batches))
-        return all_reports
+        if aggregated_deferred_filters:
+            logger.info("Deferred filters will be applied in metadata filtering stage: %s", aggregated_deferred_filters)
+        return all_reports, aggregated_deferred_filters
     
     # Only raise if ALL batches failed
     if failed_batches:
@@ -801,7 +818,7 @@ def _fetch_metadata_for_accession_list(
     
     # Fallback (shouldn't reach here)
     logger.warning("No accession batches were processed")
-    return []
+    return [], None
 
 
 def _try_modified_virus_names(
@@ -1054,6 +1071,7 @@ def fetch_virus_metadata(
             # Try decreasing page size until we succeed or reach minimum
             current_page_size = params['page_size']
             page_size_retry_count = 0
+            tried_without_geo_location = False  # Track if we've tried removing geographic_location
             
             while not success and current_page_size > MIN_PAGE_SIZE_FALLBACK:
                 # Decrease page size for next retry
@@ -1093,6 +1111,58 @@ def fetch_virus_metadata(
                                        current_page_size, new_total_pages)
                             pages_pbar.total = new_total_pages
                     break
+                
+                # After FIRST page size reduction fails, try without geographic_location filter
+                # This happens once at page_size = API_PAGE_SIZE - PAGE_SIZE_FALLBACK_DECREMENT (e.g., 900)
+                if not success and not tried_without_geo_location and geographic_location and _retry_attempt == 0:
+                    tried_without_geo_location = True
+                    logger.warning("=" * 80)
+                    logger.warning("🔄 PAGE SIZE REDUCTION FAILED - ATTEMPTING WITHOUT GEOGRAPHIC FILTER")
+                    logger.warning("=" * 80)
+                    logger.warning("Page size %d with geographic location '%s' failed.", current_page_size, geographic_location)
+                    logger.warning("Retrying without the geographic_location filter (will be applied later)...")
+                    
+                    # Close temporary files before retry
+                    if pages_pbar:
+                        pages_pbar.close()
+                        pages_pbar = None
+                    if metadata_file:
+                        try:
+                            metadata_file.close()
+                        except:
+                            pass
+                    
+                    try:
+                        # Retry the fetch without geographic_location
+                        retry_reports, _ = fetch_virus_metadata(
+                            virus=virus,
+                            accession=accession,
+                            host=host,
+                            geographic_location=None,  # Remove geo filter
+                            annotated=annotated,
+                            complete_only=complete_only,
+                            min_release_date=min_release_date,
+                            refseq_only=refseq_only,
+                            failed_commands=failed_commands,
+                            _retry_attempt=1,  # Mark as retry to prevent infinite loops
+                            temp_output_dir=temp_output_dir,
+                        )
+                        
+                        if retry_reports is not None:
+                            logger.info("✅ Successfully retrieved %d records without geographic filter", len(retry_reports))
+                            logger.info("Geographic location filter '%s' will be applied during metadata filtering", geographic_location)
+                            
+                            # Return with deferred filter info
+                            return retry_reports, {'geographic_location': geographic_location}
+                    except Exception as retry_error:
+                        logger.warning("❌ Retry without geographic filter also failed: %s", retry_error)
+                        logger.info("Continuing with smaller page sizes...")
+                        # Re-open temp file for continued attempts
+                        try:
+                            metadata_file = open(temp_metadata_file, 'a', encoding='utf-8')
+                        except IOError:
+                            metadata_file = None
+                        # Continue the page size reduction loop
             
             # If still failed after trying all page sizes down to minimum
             if not success:
@@ -1192,12 +1262,15 @@ def fetch_virus_metadata(
                             'alternative_command': None
                         }
                     
+                    # Note: Retry without geographic_location is now handled in the page size
+                    # reduction loop above, after the first smaller page size fails
+                    
                     if geographic_location:
                         error_msg += (
                             f"\n\n🔧 TIMEOUT LIKELY DUE TO GEOGRAPHIC FILTER: "
                             f"The combination of '{virus}' + geographic location '{geographic_location}' "
-                            f"is known to cause server timeouts. Try removing the geographic_location parameter "
-                            f"and filter the results manually after download."
+                            f"is known to cause server timeouts. All page size and filter removal retries "
+                            f"have been exhausted."
                         )
                     
                     # Log the timeout error before raising
@@ -1350,11 +1423,14 @@ def fetch_virus_metadata(
                             if retry_result is not None:
                                 return retry_result
                         
+                        # Note: Retry without geographic_location is now handled in the page size
+                        # reduction loop above, after the first smaller page size fails
+                        
                         error_msg += (
                             f"\n\n🔧 SERVER ERROR DETECTED: "
                             f"NCBI's API is experiencing temporary server-side issues. "
-                            f"This could be due to the specific virus/taxon ID or a genuine server problem. Try again in a few minutes, "
-                            f"or consider using different parameters to reduce the dataset size."
+                            f"This could be due to the specific virus/taxon ID or a genuine server problem. "
+                            f"All page size and filter removal retries have been exhausted."
                         )
                     
                     # Log the error details before raising
@@ -1430,7 +1506,7 @@ def fetch_virus_metadata(
         file_size_mb = os.path.getsize(temp_metadata_file) / (1024 * 1024)
         logger.info("Temporary metadata file size: %.2f MB", file_size_mb)
     
-    return all_reports
+    return all_reports, None  # (reports, deferred_filters) - None means no deferred filters
 
 
 def fetch_virus_metadata_chunked(
@@ -1485,6 +1561,7 @@ def fetch_virus_metadata_chunked(
     current_year = current_date.year
     
     all_reports = []
+    aggregated_deferred_filters = None  # Track deferred filters from chunks
     total_chunks = current_year - start_year + 1
     
     logger.info(f"Will process {total_chunks} year(s) from {start_year} to {current_year}")
@@ -1503,7 +1580,7 @@ def fetch_virus_metadata_chunked(
         
         try:
             # Fetch metadata for this date chunk
-            chunk_reports = fetch_virus_metadata(
+            chunk_result = fetch_virus_metadata(
                 virus=virus,
                 accession=accession,
                 host=host,
@@ -1516,11 +1593,25 @@ def fetch_virus_metadata_chunked(
                 temp_output_dir=temp_output_dir
             )
             
+            # Handle tuple return (reports, deferred_filters)
+            chunk_reports = None
+            chunk_deferred_filters = None
+            if chunk_result is not None:
+                if isinstance(chunk_result, tuple):
+                    chunk_reports, chunk_deferred_filters = chunk_result
+                else:
+                    chunk_reports = chunk_result
+            
             # If we got None, it means even this chunk is too large (shouldn't happen for yearly chunks)
             if chunk_reports is None:
                 logger.error(f"❌ Chunk for year {year} is too large even for NCBI to handle")
                 logger.error("This is unexpected and may indicate an API issue")
                 raise RuntimeError(f"Year {year} chunk failed - dataset too large even when split by year")
+            
+            # Track deferred filters (should be the same across all chunks if any)
+            if chunk_deferred_filters and aggregated_deferred_filters is None:
+                aggregated_deferred_filters = chunk_deferred_filters
+                logger.debug("Chunk %d has deferred filters: %s", chunk_num, chunk_deferred_filters)
             
             chunk_count = len(chunk_reports)
             all_reports.extend(chunk_reports)
@@ -1540,9 +1631,11 @@ def fetch_virus_metadata_chunked(
     logger.info(f"✅ CHUNKED DOWNLOAD COMPLETE")
     logger.info(f"   Total records retrieved: {len(all_reports):,}")
     logger.info(f"   Total chunks processed: {total_chunks}")
+    if aggregated_deferred_filters:
+        logger.info("   Deferred filters to apply: %s", aggregated_deferred_filters)
     logger.info("=" * 80)
     
-    return all_reports
+    return all_reports, aggregated_deferred_filters
 
 
 def is_sars_cov2_query(virus, accession=False):
@@ -5579,6 +5672,8 @@ def virus(
     else:
         logger.info("No Alphainfluenza query detected.")
     
+    # Initialize deferred_filters for tracking filters that couldn't be applied server-side
+    deferred_filters = None
 
     try:
     # SECTION 3: METADATA RETRIEVAL AND FILTERING
@@ -5634,6 +5729,9 @@ def virus(
 
             logger.debug("Applying server-side filters: host=%s, geo_location=%s, annotated=%s, complete_only=%s, min_release_date=%s, refseq_only=%s", host, geographic_location, annotated, api_complete_filter, min_release_date, refseq_only)
             
+            # Track deferred filters that couldn't be applied server-side
+            deferred_filters = None
+            
             try:
                 # Check if this is a multi-accession query (list or file)
                 use_batched_fetch = False
@@ -5647,7 +5745,7 @@ def virus(
                 
                 if use_batched_fetch:
                     # Multiple accessions - use batched fetching
-                    api_reports = _fetch_metadata_for_accession_list(
+                    api_result = _fetch_metadata_for_accession_list(
                         accessions=accession_list,
                         host=host,
                         geographic_location=geographic_location,
@@ -5658,9 +5756,14 @@ def virus(
                         failed_commands=failed_commands,
                         temp_output_dir=temp_dir,
                     )
+                    # Unpack tuple result
+                    if isinstance(api_result, tuple):
+                        api_reports, deferred_filters = api_result
+                    else:
+                        api_reports = api_result
                 else:
                     # Single accession or taxon-based query - use standard fetch
-                    api_reports = fetch_virus_metadata(
+                    api_result = fetch_virus_metadata(
                         virus,
                         accession=is_accession,
                         host=host,
@@ -5672,12 +5775,17 @@ def virus(
                         failed_commands=failed_commands,
                         temp_output_dir=temp_dir,
                     )
+                    # Unpack tuple result
+                    if isinstance(api_result, tuple):
+                        api_reports, deferred_filters = api_result
+                    else:
+                        api_reports = api_result
 
                 # If fetch_virus_metadata returns None, it means the dataset is too large
                 # and we need to use the chunked download strategy
                 if api_reports is None:
                     logger.info("Standard download failed due to dataset size - switching to chunked download")
-                    api_reports = fetch_virus_metadata_chunked(
+                    api_result = fetch_virus_metadata_chunked(
                         virus,
                         accession=is_accession,
                         host=host,
@@ -5689,6 +5797,20 @@ def virus(
                         failed_commands=failed_commands,
                         temp_output_dir=temp_dir,
                     )
+                    # Unpack tuple result
+                    if isinstance(api_result, tuple):
+                        api_reports, deferred_filters = api_result
+                    else:
+                        api_reports = api_result
+                
+                # Log deferred filters if any
+                if deferred_filters:
+                    logger.info("=" * 60)
+                    logger.info("⚠️ DEFERRED FILTERS: Some server-side filters could not be applied")
+                    logger.info("   The following filters will be applied during metadata filtering:")
+                    for filter_name, filter_value in deferred_filters.items():
+                        logger.info("   - %s: %s", filter_name, filter_value)
+                    logger.info("=" * 60)
             except RuntimeError as e:
                 # Error has already been logged nicely by fetch_virus_metadata
                 # Ensure output folder exists for summary file
