@@ -14,7 +14,14 @@ This module was written by [Ferdous Nasri](https://github.com/ferbsx).
 **Positional argument**  
 `virus`  
 Virus taxon name (e.g. 'Zika virus'), taxon ID (e.g. '2697049'), NCBI accession number (e.g. 'NC\_045512.2'), space-separated list of accessions (e.g. 'NC\_045512.2 MN908947.3 MT020781.1'), or path to a text file containing accession numbers (one per line) (e.g. 'path/to/text.txt').  
+
 Add `--is_accession` when passing an NCBI accession number. Add `--is_sars_cov2` or `is_alphainfluenza` for optimized download of SARS-CoV2 or Alphainfluenza sequences, respectively.  
+
+For SARS-CoV-2 and Alphainfluenza cached downloads, supports:  
+  - Single accession: `NC_045512.2`  
+  - Space-separated list: `NC_045512.2 MN908947.3 MT020781.1`   
+  - Text file path: `accessions.txt` (one accession per line)  
+
 Use flag `--download_all_accessions` to apply filters without searching for a specific virus.  
 
 **Optional arguments**   
@@ -102,7 +109,7 @@ Filter by geographic location of sample collection (e.g., 'USA', 'Asia').
 `--submitter_country`  
 Filter by the country of the sequence submitter. Can be a single country or a comma-separated list.
 
-`--source_database`
+`--source_database`  
 Filter by source database. One of: 'genbank' or 'refseq'.
 
 _SARS-CoV-2 specific filters_
@@ -122,10 +129,7 @@ Python: `outfolder="path/to/folder"`
 
 **Flags**  
 `-a` `--is_accession`  
-Flag to indicate that the `virus` positional argument is an accession number, a space-separated list of accessions, or a path to a text file containing accession numbers (one per line). For SARS-CoV-2 and Alphainfluenza cached downloads, supports:  
-  - Single accession: `NC_045512.2`  
-  - Space-separated list: `NC_045512.2 MN908947.3 MT020781.1`  
-  - Text file path: `accessions.txt` (one accession per line)
+Flag to indicate that the `virus` positional argument is an accession number, a space-separated list of accessions, or a path to a text file containing accession numbers (one per line).  
 
 `--download_all_accessions`   
 Use this flag when applying filters without searching for a specific virus (leave `virus` argument empty).     
