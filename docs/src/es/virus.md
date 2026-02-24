@@ -12,9 +12,18 @@ Este módulo fue escrito por [Ferdous Nasri](https://github.com/ferbsx).
 **Nota**: Para consultas de SARS-CoV-2 y Alphainfluenza (Influenza A), `gget virus` utiliza los paquetes de datos optimizados en caché de NCBI mediante la [NCBI datasets CLI](https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/). El binario de la CLI de datasets se incluye con gget para las principales plataformas—no se requiere instalación adicional. Si ya tienes la CLI `datasets` instalada en tu sistema, gget usará automáticamente tu instalación existente.
 
 **Argumento posicional**  
-`virus`  
-Nombre del taxón del virus (p. ej. 'Zika virus'), ID taxonómico (p. ej. 2697049), número de acceso (p. ej. 'NC\_045512.2'), lista de accesiones separadas por espacios (p. ej. 'NC\_045512.2 MN908947.3 MT020781.1'), o ruta a un archivo de texto que contiene números de acceso (uno por línea, cuando se combina con `--is_accession`).  
-Use la bandera `--download_all_accessions` para aplicar filtros sin buscar un virus específico.
+`virus`
+Nombre del taxón viral (p. ej., 'Zika virus'), ID de taxón (p. ej., '2697049'), número de acceso de NCBI (p. ej., 'NC_045512.2'), lista de números de acceso separados por espacios (p. ej., 'NC_045512.2 MN908947.3 MT020781.1') o ruta a un archivo de texto que contenga números de acceso (uno por línea) (p. ej., 'path/to/text.txt').
+
+Añada `--is_accession` al proporcionar un número de acceso de NCBI. Añada `--is_sars_cov2` o `--is_alphainfluenza` para la descarga optimizada de secuencias de SARS-CoV-2 o Alphainfluenza, respectivamente.
+
+Para descargas en caché de SARS-CoV-2 y Alphainfluenza, se admite:
+
+* Acceso único: `NC_045512.2`
+* Lista separada por espacios: `NC_045512.2 MN908947.3 MT020781.1`
+* Ruta a archivo de texto: `accessions.txt` (un número de acceso por línea)
+
+Use la opción `--download_all_accessions` para aplicar filtros sin buscar un virus específico.
 
 **Argumentos opcionales**   
 
@@ -121,10 +130,7 @@ Python: `outfolder="path/to/folder"`
 
 **Banderas**  
 `-a` `--is_accession`  
-Bandera para indicar que el argumento posicional `virus` es un número de acceso, una lista de accesiones separadas por espacios, o una ruta a un archivo de texto que contiene números de acceso (uno por línea). Para descargas en caché de SARS-CoV-2 y Alphainfluenza, soporta:
-  - Acceso único: `NC_045512.2`
-  - Lista separada por espacios: `NC_045512.2 MN908947.3 MT020781.1`
-  - Ruta de archivo de texto: `accessions.txt` (uno por línea)
+Bandera para indicar que el argumento posicional `virus` es un número de acceso, una lista de accesiones separadas por espacios, o una ruta a un archivo de texto que contiene números de acceso (uno por línea).
 
 `--download_all_accessions`  
 Use esta bandera al aplicar filtros sin buscar un virus específico (deje el argumento `virus` vacío).  
