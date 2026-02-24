@@ -2488,7 +2488,7 @@ def main():
         type=str,
         nargs="?",
         default=None,
-        help="Virus taxon name/ID to query, e.g. 'SARS-CoV-2', 'zika virus',, or taxon ID '1335626'.\n"
+        help="Virus taxon name/ID to query, e.g. 'SARS-CoV-2', 'zika virus', or taxon ID '1335626'.\n"
              "When using --is_accession flag, can also be:\n"
              "  - Single accession: 'NC_038294.1'\n"
              "  - Space-separated accessions: 'NC_038294.1 NC_045512.2'\n"
@@ -2783,10 +2783,10 @@ def main():
     parser_virus.add_argument(
         "-q",
         "--quiet",
-        default=False,
-        action="store_true",
+        default=True,
+        action="store_false",
         required=False,
-        help="Does not print progress information. For large datasets, it is recommended to set this flag to False to monitor progress.",
+        help="Does not print progress information. For large datasets, it is recommended to not use this flag, to monitor progress.",
     )
 
     ### Define return values

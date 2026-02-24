@@ -5612,7 +5612,7 @@ def virus(
     genbank_batch_size=GENBANK_DEFAULT_BATCH_SIZE,
     download_all_accessions=False,
     _skip_cache=False,
-    quiet=False,
+    verbose=True,
     ):
     """
     Download a virus genome dataset from the NCBI Virus database (https://www.ncbi.nlm.nih.gov/labs/virus/).
@@ -5668,7 +5668,7 @@ def virus(
     """
     # Save the original logger level and set it based on verbose parameter
     original_logger_level = logger.level
-    if quiet:
+    if not verbose:
         logger.setLevel(logging.CRITICAL)
     
     logger.info("Starting virus data retrieval process...")
