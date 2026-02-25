@@ -1,3 +1,5 @@
+[<kbd> View page source on GitHub </kbd>](https://github.com/pachterlab/gget/blob/main/docs/src/en/8cube.md)
+
 > Python arguments are equivalent to long-option arguments (`--arg`), unless otherwise specified. Flags are True/False arguments in Python. The manual for any gget tool can be called from the command-line using the `-h` `--help` flag.
 # gget 8cube 🔬
 
@@ -200,7 +202,7 @@ If you use `gget 8cube` in a publication, please cite:
 
 * **Swarna NP, et al.**
   *Determining gene specificity from multivariate single-cell RNA sequencing data* (2025).
-  DOI forthcoming.
+  [https://doi.org/10.1101/2025.11.21.689845](https://doi.org/10.1101/2025.11.21.689845)
 
 * **Luebbert, L., & Pachter, L. (2023).**
   *Efficient querying of genomic reference databases with gget.* Bioinformatics.

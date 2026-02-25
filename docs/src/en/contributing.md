@@ -1,3 +1,5 @@
+[<kbd> View page source on GitHub </kbd>](https://github.com/pachterlab/gget/blob/main/docs/src/en/contributing.md)
+
 # Welcome to gget's contributing guide
 
 Thank you for investing your time in contributing to our project! Any contribution you make will be reflected on the [gget repo](https://github.com/pachterlab/gget). ✨

@@ -1,3 +1,5 @@
+[<kbd> Ver el codigo fuente de la pagina en GitHub </kbd>](https://github.com/pachterlab/gget/blob/main/docs/src/es/info.md)
+
 > Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.  
 # gget info 💡
 Obtenga información detallada sobre genes y transcripciones de [Ensembl](https://www.ensembl.org/), [UniProt](https://www.uniprot.org/) y [NCBI](https://www.ncbi.nlm.nih.gov/) utilizando sus IDs del tipo Ensembl.  
