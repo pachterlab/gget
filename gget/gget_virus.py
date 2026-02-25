@@ -1065,172 +1065,161 @@ def fetch_virus_metadata(
             failed_commands=failed_commands,
         )
         
-        # If the initial page fetch failed, try with a smaller page size before giving up
-        if not success and params['page_size'] > MIN_PAGE_SIZE_FALLBACK:
-            logger.debug("⚠️ Page fetch failed with page_size=%d. Retrying with smaller page sizes...", params['page_size'])
+        # If the initial page fetch failed, try filter removal strategies FIRST, then page size reduction
+        if not success and _retry_attempt == 0:
+            logger.debug("⚠️ Page fetch failed with page_size=%d. Trying filter removal strategies...", params['page_size'])
             
-            # Try decreasing page size until we succeed or reach minimum
-            current_page_size = params['page_size']
-            page_size_retry_count = 0
-            tried_without_geo_location = False  # Track if we've tried removing geographic_location
-            tried_without_host = False  # Track if we've tried removing host
+            # Helper to close temp files before retry
+            def close_temp_files():
+                nonlocal pages_pbar, metadata_file
+                if pages_pbar:
+                    pages_pbar.close()
+                    pages_pbar = None
+                if metadata_file:
+                    try:
+                        metadata_file.close()
+                    except:
+                        pass
             
-            while not success and current_page_size > MIN_PAGE_SIZE_FALLBACK:
-                # Decrease page size for next retry
-                current_page_size = max(MIN_PAGE_SIZE_FALLBACK, current_page_size - PAGE_SIZE_FALLBACK_DECREMENT)
-                page_size_retry_count += 1
+            # STRATEGY 1: If geo_location filter exists, try without it (keeping host)
+            if not success and geographic_location:
+                logger.warning("🔄 FETCH FAILED - ATTEMPTING WITHOUT GEOGRAPHIC FILTER")
+                logger.warning("Retrying without the geographic_location filter '%s' (will be applied later)...", geographic_location)
+                close_temp_files()
                 
-                logger.debug("📉 Attempting retry #%d with page_size=%d (page %d)", 
-                           page_size_retry_count, current_page_size, page_count)
+                try:
+                    retry_reports, _ = fetch_virus_metadata(
+                        virus=virus,
+                        accession=accession,
+                        host=host,  # Keep host filter
+                        geographic_location=None,  # Remove geo filter
+                        annotated=annotated,
+                        complete_only=complete_only,
+                        min_release_date=min_release_date,
+                        refseq_only=refseq_only,
+                        failed_commands=failed_commands,
+                        _retry_attempt=1,  # Mark as retry to prevent infinite loops
+                        temp_output_dir=temp_output_dir,
+                    )
+                    
+                    if retry_reports is not None:
+                        logger.info("✅ Successfully retrieved %d records without geographic filter", len(retry_reports))
+                        logger.info("Geographic location filter '%s' will be applied during metadata filtering", geographic_location)
+                        return retry_reports, {'geographic_location': geographic_location}
+                except Exception as retry_error:
+                    logger.warning("❌ Retry without geographic filter failed: %s", retry_error)
+            
+            # STRATEGY 2: If BOTH geo_location and host filters exist, try without both
+            if not success and geographic_location and host:
+                logger.warning("🔄 ATTEMPTING WITHOUT BOTH GEOGRAPHIC AND HOST FILTERS")
+                logger.warning("Retrying without both filters (will be applied later)...")
+                close_temp_files()
                 
-                # Update params with new page size
-                params['page_size'] = current_page_size
+                try:
+                    retry_reports, _ = fetch_virus_metadata(
+                        virus=virus,
+                        accession=accession,
+                        host=None,  # Remove host filter
+                        geographic_location=None,  # Remove geo filter
+                        annotated=annotated,
+                        complete_only=complete_only,
+                        min_release_date=min_release_date,
+                        refseq_only=refseq_only,
+                        failed_commands=failed_commands,
+                        _retry_attempt=1,  # Mark as retry to prevent infinite loops
+                        temp_output_dir=temp_output_dir,
+                    )
+                    
+                    if retry_reports is not None:
+                        logger.info("✅ Successfully retrieved %d records without geographic and host filters", len(retry_reports))
+                        logger.info("Geographic location filter '%s' will be applied during metadata filtering", geographic_location)
+                        logger.info("Host filter '%s' will be applied during metadata filtering", host)
+                        return retry_reports, {'geographic_location': geographic_location, 'host': host}
+                except Exception as retry_error:
+                    logger.warning("❌ Retry without both filters failed: %s", retry_error)
+            
+            # STRATEGY 3: If host filter exists (whether or not geo_location was tried), try without host only
+            if not success and host:
+                logger.warning("🔄 ATTEMPTING WITHOUT HOST FILTER ONLY")
+                logger.warning("Retrying without the host filter '%s' (will be applied later)...", host)
+                close_temp_files()
                 
-                # Retry the fetch with the smaller page size
-                success, page_data, error_info = _retry_with_exponential_backoff(
-                    operation_name=f"API page {page_count} (page_size={current_page_size})",
-                    operation_func=fetch_single_page,
-                    max_retries=API_MAX_RETRIES,
-                    initial_delay=API_INITIAL_RETRY_DELAY,
-                    backoff_multiplier=API_RETRY_BACKOFF_MULTIPLIER,
-                    retryable_exceptions=(requests.exceptions.ConnectionError, requests.exceptions.HTTPError, requests.exceptions.Timeout),
-                    failed_commands=failed_commands,
-                )
+                try:
+                    retry_reports, _ = fetch_virus_metadata(
+                        virus=virus,
+                        accession=accession,
+                        host=None,  # Remove host filter
+                        geographic_location=geographic_location,  # Keep geo filter if present
+                        annotated=annotated,
+                        complete_only=complete_only,
+                        min_release_date=min_release_date,
+                        refseq_only=refseq_only,
+                        failed_commands=failed_commands,
+                        _retry_attempt=1,  # Mark as retry to prevent infinite loops
+                        temp_output_dir=temp_output_dir,
+                    )
+                    
+                    if retry_reports is not None:
+                        logger.info("✅ Successfully retrieved %d records without host filter", len(retry_reports))
+                        logger.info("Host filter '%s' will be applied during metadata filtering", host)
+                        return retry_reports, {'host': host}
+                except Exception as retry_error:
+                    logger.warning("❌ Retry without host filter failed: %s", retry_error)
+            
+            # STRATEGY 4: If all filter removal strategies failed, try reducing page size
+            if not success and params['page_size'] > MIN_PAGE_SIZE_FALLBACK:
+                logger.info("All filter removal strategies failed. Trying smaller page sizes...")
                 
-                if success:
-                    logger.debug("✅ Successfully fetched page with page_size=%d after %d retry attempt(s)", 
-                               current_page_size, page_size_retry_count)
-                    # Update the global page_size for remaining pages if successful
+                # Re-open temp file for continued attempts
+                try:
+                    metadata_file = open(temp_metadata_file, 'a', encoding='utf-8')
+                except IOError:
+                    metadata_file = None
+                
+                current_page_size = params['page_size']
+                page_size_retry_count = 0
+                
+                while not success and current_page_size > MIN_PAGE_SIZE_FALLBACK:
+                    # Decrease page size for next retry
+                    current_page_size = max(MIN_PAGE_SIZE_FALLBACK, current_page_size - PAGE_SIZE_FALLBACK_DECREMENT)
+                    page_size_retry_count += 1
+                    
+                    logger.debug("📉 Attempting retry #%d with page_size=%d (page %d)", 
+                               page_size_retry_count, current_page_size, page_count)
+                    
+                    # Update params with new page size
                     params['page_size'] = current_page_size
                     
-                    # If progress bar exists, recalculate total pages based on new page size
-                    if pages_pbar is not None and page_data:
-                        total_count = page_data.get('total_count', 0)
-                        if total_count > 0:
-                            new_total_pages = (total_count + current_page_size - 1) // current_page_size
-                            # Update progress bar total to reflect the new page size
-                            logger.debug("📊 Recalculating progress bar: page_size changed to %d, total pages now: %d", 
-                                       current_page_size, new_total_pages)
-                            pages_pbar.total = new_total_pages
-                    break
-                
-                # After FIRST page size reduction fails, try without geographic_location filter
-                # This happens once at page_size = API_PAGE_SIZE - PAGE_SIZE_FALLBACK_DECREMENT (e.g., 900)
-                if not success and not tried_without_geo_location and geographic_location and _retry_attempt == 0:
-                    tried_without_geo_location = True
-                    # logger.warning("=" * 80)
-                    logger.warning("🔄 PAGE SIZE REDUCTION FAILED - ATTEMPTING WITHOUT GEOGRAPHIC FILTER")
-                    # logger.warning("=" * 80)
-                    logger.warning("Page size %d with geographic location '%s' failed.", current_page_size, geographic_location)
-                    logger.warning("Retrying without the geographic_location filter (will be applied later)...")
+                    # Retry the fetch with the smaller page size
+                    success, page_data, error_info = _retry_with_exponential_backoff(
+                        operation_name=f"API page {page_count} (page_size={current_page_size})",
+                        operation_func=fetch_single_page,
+                        max_retries=API_MAX_RETRIES,
+                        initial_delay=API_INITIAL_RETRY_DELAY,
+                        backoff_multiplier=API_RETRY_BACKOFF_MULTIPLIER,
+                        retryable_exceptions=(requests.exceptions.ConnectionError, requests.exceptions.HTTPError, requests.exceptions.Timeout),
+                        failed_commands=failed_commands,
+                    )
                     
-                    # Close temporary files before retry
-                    if pages_pbar:
-                        pages_pbar.close()
-                        pages_pbar = None
-                    if metadata_file:
-                        try:
-                            metadata_file.close()
-                        except:
-                            pass
-                    
-                    try:
-                        # Retry the fetch without geographic_location
-                        retry_reports, _ = fetch_virus_metadata(
-                            virus=virus,
-                            accession=accession,
-                            host=host,
-                            geographic_location=None,  # Remove geo filter
-                            annotated=annotated,
-                            complete_only=complete_only,
-                            min_release_date=min_release_date,
-                            refseq_only=refseq_only,
-                            failed_commands=failed_commands,
-                            _retry_attempt=1,  # Mark as retry to prevent infinite loops
-                            temp_output_dir=temp_output_dir,
-                        )
+                    if success:
+                        logger.debug("✅ Successfully fetched page with page_size=%d after %d retry attempt(s)", 
+                                   current_page_size, page_size_retry_count)
+                        # Update the global page_size for remaining pages if successful
+                        params['page_size'] = current_page_size
                         
-                        if retry_reports is not None:
-                            logger.info("✅ Successfully retrieved %d records without geographic filter", len(retry_reports))
-                            logger.info("Geographic location filter '%s' will be applied during metadata filtering", geographic_location)
-                            
-                            # Return with deferred filter info
-                            return retry_reports, {'geographic_location': geographic_location}
-                    except Exception as retry_error:
-                        logger.warning("❌ Retry without geographic filter also failed: %s", retry_error)
-                        logger.info("Continuing with smaller page sizes...")
-                        # Re-open temp file for continued attempts
-                        try:
-                            metadata_file = open(temp_metadata_file, 'a', encoding='utf-8')
-                        except IOError:
-                            metadata_file = None
-                        # Continue the page size reduction loop
+                        # If progress bar exists, recalculate total pages based on new page size
+                        if pages_pbar is not None and page_data:
+                            total_count = page_data.get('total_count', 0)
+                            if total_count > 0:
+                                new_total_pages = (total_count + current_page_size - 1) // current_page_size
+                                logger.debug("📊 Recalculating progress bar: page_size changed to %d, total pages now: %d", 
+                                           current_page_size, new_total_pages)
+                                pages_pbar.total = new_total_pages
+                        break
                 
-                # After geo_location retry (if applicable), try without host filter
-                # This happens if we have a host filter and haven't tried removing it yet
-                if not success and not tried_without_host and host and _retry_attempt == 0:
-                    tried_without_host = True
-                    # logger.warning("=" * 80)
-                    logger.warning("🔄 PAGE SIZE REDUCTION FAILED - ATTEMPTING WITHOUT HOST FILTER")
-                    # logger.warning("=" * 80)
-                    logger.warning("Page size %d with host '%s' failed.", current_page_size, host)
-                    
-                    # If geo_location retry was also attempted and failed, remove both filters
-                    also_defer_geo = tried_without_geo_location and geographic_location
-                    if also_defer_geo:
-                        logger.warning("Also removing geographic_location filter (both filters will be applied later)...")
-                    else:
-                        logger.warning("Retrying without the host filter (will be applied later)...")
-                    
-                    # Close temporary files before retry
-                    if pages_pbar:
-                        pages_pbar.close()
-                        pages_pbar = None
-                    if metadata_file:
-                        try:
-                            metadata_file.close()
-                        except:
-                            pass
-                    
-                    try:
-                        # Retry the fetch without host (and optionally without geo_location)
-                        retry_reports, _ = fetch_virus_metadata(
-                            virus=virus,
-                            accession=accession,
-                            host=None,  # Remove host filter
-                            geographic_location=None if also_defer_geo else geographic_location,
-                            annotated=annotated,
-                            complete_only=complete_only,
-                            min_release_date=min_release_date,
-                            refseq_only=refseq_only,
-                            failed_commands=failed_commands,
-                            _retry_attempt=1,  # Mark as retry to prevent infinite loops
-                            temp_output_dir=temp_output_dir,
-                        )
-                        
-                        if retry_reports is not None:
-                            logger.info("✅ Successfully retrieved %d records without host filter", len(retry_reports))
-                            logger.info("Host filter '%s' will be applied during metadata filtering", host)
-                            
-                            # Return with deferred filter info (include geo_location if also deferred)
-                            deferred = {'host': host}
-                            if also_defer_geo:
-                                deferred['geographic_location'] = geographic_location
-                                logger.info("Geographic location filter '%s' will also be applied during metadata filtering", geographic_location)
-                            return retry_reports, deferred
-                    except Exception as retry_error:
-                        logger.warning("❌ Retry without host filter also failed: %s", retry_error)
-                        logger.info("Continuing with smaller page sizes...")
-                        # Re-open temp file for continued attempts
-                        try:
-                            metadata_file = open(temp_metadata_file, 'a', encoding='utf-8')
-                        except IOError:
-                            metadata_file = None
-                        # Continue the page size reduction loop
-            
-            # If still failed after trying all page sizes down to minimum
-            if not success:
-                logger.warning("⚠️ All page size fallback attempts failed (page %d)", page_count)
+                # If still failed after trying all page sizes down to minimum
+                if not success:
+                    logger.warning("⚠️ All page size fallback attempts failed (page %d)", page_count)
         
         # Handle page fetch result
         if success and page_data:
@@ -1325,17 +1314,6 @@ def fetch_virus_metadata(
                             'url': url,
                             'alternative_command': None
                         }
-                    
-                    # Note: Retry without geographic_location is now handled in the page size
-                    # reduction loop above, after the first smaller page size fails
-                    
-                    if geographic_location:
-                        error_msg += (
-                            f"\n\n🔧 TIMEOUT LIKELY DUE TO GEOGRAPHIC FILTER: "
-                            f"The combination of '{virus}' + geographic location '{geographic_location}' "
-                            f"is known to cause server timeouts. All page size and filter removal retries "
-                            f"have been exhausted."
-                        )
                     
                     # Log the timeout error before raising
                     logger.error("=" * 80)
@@ -5612,7 +5590,7 @@ def virus(
     genbank_batch_size=GENBANK_DEFAULT_BATCH_SIZE,
     download_all_accessions=False,
     _skip_cache=False,
-    quiet=False,
+    verbose=True,
     ):
     """
     Download a virus genome dataset from the NCBI Virus database (https://www.ncbi.nlm.nih.gov/labs/virus/).
@@ -5668,7 +5646,7 @@ def virus(
     """
     # Save the original logger level and set it based on verbose parameter
     original_logger_level = logger.level
-    if quiet:
+    if not verbose:
         logger.setLevel(logging.CRITICAL)
     
     logger.info("Starting virus data retrieval process...")
