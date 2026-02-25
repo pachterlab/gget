@@ -3906,5 +3906,5 @@ def main():
             genbank_batch_size=args.genbank_batch_size,
             download_all_accessions=args.download_all_accessions,
             _skip_cache=args._skip_cache,
-            quiet=args.quiet,
+            verbose=args.quiet,
         )
