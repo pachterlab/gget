@@ -1,7 +1,7 @@
 [<kbd> View page source on GitHub </kbd>](https://github.com/pachterlab/gget/blob/main/docs/src/en/updates.md)
 
 ## ✨ What's new
-**Version ≥ 0.30.3** (Feb 22, 2026):  
+**Version ≥ 0.30.3** (Feb 26, 2026):  
 - [`gget virus`](virus.md): New filtering options, quiet mode, and improved download reliability
   - Added `--segment` filter for segmented viruses (e.g., Influenza A segments like 'HA', 'NA', 'PB1')
   - Added `--vaccine_strain` filter to include or exclude vaccine strain sequences
