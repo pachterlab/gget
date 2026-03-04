@@ -48,7 +48,7 @@ Commit the changes once you are happy with them.
 6. Make sure the edits are compatible with both the Python and the command line interface
     - The command line interface and arguments are defined in ./gget/main.py
 8. Add new modules/arguments to the documentation if applicable:
-    - The manual for each module can be edited/added as ./docs/src/*.md
+    - The manual for each module can be edited/added in ./docs/src/en/*.md (the Spanish version of the docs in ./docs/src/es/*.md is automatically generated/updated)
 
 If you have any questions, feel free to start a [discussion](https://github.com/pachterlab/gget/discussions) or create an issue as described above.
 
