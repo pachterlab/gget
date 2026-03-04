@@ -7,7 +7,7 @@ Descargue secuencias nucleotídicas virales, junto con metadatos ricos y vincula
 
 Formato de salida: archivos FASTA, CSV y JSONL guardados en una carpeta de salida.  
 
-[No-code, shareable Google Colab notebook for querying viral sequences.](https://colab.research.google.com/github/pachterlab/gget_examples/blob/main/gget_virus/gget_virus_colab.ipynb)
+[Cuaderno de Google Colab sin código y compartible para descargar secuencias virales.](https://colab.research.google.com/github/pachterlab/gget_examples/blob/main/gget_virus/gget_virus_colab.ipynb)
 
 Este módulo fue escrito por [Ferdous Nasri](https://github.com/ferbsx).
 
