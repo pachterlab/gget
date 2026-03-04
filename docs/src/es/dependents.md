@@ -20,6 +20,9 @@ Las siguientes aplicaciones usan *gget*:
     - [https://mcpservers.org/servers/longevity-genie/holy-bio-mcp](https://mcpservers.org/servers/longevity-genie/holy-bio-mcp)
     - [https://biocontext.ai](https://biocontext.ai/registry/longevity-genie/gget-mcp)
     - [https://mcpmarket.com/zh/tools/skills/gget-bioinformatics-tool](https://mcpmarket.com/zh/tools/skills/gget-bioinformatics-tool)
+- [PantheonOS](https://pantheonos.stanford.edu/)   
+  Un sistema evolutivo de agentes biológicos multiagente diseñado para conciliar la generalidad con la especificidad de dominio, desarrollado en Stanford.   
+  > "Database access: using the skills of gget, iSeq, and cellxgene to access a variety of databases, including SRA, GEO, Ensembl, UniProt, UCSC, Enrichr, and CZI cellxgene."
 - [Biomni](https://biomni.stanford.edu/)  
   Un agente de inteligencia artificial biomédica de propósito general que se está desarrollando en Stanford y Genentech.
 - [PerTurboAgent](https://www.biorxiv.org/content/10.1101/2025.05.25.656020v1)  
