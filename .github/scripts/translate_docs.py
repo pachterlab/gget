@@ -72,7 +72,7 @@ GLOSSARY = """\
   reference citations.
 - DO translate: all human-readable text, INCLUDING link text (the `[...]` part
   of markdown links). For example, `[No-code, shareable Google Colab notebook
-  for querying viral sequences.](https://...)` → the text inside `[...]` MUST
+  for querying viral sequences.](https://...)` → the text inside `[...]` should
   be translated to Spanish while the URL stays unchanged.
 - Keep ALL markdown formatting exactly as-is: tables, links, code blocks,
   HTML tags, emojis, blank lines, trailing spaces for line breaks.
