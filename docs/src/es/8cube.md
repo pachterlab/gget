@@ -206,6 +206,10 @@ from gget import specificity, psi_block, gene_expression
 
 Si utiliza `gget 8cube` en una publicación, por favor cite:
 
+* **Swarna NP, et al.**
+  *Determining gene specificity from multivariate single-cell RNA sequencing data* (2025).
+  [https://doi.org/10.1101/2025.11.21.689845](https://doi.org/10.1101/2025.11.21.689845)
+
 * **Luebbert, L., & Pachter, L. (2023).**
   *Efficient querying of genomic reference databases with gget.* Bioinformatics.
   [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
@@ -213,10 +217,6 @@ Si utiliza `gget 8cube` en una publicación, por favor cite:
 * **Rebboah E, et al.**
   *Systematic cell-type resolved transcriptomes of 8 tissues in 8 lab and wild-derived mouse strains captures global and local expression variation* (2025).
   [https://doi.org/10.1101/2025.04.21.649844](https://doi.org/10.1101/2025.04.21.649844)
-
-* **Swarna NP, et al.**
-  *Determining gene specificity from multivariate single-cell RNA sequencing data* (2025).
-  DOI próximamente.
 
 ```
 ```
