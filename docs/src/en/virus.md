@@ -7,6 +7,8 @@ Download viral nucleotide sequences, along with rich, linked metadata, from acro
 
 Return format: FASTA, CSV, and JSONL files saved to an output folder.  
 
+[No-code, shareable Google Colab notebook for querying viral sequences.](https://colab.research.google.com/github/pachterlab/gget_examples/blob/main/gget_virus/gget_virus_colab.ipynb)
+
 This module was written by [Ferdous Nasri](https://github.com/ferbsx).
 
 **Note**: For SARS-CoV-2 and Alphainfluenza (Influenza A) queries, `gget virus` uses NCBI's optimized cached data packages via the [NCBI datasets CLI](https://www.ncbi.nlm.nih.gov/datasets/docs/v2/reference-docs/command-line/datasets/). The datasets CLI binary is bundled with gget for all major platforms—no additional installation required. If you already have the NCBI datasets CLI installed on your system, gget will automatically use your existing installation.
@@ -239,7 +241,7 @@ gget.virus(
 
 → Uses NCBI's cached data packages for Alphainfluenza to download complete Influenza A genomes from human hosts much faster than the standard API method, then applies the sequence length filter and fetches GenBank metadata.
 
-
+#### [More examples](https://github.com/pachterlab/gget_examples/tree/main/gget_virus)
 
 # References
 
