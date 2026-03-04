@@ -7,6 +7,8 @@ Descargue secuencias nucleotídicas virales, junto con metadatos ricos y vincula
 
 Formato de salida: archivos FASTA, CSV y JSONL guardados en una carpeta de salida.  
 
+[No-code, shareable Google Colab notebook for querying viral sequences.](https://colab.research.google.com/github/pachterlab/gget_examples/blob/main/gget_virus/gget_virus_colab.ipynb)
+
 Este módulo fue escrito por [Ferdous Nasri](https://github.com/ferbsx).
 
 **Nota**: Para consultas de SARS-CoV-2 y Alphainfluenza (Influenza A), `gget virus` utiliza los paquetes de datos optimizados en caché de NCBI mediante la [NCBI datasets CLI](https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/). El binario de la CLI de datasets se incluye con gget para las principales plataformas—no se requiere instalación adicional. Si ya tienes la CLI `datasets` instalada en tu sistema, gget usará automáticamente tu instalación existente.
@@ -240,6 +242,8 @@ gget.virus(
 
 → Uses NCBI's cached data packages for Alphainfluenza to download complete Influenza A genomes from human hosts much faster than the standard API method, then applies the sequence length filter and fetches GenBank metadata.
 
+#### [Más ejemplos](https://github.com/pachterlab/gget_examples/tree/main/gget_virus)
+
 # Citar
 
 Si utilizas `gget virus` en una publicación, por favor cita los siguientes artículos:
@@ -248,5 +252,4 @@ Si utilizas `gget virus` en una publicación, por favor cita los siguientes art�
 
   - Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
 
-  - O’Leary, N.A., Cox, E., Holmes, J.B. et al (2024). Exploring and retrieving sequence and metadata for species across the tree of life with NCBI Datasets. Sci Data 11, 732. [https://doi.org/10.1038/s41597-024-03571-y](https://doi.org/10.1038/s41597-024-03571-y)
-
+  - O'Leary, N.A., Cox, E., Holmes, J.B. et al (2024). Exploring and retrieving sequence and metadata for species across the tree of life with NCBI Datasets. Sci Data 11, 732. [https://doi.org/10.1038/s41597-024-03571-y](https://doi.org/10.1038/s41597-024-03571-y)
