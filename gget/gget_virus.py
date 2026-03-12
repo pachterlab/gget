@@ -2872,7 +2872,7 @@ def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_
                     
                     # Update progress bar description with current stats
                     batch_size_mb = len(batch_response_text.encode('utf-8')) / BYTES_PER_MB
-                    tqdm.write(f"✓ Batch {batch_num}: Downloaded {batch_sequence_count} sequences ({batch_size_mb:.2f} MB)")
+                    logger.debug(f"✓ Batch {batch_num}: Downloaded {batch_sequence_count} sequences ({batch_size_mb:.2f} MB)")
                     
                 else:
                     # Batch failed after retries
