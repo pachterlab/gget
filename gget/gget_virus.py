@@ -3549,7 +3549,7 @@ def save_command_summary(
                 # Unique geographic locations
                 locations = set()
                 for meta in filtered_metadata:
-                    location = meta.get('location', {}).get('geographic_location') if isinstance(meta.get('location'), dict) else None
+                    location = meta.get('location')
                     if location:
                         locations.add(location)
                 f.write(f"Unique geographic locations: {len(locations)}\n")
@@ -3591,11 +3591,9 @@ def save_command_summary(
                 # Submitter countries
                 countries = set()
                 for meta in filtered_metadata:
-                    submitter = meta.get('submitter', {})
-                    if isinstance(submitter, dict):
-                        country = submitter.get('country')
-                        if country:
-                            countries.add(country)
+                    country = meta.get('submitterCountry')
+                    if country:
+                        countries.add(country)
                 f.write(f"Unique submitter countries: {len(countries)}\n")
                 if countries and len(countries) <= 20:
                     for country in sorted(countries):
