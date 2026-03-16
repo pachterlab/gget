@@ -1,7 +1,7 @@
-Pytest results (Python 3.12) - 2026-03-12T16:28:20Z
+Pytest results (Python 3.12) - 2026-03-16T16:28:46Z
 
 ============================= test session starts ==============================
-platform linux -- Python 3.12.12, pytest-9.0.2, pluggy-1.6.0 -- /opt/hostedtoolcache/Python/3.12.12/x64/bin/python
+platform linux -- Python 3.12.13, pytest-9.0.2, pluggy-1.6.0 -- /opt/hostedtoolcache/Python/3.12.13/x64/bin/python
 cachedir: .pytest_cache
 rootdir: /home/runner/work/gget/gget
 configfile: pyproject.toml
@@ -171,107 +171,1131 @@ tests/test_ref.py::TestRef::test_ref_rel_ftp_octopus PASSED              [ 60%]
 tests/test_ref.py::TestRef::test_ref_rel_protist PASSED                  [ 61%]
 tests/test_ref.py::TestRef::test_ref_which PASSED                        [ 61%]
 tests/test_ref.py::TestRef::test_ref_which_plant PASSED                  [ 61%]
-tests/test_search.py::TestSearch::test_search_db PASSED                  [ 62%]
+tests/test_search.py::TestSearch::test_search_db FAILED                  [ 62%]
 tests/test_search.py::TestSearch::test_search_gene_bad_andor PASSED      [ 62%]
 tests/test_search.py::TestSearch::test_search_gene_bad_species PASSED    [ 63%]
-tests/test_search.py::TestSearch::test_search_gene_one_sw PASSED         [ 63%]
-tests/test_search.py::TestSearch::test_search_gene_one_sw_json PASSED    [ 63%]
-tests/test_search.py::TestSearch::test_search_gene_one_sw_limit PASSED   [ 64%]
-tests/test_search.py::TestSearch::test_search_gene_two_sw_and PASSED     [ 64%]
-tests/test_search.py::TestSearch::test_search_gene_two_sw_limit PASSED   [ 65%]
-tests/test_search.py::TestSearch::test_search_gene_two_sw_or PASSED      [ 65%]
-tests/test_search.py::TestSearch::test_search_octopus PASSED             [ 65%]
-tests/test_search.py::TestSearch::test_search_plant PASSED               [ 66%]
-tests/test_search.py::TestSearch::test_search_plant_db PASSED            [ 66%]
-tests/test_search.py::TestSearch::test_search_release PASSED             [ 66%]
-tests/test_search.py::TestSearch::test_search_transcript_bad_andor PASSED [ 67%]
-tests/test_search.py::TestSearch::test_search_transcript_bad_species PASSED [ 67%]
-tests/test_search.py::TestSearch::test_search_transcript_one_sw PASSED   [ 68%]
-tests/test_search.py::TestSearch::test_search_transcript_two_sw_and PASSED [ 68%]
-tests/test_search.py::TestSearch::test_search_transcript_two_sw_or PASSED [ 68%]
-tests/test_seq.py::TestSeq::test_seq_gene PASSED                         [ 69%]
-tests/test_seq.py::TestSeq::test_seq_gene_iso PASSED                     [ 69%]
-tests/test_seq.py::TestSeq::test_seq_gene_transcript_iso PASSED          [ 69%]
-tests/test_seq.py::TestSeq::test_seq_missing_uniprot_gene_name PASSED    [ 70%]
-tests/test_seq.py::TestSeq::test_seq_transcript PASSED                   [ 70%]
-tests/test_seq.py::TestSeq::test_seq_transcript_gene PASSED              [ 71%]
-tests/test_seq.py::TestSeq::test_seq_transcript_gene_WB PASSED           [ 71%]
-tests/test_seq.py::TestSeq::test_seq_transcript_gene_iso PASSED          [ 71%]
-tests/test_seq.py::TestSeq::test_seq_transcript_transcript_WB PASSED     [ 72%]
-tests/test_seq.py::TestSeq::test_seq_transcript_transcript_iso PASSED    [ 72%]
-tests/test_utils.py::TestUtils::test_aa_colors PASSED                    [ 73%]
-tests/test_utils.py::TestUtils::test_find_latest_ens_rel PASSED          [ 73%]
-tests/test_utils.py::TestUtils::test_get_uniprot_info_gene PASSED        [ 73%]
-tests/test_utils.py::TestUtils::test_get_uniprot_info_transcript PASSED  [ 74%]
-tests/test_utils.py::TestUtils::test_get_uniprot_seqs PASSED             [ 74%]
-tests/test_utils.py::TestUtils::test_n_colors PASSED                     [ 74%]
-tests/test_utils.py::TestUtils::test_read_fasta PASSED                   [ 75%]
-tests/test_utils.py::TestUtils::test_ref_iv_species_options PASSED       [ 75%]
-tests/test_utils.py::TestUtils::test_ref_species_options PASSED          [ 76%]
-tests/test_utils.py::TestUtils::test_ref_species_options_bad_type PASSED [ 76%]
-tests/test_utils.py::TestUtils::test_rest_query PASSED                   [ 76%]
-tests/test_utils.py::TestUtils::test_rest_query_bad_type PASSED          [ 77%]
-tests/test_utils.py::TestUtils::test_search_iv_species_options PASSED    [ 77%]
-tests/test_utils.py::TestUtils::test_search_species_options PASSED       [ 77%]
-tests/test_utils.py::TestUtils::test_search_species_options_bad_type PASSED [ 78%]
-tests/test_virus.py::TestVirus::test_batch_accessions_for_url PASSED     [ 78%]
-tests/test_virus.py::TestVirus::test_calculate_max_accessions_per_batch PASSED [ 79%]
-tests/test_virus.py::TestVirus::test_datasets_cli_version_output PASSED  [ 79%]
-tests/test_virus.py::TestVirus::test_get_datasets_path_returns_valid_path PASSED [ 79%]
-tests/test_virus.py::TestVirus::test_get_datasets_path_uses_bundled_binary PASSED [ 80%]
-tests/test_virus.py::TestVirus::test_parse_accession_input_empty_file_raises_error PASSED [ 80%]
-tests/test_virus.py::TestVirus::test_parse_accession_input_from_file PASSED [ 80%]
-tests/test_virus.py::TestVirus::test_parse_accession_input_nonexistent_file_raises_error PASSED [ 81%]
-tests/test_virus.py::TestVirus::test_parse_accession_input_single PASSED [ 81%]
-tests/test_virus.py::TestVirus::test_parse_accession_input_space_separated PASSED [ 82%]
-tests/test_virus.py::TestVirus::test_retry_helper_custom_retryable_exceptions PASSED [ 82%]
-tests/test_virus.py::TestVirus::test_retry_helper_exponential_backoff_timing PASSED [ 82%]
-tests/test_virus.py::TestVirus::test_retry_helper_failed_commands_tracking PASSED [ 83%]
-tests/test_virus.py::TestVirus::test_retry_helper_non_retryable_exception PASSED [ 83%]
-tests/test_virus.py::TestVirus::test_retry_helper_success_after_retry PASSED [ 84%]
-tests/test_virus.py::TestVirus::test_retry_helper_successful_operation PASSED [ 84%]
-tests/test_virus.py::TestVirus::test_virus_completeness_filter_verification PASSED [ 84%]
-tests/test_virus.py::TestVirus::test_virus_empty_virus_name PASSED       [ 85%]
-tests/test_virus.py::TestVirus::test_virus_host_filter_verification PASSED [ 85%]
-tests/test_virus.py::TestVirus::test_virus_integer_virus_id PASSED       [ 85%]
-tests/test_virus.py::TestVirus::test_virus_invalid_annotated_type PASSED [ 86%]
-tests/test_virus.py::TestVirus::test_virus_invalid_completeness PASSED   [ 86%]
-tests/test_virus.py::TestVirus::test_virus_invalid_genbank_batch_size_negative PASSED [ 87%]
-tests/test_virus.py::TestVirus::test_virus_invalid_genbank_batch_size_type PASSED [ 87%]
-tests/test_virus.py::TestVirus::test_virus_invalid_genbank_batch_size_zero PASSED [ 87%]
-tests/test_virus.py::TestVirus::test_virus_invalid_genbank_metadata_type PASSED [ 88%]
-tests/test_virus.py::TestVirus::test_virus_invalid_is_accession_type PASSED [ 88%]
-tests/test_virus.py::TestVirus::test_virus_invalid_keep_temp_type PASSED [ 88%]
-tests/test_virus.py::TestVirus::test_virus_invalid_lab_passaged_type PASSED [ 89%]
-tests/test_virus.py::TestVirus::test_virus_invalid_proteins_complete_type PASSED [ 89%]
-tests/test_virus.py::TestVirus::test_virus_metadata_schema_validation PASSED [ 90%]
-tests/test_virus.py::TestVirus::test_virus_min_greater_than_max_collection_date PASSED [ 90%]
-tests/test_virus.py::TestVirus::test_virus_min_greater_than_max_gene_count PASSED [ 90%]
-tests/test_virus.py::TestVirus::test_virus_min_greater_than_max_peptide_count PASSED [ 91%]
-tests/test_virus.py::TestVirus::test_virus_min_greater_than_max_protein_count PASSED [ 91%]
-tests/test_virus.py::TestVirus::test_virus_min_greater_than_max_release_date PASSED [ 92%]
-tests/test_virus.py::TestVirus::test_virus_min_greater_than_max_seq_length PASSED [ 92%]
-tests/test_virus.py::TestVirus::test_virus_multi_accession_file_input PASSED [ 92%]
-tests/test_virus.py::TestVirus::test_virus_multi_accession_space_separated PASSED [ 93%]
-tests/test_virus.py::TestVirus::test_virus_multiple_filters_relationship_check PASSED [ 93%]
-tests/test_virus.py::TestVirus::test_virus_none_virus_name PASSED        [ 93%]
-tests/test_virus.py::TestVirus::test_virus_relationship_check_counts_match PASSED [ 94%]
-tests/test_virus.py::TestVirus::test_virus_release_date_filter_verification PASSED [ 94%]
-tests/test_virus.py::TestVirus::test_virus_specific_accession_file_creation PASSED [ 95%]
-tests/test_virus.py::TestVirus::test_virus_with_annotated_filter PASSED  [ 95%]
-tests/test_virus.py::TestVirus::test_virus_with_collection_date_filters PASSED [ 95%]
-tests/test_virus.py::TestVirus::test_virus_with_completeness_filter PASSED [ 96%]
-tests/test_virus.py::TestVirus::test_virus_with_genbank_metadata_retrieval PASSED [ 96%]
-tests/test_virus.py::TestVirus::test_virus_with_geographic_location_filter PASSED [ 96%]
-tests/test_virus.py::TestVirus::test_virus_with_has_proteins_filter PASSED [ 97%]
-tests/test_virus.py::TestVirus::test_virus_with_host_filter PASSED       [ 97%]
-tests/test_virus.py::TestVirus::test_virus_with_lab_passaged_filter PASSED [ 98%]
-tests/test_virus.py::TestVirus::test_virus_with_length_filters PASSED    [ 98%]
-tests/test_virus.py::TestVirus::test_virus_with_max_ambiguous_chars_filter PASSED [ 98%]
-tests/test_virus.py::TestVirus::test_virus_with_multiple_filters PASSED  [ 99%]
-tests/test_virus.py::TestVirus::test_virus_with_protein_count_filters PASSED [ 99%]
-tests/test_virus.py::TestVirus::test_virus_with_source_database_filter PASSED [100%]
+tests/test_search.py::TestSearch::test_search_gene_one_sw FAILED         [ 63%]
+tests/test_search.py::TestSearch::test_search_gene_one_sw_json FAILED    [ 63%]
+tests/test_search.py::TestSearch::test_search_gene_one_sw_limit FAILED   [ 64%]
+tests/test_search.py::TestSearch::test_search_gene_two_sw_and FAILED     [ 64%]
 
+=================================== FAILURES ===================================
+__________________________ TestSearch.test_search_db ___________________________
+
+self = <tests.test_search.TestSearch testMethod=test_search_db>
+
+    def assert_equal_na(self: unittest.TestCase):
+        test = name
+        expected_result = td[test]["expected_result"]
+>       result_to_test = do_call(func, td[test]["args"])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/from_json.py:87: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+func = <function search at 0x7f88e3382ca0>
+args = {'limit': 3, 'searchwords': ['hi'], 'species': 'mus_musculus_dba2j_core_105_1'}
+
+    def do_call(func, args):
+        if isinstance(args, dict):
+>           return func(**args)
+                   ^^^^^^^^^^^^
+
+tests/from_json.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+searchwords = ['hi'], species = 'mus_musculus_dba2j_core_105_1', release = None
+id_type = 'gene', seqtype = None, andor = 'or', limit = 3, wrap_text = False
+json = False, save = False, verbose = True
+
+    def search(
+        searchwords,
+        species,
+        release=None,
+        id_type="gene",
+        seqtype=None,
+        andor="or",
+        limit=None,
+        wrap_text=False,
+        json=False,
+        save=False,
+        verbose=True,
+    ):
+        """
+        Function to query Ensembl for genes based on species and free form search terms.
+        Automatically fetches results from latest Ensembl release, unless user specifies database (see 'species' argument)
+        or release database (see 'release' argument).
+    
+        Args:
+        - searchwords     Free form search words (not case-sensitive) as a string or list of strings
+                          (e.g.searchwords = ["GABA", "gamma-aminobutyric"]).
+        - species         Species can be passed in the format "genus_species", e.g. "homo_sapiens" or "arabidopsis_thaliana".
+                          To pass a specific database, enter the name of the core database, e.g. "mus_musculus_dba2j_core_105_1".
+                          All available core databases can be found here:
+                          Vertebrates: http://ftp.ensembl.org/pub/current/mysql/
+                          Invertebrates: http://ftp.ensemblgenomes.org/pub/current/ + kingdom + mysql/
+        - release         Defines the Ensembl release number from which the files are fetched, e.g. 104.
+                          Note: This argument does not apply to invertebrate species (you can pass a specific core database (which includes release number) to the species argument instead).
+                          This argument is overwritten if a specific database (which includes a release number) is passed to the species argument.
+                          Default: None -> latest Ensembl release is used
+        - id_type         "gene" (default) or "transcript"
+                          Defines whether genes or transcripts matching the searchwords are returned.
+        - andor           "or" (default) or "and"
+                          "or": Returns all genes that INCLUDE AT LEAST ONE of the searchwords in their name/description.
+                          "and": Returns only genes that INCLUDE ALL of the searchwords in their name/description.
+        - limit           (int) Limit the number of search results returned (default: None).
+        - wrap_text       If True, displays data frame with wrapped text for easy reading. Default: False.
+        - json            If True, returns results in json format instead of data frame. Default: False.
+        - save            If True, the data frame is saved as a csv in the current directory (default: False).
+        - verbose         True/False whether to print progress information. Default True.
+    
+        Returns a data frame with the query results.
+    
+        Note: Only returns results based on matches in the "gene name" or "description" sections in the Ensembl database.
+    
+        Deprecated arguments: 'seqtype' (renamed to id_type)
+        """
+        # Handle deprecated arguments
+        if seqtype:
+            logger.error(
+                "'seqtype' argument deprecated! Please use argument 'id_type' instead."
+            )
+            return
+    
+        start_time = time.time()
+    
+        ## Check validity or arguments
+        # Check if id_type is valid
+        id_types = ["gene", "transcript"]
+        id_type = id_type.lower()
+        if id_type not in id_types:
+            raise ValueError(
+                f"ID type (id_type) specified is '{id_type}'. Expected one of: {', '.join(id_types)}"
+            )
+    
+        # Check if 'andor' arg is valid
+        andors = ["and", "or"]
+        andor = andor.lower()
+        if andor not in andors:
+            raise ValueError(
+                f"'andor' argument specified as {andor}. Expected one of {', '.join(andors)}"
+            )
+    
+        ## Get database for specified species
+        # Species shortcuts
+        if species == "human":
+            species = "homo_sapiens"
+        if species == "mouse":
+            species = "mus_musculus"
+    
+        # If a specific database is passed with the "/" at the end, remove it
+        if "/" in species:
+            species = species.split("/")[0]
+    
+        # In case species was passed with upper case letters
+        species = species.lower()
+    
+        if "core" in species:
+            db = species
+            if release:
+                logger.warning(
+                    "Specified release overwritten because database name was provided."
+                )
+        else:
+            if release:
+                ens_rel = release
+            else:
+                # Find latest Ensembl release
+                ens_rel = find_latest_ens_rel()
+    
+            # Fetch ensembl databases
+            databases = search_species_options(database=ENSEMBL_FTP_URL, release=ens_rel)
+    
+            # Add ensembl invertebrate databases
+            databases += search_species_options(database=ENSEMBL_FTP_URL_NV, release=None)
+    
+            db = []
+            for datab in databases:
+                if species in datab:
+                    db.append(datab)
+    
+            # Unless an unambigious mouse database is specified,
+            # the standard core database will be used
+            if len(db) > 1 and "mus_musculus" in species:
+                db = f"mus_musculus_core_{ens_rel}_39"
+                logger.warning(
+                    f"Defaulting to mus musculus core database: {db}.\n"
+                    "All available vertebrate databases can be found here:\n"
+                    f"http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
+                )
+    
+            elif len(db) > 1 and "homo_sapiens" in species:
+                db = f"homo_sapiens_core_{ens_rel}_38"
+    
+            # Check for ambiguous species matches in species other than mouse and human
+            elif (
+                len(db) > 1
+                and "mus_musculus" not in species
+                and "homo_sapiens" not in species
+            ):
+                logger.warning(
+                    f"Species matches more than one database. Defaulting to first database: {db[0]}.\n"
+                    "All available databases can be found here:\n"
+                    f"Vertebrates: http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
+                    f"Invertebrates: http://ftp.ensemblgenomes.org/pub/release-{find_latest_ens_rel(database=ENSEMBL_FTP_URL_NV)} + kingdom + mysql/"
+                )
+                db = db[0]
+    
+            # Raise error if no matching database was found
+            elif len(db) == 0:
+                raise ValueError(
+                    "Species not found. Please double-check spelling or pass a specific CORE database.\n"
+                    "All available CORE databases can be found here:\n"
+                    f"Vertebrates: http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
+                    f"Invertebrates: http://ftp.ensemblgenomes.org/pub/release-{find_latest_ens_rel(database=ENSEMBL_FTP_URL_NV)} + kingdom + mysql/"
+                )
+    
+            else:
+                db = db[0]
+    
+        if verbose:
+            logger.info(f"Fetching results from database: {db}")
+    
+        ## Connect to Ensembl SQL server data for specified species
+        # Ports to try (some databases are stored in different ports)
+        # 3306 (and 5306) for the Ensembl instances, 3337 for GRCh37, 4157 for Ensembl Genomes, and 5316 for mart
+        ports = [3306, 5306, 4157, 3337, 5316]
+    
+        connection_successful = False
+        last_exception = None
+        for port in ports:
+            try:
+                db_connection = sql.connect(
+                    host="mysql-eg-publicsql.ebi.ac.uk",
+                    database=db,
+                    user="anonymous",
+                    password="",
+                    port=port,
+                )
+                connection_successful = True
+                break
+            except Exception as e:
+                last_exception = e
+                # Continue to the next port if the connection is unsuccessful
+                continue
+    
+        # If none of the ports work, raise an error with the last exception encountered
+        if not connection_successful:
+            if "Access denied" in str(last_exception):
+                raise RuntimeError(
+                    f"""
+                    The Ensembl server returned the following error: {str(last_exception)}.
+                    This might be caused by the Ensembl release number being too low.
+                    Please try again with a more recent release.
+                    """
+                )
+            else:
+>               raise RuntimeError(
+                    f"The Ensembl server returned the following error: {str(last_exception)}"
+                )
+E               RuntimeError: The Ensembl server returned the following error: 1049 (42000): Unknown database 'mus_musculus_dba2j_core_105_1'
+
+gget/gget_search.py:222: RuntimeError
+------------------------------ Captured log call -------------------------------
+INFO     gget.utils:gget_search.py:186 Fetching results from database: mus_musculus_dba2j_core_105_1
+______________________ TestSearch.test_search_gene_one_sw ______________________
+
+self = <tests.test_search.TestSearch testMethod=test_search_gene_one_sw>
+
+    def assert_equal_na(self: unittest.TestCase):
+        test = name
+        expected_result = td[test]["expected_result"]
+>       result_to_test = do_call(func, td[test]["args"])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/from_json.py:87: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+func = <function search at 0x7f88e3382ca0>
+args = {'id_type': 'gene', 'limit': None, 'searchwords': 'swiss', 'species': 'drosophila_melanogaster_core_110_10'}
+
+    def do_call(func, args):
+        if isinstance(args, dict):
+>           return func(**args)
+                   ^^^^^^^^^^^^
+
+tests/from_json.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+searchwords = 'swiss', species = 'drosophila_melanogaster_core_110_10'
+release = None, id_type = 'gene', seqtype = None, andor = 'or', limit = None
+wrap_text = False, json = False, save = False, verbose = True
+
+    def search(
+        searchwords,
+        species,
+        release=None,
+        id_type="gene",
+        seqtype=None,
+        andor="or",
+        limit=None,
+        wrap_text=False,
+        json=False,
+        save=False,
+        verbose=True,
+    ):
+        """
+        Function to query Ensembl for genes based on species and free form search terms.
+        Automatically fetches results from latest Ensembl release, unless user specifies database (see 'species' argument)
+        or release database (see 'release' argument).
+    
+        Args:
+        - searchwords     Free form search words (not case-sensitive) as a string or list of strings
+                          (e.g.searchwords = ["GABA", "gamma-aminobutyric"]).
+        - species         Species can be passed in the format "genus_species", e.g. "homo_sapiens" or "arabidopsis_thaliana".
+                          To pass a specific database, enter the name of the core database, e.g. "mus_musculus_dba2j_core_105_1".
+                          All available core databases can be found here:
+                          Vertebrates: http://ftp.ensembl.org/pub/current/mysql/
+                          Invertebrates: http://ftp.ensemblgenomes.org/pub/current/ + kingdom + mysql/
+        - release         Defines the Ensembl release number from which the files are fetched, e.g. 104.
+                          Note: This argument does not apply to invertebrate species (you can pass a specific core database (which includes release number) to the species argument instead).
+                          This argument is overwritten if a specific database (which includes a release number) is passed to the species argument.
+                          Default: None -> latest Ensembl release is used
+        - id_type         "gene" (default) or "transcript"
+                          Defines whether genes or transcripts matching the searchwords are returned.
+        - andor           "or" (default) or "and"
+                          "or": Returns all genes that INCLUDE AT LEAST ONE of the searchwords in their name/description.
+                          "and": Returns only genes that INCLUDE ALL of the searchwords in their name/description.
+        - limit           (int) Limit the number of search results returned (default: None).
+        - wrap_text       If True, displays data frame with wrapped text for easy reading. Default: False.
+        - json            If True, returns results in json format instead of data frame. Default: False.
+        - save            If True, the data frame is saved as a csv in the current directory (default: False).
+        - verbose         True/False whether to print progress information. Default True.
+    
+        Returns a data frame with the query results.
+    
+        Note: Only returns results based on matches in the "gene name" or "description" sections in the Ensembl database.
+    
+        Deprecated arguments: 'seqtype' (renamed to id_type)
+        """
+        # Handle deprecated arguments
+        if seqtype:
+            logger.error(
+                "'seqtype' argument deprecated! Please use argument 'id_type' instead."
+            )
+            return
+    
+        start_time = time.time()
+    
+        ## Check validity or arguments
+        # Check if id_type is valid
+        id_types = ["gene", "transcript"]
+        id_type = id_type.lower()
+        if id_type not in id_types:
+            raise ValueError(
+                f"ID type (id_type) specified is '{id_type}'. Expected one of: {', '.join(id_types)}"
+            )
+    
+        # Check if 'andor' arg is valid
+        andors = ["and", "or"]
+        andor = andor.lower()
+        if andor not in andors:
+            raise ValueError(
+                f"'andor' argument specified as {andor}. Expected one of {', '.join(andors)}"
+            )
+    
+        ## Get database for specified species
+        # Species shortcuts
+        if species == "human":
+            species = "homo_sapiens"
+        if species == "mouse":
+            species = "mus_musculus"
+    
+        # If a specific database is passed with the "/" at the end, remove it
+        if "/" in species:
+            species = species.split("/")[0]
+    
+        # In case species was passed with upper case letters
+        species = species.lower()
+    
+        if "core" in species:
+            db = species
+            if release:
+                logger.warning(
+                    "Specified release overwritten because database name was provided."
+                )
+        else:
+            if release:
+                ens_rel = release
+            else:
+                # Find latest Ensembl release
+                ens_rel = find_latest_ens_rel()
+    
+            # Fetch ensembl databases
+            databases = search_species_options(database=ENSEMBL_FTP_URL, release=ens_rel)
+    
+            # Add ensembl invertebrate databases
+            databases += search_species_options(database=ENSEMBL_FTP_URL_NV, release=None)
+    
+            db = []
+            for datab in databases:
+                if species in datab:
+                    db.append(datab)
+    
+            # Unless an unambigious mouse database is specified,
+            # the standard core database will be used
+            if len(db) > 1 and "mus_musculus" in species:
+                db = f"mus_musculus_core_{ens_rel}_39"
+                logger.warning(
+                    f"Defaulting to mus musculus core database: {db}.\n"
+                    "All available vertebrate databases can be found here:\n"
+                    f"http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
+                )
+    
+            elif len(db) > 1 and "homo_sapiens" in species:
+                db = f"homo_sapiens_core_{ens_rel}_38"
+    
+            # Check for ambiguous species matches in species other than mouse and human
+            elif (
+                len(db) > 1
+                and "mus_musculus" not in species
+                and "homo_sapiens" not in species
+            ):
+                logger.warning(
+                    f"Species matches more than one database. Defaulting to first database: {db[0]}.\n"
+                    "All available databases can be found here:\n"
+                    f"Vertebrates: http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
+                    f"Invertebrates: http://ftp.ensemblgenomes.org/pub/release-{find_latest_ens_rel(database=ENSEMBL_FTP_URL_NV)} + kingdom + mysql/"
+                )
+                db = db[0]
+    
+            # Raise error if no matching database was found
+            elif len(db) == 0:
+                raise ValueError(
+                    "Species not found. Please double-check spelling or pass a specific CORE database.\n"
+                    "All available CORE databases can be found here:\n"
+                    f"Vertebrates: http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
+                    f"Invertebrates: http://ftp.ensemblgenomes.org/pub/release-{find_latest_ens_rel(database=ENSEMBL_FTP_URL_NV)} + kingdom + mysql/"
+                )
+    
+            else:
+                db = db[0]
+    
+        if verbose:
+            logger.info(f"Fetching results from database: {db}")
+    
+        ## Connect to Ensembl SQL server data for specified species
+        # Ports to try (some databases are stored in different ports)
+        # 3306 (and 5306) for the Ensembl instances, 3337 for GRCh37, 4157 for Ensembl Genomes, and 5316 for mart
+        ports = [3306, 5306, 4157, 3337, 5316]
+    
+        connection_successful = False
+        last_exception = None
+        for port in ports:
+            try:
+                db_connection = sql.connect(
+                    host="mysql-eg-publicsql.ebi.ac.uk",
+                    database=db,
+                    user="anonymous",
+                    password="",
+                    port=port,
+                )
+                connection_successful = True
+                break
+            except Exception as e:
+                last_exception = e
+                # Continue to the next port if the connection is unsuccessful
+                continue
+    
+        # If none of the ports work, raise an error with the last exception encountered
+        if not connection_successful:
+            if "Access denied" in str(last_exception):
+                raise RuntimeError(
+                    f"""
+                    The Ensembl server returned the following error: {str(last_exception)}.
+                    This might be caused by the Ensembl release number being too low.
+                    Please try again with a more recent release.
+                    """
+                )
+            else:
+>               raise RuntimeError(
+                    f"The Ensembl server returned the following error: {str(last_exception)}"
+                )
+E               RuntimeError: The Ensembl server returned the following error: 1049 (42000): Unknown database 'drosophila_melanogaster_core_110_10'
+
+gget/gget_search.py:222: RuntimeError
+------------------------------ Captured log call -------------------------------
+INFO     gget.utils:gget_search.py:186 Fetching results from database: drosophila_melanogaster_core_110_10
+___________________ TestSearch.test_search_gene_one_sw_json ____________________
+
+self = <tests.test_search.TestSearch testMethod=test_search_gene_one_sw_json>
+
+    def assert_equal_na(self: unittest.TestCase):
+        test = name
+        expected_result = td[test]["expected_result"]
+>       result_to_test = do_call(func, td[test]["args"])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/from_json.py:87: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+func = <function search at 0x7f88e3382ca0>
+args = {'id_type': 'gene', 'json': True, 'searchwords': 'swiss', 'species': 'drosophila_melanogaster_core_110_10'}
+
+    def do_call(func, args):
+        if isinstance(args, dict):
+>           return func(**args)
+                   ^^^^^^^^^^^^
+
+tests/from_json.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+searchwords = 'swiss', species = 'drosophila_melanogaster_core_110_10'
+release = None, id_type = 'gene', seqtype = None, andor = 'or', limit = None
+wrap_text = False, json = True, save = False, verbose = True
+
+    def search(
+        searchwords,
+        species,
+        release=None,
+        id_type="gene",
+        seqtype=None,
+        andor="or",
+        limit=None,
+        wrap_text=False,
+        json=False,
+        save=False,
+        verbose=True,
+    ):
+        """
+        Function to query Ensembl for genes based on species and free form search terms.
+        Automatically fetches results from latest Ensembl release, unless user specifies database (see 'species' argument)
+        or release database (see 'release' argument).
+    
+        Args:
+        - searchwords     Free form search words (not case-sensitive) as a string or list of strings
+                          (e.g.searchwords = ["GABA", "gamma-aminobutyric"]).
+        - species         Species can be passed in the format "genus_species", e.g. "homo_sapiens" or "arabidopsis_thaliana".
+                          To pass a specific database, enter the name of the core database, e.g. "mus_musculus_dba2j_core_105_1".
+                          All available core databases can be found here:
+                          Vertebrates: http://ftp.ensembl.org/pub/current/mysql/
+                          Invertebrates: http://ftp.ensemblgenomes.org/pub/current/ + kingdom + mysql/
+        - release         Defines the Ensembl release number from which the files are fetched, e.g. 104.
+                          Note: This argument does not apply to invertebrate species (you can pass a specific core database (which includes release number) to the species argument instead).
+                          This argument is overwritten if a specific database (which includes a release number) is passed to the species argument.
+                          Default: None -> latest Ensembl release is used
+        - id_type         "gene" (default) or "transcript"
+                          Defines whether genes or transcripts matching the searchwords are returned.
+        - andor           "or" (default) or "and"
+                          "or": Returns all genes that INCLUDE AT LEAST ONE of the searchwords in their name/description.
+                          "and": Returns only genes that INCLUDE ALL of the searchwords in their name/description.
+        - limit           (int) Limit the number of search results returned (default: None).
+        - wrap_text       If True, displays data frame with wrapped text for easy reading. Default: False.
+        - json            If True, returns results in json format instead of data frame. Default: False.
+        - save            If True, the data frame is saved as a csv in the current directory (default: False).
+        - verbose         True/False whether to print progress information. Default True.
+    
+        Returns a data frame with the query results.
+    
+        Note: Only returns results based on matches in the "gene name" or "description" sections in the Ensembl database.
+    
+        Deprecated arguments: 'seqtype' (renamed to id_type)
+        """
+        # Handle deprecated arguments
+        if seqtype:
+            logger.error(
+                "'seqtype' argument deprecated! Please use argument 'id_type' instead."
+            )
+            return
+    
+        start_time = time.time()
+    
+        ## Check validity or arguments
+        # Check if id_type is valid
+        id_types = ["gene", "transcript"]
+        id_type = id_type.lower()
+        if id_type not in id_types:
+            raise ValueError(
+                f"ID type (id_type) specified is '{id_type}'. Expected one of: {', '.join(id_types)}"
+            )
+    
+        # Check if 'andor' arg is valid
+        andors = ["and", "or"]
+        andor = andor.lower()
+        if andor not in andors:
+            raise ValueError(
+                f"'andor' argument specified as {andor}. Expected one of {', '.join(andors)}"
+            )
+    
+        ## Get database for specified species
+        # Species shortcuts
+        if species == "human":
+            species = "homo_sapiens"
+        if species == "mouse":
+            species = "mus_musculus"
+    
+        # If a specific database is passed with the "/" at the end, remove it
+        if "/" in species:
+            species = species.split("/")[0]
+    
+        # In case species was passed with upper case letters
+        species = species.lower()
+    
+        if "core" in species:
+            db = species
+            if release:
+                logger.warning(
+                    "Specified release overwritten because database name was provided."
+                )
+        else:
+            if release:
+                ens_rel = release
+            else:
+                # Find latest Ensembl release
+                ens_rel = find_latest_ens_rel()
+    
+            # Fetch ensembl databases
+            databases = search_species_options(database=ENSEMBL_FTP_URL, release=ens_rel)
+    
+            # Add ensembl invertebrate databases
+            databases += search_species_options(database=ENSEMBL_FTP_URL_NV, release=None)
+    
+            db = []
+            for datab in databases:
+                if species in datab:
+                    db.append(datab)
+    
+            # Unless an unambigious mouse database is specified,
+            # the standard core database will be used
+            if len(db) > 1 and "mus_musculus" in species:
+                db = f"mus_musculus_core_{ens_rel}_39"
+                logger.warning(
+                    f"Defaulting to mus musculus core database: {db}.\n"
+                    "All available vertebrate databases can be found here:\n"
+                    f"http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
+                )
+    
+            elif len(db) > 1 and "homo_sapiens" in species:
+                db = f"homo_sapiens_core_{ens_rel}_38"
+    
+            # Check for ambiguous species matches in species other than mouse and human
+            elif (
+                len(db) > 1
+                and "mus_musculus" not in species
+                and "homo_sapiens" not in species
+            ):
+                logger.warning(
+                    f"Species matches more than one database. Defaulting to first database: {db[0]}.\n"
+                    "All available databases can be found here:\n"
+                    f"Vertebrates: http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
+                    f"Invertebrates: http://ftp.ensemblgenomes.org/pub/release-{find_latest_ens_rel(database=ENSEMBL_FTP_URL_NV)} + kingdom + mysql/"
+                )
+                db = db[0]
+    
+            # Raise error if no matching database was found
+            elif len(db) == 0:
+                raise ValueError(
+                    "Species not found. Please double-check spelling or pass a specific CORE database.\n"
+                    "All available CORE databases can be found here:\n"
+                    f"Vertebrates: http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
+                    f"Invertebrates: http://ftp.ensemblgenomes.org/pub/release-{find_latest_ens_rel(database=ENSEMBL_FTP_URL_NV)} + kingdom + mysql/"
+                )
+    
+            else:
+                db = db[0]
+    
+        if verbose:
+            logger.info(f"Fetching results from database: {db}")
+    
+        ## Connect to Ensembl SQL server data for specified species
+        # Ports to try (some databases are stored in different ports)
+        # 3306 (and 5306) for the Ensembl instances, 3337 for GRCh37, 4157 for Ensembl Genomes, and 5316 for mart
+        ports = [3306, 5306, 4157, 3337, 5316]
+    
+        connection_successful = False
+        last_exception = None
+        for port in ports:
+            try:
+                db_connection = sql.connect(
+                    host="mysql-eg-publicsql.ebi.ac.uk",
+                    database=db,
+                    user="anonymous",
+                    password="",
+                    port=port,
+                )
+                connection_successful = True
+                break
+            except Exception as e:
+                last_exception = e
+                # Continue to the next port if the connection is unsuccessful
+                continue
+    
+        # If none of the ports work, raise an error with the last exception encountered
+        if not connection_successful:
+            if "Access denied" in str(last_exception):
+                raise RuntimeError(
+                    f"""
+                    The Ensembl server returned the following error: {str(last_exception)}.
+                    This might be caused by the Ensembl release number being too low.
+                    Please try again with a more recent release.
+                    """
+                )
+            else:
+>               raise RuntimeError(
+                    f"The Ensembl server returned the following error: {str(last_exception)}"
+                )
+E               RuntimeError: The Ensembl server returned the following error: 1049 (42000): Unknown database 'drosophila_melanogaster_core_110_10'
+
+gget/gget_search.py:222: RuntimeError
+------------------------------ Captured log call -------------------------------
+INFO     gget.utils:gget_search.py:186 Fetching results from database: drosophila_melanogaster_core_110_10
+___________________ TestSearch.test_search_gene_one_sw_limit ___________________
+
+self = <tests.test_search.TestSearch testMethod=test_search_gene_one_sw_limit>
+
+    def assert_equal_na(self: unittest.TestCase):
+        test = name
+        expected_result = td[test]["expected_result"]
+>       result_to_test = do_call(func, td[test]["args"])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/from_json.py:87: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+func = <function search at 0x7f88e3382ca0>
+args = {'id_type': 'gene', 'limit': 3, 'searchwords': 'fun', 'species': 'human'}
+
+    def do_call(func, args):
+        if isinstance(args, dict):
+>           return func(**args)
+                   ^^^^^^^^^^^^
+
+tests/from_json.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+searchwords = 'fun', species = 'homo_sapiens', release = None, id_type = 'gene'
+seqtype = None, andor = 'or', limit = 3, wrap_text = False, json = False
+save = False, verbose = True
+
+    def search(
+        searchwords,
+        species,
+        release=None,
+        id_type="gene",
+        seqtype=None,
+        andor="or",
+        limit=None,
+        wrap_text=False,
+        json=False,
+        save=False,
+        verbose=True,
+    ):
+        """
+        Function to query Ensembl for genes based on species and free form search terms.
+        Automatically fetches results from latest Ensembl release, unless user specifies database (see 'species' argument)
+        or release database (see 'release' argument).
+    
+        Args:
+        - searchwords     Free form search words (not case-sensitive) as a string or list of strings
+                          (e.g.searchwords = ["GABA", "gamma-aminobutyric"]).
+        - species         Species can be passed in the format "genus_species", e.g. "homo_sapiens" or "arabidopsis_thaliana".
+                          To pass a specific database, enter the name of the core database, e.g. "mus_musculus_dba2j_core_105_1".
+                          All available core databases can be found here:
+                          Vertebrates: http://ftp.ensembl.org/pub/current/mysql/
+                          Invertebrates: http://ftp.ensemblgenomes.org/pub/current/ + kingdom + mysql/
+        - release         Defines the Ensembl release number from which the files are fetched, e.g. 104.
+                          Note: This argument does not apply to invertebrate species (you can pass a specific core database (which includes release number) to the species argument instead).
+                          This argument is overwritten if a specific database (which includes a release number) is passed to the species argument.
+                          Default: None -> latest Ensembl release is used
+        - id_type         "gene" (default) or "transcript"
+                          Defines whether genes or transcripts matching the searchwords are returned.
+        - andor           "or" (default) or "and"
+                          "or": Returns all genes that INCLUDE AT LEAST ONE of the searchwords in their name/description.
+                          "and": Returns only genes that INCLUDE ALL of the searchwords in their name/description.
+        - limit           (int) Limit the number of search results returned (default: None).
+        - wrap_text       If True, displays data frame with wrapped text for easy reading. Default: False.
+        - json            If True, returns results in json format instead of data frame. Default: False.
+        - save            If True, the data frame is saved as a csv in the current directory (default: False).
+        - verbose         True/False whether to print progress information. Default True.
+    
+        Returns a data frame with the query results.
+    
+        Note: Only returns results based on matches in the "gene name" or "description" sections in the Ensembl database.
+    
+        Deprecated arguments: 'seqtype' (renamed to id_type)
+        """
+        # Handle deprecated arguments
+        if seqtype:
+            logger.error(
+                "'seqtype' argument deprecated! Please use argument 'id_type' instead."
+            )
+            return
+    
+        start_time = time.time()
+    
+        ## Check validity or arguments
+        # Check if id_type is valid
+        id_types = ["gene", "transcript"]
+        id_type = id_type.lower()
+        if id_type not in id_types:
+            raise ValueError(
+                f"ID type (id_type) specified is '{id_type}'. Expected one of: {', '.join(id_types)}"
+            )
+    
+        # Check if 'andor' arg is valid
+        andors = ["and", "or"]
+        andor = andor.lower()
+        if andor not in andors:
+            raise ValueError(
+                f"'andor' argument specified as {andor}. Expected one of {', '.join(andors)}"
+            )
+    
+        ## Get database for specified species
+        # Species shortcuts
+        if species == "human":
+            species = "homo_sapiens"
+        if species == "mouse":
+            species = "mus_musculus"
+    
+        # If a specific database is passed with the "/" at the end, remove it
+        if "/" in species:
+            species = species.split("/")[0]
+    
+        # In case species was passed with upper case letters
+        species = species.lower()
+    
+        if "core" in species:
+            db = species
+            if release:
+                logger.warning(
+                    "Specified release overwritten because database name was provided."
+                )
+        else:
+            if release:
+                ens_rel = release
+            else:
+                # Find latest Ensembl release
+                ens_rel = find_latest_ens_rel()
+    
+            # Fetch ensembl databases
+            databases = search_species_options(database=ENSEMBL_FTP_URL, release=ens_rel)
+    
+            # Add ensembl invertebrate databases
+            databases += search_species_options(database=ENSEMBL_FTP_URL_NV, release=None)
+    
+            db = []
+            for datab in databases:
+                if species in datab:
+                    db.append(datab)
+    
+            # Unless an unambigious mouse database is specified,
+            # the standard core database will be used
+            if len(db) > 1 and "mus_musculus" in species:
+                db = f"mus_musculus_core_{ens_rel}_39"
+                logger.warning(
+                    f"Defaulting to mus musculus core database: {db}.\n"
+                    "All available vertebrate databases can be found here:\n"
+                    f"http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
+                )
+    
+            elif len(db) > 1 and "homo_sapiens" in species:
+                db = f"homo_sapiens_core_{ens_rel}_38"
+    
+            # Check for ambiguous species matches in species other than mouse and human
+            elif (
+                len(db) > 1
+                and "mus_musculus" not in species
+                and "homo_sapiens" not in species
+            ):
+                logger.warning(
+                    f"Species matches more than one database. Defaulting to first database: {db[0]}.\n"
+                    "All available databases can be found here:\n"
+                    f"Vertebrates: http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
+                    f"Invertebrates: http://ftp.ensemblgenomes.org/pub/release-{find_latest_ens_rel(database=ENSEMBL_FTP_URL_NV)} + kingdom + mysql/"
+                )
+                db = db[0]
+    
+            # Raise error if no matching database was found
+            elif len(db) == 0:
+                raise ValueError(
+                    "Species not found. Please double-check spelling or pass a specific CORE database.\n"
+                    "All available CORE databases can be found here:\n"
+                    f"Vertebrates: http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
+                    f"Invertebrates: http://ftp.ensemblgenomes.org/pub/release-{find_latest_ens_rel(database=ENSEMBL_FTP_URL_NV)} + kingdom + mysql/"
+                )
+    
+            else:
+                db = db[0]
+    
+        if verbose:
+            logger.info(f"Fetching results from database: {db}")
+    
+        ## Connect to Ensembl SQL server data for specified species
+        # Ports to try (some databases are stored in different ports)
+        # 3306 (and 5306) for the Ensembl instances, 3337 for GRCh37, 4157 for Ensembl Genomes, and 5316 for mart
+        ports = [3306, 5306, 4157, 3337, 5316]
+    
+        connection_successful = False
+        last_exception = None
+        for port in ports:
+            try:
+                db_connection = sql.connect(
+                    host="mysql-eg-publicsql.ebi.ac.uk",
+                    database=db,
+                    user="anonymous",
+                    password="",
+                    port=port,
+                )
+                connection_successful = True
+                break
+            except Exception as e:
+                last_exception = e
+                # Continue to the next port if the connection is unsuccessful
+                continue
+    
+        # If none of the ports work, raise an error with the last exception encountered
+        if not connection_successful:
+            if "Access denied" in str(last_exception):
+                raise RuntimeError(
+                    f"""
+                    The Ensembl server returned the following error: {str(last_exception)}.
+                    This might be caused by the Ensembl release number being too low.
+                    Please try again with a more recent release.
+                    """
+                )
+            else:
+>               raise RuntimeError(
+                    f"The Ensembl server returned the following error: {str(last_exception)}"
+                )
+E               RuntimeError: The Ensembl server returned the following error: 1049 (42000): Unknown database 'homo_sapiens_core_115_38'
+
+gget/gget_search.py:222: RuntimeError
+------------------------------ Captured log call -------------------------------
+INFO     gget.utils:gget_search.py:186 Fetching results from database: homo_sapiens_core_115_38
+____________________ TestSearch.test_search_gene_two_sw_and ____________________
+
+self = <tests.test_search.TestSearch testMethod=test_search_gene_two_sw_and>
+
+    def assert_equal_na(self: unittest.TestCase):
+        test = name
+        expected_result = td[test]["expected_result"]
+>       result_to_test = do_call(func, td[test]["args"])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/from_json.py:87: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+func = <function search at 0x7f88e3382ca0>
+args = {'andor': 'and', 'id_type': 'gene', 'limit': None, 'searchwords': ['swiss', 'cheese'], ...}
+
+    def do_call(func, args):
+        if isinstance(args, dict):
+>           return func(**args)
+                   ^^^^^^^^^^^^
+
+tests/from_json.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+searchwords = ['swiss', 'cheese']
+species = 'drosophila_melanogaster_core_110_10', release = None
+id_type = 'gene', seqtype = None, andor = 'and', limit = None, wrap_text = False
+json = False, save = False, verbose = True
+
+    def search(
+        searchwords,
+        species,
+        release=None,
+        id_type="gene",
+        seqtype=None,
+        andor="or",
+        limit=None,
+        wrap_text=False,
+        json=False,
+        save=False,
+        verbose=True,
+    ):
+        """
+        Function to query Ensembl for genes based on species and free form search terms.
+        Automatically fetches results from latest Ensembl release, unless user specifies database (see 'species' argument)
+        or release database (see 'release' argument).
+    
+        Args:
+        - searchwords     Free form search words (not case-sensitive) as a string or list of strings
+                          (e.g.searchwords = ["GABA", "gamma-aminobutyric"]).
+        - species         Species can be passed in the format "genus_species", e.g. "homo_sapiens" or "arabidopsis_thaliana".
+                          To pass a specific database, enter the name of the core database, e.g. "mus_musculus_dba2j_core_105_1".
+                          All available core databases can be found here:
+                          Vertebrates: http://ftp.ensembl.org/pub/current/mysql/
+                          Invertebrates: http://ftp.ensemblgenomes.org/pub/current/ + kingdom + mysql/
+        - release         Defines the Ensembl release number from which the files are fetched, e.g. 104.
+                          Note: This argument does not apply to invertebrate species (you can pass a specific core database (which includes release number) to the species argument instead).
+                          This argument is overwritten if a specific database (which includes a release number) is passed to the species argument.
+                          Default: None -> latest Ensembl release is used
+        - id_type         "gene" (default) or "transcript"
+                          Defines whether genes or transcripts matching the searchwords are returned.
+        - andor           "or" (default) or "and"
+                          "or": Returns all genes that INCLUDE AT LEAST ONE of the searchwords in their name/description.
+                          "and": Returns only genes that INCLUDE ALL of the searchwords in their name/description.
+        - limit           (int) Limit the number of search results returned (default: None).
+        - wrap_text       If True, displays data frame with wrapped text for easy reading. Default: False.
+        - json            If True, returns results in json format instead of data frame. Default: False.
+        - save            If True, the data frame is saved as a csv in the current directory (default: False).
+        - verbose         True/False whether to print progress information. Default True.
+    
+        Returns a data frame with the query results.
+    
+        Note: Only returns results based on matches in the "gene name" or "description" sections in the Ensembl database.
+    
+        Deprecated arguments: 'seqtype' (renamed to id_type)
+        """
+        # Handle deprecated arguments
+        if seqtype:
+            logger.error(
+                "'seqtype' argument deprecated! Please use argument 'id_type' instead."
+            )
+            return
+    
+        start_time = time.time()
+    
+        ## Check validity or arguments
+        # Check if id_type is valid
+        id_types = ["gene", "transcript"]
+        id_type = id_type.lower()
+        if id_type not in id_types:
+            raise ValueError(
+                f"ID type (id_type) specified is '{id_type}'. Expected one of: {', '.join(id_types)}"
+            )
+    
+        # Check if 'andor' arg is valid
+        andors = ["and", "or"]
+        andor = andor.lower()
+        if andor not in andors:
+            raise ValueError(
+                f"'andor' argument specified as {andor}. Expected one of {', '.join(andors)}"
+            )
+    
+        ## Get database for specified species
+        # Species shortcuts
+        if species == "human":
+            species = "homo_sapiens"
+        if species == "mouse":
+            species = "mus_musculus"
+    
+        # If a specific database is passed with the "/" at the end, remove it
+        if "/" in species:
+            species = species.split("/")[0]
+    
+        # In case species was passed with upper case letters
+        species = species.lower()
+    
+        if "core" in species:
+            db = species
+            if release:
+                logger.warning(
+                    "Specified release overwritten because database name was provided."
+                )
+        else:
+            if release:
+                ens_rel = release
+            else:
+                # Find latest Ensembl release
+                ens_rel = find_latest_ens_rel()
+    
+            # Fetch ensembl databases
+            databases = search_species_options(database=ENSEMBL_FTP_URL, release=ens_rel)
+    
+            # Add ensembl invertebrate databases
+            databases += search_species_options(database=ENSEMBL_FTP_URL_NV, release=None)
+    
+            db = []
+            for datab in databases:
+                if species in datab:
+                    db.append(datab)
+    
+            # Unless an unambigious mouse database is specified,
+            # the standard core database will be used
+            if len(db) > 1 and "mus_musculus" in species:
+                db = f"mus_musculus_core_{ens_rel}_39"
+                logger.warning(
+                    f"Defaulting to mus musculus core database: {db}.\n"
+                    "All available vertebrate databases can be found here:\n"
+                    f"http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
+                )
+    
+            elif len(db) > 1 and "homo_sapiens" in species:
+                db = f"homo_sapiens_core_{ens_rel}_38"
+    
+            # Check for ambiguous species matches in species other than mouse and human
+            elif (
+                len(db) > 1
+                and "mus_musculus" not in species
+                and "homo_sapiens" not in species
+            ):
+                logger.warning(
+                    f"Species matches more than one database. Defaulting to first database: {db[0]}.\n"
+                    "All available databases can be found here:\n"
+                    f"Vertebrates: http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
+                    f"Invertebrates: http://ftp.ensemblgenomes.org/pub/release-{find_latest_ens_rel(database=ENSEMBL_FTP_URL_NV)} + kingdom + mysql/"
+                )
+                db = db[0]
+    
+            # Raise error if no matching database was found
+            elif len(db) == 0:
+                raise ValueError(
+                    "Species not found. Please double-check spelling or pass a specific CORE database.\n"
+                    "All available CORE databases can be found here:\n"
+                    f"Vertebrates: http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
+                    f"Invertebrates: http://ftp.ensemblgenomes.org/pub/release-{find_latest_ens_rel(database=ENSEMBL_FTP_URL_NV)} + kingdom + mysql/"
+                )
+    
+            else:
+                db = db[0]
+    
+        if verbose:
+            logger.info(f"Fetching results from database: {db}")
+    
+        ## Connect to Ensembl SQL server data for specified species
+        # Ports to try (some databases are stored in different ports)
+        # 3306 (and 5306) for the Ensembl instances, 3337 for GRCh37, 4157 for Ensembl Genomes, and 5316 for mart
+        ports = [3306, 5306, 4157, 3337, 5316]
+    
+        connection_successful = False
+        last_exception = None
+        for port in ports:
+            try:
+                db_connection = sql.connect(
+                    host="mysql-eg-publicsql.ebi.ac.uk",
+                    database=db,
+                    user="anonymous",
+                    password="",
+                    port=port,
+                )
+                connection_successful = True
+                break
+            except Exception as e:
+                last_exception = e
+                # Continue to the next port if the connection is unsuccessful
+                continue
+    
+        # If none of the ports work, raise an error with the last exception encountered
+        if not connection_successful:
+            if "Access denied" in str(last_exception):
+                raise RuntimeError(
+                    f"""
+                    The Ensembl server returned the following error: {str(last_exception)}.
+                    This might be caused by the Ensembl release number being too low.
+                    Please try again with a more recent release.
+                    """
+                )
+            else:
+>               raise RuntimeError(
+                    f"The Ensembl server returned the following error: {str(last_exception)}"
+                )
+E               RuntimeError: The Ensembl server returned the following error: 1049 (42000): Unknown database 'drosophila_melanogaster_core_110_10'
+
+gget/gget_search.py:222: RuntimeError
+------------------------------ Captured log call -------------------------------
+INFO     gget.utils:gget_search.py:186 Fetching results from database: drosophila_melanogaster_core_110_10
 =============================== warnings summary ===============================
 tests/test_blast.py::TestBlast::test_blast_nt
   /home/runner/work/gget/gget/gget/gget_blast.py:327: FutureWarning: Passing literal html to 'read_html' is deprecated and will be removed in a future version. To read from a literal string, wrap it in a 'StringIO' object.
@@ -279,28 +1303,28 @@ tests/test_blast.py::TestBlast::test_blast_nt
 
 tests/test_cbio.py::TestCbioSearch::test_cbio_search
 tests/test_cbio.py::TestCbioSearch::test_cbio_search
-  /opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/swagger_spec_validator/validator12.py:18: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
+  /opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/swagger_spec_validator/validator12.py:18: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
     from jsonschema import RefResolver
 
 tests/test_cbio.py::TestCbioSearch::test_cbio_search
-  /opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/swagger_spec_validator/ref_validators.py:14: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
+  /opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/swagger_spec_validator/ref_validators.py:14: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
     from jsonschema.validators import RefResolver
 
 tests/test_cbio.py::TestCbioSearch::test_cbio_search
-  /opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/swagger_spec_validator/validator20.py:18: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
+  /opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/swagger_spec_validator/validator20.py:18: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
     from jsonschema.validators import RefResolver
 
 tests/test_cbio.py::TestCbioSearch::test_cbio_search
 tests/test_cbio.py::TestCbioSearch::test_cbio_search
-  /opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/bravado_core/swagger20_validator.py:6: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
+  /opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/bravado_core/swagger20_validator.py:6: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
     from jsonschema import RefResolver
 
 tests/test_cbio.py::TestCbioSearch::test_cbio_search
-  /opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/bravado_core/spec.py:14: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
+  /opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/bravado_core/spec.py:14: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
     from jsonschema.validators import RefResolver
 
 tests/test_cbio.py: 16 warnings
-  /opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/site-packages/bravado_core/model.py:888: DeprecationWarning: jsonschema.RefResolver.in_scope is deprecated and will be removed in a future release.
+  /opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/bravado_core/model.py:888: DeprecationWarning: jsonschema.RefResolver.in_scope is deprecated and will be removed in a future release.
     with spec.resolver.in_scope(additional_uri):
 
 tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
@@ -309,7 +1333,7 @@ tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
 
 tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
 tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
-  /opt/hostedtoolcache/Python/3.12.12/x64/lib/python3.12/functools.py:912: ImplicitModificationWarning: Transforming to str index.
+  /opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/functools.py:912: ImplicitModificationWarning: Transforming to str index.
     return dispatch(args[0].__class__)(*args, **kw)
 
 tests/test_cosmic.py::TestCosmicWorkflow::test_cosmic_defaults
@@ -325,7 +1349,6 @@ tests/test_mutate.py: 29 warnings
     mask = mutations[mut_column].str.contains(combined_pattern)
 
 tests/test_ref.py: 22 warnings
-tests/test_utils.py: 1 warning
   /home/runner/work/gget/gget/gget/utils.py:924: DeprecationWarning: Call to deprecated method findAll. (Replaced by find_all) -- Deprecated since version 4.0.0.
     for subsoup in soup.body.findAll("a"):
 
@@ -339,82 +1362,52 @@ tests/test_ref.py::TestRef::test_ref_ftp
     links = [stuff.text.strip() for stuff in soup.findAll("td")]
 
 tests/test_ref.py: 32 warnings
-tests/test_utils.py: 4 warnings
   /home/runner/work/gget/gget/gget/utils.py:899: DeprecationWarning: Call to deprecated method findAll. (Replaced by find_all) -- Deprecated since version 4.0.0.
     for subsoup in soup.body.findAll("a"):
 
-tests/test_ref.py: 7 warnings
-tests/test_search.py: 44 warnings
+tests/test_ref.py::TestRef::test_ref_plant
+tests/test_ref.py::TestRef::test_ref_rel_ftp_octopus
+tests/test_ref.py::TestRef::test_ref_rel_ftp_octopus
+tests/test_ref.py::TestRef::test_ref_rel_ftp_octopus
+tests/test_ref.py::TestRef::test_ref_rel_protist
+tests/test_ref.py::TestRef::test_ref_rel_protist
+tests/test_ref.py::TestRef::test_ref_which_plant
   /home/runner/work/gget/gget/gget/utils.py:845: DeprecationWarning: Call to deprecated method findAll. (Replaced by find_all) -- Deprecated since version 4.0.0.
     for subsoup in soup.body.findAll("a"):
 
-tests/test_search.py: 10 warnings
-  /home/runner/work/gget/gget/gget/gget_search.py:244: UserWarning: pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3 DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
-    df_temp = pd.read_sql(query, con=db_connection)
-
-tests/test_search.py: 9 warnings
-tests/test_utils.py: 1 warning
+tests/test_search.py::TestSearch::test_search_gene_bad_species
+tests/test_search.py::TestSearch::test_search_gene_one_sw_limit
   /home/runner/work/gget/gget/gget/utils.py:822: DeprecationWarning: Call to deprecated method findAll. (Replaced by find_all) -- Deprecated since version 4.0.0.
     for subsoup in soup.body.findAll("a"):
 
-tests/test_search.py: 36 warnings
-tests/test_utils.py: 4 warnings
+tests/test_search.py::TestSearch::test_search_gene_bad_species
+tests/test_search.py::TestSearch::test_search_gene_bad_species
+tests/test_search.py::TestSearch::test_search_gene_bad_species
+tests/test_search.py::TestSearch::test_search_gene_bad_species
+tests/test_search.py::TestSearch::test_search_gene_one_sw_limit
+tests/test_search.py::TestSearch::test_search_gene_one_sw_limit
+tests/test_search.py::TestSearch::test_search_gene_one_sw_limit
+tests/test_search.py::TestSearch::test_search_gene_one_sw_limit
   /home/runner/work/gget/gget/gget/utils.py:804: DeprecationWarning: Call to deprecated method findAll. (Replaced by find_all) -- Deprecated since version 4.0.0.
     for subsoup in soup.body.findAll("a"):
 
-tests/test_search.py::TestSearch::test_search_gene_two_sw_limit
-tests/test_search.py::TestSearch::test_search_transcript_one_sw
-tests/test_search.py::TestSearch::test_search_transcript_two_sw_and
-tests/test_search.py::TestSearch::test_search_transcript_two_sw_or
-  /home/runner/work/gget/gget/gget/gget_search.py:279: UserWarning: pandas only supports SQLAlchemy connectable (engine/connection) or database string URI or sqlite3 DBAPI2 connection. Other DBAPI2 objects are not tested. Please consider using SQLAlchemy.
-    df_temp = pd.read_sql(query, con=db_connection)
-
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-================================ tests coverage ================================
-_______________ coverage: platform linux, python 3.12.12-final-0 _______________
-
-Name                       Stmts   Miss  Cover   Missing
---------------------------------------------------------
-gget/__init__.py              35      2    94%   34-35
-gget/__main__.py               2      2     0%   1-3
-gget/compile.py               39     27    31%   30-84
-gget/constants.py             34      0   100%
-gget/gget_8cube.py            83     28    66%   26-27, 34-43, 93, 105, 112, 115-118, 158, 175, 182, 185-188, 229, 246, 255, 258-261
-gget/gget_alphafold.py       362    321    11%   86-108, 115-116, 123-149, 181-186, 233-867
-gget/gget_archs4.py           79     13    84%   75-78, 84, 107, 123-126, 139-142, 148, 170, 198-201, 207
-gget/gget_bgee.py             56      6    89%   60, 83, 103, 130, 154, 175
-gget/gget_blast.py           127     36    72%   92, 124-142, 163-165, 204, 207, 251-255, 296-299, 302-303, 322-325, 332-333, 336-341, 346, 351-354
-gget/gget_blat.py             86     10    88%   58-62, 95, 136, 139, 168, 232-233, 239
-gget/gget_cbio.py            524    412    21%   28, 39-67, 77-87, 128-143, 149, 154-157, 161, 164, 172-177, 208, 225-227, 265, 271-275, 278, 282-294, 296, 322-331, 334, 376-389, 393-416, 420-441, 447-450, 454-473, 477, 494-537, 540-757, 760-789, 802-1164, 1218-1254
-gget/gget_cellxgene.py        53      9    83%   21-22, 140-149, 176, 215, 231, 247
-gget/gget_cosmic.py          277    153    45%   24-26, 30-82, 94-109, 112-114, 117-119, 122-126, 131-135, 140-142, 155-168, 189-202, 220, 242-243, 283-308, 311, 396-398, 410, 416, 424, 427-429, 454-472, 496-621, 637-646, 649, 651, 653, 852-855, 868-870, 879-891, 896-901
-gget/gget_diamond.py          98     26    73%   16, 69, 75, 77, 95, 98-99, 105, 111, 117-121, 130-132, 145, 147, 160, 162, 181, 184, 216-217, 223
-gget/gget_elm.py             158     22    86%   128, 278, 301, 325-332, 353, 420-423, 426, 436, 490, 503, 506-515, 519-520
-gget/gget_enrichr.py         213     42    80%   39-42, 48, 172, 226-237, 254-255, 263-264, 290, 310, 316-322, 336, 364-374, 403-418, 439, 451-453, 555, 564-565, 575-576, 583
-gget/gget_gpt.py              20      6    70%   56-65, 88, 110-111
-gget/gget_info.py            316    106    66%   58-59, 63-64, 150-152, 161-162, 175, 201-206, 213-216, 242, 255-266, 300-308, 324-342, 368-369, 453-454, 461-462, 465-466, 469-470, 473-474, 507-508, 511-512, 515-516, 543-544, 547-548, 551-552, 575-576, 579-673, 677
-gget/gget_muscle.py           85     12    86%   17, 45, 68-69, 78-80, 91, 94, 115, 162-163
-gget/gget_mutate.py          434    193    56%   124-175, 186, 190-198, 215-226, 274-278, 283-287, 291-296, 300-305, 309-312, 317-320, 324-334, 340-350, 493, 516-520, 528, 538-542, 553-557, 576, 583, 593-600, 611, 616, 624, 635, 730-741, 855-879, 891-904, 948-985, 1032-1050, 1053-1056, 1070-1077, 1083-1093, 1109-1110, 1147, 1152, 1156, 1160, 1165-1241, 1255-1258, 1299, 1308-1324, 1332-1336, 1341, 1349, 1353
-gget/gget_opentargets.py     148      6    96%   75, 184, 192-195, 204-205
-gget/gget_pdb.py              60     22    63%   52, 58, 67, 75, 83, 104, 108-110, 113-129, 141-147
-gget/gget_ref.py             215     57    73%   32, 97-98, 117-118, 124-152, 161, 174, 176, 178-179, 186-187, 225, 244, 256-258, 279-281, 308-310, 329-331, 384-386, 485-494, 507, 512-513, 529-534, 538, 542, 548, 553-554
-gget/gget_search.py          142     23    84%   84-87, 96, 113, 117, 125, 149-150, 157, 165-171, 213-222, 308-309, 315-316, 368-369, 376-377, 385
-gget/gget_seq.py             146     24    84%   44-47, 49, 119, 140-143, 177-178, 207-208, 245-248, 271-272, 293, 312-315, 334, 356, 365, 402-405
-gget/gget_setup.py           215    149    31%   49-90, 108, 113, 116, 128-138, 152, 175-176, 189, 199, 209, 221-466
-gget/gget_virus.py          2921   1608    45%   138, 198, 240, 243, 261, 265, 276-277, 318-322, 327-341, 348, 359-360, 378-383, 398-414, 427-428, 463-502, 555, 679-680, 684, 738-742, 745-750, 760, 762, 764, 766, 768, 770, 792, 804-811, 821-822, 861-892, 965-966, 1018-1020, 1070-1222, 1247-1248, 1273-1275, 1283-1531, 1540-1541, 1583-1680, 1705-1706, 1739-1740, 1773-2003, 2025-2074, 2127-2280, 2328-2440, 2494-2601, 2635, 2642-2643, 2711, 2730-2752, 2768-2770, 2816, 2847, 2870, 2879-2933, 2941, 2944-2945, 2952-2954, 2965-2979, 3007-3015, 3051, 3102-3109, 3192-3193, 3237, 3243-3249, 3260, 3277-3283, 3295-3301, 3332, 3339-3340, 3346-3347, 3495, 3510-3511, 3554, 3557-3558, 3560-3562, 3598, 3601-3602, 3604-3606, 3618-3619, 3630-3638, 3644-3646, 3656-3659, 3666, 3671-3687, 3691-3704, 3708-3716, 3734-3737, 3756-3757, 3811-3814, 3980-3982, 4012-4014, 4047, 4050, 4062-4063, 4092-4093, 4097-4105, 4109-4126, 4136, 4139, 4143-4147, 4190-4192, 4223, 4233-4298, 4400, 4437-4443, 4453, 4482-4485, 4512-4515, 4531, 4534-4535, 4600, 4643, 4655-4658, 4823-4825, 4862-5028, 5097, 5135-5137, 5151-5165, 5169-5179, 5183-5187, 5200-5204, 5208-5221, 5245-5248, 5251-5253, 5267-5270, 5273-5275, 5288-5318, 5322-5341, 5353-5356, 5359-5362, 5367-5385, 5389-5399, 5405-5407, 5418-5480, 5485-5516, 5529-5536, 5650, 5684-5688, 5725, 5729-5730, 5770, 5785, 5799-5800, 5845-5847, 5881, 5883-5922, 5930, 5932-5970, 5981-6019, 6059-6062, 6081, 6086-6103, 6107-6112, 6137-6153, 6170-6171, 6217-6234, 6245-6246, 6255-6279, 6284, 6327, 6340-6342, 6351-6356, 6385-6399, 6422-6431, 6464-6467, 6487-6637, 6652-6653, 6659-6672, 6674, 6677-6680, 6683-6687, 6700
-gget/main.py                 857    857     0%   1-3872
-gget/utils.py                448     77    83%   31, 36-42, 72, 95, 119, 122, 186, 193, 245, 257, 285, 296, 347, 367, 378, 411-412, 452-453, 468-469, 476-478, 494-495, 501-502, 623-639, 676, 695, 757, 797, 837, 953, 961, 969-989, 994, 999, 1005-1006, 1024-1025, 1116, 1140-1141, 1156, 1164
---------------------------------------------------------
-TOTAL                       8233   4249    48%
 ============================= slowest 10 durations =============================
-626.73s call     tests/test_blast.py::TestBlast::test_blast_nt
-49.85s call     tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
-35.75s call     tests/test_virus.py::TestVirus::test_virus_with_annotated_filter
-33.92s call     tests/test_virus.py::TestVirus::test_virus_integer_virus_id
-33.88s call     tests/test_search.py::TestSearch::test_search_gene_two_sw_limit
-29.12s call     tests/test_virus.py::TestVirus::test_virus_with_has_proteins_filter
-25.56s call     tests/test_virus.py::TestVirus::test_virus_with_lab_passaged_filter
-23.11s call     tests/test_virus.py::TestVirus::test_virus_with_source_database_filter
-22.63s call     tests/test_virus.py::TestVirus::test_virus_with_max_ambiguous_chars_filter
-20.97s call     tests/test_virus.py::TestVirus::test_virus_with_protein_count_filters
-================ 263 passed, 273 warnings in 1317.39s (0:21:57) ================
+75.86s call     tests/test_blast.py::TestBlast::test_blast_nt
+50.75s call     tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
+14.15s call     tests/test_info.py::TestInfo::test_info_gene
+13.32s call     tests/test_elm.py::TestELM::test_elm_uniprot_id_new
+11.80s setup    tests/test_cosmic.py::TestCosmicWorkflow::test_cosmic_defaults
+10.05s call     tests/test_cosmic.py::TestCosmicWorkflow::test_cosmic_defaults
+6.49s call     tests/test_ref.py::TestRef::test_ref
+6.04s call     tests/test_enrichr.py::TestEnrichr::test_enrichr_background_ensembl
+5.87s call     tests/test_ref.py::TestRef::test_ref_plant
+5.38s call     tests/test_ref.py::TestRef::test_ref_rel_ftp_octopus
+=========================== short test summary info ============================
+FAILED tests/test_search.py::TestSearch::test_search_db - RuntimeError: The Ensembl server returned the following error: 1049 (42000): Unknown database 'mus_musculus_dba2j_core_105_1'
+FAILED tests/test_search.py::TestSearch::test_search_gene_one_sw - RuntimeError: The Ensembl server returned the following error: 1049 (42000): Unknown database 'drosophila_melanogaster_core_110_10'
+FAILED tests/test_search.py::TestSearch::test_search_gene_one_sw_json - RuntimeError: The Ensembl server returned the following error: 1049 (42000): Unknown database 'drosophila_melanogaster_core_110_10'
+FAILED tests/test_search.py::TestSearch::test_search_gene_one_sw_limit - RuntimeError: The Ensembl server returned the following error: 1049 (42000): Unknown database 'homo_sapiens_core_115_38'
+FAILED tests/test_search.py::TestSearch::test_search_gene_two_sw_and - RuntimeError: The Ensembl server returned the following error: 1049 (42000): Unknown database 'drosophila_melanogaster_core_110_10'
+!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 5 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
+=========== 5 failed, 165 passed, 170 warnings in 326.11s (0:05:26) ============
