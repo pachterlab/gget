@@ -1,6 +1,9 @@
 [<kbd> View page source on GitHub </kbd>](https://github.com/pachterlab/gget/blob/main/docs/src/en/updates.md)
 
 ## ✨ What's new
+**Version ≥ 0.30.4** (Mar 18, 2026):
+- [`gget blast`](blast.md): Fixed compatibility with newer pandas versions (≥ 2.0) where `pd.read_html()` no longer accepts raw HTML strings directly, causing a `FileNotFoundError` / `OSError: Filename too long` error when parsing BLAST results
+
 **Version ≥ 0.30.3** (Feb 22, 2026):  
 - [`gget virus`](virus.md): New filtering options, quiet mode, and improved download reliability
   - Added `--segment` filter for segmented viruses (e.g., Influenza A segments like 'HA', 'NA', 'PB1')
