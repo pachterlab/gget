@@ -1,11 +1,11 @@
-Pytest results (Python 3.12) - 2026-03-23T16:25:06Z
+Pytest results (Python 3.12) - 2026-03-26T16:31:40Z
 
 ============================= test session starts ==============================
 platform linux -- Python 3.12.13, pytest-9.0.2, pluggy-1.6.0 -- /opt/hostedtoolcache/Python/3.12.13/x64/bin/python
 cachedir: .pytest_cache
 rootdir: /home/runner/work/gget/gget
 configfile: pyproject.toml
-plugins: zarr-3.1.5, fast-array-utils-1.3.1, cov-7.1.0
+plugins: fast-array-utils-1.3.1, cov-7.1.0, zarr-3.1.6
 collecting ... collected 263 items
 
 tests/test_8cube.py::TestSpecificity::test_specificity_basic PASSED      [  0%]
@@ -70,7 +70,7 @@ tests/test_elm.py::TestELM::test_elm_uniprot_aminoacidseq PASSED         [ 22%]
 tests/test_elm.py::TestELM::test_elm_uniprot_id_in_elm PASSED            [ 22%]
 tests/test_elm.py::TestELM::test_elm_uniprot_id_new PASSED               [ 23%]
 tests/test_enrichr.py::TestEnrichr::test_enrichr_background PASSED       [ 23%]
-tests/test_enrichr.py::TestEnrichr::test_enrichr_background_ensembl FAILED [ 23%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_background_ensembl PASSED [ 23%]
 tests/test_enrichr.py::TestEnrichr::test_enrichr_bad_background PASSED   [ 24%]
 tests/test_enrichr.py::TestEnrichr::test_enrichr_bad_background_list PASSED [ 24%]
 tests/test_enrichr.py::TestEnrichr::test_enrichr_bad_database_shortcut PASSED [ 25%]
@@ -78,7 +78,7 @@ tests/test_enrichr.py::TestEnrichr::test_enrichr_bad_gene PASSED         [ 25%]
 tests/test_enrichr.py::TestEnrichr::test_enrichr_bad_species PASSED      [ 25%]
 tests/test_enrichr.py::TestEnrichr::test_enrichr_celltypes PASSED        [ 26%]
 tests/test_enrichr.py::TestEnrichr::test_enrichr_diseases_drugs PASSED   [ 26%]
-tests/test_enrichr.py::TestEnrichr::test_enrichr_ensembl_ids FAILED      [ 26%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_ensembl_ids PASSED      [ 26%]
 tests/test_enrichr.py::TestEnrichr::test_enrichr_fish PASSED             [ 27%]
 tests/test_enrichr.py::TestEnrichr::test_enrichr_fly PASSED              [ 27%]
 tests/test_enrichr.py::TestEnrichr::test_enrichr_json PASSED             [ 28%]
@@ -92,752 +92,139 @@ tests/test_enrichr.py::TestEnrichr::test_enrichr_transcription PASSED    [ 30%]
 tests/test_enrichr.py::TestEnrichr::test_enrichr_worm PASSED             [ 31%]
 tests/test_enrichr.py::TestEnrichr::test_enrichr_yeast PASSED            [ 31%]
 tests/test_gpt.py::TestGpt::test_gpt PASSED                              [ 31%]
-tests/test_info.py::TestInfo::test_info_WB_transcript FAILED             [ 32%]
-tests/test_info.py::TestInfo::test_info_exon FAILED                      [ 32%]
-tests/test_info.py::TestInfo::test_info_gene FAILED                      [ 33%]
+tests/test_info.py::TestInfo::test_info_WB_transcript PASSED             [ 32%]
+tests/test_info.py::TestInfo::test_info_exon PASSED                      [ 32%]
+tests/test_info.py::TestInfo::test_info_gene PASSED                      [ 33%]
+tests/test_info.py::TestInfo::test_info_gene_list_non_model PASSED       [ 33%]
+tests/test_info.py::TestInfo::test_info_mix PASSED                       [ 33%]
+tests/test_info.py::TestInfo::test_info_ncbifalse_uniprotfalse PASSED    [ 34%]
+tests/test_info.py::TestInfo::test_info_ncbifalse_uniprottrue PASSED     [ 34%]
+tests/test_info.py::TestInfo::test_info_ncbitrue_uniprotfalse PASSED     [ 34%]
+tests/test_info.py::TestInfo::test_info_transcript PASSED                [ 35%]
+tests/test_muscle.py::TestMuscle::test_muscle_nt PASSED                  [ 35%]
+tests/test_muscle.py::TestMuscle::test_muscle_nt_txt PASSED              [ 36%]
+tests/test_muscle.py::TestMuscleSuper::test_muscle_nt_super5 PASSED      [ 36%]
+tests/test_muscle.py::TestMuscleAA::test_muscle_aa PASSED                [ 36%]
+tests/test_muscle.py::TestMuscleSeqsInput::test_muscle_seqs_as_input PASSED [ 37%]
+tests/test_muscle.py::TestMuscleAASuper::test_muscle_aa_super5 PASSED    [ 37%]
+tests/test_muscle.py::TestMusclePrints::test_muscle_print_nt PASSED      [ 38%]
+tests/test_mutate.py::TestMutate::test_ambiguous_mutation PASSED         [ 38%]
+tests/test_mutate.py::TestMutate::test_index_error PASSED                [ 38%]
+tests/test_mutate.py::TestMutate::test_intron_mutation_minus PASSED      [ 39%]
+tests/test_mutate.py::TestMutate::test_intron_mutation_plus PASSED       [ 39%]
+tests/test_mutate.py::TestMutate::test_inversion_with_overlaps PASSED    [ 39%]
+tests/test_mutate.py::TestMutate::test_large_k PASSED                    [ 40%]
+tests/test_mutate.py::TestMutate::test_list_of_mutations PASSED          [ 40%]
+tests/test_mutate.py::TestMutate::test_multi_deletion PASSED             [ 41%]
+tests/test_mutate.py::TestMutate::test_multi_deletion_with_right_repeats PASSED [ 41%]
+tests/test_mutate.py::TestMutate::test_multi_delins PASSED               [ 41%]
+tests/test_mutate.py::TestMutate::test_multi_delins_with_psuedo_left_repeats PASSED [ 42%]
+tests/test_mutate.py::TestMutate::test_multi_delins_with_true_left_repeats PASSED [ 42%]
+tests/test_mutate.py::TestMutate::test_multi_delins_with_true_right_repeats PASSED [ 42%]
+tests/test_mutate.py::TestMutate::test_multi_dup PASSED                  [ 43%]
+tests/test_mutate.py::TestMutate::test_multi_insertion PASSED            [ 43%]
+tests/test_mutate.py::TestMutate::test_multi_insertion_with_left_repeats PASSED [ 44%]
+tests/test_mutate.py::TestMutate::test_posttranslational_mutation PASSED [ 44%]
+tests/test_mutate.py::TestMutate::test_single_deletion PASSED            [ 44%]
+tests/test_mutate.py::TestMutate::test_single_deletion_with_left_repeats PASSED [ 45%]
+tests/test_mutate.py::TestMutate::test_single_deletion_with_right_repeats PASSED [ 45%]
+tests/test_mutate.py::TestMutate::test_single_delins PASSED              [ 46%]
+tests/test_mutate.py::TestMutate::test_single_dup PASSED                 [ 46%]
+tests/test_mutate.py::TestMutate::test_single_insertion PASSED           [ 46%]
+tests/test_mutate.py::TestMutate::test_single_substitution PASSED        [ 47%]
+tests/test_mutate.py::TestMutate::test_single_substitution_near_left_end PASSED [ 47%]
+tests/test_mutate.py::TestMutate::test_single_substitution_near_right_end PASSED [ 47%]
+tests/test_mutate.py::TestMutate::test_uncertain_mutation PASSED         [ 48%]
+tests/test_mutate.py::test_csv_of_mutations PASSED                       [ 48%]
+tests/test_mutate.py::test_mismatch_error PASSED                         [ 49%]
+tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_bad_limit PASSED [ 49%]
+tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_bad_resource PASSED [ 49%]
+tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_diseases_filter PASSED [ 50%]
+tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_drugs_invalid_filter PASSED [ 50%]
+tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_nonexistent_id PASSED [ 50%]
+tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_tractability_limit PASSED [ 51%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets FAILED      [ 51%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_depmap FAILED [ 52%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_depmap_filter PASSED [ 52%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_drugs FAILED [ 52%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_drugs_no_limit FAILED [ 53%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_expression_no_limit FAILED [ 53%]
 
 =================================== FAILURES ===================================
-_________________ TestEnrichr.test_enrichr_background_ensembl __________________
+_______________________ TestOpenTargets.test_opentargets _______________________
 
-self = <tests.test_enrichr.TestEnrichr testMethod=test_enrichr_background_ensembl>
+self = <tests.test_opentargets.TestOpenTargets testMethod=test_opentargets>
 
-    def test_enrichr_background_ensembl(self):
-        test = "test_enrichr_background_ensembl"
-        expected_result = enrichr_dict[test]["expected_result"]
->       result_to_test = enrichr(**enrichr_dict[test]["args"])
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    def assert_equal(self: unittest.TestCase):
+        test = name
+        expected_result = td[test]["expected_result"]
+        result_to_test = do_call(func, td[test]["args"])
+        if test == "test_cosmic_defaults":  # special case for cosmic
+            import numpy as np
+            expected_result = pd.DataFrame(expected_result[0])
+            expected_result = expected_result.replace({None: np.nan})
+            # result_to_test.equals(expected_result)
+            pd.testing.assert_frame_equal(result_to_test, expected_result)
+            return
+    
+        # If result is a DataFrame, convert to list
+        if isinstance(result_to_test, pd.DataFrame):
+            result_to_test = result_to_test.dropna(axis=1).values.tolist()
+    
+>       self.assertEqual(result_to_test, expected_result)
+E       AssertionError: Lists differ: [['EF[171 chars]', 0.7297489019498119], ['MONDO_0004979', 'ast[535 chars]653]] != [['EF[171 chars]', 0.6908981975876463], ['MONDO_0004979', 'ast[535 chars]614]]
+E       
+E       First differing element 0:
+E       ['EFO[129 chars] occurs during the first 2 years of life.', 0.7297489019498119]
+E       ['EFO[129 chars] occurs during the first 2 years of life.', 0.6908981975876463]
+E       
+E         [['EFO_0000274',
+E           'atopic eczema',
+E           'A common chronic pruritic inflammatory skin disease with a strong genetic '
+E           'component. Onset typically occurs during the first 2 years of life.',
+E       -   0.7297489019498119],
+E       +   0.6908981975876463],
+E          ['MONDO_0004979',
+E           'asthma',
+E           'A bronchial disease that is characterized by chronic inflammation and '
+E           'narrowing of the airways, which is caused by a combination of environmental '
+E           'and genetic factors resulting in recurring periods of wheezing (a whistling '
+E           'sound while breathing), chest tightness, shortness of breath, mucus '
+E           'production and coughing. The symptoms appear due to a variety of triggers '
+E           'such as allergens, irritants, respiratory infections, weather changes, '
+E           'exercise, stress, reflux disease, medications, foods and emotional anxiety.',
+E       -   0.6642728577751653]]
+E       +   0.6506508395200614]]
 
-tests/test_enrichr.py:44: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-genes = ['ENSG00000120053', 'ENSG00000129596', 'ENSG00000163631', 'ENSG00000167701', 'ENSG00000244067']
-database = 'PanglaoDB_Augmented_2021', species = 'human'
-background_list = ['ENSG00000120053', 'ENSG00000129596', 'ENSG00000131910', 'ENSG00000139631', 'ENSG00000163631', 'ENSG00000167701', ...]
-background = False, ensembl = True, ensembl_bkg = True, plot = False
-figsize = (10, 10), ax = None, kegg_out = None, kegg_rank = 1, json = False
-save = False, verbose = True
-
-    def enrichr(
-        genes,
-        database,
-        species="human",
-        background_list=None,
-        background=False,
-        ensembl=False,
-        ensembl_bkg=False,
-        plot=False,
-        figsize=(10, 10),
-        ax=None,
-        kegg_out=None,
-        kegg_rank=1,
-        json=False,
-        save=False,
-        verbose=True,
-    ):
-        """
-        Perform an enrichment analysis on a list of genes using Enrichr (https://maayanlab.cloud/Enrichr/).
-    
-        Args:
-        - genes             List of Entrez gene symbols to perform enrichment analysis on, passed as a list of strings, e.g. ['PHF14', 'RBM3', 'MSL1', 'PHF21A'].
-                            Set 'ensembl = True' to input a list of Ensembl gene IDs, e.g. ['ENSG00000106443', 'ENSG00000102317', 'ENSG00000188895'].
-        - database          Database to use as reference for the enrichment analysis.
-                            Supported shortcuts (and their default database), ONLY SUPPORTED FOR HUMAN/MOUSE SPECIES (other species must specify the full database name):
-                            'pathway' (KEGG_2021_Human)
-                            'transcription' (ChEA_2016)
-                            'ontology' (GO_Biological_Process_2021)
-                            'diseases_drugs' (GWAS_Catalog_2019)
-                            'celltypes' (PanglaoDB_Augmented_2021)
-                            'kinase_interactions' (KEA_2015)
-                            or any database listed under Gene-set Library at: https://maayanlab.cloud/Enrichr/#libraries or the species-specific libraries listed below
-        - species           Enrichr species database to query. Options:
-                            'human' (default) [H. sapiens] - https://maayanlab.cloud/Enrichr/#libraries
-                            'mouse' [M. musculus] - equivalent to 'human'
-                            'fly' [D. melanogaster] - https://maayanlab.cloud/FlyEnrichr/#stats
-                            'yeast' [S. cerevisiae] - https://maayanlab.cloud/YeastEnrichr/#stats
-                            'worm' [C. elegans] - https://maayanlab.cloud/WormEnrichr/#stats
-                            'fish' [D. rerio] - https://maayanlab.cloud/FishEnrichr/#stats
-        - background_list   List of gene names/Ensembl IDs to be used as background genes. ONLY SUPPORTED FOR HUMAN/MOUSE SPECIES (Default: None)
-        - background        If True, use set of > 20,000 default background genes listed here: https://github.com/pachterlab/gget/blob/main/gget/constants/enrichr_bkg_genes.txt.
-                            ONLY SUPPORTED FOR HUMAN/MOUSE SPECIES (Default: False)
-        - ensembl           Define as 'True' if 'genes' is a list of Ensembl gene IDs. (Default: False)
-        - ensembl_bkg       Define as 'True' if 'background_list' is a list of Ensembl gene IDs. (Default: False)
-        - plot              True/False whether to provide a graphical overview of the first 15 results. (Default: False)
-        - figsize           (width, height) of plot in inches. (Default: (10,10))
-        - ax                Pass a matplotlib axes object for further customization of the plot. (Default: None)
-        - kegg_out          Path to file to save the highlighted KEGG pathway image, e.g. path/to/folder/kegg_pathway.png. (Default: None)
-        - kegg_rank         Candidate pathway rank to be plotted in KEGG pathway image. (Default: 1)
-        - json              If True, returns results in json format instead of data frame. (Default: False)
-        - save              True/False whether to save the results in the local directory. (Default: False)
-        - verbose           True/False whether to print progress information. (Default: True)
-    
-        Returns a data frame with the Enrichr results.
-        """
-    
-        if species not in ["human", "mouse", "fly", "yeast", "worm", "fish"]:
-            raise ValueError(
-                f"Argument 'species' must be one of 'human', 'mouse', 'fly', 'yeast', 'worm', or 'fish'."
-            )
-    
-        if species == "mouse":
-            species = "human"
-    
-        species_enrichr = f"{species.capitalize()}Enrichr"
-        if species == "human":
-            species_enrichr = "Enrichr"
-    
-        if species != "human":
-            if database in [
-                "pathway",
-                "transcription",
-                "ontology",
-                "diseases_drugs",
-                "celltypes",
-                "kinase_interactions",
-            ]:
-                raise ValueError(
-                    f"Database '{database}' is not supported for species '{species}'."
-                    f" Please select a database from the species-specific libraries listed at:"
-                    f" https://maayanlab.cloud/{species_enrichr}/#stats."
-                )
-    
-            if background:
-                raise ValueError(
-                    f"Background genes are only supported for species 'human' and 'mouse', not for species '{species}'."
-                    f" Please set 'background=False' or leave it unspecified."
-                )
-    
-            if background_list:
-                raise ValueError(
-                    f"Background genes are only supported for species 'human' and 'mouse', not for species '{species}'."
-                    f" Please do not provide a value for 'background_list'."
-                )
-    
-        # Define database
-        # All available libraries: https://maayanlab.cloud/Enrichr/#libraries
-        if species == "human":
-            db_message = f"""
-            Please note that there might be a more appropriate database for your application.
-            Go to https://maayanlab.cloud/{species_enrichr}/#libraries for a full list of supported databases.
-            """
-        else:
-            db_message = f"""
-            Please note that there might be a more appropriate database for your application.
-            Go to https://maayanlab.cloud/{species_enrichr}/#stats for a full list of supported databases.
-            """
-        if not isinstance(background, bool):
-            raise ValueError(
-                f"Argument`background` must be a boolean True/False. If you are adding a background list, use the argument `background_list` instead."
-            )
-    
-        # Handle database shortcuts
-        if database == "pathway":
-            database = "KEGG_2021_Human"
-            if verbose:
-                logger.info(
-                    f"Performing Enrichr analysis using database {database}. " + db_message
-                )
-    
-        elif database == "transcription":
-            database = "ChEA_2016"
-            if verbose:
-                logger.info(
-                    f"Performing Enrichr analysis using database {database}. " + db_message
-                )
-    
-        elif database == "ontology":
-            database = "GO_Biological_Process_2021"
-            if verbose:
-                logger.info(
-                    f"Performing Enrichr analysis using database {database}. " + db_message
-                )
-    
-        elif database == "diseases_drugs":
-            database = "GWAS_Catalog_2019"
-            if verbose:
-                logger.info(
-                    f"Performing Enrichr analysis using database {database}. " + db_message
-                )
-    
-        elif database == "celltypes":
-            database = "PanglaoDB_Augmented_2021"
-            if verbose:
-                logger.info(
-                    f"Performing Enrichr analysis using database {database}. " + db_message
-                )
-    
-        elif database == "kinase_interactions":
-            database = "KEA_2015"
-            if verbose:
-                logger.info(
-                    f"Performing Enrichr analysis using database {database}. " + db_message
-                )
-    
-        else:
-            database = database
-            if verbose:
-                logger.info(f"Performing Enrichr analysis using database {database}.")
-    
-        # To generate a KEGG pathway image, confirm that the database is a KEGG database and pykegg is installed
-        if kegg_out:
-            if not database.startswith("KEGG"):
-                logger.error(
-                    "Please specify a KEGG database when generating a KEGG pathway image."
-                )
-                return
-            try:
-                import pykegg
-            except ImportError:
-                logger.error(
-                    "Please install `pykegg` to generate a KEGG pathway image. Pykegg can be installed using pip: 'pip install pykegg'"
-                )
-                return
-    
-        # If single gene passed as string, convert to list
-        if isinstance(genes, str):
-            genes = [genes]
-    
-        ## Transform Ensembl IDs to gene symbols
-        if ensembl:
-            if verbose:
-                logger.info("Getting gene symbols from Ensembl IDs.")
-    
->           genes_v2 = ensembl_to_gene_names(genes)
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-gget/gget_enrichr.py:248: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-ensembl_ids = ['ENSG00000120053', 'ENSG00000129596', 'ENSG00000163631', 'ENSG00000167701', 'ENSG00000244067']
-
-    def ensembl_to_gene_names(ensembl_ids):
-        """
-        Function to fetch gene names from a list of Ensembl IDs using gget info.
-        """
-        genes_v2 = []
-    
-        # Remove version number if passed
-        ensembl_ids = [gene_id.split(".")[0] for gene_id in ensembl_ids]
-    
->       info_df = info(ensembl_ids, pdb=False, ncbi=False, uniprot=False, verbose=False)
-                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-gget/gget_enrichr.py:34: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-ens_ids = ['ENSG00000120053', 'ENSG00000129596', 'ENSG00000163631', 'ENSG00000167701', 'ENSG00000244067']
-wrap_text = False, ncbi = False, uniprot = False, pdb = False, json = False
-verbose = False, save = False, expand = False, ensembl_only = False
-
-    def info(
-        ens_ids,
-        wrap_text=False,
-        ncbi=True,
-        uniprot=True,
-        pdb=False,
-        json=False,
-        verbose=True,
-        save=False,
-        expand=False,
-        ensembl_only=False,
-    ):
-        """
-        Fetch gene and transcript metadata using Ensembl IDs.
-    
-        Args:
-        - ens_ids       One or more Ensembl IDs to look up (string or list of strings).
-                        Also supports WormBase and Flybase IDs.
-        - wrap_text     If True, displays data frame with wrapped text for easy reading. Default: False.
-        - ncbi          If False, does not return data from NCBI. Default: True.
-        - uniprot       If False, does not return data from UniProt. Default: True.
-        - pdb           If True, also returns PDB IDs (might increase run time). Default: False.
-        - json          If True, returns results in json/dictionary format instead of data frame. Default: False.
-        - verbose       True/False whether to print progress information. Default True.
-        - save          True/False wether to save csv with query results in current working directory. Default: False.
-    
-        Returns a data frame containing the requested information.
-    
-        Deprecated arguments:
-        - expand        (gget info now always returns all of the available information)
-        - ensembl_only  If True, only returns results from Ensembl (excludes PDB, UniProt, and NCBI results). Default: False.
-        """
-        # Handle deprecated arguments
-        if expand:
-            if verbose:
-                logger.warning(
-                    "'expand' argument deprecated! gget info now always returns all of the available information."
-                )
-        if ensembl_only:
-            if verbose:
-                logger.warning(
-                    "'ensembl_only' argument deprecated! Please use arguments 'ncbi=False' and 'uniprot=False'."
-                )
-    
-        # Set synonyms found by each database initially to none
-        ncbi_synonyms = None
-        df_uniprot = None
-        df_pdb = pd.DataFrame()
-        df_ncbi = pd.DataFrame()
-    
-        # Rename pdb, uniprot, ncbi arguments
-        fetch_ncbi = ncbi
-        fetch_uniprot = uniprot
-        fetch_pdb = pdb
-    
-        # Define Ensembl REST API server
-        server = ENSEMBL_REST_API
-        # Define type of returned content from REST
-        content_type = "application/json"
-    
-        ## Clean up Ensembl IDs
-        # If single Ensembl ID passed as string, convert to list
-        if type(ens_ids) == str:
-            ens_ids = [ens_ids]
-        # Remove Ensembl ID version if passed
-        ens_ids_clean = []
-        temp = 0
-        for ensembl_ID in ens_ids:
-            # But only for Ensembl ID (and not for flybase/wormbase IDs)
-            if ensembl_ID.startswith("ENS"):
-                ens_ids_clean.append(ensembl_ID.split(".")[0])
-    
-                if "." in ensembl_ID and temp == 0:
-                    if verbose is True:
-                        logger.info(
-                            "We noticed that you passed a version number with your Ensembl ID.\n"
-                            "Please note that gget info will always return information linked to the latest Ensembl ID version (see 'ensembl_id')."
-                        )
-                    temp = +1
-    
-            else:
-                ens_ids_clean.append(ensembl_ID)
-    
-        # Remove duplicates in the Ensembl ID list without changing their order
-        ens_ids_clean = sorted(set(ens_ids_clean), key=ens_ids_clean.index)
-        # Create second clean list of Ensembl IDs which will not include IDs that were not found
-        ens_ids_clean_2 = ens_ids_clean.copy()
-    
-        # Initiate dictionary to save results for all IDs in
-        master_dict = {}
-    
-        # Query REST APIs from https://rest.ensembl.org/
-        endpoint = "lookup/id/"
-        query = {"ids": ens_ids_clean, "expand": True}
-    
->       results_dict = post_query(server, endpoint, query)
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-gget/gget_info.py:119: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-server = 'http://rest.ensembl.org/', endpoint = 'lookup/id/'
-query = {'expand': True, 'ids': ['ENSG00000120053', 'ENSG00000129596', 'ENSG00000163631', 'ENSG00000167701', 'ENSG00000244067']}
-
-    def post_query(server, endpoint, query):
-        """
-        Function to perform a POST API query.
-    
-        :param server:  Server to query .
-        :param endpoint: Server endpoint
-        :param query:   Query that is passed to server.
-    
-        :return: server output
-        """
-    
-        r = requests.post(
-            server + endpoint, json=query, headers={"Content-Type": "application/json"}
-        )
-    
-        if not r.ok:
->           raise RuntimeError(
-                f"{server} returned error status code {r.status_code}. "
-                "Please double-check arguments and try again.\n"
-            )
-E           RuntimeError: http://rest.ensembl.org/ returned error status code 503. Please double-check arguments and try again.
-
-gget/utils.py:695: RuntimeError
+tests/from_json.py:78: AssertionError
 ------------------------------ Captured log call -------------------------------
-INFO     gget.utils:gget_enrichr.py:208 Performing Enrichr analysis using database PanglaoDB_Augmented_2021. 
-        Please note that there might be a more appropriate database for your application. 
-        Go to https://maayanlab.cloud/Enrichr/#libraries for a full list of supported databases.
-        
-INFO     gget.utils:gget_enrichr.py:246 Getting gene symbols from Ensembl IDs.
-_____________________ TestEnrichr.test_enrichr_ensembl_ids _____________________
+INFO     gget.utils:gget_opentargets.py:345 Retrieved 2/1367 associated diseases.
+___________________ TestOpenTargets.test_opentargets_depmap ____________________
 
-self = <tests.test_enrichr.TestEnrichr testMethod=test_enrichr_ensembl_ids>
+self = <tests.test_opentargets.TestOpenTargets testMethod=test_opentargets_depmap>
 
-    def assert_equal(self: unittest.TestCase):
+    def assert_equal_json_hash(self: unittest.TestCase):
         test = name
         expected_result = td[test]["expected_result"]
->       result_to_test = do_call(func, td[test]["args"])
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        result_to_test = do_call(func, td[test]["args"])
+        # If result is a DataFrame, convert to list
+        if isinstance(result_to_test, pd.DataFrame):
+            result_to_test = result_to_test.dropna(axis=1).values.tolist()
+    
+        result_to_test = json.dumps(result_to_test)
+        result_to_test = hashlib.md5(result_to_test.encode()).hexdigest()
+    
+>       self.assertEqual(result_to_test, expected_result)
+E       AssertionError: '4c550571d29a7e0136e12e2fa9297655' != '4c0393626ee958f860d4c1fd0b6b77ee'
+E       - 4c550571d29a7e0136e12e2fa9297655
+E       + 4c0393626ee958f860d4c1fd0b6b77ee
 
-tests/from_json.py:65: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-func = <function enrichr at 0x7f862cd18400>
-args = {'database': 'ontology', 'ensembl': True, 'genes': ['ENSG00000106443.2', 'ENSG00000102317', 'ENSG00000188895.4', 'ENSG00000135365']}
-
-    def do_call(func, args):
-        if isinstance(args, dict):
->           return func(**args)
-                   ^^^^^^^^^^^^
-
-tests/from_json.py:57: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-genes = ['ENSG00000106443.2', 'ENSG00000102317', 'ENSG00000188895.4', 'ENSG00000135365']
-database = 'GO_Biological_Process_2021', species = 'human'
-background_list = None, background = False, ensembl = True, ensembl_bkg = False
-plot = False, figsize = (10, 10), ax = None, kegg_out = None, kegg_rank = 1
-json = False, save = False, verbose = True
-
-    def enrichr(
-        genes,
-        database,
-        species="human",
-        background_list=None,
-        background=False,
-        ensembl=False,
-        ensembl_bkg=False,
-        plot=False,
-        figsize=(10, 10),
-        ax=None,
-        kegg_out=None,
-        kegg_rank=1,
-        json=False,
-        save=False,
-        verbose=True,
-    ):
-        """
-        Perform an enrichment analysis on a list of genes using Enrichr (https://maayanlab.cloud/Enrichr/).
-    
-        Args:
-        - genes             List of Entrez gene symbols to perform enrichment analysis on, passed as a list of strings, e.g. ['PHF14', 'RBM3', 'MSL1', 'PHF21A'].
-                            Set 'ensembl = True' to input a list of Ensembl gene IDs, e.g. ['ENSG00000106443', 'ENSG00000102317', 'ENSG00000188895'].
-        - database          Database to use as reference for the enrichment analysis.
-                            Supported shortcuts (and their default database), ONLY SUPPORTED FOR HUMAN/MOUSE SPECIES (other species must specify the full database name):
-                            'pathway' (KEGG_2021_Human)
-                            'transcription' (ChEA_2016)
-                            'ontology' (GO_Biological_Process_2021)
-                            'diseases_drugs' (GWAS_Catalog_2019)
-                            'celltypes' (PanglaoDB_Augmented_2021)
-                            'kinase_interactions' (KEA_2015)
-                            or any database listed under Gene-set Library at: https://maayanlab.cloud/Enrichr/#libraries or the species-specific libraries listed below
-        - species           Enrichr species database to query. Options:
-                            'human' (default) [H. sapiens] - https://maayanlab.cloud/Enrichr/#libraries
-                            'mouse' [M. musculus] - equivalent to 'human'
-                            'fly' [D. melanogaster] - https://maayanlab.cloud/FlyEnrichr/#stats
-                            'yeast' [S. cerevisiae] - https://maayanlab.cloud/YeastEnrichr/#stats
-                            'worm' [C. elegans] - https://maayanlab.cloud/WormEnrichr/#stats
-                            'fish' [D. rerio] - https://maayanlab.cloud/FishEnrichr/#stats
-        - background_list   List of gene names/Ensembl IDs to be used as background genes. ONLY SUPPORTED FOR HUMAN/MOUSE SPECIES (Default: None)
-        - background        If True, use set of > 20,000 default background genes listed here: https://github.com/pachterlab/gget/blob/main/gget/constants/enrichr_bkg_genes.txt.
-                            ONLY SUPPORTED FOR HUMAN/MOUSE SPECIES (Default: False)
-        - ensembl           Define as 'True' if 'genes' is a list of Ensembl gene IDs. (Default: False)
-        - ensembl_bkg       Define as 'True' if 'background_list' is a list of Ensembl gene IDs. (Default: False)
-        - plot              True/False whether to provide a graphical overview of the first 15 results. (Default: False)
-        - figsize           (width, height) of plot in inches. (Default: (10,10))
-        - ax                Pass a matplotlib axes object for further customization of the plot. (Default: None)
-        - kegg_out          Path to file to save the highlighted KEGG pathway image, e.g. path/to/folder/kegg_pathway.png. (Default: None)
-        - kegg_rank         Candidate pathway rank to be plotted in KEGG pathway image. (Default: 1)
-        - json              If True, returns results in json format instead of data frame. (Default: False)
-        - save              True/False whether to save the results in the local directory. (Default: False)
-        - verbose           True/False whether to print progress information. (Default: True)
-    
-        Returns a data frame with the Enrichr results.
-        """
-    
-        if species not in ["human", "mouse", "fly", "yeast", "worm", "fish"]:
-            raise ValueError(
-                f"Argument 'species' must be one of 'human', 'mouse', 'fly', 'yeast', 'worm', or 'fish'."
-            )
-    
-        if species == "mouse":
-            species = "human"
-    
-        species_enrichr = f"{species.capitalize()}Enrichr"
-        if species == "human":
-            species_enrichr = "Enrichr"
-    
-        if species != "human":
-            if database in [
-                "pathway",
-                "transcription",
-                "ontology",
-                "diseases_drugs",
-                "celltypes",
-                "kinase_interactions",
-            ]:
-                raise ValueError(
-                    f"Database '{database}' is not supported for species '{species}'."
-                    f" Please select a database from the species-specific libraries listed at:"
-                    f" https://maayanlab.cloud/{species_enrichr}/#stats."
-                )
-    
-            if background:
-                raise ValueError(
-                    f"Background genes are only supported for species 'human' and 'mouse', not for species '{species}'."
-                    f" Please set 'background=False' or leave it unspecified."
-                )
-    
-            if background_list:
-                raise ValueError(
-                    f"Background genes are only supported for species 'human' and 'mouse', not for species '{species}'."
-                    f" Please do not provide a value for 'background_list'."
-                )
-    
-        # Define database
-        # All available libraries: https://maayanlab.cloud/Enrichr/#libraries
-        if species == "human":
-            db_message = f"""
-            Please note that there might be a more appropriate database for your application.
-            Go to https://maayanlab.cloud/{species_enrichr}/#libraries for a full list of supported databases.
-            """
-        else:
-            db_message = f"""
-            Please note that there might be a more appropriate database for your application.
-            Go to https://maayanlab.cloud/{species_enrichr}/#stats for a full list of supported databases.
-            """
-        if not isinstance(background, bool):
-            raise ValueError(
-                f"Argument`background` must be a boolean True/False. If you are adding a background list, use the argument `background_list` instead."
-            )
-    
-        # Handle database shortcuts
-        if database == "pathway":
-            database = "KEGG_2021_Human"
-            if verbose:
-                logger.info(
-                    f"Performing Enrichr analysis using database {database}. " + db_message
-                )
-    
-        elif database == "transcription":
-            database = "ChEA_2016"
-            if verbose:
-                logger.info(
-                    f"Performing Enrichr analysis using database {database}. " + db_message
-                )
-    
-        elif database == "ontology":
-            database = "GO_Biological_Process_2021"
-            if verbose:
-                logger.info(
-                    f"Performing Enrichr analysis using database {database}. " + db_message
-                )
-    
-        elif database == "diseases_drugs":
-            database = "GWAS_Catalog_2019"
-            if verbose:
-                logger.info(
-                    f"Performing Enrichr analysis using database {database}. " + db_message
-                )
-    
-        elif database == "celltypes":
-            database = "PanglaoDB_Augmented_2021"
-            if verbose:
-                logger.info(
-                    f"Performing Enrichr analysis using database {database}. " + db_message
-                )
-    
-        elif database == "kinase_interactions":
-            database = "KEA_2015"
-            if verbose:
-                logger.info(
-                    f"Performing Enrichr analysis using database {database}. " + db_message
-                )
-    
-        else:
-            database = database
-            if verbose:
-                logger.info(f"Performing Enrichr analysis using database {database}.")
-    
-        # To generate a KEGG pathway image, confirm that the database is a KEGG database and pykegg is installed
-        if kegg_out:
-            if not database.startswith("KEGG"):
-                logger.error(
-                    "Please specify a KEGG database when generating a KEGG pathway image."
-                )
-                return
-            try:
-                import pykegg
-            except ImportError:
-                logger.error(
-                    "Please install `pykegg` to generate a KEGG pathway image. Pykegg can be installed using pip: 'pip install pykegg'"
-                )
-                return
-    
-        # If single gene passed as string, convert to list
-        if isinstance(genes, str):
-            genes = [genes]
-    
-        ## Transform Ensembl IDs to gene symbols
-        if ensembl:
-            if verbose:
-                logger.info("Getting gene symbols from Ensembl IDs.")
-    
->           genes_v2 = ensembl_to_gene_names(genes)
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-gget/gget_enrichr.py:248: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-ensembl_ids = ['ENSG00000106443', 'ENSG00000102317', 'ENSG00000188895', 'ENSG00000135365']
-
-    def ensembl_to_gene_names(ensembl_ids):
-        """
-        Function to fetch gene names from a list of Ensembl IDs using gget info.
-        """
-        genes_v2 = []
-    
-        # Remove version number if passed
-        ensembl_ids = [gene_id.split(".")[0] for gene_id in ensembl_ids]
-    
->       info_df = info(ensembl_ids, pdb=False, ncbi=False, uniprot=False, verbose=False)
-                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-gget/gget_enrichr.py:34: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-ens_ids = ['ENSG00000106443', 'ENSG00000102317', 'ENSG00000188895', 'ENSG00000135365']
-wrap_text = False, ncbi = False, uniprot = False, pdb = False, json = False
-verbose = False, save = False, expand = False, ensembl_only = False
-
-    def info(
-        ens_ids,
-        wrap_text=False,
-        ncbi=True,
-        uniprot=True,
-        pdb=False,
-        json=False,
-        verbose=True,
-        save=False,
-        expand=False,
-        ensembl_only=False,
-    ):
-        """
-        Fetch gene and transcript metadata using Ensembl IDs.
-    
-        Args:
-        - ens_ids       One or more Ensembl IDs to look up (string or list of strings).
-                        Also supports WormBase and Flybase IDs.
-        - wrap_text     If True, displays data frame with wrapped text for easy reading. Default: False.
-        - ncbi          If False, does not return data from NCBI. Default: True.
-        - uniprot       If False, does not return data from UniProt. Default: True.
-        - pdb           If True, also returns PDB IDs (might increase run time). Default: False.
-        - json          If True, returns results in json/dictionary format instead of data frame. Default: False.
-        - verbose       True/False whether to print progress information. Default True.
-        - save          True/False wether to save csv with query results in current working directory. Default: False.
-    
-        Returns a data frame containing the requested information.
-    
-        Deprecated arguments:
-        - expand        (gget info now always returns all of the available information)
-        - ensembl_only  If True, only returns results from Ensembl (excludes PDB, UniProt, and NCBI results). Default: False.
-        """
-        # Handle deprecated arguments
-        if expand:
-            if verbose:
-                logger.warning(
-                    "'expand' argument deprecated! gget info now always returns all of the available information."
-                )
-        if ensembl_only:
-            if verbose:
-                logger.warning(
-                    "'ensembl_only' argument deprecated! Please use arguments 'ncbi=False' and 'uniprot=False'."
-                )
-    
-        # Set synonyms found by each database initially to none
-        ncbi_synonyms = None
-        df_uniprot = None
-        df_pdb = pd.DataFrame()
-        df_ncbi = pd.DataFrame()
-    
-        # Rename pdb, uniprot, ncbi arguments
-        fetch_ncbi = ncbi
-        fetch_uniprot = uniprot
-        fetch_pdb = pdb
-    
-        # Define Ensembl REST API server
-        server = ENSEMBL_REST_API
-        # Define type of returned content from REST
-        content_type = "application/json"
-    
-        ## Clean up Ensembl IDs
-        # If single Ensembl ID passed as string, convert to list
-        if type(ens_ids) == str:
-            ens_ids = [ens_ids]
-        # Remove Ensembl ID version if passed
-        ens_ids_clean = []
-        temp = 0
-        for ensembl_ID in ens_ids:
-            # But only for Ensembl ID (and not for flybase/wormbase IDs)
-            if ensembl_ID.startswith("ENS"):
-                ens_ids_clean.append(ensembl_ID.split(".")[0])
-    
-                if "." in ensembl_ID and temp == 0:
-                    if verbose is True:
-                        logger.info(
-                            "We noticed that you passed a version number with your Ensembl ID.\n"
-                            "Please note that gget info will always return information linked to the latest Ensembl ID version (see 'ensembl_id')."
-                        )
-                    temp = +1
-    
-            else:
-                ens_ids_clean.append(ensembl_ID)
-    
-        # Remove duplicates in the Ensembl ID list without changing their order
-        ens_ids_clean = sorted(set(ens_ids_clean), key=ens_ids_clean.index)
-        # Create second clean list of Ensembl IDs which will not include IDs that were not found
-        ens_ids_clean_2 = ens_ids_clean.copy()
-    
-        # Initiate dictionary to save results for all IDs in
-        master_dict = {}
-    
-        # Query REST APIs from https://rest.ensembl.org/
-        endpoint = "lookup/id/"
-        query = {"ids": ens_ids_clean, "expand": True}
-    
->       results_dict = post_query(server, endpoint, query)
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-gget/gget_info.py:119: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-server = 'http://rest.ensembl.org/', endpoint = 'lookup/id/'
-query = {'expand': True, 'ids': ['ENSG00000106443', 'ENSG00000102317', 'ENSG00000188895', 'ENSG00000135365']}
-
-    def post_query(server, endpoint, query):
-        """
-        Function to perform a POST API query.
-    
-        :param server:  Server to query .
-        :param endpoint: Server endpoint
-        :param query:   Query that is passed to server.
-    
-        :return: server output
-        """
-    
-        r = requests.post(
-            server + endpoint, json=query, headers={"Content-Type": "application/json"}
-        )
-    
-        if not r.ok:
->           raise RuntimeError(
-                f"{server} returned error status code {r.status_code}. "
-                "Please double-check arguments and try again.\n"
-            )
-E           RuntimeError: http://rest.ensembl.org/ returned error status code 503. Please double-check arguments and try again.
-
-gget/utils.py:695: RuntimeError
+tests/from_json.py:125: AssertionError
 ------------------------------ Captured log call -------------------------------
-INFO     gget.utils:gget_enrichr.py:194 Performing Enrichr analysis using database GO_Biological_Process_2021. 
-        Please note that there might be a more appropriate database for your application. 
-        Go to https://maayanlab.cloud/Enrichr/#libraries for a full list of supported databases.
-        
-INFO     gget.utils:gget_enrichr.py:246 Getting gene symbols from Ensembl IDs.
-_______________________ TestInfo.test_info_WB_transcript _______________________
+INFO     gget.utils:gget_opentargets.py:345 Retrieved 29/29 DepMap entries.
+____________________ TestOpenTargets.test_opentargets_drugs ____________________
 
-self = <tests.test_info.TestInfo testMethod=test_info_WB_transcript>
+self = <tests.test_opentargets.TestOpenTargets testMethod=test_opentargets_drugs>
 
     def assert_equal(self: unittest.TestCase):
         test = name
@@ -848,8 +235,8 @@ self = <tests.test_info.TestInfo testMethod=test_info_WB_transcript>
 tests/from_json.py:65: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-func = <function info at 0x7f862ceff740>
-args = {'ens_ids': 'T14E8.4.1', 'ncbi': False}
+func = <function opentargets at 0x7f74d7e616c0>
+args = {'ensembl_id': 'ENSG00000169194', 'limit': 2, 'resource': 'drugs'}
 
     def do_call(func, args):
         if isinstance(args, dict):
@@ -859,152 +246,199 @@ args = {'ens_ids': 'T14E8.4.1', 'ncbi': False}
 tests/from_json.py:57: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-ens_ids = ['T14E8.4.1'], wrap_text = False, ncbi = False, uniprot = True
-pdb = False, json = False, verbose = True, save = False, expand = False
-ensembl_only = False
+ensembl_id = 'ENSG00000169194', resource = 'drugs', limit = 2, verbose = True
+wrap_text = False, filters = None, filter_mode = 'and', json = False
 
-    def info(
-        ens_ids,
-        wrap_text=False,
-        ncbi=True,
-        uniprot=True,
-        pdb=False,
-        json=False,
+    def opentargets(
+        ensembl_id,
+        resource="diseases",
+        limit=None,
         verbose=True,
-        save=False,
-        expand=False,
-        ensembl_only=False,
+        wrap_text=False,
+        filters=None,
+        filter_mode="and",
+        json=False,
     ):
         """
-        Fetch gene and transcript metadata using Ensembl IDs.
+        Query OpenTargets for data associated with a given Ensembl gene ID.
     
         Args:
-        - ens_ids       One or more Ensembl IDs to look up (string or list of strings).
-                        Also supports WormBase and Flybase IDs.
+    
+        - ensembl_id    Ensembl gene ID to be queried (str), e.g. "ENSG00000169194".
+        - resource      Defines type of information to be returned.
+                        "diseases":         Returns diseases associated with the gene (default).
+                        "drugs":            Returns drugs associated with the gene.
+                        "tractability":     Returns tractability data for the gene.
+                        "pharmacogenetics": Returns pharmacogenetics data for the gene.
+                        "expression":       Returns gene expression data (by tissues, organs, and anatomical systems).
+                        "depmap":           Returns DepMap gene-disease effect data for the gene.
+                        "interactions":     Returns protein-protein interactions for the gene.
+        - limit         Limit the number of results returned (default: No limit).
+                        Note: Not compatible with the 'tractability' and 'depmap' resources.
+        - verbose       Print progress messages (default: True).
         - wrap_text     If True, displays data frame with wrapped text for easy reading. Default: False.
-        - ncbi          If False, does not return data from NCBI. Default: True.
-        - uniprot       If False, does not return data from UniProt. Default: True.
-        - pdb           If True, also returns PDB IDs (might increase run time). Default: False.
-        - json          If True, returns results in json/dictionary format instead of data frame. Default: False.
-        - verbose       True/False whether to print progress information. Default True.
-        - save          True/False wether to save csv with query results in current working directory. Default: False.
+        - filters       Filters to apply to the data. Supported filters by resource:
+                        "diseases": None
+                        "drugs": disease_id (e.g. "EFO_0000274")
+                        "tractability": None
+                        "pharmacogenetics": drug_id (e.g. "CHEMBL535")
+                        "expression": tissue_id (e.g. "UBERON_0002245"), anatomical_system (e.g. "nervous system"), organ (e.g. "brain")
+                        "depmap": tissue_id (e.g. "UBERON_0002245")
+                        "interactions": protein_a_id (e.g. "ENSP00000304915"), protein_b_id (e.g. "ENSP00000379111"), gene_b_id (e.g. "ENSG00000077238")
+        - filter_mode   For resources that support multiple types of filters, this argument specifies how to combine them.
+        - json          If True, returns results in JSON format instead of as a Data Frame. Default: False.
     
-        Returns a data frame containing the requested information.
     
-        Deprecated arguments:
-        - expand        (gget info now always returns all of the available information)
-        - ensembl_only  If True, only returns results from Ensembl (excludes PDB, UniProt, and NCBI results). Default: False.
+        Returns requested information in DataFrame format.
         """
-        # Handle deprecated arguments
-        if expand:
-            if verbose:
-                logger.warning(
-                    "'expand' argument deprecated! gget info now always returns all of the available information."
-                )
-        if ensembl_only:
-            if verbose:
-                logger.warning(
-                    "'ensembl_only' argument deprecated! Please use arguments 'ncbi=False' and 'uniprot=False'."
-                )
     
-        # Set synonyms found by each database initially to none
-        ncbi_synonyms = None
-        df_uniprot = None
-        df_pdb = pd.DataFrame()
-        df_ncbi = pd.DataFrame()
+        # check if resource argument is valid
+        if resource not in _RESOURCES:
+            raise ValueError(
+                f"'resource' argument specified as {resource}. Expected one of: {', '.join(_RESOURCES)}"
+            )
     
-        # Rename pdb, uniprot, ncbi arguments
-        fetch_ncbi = ncbi
-        fetch_uniprot = uniprot
-        fetch_pdb = pdb
+        # Wrap everything into a list
+        if filters is not None:
+            filters = {k: v if isinstance(v, list) else [v] for k, v in filters.items()}
     
-        # Define Ensembl REST API server
-        server = ENSEMBL_REST_API
-        # Define type of returned content from REST
-        content_type = "application/json"
-    
-        ## Clean up Ensembl IDs
-        # If single Ensembl ID passed as string, convert to list
-        if type(ens_ids) == str:
-            ens_ids = [ens_ids]
-        # Remove Ensembl ID version if passed
-        ens_ids_clean = []
-        temp = 0
-        for ensembl_ID in ens_ids:
-            # But only for Ensembl ID (and not for flybase/wormbase IDs)
-            if ensembl_ID.startswith("ENS"):
-                ens_ids_clean.append(ensembl_ID.split(".")[0])
-    
-                if "." in ensembl_ID and temp == 0:
-                    if verbose is True:
-                        logger.info(
-                            "We noticed that you passed a version number with your Ensembl ID.\n"
-                            "Please note that gget info will always return information linked to the latest Ensembl ID version (see 'ensembl_id')."
-                        )
-                    temp = +1
-    
-            else:
-                ens_ids_clean.append(ensembl_ID)
-    
-        # Remove duplicates in the Ensembl ID list without changing their order
-        ens_ids_clean = sorted(set(ens_ids_clean), key=ens_ids_clean.index)
-        # Create second clean list of Ensembl IDs which will not include IDs that were not found
-        ens_ids_clean_2 = ens_ids_clean.copy()
-    
-        # Initiate dictionary to save results for all IDs in
-        master_dict = {}
-    
-        # Query REST APIs from https://rest.ensembl.org/
-        endpoint = "lookup/id/"
-        query = {"ids": ens_ids_clean, "expand": True}
-    
->       results_dict = post_query(server, endpoint, query)
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>       df: pd.DataFrame = _RESOURCES[resource](
+            ensembl_id,
+            limit=limit,
+            verbose=verbose,
+            wrap_text=wrap_text,
+            filters=filters,
+            filter_mode=filter_mode,
+        )
 
-gget/gget_info.py:119: 
+gget/gget_opentargets.py:63: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-server = 'http://rest.ensembl.org/', endpoint = 'lookup/id/'
-query = {'expand': True, 'ids': ['T14E8.4.1']}
+ensembl_id = 'ENSG00000169194', limit = 2, verbose = True, wrap_text = False
+filters = None, filter_mode = 'and'
 
-    def post_query(server, endpoint, query):
+    def fun(
+        ensembl_id,
+        limit=None,
+        verbose=True,
+        wrap_text=False,
+        filters=None,
+        filter_mode="and",
+    ):
+        if limit_key is None:
+            query_string = """
+            query target($ensemblId: String!) {
+                target(ensemblId: $ensemblId) {
+                    <TOP_LEVEL_KEY>{
+                        <ROW_QUERY>
+                    }
+                }
+            }
+            """.replace(
+                "<TOP_LEVEL_KEY>", top_level_key
+            ).replace(
+                "<ROW_QUERY>", inner_query
+            )
+        else:
+            if is_rows_based_query:
+                query_tmp = """
+                count
+                rows{
+                    <INNER_QUERY>
+                }""".replace(
+                    "<INNER_QUERY>", inner_query
+                )
+            else:
+                query_tmp = inner_query
+            query_string = (
+                """
+            query target($ensemblId: String!, $pagination: <LIMIT_TYPE>) {
+                target(ensemblId: $ensemblId) {
+                    <TOP_LEVEL_KEY>(<LIMIT_KEY>: $pagination){
+                        <QUERY>
+                    }
+                }
+            }
+            """.replace(
+                    "<TOP_LEVEL_KEY>", top_level_key
+                )
+                .replace("<LIMIT_TYPE>", limit_type)
+                .replace("<LIMIT_KEY>", limit_key)
+                .replace("<QUERY>", query_tmp)
+            )
+    
+        actual_limit = limit
+    
+        if filters is not None and len(filters) > 0:
+            if user_filter is None:
+                raise ValueError("Filters are not supported for this resource.")
+            valid_keys, filter_func = user_filter
+            invalid_keys = set(filters.keys()) - valid_keys
+            if len(invalid_keys) > 0:
+                invalid_keys = [f"'{k}'" for k in invalid_keys]
+                valid_keys = [f"'{k}'" for k in valid_keys]
+                raise ValueError(
+                    f"The following filter keys are invalid for this resource: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys)}"
+                )
+            # we have to fetch all data to be able to apply limit in a sane way when filters are specified
+            limit = None
+    
+        pagination = limit_func(limit, is_rows_based_query)
+        variables = {"ensemblId": ensembl_id, "pagination": pagination}
+    
+        if limit_key is None:
+            del variables["pagination"]
+    
+>       results = graphql_query(OPENTARGETS_GRAPHQL_API, query_string, variables)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+gget/gget_opentargets.py:325: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+server = 'https://api.platform.opentargets.org/api/v4/graphql'
+query = '\n            query target($ensemblId: String!, $pagination: Int) {\n                target(ensemblId: $ensemblId) {\...pproved\n        }\n        \n                }\n                    }\n                }\n            }\n            '
+variables = {'ensemblId': 'ENSG00000169194', 'pagination': 2}
+
+    def graphql_query(server, query, variables):
         """
-        Function to perform a POST API query.
+        Function to perform a GraphQL API query.
     
-        :param server:  Server to query .
-        :param endpoint: Server endpoint
-        :param query:   Query that is passed to server.
+        Args:
+        - server        Server to query.
+        - query         Query that is passed to server.
+        - variables     Variables that are passed to server.
     
-        :return: server output
+        Returns server output.
         """
     
-        r = requests.post(
-            server + endpoint, json=query, headers={"Content-Type": "application/json"}
-        )
+        r = requests.post(server, json={"query": query, "variables": variables})
     
         if not r.ok:
+            logger.debug(
+                f"Server: {server}, Query: {query}, Variables: {variables}, Response: {r.text}"
+            )
 >           raise RuntimeError(
                 f"{server} returned error status code {r.status_code}. "
                 "Please double-check arguments and try again.\n"
             )
-E           RuntimeError: http://rest.ensembl.org/ returned error status code 503. Please double-check arguments and try again.
+E           RuntimeError: https://api.platform.opentargets.org/api/v4/graphql returned error status code 400. Please double-check arguments and try again.
 
-gget/utils.py:695: RuntimeError
-___________________________ TestInfo.test_info_exon ____________________________
+gget/utils.py:721: RuntimeError
+_______________ TestOpenTargets.test_opentargets_drugs_no_limit ________________
 
-self = <tests.test_info.TestInfo testMethod=test_info_exon>
+self = <tests.test_opentargets.TestOpenTargets testMethod=test_opentargets_drugs_no_limit>
 
-    def assert_equal(self: unittest.TestCase):
+    def assert_equal_json_hash(self: unittest.TestCase):
         test = name
         expected_result = td[test]["expected_result"]
 >       result_to_test = do_call(func, td[test]["args"])
                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-tests/from_json.py:65: 
+tests/from_json.py:117: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-func = <function info at 0x7f862ceff740>
-args = {'ens_ids': ['ENSTGUEE00000179311']}
+func = <function opentargets at 0x7f74d7e616c0>
+args = {'ensembl_id': 'ENSG00000169194', 'resource': 'drugs'}
 
     def do_call(func, args):
         if isinstance(args, dict):
@@ -1014,314 +448,207 @@ args = {'ens_ids': ['ENSTGUEE00000179311']}
 tests/from_json.py:57: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-ens_ids = ['ENSTGUEE00000179311'], wrap_text = False, ncbi = True
-uniprot = True, pdb = False, json = False, verbose = True, save = False
-expand = False, ensembl_only = False
+ensembl_id = 'ENSG00000169194', resource = 'drugs', limit = None, verbose = True
+wrap_text = False, filters = None, filter_mode = 'and', json = False
 
-    def info(
-        ens_ids,
-        wrap_text=False,
-        ncbi=True,
-        uniprot=True,
-        pdb=False,
-        json=False,
+    def opentargets(
+        ensembl_id,
+        resource="diseases",
+        limit=None,
         verbose=True,
-        save=False,
-        expand=False,
-        ensembl_only=False,
+        wrap_text=False,
+        filters=None,
+        filter_mode="and",
+        json=False,
     ):
         """
-        Fetch gene and transcript metadata using Ensembl IDs.
+        Query OpenTargets for data associated with a given Ensembl gene ID.
     
         Args:
-        - ens_ids       One or more Ensembl IDs to look up (string or list of strings).
-                        Also supports WormBase and Flybase IDs.
+    
+        - ensembl_id    Ensembl gene ID to be queried (str), e.g. "ENSG00000169194".
+        - resource      Defines type of information to be returned.
+                        "diseases":         Returns diseases associated with the gene (default).
+                        "drugs":            Returns drugs associated with the gene.
+                        "tractability":     Returns tractability data for the gene.
+                        "pharmacogenetics": Returns pharmacogenetics data for the gene.
+                        "expression":       Returns gene expression data (by tissues, organs, and anatomical systems).
+                        "depmap":           Returns DepMap gene-disease effect data for the gene.
+                        "interactions":     Returns protein-protein interactions for the gene.
+        - limit         Limit the number of results returned (default: No limit).
+                        Note: Not compatible with the 'tractability' and 'depmap' resources.
+        - verbose       Print progress messages (default: True).
         - wrap_text     If True, displays data frame with wrapped text for easy reading. Default: False.
-        - ncbi          If False, does not return data from NCBI. Default: True.
-        - uniprot       If False, does not return data from UniProt. Default: True.
-        - pdb           If True, also returns PDB IDs (might increase run time). Default: False.
-        - json          If True, returns results in json/dictionary format instead of data frame. Default: False.
-        - verbose       True/False whether to print progress information. Default True.
-        - save          True/False wether to save csv with query results in current working directory. Default: False.
+        - filters       Filters to apply to the data. Supported filters by resource:
+                        "diseases": None
+                        "drugs": disease_id (e.g. "EFO_0000274")
+                        "tractability": None
+                        "pharmacogenetics": drug_id (e.g. "CHEMBL535")
+                        "expression": tissue_id (e.g. "UBERON_0002245"), anatomical_system (e.g. "nervous system"), organ (e.g. "brain")
+                        "depmap": tissue_id (e.g. "UBERON_0002245")
+                        "interactions": protein_a_id (e.g. "ENSP00000304915"), protein_b_id (e.g. "ENSP00000379111"), gene_b_id (e.g. "ENSG00000077238")
+        - filter_mode   For resources that support multiple types of filters, this argument specifies how to combine them.
+        - json          If True, returns results in JSON format instead of as a Data Frame. Default: False.
     
-        Returns a data frame containing the requested information.
     
-        Deprecated arguments:
-        - expand        (gget info now always returns all of the available information)
-        - ensembl_only  If True, only returns results from Ensembl (excludes PDB, UniProt, and NCBI results). Default: False.
+        Returns requested information in DataFrame format.
         """
-        # Handle deprecated arguments
-        if expand:
-            if verbose:
-                logger.warning(
-                    "'expand' argument deprecated! gget info now always returns all of the available information."
-                )
-        if ensembl_only:
-            if verbose:
-                logger.warning(
-                    "'ensembl_only' argument deprecated! Please use arguments 'ncbi=False' and 'uniprot=False'."
-                )
     
-        # Set synonyms found by each database initially to none
-        ncbi_synonyms = None
-        df_uniprot = None
-        df_pdb = pd.DataFrame()
-        df_ncbi = pd.DataFrame()
+        # check if resource argument is valid
+        if resource not in _RESOURCES:
+            raise ValueError(
+                f"'resource' argument specified as {resource}. Expected one of: {', '.join(_RESOURCES)}"
+            )
     
-        # Rename pdb, uniprot, ncbi arguments
-        fetch_ncbi = ncbi
-        fetch_uniprot = uniprot
-        fetch_pdb = pdb
+        # Wrap everything into a list
+        if filters is not None:
+            filters = {k: v if isinstance(v, list) else [v] for k, v in filters.items()}
     
-        # Define Ensembl REST API server
-        server = ENSEMBL_REST_API
-        # Define type of returned content from REST
-        content_type = "application/json"
-    
-        ## Clean up Ensembl IDs
-        # If single Ensembl ID passed as string, convert to list
-        if type(ens_ids) == str:
-            ens_ids = [ens_ids]
-        # Remove Ensembl ID version if passed
-        ens_ids_clean = []
-        temp = 0
-        for ensembl_ID in ens_ids:
-            # But only for Ensembl ID (and not for flybase/wormbase IDs)
-            if ensembl_ID.startswith("ENS"):
-                ens_ids_clean.append(ensembl_ID.split(".")[0])
-    
-                if "." in ensembl_ID and temp == 0:
-                    if verbose is True:
-                        logger.info(
-                            "We noticed that you passed a version number with your Ensembl ID.\n"
-                            "Please note that gget info will always return information linked to the latest Ensembl ID version (see 'ensembl_id')."
-                        )
-                    temp = +1
-    
-            else:
-                ens_ids_clean.append(ensembl_ID)
-    
-        # Remove duplicates in the Ensembl ID list without changing their order
-        ens_ids_clean = sorted(set(ens_ids_clean), key=ens_ids_clean.index)
-        # Create second clean list of Ensembl IDs which will not include IDs that were not found
-        ens_ids_clean_2 = ens_ids_clean.copy()
-    
-        # Initiate dictionary to save results for all IDs in
-        master_dict = {}
-    
-        # Query REST APIs from https://rest.ensembl.org/
-        endpoint = "lookup/id/"
-        query = {"ids": ens_ids_clean, "expand": True}
-    
-        results_dict = post_query(server, endpoint, query)
-        results_dict = {k: v for k, v in results_dict.items() if v is not None}
-    
-        for ensembl_ID, df_temp in results_dict.items():
-            try:
-                # Add Ensembl ID with latest version number to df_temp
-                df_temp["ensembl_id"] = str(df_temp["id"]) + "." + str(df_temp["version"])
-            except KeyError:
-                # Just add Ensembl ID if no version found
-                df_temp["ensembl_id"] = str(df_temp["id"])
-    
-        # second pass for ids that were not found in the initial query
-        ens_ids_clean_tmp = [
-            ensembl_ID
-            for ensembl_ID in ens_ids_clean
-            if ensembl_ID not in results_dict.keys()
-        ]
-    
-        if len(ens_ids_clean_tmp) > 0:
-            # print(f"Second pass for ids: {ens_ids_clean_tmp}")
-            # Try submitting query without expand (expand does not work for exons and translation IDs)
-            query = {"ids": ens_ids_clean_tmp}
->           results_dict_new = post_query(server, endpoint, query)
-                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>       df: pd.DataFrame = _RESOURCES[resource](
+            ensembl_id,
+            limit=limit,
+            verbose=verbose,
+            wrap_text=wrap_text,
+            filters=filters,
+            filter_mode=filter_mode,
+        )
 
-gget/gget_info.py:141: 
+gget/gget_opentargets.py:63: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-server = 'http://rest.ensembl.org/', endpoint = 'lookup/id/'
-query = {'ids': ['ENSTGUEE00000179311']}
+ensembl_id = 'ENSG00000169194', limit = None, verbose = True, wrap_text = False
+filters = None, filter_mode = 'and'
 
-    def post_query(server, endpoint, query):
+    def fun(
+        ensembl_id,
+        limit=None,
+        verbose=True,
+        wrap_text=False,
+        filters=None,
+        filter_mode="and",
+    ):
+        if limit_key is None:
+            query_string = """
+            query target($ensemblId: String!) {
+                target(ensemblId: $ensemblId) {
+                    <TOP_LEVEL_KEY>{
+                        <ROW_QUERY>
+                    }
+                }
+            }
+            """.replace(
+                "<TOP_LEVEL_KEY>", top_level_key
+            ).replace(
+                "<ROW_QUERY>", inner_query
+            )
+        else:
+            if is_rows_based_query:
+                query_tmp = """
+                count
+                rows{
+                    <INNER_QUERY>
+                }""".replace(
+                    "<INNER_QUERY>", inner_query
+                )
+            else:
+                query_tmp = inner_query
+            query_string = (
+                """
+            query target($ensemblId: String!, $pagination: <LIMIT_TYPE>) {
+                target(ensemblId: $ensemblId) {
+                    <TOP_LEVEL_KEY>(<LIMIT_KEY>: $pagination){
+                        <QUERY>
+                    }
+                }
+            }
+            """.replace(
+                    "<TOP_LEVEL_KEY>", top_level_key
+                )
+                .replace("<LIMIT_TYPE>", limit_type)
+                .replace("<LIMIT_KEY>", limit_key)
+                .replace("<QUERY>", query_tmp)
+            )
+    
+        actual_limit = limit
+    
+        if filters is not None and len(filters) > 0:
+            if user_filter is None:
+                raise ValueError("Filters are not supported for this resource.")
+            valid_keys, filter_func = user_filter
+            invalid_keys = set(filters.keys()) - valid_keys
+            if len(invalid_keys) > 0:
+                invalid_keys = [f"'{k}'" for k in invalid_keys]
+                valid_keys = [f"'{k}'" for k in valid_keys]
+                raise ValueError(
+                    f"The following filter keys are invalid for this resource: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys)}"
+                )
+            # we have to fetch all data to be able to apply limit in a sane way when filters are specified
+            limit = None
+    
+        pagination = limit_func(limit, is_rows_based_query)
+        variables = {"ensemblId": ensembl_id, "pagination": pagination}
+    
+        if limit_key is None:
+            del variables["pagination"]
+    
+>       results = graphql_query(OPENTARGETS_GRAPHQL_API, query_string, variables)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+gget/gget_opentargets.py:325: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+server = 'https://api.platform.opentargets.org/api/v4/graphql'
+query = '\n            query target($ensemblId: String!, $pagination: Int) {\n                target(ensemblId: $ensemblId) {\...pproved\n        }\n        \n                }\n                    }\n                }\n            }\n            '
+variables = {'ensemblId': 'ENSG00000169194', 'pagination': 1}
+
+    def graphql_query(server, query, variables):
         """
-        Function to perform a POST API query.
+        Function to perform a GraphQL API query.
     
-        :param server:  Server to query .
-        :param endpoint: Server endpoint
-        :param query:   Query that is passed to server.
+        Args:
+        - server        Server to query.
+        - query         Query that is passed to server.
+        - variables     Variables that are passed to server.
     
-        :return: server output
+        Returns server output.
         """
     
-        r = requests.post(
-            server + endpoint, json=query, headers={"Content-Type": "application/json"}
-        )
+        r = requests.post(server, json={"query": query, "variables": variables})
     
         if not r.ok:
+            logger.debug(
+                f"Server: {server}, Query: {query}, Variables: {variables}, Response: {r.text}"
+            )
 >           raise RuntimeError(
                 f"{server} returned error status code {r.status_code}. "
                 "Please double-check arguments and try again.\n"
             )
-E           RuntimeError: http://rest.ensembl.org/ returned error status code 503. Please double-check arguments and try again.
+E           RuntimeError: https://api.platform.opentargets.org/api/v4/graphql returned error status code 400. Please double-check arguments and try again.
 
-gget/utils.py:695: RuntimeError
-___________________________ TestInfo.test_info_gene ____________________________
+gget/utils.py:721: RuntimeError
+_____________ TestOpenTargets.test_opentargets_expression_no_limit _____________
 
-self = <tests.test_info.TestInfo testMethod=test_info_gene>
+self = <tests.test_opentargets.TestOpenTargets testMethod=test_opentargets_expression_no_limit>
 
-    def assert_equal(self: unittest.TestCase):
+    def assert_equal_json_hash(self: unittest.TestCase):
         test = name
         expected_result = td[test]["expected_result"]
->       result_to_test = do_call(func, td[test]["args"])
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        result_to_test = do_call(func, td[test]["args"])
+        # If result is a DataFrame, convert to list
+        if isinstance(result_to_test, pd.DataFrame):
+            result_to_test = result_to_test.dropna(axis=1).values.tolist()
+    
+        result_to_test = json.dumps(result_to_test)
+        result_to_test = hashlib.md5(result_to_test.encode()).hexdigest()
+    
+>       self.assertEqual(result_to_test, expected_result)
+E       AssertionError: '4024b12c2134734ce8f952fdd7155135' != 'c1300a64c439e9b1a0adf4475cf138db'
+E       - 4024b12c2134734ce8f952fdd7155135
+E       + c1300a64c439e9b1a0adf4475cf138db
 
-tests/from_json.py:65: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-func = <function info at 0x7f862ceff740>
-args = {'ens_ids': 'EnsMUSG00000000001'}
-
-    def do_call(func, args):
-        if isinstance(args, dict):
->           return func(**args)
-                   ^^^^^^^^^^^^
-
-tests/from_json.py:57: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-ens_ids = ['EnsMUSG00000000001'], wrap_text = False, ncbi = True, uniprot = True
-pdb = False, json = False, verbose = True, save = False, expand = False
-ensembl_only = False
-
-    def info(
-        ens_ids,
-        wrap_text=False,
-        ncbi=True,
-        uniprot=True,
-        pdb=False,
-        json=False,
-        verbose=True,
-        save=False,
-        expand=False,
-        ensembl_only=False,
-    ):
-        """
-        Fetch gene and transcript metadata using Ensembl IDs.
-    
-        Args:
-        - ens_ids       One or more Ensembl IDs to look up (string or list of strings).
-                        Also supports WormBase and Flybase IDs.
-        - wrap_text     If True, displays data frame with wrapped text for easy reading. Default: False.
-        - ncbi          If False, does not return data from NCBI. Default: True.
-        - uniprot       If False, does not return data from UniProt. Default: True.
-        - pdb           If True, also returns PDB IDs (might increase run time). Default: False.
-        - json          If True, returns results in json/dictionary format instead of data frame. Default: False.
-        - verbose       True/False whether to print progress information. Default True.
-        - save          True/False wether to save csv with query results in current working directory. Default: False.
-    
-        Returns a data frame containing the requested information.
-    
-        Deprecated arguments:
-        - expand        (gget info now always returns all of the available information)
-        - ensembl_only  If True, only returns results from Ensembl (excludes PDB, UniProt, and NCBI results). Default: False.
-        """
-        # Handle deprecated arguments
-        if expand:
-            if verbose:
-                logger.warning(
-                    "'expand' argument deprecated! gget info now always returns all of the available information."
-                )
-        if ensembl_only:
-            if verbose:
-                logger.warning(
-                    "'ensembl_only' argument deprecated! Please use arguments 'ncbi=False' and 'uniprot=False'."
-                )
-    
-        # Set synonyms found by each database initially to none
-        ncbi_synonyms = None
-        df_uniprot = None
-        df_pdb = pd.DataFrame()
-        df_ncbi = pd.DataFrame()
-    
-        # Rename pdb, uniprot, ncbi arguments
-        fetch_ncbi = ncbi
-        fetch_uniprot = uniprot
-        fetch_pdb = pdb
-    
-        # Define Ensembl REST API server
-        server = ENSEMBL_REST_API
-        # Define type of returned content from REST
-        content_type = "application/json"
-    
-        ## Clean up Ensembl IDs
-        # If single Ensembl ID passed as string, convert to list
-        if type(ens_ids) == str:
-            ens_ids = [ens_ids]
-        # Remove Ensembl ID version if passed
-        ens_ids_clean = []
-        temp = 0
-        for ensembl_ID in ens_ids:
-            # But only for Ensembl ID (and not for flybase/wormbase IDs)
-            if ensembl_ID.startswith("ENS"):
-                ens_ids_clean.append(ensembl_ID.split(".")[0])
-    
-                if "." in ensembl_ID and temp == 0:
-                    if verbose is True:
-                        logger.info(
-                            "We noticed that you passed a version number with your Ensembl ID.\n"
-                            "Please note that gget info will always return information linked to the latest Ensembl ID version (see 'ensembl_id')."
-                        )
-                    temp = +1
-    
-            else:
-                ens_ids_clean.append(ensembl_ID)
-    
-        # Remove duplicates in the Ensembl ID list without changing their order
-        ens_ids_clean = sorted(set(ens_ids_clean), key=ens_ids_clean.index)
-        # Create second clean list of Ensembl IDs which will not include IDs that were not found
-        ens_ids_clean_2 = ens_ids_clean.copy()
-    
-        # Initiate dictionary to save results for all IDs in
-        master_dict = {}
-    
-        # Query REST APIs from https://rest.ensembl.org/
-        endpoint = "lookup/id/"
-        query = {"ids": ens_ids_clean, "expand": True}
-    
->       results_dict = post_query(server, endpoint, query)
-                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-gget/gget_info.py:119: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-server = 'http://rest.ensembl.org/', endpoint = 'lookup/id/'
-query = {'expand': True, 'ids': ['EnsMUSG00000000001']}
-
-    def post_query(server, endpoint, query):
-        """
-        Function to perform a POST API query.
-    
-        :param server:  Server to query .
-        :param endpoint: Server endpoint
-        :param query:   Query that is passed to server.
-    
-        :return: server output
-        """
-    
-        r = requests.post(
-            server + endpoint, json=query, headers={"Content-Type": "application/json"}
-        )
-    
-        if not r.ok:
->           raise RuntimeError(
-                f"{server} returned error status code {r.status_code}. "
-                "Please double-check arguments and try again.\n"
-            )
-E           RuntimeError: http://rest.ensembl.org/ returned error status code 503. Please double-check arguments and try again.
-
-gget/utils.py:695: RuntimeError
+tests/from_json.py:125: AssertionError
+------------------------------ Captured log call -------------------------------
+INFO     gget.utils:gget_opentargets.py:345 Retrieved 110/110 baseline expressions.
 =============================== warnings summary ===============================
 tests/test_blast.py::TestBlast::test_blast_nt
   /home/runner/work/gget/gget/gget/gget_blast.py:327: FutureWarning: Passing literal html to 'read_html' is deprecated and will be removed in a future version. To read from a literal string, wrap it in a 'StringIO' object.
@@ -1370,23 +697,53 @@ tests/test_cosmic.py::TestCosmicWorkflow::test_cosmic_defaults
   /home/runner/work/gget/gget/tests/from_json.py:69: FutureWarning: Downcasting behavior in `replace` is deprecated and will be removed in a future version. To retain the old behavior, explicitly call `result.infer_objects(copy=False)`. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
     expected_result = expected_result.replace({None: np.nan})
 
+tests/test_mutate.py: 29 warnings
+  /home/runner/work/gget/gget/gget/gget_mutate.py:663: UserWarning: This pattern is interpreted as a regular expression, and has match groups. To actually get the groups, use str.extract.
+    mask = mutations[mut_column].str.contains(combined_pattern)
+
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 ============================= slowest 10 durations =============================
-73.51s call     tests/test_blast.py::TestBlast::test_blast_nt
-55.43s call     tests/test_enrichr.py::TestEnrichr::test_enrichr_background_ensembl
-47.87s call     tests/test_info.py::TestInfo::test_info_exon
-44.51s call     tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
-31.40s call     tests/test_info.py::TestInfo::test_info_gene
-24.64s call     tests/test_archs4.py::TestArchs4::test_archs4_mouse_json_ensembl
-13.16s call     tests/test_elm.py::TestELM::test_elm_uniprot_id_new
-11.85s setup    tests/test_cosmic.py::TestCosmicWorkflow::test_cosmic_defaults
+39.15s call     tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
+32.85s call     tests/test_blast.py::TestBlast::test_blast_nt
+13.95s call     tests/test_elm.py::TestELM::test_elm_uniprot_id_new
+12.84s setup    tests/test_cosmic.py::TestCosmicWorkflow::test_cosmic_defaults
 10.05s call     tests/test_cosmic.py::TestCosmicWorkflow::test_cosmic_defaults
-3.39s call     tests/test_cellxgene.py::TestCellxgene::test_cellxgene_metadata
+6.45s call     tests/test_enrichr.py::TestEnrichr::test_enrichr_background_ensembl
+4.31s call     tests/test_info.py::TestInfo::test_info_gene
+4.01s call     tests/test_info.py::TestInfo::test_info_ncbitrue_uniprotfalse
+3.89s call     tests/test_elm.py::TestELM::test_elm_uniprot_id_in_elm
+3.86s call     tests/test_cbio.py::TestCbio::test_cbio_download_partially_existing_files
 =========================== short test summary info ============================
-FAILED tests/test_enrichr.py::TestEnrichr::test_enrichr_background_ensembl - RuntimeError: http://rest.ensembl.org/ returned error status code 503. Please double-check arguments and try again.
-FAILED tests/test_enrichr.py::TestEnrichr::test_enrichr_ensembl_ids - RuntimeError: http://rest.ensembl.org/ returned error status code 503. Please double-check arguments and try again.
-FAILED tests/test_info.py::TestInfo::test_info_WB_transcript - RuntimeError: http://rest.ensembl.org/ returned error status code 503. Please double-check arguments and try again.
-FAILED tests/test_info.py::TestInfo::test_info_exon - RuntimeError: http://rest.ensembl.org/ returned error status code 503. Please double-check arguments and try again.
-FAILED tests/test_info.py::TestInfo::test_info_gene - RuntimeError: http://rest.ensembl.org/ returned error status code 503. Please double-check arguments and try again.
+FAILED tests/test_opentargets.py::TestOpenTargets::test_opentargets - AssertionError: Lists differ: [['EF[171 chars]', 0.7297489019498119], ['MONDO_0004979', 'ast[535 chars]653]] != [['EF[171 chars]', 0.6908981975876463], ['MONDO_0004979', 'ast[535 chars]614]]
+
+First differing element 0:
+['EFO[129 chars] occurs during the first 2 years of life.', 0.7297489019498119]
+['EFO[129 chars] occurs during the first 2 years of life.', 0.6908981975876463]
+
+  [['EFO_0000274',
+    'atopic eczema',
+    'A common chronic pruritic inflammatory skin disease with a strong genetic '
+    'component. Onset typically occurs during the first 2 years of life.',
+-   0.7297489019498119],
++   0.6908981975876463],
+   ['MONDO_0004979',
+    'asthma',
+    'A bronchial disease that is characterized by chronic inflammation and '
+    'narrowing of the airways, which is caused by a combination of environmental '
+    'and genetic factors resulting in recurring periods of wheezing (a whistling '
+    'sound while breathing), chest tightness, shortness of breath, mucus '
+    'production and coughing. The symptoms appear due to a variety of triggers '
+    'such as allergens, irritants, respiratory infections, weather changes, '
+    'exercise, stress, reflux disease, medications, foods and emotional anxiety.',
+-   0.6642728577751653]]
++   0.6506508395200614]]
+FAILED tests/test_opentargets.py::TestOpenTargets::test_opentargets_depmap - AssertionError: '4c550571d29a7e0136e12e2fa9297655' != '4c0393626ee958f860d4c1fd0b6b77ee'
+- 4c550571d29a7e0136e12e2fa9297655
++ 4c0393626ee958f860d4c1fd0b6b77ee
+FAILED tests/test_opentargets.py::TestOpenTargets::test_opentargets_drugs - RuntimeError: https://api.platform.opentargets.org/api/v4/graphql returned error status code 400. Please double-check arguments and try again.
+FAILED tests/test_opentargets.py::TestOpenTargets::test_opentargets_drugs_no_limit - RuntimeError: https://api.platform.opentargets.org/api/v4/graphql returned error status code 400. Please double-check arguments and try again.
+FAILED tests/test_opentargets.py::TestOpenTargets::test_opentargets_expression_no_limit - AssertionError: '4024b12c2134734ce8f952fdd7155135' != 'c1300a64c439e9b1a0adf4475cf138db'
+- 4024b12c2134734ce8f952fdd7155135
++ c1300a64c439e9b1a0adf4475cf138db
 !!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 5 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
-============ 5 failed, 82 passed, 29 warnings in 363.33s (0:06:03) =============
+============ 5 failed, 136 passed, 58 warnings in 205.44s (0:03:25) ============
