@@ -1,4 +1,4 @@
-name: CI - push tests plus scheduled/manual test report publishing
+name: CI - tests and reporting
 
 on:
   # Scheduled runs twice weekly.
