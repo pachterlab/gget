@@ -1,4 +1,4 @@
-name: CI - tests and reporting
+name: CI - tests
 
 on:
   # Scheduled runs twice weekly.
