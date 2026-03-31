@@ -1,4 +1,4 @@
-Pytest results (Python 3.12) - 2026-03-30T16:27:15Z
+Pytest results (Python 3.12) - 2026-03-31T20:27:44Z
 
 ============================= test session starts ==============================
 platform linux -- Python 3.12.13, pytest-9.0.2, pluggy-1.6.0 -- /opt/hostedtoolcache/Python/3.12.13/x64/bin/python
@@ -235,7 +235,7 @@ self = <tests.test_opentargets.TestOpenTargets testMethod=test_opentargets_drugs
 tests/from_json.py:65: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-func = <function opentargets at 0x7f99e5818cc0>
+func = <function opentargets at 0x7f7c21718cc0>
 args = {'ensembl_id': 'ENSG00000169194', 'limit': 2, 'resource': 'drugs'}
 
     def do_call(func, args):
@@ -437,7 +437,7 @@ self = <tests.test_opentargets.TestOpenTargets testMethod=test_opentargets_drugs
 tests/from_json.py:117: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-func = <function opentargets at 0x7f99e5818cc0>
+func = <function opentargets at 0x7f7c21718cc0>
 args = {'ensembl_id': 'ENSG00000169194', 'resource': 'drugs'}
 
     def do_call(func, args):
@@ -703,16 +703,16 @@ tests/test_mutate.py: 29 warnings
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
 ============================= slowest 10 durations =============================
-714.18s call     tests/test_blast.py::TestBlast::test_blast_nt
-45.89s call     tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
-13.08s call     tests/test_elm.py::TestELM::test_elm_uniprot_id_new
-11.98s setup    tests/test_cosmic.py::TestCosmicWorkflow::test_cosmic_defaults
+77.43s call     tests/test_blast.py::TestBlast::test_blast_nt
+49.36s call     tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
+35.54s call     tests/test_8cube.py::TestSpecificity::test_specificity_basic
+18.32s call     tests/test_elm.py::TestELM::test_elm_uniprot_id_new
+12.00s call     tests/test_enrichr.py::TestEnrichr::test_enrichr_background_ensembl
+11.61s setup    tests/test_cosmic.py::TestCosmicWorkflow::test_cosmic_defaults
 10.05s call     tests/test_cosmic.py::TestCosmicWorkflow::test_cosmic_defaults
-8.66s call     tests/test_enrichr.py::TestEnrichr::test_enrichr_background_ensembl
-4.98s call     tests/test_info.py::TestInfo::test_info_transcript
-4.23s call     tests/test_info.py::TestInfo::test_info_gene
-3.65s call     tests/test_archs4.py::TestArchs4::test_archs4_mouse_json_ensembl
-3.58s call     tests/test_archs4.py::TestArchs4::test_archs4_tissue_ensembl
+7.43s call     tests/test_info.py::TestInfo::test_info_ncbifalse_uniprottrue
+5.72s call     tests/test_info.py::TestInfo::test_info_ncbifalse_uniprotfalse
+5.69s call     tests/test_info.py::TestInfo::test_info_gene
 =========================== short test summary info ============================
 FAILED tests/test_opentargets.py::TestOpenTargets::test_opentargets - AssertionError: Lists differ: [['EF[171 chars]', 0.7297489019498119], ['MONDO_0004979', 'ast[535 chars]653]] != [['EF[171 chars]', 0.6908981975876463], ['MONDO_0004979', 'ast[535 chars]614]]
 
@@ -746,4 +746,4 @@ FAILED tests/test_opentargets.py::TestOpenTargets::test_opentargets_expression_n
 - 4024b12c2134734ce8f952fdd7155135
 + c1300a64c439e9b1a0adf4475cf138db
 !!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 5 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!
-============ 5 failed, 136 passed, 58 warnings in 891.65s (0:14:51) ============
+============ 5 failed, 136 passed, 58 warnings in 519.01s (0:08:39) ============
