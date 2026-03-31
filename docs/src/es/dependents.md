@@ -17,7 +17,7 @@ ___
 # 🧑‍🤝‍🧑 Programas dependientes
 Las siguientes aplicaciones usan *gget*:
 - [gget-mcp](https://mcpindex.net/en/mcpserver/longevity-genie-gget-mcp)
-  > "Servidor MCP que proporciona un potente conjunto de herramientas de bioinformática para consultas y análisis genómicos, envolviendo la popular librería `gget`."
+  > "Servidor MCP que proporciona un potente conjunto de herramientas de bioinformática para consultas y análisis genómicos, envolviendo la popular librería **gget**."
   - Otras proyectos que utilizan este u otros servidores MCP de `gget`:
     - [https://mcpservers.org/servers/longevity-genie/holy-bio-mcp](https://mcpservers.org/servers/longevity-genie/holy-bio-mcp)
     - [https://biocontext.ai](https://biocontext.ai/registry/longevity-genie/gget-mcp)
