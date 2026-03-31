@@ -99,44 +99,44 @@ jobs:
           path: tests/pytest_results_py${{ matrix.python }}.txt
 
       # Commit the saved pytest report back to the repository.
-      #
       # Safety guards:
       # - only on scheduled/manual runs
       # - only once (3.12) to avoid matrix push races
-      # - only from main, so manual runs from feature branches do not try to push to main
-      #
-      # Retry logic helps if main moved while this job was running.
+      # - commits back to the branch that the run was triggered from
+      # Retry logic helps if the branch moved while this job was running.
       - name: Commit and push pytest results
         if: >
           always() &&
           matrix.python == '3.12' &&
-          github.ref == 'refs/heads/main' &&
           (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
         shell: bash
         run: |
           set -euo pipefail
-
+      
+          BRANCH="${GITHUB_REF#refs/heads/}"
+          echo "Current branch: $BRANCH"
+      
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
+      
           git add tests/pytest_results_py*.txt
-
+      
           if git diff --cached --quiet; then
             echo "No changes to commit."
             exit 0
           fi
-
-          git commit -m "CI: update pytest results"
-
+      
+          git commit -m "CI: update pytest results ($BRANCH)"
+      
           for attempt in 1 2 3 4 5; do
             echo "Push attempt $attempt..."
-            git pull --rebase --autostash origin main || true
-            if git push origin main; then
+            git pull --rebase --autostash origin "$BRANCH" || true
+            if git push origin "$BRANCH"; then
               exit 0
             fi
             sleep $((attempt * 5))
           done
-
+      
           echo "Push failed after retries."
           exit 1
 
