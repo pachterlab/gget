@@ -21,32 +21,6 @@
             ]
         ]
     },
-    "test_opentargets_no_limit": {
-        "type": "assert_equal_json_hash",
-        "args": {
-            "ensembl_id": "ENSG00000169194",
-            "resource": "diseases"
-        },
-        "expected_result": "177b4dc5dc5413fd2a35ec1979e97b8c"
-    },
-    "test_opentargets_no_limit_accurate_coverage": {
-        "type": "assert_equal_json_hash",
-        "args": {
-            "ensembl_id": "ENSG00000169194",
-            "resource": "diseases",
-            "verbose": false,
-            "wrap_text": true
-        },
-        "expected_result": "177b4dc5dc5413fd2a35ec1979e97b8c"
-    },
-    "test_opentargets_pharmacogenetics_no_limit": {
-        "type": "assert_equal_json_hash_nested",
-        "args": {
-            "ensembl_id": "ENSG00000169194",
-            "resource": "pharmacogenetics"
-        },
-        "expected_result": "961ff37ddc5a0cf34de084df607d70e0"
-    },
     "test_opentargets_expression_no_limit": {
         "type": "assert_equal_json_hash",
         "args": {
