@@ -17,7 +17,7 @@ ___
 # 🧑‍🤝‍🧑 Dependent software
 The following applications build on `gget`:
 - [gget-mcp](https://mcpindex.net/en/mcpserver/longevity-genie-gget-mcp)
-  > "MCP server providing a powerful bioinformatics toolkit for genomics queries and analysis, wrapping the popular `gget` library."
+  > "MCP server providing a powerful bioinformatics toolkit for genomics queries and analysis, wrapping the popular **gget** library."
   - Other tools using this or other `gget` MCP servers:
     - [https://mcpservers.org/servers/longevity-genie/holy-bio-mcp](https://mcpservers.org/servers/longevity-genie/holy-bio-mcp)
     - [https://biocontext.ai](https://biocontext.ai/registry/longevity-genie/gget-mcp)
