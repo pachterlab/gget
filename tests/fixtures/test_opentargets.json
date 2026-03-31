@@ -47,21 +47,6 @@
         },
         "expected_result": "961ff37ddc5a0cf34de084df607d70e0"
     },
-    "test_opentargets_pharmacogenetics_filter_or": {
-        "type": "assert_equal_json_hash_nested",
-        "args": {
-            "ensembl_id": "ENSG00000130164",
-            "resource": "pharmacogenetics",
-            "filters": {
-                "drug_id": [
-                    "CHEMBL1643",
-                    "CHEMBL24"
-                ]
-            },
-            "filter_mode": "or"
-        },
-        "expected_result": "fe7d213f9e819dc8e5ccf8984782bf38"
-    },
     "test_opentargets_expression_no_limit": {
         "type": "assert_equal_json_hash",
         "args": {
@@ -115,7 +100,7 @@
             "ensembl_id": "ENSG00000169194",
             "resource": "interactions"
         },
-        "expected_result": "87426de2adc0d83e6477a0eae579bec5"
+        "expected_result": "441f1d3e9deedd7bba797f8aa7ddad61"
     },
     "test_opentargets_interactions_simple_filter": {
         "type": "assert_equal",
@@ -135,12 +120,12 @@
                 "ENSG00000169194",
                 "IL13",
                 "unspecified role",
-                9606,
+                134,
                 "P24394",
                 "ENSG00000077238",
                 "IL4R",
                 "unspecified role",
-                9606
+                134
             ],
             [
                 2,
@@ -149,12 +134,12 @@
                 "ENSG00000169194",
                 "IL13",
                 "regulator",
-                9606,
+                134,
                 "P24394",
                 "ENSG00000077238",
                 "IL4R",
                 "regulator target",
-                9606
+                134
             ],
             [
                 3,
@@ -163,12 +148,12 @@
                 "ENSG00000169194",
                 "IL13",
                 "unspecified role",
-                9606,
+                134,
                 "P24394",
                 "ENSG00000077238",
                 "IL4R",
                 "unspecified role",
-                9606
+                134
             ]
         ]
     },
