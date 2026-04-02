@@ -1,4 +1,5 @@
 import json as json_
+import textwrap
 import pandas as pd
 import requests
 import json
@@ -6,7 +7,7 @@ import json
 from .constants import OPENTARGETS_GRAPHQL_API
 from .utils import set_up_logger, wrap_cols_func, graphql_query, json_list_to_df
 
-logger = set_up_logger()
+logger = set_up_logger()  # export GGET_LOGLEVEL=DEBUG
 
 QUERY_STRING_DISEASES = ""
 
@@ -31,11 +32,13 @@ query target($ensemblId: String!) {
           synonyms
           tradeNames
           maximumClinicalStage
-        }
-        diseases {
-          disease {
-            id
-            name
+          indications {
+            rows {
+              disease {
+                id
+                name
+              }
+            }
           }
         }
       }
@@ -50,8 +53,52 @@ QUERY_STRING_EXPRESSION = ""
 QUERY_STRING_DEPMAP = ""
 QUERY_STRING_INTERACTIONS = ""
 
-RESOURCES_TO_QUERY = {"diseases": QUERY_STRING_DISEASES, "drugs": QUERY_STRING_DRUGS, "tractability": QUERY_STRING_TRACTABILITY, "pharmacogenetics": QUERY_STRING_PHARMACOGENETICS, "expression": QUERY_STRING_EXPRESSION, "depmap": QUERY_STRING_DEPMAP, "interactions": QUERY_STRING_INTERACTIONS}
-RESOURCES = set(RESOURCES_TO_QUERY.keys())
+RESOURCES = {"diseases", "drugs", "tractability", "pharmacogenetics", "expression", "depmap", "interactions"}
+
+def collapse_singletons(obj):
+    """
+    Recursively collapse:
+    - nested single-element lists
+    - single dicts with one key → value
+    """
+    # -------------------------
+    # Case 1: list
+    # -------------------------
+    if isinstance(obj, list):
+        # flatten nested lists
+        def flatten(x):
+            for el in x:
+                if isinstance(el, list):
+                    yield from flatten(el)
+                else:
+                    yield el
+        
+        flat = list(flatten(obj))
+
+        # if exactly one element → recurse
+        if len(flat) == 1:
+            return collapse_singletons(flat[0])
+
+        # otherwise recurse inside but keep structure
+        return [collapse_singletons(el) for el in flat]
+
+    # -------------------------
+    # Case 2: dict
+    # -------------------------
+    if isinstance(obj, dict):
+        # recurse into values
+        obj = {k: collapse_singletons(v) for k, v in obj.items()}
+
+        # if single key → collapse
+        if len(obj) == 1:
+            return next(iter(obj.values()))
+
+        return obj
+
+    # -------------------------
+    # Base case
+    # -------------------------
+    return obj
 
 def opentargets(
     ensembl_id,
@@ -59,8 +106,6 @@ def opentargets(
     limit=None,
     verbose=True,
     wrap_text=False,
-    filters=None,
-    filter_mode="and",
     json=False,
 ):
     """
@@ -81,63 +126,78 @@ def opentargets(
                     Note: Not compatible with the 'tractability' and 'depmap' resources.
     - verbose       Print progress messages (default: True).
     - wrap_text     If True, displays data frame with wrapped text for easy reading. Default: False.
-    - filters       Filters to apply to the data. Supported filters by resource:
-                    "diseases": None
-                    "drugs": disease_id (e.g. "EFO_0000274")
-                    "tractability": None
-                    "pharmacogenetics": drug_id (e.g. "CHEMBL535")
-                    "expression": tissue_id (e.g. "UBERON_0002245"), anatomical_system (e.g. "nervous system"), organ (e.g. "brain")
-                    "depmap": tissue_id (e.g. "UBERON_0002245")
-                    "interactions": protein_a_id (e.g. "ENSP00000304915"), protein_b_id (e.g. "ENSP00000379111"), gene_b_id (e.g. "ENSG00000077238")
-    - filter_mode   For resources that support multiple types of filters, this argument specifies how to combine them.
     - json          If True, returns results in JSON format instead of as a Data Frame. Default: False.
 
 
     Returns requested information in DataFrame format.
     """
 
-    # Wrap everything into a list
-    if filters is not None:
-        filters = {k: v if isinstance(v, list) else [v] for k, v in filters.items()}
-    
-    query_string = RESOURCES_TO_QUERY.get(resource)
-    if query_string is None:
+    if resource == "diseases":
+        raise NotImplementedError("The 'diseases' resource is currently not supported. Please check back in a future update.")
+    elif resource == "drugs":
+        query_string = QUERY_STRING_DRUGS
+        rows_path = ["drugAndClinicalCandidates", "rows"]
+    elif resource == "tractability":
+        raise NotImplementedError("The 'tractability' resource is currently not supported. Please check back in a future update.")
+    elif resource == "pharmacogenetics":
+        raise NotImplementedError("The 'pharmacogenetics' resource is currently not supported. Please check back in a future update.")
+    elif resource == "expression":
+        raise NotImplementedError("The 'expression' resource is currently not supported. Please check back in a future update.")
+    elif resource == "depmap":
+        raise NotImplementedError("The 'depmap' resource is currently not supported. Please check back in a future update.")
+    elif resource == "interactions":
+        raise NotImplementedError("The 'interactions' resource is currently not supported. Please check back in a future update.")
+    else:
         raise ValueError(f"'resource' argument specified as {resource}. Expected one of: {', '.join(RESOURCES)}")
-    
-    # if resource == "diseases":
-    #     raise NotImplementedError("The 'diseases' resource is currently not supported. Please check back in a future update.")
-    # elif resource == "drugs":
-    #     query_string = QUERY_STRING_DRUGS
-    # elif resource == "tractability":
-    #     raise NotImplementedError("The 'tractability' resource is currently not supported. Please check back in a future update.")
-    # elif resource == "pharmacogenetics":
-    #     raise NotImplementedError("The 'pharmacogenetics' resource is currently not supported. Please check back in a future update.")
-    # elif resource == "expression":
-    #     raise NotImplementedError("The 'expression' resource is currently not supported. Please check back in a future update.")
-    # elif resource == "depmap":
-    #     raise NotImplementedError("The 'depmap' resource is currently not supported. Please check back in a future update.")
-    # elif resource == "interactions":
-    #     raise NotImplementedError("The 'interactions' resource is currently not supported. Please check back in a future update.")
-    # else:
-    #     raise ValueError(f"'resource' argument specified as {resource}. Expected one of: {', '.join(RESOURCES)}")
 
-    # Set variables object of arguments to be passed to endpoint
     variables = {"ensemblId": ensembl_id}
 
-    # Perform POST request and check status code of response
-    r = requests.post(OPENTARGETS_GRAPHQL_API, json={"query": query_string, "variables": variables})
-    print(r.status_code)
+    if verbose:
+        logger.info(f"Querying OpenTargets for {resource} associated with {ensembl_id}...")
+        logger.debug(f"GraphQL query string:\n{query_string}\n\nWith variables:\n{variables}")
 
-    # Transform API response from JSON into Python dictionary and print in console
+    r = requests.post(
+        OPENTARGETS_GRAPHQL_API,
+        json={"query": query_string, "variables": variables},
+    )
+
     api_response = json_.loads(r.text)
-    print(api_response)
-    
-    # df['score'].apply(lambda x: round(x, 10) if isinstance(x, float) else x)[0]
 
+    if "errors" in api_response:
+        raise ValueError(api_response["errors"])
+
+    if verbose:
+        logger.debug(f"Raw API response:\n{json_.dumps(api_response, indent=2)}")
+    
     # if json:
-    #     return json_.loads(df.to_json(orient="records", force_ascii=False))
-    # else:
-    #     return df
+    #     return api_response
+    
+    rows = api_response["data"]["target"]
+
+    for i in range(len(rows_path)):
+        rows = rows[rows_path[i]]
+
+    # ---------------------------
+    # If JSON → return normalized JSON
+    # ---------------------------
+    df = pd.json_normalize(rows)
+
+    if limit is not None:
+        df = df.head(limit)
+    
+    df = df.map(collapse_singletons)  # drug.mechanismsOfAction.rows --> drug.mechanismsOfAction.mechanismOfAction
+
+    if wrap_text:
+        for col in df.columns:
+            if df[col].dtype == object:
+                df[col] = df[col].apply(
+                    lambda x: textwrap.fill(str(x), width=40) if isinstance(x, str) else x
+                )
+    
+    if json:
+        return json_.loads(df.to_json(orient="records", force_ascii=False))
+    
+    return df
     
 
 
