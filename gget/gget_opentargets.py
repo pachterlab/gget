@@ -9,15 +9,27 @@ from .utils import set_up_logger, wrap_cols_func, graphql_query, json_list_to_df
 
 logger = set_up_logger()  # export GGET_LOGLEVEL=DEBUG
 
-QUERY_STRING_DISEASES = ""
+QUERY_STRING_DISEASES = """
+query target($ensemblId: String!) {
+  target(ensemblId: $ensemblId) {
+    associatedDiseases {
+      rows {
+        score
+        disease {
+          id
+          name
+          description
+        }
+      }
+    }
+  }
+}
+"""
 
 QUERY_STRING_DRUGS = """
 query target($ensemblId: String!) {
   target(ensemblId: $ensemblId) {
-    id
-    approvedSymbol
     drugAndClinicalCandidates {
-      count
       rows {
         drug {
           id
@@ -47,15 +59,42 @@ query target($ensemblId: String!) {
 }
 """
 
-QUERY_STRING_TRACTABILITY = ""
+QUERY_STRING_TRACTABILITY = """
+query target($ensemblId: String!) {
+  target(ensemblId: $ensemblId) {
+    tractability {
+      modality
+      label
+      value
+    }
+  }
+}
+"""
 QUERY_STRING_PHARMACOGENETICS = ""
 QUERY_STRING_EXPRESSION = ""
-QUERY_STRING_DEPMAP = ""
+QUERY_STRING_DEPMAP = """
+query target($ensemblId: String!) {
+  target(ensemblId: $ensemblId) {
+    depMapEssentiality {
+      tissueId
+      tissueName
+      screens {
+        cellLineName
+        mutation
+        expression
+        diseaseFromSource
+        depmapId
+        geneEffect
+      } 
+    }
+  }
+}
+"""
 QUERY_STRING_INTERACTIONS = ""
 
 RESOURCES = {"diseases", "drugs", "tractability", "pharmacogenetics", "expression", "depmap", "interactions"}
 
-def collapse_singletons(obj):
+def _collapse_singletons(obj):
     """
     Recursively collapse:
     - nested single-element lists
@@ -74,21 +113,25 @@ def collapse_singletons(obj):
                     yield el
         
         flat = list(flatten(obj))
+        flat = [el for el in flat if el is not None]
 
         # if exactly one element → recurse
         if len(flat) == 1:
-            return collapse_singletons(flat[0])
+            return _collapse_singletons(flat[0])
 
         # otherwise recurse inside but keep structure
-        return [collapse_singletons(el) for el in flat]
+        return [_collapse_singletons(el) for el in flat]
 
     # -------------------------
     # Case 2: dict
     # -------------------------
     if isinstance(obj, dict):
         # recurse into values
-        obj = {k: collapse_singletons(v) for k, v in obj.items()}
+        obj = {k: _collapse_singletons(v) for k, v in obj.items()}
 
+        if len(obj) == 0:
+            return None
+        
         # if single key → collapse
         if len(obj) == 1:
             return next(iter(obj.values()))
@@ -99,6 +142,43 @@ def collapse_singletons(obj):
     # Base case
     # -------------------------
     return obj
+
+def _propagate_context(rows, rows_path_and_keep_layer):
+    """
+    Traverse nested structure while copying parent-level scalar fields
+    into each child element.
+    """
+    for key, keep_layer in rows_path_and_keep_layer:
+        rows_sub = rows[key]
+
+        if keep_layer:
+            # -------------------------
+            # extract parent scalar fields
+            # -------------------------
+            parent_fields = {
+                k: v for k, v in rows.items()
+                if k != key and not isinstance(v, (list, dict))
+            }
+
+            # -------------------------
+            # propagate into children
+            # -------------------------
+            if isinstance(rows_sub, list):
+                new_rows = []
+                for el in rows_sub:
+                    if isinstance(el, dict):
+                        new_rows.append({**parent_fields, **el})
+                    else:
+                        new_rows.append(el)
+                rows_sub = new_rows
+
+            elif isinstance(rows_sub, dict):
+                rows_sub = {**parent_fields, **rows_sub}
+
+        # move down
+        rows = rows_sub
+
+    return rows
 
 def opentargets(
     ensembl_id,
@@ -133,19 +213,25 @@ def opentargets(
     """
 
     if resource == "diseases":
-        raise NotImplementedError("The 'diseases' resource is currently not supported. Please check back in a future update.")
+        query_string = QUERY_STRING_DISEASES
+        rows_path_and_keep_layer = [("associatedDiseases", False), ("rows", False), ("disease", True)]
     elif resource == "drugs":
         query_string = QUERY_STRING_DRUGS
-        rows_path = ["drugAndClinicalCandidates", "rows"]
+        rows_path_and_keep_layer = [("drugAndClinicalCandidates", False), ("rows", False)]
     elif resource == "tractability":
-        raise NotImplementedError("The 'tractability' resource is currently not supported. Please check back in a future update.")
+        query_string = QUERY_STRING_TRACTABILITY
+        rows_path_and_keep_layer = [("tractability", False)]
     elif resource == "pharmacogenetics":
+        query_string = QUERY_STRING_PHARMACOGENETICS
         raise NotImplementedError("The 'pharmacogenetics' resource is currently not supported. Please check back in a future update.")
     elif resource == "expression":
+        query_string = QUERY_STRING_EXPRESSION
         raise NotImplementedError("The 'expression' resource is currently not supported. Please check back in a future update.")
     elif resource == "depmap":
-        raise NotImplementedError("The 'depmap' resource is currently not supported. Please check back in a future update.")
+        query_string = QUERY_STRING_DEPMAP
+        rows_path_and_keep_layer = [("depMapEssentiality", False), ("screens", True)]
     elif resource == "interactions":
+        query_string = QUERY_STRING_INTERACTIONS
         raise NotImplementedError("The 'interactions' resource is currently not supported. Please check back in a future update.")
     else:
         raise ValueError(f"'resource' argument specified as {resource}. Expected one of: {', '.join(RESOURCES)}")
@@ -172,20 +258,25 @@ def opentargets(
     # if json:
     #     return api_response
     
-    rows = api_response["data"]["target"]
+    api_target = api_response["data"]["target"]
 
-    for i in range(len(rows_path)):
-        rows = rows[rows_path[i]]
+    rows = _propagate_context(
+        api_target,
+        rows_path_and_keep_layer
+    )
 
     # ---------------------------
     # If JSON → return normalized JSON
     # ---------------------------
     df = pd.json_normalize(rows)
+    df = df.drop_duplicates()
+    df = df.dropna(axis=1, how="all")  # drop any all-NaN columns
+    df = df.dropna(axis=0, how="all")  # drop any all-NaN rows
 
     if limit is not None:
         df = df.head(limit)
     
-    df = df.map(collapse_singletons)  # drug.mechanismsOfAction.rows --> drug.mechanismsOfAction.mechanismOfAction
+    df = df.map(_collapse_singletons)
 
     if wrap_text:
         for col in df.columns:
