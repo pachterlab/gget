@@ -247,7 +247,6 @@ def opentargets(
     verbose=True,
     wrap_text=False,
     filters=None,
-
     json=False,
 ):
     """
@@ -268,7 +267,7 @@ def opentargets(
                     Note: Not compatible with the 'tractability' and 'depmap' resources.
     - verbose       Print progress messages (default: True).
     - wrap_text     If True, displays data frame with wrapped text for easy reading. Default: False.
-    - filters       Filters to apply to the data. Supported filters by equality for any column in the returned data frame. Default: None (no filters applied).
+    - filters       Filters to apply to the data. Supported filters by equality for any column in the returned data frame. Dictionary of {column: value} pairs. Default: None (no filters applied).
     - json          If True, returns results in JSON format instead of as a Data Frame. Default: False.
 
 

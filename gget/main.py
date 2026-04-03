@@ -84,6 +84,24 @@ def str_to_bool_or_none(value):
     return value 
 
 
+def parse_opentargets_filter(filter_arg):
+    if "=" not in filter_arg:
+        raise argparse.ArgumentTypeError(
+            "OpenTargets filters must be passed as COLUMN=VALUE, e.g. 'disease.id=EFO_0000274'."
+        )
+
+    filter_key, filter_value = filter_arg.split("=", 1)
+    filter_key = filter_key.strip()
+    filter_value = filter_value.strip()
+
+    if not filter_key:
+        raise argparse.ArgumentTypeError(
+            "OpenTargets filter column name cannot be empty."
+        )
+
+    return filter_key, int_or_str(str_to_bool_or_none(filter_value))
+
+
 def main():
     """
     Function containing argparse parsers and arguments to allow the use of gget from the terminal.
@@ -2088,35 +2106,20 @@ def main():
             "Default: Standard out."
         ),
     )
-    # Filters
-    _filters = [
-        # flag, long flag,   filter name,            example,            valid resources
-        ("d", "disease", "disease ID", "EFO_0000274", ["drugs"]),
-        ("c", "drug", "drug ID", "CHEMBL1743081", ["pharmacogenetics"]),
-        ("t", "tissue", "tissue ID", "UBERON_0000473", ["expression", "depmap"]),
-        ("a", "anat_sys", "anatomical system", "nervous system", ["expression"]),
-        ("o", "organ", "organ", "brain", ["expression"]),
-        ("pa", "protein_a", "protein A ID", "ENSP00000304915", ["interactions"]),
-        ("pb", "protein_b", "protein B ID", "ENSP00000379111", ["interactions"]),
-        ("gb", "gene_b", "gene B ID", "ENSG00000077238", ["interactions"]),
-    ]
-    for flag, long_flag, filter_name, example, valid_resources in _filters:
-        help_text = f"Filter results by {filter_name}, e.g. '{example}'.\n"
-        if len(valid_resources) > 1:
-            quot = "'"
-            help_text += f"Only valid for the following resources: {', '.join([quot+vr+quot for vr in valid_resources])}."
-        else:
-            help_text += f"Only valid for the '{valid_resources[0]}' resource."
-        parser_opentargets.add_argument(
-            "-f" + flag,
-            "--filter_" + long_flag,
-            type=str,
-            required=False,
-            nargs="+",
-            default=None,
-            help=help_text,
-        )
-    # End Filters
+    parser_opentargets.add_argument(
+        "-f",
+        "--filter",
+        type=parse_opentargets_filter,
+        action="append",
+        required=False,
+        default=None,
+        metavar="COLUMN=VALUE",
+        help=(
+            "Filter results by exact equality using returned OpenTargets column names.\n"
+            "Pass multiple filters by repeating the flag, e.g. '--filter disease.id=EFO_0000274 --filter drug.id=CHEMBL1743081'.\n"
+            "Nested fields use dot notation, matching the column names returned by the API."
+        ),
+    )
     parser_opentargets.add_argument(
         "-csv",
         "--csv",
@@ -2133,15 +2136,6 @@ def main():
         required=False,
         help="Does not print progress information.",
     )
-    parser_opentargets.add_argument(
-        "-or",
-        "--or",
-        default=False,
-        action="store_true",
-        required=False,
-        help="Use OR instead of AND logic for multiple filter IDs.",
-    )
-
     ## cbio parser arguments
     cbio_desc = "Plot cancer genomics heatmaps using data from cBioPortal using Ensembl IDs or gene names"
     parser_cbio = parent_subparsers.add_parser(
@@ -3653,24 +3647,7 @@ def main():
 
     ## opentargets return
     if args.command == "opentargets":
-        flag_to_filter_id = {
-            "filter_disease": "disease_id",
-            "filter_drug": "drug_id",
-            "filter_tissue": "tissue_id",
-            "filter_anat_sys": "anatomical_system",
-            "filter_organ": "organ",
-            "filter_protein_a": "protein_a_id",
-            "filter_protein_b": "protein_b_id",
-            "filter_gene_b": "gene_b_id",
-        }
-        filters: Optional[dict[str, list[str]]] = {}
-
-        for flag, filter_id in flag_to_filter_id.items():
-            if getattr(args, flag) is not None:
-                filters[filter_id] = getattr(args, flag)
-
-        if len(filters) == 0:
-            filters = None
+        filters = dict(args.filter) if args.filter is not None else None
 
         opentargets_results = opentargets(
             ensembl_id=args.ens_id,
@@ -3678,7 +3655,6 @@ def main():
             limit=args.limit,
             verbose=args.quiet,
             filters=filters,
-            filter_mode="or" if getattr(args, "or") else "and",
         )
 
         if args.out is not None and args.out != "":
