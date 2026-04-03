@@ -167,24 +167,35 @@ def _assert_equal_json_with_keys(name, td, func):
             if isinstance(x, tuple):
                 x = [normalize(v) for v in x]
 
-            elif isinstance(x, list):
+            if isinstance(x, list):
                 x = [normalize(v) for v in x]
 
-                # 🔥 Detect list-of-pairs → dict safely
+                # Detect list-of-pairs -> dict recursively.
                 if all(isinstance(i, list) and len(i) == 2 for i in x):
-                    # try both interpretations
                     try:
-                        return {i[0]: i[1] for i in x}  # key, value
+                        x = {i[0]: i[1] for i in x}
                     except Exception:
-                        pass
+                        try:
+                            x = {i[1]: i[0] for i in x}
+                        except Exception:
+                            pass
 
-                    try:
-                        return {i[1]: i[0] for i in x}  # value, key
-                    except Exception:
-                        pass
+                # Collapse singleton wrappers such as:
+                # [{"drug": {...}}] -> {"drug": {...}}
+                # ["26387812"] -> "26387812"
+                if isinstance(x, list) and len(x) == 1:
+                    return normalize(x[0])
 
-            elif isinstance(x, dict):
-                return {k: normalize(v) for k, v in x.items()}
+            if isinstance(x, dict):
+                x = {k: normalize(v) for k, v in x.items()}
+
+                # Collapse single-key wrapper dicts such as:
+                # {"drug": {...}} -> {...}
+                # {"drug": None} -> None
+                if len(x) == 1:
+                    return normalize(next(iter(x.values())))
+
+                return x
 
             return x
         

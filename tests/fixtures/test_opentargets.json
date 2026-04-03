@@ -64,14 +64,7 @@
             "drug.id": "CHEMBL1743035",
             "drug.name": "LEBRIKIZUMAB",
             "drug.drugType": "Antibody",
-            "drug.mechanismsOfAction.rows": [
-            [
-                [
-                "mechanismOfAction",
-                "Interleukin-13 inhibitor"
-                ]
-            ]
-            ],
+            "drug.mechanismsOfAction.rows": "Interleukin-13 inhibitor",
             "drug.description": "Antibody drug with a maximum clinical stage of Approval (across all indications), with an approval for atopic eczema and eczematoid dermatitis and 5 investigational indications.",
             "drug.synonyms": [
             "Lebrikizumab",
@@ -84,171 +77,63 @@
             "RO-5490255",
             "Tnx-650"
             ],
-            "drug.tradeNames": [
-            "Ebglyss"
-            ],
+            "drug.tradeNames": "Ebglyss",
             "drug.maximumClinicalStage": "APPROVAL",
             "drug.indications.rows": [
-            [
-                [
-                "disease",
-                [
-                    [
-                    "id",
-                    "EFO_0000274"
-                    ],
-                    [
-                    "name",
-                    "atopic eczema"
-                    ]
-                ]
-                ]
-            ],
-            [
-                [
-                "disease",
-                [
-                    [
-                    "id",
-                    "EFO_0000768"
-                    ],
-                    [
-                    "name",
-                    "idiopathic pulmonary fibrosis"
-                    ]
-                ]
-                ]
-            ],
-            [
-                [
-                "disease",
-                [
-                    [
-                    "id",
-                    "MONDO_0004979"
-                    ],
-                    [
-                    "name",
-                    "asthma"
-                    ]
-                ]
-                ]
-            ],
-            [
-                [
-                "disease",
-                [
-                    [
-                    "id",
-                    "HP_0000964"
-                    ],
-                    [
-                    "name",
-                    "Eczematoid dermatitis"
-                    ]
-                ]
-                ]
-            ],
-            [
-                [
-                "disease",
-                [
-                    [
-                    "id",
-                    "EFO_0000341"
-                    ],
-                    [
-                    "name",
-                    "chronic obstructive pulmonary disease"
-                    ]
-                ]
-                ]
-            ],
-            [
-                [
-                "disease",
-                [
-                    [
-                    "id",
-                    "EFO_0000183"
-                    ],
-                    [
-                    "name",
-                    "Hodgkins lymphoma"
-                    ]
-                ]
-                ]
-            ],
-            [
-                [
-                "disease",
-                [
-                    [
-                    "id",
-                    "MONDO_0004784"
-                    ],
-                    [
-                    "name",
-                    "allergic asthma"
-                    ]
-                ]
-                ]
-            ]
+            {
+                "id": "EFO_0000274",
+                "name": "atopic eczema"
+            },
+            {
+                "id": "EFO_0000768",
+                "name": "idiopathic pulmonary fibrosis"
+            },
+            {
+                "id": "MONDO_0004979",
+                "name": "asthma"
+            },
+            {
+                "id": "HP_0000964",
+                "name": "Eczematoid dermatitis"
+            },
+            {
+                "id": "EFO_0000341",
+                "name": "chronic obstructive pulmonary disease"
+            },
+            {
+                "id": "EFO_0000183",
+                "name": "Hodgkins lymphoma"
+            },
+            {
+                "id": "MONDO_0004784",
+                "name": "allergic asthma"
+            }
             ]
         },
         {
             "drug.id": "CHEMBL1742985",
             "drug.name": "ANRUKINZUMAB",
             "drug.drugType": "Antibody",
-            "drug.mechanismsOfAction.rows": [
-            [
-                [
-                "mechanismOfAction",
-                "Interleukin-13 inhibitor"
-                ]
-            ]
-            ],
+            "drug.mechanismsOfAction.rows": "Interleukin-13 inhibitor",
             "drug.description": "Antibody drug with a maximum clinical stage of Phase 2 (across all indications), with 2 investigational indications.",
             "drug.synonyms": [
             "Anrukinzumab",
             "IMA-638"
             ],
-            "drug.tradeNames": [],
+            "drug.tradeNames": null,
             "drug.maximumClinicalStage": "PHASE_2",
             "drug.indications.rows": [
-            [
-                [
-                "disease",
-                [
-                    [
-                    "id",
-                    "MONDO_0004979"
-                    ],
-                    [
-                    "name",
-                    "asthma"
-                    ]
-                ]
-                ]
-            ],
-            [
-                [
-                "disease",
-                [
-                    [
-                    "id",
-                    "EFO_0000729"
-                    ],
-                    [
-                    "name",
-                    "ulcerative colitis"
-                    ]
-                ]
-                ]
-            ]
+            {
+                "id": "MONDO_0004979",
+                "name": "asthma"
+            },
+            {
+                "id": "EFO_0000729",
+                "name": "ulcerative colitis"
+            }
             ]
         }
-      ]
+        ]
   },
   "test_opentargets_expression": {
     "function_call_to_reproduce": "output = opentargets(ensembl_id='ENSG00000169194', resource='expression', limit=2, json=True, verbose=False); print(json.dumps(output, indent=2))",
@@ -298,25 +183,37 @@
       "limit": 2
     },
     "expected_result": [
-      {
-        "tissueId": "UBERON_0002367",
-        "tissueName": "prostate gland",
-        "cellLineName": "DU 145",
-        "expression": 0.0343439169,
-        "diseaseFromSource": "Prostate Adenocarcinoma",
-        "depmapId": "ACH-000979",
-        "geneEffect": -0.1433678865
-      },
-      {
-        "tissueId": "UBERON_0002367",
-        "tissueName": "prostate gland",
-        "cellLineName": "WPE1-NA22",
-        "expression": 0.0291899424,
-        "diseaseFromSource": "Non-Cancerous",
-        "depmapId": "ACH-001422",
-        "geneEffect": 0.069347702
-      }
-    ]
+        {
+            "score": 0.999,
+            "count": 3,
+            "sourceDatabase": "string",
+            "intA": "ENSP00000304915",
+            "intABiologicalRole": "unspecified role",
+            "intB": "ENSP00000361004",
+            "intBBiologicalRole": "unspecified role",
+            "targetA.id": "ENSG00000169194",
+            "targetA.approvedSymbol": "IL13",
+            "speciesA.taxonId": 134,
+            "targetB.id": "ENSG00000123496",
+            "targetB.approvedSymbol": "IL13RA2",
+            "speciesB.taxonId": 134
+        },
+        {
+            "score": 0.999,
+            "count": 3,
+            "sourceDatabase": "string",
+            "intA": "ENSP00000304915",
+            "intABiologicalRole": "unspecified role",
+            "intB": "ENSP00000360730",
+            "intBBiologicalRole": "unspecified role",
+            "targetA.id": "ENSG00000169194",
+            "targetA.approvedSymbol": "IL13",
+            "speciesA.taxonId": 134,
+            "targetB.id": "ENSG00000131724",
+            "targetB.approvedSymbol": "IL13RA1",
+            "speciesB.taxonId": 134
+        }
+        ]
   },
   "test_opentargets_pharmacogenetics": {
     "function_call_to_reproduce": "output = opentargets(ensembl_id='ENSG00000169194', resource='pharmacogenetics', limit=2, json=True, verbose=False); print(json.dumps(output, indent=2))",
@@ -360,7 +257,7 @@
             "variantFunctionalConsequence.id": "SO:0001627",
             "variantFunctionalConsequence.label": "intron_variant"
         }
-      ]
+        ]
   },
   "test_opentargets_tractability": {
     "function_call_to_reproduce": "output = opentargets(ensembl_id='ENSG00000169194', resource='tractability', limit=2, json=True, verbose=False); print(json.dumps(output, indent=2))",
