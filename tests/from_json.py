@@ -161,6 +161,72 @@ def _assert_equal_json_hash_nested(name, td, func):
 
     return assert_equal_json_hash_nested
 
+def _assert_equal_json_with_keys(name, td, func):
+    def assert_equal_json_with_keys(self: unittest.TestCase):
+        def normalize(x):
+            if isinstance(x, tuple):
+                x = [normalize(v) for v in x]
+
+            elif isinstance(x, list):
+                x = [normalize(v) for v in x]
+
+                # 🔥 Detect list-of-pairs → dict safely
+                if all(isinstance(i, list) and len(i) == 2 for i in x):
+                    # try both interpretations
+                    try:
+                        return {i[0]: i[1] for i in x}  # key, value
+                    except Exception:
+                        pass
+
+                    try:
+                        return {i[1]: i[0] for i in x}  # value, key
+                    except Exception:
+                        pass
+
+            elif isinstance(x, dict):
+                return {k: normalize(v) for k, v in x.items()}
+
+            return x
+        
+        test = name
+        
+        expected_result = td[test]["expected_result"]
+        result_to_test = do_call(func, td[test]["args"])
+
+        result_to_test = normalize(result_to_test)
+        expected_result = normalize(expected_result)
+
+        # If DataFrame → list of lists
+        if isinstance(result_to_test, pd.DataFrame):
+            result_to_test = result_to_test.dropna(axis=1).values.tolist()
+
+        # ✅ Infer keys from expected_result
+        if not expected_result:
+            raise ValueError(f"Test {test} has empty expected_result")
+
+        keys = list(expected_result[0].keys())
+
+        # Convert list-of-lists → list-of-dicts
+        if (
+            isinstance(result_to_test, list)
+            and len(result_to_test) > 0
+            and isinstance(result_to_test[0], list)
+        ):
+            result_to_test = [dict(zip(keys, row)) for row in result_to_test]
+
+        # Optional: float rounding
+        def round_dict(d, ndigits=10):
+            return {
+                k: round(v, ndigits) if isinstance(v, float) else v
+                for k, v in d.items()
+            }
+
+        result_to_test = [round_dict(r) for r in result_to_test]
+        expected_result = [round_dict(r) for r in expected_result]
+
+        self.assertEqual(result_to_test, expected_result)
+
+    return assert_equal_json_with_keys
 
 def _error(name, td, func):
     try:
@@ -202,6 +268,7 @@ _TYPES = {
     "assert_equal_json_hash": _assert_equal_json_hash,
     "assert_equal_nested": _assert_equal_nested,
     "assert_equal_json_hash_nested": _assert_equal_json_hash_nested,
+    "assert_equal_json_with_keys": _assert_equal_json_with_keys,
     "error": _error,
 }
 
