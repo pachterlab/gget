@@ -203,13 +203,15 @@ def _assert_equal_json_with_keys(name, td, func):
         
         expected_result = td[test]["expected_result"]
         result_to_test = do_call(func, td[test]["args"])
+        if isinstance(result_to_test, pd.DataFrame):
+            result_to_test = json.loads(
+                result_to_test.dropna(axis=1, how="all").to_json(
+                    orient="records", force_ascii=False
+                )
+            )
 
         result_to_test = normalize(result_to_test)
         expected_result = normalize(expected_result)
-
-        # If DataFrame → list of lists
-        if isinstance(result_to_test, pd.DataFrame):
-            result_to_test = result_to_test.dropna(axis=1).values.tolist()
 
         # ✅ Infer keys from expected_result
         if not expected_result:

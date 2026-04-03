@@ -2,10 +2,9 @@ import json as json_
 import textwrap
 import pandas as pd
 import requests
-import json
 
 from .constants import OPENTARGETS_GRAPHQL_API
-from .utils import set_up_logger, wrap_cols_func, graphql_query, json_list_to_df
+from .utils import set_up_logger
 
 logger = set_up_logger()  # export GGET_LOGLEVEL=DEBUG
 
@@ -241,19 +240,14 @@ def _unhash(x):
       return [_unhash(v) for v in x]
   return x
 
-def _is_hashable_series(s):
-    try:
-        s.dropna().map(hash)
-        return True
-    except TypeError:
-        return False
-
 def opentargets(
     ensembl_id,
     resource="diseases",
     limit=None,
     verbose=True,
     wrap_text=False,
+    filters=None,
+
     json=False,
 ):
     """
@@ -274,6 +268,7 @@ def opentargets(
                     Note: Not compatible with the 'tractability' and 'depmap' resources.
     - verbose       Print progress messages (default: True).
     - wrap_text     If True, displays data frame with wrapped text for easy reading. Default: False.
+    - filters       Filters to apply to the data. Supported filters by equality for any column in the returned data frame. Default: None (no filters applied).
     - json          If True, returns results in JSON format instead of as a Data Frame. Default: False.
 
 
@@ -342,26 +337,31 @@ def opentargets(
                 for row in rows
                 for subdict in row[row_key]
             ]
-        
+    
+    if len(rows) == 0:
+        if verbose:
+            logger.info(f"No {resource} data found for {ensembl_id}.")
+        return pd.DataFrame() if not json else []
 
     # ---------------------------
     # If JSON → return normalized JSON
     # ---------------------------
     df = pd.json_normalize(rows, sep=".")
-    df = df.map(_make_hashable).drop_duplicates().map(_unhash)
-    
-    #? alternative approach to dropping duplicates without needing to make everything hashable first
-    # hashable_cols = [col for col in df.columns if _is_hashable_series(df[col])]
-    # df = df.drop_duplicates(subset=hashable_cols)
-    #? alternative approach to dropping duplicates without needing to make everything hashable first
-    
     df = df.dropna(axis=1, how="all")  # drop any all-NaN columns
     df = df.dropna(axis=0, how="all")  # drop any all-NaN rows
+    df = df.map(_make_hashable).drop_duplicates()
 
     if limit is not None:
         df = df.head(limit)
     
+    df = df.map(_unhash)
     df = df.map(_collapse_singletons)
+
+    if filters is not None:
+        for filter_key, filter_value in filters.items():
+            if filter_key not in df.columns:
+                raise ValueError(f"Filter key '{filter_key}' not found in data columns. Available columns: {', '.join(df.columns)}")
+            df = df[df[filter_key] == filter_value]
 
     if wrap_text:
         for col in df.columns:
