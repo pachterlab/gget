@@ -26,7 +26,7 @@ def is_valid_email(email):
     return re.match(email_pattern, email) is not None
 
 
-def download_reference(download_link, tar_folder_path, file_path, verbose, email = None, password = None):
+def download_reference(download_link, tar_folder_path, file_path, verbose, email = None, password = None, unzip = False):
     if not email:
         email = input("Please enter your COSMIC email: ")
     if not is_valid_email(email):
@@ -75,15 +75,16 @@ def download_reference(download_link, tar_folder_path, file_path, verbose, email
         if verbose:
             logger.info(f"Extracted tar file to {tar_folder_path}")
 
-    with gzip.open(f"{file_path}.gz", "rb") as f_in:
-        with open(file_path, "wb") as f_out:
-            shutil.copyfileobj(f_in, f_out)
-        if verbose:
-            logger.info(f"Unzipped file to {file_path}")
+    if unzip:
+        with gzip.open(f"{file_path}.gz", "rb") as f_in:
+            with open(file_path, "wb") as f_out:
+                shutil.copyfileobj(f_in, f_out)
+            if verbose:
+                logger.info(f"Unzipped file to {file_path}")
 
 
 def select_reference(
-    cosmic_project, reference_dir, grch_version, cosmic_version, verbose, email = None, password = None, overwrite = None
+    cosmic_project, reference_dir, grch_version, cosmic_version, verbose, email = None, password = None, unzip = True, overwrite = None
 ):
     # if cosmic_project == "transcriptome":
     #     download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{grch_version}/cosmic/v{cosmic_version}/Cosmic_Genes_Fasta_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
@@ -149,6 +150,8 @@ def select_reference(
 
     tar_folder_path = os.path.join(reference_dir, tarred_folder)
     file_path = os.path.join(tar_folder_path, contained_file)
+    if not unzip:
+        file_path += ".gz"
 
     if os.path.exists(file_path):
         if overwrite is None:
@@ -195,7 +198,7 @@ def select_reference(
                 .lower()
             )
         if proceed in ["yes", "y"]:
-            download_reference(download_link, tar_folder_path, file_path, verbose, email = email, password = password)
+            download_reference(download_link, tar_folder_path, file_path, verbose, email = email, password = password, unzip = unzip)
         else:
             raise KeyboardInterrupt(
                 f"Database download canceled. Learn more about COSMIC at https://cancer.sanger.ac.uk/cosmic/download/cosmic."

@@ -6,6 +6,7 @@
   - some output column/key names may differ to reflect the new API structure
   - Removed the `--filter_mode` argument
 - [`gget blast`](blast.md): Fixed compatibility with newer pandas versions (≥ 2.0) where `pd.read_html()` no longer accepts raw HTML strings directly, causing a `FileNotFoundError` / `OSError: Filename too long` error when parsing BLAST results
+- [`gget cosmic`](cosmic.md): Added overwrite and gzip arguments to internals.
 
 **Version ≥ 0.30.3** (Feb 22, 2026):  
 - [`gget virus`](virus.md): New filtering options, quiet mode, and improved download reliability
