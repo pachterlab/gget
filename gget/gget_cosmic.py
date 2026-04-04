@@ -83,7 +83,7 @@ def download_reference(download_link, tar_folder_path, file_path, verbose, email
 
 
 def select_reference(
-    cosmic_project, reference_dir, grch_version, cosmic_version, verbose, email = None, password = None
+    cosmic_project, reference_dir, grch_version, cosmic_version, verbose, email = None, password = None, overwrite = None
 ):
     # if cosmic_project == "transcriptome":
     #     download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{grch_version}/cosmic/v{cosmic_version}/Cosmic_Genes_Fasta_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
@@ -150,9 +150,8 @@ def select_reference(
     tar_folder_path = os.path.join(reference_dir, tarred_folder)
     file_path = os.path.join(tar_folder_path, contained_file)
 
-    overwrite = True
     if os.path.exists(file_path):
-        if not email and not password:
+        if overwrite is None:
             proceed = (
                 input(
                     "The requested COSMIC database already exists at the destination. Would you like to overwrite the existing files (y/n)? "
@@ -160,12 +159,15 @@ def select_reference(
                 .strip()
                 .lower()
             )
-        else:
+        elif overwrite is True:
             proceed = "yes"
-        if proceed in ["yes", "y"]:
-            overwrite = True
         else:
-            overwrite = False
+            proceed = "no"
+        
+        if proceed in ["yes", "y"]:
+            if verbose:
+                logger.info(f"Overwriting existing COSMIC database at {file_path}...")
+            overwrite = True
 
     if overwrite:
         # Only the example database can be downloaded directly (without an account)
