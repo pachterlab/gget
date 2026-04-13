@@ -1,11 +1,11 @@
-Pytest results (Python 3.12) - 2026-04-09T16:36:30Z
+Pytest results (Python 3.12) - 2026-04-13T16:33:06Z
 
 ============================= test session starts ==============================
 platform linux -- Python 3.12.13, pytest-9.0.3, pluggy-1.6.0 -- /opt/hostedtoolcache/Python/3.12.13/x64/bin/python
 cachedir: .pytest_cache
 rootdir: /home/runner/work/gget/gget
 configfile: pyproject.toml
-plugins: fast-array-utils-1.4, cov-7.1.0, zarr-3.1.6
+plugins: fast-array-utils-1.4.1, cov-7.1.0, zarr-3.1.6
 collecting ... collected 256 items
 
 tests/test_8cube.py::TestSpecificity::test_specificity_basic PASSED      [  0%]
@@ -149,7 +149,7 @@ tests/test_opentargets.py::TestOpenTargets::test_opentargets_depmap_filter PASSE
 tests/test_opentargets.py::TestOpenTargets::test_opentargets_expression_no_limit PASSED [ 54%]
 tests/test_opentargets.py::TestOpenTargets::test_opentargets_interactions_no_limit PASSED [ 54%]
 tests/test_opentargets.py::TestOpenTargets::test_opentargets_interactions_simple_filter PASSED [ 55%]
-tests/test_pdb.py::TestPDB::test_pdb_assembly PASSED                     [ 55%]
+tests/test_pdb.py::TestPDB::test_pdb_assembly FAILED                     [ 55%]
 tests/test_pdb.py::TestPDB::test_pdb_pdb PASSED                          [ 55%]
 tests/test_ref.py::TestRef::test_ref PASSED                              [ 56%]
 tests/test_ref.py::TestRef::test_ref_bad_rel PASSED                      [ 56%]
@@ -265,6 +265,186 @@ tests/test_virus.py::TestVirus::test_virus_with_multiple_filters PASSED  [ 99%]
 tests/test_virus.py::TestVirus::test_virus_with_protein_count_filters PASSED [ 99%]
 tests/test_virus.py::TestVirus::test_virus_with_source_database_filter PASSED [100%]
 
+=================================== FAILURES ===================================
+__________________________ TestPDB.test_pdb_assembly ___________________________
+
+self = <tests.test_pdb.TestPDB testMethod=test_pdb_assembly>
+
+    def test_pdb_assembly(self):
+        test = "test1"
+        expected_result = pdb_dict[test]["expected_result"]
+        result_to_test = pdb(**pdb_dict[test]["args"])
+    
+>       self.assertEqual(result_to_test, expected_result)
+E       AssertionError: {'pdb[458 chars]atrix_1_1': 1.0, 'matrix_1_2': 0.0, 'matrix_1_[2885 chars]2.2'} != {'pdb[458 chars]atrix11': 1.0, 'matrix12': 0.0, 'matrix13': 0.[2864 chars]2.2'}
+E         {'pdbx_struct_assembly': {'details': 'author_and_software_defined_assembly',
+E                                   'id': '1',
+E                                   'method_details': 'PISA',
+E                                   'oligomeric_count': 3,
+E                                   'oligomeric_details': 'trimeric',
+E                                   'rcsb_candidate_assembly': 'Y',
+E                                   'rcsb_details': 'author_and_software_defined_assembly'},
+E          'pdbx_struct_assembly_gen': [{'assembly_id': '1',
+E                                        'asym_id_list': ['A',
+E                                                         'B',
+E                                                         'C',
+E                                                         'G',
+E                                                         'H',
+E                                                         'I',
+E                                                         'J',
+E                                                         'K',
+E                                                         'O',
+E                                                         'P',
+E                                                         'Q'],
+E                                        'oper_expression': '1',
+E                                        'ordinal': 1}],
+E          'pdbx_struct_oper_list': [{'id': '1',
+E       -                             'matrix_1_1': 1.0,
+E       ?                                    - -
+E       
+E       +                             'matrix11': 1.0,
+E       -                             'matrix_1_2': 0.0,
+E       ?                                    - -
+E       
+E       +                             'matrix12': 0.0,
+E       -                             'matrix_1_3': 0.0,
+E       ?                                    - -
+E       
+E       +                             'matrix13': 0.0,
+E       -                             'matrix_2_1': 0.0,
+E       ?                                    - -
+E       
+E       +                             'matrix21': 0.0,
+E       -                             'matrix_2_2': 1.0,
+E       ?                                    - -
+E       
+E       +                             'matrix22': 1.0,
+E       -                             'matrix_2_3': 0.0,
+E       ?                                    - -
+E       
+E       +                             'matrix23': 0.0,
+E       -                             'matrix_3_1': 0.0,
+E       ?                                    - -
+E       
+E       +                             'matrix31': 0.0,
+E       -                             'matrix_3_2': 0.0,
+E       ?                                    - -
+E       
+E       +                             'matrix32': 0.0,
+E       -                             'matrix_3_3': 1.0,
+E       ?                                    - -
+E       
+E       +                             'matrix33': 1.0,
+E                                     'name': '1_555',
+E                                     'symmetry_operation': 'x,y,z',
+E                                     'type': 'identity operation',
+E       -                             'vector_1': 0.0,
+E       ?                                    -
+E       
+E       +                             'vector1': 0.0,
+E       -                             'vector_2': 0.0,
+E       ?                                    -
+E       
+E       +                             'vector2': 0.0,
+E       -                             'vector_3': 0.0}],
+E       ?                                    -
+E       
+E       +                             'vector3': 0.0}],
+E          'rcsb_assembly_container_identifiers': {'assembly_id': '1',
+E                                                  'entry_id': '1RH7',
+E                                                  'interface_ids': ['1', '2', '3'],
+E                                                  'rcsb_id': '1RH7-1'},
+E          'rcsb_assembly_info': {'assembly_id': '1',
+E                                 'atom_count': 1762,
+E                                 'branched_atom_count': 0,
+E                                 'branched_entity_count': 0,
+E                                 'branched_entity_instance_count': 0,
+E                                 'deuterated_water_count': 0,
+E                                 'entry_id': '1RH7',
+E                                 'hydrogen_atom_count': 0,
+E                                 'modeled_polymer_monomer_count': 243,
+E                                 'na_polymer_entity_types': 'Other',
+E                                 'nonpolymer_atom_count': 29,
+E                                 'nonpolymer_entity_count': 2,
+E                                 'nonpolymer_entity_instance_count': 5,
+E                                 'num_heterologous_interface_entities': 0,
+E                                 'num_heteromeric_interface_entities': 0,
+E                                 'num_homomeric_interface_entities': 1,
+E                                 'num_interface_entities': 1,
+E                                 'num_interfaces': 3,
+E                                 'num_isologous_interface_entities': 1,
+E                                 'num_na_interface_entities': 0,
+E                                 'num_prot_na_interface_entities': 0,
+E                                 'num_protein_interface_entities': 1,
+E                                 'polymer_atom_count': 1658,
+E                                 'polymer_composition': 'homomeric protein',
+E                                 'polymer_entity_count': 1,
+E       -                         'polymer_entity_count_DNA': 0,
+E       ?                                               ^^^
+E       
+E       +                         'polymer_entity_count_dna': 0,
+E       ?                                               ^^^
+E       
+E       -                         'polymer_entity_count_RNA': 0,
+E                                 'polymer_entity_count_nucleic_acid': 0,
+E                                 'polymer_entity_count_nucleic_acid_hybrid': 0,
+E                                 'polymer_entity_count_protein': 1,
+E       +                         'polymer_entity_count_rna': 0,
+E                                 'polymer_entity_instance_count': 3,
+E       -                         'polymer_entity_instance_count_DNA': 0,
+E       ?                                                        ^^^
+E       
+E       +                         'polymer_entity_instance_count_dna': 0,
+E       ?                                                        ^^^
+E       
+E       -                         'polymer_entity_instance_count_RNA': 0,
+E                                 'polymer_entity_instance_count_nucleic_acid': 0,
+E                                 'polymer_entity_instance_count_nucleic_acid_hybrid': 0,
+E                                 'polymer_entity_instance_count_protein': 3,
+E       +                         'polymer_entity_instance_count_rna': 0,
+E                                 'polymer_monomer_count': 243,
+E                                 'selected_polymer_entity_types': 'Protein (only)',
+E                                 'solvent_atom_count': 75,
+E                                 'solvent_entity_count': 1,
+E                                 'solvent_entity_instance_count': 3,
+E                                 'total_assembly_buried_surface_area': 2316.9225073146845,
+E                                 'total_number_interface_residues': 160,
+E                                 'unmodeled_polymer_monomer_count': 0},
+E          'rcsb_id': '1RH7-1',
+E          'rcsb_struct_symmetry': [{'clusters': [{'avg_rmsd': 0.8418294327358263,
+E                                                  'members': [{'asym_id': 'A',
+E                                                               'pdbx_struct_oper_list_ids': ['1']},
+E                                                              {'asym_id': 'C',
+E                                                               'pdbx_struct_oper_list_ids': ['1']},
+E                                                              {'asym_id': 'B',
+E                                                               'pdbx_struct_oper_list_ids': ['1']}]}],
+E                                    'kind': 'Global Symmetry',
+E                                    'oligomeric_state': 'Homo 3-mer',
+E                                    'rotation_axes': [{'end': [13.473746075056361,
+E                                                               41.0962265805248,
+E                                                               -5.777587727129287],
+E                                                       'order': 3,
+E                                                       'start': [13.838143875349235,
+E                                                                 28.581996104345052,
+E                                                                 78.43743587115125]}],
+E                                    'stoichiometry': ['A3'],
+E                                    'symbol': 'C3',
+E                                    'type': 'Cyclic'}],
+E          'rcsb_struct_symmetry_lineage': [{'depth': 0,
+E                                            'id': 'Global Symmetry',
+E                                            'name': 'Global Symmetry'},
+E                                           {'depth': 2,
+E                                            'id': 'Global Symmetry.Cyclic.C3',
+E                                            'name': 'C3'},
+E                                           {'depth': 3,
+E                                            'id': 'Global Symmetry.Cyclic.C3.Homo 3-mer',
+E                                            'name': 'Homo 3-mer'},
+E                                           {'depth': 1,
+E                                            'id': 'Global Symmetry.Cyclic',
+E                                            'name': 'Cyclic'}],
+E          'rcsb_struct_symmetry_provenance_code': 'biojava-7.2.2'}
+
+tests/test_pdb.py:19: AssertionError
 =============================== warnings summary ===============================
 tests/test_blast.py::TestBlast::test_blast_nt
   /home/runner/work/gget/gget/gget/gget_blast.py:327: FutureWarning: Passing literal html to 'read_html' is deprecated and will be removed in a future version. To read from a literal string, wrap it in a 'StringIO' object.
@@ -376,7 +556,7 @@ gget/gget_8cube.py            83     28    66%   26-27, 34-43, 93, 105, 112, 115
 gget/gget_alphafold.py       362    321    11%   86-108, 115-116, 123-149, 181-186, 233-867
 gget/gget_archs4.py           79     13    84%   75-78, 84, 107, 123-126, 139-142, 148, 170, 198-201, 207
 gget/gget_bgee.py             56      6    89%   60, 83, 103, 130, 154, 175
-gget/gget_blast.py           127     36    72%   92, 124-142, 163-165, 204, 207, 251-255, 296-299, 302-303, 322-325, 332-333, 336-341, 346, 351-354
+gget/gget_blast.py           127     36    72%   92, 124-142, 163-165, 204, 207, 246-248, 296-299, 302-303, 322-325, 332-333, 336-341, 346, 351-354
 gget/gget_blat.py             86     10    88%   58-62, 95, 136, 139, 168, 232-233, 239
 gget/gget_cbio.py            524    403    23%   28, 39-67, 77-87, 136-137, 143-147, 154-157, 161, 164, 172-177, 208, 226, 265, 271-275, 278, 282-294, 296, 322-331, 334, 376-389, 393-416, 420-441, 447-450, 454-473, 477, 494-537, 540-757, 760-789, 802-1164, 1218-1254
 gget/gget_cellxgene.py        53      9    83%   21-22, 140-149, 176, 215, 231, 247
@@ -400,14 +580,182 @@ gget/utils.py                448     80    82%   31, 36-42, 72, 95, 119, 122, 18
 --------------------------------------------------------
 TOTAL                       8233   4312    48%
 ============================= slowest 10 durations =============================
-74.38s call     tests/test_blast.py::TestBlast::test_blast_nt
-70.29s call     tests/test_virus.py::TestVirus::test_virus_with_lab_passaged_filter
-41.93s call     tests/test_virus.py::TestVirus::test_virus_integer_virus_id
-37.29s call     tests/test_virus.py::TestVirus::test_virus_with_has_proteins_filter
-37.23s call     tests/test_virus.py::TestVirus::test_virus_with_max_ambiguous_chars_filter
-35.35s call     tests/test_virus.py::TestVirus::test_virus_with_annotated_filter
-35.10s call     tests/test_virus.py::TestVirus::test_virus_with_source_database_filter
-29.16s call     tests/test_search.py::TestSearch::test_search_gene_two_sw_limit
-27.69s call     tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
-27.17s call     tests/test_virus.py::TestVirus::test_virus_with_protein_count_filters
-================ 256 passed, 273 warnings in 940.50s (0:15:40) =================
+570.44s call     tests/test_blast.py::TestBlast::test_blast_nt
+56.23s call     tests/test_search.py::TestSearch::test_search_gene_two_sw_limit
+45.76s call     tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
+30.75s call     tests/test_virus.py::TestVirus::test_virus_with_lab_passaged_filter
+29.02s call     tests/test_virus.py::TestVirus::test_virus_with_max_ambiguous_chars_filter
+28.64s call     tests/test_virus.py::TestVirus::test_virus_with_source_database_filter
+28.54s call     tests/test_virus.py::TestVirus::test_virus_with_has_proteins_filter
+27.30s call     tests/test_virus.py::TestVirus::test_virus_integer_virus_id
+24.91s call     tests/test_virus.py::TestVirus::test_virus_with_annotated_filter
+23.83s call     tests/test_virus.py::TestVirus::test_virus_with_protein_count_filters
+=========================== short test summary info ============================
+FAILED tests/test_pdb.py::TestPDB::test_pdb_assembly - AssertionError: {'pdb[458 chars]atrix_1_1': 1.0, 'matrix_1_2': 0.0, 'matrix_1_[2885 chars]2.2'} != {'pdb[458 chars]atrix11': 1.0, 'matrix12': 0.0, 'matrix13': 0.[2864 chars]2.2'}
+  {'pdbx_struct_assembly': {'details': 'author_and_software_defined_assembly',
+                            'id': '1',
+                            'method_details': 'PISA',
+                            'oligomeric_count': 3,
+                            'oligomeric_details': 'trimeric',
+                            'rcsb_candidate_assembly': 'Y',
+                            'rcsb_details': 'author_and_software_defined_assembly'},
+   'pdbx_struct_assembly_gen': [{'assembly_id': '1',
+                                 'asym_id_list': ['A',
+                                                  'B',
+                                                  'C',
+                                                  'G',
+                                                  'H',
+                                                  'I',
+                                                  'J',
+                                                  'K',
+                                                  'O',
+                                                  'P',
+                                                  'Q'],
+                                 'oper_expression': '1',
+                                 'ordinal': 1}],
+   'pdbx_struct_oper_list': [{'id': '1',
+-                             'matrix_1_1': 1.0,
+?                                    - -
+
++                             'matrix11': 1.0,
+-                             'matrix_1_2': 0.0,
+?                                    - -
+
++                             'matrix12': 0.0,
+-                             'matrix_1_3': 0.0,
+?                                    - -
+
++                             'matrix13': 0.0,
+-                             'matrix_2_1': 0.0,
+?                                    - -
+
++                             'matrix21': 0.0,
+-                             'matrix_2_2': 1.0,
+?                                    - -
+
++                             'matrix22': 1.0,
+-                             'matrix_2_3': 0.0,
+?                                    - -
+
++                             'matrix23': 0.0,
+-                             'matrix_3_1': 0.0,
+?                                    - -
+
++                             'matrix31': 0.0,
+-                             'matrix_3_2': 0.0,
+?                                    - -
+
++                             'matrix32': 0.0,
+-                             'matrix_3_3': 1.0,
+?                                    - -
+
++                             'matrix33': 1.0,
+                              'name': '1_555',
+                              'symmetry_operation': 'x,y,z',
+                              'type': 'identity operation',
+-                             'vector_1': 0.0,
+?                                    -
+
++                             'vector1': 0.0,
+-                             'vector_2': 0.0,
+?                                    -
+
++                             'vector2': 0.0,
+-                             'vector_3': 0.0}],
+?                                    -
+
++                             'vector3': 0.0}],
+   'rcsb_assembly_container_identifiers': {'assembly_id': '1',
+                                           'entry_id': '1RH7',
+                                           'interface_ids': ['1', '2', '3'],
+                                           'rcsb_id': '1RH7-1'},
+   'rcsb_assembly_info': {'assembly_id': '1',
+                          'atom_count': 1762,
+                          'branched_atom_count': 0,
+                          'branched_entity_count': 0,
+                          'branched_entity_instance_count': 0,
+                          'deuterated_water_count': 0,
+                          'entry_id': '1RH7',
+                          'hydrogen_atom_count': 0,
+                          'modeled_polymer_monomer_count': 243,
+                          'na_polymer_entity_types': 'Other',
+                          'nonpolymer_atom_count': 29,
+                          'nonpolymer_entity_count': 2,
+                          'nonpolymer_entity_instance_count': 5,
+                          'num_heterologous_interface_entities': 0,
+                          'num_heteromeric_interface_entities': 0,
+                          'num_homomeric_interface_entities': 1,
+                          'num_interface_entities': 1,
+                          'num_interfaces': 3,
+                          'num_isologous_interface_entities': 1,
+                          'num_na_interface_entities': 0,
+                          'num_prot_na_interface_entities': 0,
+                          'num_protein_interface_entities': 1,
+                          'polymer_atom_count': 1658,
+                          'polymer_composition': 'homomeric protein',
+                          'polymer_entity_count': 1,
+-                         'polymer_entity_count_DNA': 0,
+?                                               ^^^
+
++                         'polymer_entity_count_dna': 0,
+?                                               ^^^
+
+-                         'polymer_entity_count_RNA': 0,
+                          'polymer_entity_count_nucleic_acid': 0,
+                          'polymer_entity_count_nucleic_acid_hybrid': 0,
+                          'polymer_entity_count_protein': 1,
++                         'polymer_entity_count_rna': 0,
+                          'polymer_entity_instance_count': 3,
+-                         'polymer_entity_instance_count_DNA': 0,
+?                                                        ^^^
+
++                         'polymer_entity_instance_count_dna': 0,
+?                                                        ^^^
+
+-                         'polymer_entity_instance_count_RNA': 0,
+                          'polymer_entity_instance_count_nucleic_acid': 0,
+                          'polymer_entity_instance_count_nucleic_acid_hybrid': 0,
+                          'polymer_entity_instance_count_protein': 3,
++                         'polymer_entity_instance_count_rna': 0,
+                          'polymer_monomer_count': 243,
+                          'selected_polymer_entity_types': 'Protein (only)',
+                          'solvent_atom_count': 75,
+                          'solvent_entity_count': 1,
+                          'solvent_entity_instance_count': 3,
+                          'total_assembly_buried_surface_area': 2316.9225073146845,
+                          'total_number_interface_residues': 160,
+                          'unmodeled_polymer_monomer_count': 0},
+   'rcsb_id': '1RH7-1',
+   'rcsb_struct_symmetry': [{'clusters': [{'avg_rmsd': 0.8418294327358263,
+                                           'members': [{'asym_id': 'A',
+                                                        'pdbx_struct_oper_list_ids': ['1']},
+                                                       {'asym_id': 'C',
+                                                        'pdbx_struct_oper_list_ids': ['1']},
+                                                       {'asym_id': 'B',
+                                                        'pdbx_struct_oper_list_ids': ['1']}]}],
+                             'kind': 'Global Symmetry',
+                             'oligomeric_state': 'Homo 3-mer',
+                             'rotation_axes': [{'end': [13.473746075056361,
+                                                        41.0962265805248,
+                                                        -5.777587727129287],
+                                                'order': 3,
+                                                'start': [13.838143875349235,
+                                                          28.581996104345052,
+                                                          78.43743587115125]}],
+                             'stoichiometry': ['A3'],
+                             'symbol': 'C3',
+                             'type': 'Cyclic'}],
+   'rcsb_struct_symmetry_lineage': [{'depth': 0,
+                                     'id': 'Global Symmetry',
+                                     'name': 'Global Symmetry'},
+                                    {'depth': 2,
+                                     'id': 'Global Symmetry.Cyclic.C3',
+                                     'name': 'C3'},
+                                    {'depth': 3,
+                                     'id': 'Global Symmetry.Cyclic.C3.Homo 3-mer',
+                                     'name': 'Homo 3-mer'},
+                                    {'depth': 1,
+                                     'id': 'Global Symmetry.Cyclic',
+                                     'name': 'Cyclic'}],
+   'rcsb_struct_symmetry_provenance_code': 'biojava-7.2.2'}
+=========== 1 failed, 255 passed, 273 warnings in 1275.44s (0:21:15) ===========
