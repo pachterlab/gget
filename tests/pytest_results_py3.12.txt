@@ -1,4 +1,4 @@
-Pytest results (Python 3.12) - 2026-04-16T16:38:48Z
+Pytest results (Python 3.12) - 2026-04-20T16:32:19Z
 
 ============================= test session starts ==============================
 platform linux -- Python 3.12.13, pytest-9.0.3, pluggy-1.6.0 -- /opt/hostedtoolcache/Python/3.12.13/x64/bin/python
@@ -556,7 +556,7 @@ gget/gget_8cube.py            83     28    66%   26-27, 34-43, 93, 105, 112, 115
 gget/gget_alphafold.py       362    321    11%   86-108, 115-116, 123-149, 181-186, 233-867
 gget/gget_archs4.py           79     13    84%   75-78, 84, 107, 123-126, 139-142, 148, 170, 198-201, 207
 gget/gget_bgee.py             56      6    89%   60, 83, 103, 130, 154, 175
-gget/gget_blast.py           127     36    72%   92, 124-142, 163-165, 204, 207, 246-248, 296-299, 302-303, 322-325, 332-333, 336-341, 346, 351-354
+gget/gget_blast.py           127     41    68%   92, 124-142, 163-165, 204, 207, 246-248, 277, 290-293, 296-299, 302-303, 322-325, 332-333, 336-341, 346, 351-354
 gget/gget_blat.py             86     10    88%   58-62, 95, 136, 139, 168, 232-233, 239
 gget/gget_cbio.py            524    403    23%   28, 39-67, 77-87, 136-137, 143-147, 154-157, 161, 164, 172-177, 208, 226, 265, 271-275, 278, 282-294, 296, 322-331, 334, 376-389, 393-416, 420-441, 447-450, 454-473, 477, 494-537, 540-757, 760-789, 802-1164, 1218-1254
 gget/gget_cellxgene.py        53      9    83%   21-22, 140-149, 176, 215, 231, 247
@@ -578,18 +578,18 @@ gget/gget_virus.py          2921   1659    43%   138, 198, 239-247, 261, 265, 27
 gget/main.py                 857    857     0%   1-3872
 gget/utils.py                448     80    82%   31, 36-42, 72, 95, 119, 122, 186, 193, 245, 257, 285, 296, 347, 367, 378, 411-412, 452-453, 468-469, 476-478, 494-495, 501-502, 623-639, 647-650, 676, 695, 757, 797, 837, 953, 961, 969-989, 994, 999, 1005-1006, 1024-1025, 1116, 1140-1141, 1156, 1164
 --------------------------------------------------------
-TOTAL                       8233   4312    48%
+TOTAL                       8233   4317    48%
 ============================= slowest 10 durations =============================
-94.66s call     tests/test_blast.py::TestBlast::test_blast_nt
-58.63s call     tests/test_search.py::TestSearch::test_search_gene_two_sw_limit
-50.59s call     tests/test_virus.py::TestVirus::test_virus_with_length_filters
-38.29s call     tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
-33.47s call     tests/test_virus.py::TestVirus::test_virus_with_source_database_filter
-29.68s call     tests/test_virus.py::TestVirus::test_virus_with_has_proteins_filter
-26.28s call     tests/test_virus.py::TestVirus::test_virus_with_annotated_filter
-24.96s call     tests/test_virus.py::TestVirus::test_virus_with_max_ambiguous_chars_filter
-24.61s call     tests/test_virus.py::TestVirus::test_virus_integer_virus_id
-23.96s call     tests/test_virus.py::TestVirus::test_virus_with_lab_passaged_filter
+36.28s call     tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
+34.68s call     tests/test_search.py::TestSearch::test_search_gene_two_sw_limit
+32.85s call     tests/test_blast.py::TestBlast::test_blast_nt
+32.68s call     tests/test_virus.py::TestVirus::test_virus_host_filter_verification
+31.53s call     tests/test_virus.py::TestVirus::test_virus_integer_virus_id
+30.63s call     tests/test_virus.py::TestVirus::test_virus_with_source_database_filter
+30.43s call     tests/test_virus.py::TestVirus::test_virus_with_max_ambiguous_chars_filter
+30.35s call     tests/test_virus.py::TestVirus::test_virus_with_has_proteins_filter
+29.06s call     tests/test_virus.py::TestVirus::test_virus_with_lab_passaged_filter
+28.59s call     tests/test_virus.py::TestVirus::test_virus_with_protein_count_filters
 =========================== short test summary info ============================
 FAILED tests/test_pdb.py::TestPDB::test_pdb_assembly - AssertionError: {'pdb[458 chars]atrix_1_1': 1.0, 'matrix_1_2': 0.0, 'matrix_1_[2885 chars]2.2'} != {'pdb[458 chars]atrix11': 1.0, 'matrix12': 0.0, 'matrix13': 0.[2864 chars]2.2'}
   {'pdbx_struct_assembly': {'details': 'author_and_software_defined_assembly',
@@ -758,4 +758,4 @@ FAILED tests/test_pdb.py::TestPDB::test_pdb_assembly - AssertionError: {'pdb[458
                                      'id': 'Global Symmetry.Cyclic',
                                      'name': 'Cyclic'}],
    'rcsb_struct_symmetry_provenance_code': 'biojava-7.2.2'}
-=========== 1 failed, 255 passed, 273 warnings in 815.57s (0:13:35) ============
+=========== 1 failed, 255 passed, 273 warnings in 838.88s (0:13:58) ============
