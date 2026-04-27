@@ -1,4 +1,27 @@
+[<kbd> Ver el codigo fuente de la pagina en GitHub </kbd>](https://github.com/pachterlab/gget/blob/main/docs/src/es/updates.md)
+
 ## ✨ ¡Lo más reciente!  
+**Versión ≥ 0.30.3** (22 de febrero de 2026):  
+- [`gget virus`](virus.md): Nuevas opciones de filtrado, modo silencioso y mejora en la fiabilidad de descargas
+  - Se añadió el filtro `--segment` para virus segmentados (por ejemplo, segmentos de Influenza A como 'HA', 'NA', 'PB1')
+  - Se añadió el filtro `--vaccine_strain` para incluir o excluir secuencias de cepas vacunales
+  - Se añadió el filtro `--source_database` para seleccionar secuencias de 'genbank' o 'refseq' (reemplaza `refseqOnly`)
+  - Se añadió la bandera `-q` / `--quiet` para suprimir la información de progreso
+  - Se extendieron las estrategias de respaldo para mejorar la fiabilidad de descarga en conjuntos de datos grandes
+  - El archivo de resumen de comandos ahora incluye la versión del software
+
+**Versión ≥ 0.30.2** (08 de febrero de 2026):  
+- [`gget virus`](virus.md): Optimización del streaming de metadatos, mejora del filtrado de proteínas y manejo de errores y lógica de reintentos mejorados  
+  - Los metadatos ahora se escriben en disco durante la descarga para evitar el agotamiento de memoria en conjuntos de datos grandes (100.000+ registros)
+  - Corrección del mapeo del CSV de metadatos (camelCase → snake_case) para nombre del organismo, hospedador y fecha de recolección
+  - Mejora del filtrado de proteínas para virus segmentados con un parseo más robusto de los encabezados FASTA
+  - Se añadió la opción `annotated=False` para filtrar secuencias no anotadas
+  - Se añadieron barras de progreso para descargas de secuencias por lotes
+  - Corrección de un error en el nombre del campo de fecha de recolección
+  - Mejora de los mensajes de error para fechas de filtrado inválidas
+  - Se añadieron reintentos mejorados para la resolución de nombres de virus
+  - Se añadió mayor verbosidad en los pasos de verificación de influenza A y COVID-19
+
 **Versión ≥ 0.30.0** (19 de enero de 2026):  
 - NUEVOS MÓDULOS:
   - [`gget 8cube`](8cube.md)

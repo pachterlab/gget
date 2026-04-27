@@ -1,3 +1,5 @@
+[<kbd> Ver el codigo fuente de la pagina en GitHub </kbd>](https://github.com/pachterlab/gget/blob/main/docs/src/es/dependents.md)
+
 # 💡 Usuarios activos de este sitio web
 
 [![Mapa de calor en forma de mapa mundial que muestra el número de usuarios activos del sitio web de gget por país.](https://github.com/lauraluebbert/lauraluebbert/raw/main/gget_user_map.png)](https://github.com/lauraluebbert/lauraluebbert)
@@ -6,14 +8,18 @@ Este mapa se actualiza automáticamente todos los días a las 16:00 UTC.
 
 # ⬇️ Descargas diarias de *gget*
 
-[![Descargas de gget durante el último año.](https://github.com/lauraluebbert/gget_downloads/raw/main/plots/downloads_gget.png)](https://github.com/lauraluebbert/gget_downloads/tree/main)
+[![Descargas de gget durante el último año.](https://github.com/lauraluebbert/gget_downloads/raw/main/plots/downloads_gget_daily.png)](https://github.com/lauraluebbert/gget_downloads/tree/main)
 
-Este mapa se actualiza automáticamente todos los días a las 23:55 UTC.
+Este mapa se actualiza automáticamente todos los domingos a las 23:55 UTC.
 ___
 
 # 🧑‍🤝‍🧑 Programas dependientes
 Las siguientes aplicaciones usan *gget*:
 - [gget-mcp](https://mcpindex.net/en/mcpserver/longevity-genie-gget-mcp)
+  - Otras proyectos que utilizan este u otros servidores MCP de `gget`:
+    - [https://mcpservers.org/servers/longevity-genie/holy-bio-mcp](https://mcpservers.org/servers/longevity-genie/holy-bio-mcp)
+    - [https://biocontext.ai](https://biocontext.ai/registry/longevity-genie/gget-mcp)
+    - [https://mcpmarket.com/zh/tools/skills/gget-bioinformatics-tool](https://mcpmarket.com/zh/tools/skills/gget-bioinformatics-tool)
 - [Biomni](https://biomni.stanford.edu/)  
   Un agente de inteligencia artificial biomédica de propósito general que se está desarrollando en Stanford y Genentech.
 - [PerTurboAgent](https://www.biorxiv.org/content/10.1101/2025.05.25.656020v1)  
@@ -73,6 +79,7 @@ ___
 ___
 
 # 📰 Noticias
+- [Oreate AI publicación de blog](https://www.oreateai.com/blog/exploring-alphafold2-a-guide-to-github-repositories-and-colab-resources/e9a4355bf08a6cdfe061cb93d3ff61dd): "Exploring AlphaFold2: A Guide to GitHub Repositories and Colab Resources"
 - [`gget opentargets` publicación de la plataforma Open Targets](https://blog.opentargets.org/case-study-gget/)
 - Documental corto sobre *gget*: [https://youtu.be/cVR0k6Mt97o](https://youtu.be/cVR0k6Mt97o)
 - Episodio de podcast para el Prototype Fund Public Interest Podcast sobre la importancia del software de código abierto y su papel en la investigación académica (en alemán): [https://public-interest-podcast.podigee.io/33-pips4e4](https://public-interest-podcast.podigee.io/33-pips4e4)

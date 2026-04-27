@@ -1,3 +1,5 @@
+[<kbd> Ver el codigo fuente de la pagina en GitHub </kbd>](https://github.com/pachterlab/gget/blob/main/docs/src/es/mutate.md)
+
 > Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.   
 # gget mutate 🧟
 Recibe secuencias de nucleótidos y mutaciones (en [anotación de mutación estándar](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC1867422/)) y devuelve versiones mutadas de las secuencias según las mutaciones proporcionadas.  

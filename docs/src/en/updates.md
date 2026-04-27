@@ -1,4 +1,34 @@
+[<kbd> View page source on GitHub </kbd>](https://github.com/pachterlab/gget/blob/main/docs/src/en/updates.md)
+
 ## ✨ What's new
+**Version ≥ 0.30.4** (XXX XX, 2026):
+- [`gget opentargets`](opentargets.md): Rewrote this module to reflect the new Open Targets API structure
+  - some output column/key names may differ to reflect the new API structure
+  - Removed the `--filter_mode` argument
+- [`gget blast`](blast.md): Fixed compatibility with newer pandas versions (≥ 2.0) where `pd.read_html()` no longer accepts raw HTML strings directly, causing a `FileNotFoundError` / `OSError: Filename too long` error when parsing BLAST results
+- [`gget cosmic`](cosmic.md): Added overwrite and gzip arguments to internals.
+
+**Version ≥ 0.30.3** (Feb 22, 2026):  
+- [`gget virus`](virus.md): New filtering options, quiet mode, and improved download reliability
+  - Added `--segment` filter for segmented viruses (e.g., Influenza A segments like 'HA', 'NA', 'PB1')
+  - Added `--vaccine_strain` filter to include or exclude vaccine strain sequences
+  - Added `--source_database` filter to select sequences from 'genbank' or 'refseq' (replaces `refseqOnly`)
+  - Added `-q` / `--quiet` flag to suppress progress information
+  - Extended fallback strategies for improved download reliability on large datasets
+  - Command summary file now includes software version
+
+**Version ≥ 0.30.2** (Feb 08, 2026):  
+- [`gget virus`](virus.md): Metadata streaming optimization, improved protein filtering, and enhanced error handling and retry logic
+  - Metadata now streams to disk during fetch to prevent memory exhaustion on large datasets (100,000+ records)
+  - Fixed metadata CSV mapping (camelCase → snake_case) for organism name, host, and collection date
+  - Enhanced protein filtering for segmented viruses with improved FASTA header parsing
+  - Added `annotated=False` option for filtering unannotated sequences
+  - Added progress bars to batched sequence downloads
+  - Fixed collection date naming bug
+  - Improved error messages for invalid filter dates
+  - Added enhanced retry attempts for virus name resolution
+  - Added verbosity to influenza A and COVID-19 checking steps
+
 **Version ≥ 0.30.0** (Jan 19, 2026):  
 - NEW MODULES:
   - [`gget 8cube`](8cube.md)

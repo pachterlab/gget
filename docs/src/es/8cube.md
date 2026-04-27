@@ -1,3 +1,5 @@
+[<kbd> Ver el codigo fuente de la pagina en GitHub </kbd>](https://github.com/pachterlab/gget/blob/main/docs/src/es/8cube.md)
+
 > Parámetros de Python són iguales a los parámetros largos (`--parámetro`) de Terminal, si no especificado de otra manera. Banderas son parámetros de verdadero o falso (True/False) en Python. El manuál para cualquier modulo de gget se puede llamar desde la Terminal con la bandera `-h` `--help`.
 # gget 8cube 🔬
 
@@ -10,7 +12,8 @@
   />
 </a>
 
-Consulta [**8cubeDB**](https://eightcubedb.onrender.com/) para métricas de especificidad a nivel génico y valores de expresión normalizados.  
+Consulta [**8cubeDB**](https://eightcubedb.onrender.com/) (datos de secuenciación de snRNA de 8 cepas, tejidos e individuos diferentes de ratón (cuatro de cada sexo)) para métricas de especificidad a nivel génico y valores de expresión normalizados.  
+
 Formato de salida: **JSON** (línea de comandos) o **data frame/CSV** (Python).
 
 Este módulo fue escrito por [Nikhila Swarna](https://github.com/nikkiswarna).
