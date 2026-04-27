@@ -1,4 +1,4 @@
-Pytest results (Python 3.12) - 2026-04-23T16:39:49Z
+Pytest results (Python 3.12) - 2026-04-27T16:38:31Z
 
 ============================= test session starts ==============================
 platform linux -- Python 3.12.13, pytest-9.0.3, pluggy-1.6.0 -- /opt/hostedtoolcache/Python/3.12.13/x64/bin/python
@@ -144,11 +144,11 @@ tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_drugs_invalid
 tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_nonexistent_id PASSED [ 52%]
 tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_tractability_limit PASSED [ 52%]
 tests/test_opentargets.py::TestOpenTargets::test_opentargets PASSED      [ 53%]
-tests/test_opentargets.py::TestOpenTargets::test_opentargets_depmap PASSED [ 53%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_depmap FAILED [ 53%]
 tests/test_opentargets.py::TestOpenTargets::test_opentargets_depmap_filter PASSED [ 53%]
 tests/test_opentargets.py::TestOpenTargets::test_opentargets_expression_no_limit PASSED [ 54%]
 tests/test_opentargets.py::TestOpenTargets::test_opentargets_interactions_no_limit PASSED [ 54%]
-tests/test_opentargets.py::TestOpenTargets::test_opentargets_interactions_simple_filter PASSED [ 55%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_interactions_simple_filter FAILED [ 55%]
 tests/test_pdb.py::TestPDB::test_pdb_assembly FAILED                     [ 55%]
 tests/test_pdb.py::TestPDB::test_pdb_pdb PASSED                          [ 55%]
 tests/test_ref.py::TestRef::test_ref PASSED                              [ 56%]
@@ -175,7 +175,7 @@ tests/test_search.py::TestSearch::test_search_gene_two_sw_limit PASSED   [ 64%]
 tests/test_search.py::TestSearch::test_search_gene_two_sw_or PASSED      [ 64%]
 tests/test_search.py::TestSearch::test_search_octopus PASSED             [ 64%]
 tests/test_search.py::TestSearch::test_search_plant PASSED               [ 65%]
-tests/test_search.py::TestSearch::test_search_plant_db PASSED            [ 65%]
+tests/test_search.py::TestSearch::test_search_plant_db FAILED            [ 65%]
 tests/test_search.py::TestSearch::test_search_release PASSED             [ 66%]
 tests/test_search.py::TestSearch::test_search_transcript_bad_andor PASSED [ 66%]
 tests/test_search.py::TestSearch::test_search_transcript_bad_species PASSED [ 66%]
@@ -266,6 +266,444 @@ tests/test_virus.py::TestVirus::test_virus_with_protein_count_filters PASSED [ 9
 tests/test_virus.py::TestVirus::test_virus_with_source_database_filter PASSED [100%]
 
 =================================== FAILURES ===================================
+___________________ TestOpenTargets.test_opentargets_depmap ____________________
+
+self = <tests.test_opentargets.TestOpenTargets testMethod=test_opentargets_depmap>
+
+    def assert_equal_json_hash(self: unittest.TestCase):
+        test = name
+        expected_result = td[test]["expected_result"]
+>       result_to_test = do_call(func, td[test]["args"])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/from_json.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+func = <function opentargets at 0x7f5ea74b8540>
+args = {'ensembl_id': 'ENSG00000169194', 'resource': 'depmap'}
+
+    def do_call(func, args):
+        if isinstance(args, dict):
+>           return func(**args)
+                   ^^^^^^^^^^^^
+
+tests/from_json.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ensembl_id = 'ENSG00000169194', resource = 'depmap', limit = None
+verbose = True, wrap_text = False, filters = None, filter_mode = 'and'
+json = False
+
+    def opentargets(
+        ensembl_id,
+        resource="diseases",
+        limit=None,
+        verbose=True,
+        wrap_text=False,
+        filters=None,
+        filter_mode="and",
+        json=False,
+    ):
+        """
+        Query OpenTargets for data associated with a given Ensembl gene ID.
+    
+        Args:
+    
+        - ensembl_id    Ensembl gene ID to be queried (str), e.g. "ENSG00000169194".
+        - resource      Defines type of information to be returned.
+                        "diseases":         Returns diseases associated with the gene (default).
+                        "drugs":            Returns drugs associated with the gene.
+                        "tractability":     Returns tractability data for the gene.
+                        "pharmacogenetics": Returns pharmacogenetics data for the gene.
+                        "expression":       Returns gene expression data (by tissues, organs, and anatomical systems).
+                        "depmap":           Returns DepMap gene-disease effect data for the gene.
+                        "interactions":     Returns protein-protein interactions for the gene.
+        - limit         Limit the number of results returned (default: No limit).
+                        Note: Not compatible with the 'tractability' and 'depmap' resources.
+        - verbose       Print progress messages (default: True).
+        - wrap_text     If True, displays data frame with wrapped text for easy reading. Default: False.
+        - filters       Filters to apply to the data. Supported filters by resource:
+                        "diseases": None
+                        "drugs": disease_id (e.g. "EFO_0000274")
+                        "tractability": None
+                        "pharmacogenetics": drug_id (e.g. "CHEMBL535")
+                        "expression": tissue_id (e.g. "UBERON_0002245"), anatomical_system (e.g. "nervous system"), organ (e.g. "brain")
+                        "depmap": tissue_id (e.g. "UBERON_0002245")
+                        "interactions": protein_a_id (e.g. "ENSP00000304915"), protein_b_id (e.g. "ENSP00000379111"), gene_b_id (e.g. "ENSG00000077238")
+        - filter_mode   For resources that support multiple types of filters, this argument specifies how to combine them.
+        - json          If True, returns results in JSON format instead of as a Data Frame. Default: False.
+    
+    
+        Returns requested information in DataFrame format.
+        """
+    
+        # check if resource argument is valid
+        if resource not in _RESOURCES:
+            raise ValueError(
+                f"'resource' argument specified as {resource}. Expected one of: {', '.join(_RESOURCES)}"
+            )
+    
+        # Wrap everything into a list
+        if filters is not None:
+            filters = {k: v if isinstance(v, list) else [v] for k, v in filters.items()}
+    
+>       df: pd.DataFrame = _RESOURCES[resource](
+            ensembl_id,
+            limit=limit,
+            verbose=verbose,
+            wrap_text=wrap_text,
+            filters=filters,
+            filter_mode=filter_mode,
+        )
+
+gget/gget_opentargets.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ensembl_id = 'ENSG00000169194', limit = None, verbose = True, wrap_text = False
+filters = None, filter_mode = 'and'
+
+    def fun(
+        ensembl_id,
+        limit=None,
+        verbose=True,
+        wrap_text=False,
+        filters=None,
+        filter_mode="and",
+    ):
+        if limit_key is None:
+            query_string = """
+            query target($ensemblId: String!) {
+                target(ensemblId: $ensemblId) {
+                    <TOP_LEVEL_KEY>{
+                        <ROW_QUERY>
+                    }
+                }
+            }
+            """.replace(
+                "<TOP_LEVEL_KEY>", top_level_key
+            ).replace(
+                "<ROW_QUERY>", inner_query
+            )
+        else:
+            if is_rows_based_query:
+                query_tmp = """
+                count
+                rows{
+                    <INNER_QUERY>
+                }""".replace(
+                    "<INNER_QUERY>", inner_query
+                )
+            else:
+                query_tmp = inner_query
+            query_string = (
+                """
+            query target($ensemblId: String!, $pagination: <LIMIT_TYPE>) {
+                target(ensemblId: $ensemblId) {
+                    <TOP_LEVEL_KEY>(<LIMIT_KEY>: $pagination){
+                        <QUERY>
+                    }
+                }
+            }
+            """.replace(
+                    "<TOP_LEVEL_KEY>", top_level_key
+                )
+                .replace("<LIMIT_TYPE>", limit_type)
+                .replace("<LIMIT_KEY>", limit_key)
+                .replace("<QUERY>", query_tmp)
+            )
+    
+        actual_limit = limit
+    
+        if filters is not None and len(filters) > 0:
+            if user_filter is None:
+                raise ValueError("Filters are not supported for this resource.")
+            valid_keys, filter_func = user_filter
+            invalid_keys = set(filters.keys()) - valid_keys
+            if len(invalid_keys) > 0:
+                invalid_keys = [f"'{k}'" for k in invalid_keys]
+                valid_keys = [f"'{k}'" for k in valid_keys]
+                raise ValueError(
+                    f"The following filter keys are invalid for this resource: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys)}"
+                )
+            # we have to fetch all data to be able to apply limit in a sane way when filters are specified
+            limit = None
+    
+        pagination = limit_func(limit, is_rows_based_query)
+        variables = {"ensemblId": ensembl_id, "pagination": pagination}
+    
+        if limit_key is None:
+            del variables["pagination"]
+    
+>       results = graphql_query(OPENTARGETS_GRAPHQL_API, query_string, variables)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+gget/gget_opentargets.py:325: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+server = 'https://api.platform.opentargets.org/api/v4/graphql'
+query = '\n            query target($ensemblId: String!) {\n                target(ensemblId: $ensemblId) {\n                 ...urce\n            mutation\n        }\n        \n                    }\n                }\n            }\n            '
+variables = {'ensemblId': 'ENSG00000169194'}
+
+    def graphql_query(server, query, variables):
+        """
+        Function to perform a GraphQL API query.
+    
+        Args:
+        - server        Server to query.
+        - query         Query that is passed to server.
+        - variables     Variables that are passed to server.
+    
+        Returns server output.
+        """
+    
+        r = requests.post(server, json={"query": query, "variables": variables})
+    
+        if not r.ok:
+            logger.debug(
+                f"Server: {server}, Query: {query}, Variables: {variables}, Response: {r.text}"
+            )
+>           raise RuntimeError(
+                f"{server} returned error status code {r.status_code}. "
+                "Please double-check arguments and try again.\n"
+            )
+E           RuntimeError: https://api.platform.opentargets.org/api/v4/graphql returned error status code 502. Please double-check arguments and try again.
+
+gget/utils.py:721: RuntimeError
+_________ TestOpenTargets.test_opentargets_interactions_simple_filter __________
+
+self = <tests.test_opentargets.TestOpenTargets testMethod=test_opentargets_interactions_simple_filter>
+
+    def assert_equal(self: unittest.TestCase):
+        test = name
+        expected_result = td[test]["expected_result"]
+>       result_to_test = do_call(func, td[test]["args"])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/from_json.py:65: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+func = <function opentargets at 0x7f5ea74b8540>
+args = {'ensembl_id': 'ENSG00000169194', 'filters': {'gene_b_id': 'ENSG00000077238', 'protein_a_id': 'P35225'}, 'resource': 'interactions'}
+
+    def do_call(func, args):
+        if isinstance(args, dict):
+>           return func(**args)
+                   ^^^^^^^^^^^^
+
+tests/from_json.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ensembl_id = 'ENSG00000169194', resource = 'interactions', limit = None
+verbose = True, wrap_text = False
+filters = {'gene_b_id': ['ENSG00000077238'], 'protein_a_id': ['P35225']}
+filter_mode = 'and', json = False
+
+    def opentargets(
+        ensembl_id,
+        resource="diseases",
+        limit=None,
+        verbose=True,
+        wrap_text=False,
+        filters=None,
+        filter_mode="and",
+        json=False,
+    ):
+        """
+        Query OpenTargets for data associated with a given Ensembl gene ID.
+    
+        Args:
+    
+        - ensembl_id    Ensembl gene ID to be queried (str), e.g. "ENSG00000169194".
+        - resource      Defines type of information to be returned.
+                        "diseases":         Returns diseases associated with the gene (default).
+                        "drugs":            Returns drugs associated with the gene.
+                        "tractability":     Returns tractability data for the gene.
+                        "pharmacogenetics": Returns pharmacogenetics data for the gene.
+                        "expression":       Returns gene expression data (by tissues, organs, and anatomical systems).
+                        "depmap":           Returns DepMap gene-disease effect data for the gene.
+                        "interactions":     Returns protein-protein interactions for the gene.
+        - limit         Limit the number of results returned (default: No limit).
+                        Note: Not compatible with the 'tractability' and 'depmap' resources.
+        - verbose       Print progress messages (default: True).
+        - wrap_text     If True, displays data frame with wrapped text for easy reading. Default: False.
+        - filters       Filters to apply to the data. Supported filters by resource:
+                        "diseases": None
+                        "drugs": disease_id (e.g. "EFO_0000274")
+                        "tractability": None
+                        "pharmacogenetics": drug_id (e.g. "CHEMBL535")
+                        "expression": tissue_id (e.g. "UBERON_0002245"), anatomical_system (e.g. "nervous system"), organ (e.g. "brain")
+                        "depmap": tissue_id (e.g. "UBERON_0002245")
+                        "interactions": protein_a_id (e.g. "ENSP00000304915"), protein_b_id (e.g. "ENSP00000379111"), gene_b_id (e.g. "ENSG00000077238")
+        - filter_mode   For resources that support multiple types of filters, this argument specifies how to combine them.
+        - json          If True, returns results in JSON format instead of as a Data Frame. Default: False.
+    
+    
+        Returns requested information in DataFrame format.
+        """
+    
+        # check if resource argument is valid
+        if resource not in _RESOURCES:
+            raise ValueError(
+                f"'resource' argument specified as {resource}. Expected one of: {', '.join(_RESOURCES)}"
+            )
+    
+        # Wrap everything into a list
+        if filters is not None:
+            filters = {k: v if isinstance(v, list) else [v] for k, v in filters.items()}
+    
+>       df: pd.DataFrame = _RESOURCES[resource](
+            ensembl_id,
+            limit=limit,
+            verbose=verbose,
+            wrap_text=wrap_text,
+            filters=filters,
+            filter_mode=filter_mode,
+        )
+
+gget/gget_opentargets.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+ensembl_id = 'ENSG00000169194', limit = None, verbose = True, wrap_text = False
+filters = {'gene_b_id': ['ENSG00000077238'], 'protein_a_id': ['P35225']}
+filter_mode = 'and'
+
+    def fun(
+        ensembl_id,
+        limit=None,
+        verbose=True,
+        wrap_text=False,
+        filters=None,
+        filter_mode="and",
+    ):
+        if limit_key is None:
+            query_string = """
+            query target($ensemblId: String!) {
+                target(ensemblId: $ensemblId) {
+                    <TOP_LEVEL_KEY>{
+                        <ROW_QUERY>
+                    }
+                }
+            }
+            """.replace(
+                "<TOP_LEVEL_KEY>", top_level_key
+            ).replace(
+                "<ROW_QUERY>", inner_query
+            )
+        else:
+            if is_rows_based_query:
+                query_tmp = """
+                count
+                rows{
+                    <INNER_QUERY>
+                }""".replace(
+                    "<INNER_QUERY>", inner_query
+                )
+            else:
+                query_tmp = inner_query
+            query_string = (
+                """
+            query target($ensemblId: String!, $pagination: <LIMIT_TYPE>) {
+                target(ensemblId: $ensemblId) {
+                    <TOP_LEVEL_KEY>(<LIMIT_KEY>: $pagination){
+                        <QUERY>
+                    }
+                }
+            }
+            """.replace(
+                    "<TOP_LEVEL_KEY>", top_level_key
+                )
+                .replace("<LIMIT_TYPE>", limit_type)
+                .replace("<LIMIT_KEY>", limit_key)
+                .replace("<QUERY>", query_tmp)
+            )
+    
+        actual_limit = limit
+    
+        if filters is not None and len(filters) > 0:
+            if user_filter is None:
+                raise ValueError("Filters are not supported for this resource.")
+            valid_keys, filter_func = user_filter
+            invalid_keys = set(filters.keys()) - valid_keys
+            if len(invalid_keys) > 0:
+                invalid_keys = [f"'{k}'" for k in invalid_keys]
+                valid_keys = [f"'{k}'" for k in valid_keys]
+                raise ValueError(
+                    f"The following filter keys are invalid for this resource: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys)}"
+                )
+            # we have to fetch all data to be able to apply limit in a sane way when filters are specified
+            limit = None
+    
+        pagination = limit_func(limit, is_rows_based_query)
+        variables = {"ensemblId": ensembl_id, "pagination": pagination}
+    
+        if limit_key is None:
+            del variables["pagination"]
+    
+        results = graphql_query(OPENTARGETS_GRAPHQL_API, query_string, variables)
+        target = results["data"]["target"]
+        if target is None:
+            raise ValueError(
+                f"No data found for Ensembl ID: {ensembl_id}. Please double-check the ID and try again."
+            )
+        data = target[top_level_key]
+    
+        if is_rows_based_query:
+            total_count = data["count"]
+            rows = data["rows"]
+        else:
+            # noinspection PyTypeChecker
+            rows = data
+            total_count = len(data)
+    
+        if verbose:
+            explanation = ""
+            if limit is None and limit_key is not None and is_rows_based_query:
+                explanation = " (Querying count, will fetch all results next.)"
+            logger.info(
+                f"Retrieved {len(rows)}/{total_count} {human_readable_tlk}.{explanation}"
+            )
+    
+        if limit is None and limit_key is not None and is_rows_based_query:
+            variables["pagination"] = limit_func(total_count, is_rows_based_query)
+    
+>           new_results = graphql_query(
+                OPENTARGETS_GRAPHQL_API, query_string, variables
+            )
+
+gget/gget_opentargets.py:352: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+server = 'https://api.platform.opentargets.org/api/v4/graphql'
+query = '\n            query target($ensemblId: String!, $pagination: Pagination) {\n                target(ensemblId: $ensemb...taxonId\n        }\n        \n                }\n                    }\n                }\n            }\n            '
+variables = {'ensemblId': 'ENSG00000169194', 'pagination': {'index': 0, 'size': 1722}}
+
+    def graphql_query(server, query, variables):
+        """
+        Function to perform a GraphQL API query.
+    
+        Args:
+        - server        Server to query.
+        - query         Query that is passed to server.
+        - variables     Variables that are passed to server.
+    
+        Returns server output.
+        """
+    
+        r = requests.post(server, json={"query": query, "variables": variables})
+    
+        if not r.ok:
+            logger.debug(
+                f"Server: {server}, Query: {query}, Variables: {variables}, Response: {r.text}"
+            )
+>           raise RuntimeError(
+                f"{server} returned error status code {r.status_code}. "
+                "Please double-check arguments and try again.\n"
+            )
+E           RuntimeError: https://api.platform.opentargets.org/api/v4/graphql returned error status code 502. Please double-check arguments and try again.
+
+gget/utils.py:721: RuntimeError
+------------------------------ Captured log call -------------------------------
+INFO     gget.utils:gget_opentargets.py:345 Retrieved 1/1722 interactions. (Querying count, will fetch all results next.)
 __________________________ TestPDB.test_pdb_assembly ___________________________
 
 self = <tests.test_pdb.TestPDB testMethod=test_pdb_assembly>
@@ -445,6 +883,788 @@ E                                            'name': 'Cyclic'}],
 E          'rcsb_struct_symmetry_provenance_code': 'biojava-7.2.2'}
 
 tests/test_pdb.py:19: AssertionError
+_______________________ TestSearch.test_search_plant_db ________________________
+
+self = <pandas.io.sql.SQLiteDatabase object at 0x7f5e9d1e73e0>
+sql = "\n            SELECT gene.stable_id AS 'ensembl_id', xref.display_label AS 'gene_name', gene.description AS 'ensembl_...f.display_label LIKE '%CLF%' OR external_synonym.synonym LIKE '%CLF%' OR gene_attrib.value LIKE '%CLF%')\n            "
+params = None
+
+    def execute(self, sql: str | Select | TextClause, params=None):
+        if not isinstance(sql, str):
+            raise TypeError("Query must be a string unless using sqlalchemy.")
+        args = [] if params is None else [params]
+        cur = self.con.cursor()
+        try:
+            cur.execute(sql, *args)
+            return cur
+        except Exception as exc:
+            try:
+>               self.con.rollback()
+
+/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/pandas/io/sql.py:2668: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <mysql.connector.connection.MySQLConnection object at 0x7f5e9d1e4da0>
+
+    def rollback(self) -> None:
+        """Rollback current transaction"""
+        if self.unread_result:
+            self.get_rows()
+    
+>       self._execute_query("ROLLBACK")
+
+/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/mysql/connector/connection.py:1463: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <mysql.connector.connection.MySQLConnection object at 0x7f5e9d1e4da0>
+query = 'ROLLBACK'
+
+    def _execute_query(self, query: str) -> None:
+        """Execute a query
+    
+        This method simply calls cmd_query() after checking for unread
+        result. If there are still unread result, an InterfaceError
+        is raised. Otherwise whatever cmd_query() returns is returned.
+    
+        Returns a dict()
+        """
+        self.handle_unread_result()
+>       self.cmd_query(query)
+
+/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/mysql/connector/connection.py:1475: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cnx = <mysql.connector.connection.MySQLConnection object at 0x7f5e9d1e4da0>
+args = ('ROLLBACK',), kwargs = {}
+
+    def wrapper(cnx: "MySQLConnectionAbstract", *args: Any, **kwargs: Any) -> Any:
+        """Context propagation decorator."""
+        # pylint: disable=possibly-used-before-assignment
+        if not OTEL_ENABLED or not cnx.otel_context_propagation:
+>           return method(cnx, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/mysql/connector/opentelemetry/context_propagation.py:97: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cnx = <mysql.connector.connection.MySQLConnection object at 0x7f5e9d1e4da0>
+args = ('ROLLBACK',), kwargs = {}
+
+    @functools.wraps(cnx_method)
+    def handle_cnx_method(
+        cnx: "MySQLConnectionAbstract", *args: Any, **kwargs: Any
+    ) -> Any:
+        try:
+            return cnx_method(cnx, *args, **kwargs)
+        except Exception as err:
+            if isinstance(err, TimeoutError):
+                cnx.close()
+>           raise err
+
+/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/mysql/connector/_decorating.py:89: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cnx = <mysql.connector.connection.MySQLConnection object at 0x7f5e9d1e4da0>
+args = ('ROLLBACK',), kwargs = {}
+
+    @functools.wraps(cnx_method)
+    def handle_cnx_method(
+        cnx: "MySQLConnectionAbstract", *args: Any, **kwargs: Any
+    ) -> Any:
+        try:
+>           return cnx_method(cnx, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/mysql/connector/_decorating.py:85: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <mysql.connector.connection.MySQLConnection object at 0x7f5e9d1e4da0>
+query = b'ROLLBACK', raw = False, buffered = False, raw_as_string = False
+kwargs = {}, charset = 'utf8', packet = bytearray(b'ROLLBACK')
+
+    @with_context_propagation
+    @handle_read_write_timeout()
+    def cmd_query(
+        self,
+        query: StrOrBytes,
+        raw: bool = False,
+        buffered: bool = False,
+        raw_as_string: bool = False,
+        **kwargs: Any,
+    ) -> ResultType:
+        if not isinstance(query, bytearray):
+            if isinstance(query, str):
+                query = query.encode("utf-8")
+            query = bytearray(query)
+    
+        # Set/Reset internal state related to query execution
+        self._query = query
+        self._local_infile_filenames = None
+    
+        # Prepare query attrs
+        charset = self.charset if self.charset != "utf8mb4" else "utf8"
+        packet = bytearray()
+        if not self._query_attrs_supported and self._query_attrs:
+            warnings.warn(
+                "This version of the server does not support Query Attributes",
+                category=Warning,
+            )
+        if self._client_flags & ClientFlag.CLIENT_QUERY_ATTRIBUTES:
+            names = []
+            types = []
+            values: List[bytes] = []
+            null_bitmap = [0] * ((len(self._query_attrs) + 7) // 8)
+            for pos, attr_tuple in enumerate(self._query_attrs.items()):
+                value = attr_tuple[1]
+                flags = 0
+                if value is None:
+                    null_bitmap[(pos // 8)] |= 1 << (pos % 8)
+                    types.append(int1store(FieldType.NULL) + int1store(flags))
+                    continue
+                if isinstance(value, int):
+                    (
+                        packed,
+                        field_type,
+                        flags,
+                    ) = self._protocol.prepare_binary_integer(value)
+                    values.append(packed)
+                elif isinstance(value, str):
+                    value = value.encode(charset)
+                    values.append(lc_int(len(value)) + value)
+                    field_type = FieldType.STRING
+                elif isinstance(value, bytes):
+                    values.append(lc_int(len(value)) + value)
+                    field_type = FieldType.STRING
+                elif isinstance(value, Decimal):
+                    values.append(
+                        lc_int(len(str(value).encode(charset)))
+                        + str(value).encode(charset)
+                    )
+                    field_type = FieldType.DECIMAL
+                elif isinstance(value, float):
+                    values.append(struct.pack("<d", value))
+                    field_type = FieldType.DOUBLE
+                elif isinstance(value, (datetime.datetime, datetime.date)):
+                    (
+                        packed,
+                        field_type,
+                    ) = self._protocol.prepare_binary_timestamp(value)
+                    values.append(packed)
+                elif isinstance(value, (datetime.timedelta, datetime.time)):
+                    (packed, field_type) = self._protocol.prepare_binary_time(value)
+                    values.append(packed)
+                else:
+                    raise ProgrammingError(
+                        "MySQL binary protocol can not handle "
+                        f"'{value.__class__.__name__}' objects"
+                    )
+                types.append(int1store(field_type) + int1store(flags))
+                name = attr_tuple[0].encode(charset)
+                names.append(lc_int(len(name)) + name)
+    
+            # int<lenenc>    parameter_count    Number of parameters
+            packet.extend(lc_int(len(self._query_attrs)))
+            # int<lenenc>    parameter_set_count    Number of parameter sets.
+            # Currently always 1
+            packet.extend(lc_int(1))
+            if values:
+                packet.extend(
+                    b"".join([struct.pack("B", bit) for bit in null_bitmap])
+                    + int1store(1)
+                )
+                for _type, name in zip(types, names):
+                    packet.extend(_type)
+                    packet.extend(name)
+    
+                for value in values:
+                    packet.extend(value)
+    
+        packet.extend(query)
+        query = bytes(packet)
+        try:
+            read_timeout = kwargs.get("read_timeout", None)
+            write_timeout = kwargs.get("write_timeout", None)
+    
+>           result = self._handle_result(
+                self._send_cmd(
+                    ServerCmd.QUERY,
+                    query,
+                    read_timeout=read_timeout,
+                    write_timeout=write_timeout,
+                ),
+                read_timeout,
+                write_timeout,
+            )
+
+/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/mysql/connector/connection.py:984: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cnx = <mysql.connector.connection.MySQLConnection object at 0x7f5e9d1e4da0>
+args = (bytearray(b'\x98\x00\x00\t\tAT2G23380\x03CLFQSET domain-containing protein [Source:NCBI gene (formerly Entrezgene);Acc:816870]\x1dSET domain-containing protein\x0eprotein_coding\nCURLY LEAF'), None, None)
+kwargs = {}
+
+    @functools.wraps(cnx_method)
+    def handle_cnx_method(
+        cnx: "MySQLConnectionAbstract", *args: Any, **kwargs: Any
+    ) -> Any:
+        try:
+            return cnx_method(cnx, *args, **kwargs)
+        except Exception as err:
+            if isinstance(err, TimeoutError):
+                cnx.close()
+>           raise err
+
+/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/mysql/connector/_decorating.py:89: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+cnx = <mysql.connector.connection.MySQLConnection object at 0x7f5e9d1e4da0>
+args = (bytearray(b'\x98\x00\x00\t\tAT2G23380\x03CLFQSET domain-containing protein [Source:NCBI gene (formerly Entrezgene);Acc:816870]\x1dSET domain-containing protein\x0eprotein_coding\nCURLY LEAF'), None, None)
+kwargs = {}
+
+    @functools.wraps(cnx_method)
+    def handle_cnx_method(
+        cnx: "MySQLConnectionAbstract", *args: Any, **kwargs: Any
+    ) -> Any:
+        try:
+>           return cnx_method(cnx, *args, **kwargs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/mysql/connector/_decorating.py:85: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <mysql.connector.connection.MySQLConnection object at 0x7f5e9d1e4da0>
+packet = bytearray(b'\x98\x00\x00\t\tAT2G23380\x03CLFQSET domain-containing protein [Source:NCBI gene (formerly Entrezgene);Acc:816870]\x1dSET domain-containing protein\x0eprotein_coding\nCURLY LEAF')
+read_timeout = None, write_timeout = None
+
+    @handle_read_write_timeout()
+    def _handle_result(
+        self,
+        packet: bytes,
+        read_timeout: Optional[int] = None,
+        write_timeout: Optional[int] = None,
+    ) -> ResultType:
+        """Handle a MySQL Result
+    
+        This method handles a MySQL result, for example, after sending the
+        query command. OK and EOF packets will be handled and returned. If
+        the packet is an Error packet, an Error-exception will be
+        raised.
+    
+        The dictionary returned of:
+        - columns: column information
+        - eof: the EOF-packet information
+    
+        Returns a dict()
+        """
+        if not packet or len(packet) < 4:
+            raise InterfaceError("Empty response")
+        if packet[4] == OK_STATUS:
+            return self._handle_ok(packet)
+        if packet[4] == LOCAL_INFILE_STATUS:
+            filename = packet[5:].decode()
+            return self._handle_load_data_infile(filename, read_timeout, write_timeout)
+        if packet[4] == EOF_STATUS:
+            return self._handle_eof(packet)
+        if packet[4] == ERR_STATUS:
+            raise get_exception(packet)
+    
+        # We have a text result set
+        column_count = self._protocol.parse_column_count(packet)
+        if not column_count or not isinstance(column_count, int):
+            raise InterfaceError("Illegal result set")
+    
+        self._columns_desc = [
+            None,
+        ] * column_count
+        for i in range(0, column_count):
+>           self._columns_desc[i] = self._protocol.parse_column(
+                self._socket.recv(read_timeout or self._read_timeout),
+                self.python_charset,
+            )
+
+/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/mysql/connector/connection.py:756: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+packet = bytearray(b''), encoding = 'utf8'
+
+    @staticmethod
+    def parse_column(packet: bytes, encoding: str = "utf-8") -> DescriptionType:
+        """Parse a MySQL column-packet."""
+        packet, _ = utils.read_lc_string(packet[4:])  # catalog
+        packet, _ = utils.read_lc_string(packet)  # db
+        packet, _ = utils.read_lc_string(packet)  # table
+        packet, _ = utils.read_lc_string(packet)  # org_table
+        packet, name = utils.read_lc_string(packet)  # name
+        packet, _ = utils.read_lc_string(packet)  # org_name
+    
+        try:
+            (
+                charset,
+                _,
+                column_type,
+                flags,
+                _,
+            ) = struct.unpack("<xHIBHBxx", packet)
+        except struct.error:
+>           raise InterfaceError("Failed parsing column information") from None
+E           mysql.connector.errors.InterfaceError: Failed parsing column information
+
+/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/mysql/connector/protocol.py:552: InterfaceError
+
+The above exception was the direct cause of the following exception:
+
+self = <tests.test_search.TestSearch testMethod=test_search_plant_db>
+
+    def assert_equal_na(self: unittest.TestCase):
+        test = name
+        expected_result = td[test]["expected_result"]
+>       result_to_test = do_call(func, td[test]["args"])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/from_json.py:87: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+func = <function search at 0x7f5ea9e1d800>
+args = {'searchwords': ['CLF'], 'species': 'arabidopsis_thaliana_core_58_111_11'}
+
+    def do_call(func, args):
+        if isinstance(args, dict):
+>           return func(**args)
+                   ^^^^^^^^^^^^
+
+tests/from_json.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+searchwords = ['CLF'], species = 'arabidopsis_thaliana_core_58_111_11'
+release = None, id_type = 'gene', seqtype = None, andor = 'or', limit = None
+wrap_text = False, json = False, save = False, verbose = True
+
+    def search(
+        searchwords,
+        species,
+        release=None,
+        id_type="gene",
+        seqtype=None,
+        andor="or",
+        limit=None,
+        wrap_text=False,
+        json=False,
+        save=False,
+        verbose=True,
+    ):
+        """
+        Function to query Ensembl for genes based on species and free form search terms.
+        Automatically fetches results from latest Ensembl release, unless user specifies database (see 'species' argument)
+        or release database (see 'release' argument).
+    
+        Args:
+        - searchwords     Free form search words (not case-sensitive) as a string or list of strings
+                          (e.g.searchwords = ["GABA", "gamma-aminobutyric"]).
+        - species         Species can be passed in the format "genus_species", e.g. "homo_sapiens" or "arabidopsis_thaliana".
+                          To pass a specific database, enter the name of the core database, e.g. "mus_musculus_dba2j_core_105_1".
+                          All available core databases can be found here:
+                          Vertebrates: http://ftp.ensembl.org/pub/current/mysql/
+                          Invertebrates: http://ftp.ensemblgenomes.org/pub/current/ + kingdom + mysql/
+        - release         Defines the Ensembl release number from which the files are fetched, e.g. 104.
+                          Note: This argument does not apply to invertebrate species (you can pass a specific core database (which includes release number) to the species argument instead).
+                          This argument is overwritten if a specific database (which includes a release number) is passed to the species argument.
+                          Default: None -> latest Ensembl release is used
+        - id_type         "gene" (default) or "transcript"
+                          Defines whether genes or transcripts matching the searchwords are returned.
+        - andor           "or" (default) or "and"
+                          "or": Returns all genes that INCLUDE AT LEAST ONE of the searchwords in their name/description.
+                          "and": Returns only genes that INCLUDE ALL of the searchwords in their name/description.
+        - limit           (int) Limit the number of search results returned (default: None).
+        - wrap_text       If True, displays data frame with wrapped text for easy reading. Default: False.
+        - json            If True, returns results in json format instead of data frame. Default: False.
+        - save            If True, the data frame is saved as a csv in the current directory (default: False).
+        - verbose         True/False whether to print progress information. Default True.
+    
+        Returns a data frame with the query results.
+    
+        Note: Only returns results based on matches in the "gene name" or "description" sections in the Ensembl database.
+    
+        Deprecated arguments: 'seqtype' (renamed to id_type)
+        """
+        # Handle deprecated arguments
+        if seqtype:
+            logger.error(
+                "'seqtype' argument deprecated! Please use argument 'id_type' instead."
+            )
+            return
+    
+        start_time = time.time()
+    
+        ## Check validity or arguments
+        # Check if id_type is valid
+        id_types = ["gene", "transcript"]
+        id_type = id_type.lower()
+        if id_type not in id_types:
+            raise ValueError(
+                f"ID type (id_type) specified is '{id_type}'. Expected one of: {', '.join(id_types)}"
+            )
+    
+        # Check if 'andor' arg is valid
+        andors = ["and", "or"]
+        andor = andor.lower()
+        if andor not in andors:
+            raise ValueError(
+                f"'andor' argument specified as {andor}. Expected one of {', '.join(andors)}"
+            )
+    
+        ## Get database for specified species
+        # Species shortcuts
+        if species == "human":
+            species = "homo_sapiens"
+        if species == "mouse":
+            species = "mus_musculus"
+    
+        # If a specific database is passed with the "/" at the end, remove it
+        if "/" in species:
+            species = species.split("/")[0]
+    
+        # In case species was passed with upper case letters
+        species = species.lower()
+    
+        if "core" in species:
+            db = species
+            if release:
+                logger.warning(
+                    "Specified release overwritten because database name was provided."
+                )
+        else:
+            if release:
+                ens_rel = release
+            else:
+                # Find latest Ensembl release
+                ens_rel = find_latest_ens_rel()
+    
+            # Fetch ensembl databases
+            databases = search_species_options(database=ENSEMBL_FTP_URL, release=ens_rel)
+    
+            # Add ensembl invertebrate databases
+            databases += search_species_options(database=ENSEMBL_FTP_URL_NV, release=None)
+    
+            db = []
+            for datab in databases:
+                if species in datab:
+                    db.append(datab)
+    
+            # Unless an unambigious mouse database is specified,
+            # the standard core database will be used
+            if len(db) > 1 and "mus_musculus" in species:
+                db = f"mus_musculus_core_{ens_rel}_39"
+                logger.warning(
+                    f"Defaulting to mus musculus core database: {db}.\n"
+                    "All available vertebrate databases can be found here:\n"
+                    f"http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
+                )
+    
+            elif len(db) > 1 and "homo_sapiens" in species:
+                db = f"homo_sapiens_core_{ens_rel}_38"
+    
+            # Check for ambiguous species matches in species other than mouse and human
+            elif (
+                len(db) > 1
+                and "mus_musculus" not in species
+                and "homo_sapiens" not in species
+            ):
+                logger.warning(
+                    f"Species matches more than one database. Defaulting to first database: {db[0]}.\n"
+                    "All available databases can be found here:\n"
+                    f"Vertebrates: http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
+                    f"Invertebrates: http://ftp.ensemblgenomes.org/pub/release-{find_latest_ens_rel(database=ENSEMBL_FTP_URL_NV)} + kingdom + mysql/"
+                )
+                db = db[0]
+    
+            # Raise error if no matching database was found
+            elif len(db) == 0:
+                raise ValueError(
+                    "Species not found. Please double-check spelling or pass a specific CORE database.\n"
+                    "All available CORE databases can be found here:\n"
+                    f"Vertebrates: http://ftp.ensembl.org/pub/release-{ens_rel}/mysql/ \n"
+                    f"Invertebrates: http://ftp.ensemblgenomes.org/pub/release-{find_latest_ens_rel(database=ENSEMBL_FTP_URL_NV)} + kingdom + mysql/"
+                )
+    
+            else:
+                db = db[0]
+    
+        if verbose:
+            logger.info(f"Fetching results from database: {db}")
+    
+        ## Connect to Ensembl SQL server data for specified species
+        # Ports to try (some databases are stored in different ports)
+        # 3306 (and 5306) for the Ensembl instances, 3337 for GRCh37, 4157 for Ensembl Genomes, and 5316 for mart
+        ports = [3306, 5306, 4157, 3337, 5316]
+    
+        connection_successful = False
+        last_exception = None
+        for port in ports:
+            try:
+                db_connection = sql.connect(
+                    host="mysql-eg-publicsql.ebi.ac.uk",
+                    database=db,
+                    user="anonymous",
+                    password="",
+                    port=port,
+                )
+                connection_successful = True
+                break
+            except Exception as e:
+                last_exception = e
+                # Continue to the next port if the connection is unsuccessful
+                continue
+    
+        # If none of the ports work, raise an error with the last exception encountered
+        if not connection_successful:
+            if "Access denied" in str(last_exception):
+                raise RuntimeError(
+                    f"""
+                    The Ensembl server returned the following error: {str(last_exception)}.
+                    This might be caused by the Ensembl release number being too low.
+                    Please try again with a more recent release.
+                    """
+                )
+            else:
+                raise RuntimeError(
+                    f"The Ensembl server returned the following error: {str(last_exception)}"
+                )
+    
+        ## Clean up list of searchwords
+        # If single searchword passed as string, convert to list
+        if type(searchwords) == str:
+            searchwords = [searchwords]
+    
+        ## Find genes
+        for i, searchword in enumerate(searchwords):
+            if id_type == "gene":
+                query = f"""
+                SELECT gene.stable_id AS 'ensembl_id', xref.display_label AS 'gene_name', gene.description AS 'ensembl_description', xref.description AS 'ext_ref_description', gene.biotype AS 'biotype', external_synonym.synonym AS 'synonym'
+                FROM gene
+                LEFT JOIN xref ON gene.display_xref_id = xref.xref_id
+                LEFT JOIN external_synonym ON gene.display_xref_id = external_synonym.xref_id
+                LEFT JOIN gene_attrib ON gene.gene_id = gene_attrib.gene_id
+                WHERE (gene.description LIKE '%{searchword}%' OR xref.description LIKE '%{searchword}%' OR xref.display_label LIKE '%{searchword}%' OR external_synonym.synonym LIKE '%{searchword}%' OR gene_attrib.value LIKE '%{searchword}%')
+                """
+    
+                # Fetch the search results from the host using the specified query
+>               df_temp = pd.read_sql(query, con=db_connection)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+gget/gget_search.py:244: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+sql = "\n            SELECT gene.stable_id AS 'ensembl_id', xref.display_label AS 'gene_name', gene.description AS 'ensembl_...f.display_label LIKE '%CLF%' OR external_synonym.synonym LIKE '%CLF%' OR gene_attrib.value LIKE '%CLF%')\n            "
+con = <mysql.connector.connection.MySQLConnection object at 0x7f5e9d1e4da0>
+index_col = None, coerce_float = True, params = None, parse_dates = None
+columns = None, chunksize = None, dtype_backend = 'numpy', dtype = None
+
+    def read_sql(
+        sql,
+        con,
+        index_col: str | list[str] | None = None,
+        coerce_float: bool = True,
+        params=None,
+        parse_dates=None,
+        columns: list[str] | None = None,
+        chunksize: int | None = None,
+        dtype_backend: DtypeBackend | lib.NoDefault = lib.no_default,
+        dtype: DtypeArg | None = None,
+    ) -> DataFrame | Iterator[DataFrame]:
+        """
+        Read SQL query or database table into a DataFrame.
+    
+        This function is a convenience wrapper around ``read_sql_table`` and
+        ``read_sql_query`` (for backward compatibility). It will delegate
+        to the specific function depending on the provided input. A SQL query
+        will be routed to ``read_sql_query``, while a database table name will
+        be routed to ``read_sql_table``. Note that the delegated function might
+        have more specific notes about their functionality not listed here.
+    
+        Parameters
+        ----------
+        sql : str or SQLAlchemy Selectable (select or text object)
+            SQL query to be executed or a table name.
+        con : ADBC Connection, SQLAlchemy connectable, str, or sqlite3 connection
+            ADBC provides high performance I/O with native type support, where available.
+            Using SQLAlchemy makes it possible to use any DB supported by that
+            library. If a DBAPI2 object, only sqlite3 is supported. The user is responsible
+            for engine disposal and connection closure for the ADBC connection and
+            SQLAlchemy connectable; str connections are closed automatically. See
+            `here <https://docs.sqlalchemy.org/en/20/core/connections.html>`_.
+        index_col : str or list of str, optional, default: None
+            Column(s) to set as index(MultiIndex).
+        coerce_float : bool, default True
+            Attempts to convert values of non-string, non-numeric objects (like
+            decimal.Decimal) to floating point, useful for SQL result sets.
+        params : list, tuple or dict, optional, default: None
+            List of parameters to pass to execute method.  The syntax used
+            to pass parameters is database driver dependent. Check your
+            database driver documentation for which of the five syntax styles,
+            described in PEP 249's paramstyle, is supported.
+            Eg. for psycopg2, uses %(name)s so use params={'name' : 'value'}.
+        parse_dates : list or dict, default: None
+            - List of column names to parse as dates.
+            - Dict of ``{column_name: format string}`` where format string is
+              strftime compatible in case of parsing string times, or is one of
+              (D, s, ns, ms, us) in case of parsing integer timestamps.
+            - Dict of ``{column_name: arg dict}``, where the arg dict corresponds
+              to the keyword arguments of :func:`pandas.to_datetime`
+              Especially useful with databases without native Datetime support,
+              such as SQLite.
+        columns : list, default: None
+            List of column names to select from SQL table (only used when reading
+            a table).
+        chunksize : int, default None
+            If specified, return an iterator where `chunksize` is the
+            number of rows to include in each chunk.
+        dtype_backend : {'numpy_nullable', 'pyarrow'}, default 'numpy_nullable'
+            Back-end data type applied to the resultant :class:`DataFrame`
+            (still experimental). Behaviour is as follows:
+    
+            * ``"numpy_nullable"``: returns nullable-dtype-backed :class:`DataFrame`
+              (default).
+            * ``"pyarrow"``: returns pyarrow-backed nullable :class:`ArrowDtype`
+              DataFrame.
+    
+            .. versionadded:: 2.0
+        dtype : Type name or dict of columns
+            Data type for data or columns. E.g. np.float64 or
+            {'a': np.float64, 'b': np.int32, 'c': 'Int64'}.
+            The argument is ignored if a table is passed instead of a query.
+    
+            .. versionadded:: 2.0.0
+    
+        Returns
+        -------
+        DataFrame or Iterator[DataFrame]
+    
+        See Also
+        --------
+        read_sql_table : Read SQL database table into a DataFrame.
+        read_sql_query : Read SQL query into a DataFrame.
+    
+        Examples
+        --------
+        Read data from SQL via either a SQL query or a SQL tablename.
+        When using a SQLite database only SQL queries are accepted,
+        providing only the SQL tablename will result in an error.
+    
+        >>> from sqlite3 import connect
+        >>> conn = connect(':memory:')
+        >>> df = pd.DataFrame(data=[[0, '10/11/12'], [1, '12/11/10']],
+        ...                   columns=['int_column', 'date_column'])
+        >>> df.to_sql(name='test_data', con=conn)
+        2
+    
+        >>> pd.read_sql('SELECT int_column, date_column FROM test_data', conn)
+           int_column date_column
+        0           0    10/11/12
+        1           1    12/11/10
+    
+        >>> pd.read_sql('test_data', 'postgres:///db_name')  # doctest:+SKIP
+    
+        Apply date parsing to columns through the ``parse_dates`` argument
+        The ``parse_dates`` argument calls ``pd.to_datetime`` on the provided columns.
+        Custom argument values for applying ``pd.to_datetime`` on a column are specified
+        via a dictionary format:
+    
+        >>> pd.read_sql('SELECT int_column, date_column FROM test_data',
+        ...             conn,
+        ...             parse_dates={"date_column": {"format": "%d/%m/%y"}})
+           int_column date_column
+        0           0  2012-11-10
+        1           1  2010-11-12
+    
+        .. versionadded:: 2.2.0
+    
+           pandas now supports reading via ADBC drivers
+    
+        >>> from adbc_driver_postgresql import dbapi  # doctest:+SKIP
+        >>> with dbapi.connect('postgres:///db_name') as conn:  # doctest:+SKIP
+        ...     pd.read_sql('SELECT int_column FROM test_data', conn)
+           int_column
+        0           0
+        1           1
+        """
+    
+        check_dtype_backend(dtype_backend)
+        if dtype_backend is lib.no_default:
+            dtype_backend = "numpy"  # type: ignore[assignment]
+        assert dtype_backend is not lib.no_default
+    
+        with pandasSQL_builder(con) as pandas_sql:
+            if isinstance(pandas_sql, SQLiteDatabase):
+>               return pandas_sql.read_query(
+                    sql,
+                    index_col=index_col,
+                    params=params,
+                    coerce_float=coerce_float,
+                    parse_dates=parse_dates,
+                    chunksize=chunksize,
+                    dtype_backend=dtype_backend,
+                    dtype=dtype,
+                )
+
+/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/pandas/io/sql.py:708: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <pandas.io.sql.SQLiteDatabase object at 0x7f5e9d1e73e0>
+sql = "\n            SELECT gene.stable_id AS 'ensembl_id', xref.display_label AS 'gene_name', gene.description AS 'ensembl_...f.display_label LIKE '%CLF%' OR external_synonym.synonym LIKE '%CLF%' OR gene_attrib.value LIKE '%CLF%')\n            "
+index_col = None, coerce_float = True, parse_dates = None, params = None
+chunksize = None, dtype = None, dtype_backend = 'numpy'
+
+    def read_query(
+        self,
+        sql,
+        index_col=None,
+        coerce_float: bool = True,
+        parse_dates=None,
+        params=None,
+        chunksize: int | None = None,
+        dtype: DtypeArg | None = None,
+        dtype_backend: DtypeBackend | Literal["numpy"] = "numpy",
+    ) -> DataFrame | Iterator[DataFrame]:
+>       cursor = self.execute(sql, params)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/pandas/io/sql.py:2728: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <pandas.io.sql.SQLiteDatabase object at 0x7f5e9d1e73e0>
+sql = "\n            SELECT gene.stable_id AS 'ensembl_id', xref.display_label AS 'gene_name', gene.description AS 'ensembl_...f.display_label LIKE '%CLF%' OR external_synonym.synonym LIKE '%CLF%' OR gene_attrib.value LIKE '%CLF%')\n            "
+params = None
+
+    def execute(self, sql: str | Select | TextClause, params=None):
+        if not isinstance(sql, str):
+            raise TypeError("Query must be a string unless using sqlalchemy.")
+        args = [] if params is None else [params]
+        cur = self.con.cursor()
+        try:
+            cur.execute(sql, *args)
+            return cur
+        except Exception as exc:
+            try:
+                self.con.rollback()
+            except Exception as inner_exc:  # pragma: no cover
+                ex = DatabaseError(
+                    f"Execution failed on sql: {sql}\n{exc}\nunable to rollback"
+                )
+>               raise ex from inner_exc
+E               pandas.errors.DatabaseError: Execution failed on sql: 
+E                           SELECT gene.stable_id AS 'ensembl_id', xref.display_label AS 'gene_name', gene.description AS 'ensembl_description', xref.description AS 'ext_ref_description', gene.biotype AS 'biotype', external_synonym.synonym AS 'synonym'
+E                           FROM gene 
+E                           LEFT JOIN xref ON gene.display_xref_id = xref.xref_id 
+E                           LEFT JOIN external_synonym ON gene.display_xref_id = external_synonym.xref_id 
+E                           LEFT JOIN gene_attrib ON gene.gene_id = gene_attrib.gene_id 
+E                           WHERE (gene.description LIKE '%CLF%' OR xref.description LIKE '%CLF%' OR xref.display_label LIKE '%CLF%' OR external_synonym.synonym LIKE '%CLF%' OR gene_attrib.value LIKE '%CLF%')
+E                           
+E               Expected EOF packet
+E               unable to rollback
+
+/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/pandas/io/sql.py:2673: DatabaseError
+------------------------------ Captured log call -------------------------------
+INFO     gget.utils:gget_search.py:186 Fetching results from database: arabidopsis_thaliana_core_58_111_11
 =============================== warnings summary ===============================
 tests/test_blast.py::TestBlast::test_blast_nt
   /home/runner/work/gget/gget/gget/gget_blast.py:327: FutureWarning: Passing literal html to 'read_html' is deprecated and will be removed in a future version. To read from a literal string, wrap it in a 'StringIO' object.
@@ -517,7 +1737,7 @@ tests/test_utils.py: 4 warnings
     for subsoup in soup.body.findAll("a"):
 
 tests/test_ref.py: 7 warnings
-tests/test_search.py: 44 warnings
+tests/test_search.py: 43 warnings
   /home/runner/work/gget/gget/gget/utils.py:845: DeprecationWarning: Call to deprecated method findAll. (Replaced by find_all) -- Deprecated since version 4.0.0.
     for subsoup in soup.body.findAll("a"):
 
@@ -556,7 +1776,7 @@ gget/gget_8cube.py            83     28    66%   26-27, 34-43, 93, 105, 112, 115
 gget/gget_alphafold.py       362    321    11%   86-108, 115-116, 123-149, 181-186, 233-867
 gget/gget_archs4.py           79     13    84%   75-78, 84, 107, 123-126, 139-142, 148, 170, 198-201, 207
 gget/gget_bgee.py             56      6    89%   60, 83, 103, 130, 154, 175
-gget/gget_blast.py           127     36    72%   92, 124-142, 163-165, 204, 207, 251-255, 296-299, 302-303, 322-325, 332-333, 336-341, 346, 351-354
+gget/gget_blast.py           127     36    72%   92, 124-142, 163-165, 204, 207, 246-248, 296-299, 302-303, 322-325, 332-333, 336-341, 346, 351-354
 gget/gget_blat.py             86     10    88%   58-62, 95, 136, 139, 168, 232-233, 239
 gget/gget_cbio.py            524    403    23%   28, 39-67, 77-87, 136-137, 143-147, 154-157, 161, 164, 172-177, 208, 226, 265, 271-275, 278, 282-294, 296, 322-331, 334, 376-389, 393-416, 420-441, 447-450, 454-473, 477, 494-537, 540-757, 760-789, 802-1164, 1218-1254
 gget/gget_cellxgene.py        53      9    83%   21-22, 140-149, 176, 215, 231, 247
@@ -580,17 +1800,19 @@ gget/utils.py                448     80    82%   31, 36-42, 72, 95, 119, 122, 18
 --------------------------------------------------------
 TOTAL                       8233   4312    48%
 ============================= slowest 10 durations =============================
-197.36s call     tests/test_blast.py::TestBlast::test_blast_nt
-44.12s call     tests/test_search.py::TestSearch::test_search_gene_two_sw_limit
-34.97s call     tests/test_virus.py::TestVirus::test_virus_with_annotated_filter
-30.90s call     tests/test_virus.py::TestVirus::test_virus_with_source_database_filter
-30.09s call     tests/test_virus.py::TestVirus::test_virus_integer_virus_id
-29.85s call     tests/test_virus.py::TestVirus::test_virus_with_max_ambiguous_chars_filter
-29.69s call     tests/test_virus.py::TestVirus::test_virus_with_has_proteins_filter
-26.50s call     tests/test_virus.py::TestVirus::test_virus_with_lab_passaged_filter
-23.54s call     tests/test_virus.py::TestVirus::test_virus_with_protein_count_filters
-23.29s call     tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
+1488.94s call     tests/test_blast.py::TestBlast::test_blast_nt
+43.56s call     tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
+42.18s call     tests/test_search.py::TestSearch::test_search_gene_two_sw_limit
+34.77s call     tests/test_virus.py::TestVirus::test_virus_integer_virus_id
+34.11s call     tests/test_virus.py::TestVirus::test_virus_with_source_database_filter
+30.55s call     tests/test_virus.py::TestVirus::test_virus_with_has_proteins_filter
+30.52s call     tests/test_opentargets.py::TestOpenTargets::test_opentargets_interactions_simple_filter
+30.21s call     tests/test_opentargets.py::TestOpenTargets::test_opentargets_depmap
+29.79s call     tests/test_virus.py::TestVirus::test_virus_with_max_ambiguous_chars_filter
+28.81s call     tests/test_virus.py::TestVirus::test_virus_with_lab_passaged_filter
 =========================== short test summary info ============================
+FAILED tests/test_opentargets.py::TestOpenTargets::test_opentargets_depmap - RuntimeError: https://api.platform.opentargets.org/api/v4/graphql returned error status code 502. Please double-check arguments and try again.
+FAILED tests/test_opentargets.py::TestOpenTargets::test_opentargets_interactions_simple_filter - RuntimeError: https://api.platform.opentargets.org/api/v4/graphql returned error status code 502. Please double-check arguments and try again.
 FAILED tests/test_pdb.py::TestPDB::test_pdb_assembly - AssertionError: {'pdb[458 chars]atrix_1_1': 1.0, 'matrix_1_2': 0.0, 'matrix_1_[2885 chars]2.2'} != {'pdb[458 chars]atrix11': 1.0, 'matrix12': 0.0, 'matrix13': 0.[2864 chars]2.2'}
   {'pdbx_struct_assembly': {'details': 'author_and_software_defined_assembly',
                             'id': '1',
@@ -758,4 +1980,14 @@ FAILED tests/test_pdb.py::TestPDB::test_pdb_assembly - AssertionError: {'pdb[458
                                      'id': 'Global Symmetry.Cyclic',
                                      'name': 'Cyclic'}],
    'rcsb_struct_symmetry_provenance_code': 'biojava-7.2.2'}
-=========== 1 failed, 255 passed, 273 warnings in 1001.28s (0:16:41) ===========
+FAILED tests/test_search.py::TestSearch::test_search_plant_db - pandas.errors.DatabaseError: Execution failed on sql: 
+            SELECT gene.stable_id AS 'ensembl_id', xref.display_label AS 'gene_name', gene.description AS 'ensembl_description', xref.description AS 'ext_ref_description', gene.biotype AS 'biotype', external_synonym.synonym AS 'synonym'
+            FROM gene 
+            LEFT JOIN xref ON gene.display_xref_id = xref.xref_id 
+            LEFT JOIN external_synonym ON gene.display_xref_id = external_synonym.xref_id 
+            LEFT JOIN gene_attrib ON gene.gene_id = gene_attrib.gene_id 
+            WHERE (gene.description LIKE '%CLF%' OR xref.description LIKE '%CLF%' OR xref.display_label LIKE '%CLF%' OR external_synonym.synonym LIKE '%CLF%' OR gene_attrib.value LIKE '%CLF%')
+            
+Expected EOF packet
+unable to rollback
+=========== 4 failed, 252 passed, 272 warnings in 2331.64s (0:38:51) ===========
