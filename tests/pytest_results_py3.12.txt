@@ -1,4 +1,4 @@
-Pytest results (Python 3.12) - 2026-04-27T16:38:31Z
+Pytest results (Python 3.12) - 2026-04-30T16:37:02Z
 
 ============================= test session starts ==============================
 platform linux -- Python 3.12.13, pytest-9.0.3, pluggy-1.6.0 -- /opt/hostedtoolcache/Python/3.12.13/x64/bin/python
@@ -69,7 +69,7 @@ tests/test_diamond.py::TestDiamond::test_diamond_seqs_single PASSED      [ 22%]
 tests/test_elm.py::TestELM::test_elm_uniprot_aminoacidseq PASSED         [ 23%]
 tests/test_elm.py::TestELM::test_elm_uniprot_id_in_elm PASSED            [ 23%]
 tests/test_elm.py::TestELM::test_elm_uniprot_id_new PASSED               [ 23%]
-tests/test_enrichr.py::TestEnrichr::test_enrichr_background PASSED       [ 24%]
+tests/test_enrichr.py::TestEnrichr::test_enrichr_background FAILED       [ 24%]
 tests/test_enrichr.py::TestEnrichr::test_enrichr_background_ensembl PASSED [ 24%]
 tests/test_enrichr.py::TestEnrichr::test_enrichr_bad_background PASSED   [ 25%]
 tests/test_enrichr.py::TestEnrichr::test_enrichr_bad_background_list PASSED [ 25%]
@@ -144,11 +144,11 @@ tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_drugs_invalid
 tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_nonexistent_id PASSED [ 52%]
 tests/test_opentargets.py::TestOpenTargets::test_error_opentargets_tractability_limit PASSED [ 52%]
 tests/test_opentargets.py::TestOpenTargets::test_opentargets PASSED      [ 53%]
-tests/test_opentargets.py::TestOpenTargets::test_opentargets_depmap FAILED [ 53%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_depmap PASSED [ 53%]
 tests/test_opentargets.py::TestOpenTargets::test_opentargets_depmap_filter PASSED [ 53%]
 tests/test_opentargets.py::TestOpenTargets::test_opentargets_expression_no_limit PASSED [ 54%]
 tests/test_opentargets.py::TestOpenTargets::test_opentargets_interactions_no_limit PASSED [ 54%]
-tests/test_opentargets.py::TestOpenTargets::test_opentargets_interactions_simple_filter FAILED [ 55%]
+tests/test_opentargets.py::TestOpenTargets::test_opentargets_interactions_simple_filter PASSED [ 55%]
 tests/test_pdb.py::TestPDB::test_pdb_assembly FAILED                     [ 55%]
 tests/test_pdb.py::TestPDB::test_pdb_pdb PASSED                          [ 55%]
 tests/test_ref.py::TestRef::test_ref PASSED                              [ 56%]
@@ -266,444 +266,263 @@ tests/test_virus.py::TestVirus::test_virus_with_protein_count_filters PASSED [ 9
 tests/test_virus.py::TestVirus::test_virus_with_source_database_filter PASSED [100%]
 
 =================================== FAILURES ===================================
-___________________ TestOpenTargets.test_opentargets_depmap ____________________
+_____________________ TestEnrichr.test_enrichr_background ______________________
 
-self = <tests.test_opentargets.TestOpenTargets testMethod=test_opentargets_depmap>
+self = <tests.test_enrichr.TestEnrichr testMethod=test_enrichr_background>
 
-    def assert_equal_json_hash(self: unittest.TestCase):
-        test = name
-        expected_result = td[test]["expected_result"]
->       result_to_test = do_call(func, td[test]["args"])
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    def test_enrichr_background(self):
+        test = "test_enrichr_background"
+        expected_result = enrichr_dict[test]["expected_result"]
+>       result_to_test = enrichr(**enrichr_dict[test]["args"])
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-tests/from_json.py:117: 
+tests/test_enrichr.py:30: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-func = <function opentargets at 0x7f5ea74b8540>
-args = {'ensembl_id': 'ENSG00000169194', 'resource': 'depmap'}
+genes = ['ALB', 'Got1', 'Gpt', 'Gsta2', 'Cdo1']
+database = 'PanglaoDB_Augmented_2021', species = 'human'
+background_list = ['ALB', 'Got1', 'Gpt', 'Gsta2', 'Cdo1', 'Csad', ...]
+background = False, ensembl = False, ensembl_bkg = False, plot = False
+figsize = (10, 10), ax = None, kegg_out = None, kegg_rank = 1, json = False
+save = False, verbose = True
 
-    def do_call(func, args):
-        if isinstance(args, dict):
->           return func(**args)
-                   ^^^^^^^^^^^^
-
-tests/from_json.py:57: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-ensembl_id = 'ENSG00000169194', resource = 'depmap', limit = None
-verbose = True, wrap_text = False, filters = None, filter_mode = 'and'
-json = False
-
-    def opentargets(
-        ensembl_id,
-        resource="diseases",
-        limit=None,
-        verbose=True,
-        wrap_text=False,
-        filters=None,
-        filter_mode="and",
+    def enrichr(
+        genes,
+        database,
+        species="human",
+        background_list=None,
+        background=False,
+        ensembl=False,
+        ensembl_bkg=False,
+        plot=False,
+        figsize=(10, 10),
+        ax=None,
+        kegg_out=None,
+        kegg_rank=1,
         json=False,
-    ):
-        """
-        Query OpenTargets for data associated with a given Ensembl gene ID.
-    
-        Args:
-    
-        - ensembl_id    Ensembl gene ID to be queried (str), e.g. "ENSG00000169194".
-        - resource      Defines type of information to be returned.
-                        "diseases":         Returns diseases associated with the gene (default).
-                        "drugs":            Returns drugs associated with the gene.
-                        "tractability":     Returns tractability data for the gene.
-                        "pharmacogenetics": Returns pharmacogenetics data for the gene.
-                        "expression":       Returns gene expression data (by tissues, organs, and anatomical systems).
-                        "depmap":           Returns DepMap gene-disease effect data for the gene.
-                        "interactions":     Returns protein-protein interactions for the gene.
-        - limit         Limit the number of results returned (default: No limit).
-                        Note: Not compatible with the 'tractability' and 'depmap' resources.
-        - verbose       Print progress messages (default: True).
-        - wrap_text     If True, displays data frame with wrapped text for easy reading. Default: False.
-        - filters       Filters to apply to the data. Supported filters by resource:
-                        "diseases": None
-                        "drugs": disease_id (e.g. "EFO_0000274")
-                        "tractability": None
-                        "pharmacogenetics": drug_id (e.g. "CHEMBL535")
-                        "expression": tissue_id (e.g. "UBERON_0002245"), anatomical_system (e.g. "nervous system"), organ (e.g. "brain")
-                        "depmap": tissue_id (e.g. "UBERON_0002245")
-                        "interactions": protein_a_id (e.g. "ENSP00000304915"), protein_b_id (e.g. "ENSP00000379111"), gene_b_id (e.g. "ENSG00000077238")
-        - filter_mode   For resources that support multiple types of filters, this argument specifies how to combine them.
-        - json          If True, returns results in JSON format instead of as a Data Frame. Default: False.
-    
-    
-        Returns requested information in DataFrame format.
-        """
-    
-        # check if resource argument is valid
-        if resource not in _RESOURCES:
-            raise ValueError(
-                f"'resource' argument specified as {resource}. Expected one of: {', '.join(_RESOURCES)}"
-            )
-    
-        # Wrap everything into a list
-        if filters is not None:
-            filters = {k: v if isinstance(v, list) else [v] for k, v in filters.items()}
-    
->       df: pd.DataFrame = _RESOURCES[resource](
-            ensembl_id,
-            limit=limit,
-            verbose=verbose,
-            wrap_text=wrap_text,
-            filters=filters,
-            filter_mode=filter_mode,
-        )
-
-gget/gget_opentargets.py:63: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-ensembl_id = 'ENSG00000169194', limit = None, verbose = True, wrap_text = False
-filters = None, filter_mode = 'and'
-
-    def fun(
-        ensembl_id,
-        limit=None,
+        save=False,
         verbose=True,
-        wrap_text=False,
-        filters=None,
-        filter_mode="and",
     ):
-        if limit_key is None:
-            query_string = """
-            query target($ensemblId: String!) {
-                target(ensemblId: $ensemblId) {
-                    <TOP_LEVEL_KEY>{
-                        <ROW_QUERY>
-                    }
-                }
-            }
-            """.replace(
-                "<TOP_LEVEL_KEY>", top_level_key
-            ).replace(
-                "<ROW_QUERY>", inner_query
-            )
-        else:
-            if is_rows_based_query:
-                query_tmp = """
-                count
-                rows{
-                    <INNER_QUERY>
-                }""".replace(
-                    "<INNER_QUERY>", inner_query
-                )
-            else:
-                query_tmp = inner_query
-            query_string = (
-                """
-            query target($ensemblId: String!, $pagination: <LIMIT_TYPE>) {
-                target(ensemblId: $ensemblId) {
-                    <TOP_LEVEL_KEY>(<LIMIT_KEY>: $pagination){
-                        <QUERY>
-                    }
-                }
-            }
-            """.replace(
-                    "<TOP_LEVEL_KEY>", top_level_key
-                )
-                .replace("<LIMIT_TYPE>", limit_type)
-                .replace("<LIMIT_KEY>", limit_key)
-                .replace("<QUERY>", query_tmp)
-            )
-    
-        actual_limit = limit
-    
-        if filters is not None and len(filters) > 0:
-            if user_filter is None:
-                raise ValueError("Filters are not supported for this resource.")
-            valid_keys, filter_func = user_filter
-            invalid_keys = set(filters.keys()) - valid_keys
-            if len(invalid_keys) > 0:
-                invalid_keys = [f"'{k}'" for k in invalid_keys]
-                valid_keys = [f"'{k}'" for k in valid_keys]
-                raise ValueError(
-                    f"The following filter keys are invalid for this resource: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys)}"
-                )
-            # we have to fetch all data to be able to apply limit in a sane way when filters are specified
-            limit = None
-    
-        pagination = limit_func(limit, is_rows_based_query)
-        variables = {"ensemblId": ensembl_id, "pagination": pagination}
-    
-        if limit_key is None:
-            del variables["pagination"]
-    
->       results = graphql_query(OPENTARGETS_GRAPHQL_API, query_string, variables)
-                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-gget/gget_opentargets.py:325: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-server = 'https://api.platform.opentargets.org/api/v4/graphql'
-query = '\n            query target($ensemblId: String!) {\n                target(ensemblId: $ensemblId) {\n                 ...urce\n            mutation\n        }\n        \n                    }\n                }\n            }\n            '
-variables = {'ensemblId': 'ENSG00000169194'}
-
-    def graphql_query(server, query, variables):
         """
-        Function to perform a GraphQL API query.
+        Perform an enrichment analysis on a list of genes using Enrichr (https://maayanlab.cloud/Enrichr/).
     
         Args:
-        - server        Server to query.
-        - query         Query that is passed to server.
-        - variables     Variables that are passed to server.
+        - genes             List of Entrez gene symbols to perform enrichment analysis on, passed as a list of strings, e.g. ['PHF14', 'RBM3', 'MSL1', 'PHF21A'].
+                            Set 'ensembl = True' to input a list of Ensembl gene IDs, e.g. ['ENSG00000106443', 'ENSG00000102317', 'ENSG00000188895'].
+        - database          Database to use as reference for the enrichment analysis.
+                            Supported shortcuts (and their default database), ONLY SUPPORTED FOR HUMAN/MOUSE SPECIES (other species must specify the full database name):
+                            'pathway' (KEGG_2021_Human)
+                            'transcription' (ChEA_2016)
+                            'ontology' (GO_Biological_Process_2021)
+                            'diseases_drugs' (GWAS_Catalog_2019)
+                            'celltypes' (PanglaoDB_Augmented_2021)
+                            'kinase_interactions' (KEA_2015)
+                            or any database listed under Gene-set Library at: https://maayanlab.cloud/Enrichr/#libraries or the species-specific libraries listed below
+        - species           Enrichr species database to query. Options:
+                            'human' (default) [H. sapiens] - https://maayanlab.cloud/Enrichr/#libraries
+                            'mouse' [M. musculus] - equivalent to 'human'
+                            'fly' [D. melanogaster] - https://maayanlab.cloud/FlyEnrichr/#stats
+                            'yeast' [S. cerevisiae] - https://maayanlab.cloud/YeastEnrichr/#stats
+                            'worm' [C. elegans] - https://maayanlab.cloud/WormEnrichr/#stats
+                            'fish' [D. rerio] - https://maayanlab.cloud/FishEnrichr/#stats
+        - background_list   List of gene names/Ensembl IDs to be used as background genes. ONLY SUPPORTED FOR HUMAN/MOUSE SPECIES (Default: None)
+        - background        If True, use set of > 20,000 default background genes listed here: https://github.com/pachterlab/gget/blob/main/gget/constants/enrichr_bkg_genes.txt.
+                            ONLY SUPPORTED FOR HUMAN/MOUSE SPECIES (Default: False)
+        - ensembl           Define as 'True' if 'genes' is a list of Ensembl gene IDs. (Default: False)
+        - ensembl_bkg       Define as 'True' if 'background_list' is a list of Ensembl gene IDs. (Default: False)
+        - plot              True/False whether to provide a graphical overview of the first 15 results. (Default: False)
+        - figsize           (width, height) of plot in inches. (Default: (10,10))
+        - ax                Pass a matplotlib axes object for further customization of the plot. (Default: None)
+        - kegg_out          Path to file to save the highlighted KEGG pathway image, e.g. path/to/folder/kegg_pathway.png. (Default: None)
+        - kegg_rank         Candidate pathway rank to be plotted in KEGG pathway image. (Default: 1)
+        - json              If True, returns results in json format instead of data frame. (Default: False)
+        - save              True/False whether to save the results in the local directory. (Default: False)
+        - verbose           True/False whether to print progress information. (Default: True)
     
-        Returns server output.
+        Returns a data frame with the Enrichr results.
         """
     
-        r = requests.post(server, json={"query": query, "variables": variables})
-    
-        if not r.ok:
-            logger.debug(
-                f"Server: {server}, Query: {query}, Variables: {variables}, Response: {r.text}"
+        if species not in ["human", "mouse", "fly", "yeast", "worm", "fish"]:
+            raise ValueError(
+                f"Argument 'species' must be one of 'human', 'mouse', 'fly', 'yeast', 'worm', or 'fish'."
             )
+    
+        if species == "mouse":
+            species = "human"
+    
+        species_enrichr = f"{species.capitalize()}Enrichr"
+        if species == "human":
+            species_enrichr = "Enrichr"
+    
+        if species != "human":
+            if database in [
+                "pathway",
+                "transcription",
+                "ontology",
+                "diseases_drugs",
+                "celltypes",
+                "kinase_interactions",
+            ]:
+                raise ValueError(
+                    f"Database '{database}' is not supported for species '{species}'."
+                    f" Please select a database from the species-specific libraries listed at:"
+                    f" https://maayanlab.cloud/{species_enrichr}/#stats."
+                )
+    
+            if background:
+                raise ValueError(
+                    f"Background genes are only supported for species 'human' and 'mouse', not for species '{species}'."
+                    f" Please set 'background=False' or leave it unspecified."
+                )
+    
+            if background_list:
+                raise ValueError(
+                    f"Background genes are only supported for species 'human' and 'mouse', not for species '{species}'."
+                    f" Please do not provide a value for 'background_list'."
+                )
+    
+        # Define database
+        # All available libraries: https://maayanlab.cloud/Enrichr/#libraries
+        if species == "human":
+            db_message = f"""
+            Please note that there might be a more appropriate database for your application.
+            Go to https://maayanlab.cloud/{species_enrichr}/#libraries for a full list of supported databases.
+            """
+        else:
+            db_message = f"""
+            Please note that there might be a more appropriate database for your application.
+            Go to https://maayanlab.cloud/{species_enrichr}/#stats for a full list of supported databases.
+            """
+        if not isinstance(background, bool):
+            raise ValueError(
+                f"Argument`background` must be a boolean True/False. If you are adding a background list, use the argument `background_list` instead."
+            )
+    
+        # Handle database shortcuts
+        if database == "pathway":
+            database = "KEGG_2021_Human"
+            if verbose:
+                logger.info(
+                    f"Performing Enrichr analysis using database {database}. " + db_message
+                )
+    
+        elif database == "transcription":
+            database = "ChEA_2016"
+            if verbose:
+                logger.info(
+                    f"Performing Enrichr analysis using database {database}. " + db_message
+                )
+    
+        elif database == "ontology":
+            database = "GO_Biological_Process_2021"
+            if verbose:
+                logger.info(
+                    f"Performing Enrichr analysis using database {database}. " + db_message
+                )
+    
+        elif database == "diseases_drugs":
+            database = "GWAS_Catalog_2019"
+            if verbose:
+                logger.info(
+                    f"Performing Enrichr analysis using database {database}. " + db_message
+                )
+    
+        elif database == "celltypes":
+            database = "PanglaoDB_Augmented_2021"
+            if verbose:
+                logger.info(
+                    f"Performing Enrichr analysis using database {database}. " + db_message
+                )
+    
+        elif database == "kinase_interactions":
+            database = "KEA_2015"
+            if verbose:
+                logger.info(
+                    f"Performing Enrichr analysis using database {database}. " + db_message
+                )
+    
+        else:
+            database = database
+            if verbose:
+                logger.info(f"Performing Enrichr analysis using database {database}.")
+    
+        # To generate a KEGG pathway image, confirm that the database is a KEGG database and pykegg is installed
+        if kegg_out:
+            if not database.startswith("KEGG"):
+                logger.error(
+                    "Please specify a KEGG database when generating a KEGG pathway image."
+                )
+                return
+            try:
+                import pykegg
+            except ImportError:
+                logger.error(
+                    "Please install `pykegg` to generate a KEGG pathway image. Pykegg can be installed using pip: 'pip install pykegg'"
+                )
+                return
+    
+        # If single gene passed as string, convert to list
+        if isinstance(genes, str):
+            genes = [genes]
+    
+        ## Transform Ensembl IDs to gene symbols
+        if ensembl:
+            if verbose:
+                logger.info("Getting gene symbols from Ensembl IDs.")
+    
+            genes_v2 = ensembl_to_gene_names(genes)
+    
+        else:
+            genes_v2 = genes
+    
+        if len(genes_v2) == 0 and ensembl:
+            logger.error("No gene symbols found for given Ensembl IDs.")
+            return
+    
+        # Transform Ensembl IDs to gene symbols for background genes
+        if background_list and ensembl_bkg:
+            background_list = ensembl_to_gene_names(background_list)
+    
+        if background_list is not None:
+            if len(background_list) == 0 and ensembl:
+                logger.error("No background gene symbols found for given Ensembl IDs.")
+                return
+    
+        genes_clean = clean_genes_list(genes_v2)
+    
+        if ensembl:
+            if verbose:
+                logger.info(
+                    f"Performing Enrichr analysis on the following gene symbols: {', '.join(genes_clean)}"
+                )
+    
+        # Join genes from list
+        genes_clean_final = "\n".join(genes_clean)
+    
+        # Remove any NaNs/Nones from the background list
+        if background_list:
+            background_list = clean_genes_list(background_list)
+    
+        # Submit gene list to Enrichr API
+        args_dict = {
+            "list": (None, genes_clean_final),
+            "description": (None, "gget client gene list"),
+        }
+    
+        r1 = requests.post(POST_ENRICHR_URLS[species], files=args_dict)
+    
+        if not r1.ok:
 >           raise RuntimeError(
-                f"{server} returned error status code {r.status_code}. "
+                f"Enrichr HTTP POST gene list response status code: {r1.status_code}. "
                 "Please double-check arguments and try again.\n"
             )
-E           RuntimeError: https://api.platform.opentargets.org/api/v4/graphql returned error status code 502. Please double-check arguments and try again.
+E           RuntimeError: Enrichr HTTP POST gene list response status code: 503. Please double-check arguments and try again.
 
-gget/utils.py:721: RuntimeError
-_________ TestOpenTargets.test_opentargets_interactions_simple_filter __________
-
-self = <tests.test_opentargets.TestOpenTargets testMethod=test_opentargets_interactions_simple_filter>
-
-    def assert_equal(self: unittest.TestCase):
-        test = name
-        expected_result = td[test]["expected_result"]
->       result_to_test = do_call(func, td[test]["args"])
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-tests/from_json.py:65: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-func = <function opentargets at 0x7f5ea74b8540>
-args = {'ensembl_id': 'ENSG00000169194', 'filters': {'gene_b_id': 'ENSG00000077238', 'protein_a_id': 'P35225'}, 'resource': 'interactions'}
-
-    def do_call(func, args):
-        if isinstance(args, dict):
->           return func(**args)
-                   ^^^^^^^^^^^^
-
-tests/from_json.py:57: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-ensembl_id = 'ENSG00000169194', resource = 'interactions', limit = None
-verbose = True, wrap_text = False
-filters = {'gene_b_id': ['ENSG00000077238'], 'protein_a_id': ['P35225']}
-filter_mode = 'and', json = False
-
-    def opentargets(
-        ensembl_id,
-        resource="diseases",
-        limit=None,
-        verbose=True,
-        wrap_text=False,
-        filters=None,
-        filter_mode="and",
-        json=False,
-    ):
-        """
-        Query OpenTargets for data associated with a given Ensembl gene ID.
-    
-        Args:
-    
-        - ensembl_id    Ensembl gene ID to be queried (str), e.g. "ENSG00000169194".
-        - resource      Defines type of information to be returned.
-                        "diseases":         Returns diseases associated with the gene (default).
-                        "drugs":            Returns drugs associated with the gene.
-                        "tractability":     Returns tractability data for the gene.
-                        "pharmacogenetics": Returns pharmacogenetics data for the gene.
-                        "expression":       Returns gene expression data (by tissues, organs, and anatomical systems).
-                        "depmap":           Returns DepMap gene-disease effect data for the gene.
-                        "interactions":     Returns protein-protein interactions for the gene.
-        - limit         Limit the number of results returned (default: No limit).
-                        Note: Not compatible with the 'tractability' and 'depmap' resources.
-        - verbose       Print progress messages (default: True).
-        - wrap_text     If True, displays data frame with wrapped text for easy reading. Default: False.
-        - filters       Filters to apply to the data. Supported filters by resource:
-                        "diseases": None
-                        "drugs": disease_id (e.g. "EFO_0000274")
-                        "tractability": None
-                        "pharmacogenetics": drug_id (e.g. "CHEMBL535")
-                        "expression": tissue_id (e.g. "UBERON_0002245"), anatomical_system (e.g. "nervous system"), organ (e.g. "brain")
-                        "depmap": tissue_id (e.g. "UBERON_0002245")
-                        "interactions": protein_a_id (e.g. "ENSP00000304915"), protein_b_id (e.g. "ENSP00000379111"), gene_b_id (e.g. "ENSG00000077238")
-        - filter_mode   For resources that support multiple types of filters, this argument specifies how to combine them.
-        - json          If True, returns results in JSON format instead of as a Data Frame. Default: False.
-    
-    
-        Returns requested information in DataFrame format.
-        """
-    
-        # check if resource argument is valid
-        if resource not in _RESOURCES:
-            raise ValueError(
-                f"'resource' argument specified as {resource}. Expected one of: {', '.join(_RESOURCES)}"
-            )
-    
-        # Wrap everything into a list
-        if filters is not None:
-            filters = {k: v if isinstance(v, list) else [v] for k, v in filters.items()}
-    
->       df: pd.DataFrame = _RESOURCES[resource](
-            ensembl_id,
-            limit=limit,
-            verbose=verbose,
-            wrap_text=wrap_text,
-            filters=filters,
-            filter_mode=filter_mode,
-        )
-
-gget/gget_opentargets.py:63: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-ensembl_id = 'ENSG00000169194', limit = None, verbose = True, wrap_text = False
-filters = {'gene_b_id': ['ENSG00000077238'], 'protein_a_id': ['P35225']}
-filter_mode = 'and'
-
-    def fun(
-        ensembl_id,
-        limit=None,
-        verbose=True,
-        wrap_text=False,
-        filters=None,
-        filter_mode="and",
-    ):
-        if limit_key is None:
-            query_string = """
-            query target($ensemblId: String!) {
-                target(ensemblId: $ensemblId) {
-                    <TOP_LEVEL_KEY>{
-                        <ROW_QUERY>
-                    }
-                }
-            }
-            """.replace(
-                "<TOP_LEVEL_KEY>", top_level_key
-            ).replace(
-                "<ROW_QUERY>", inner_query
-            )
-        else:
-            if is_rows_based_query:
-                query_tmp = """
-                count
-                rows{
-                    <INNER_QUERY>
-                }""".replace(
-                    "<INNER_QUERY>", inner_query
-                )
-            else:
-                query_tmp = inner_query
-            query_string = (
-                """
-            query target($ensemblId: String!, $pagination: <LIMIT_TYPE>) {
-                target(ensemblId: $ensemblId) {
-                    <TOP_LEVEL_KEY>(<LIMIT_KEY>: $pagination){
-                        <QUERY>
-                    }
-                }
-            }
-            """.replace(
-                    "<TOP_LEVEL_KEY>", top_level_key
-                )
-                .replace("<LIMIT_TYPE>", limit_type)
-                .replace("<LIMIT_KEY>", limit_key)
-                .replace("<QUERY>", query_tmp)
-            )
-    
-        actual_limit = limit
-    
-        if filters is not None and len(filters) > 0:
-            if user_filter is None:
-                raise ValueError("Filters are not supported for this resource.")
-            valid_keys, filter_func = user_filter
-            invalid_keys = set(filters.keys()) - valid_keys
-            if len(invalid_keys) > 0:
-                invalid_keys = [f"'{k}'" for k in invalid_keys]
-                valid_keys = [f"'{k}'" for k in valid_keys]
-                raise ValueError(
-                    f"The following filter keys are invalid for this resource: {', '.join(invalid_keys)}. Valid keys are: {', '.join(valid_keys)}"
-                )
-            # we have to fetch all data to be able to apply limit in a sane way when filters are specified
-            limit = None
-    
-        pagination = limit_func(limit, is_rows_based_query)
-        variables = {"ensemblId": ensembl_id, "pagination": pagination}
-    
-        if limit_key is None:
-            del variables["pagination"]
-    
-        results = graphql_query(OPENTARGETS_GRAPHQL_API, query_string, variables)
-        target = results["data"]["target"]
-        if target is None:
-            raise ValueError(
-                f"No data found for Ensembl ID: {ensembl_id}. Please double-check the ID and try again."
-            )
-        data = target[top_level_key]
-    
-        if is_rows_based_query:
-            total_count = data["count"]
-            rows = data["rows"]
-        else:
-            # noinspection PyTypeChecker
-            rows = data
-            total_count = len(data)
-    
-        if verbose:
-            explanation = ""
-            if limit is None and limit_key is not None and is_rows_based_query:
-                explanation = " (Querying count, will fetch all results next.)"
-            logger.info(
-                f"Retrieved {len(rows)}/{total_count} {human_readable_tlk}.{explanation}"
-            )
-    
-        if limit is None and limit_key is not None and is_rows_based_query:
-            variables["pagination"] = limit_func(total_count, is_rows_based_query)
-    
->           new_results = graphql_query(
-                OPENTARGETS_GRAPHQL_API, query_string, variables
-            )
-
-gget/gget_opentargets.py:352: 
-_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
-
-server = 'https://api.platform.opentargets.org/api/v4/graphql'
-query = '\n            query target($ensemblId: String!, $pagination: Pagination) {\n                target(ensemblId: $ensemb...taxonId\n        }\n        \n                }\n                    }\n                }\n            }\n            '
-variables = {'ensemblId': 'ENSG00000169194', 'pagination': {'index': 0, 'size': 1722}}
-
-    def graphql_query(server, query, variables):
-        """
-        Function to perform a GraphQL API query.
-    
-        Args:
-        - server        Server to query.
-        - query         Query that is passed to server.
-        - variables     Variables that are passed to server.
-    
-        Returns server output.
-        """
-    
-        r = requests.post(server, json={"query": query, "variables": variables})
-    
-        if not r.ok:
-            logger.debug(
-                f"Server: {server}, Query: {query}, Variables: {variables}, Response: {r.text}"
-            )
->           raise RuntimeError(
-                f"{server} returned error status code {r.status_code}. "
-                "Please double-check arguments and try again.\n"
-            )
-E           RuntimeError: https://api.platform.opentargets.org/api/v4/graphql returned error status code 502. Please double-check arguments and try again.
-
-gget/utils.py:721: RuntimeError
+gget/gget_enrichr.py:290: RuntimeError
 ------------------------------ Captured log call -------------------------------
-INFO     gget.utils:gget_opentargets.py:345 Retrieved 1/1722 interactions. (Querying count, will fetch all results next.)
+INFO     gget.utils:gget_enrichr.py:208 Performing Enrichr analysis using database PanglaoDB_Augmented_2021. 
+        Please note that there might be a more appropriate database for your application. 
+        Go to https://maayanlab.cloud/Enrichr/#libraries for a full list of supported databases.
 __________________________ TestPDB.test_pdb_assembly ___________________________
 
 self = <tests.test_pdb.TestPDB testMethod=test_pdb_assembly>
@@ -885,7 +704,7 @@ E          'rcsb_struct_symmetry_provenance_code': 'biojava-7.2.2'}
 tests/test_pdb.py:19: AssertionError
 _______________________ TestSearch.test_search_plant_db ________________________
 
-self = <pandas.io.sql.SQLiteDatabase object at 0x7f5e9d1e73e0>
+self = <pandas.io.sql.SQLiteDatabase object at 0x7f91bb988dd0>
 sql = "\n            SELECT gene.stable_id AS 'ensembl_id', xref.display_label AS 'gene_name', gene.description AS 'ensembl_...f.display_label LIKE '%CLF%' OR external_synonym.synonym LIKE '%CLF%' OR gene_attrib.value LIKE '%CLF%')\n            "
 params = None
 
@@ -904,7 +723,7 @@ params = None
 /opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/pandas/io/sql.py:2668: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-self = <mysql.connector.connection.MySQLConnection object at 0x7f5e9d1e4da0>
+self = <mysql.connector.connection.MySQLConnection object at 0x7f91c75ba510>
 
     def rollback(self) -> None:
         """Rollback current transaction"""
@@ -916,7 +735,7 @@ self = <mysql.connector.connection.MySQLConnection object at 0x7f5e9d1e4da0>
 /opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/mysql/connector/connection.py:1463: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-self = <mysql.connector.connection.MySQLConnection object at 0x7f5e9d1e4da0>
+self = <mysql.connector.connection.MySQLConnection object at 0x7f91c75ba510>
 query = 'ROLLBACK'
 
     def _execute_query(self, query: str) -> None:
@@ -934,7 +753,7 @@ query = 'ROLLBACK'
 /opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/mysql/connector/connection.py:1475: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-cnx = <mysql.connector.connection.MySQLConnection object at 0x7f5e9d1e4da0>
+cnx = <mysql.connector.connection.MySQLConnection object at 0x7f91c75ba510>
 args = ('ROLLBACK',), kwargs = {}
 
     def wrapper(cnx: "MySQLConnectionAbstract", *args: Any, **kwargs: Any) -> Any:
@@ -947,7 +766,7 @@ args = ('ROLLBACK',), kwargs = {}
 /opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/mysql/connector/opentelemetry/context_propagation.py:97: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-cnx = <mysql.connector.connection.MySQLConnection object at 0x7f5e9d1e4da0>
+cnx = <mysql.connector.connection.MySQLConnection object at 0x7f91c75ba510>
 args = ('ROLLBACK',), kwargs = {}
 
     @functools.wraps(cnx_method)
@@ -964,7 +783,7 @@ args = ('ROLLBACK',), kwargs = {}
 /opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/mysql/connector/_decorating.py:89: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-cnx = <mysql.connector.connection.MySQLConnection object at 0x7f5e9d1e4da0>
+cnx = <mysql.connector.connection.MySQLConnection object at 0x7f91c75ba510>
 args = ('ROLLBACK',), kwargs = {}
 
     @functools.wraps(cnx_method)
@@ -978,7 +797,7 @@ args = ('ROLLBACK',), kwargs = {}
 /opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/mysql/connector/_decorating.py:85: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-self = <mysql.connector.connection.MySQLConnection object at 0x7f5e9d1e4da0>
+self = <mysql.connector.connection.MySQLConnection object at 0x7f91c75ba510>
 query = b'ROLLBACK', raw = False, buffered = False, raw_as_string = False
 kwargs = {}, charset = 'utf8', packet = bytearray(b'ROLLBACK')
 
@@ -1099,7 +918,7 @@ kwargs = {}, charset = 'utf8', packet = bytearray(b'ROLLBACK')
 /opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/mysql/connector/connection.py:984: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-cnx = <mysql.connector.connection.MySQLConnection object at 0x7f5e9d1e4da0>
+cnx = <mysql.connector.connection.MySQLConnection object at 0x7f91c75ba510>
 args = (bytearray(b'\x98\x00\x00\t\tAT2G23380\x03CLFQSET domain-containing protein [Source:NCBI gene (formerly Entrezgene);Acc:816870]\x1dSET domain-containing protein\x0eprotein_coding\nCURLY LEAF'), None, None)
 kwargs = {}
 
@@ -1117,7 +936,7 @@ kwargs = {}
 /opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/mysql/connector/_decorating.py:89: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-cnx = <mysql.connector.connection.MySQLConnection object at 0x7f5e9d1e4da0>
+cnx = <mysql.connector.connection.MySQLConnection object at 0x7f91c75ba510>
 args = (bytearray(b'\x98\x00\x00\t\tAT2G23380\x03CLFQSET domain-containing protein [Source:NCBI gene (formerly Entrezgene);Acc:816870]\x1dSET domain-containing protein\x0eprotein_coding\nCURLY LEAF'), None, None)
 kwargs = {}
 
@@ -1132,7 +951,7 @@ kwargs = {}
 /opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/mysql/connector/_decorating.py:85: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-self = <mysql.connector.connection.MySQLConnection object at 0x7f5e9d1e4da0>
+self = <mysql.connector.connection.MySQLConnection object at 0x7f91c75ba510>
 packet = bytearray(b'\x98\x00\x00\t\tAT2G23380\x03CLFQSET domain-containing protein [Source:NCBI gene (formerly Entrezgene);Acc:816870]\x1dSET domain-containing protein\x0eprotein_coding\nCURLY LEAF')
 read_timeout = None, write_timeout = None
 
@@ -1224,7 +1043,7 @@ self = <tests.test_search.TestSearch testMethod=test_search_plant_db>
 tests/from_json.py:87: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-func = <function search at 0x7f5ea9e1d800>
+func = <function search at 0x7f91c8b19800>
 args = {'searchwords': ['CLF'], 'species': 'arabidopsis_thaliana_core_58_111_11'}
 
     def do_call(func, args):
@@ -1455,7 +1274,7 @@ gget/gget_search.py:244:
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
 sql = "\n            SELECT gene.stable_id AS 'ensembl_id', xref.display_label AS 'gene_name', gene.description AS 'ensembl_...f.display_label LIKE '%CLF%' OR external_synonym.synonym LIKE '%CLF%' OR gene_attrib.value LIKE '%CLF%')\n            "
-con = <mysql.connector.connection.MySQLConnection object at 0x7f5e9d1e4da0>
+con = <mysql.connector.connection.MySQLConnection object at 0x7f91c75ba510>
 index_col = None, coerce_float = True, params = None, parse_dates = None
 columns = None, chunksize = None, dtype_backend = 'numpy', dtype = None
 
@@ -1609,7 +1428,7 @@ columns = None, chunksize = None, dtype_backend = 'numpy', dtype = None
 /opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/pandas/io/sql.py:708: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-self = <pandas.io.sql.SQLiteDatabase object at 0x7f5e9d1e73e0>
+self = <pandas.io.sql.SQLiteDatabase object at 0x7f91bb988dd0>
 sql = "\n            SELECT gene.stable_id AS 'ensembl_id', xref.display_label AS 'gene_name', gene.description AS 'ensembl_...f.display_label LIKE '%CLF%' OR external_synonym.synonym LIKE '%CLF%' OR gene_attrib.value LIKE '%CLF%')\n            "
 index_col = None, coerce_float = True, parse_dates = None, params = None
 chunksize = None, dtype = None, dtype_backend = 'numpy'
@@ -1631,7 +1450,7 @@ chunksize = None, dtype = None, dtype_backend = 'numpy'
 /opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/pandas/io/sql.py:2728: 
 _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
 
-self = <pandas.io.sql.SQLiteDatabase object at 0x7f5e9d1e73e0>
+self = <pandas.io.sql.SQLiteDatabase object at 0x7f91bb988dd0>
 sql = "\n            SELECT gene.stable_id AS 'ensembl_id', xref.display_label AS 'gene_name', gene.description AS 'ensembl_...f.display_label LIKE '%CLF%' OR external_synonym.synonym LIKE '%CLF%' OR gene_attrib.value LIKE '%CLF%')\n            "
 params = None
 
@@ -1776,14 +1595,14 @@ gget/gget_8cube.py            83     28    66%   26-27, 34-43, 93, 105, 112, 115
 gget/gget_alphafold.py       362    321    11%   86-108, 115-116, 123-149, 181-186, 233-867
 gget/gget_archs4.py           79     13    84%   75-78, 84, 107, 123-126, 139-142, 148, 170, 198-201, 207
 gget/gget_bgee.py             56      6    89%   60, 83, 103, 130, 154, 175
-gget/gget_blast.py           127     36    72%   92, 124-142, 163-165, 204, 207, 246-248, 296-299, 302-303, 322-325, 332-333, 336-341, 346, 351-354
+gget/gget_blast.py           127     36    72%   92, 124-142, 163-165, 204, 207, 251-255, 296-299, 302-303, 322-325, 332-333, 336-341, 346, 351-354
 gget/gget_blat.py             86     10    88%   58-62, 95, 136, 139, 168, 232-233, 239
 gget/gget_cbio.py            524    403    23%   28, 39-67, 77-87, 136-137, 143-147, 154-157, 161, 164, 172-177, 208, 226, 265, 271-275, 278, 282-294, 296, 322-331, 334, 376-389, 393-416, 420-441, 447-450, 454-473, 477, 494-537, 540-757, 760-789, 802-1164, 1218-1254
 gget/gget_cellxgene.py        53      9    83%   21-22, 140-149, 176, 215, 231, 247
 gget/gget_cosmic.py          277    153    45%   24-26, 30-82, 94-109, 112-114, 117-119, 122-126, 131-135, 140-142, 155-168, 189-202, 220, 242-243, 283-308, 311, 396-398, 410, 416, 424, 427-429, 454-472, 496-621, 637-646, 649, 651, 653, 852-855, 868-870, 879-891, 896-901
 gget/gget_diamond.py          98     26    73%   16, 69, 75, 77, 95, 98-99, 105, 111, 117-121, 130-132, 145, 147, 160, 162, 181, 184, 216-217, 223
 gget/gget_elm.py             158     22    86%   128, 278, 301, 325-332, 353, 420-423, 426, 436, 490, 503, 506-515, 519-520
-gget/gget_enrichr.py         213     42    80%   39-42, 48, 172, 226-237, 254-255, 263-264, 290, 310, 316-322, 336, 364-374, 403-418, 439, 451-453, 555, 564-565, 575-576, 583
+gget/gget_enrichr.py         213     41    81%   39-42, 48, 172, 226-237, 254-255, 263-264, 310, 316-322, 336, 364-374, 403-418, 439, 451-453, 555, 564-565, 575-576, 583
 gget/gget_gpt.py              20      6    70%   56-65, 88, 110-111
 gget/gget_info.py            316    106    66%   58-59, 63-64, 150-152, 161-162, 175, 201-206, 213-216, 242, 255-266, 300-308, 324-342, 368-369, 453-454, 461-462, 465-466, 469-470, 473-474, 507-508, 511-512, 515-516, 543-544, 547-548, 551-552, 575-576, 579-673, 677
 gget/gget_muscle.py           85     12    86%   17, 45, 68-69, 78-80, 91, 94, 115, 162-163
@@ -1794,25 +1613,24 @@ gget/gget_ref.py             215     57    73%   32, 97-98, 117-118, 124-152, 16
 gget/gget_search.py          142     23    84%   84-87, 96, 113, 117, 125, 149-150, 157, 165-171, 213-222, 308-309, 315-316, 368-369, 376-377, 385
 gget/gget_seq.py             146     24    84%   44-47, 49, 119, 140-143, 177-178, 207-208, 245-248, 271-272, 293, 312-315, 334, 356, 365, 402-405
 gget/gget_setup.py           215    149    31%   49-90, 108, 113, 116, 128-138, 152, 175-176, 189, 199, 209, 221-466
-gget/gget_virus.py          2921   1659    43%   138, 198, 239-247, 261, 265, 276-277, 318-322, 327-341, 348, 359-360, 378-383, 398-414, 427-428, 463-502, 555, 679-680, 684, 742, 748-749, 753-783, 792, 796-799, 807, 810, 814-822, 861-892, 965-966, 1018-1020, 1070-1222, 1247-1248, 1268-1531, 1540-1541, 1583-1680, 1705-1706, 1739-1740, 1773-2003, 2025-2074, 2127-2280, 2328-2440, 2494-2601, 2635, 2642-2643, 2711, 2730-2752, 2768-2770, 2816, 2847, 2870, 2879-2933, 2941, 2944-2945, 2952-2954, 2965-2979, 3007-3015, 3051, 3102-3109, 3192-3193, 3237, 3243-3249, 3260, 3277-3283, 3295-3301, 3332, 3339-3340, 3346-3347, 3495, 3510-3511, 3515-3517, 3554, 3557-3558, 3560-3562, 3598, 3601-3602, 3604-3606, 3618-3621, 3630-3638, 3642-3650, 3654-3667, 3671-3687, 3691-3704, 3708-3716, 3719-3723, 3734-3737, 3756-3757, 3811-3814, 3980-3982, 4012-4014, 4047, 4050, 4062-4063, 4092-4093, 4097-4105, 4109-4126, 4136, 4139, 4143-4147, 4190-4192, 4223, 4233-4298, 4400, 4437-4443, 4453, 4482-4485, 4512-4515, 4531, 4534-4535, 4600, 4643, 4655-4658, 4823-4825, 4862-5028, 5097, 5135-5137, 5151-5165, 5169-5179, 5183-5187, 5200-5204, 5208-5221, 5245-5248, 5251-5253, 5267-5270, 5273-5275, 5288-5318, 5322-5341, 5353-5356, 5359-5362, 5367-5385, 5389-5399, 5405-5407, 5418-5480, 5485-5516, 5529-5536, 5650, 5684-5688, 5725, 5729-5730, 5770, 5785, 5799-5800, 5845-5847, 5881, 5883-5922, 5930, 5932-5970, 5981-6019, 6062, 6081, 6086-6103, 6107-6134, 6137-6153, 6170-6171, 6217-6234, 6245-6246, 6255-6279, 6284, 6327, 6340-6342, 6351-6356, 6385-6399, 6422-6431, 6464-6467, 6487-6637, 6652-6653, 6659-6672, 6674, 6677-6680, 6683-6687, 6700
+gget/gget_virus.py          2921   1630    44%   138, 198, 240, 243, 261, 265, 276-277, 318-322, 327-341, 348, 359-360, 378-383, 398-414, 427-428, 463-502, 555, 679-680, 684, 742, 748-749, 753-783, 792, 796-799, 807, 810, 814-822, 861-892, 965-966, 1018-1020, 1070-1222, 1247-1248, 1268-1531, 1540-1541, 1583-1680, 1705-1706, 1739-1740, 1773-2003, 2025-2074, 2127-2280, 2328-2440, 2494-2601, 2635, 2642-2643, 2711, 2730-2752, 2768-2770, 2816, 2847, 2870, 2884-2918, 2941, 2952-2954, 2965-2979, 3007-3015, 3051, 3102-3109, 3192-3193, 3237, 3243-3249, 3260, 3277-3283, 3295-3301, 3332, 3339-3340, 3346-3347, 3495, 3510-3511, 3515-3517, 3554, 3557-3558, 3560-3562, 3598, 3601-3602, 3604-3606, 3618-3621, 3630-3638, 3642-3650, 3654-3667, 3671-3687, 3704, 3708-3716, 3734-3737, 3756-3757, 3811-3814, 3980-3982, 4012-4014, 4047, 4050, 4062-4063, 4092-4093, 4097-4105, 4109-4126, 4136, 4139, 4143-4147, 4190-4192, 4223, 4233-4298, 4400, 4437-4443, 4453, 4482-4485, 4512-4515, 4531, 4534-4535, 4600, 4643, 4655-4658, 4823-4825, 4862-5028, 5097, 5135-5137, 5151-5165, 5169-5179, 5183-5187, 5200-5204, 5208-5221, 5245-5248, 5251-5253, 5267-5270, 5273-5275, 5288-5318, 5322-5341, 5353-5356, 5359-5362, 5367-5385, 5389-5399, 5405-5407, 5418-5480, 5485-5516, 5529-5536, 5650, 5684-5688, 5725, 5729-5730, 5770, 5785, 5799-5800, 5845-5847, 5881, 5883-5922, 5930, 5932-5970, 5981-6019, 6062, 6081, 6086-6103, 6107-6134, 6137-6153, 6170-6171, 6217-6234, 6245-6246, 6255-6279, 6284, 6327, 6340-6342, 6351-6356, 6385-6399, 6422-6431, 6464-6467, 6487-6637, 6652-6653, 6659-6672, 6674, 6677-6680, 6683-6687, 6700
 gget/main.py                 857    857     0%   1-3872
 gget/utils.py                448     80    82%   31, 36-42, 72, 95, 119, 122, 186, 193, 245, 257, 285, 296, 347, 367, 378, 411-412, 452-453, 468-469, 476-478, 494-495, 501-502, 623-639, 647-650, 676, 695, 757, 797, 837, 953, 961, 969-989, 994, 999, 1005-1006, 1024-1025, 1116, 1140-1141, 1156, 1164
 --------------------------------------------------------
-TOTAL                       8233   4312    48%
+TOTAL                       8233   4282    48%
 ============================= slowest 10 durations =============================
-1488.94s call     tests/test_blast.py::TestBlast::test_blast_nt
-43.56s call     tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
-42.18s call     tests/test_search.py::TestSearch::test_search_gene_two_sw_limit
-34.77s call     tests/test_virus.py::TestVirus::test_virus_integer_virus_id
-34.11s call     tests/test_virus.py::TestVirus::test_virus_with_source_database_filter
-30.55s call     tests/test_virus.py::TestVirus::test_virus_with_has_proteins_filter
-30.52s call     tests/test_opentargets.py::TestOpenTargets::test_opentargets_interactions_simple_filter
-30.21s call     tests/test_opentargets.py::TestOpenTargets::test_opentargets_depmap
-29.79s call     tests/test_virus.py::TestVirus::test_virus_with_max_ambiguous_chars_filter
-28.81s call     tests/test_virus.py::TestVirus::test_virus_with_lab_passaged_filter
+197.15s call     tests/test_blast.py::TestBlast::test_blast_nt
+51.87s call     tests/test_enrichr.py::TestEnrichr::test_enrichr_background_ensembl
+40.58s call     tests/test_search.py::TestSearch::test_search_gene_two_sw_limit
+32.06s call     tests/test_virus.py::TestVirus::test_virus_integer_virus_id
+29.87s call     tests/test_virus.py::TestVirus::test_virus_with_source_database_filter
+29.65s call     tests/test_info.py::TestInfo::test_info_exon
+28.33s call     tests/test_virus.py::TestVirus::test_virus_with_max_ambiguous_chars_filter
+27.54s call     tests/test_virus.py::TestVirus::test_virus_with_has_proteins_filter
+27.53s call     tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
+27.06s call     tests/test_virus.py::TestVirus::test_virus_with_annotated_filter
 =========================== short test summary info ============================
-FAILED tests/test_opentargets.py::TestOpenTargets::test_opentargets_depmap - RuntimeError: https://api.platform.opentargets.org/api/v4/graphql returned error status code 502. Please double-check arguments and try again.
-FAILED tests/test_opentargets.py::TestOpenTargets::test_opentargets_interactions_simple_filter - RuntimeError: https://api.platform.opentargets.org/api/v4/graphql returned error status code 502. Please double-check arguments and try again.
+FAILED tests/test_enrichr.py::TestEnrichr::test_enrichr_background - RuntimeError: Enrichr HTTP POST gene list response status code: 503. Please double-check arguments and try again.
 FAILED tests/test_pdb.py::TestPDB::test_pdb_assembly - AssertionError: {'pdb[458 chars]atrix_1_1': 1.0, 'matrix_1_2': 0.0, 'matrix_1_[2885 chars]2.2'} != {'pdb[458 chars]atrix11': 1.0, 'matrix12': 0.0, 'matrix13': 0.[2864 chars]2.2'}
   {'pdbx_struct_assembly': {'details': 'author_and_software_defined_assembly',
                             'id': '1',
@@ -1990,4 +1808,4 @@ FAILED tests/test_search.py::TestSearch::test_search_plant_db - pandas.errors.Da
             
 Expected EOF packet
 unable to rollback
-=========== 4 failed, 252 passed, 272 warnings in 2331.64s (0:38:51) ===========
+=========== 3 failed, 253 passed, 272 warnings in 1129.07s (0:18:49) ===========
