@@ -483,14 +483,14 @@ def _get_modified_virus_name(virus_name, attempt=1):
     if attempt == 2:
         # Check if the name already contains "virus" anywhere (case-insensitive)
         if "virus" in virus_lower:
-            # Add a space before "virus"
+            # Add a space before "virus" only if there isn't one already
             idx = virus_name.lower().rfind("virus")
-            if idx > 0:
+            if idx > 0 and virus_name[idx - 1] != ' ':
                 modified = virus_name[:idx] + " " + virus_name[idx:]
                 logger.debug("Modified virus name by adding space before 'virus': '%s' -> '%s'", 
                             virus_name, modified)
                 return modified
-        # Already has "virus" in the name, no modification needed
+            # Already has "virus" correctly spaced in the name, no modification needed
             return None
         
         # Name doesn't contain "virus" anywhere, so append " virus"
