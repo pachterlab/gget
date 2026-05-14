@@ -1,11 +1,11 @@
-Pytest results (Python 3.12) - 2026-05-11T16:59:15Z
+Pytest results (Python 3.12) - 2026-05-14T16:46:19Z
 
 ============================= test session starts ==============================
 platform linux -- Python 3.12.13, pytest-9.0.3, pluggy-1.6.0 -- /opt/hostedtoolcache/Python/3.12.13/x64/bin/python
 cachedir: .pytest_cache
 rootdir: /home/runner/work/gget/gget
 configfile: pyproject.toml
-plugins: fast-array-utils-1.4.1, cov-7.1.0, zarr-3.2.1
+plugins: cov-7.1.0, fast-array-utils-1.4.1, zarr-3.2.1
 collecting ... collected 256 items
 
 tests/test_8cube.py::TestSpecificity::test_specificity_basic PASSED      [  0%]
@@ -581,16 +581,16 @@ gget/utils.py                448     80    82%   31, 36-42, 72, 95, 119, 122, 18
 --------------------------------------------------------
 TOTAL                       8233   4312    48%
 ============================= slowest 10 durations =============================
-73.69s call     tests/test_blast.py::TestBlast::test_blast_nt
-57.73s call     tests/test_search.py::TestSearch::test_search_gene_two_sw_limit
-43.34s call     tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
-30.47s call     tests/test_virus.py::TestVirus::test_virus_with_lab_passaged_filter
-30.20s call     tests/test_virus.py::TestVirus::test_virus_with_has_proteins_filter
-29.99s call     tests/test_virus.py::TestVirus::test_virus_with_source_database_filter
-29.90s call     tests/test_virus.py::TestVirus::test_virus_with_max_ambiguous_chars_filter
-28.13s call     tests/test_virus.py::TestVirus::test_virus_integer_virus_id
-25.76s call     tests/test_virus.py::TestVirus::test_virus_with_protein_count_filters
-23.12s call     tests/test_virus.py::TestVirus::test_virus_with_annotated_filter
+197.18s call     tests/test_blast.py::TestBlast::test_blast_nt
+58.98s call     tests/test_search.py::TestSearch::test_search_gene_two_sw_limit
+36.78s call     tests/test_virus.py::TestVirus::test_virus_with_max_ambiguous_chars_filter
+35.60s call     tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
+31.54s call     tests/test_virus.py::TestVirus::test_virus_with_source_database_filter
+30.11s call     tests/test_virus.py::TestVirus::test_virus_integer_virus_id
+29.27s call     tests/test_virus.py::TestVirus::test_virus_with_lab_passaged_filter
+28.43s call     tests/test_virus.py::TestVirus::test_virus_with_has_proteins_filter
+24.95s call     tests/test_virus.py::TestVirus::test_virus_with_annotated_filter
+24.01s call     tests/test_virus.py::TestVirus::test_virus_with_protein_count_filters
 =========================== short test summary info ============================
 FAILED tests/test_pdb.py::TestPDB::test_pdb_assembly - AssertionError: {'pdb[458 chars]atrix_1_1': 1.0, 'matrix_1_2': 0.0, 'matrix_1_[2910 chars]2.2'} != {'pdb[458 chars]atrix11': 1.0, 'matrix12': 0.0, 'matrix13': 0.[2864 chars]2.2'}
   {'pdbx_struct_assembly': {'details': 'author_and_software_defined_assembly',
@@ -760,4 +760,4 @@ FAILED tests/test_pdb.py::TestPDB::test_pdb_assembly - AssertionError: {'pdb[458
                                      'id': 'Global Symmetry.Cyclic',
                                      'name': 'Cyclic'}],
    'rcsb_struct_symmetry_provenance_code': 'biojava-7.2.2'}
-=========== 1 failed, 255 passed, 273 warnings in 796.11s (0:13:16) ============
+=========== 1 failed, 255 passed, 273 warnings in 982.48s (0:16:22) ============
