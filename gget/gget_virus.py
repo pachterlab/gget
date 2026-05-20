@@ -56,6 +56,10 @@ EUTILS_INTER_BATCH_DELAY = 0.5  # Delay in seconds between batch requests
 EUTILS_INTER_BATCH_DELAY_WITH_KEY = 0.11  # Delay when using API key (10 req/sec allowed)
 EUTILS_MIN_BATCH_SIZE_FOR_SPLIT = 50  # Minimum batch size before giving up on splitting
 
+# EPost + EFetch History Server Configuration
+EPOST_BATCH_SIZE = 500  # Max accessions per EPost call (NCBI recommended)
+EFETCH_FASTA_RETMAX = 500  # Records per EFetch call when downloading FASTA via History Server
+
 # GenBank Configuration
 GENBANK_DEFAULT_BATCH_SIZE = 200  # Default batch size for GenBank requests
 GENBANK_INTER_BATCH_DELAY = 0.5  # Delay in seconds between GenBank batch requests
@@ -4166,19 +4170,227 @@ def check_min_max(min_val, max_val, filtername, date=False):
         logger.debug("Min/max validation passed for %s", filtername)
 
 
-def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_path, batch_size=200, delay=0.5, failed_log_path=None):
+# =============================================================================
+# EPOST + EFETCH HELPER FUNCTIONS (NCBI-recommended for large datasets)
+# =============================================================================
+
+def _epost_accessions(accessions, api_key=None):
+    """
+    Upload accession numbers to NCBI History Server using EPost.
+    
+    EPost allows uploading large numbers of UIDs to the server, which assigns
+    them a WebEnv and query_key for subsequent EFetch requests. This avoids
+    URL length limitations that restrict direct efetch calls to ~200 accessions.
+    
+    Args:
+        accessions (list): List of accession numbers to upload.
+        api_key (str, optional): NCBI API key for higher rate limits.
+        
+    Returns:
+        tuple: (web_env, query_key) for use in subsequent EFetch calls,
+               or (None, None) if upload failed.
+    """
+    logger.info("Uploading %d accessions to NCBI History Server via EPost...", len(accessions))
+    
+    epost_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/epost.fcgi"
+    
+    # For EPost, we send IDs in the POST body to avoid URL length limits
+    # Can handle tens of thousands of accessions in one request
+    accession_string = ",".join(accessions)
+    
+    params = {
+        'db': 'nucleotide',
+    }
+    if api_key:
+        params['api_key'] = api_key
+    
+    # POST body contains the accession list
+    data = {
+        'id': accession_string
+    }
+    
+    headers = {'User-Agent': 'gget/1.0'}
+    
+    try:
+        # Make POST request with accessions in body
+        response = requests.post(
+            epost_url,
+            params=params,
+            data=data,
+            headers=headers,
+            timeout=EUTILS_TIMEOUT
+        )
+        response.raise_for_status()
+        
+        # Parse the XML response to extract WebEnv and query_key
+        # Example response:
+        # <ePostResult>
+        #   <QueryKey>1</QueryKey>
+        #   <WebEnv>NCID_01_...</WebEnv>
+        # </ePostResult>
+        
+        root = ET.fromstring(response.text)
+        
+        query_key_elem = root.find('.//QueryKey')
+        web_env_elem = root.find('.//WebEnv')
+        
+        if query_key_elem is not None and web_env_elem is not None:
+            query_key = query_key_elem.text
+            web_env = web_env_elem.text
+            logger.info("✅ EPost successful: QueryKey=%s, WebEnv=%s...", 
+                       query_key, web_env[:30] if len(web_env) > 30 else web_env)
+            return web_env, query_key
+        else:
+            # Check for error message
+            error_elem = root.find('.//ERROR')
+            if error_elem is not None:
+                logger.error("❌ EPost error: %s", error_elem.text)
+            else:
+                logger.error("❌ EPost failed: Could not parse WebEnv/QueryKey from response")
+                logger.debug("Response: %s", response.text[:500])
+            return None, None
+            
+    except requests.exceptions.RequestException as e:
+        logger.error("❌ EPost request failed: %s", e)
+        return None, None
+    except ET.ParseError as e:
+        logger.error("❌ Failed to parse EPost response: %s", e)
+        return None, None
+
+
+def _efetch_with_history(web_env, query_key, retstart, retmax, api_key=None, failed_log_path=None):
+    """
+    Fetch GenBank records using History Server reference (WebEnv/query_key).
+    
+    This is the NCBI-recommended method for large datasets. After uploading UIDs
+    via EPost, use this function to retrieve records in batches using pagination
+    (retstart/retmax).
+    
+    Args:
+        web_env (str): WebEnv string from EPost.
+        query_key (str): Query key from EPost.
+        retstart (int): Starting index for retrieval (0-based).
+        retmax (int): Maximum number of records to retrieve in this batch.
+        api_key (str, optional): NCBI API key for higher rate limits.
+        failed_log_path (str, optional): Path to log failed requests.
+        
+    Returns:
+        tuple: (metadata_dict, xml_text) where metadata_dict maps accessions to
+               parsed metadata, and xml_text is the raw XML response.
+    """
+    
+    params = {
+        'db': 'nucleotide',
+        'WebEnv': web_env,
+        'query_key': query_key,
+        'retstart': retstart,
+        'retmax': retmax,
+        'rettype': 'gb',
+        'retmode': 'xml',
+        'complexity': GENBANK_COMPLEXITY,
+    }
+    if api_key:
+        params['api_key'] = api_key
+    
+    # Create a requests.Session with retry logic
+    session = requests.Session()
+    try:
+        retry_strategy = Retry(
+            total=GENBANK_RETRY_ATTEMPTS,
+            backoff_factor=HTTP_INITIAL_BACKOFF,
+            status_forcelist=HTTP_RETRY_STATUS_CODES,
+            allowed_methods=frozenset(['GET', 'POST'])
+        )
+    except TypeError:
+        # Fallback for older urllib3 versions
+        retry_strategy = Retry(
+            total=GENBANK_RETRY_ATTEMPTS,
+            backoff_factor=HTTP_INITIAL_BACKOFF,
+            status_forcelist=HTTP_RETRY_STATUS_CODES,
+            method_whitelist=frozenset(['GET', 'POST'])
+        )
+    
+    adapter = HTTPAdapter(max_retries=retry_strategy)
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
+    
+    headers = {'Connection': 'close', 'User-Agent': 'gget/1.0'}
+    
+    max_attempts = HTTP_MAX_LOCAL_RETRIES
+    attempt = 0
+    backoff = HTTP_INITIAL_BACKOFF
+    
+    while attempt < max_attempts:
+        try:
+            logger.debug("EFetch with history: retstart=%d, retmax=%d (attempt %d)", 
+                        retstart, retmax, attempt + 1)
+            
+            response = session.get(NCBI_EUTILS_BASE, params=params, timeout=EUTILS_TIMEOUT, headers=headers)
+            response.raise_for_status()
+            
+            # Verify we got XML data
+            if not response.text.strip().startswith('<?xml') and not response.text.strip().startswith('<'):
+                raise RuntimeError(f"Invalid XML response: {response.text[:200]}")
+            
+            logger.debug("Received XML response: %d characters", len(response.text))
+            
+            # Parse the GenBank XML
+            metadata_dict = _parse_genbank_xml(response.text)
+            
+            logger.debug("✅ Parsed metadata for %d records", len(metadata_dict))
+            return metadata_dict, response.text
+            
+        except (requests.exceptions.ChunkedEncodingError,
+                urllib3.exceptions.ProtocolError,
+                http.client.IncompleteRead,
+                requests.exceptions.ConnectionError,
+                requests.exceptions.ReadTimeout) as e:
+            attempt += 1
+            logger.warning("Transient network error (attempt %d/%d): %s", attempt, max_attempts, e)
+            if attempt < max_attempts:
+                time.sleep(backoff)
+                backoff *= 2
+                continue
+            else:
+                logger.warning("Max retry attempts reached for retstart=%d", retstart)
+                break
+        
+        except requests.exceptions.RequestException as e:
+            logger.error("❌ EFetch request failed: %s", e)
+            break
+        
+        except Exception as e:
+            logger.error("❌ EFetch parsing failed: %s", e)
+            break
+    
+    # Log failure
+    if failed_log_path:
+        try:
+            with open(failed_log_path, 'a') as f:
+                f.write(f"FAILED_BATCH: retstart={retstart}, retmax={retmax}\n")
+                f.write(f"WebEnv: {web_env[:50]}...\n")
+                f.write(f"QueryKey: {query_key}\n\n")
+        except Exception:
+            pass
+    
+    return {}, ""
+
+
+def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_path, batch_size=200, delay=0.5, failed_log_path=None, api_key=None):
     """
     Fetch detailed GenBank metadata for a list of accession numbers using NCBI E-utilities.
     
-    Uses NCBI's E-utilities API to fetch GenBank records in XML format and extracts
-    comprehensive metadata including collection dates, geographic info, host details,
-    and publication references.
+    Uses the NCBI-recommended EPost + EFetch workflow for large datasets:
+    1. EPost: Upload all accessions to History Server (avoids URL length limits)
+    2. EFetch: Retrieve data using WebEnv/query_key with pagination (retmax)
+    
+    This approach allows batch sizes of 500+ per request (vs 200 with direct URL method). Writes XML to disk incrementally instead of accumulating in memory.
     
     Args:
         accessions (list): List of accession numbers to fetch GenBank data for.
         genbank_full_xml_path (str): Path to save the full XML output.
         genbank_full_csv_path (str): Path to save the full CSV output.
-        batch_size (int): Maximum accessions per API request (default: 200).
+        batch_size (int): Maximum accessions per EFetch request (default: 200, can use 500 with EPost method).
         delay (float): Delay in seconds between batch requests (default: 0.5).
         failed_log_path (str, optional): Path to log file for failed batches.
         api_key (str, optional): NCBI API key for higher rate limits (10 req/sec vs 3). Falls back to NCBI_API_KEY env var if not provided.
@@ -4187,13 +4399,13 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
         tuple: (metadata_dict, failed_log_path) where metadata_dict maps accession
                numbers to their GenBank metadata.
     """
-    if failed_log_path is None:
     # Use module-level API_KEY (from NCBI_API_KEY env var) if not provided directly
     if api_key is None:
         api_key = API_KEY
         if api_key:
             logger.debug("Using NCBI API key from environment for higher rate limits (10 req/sec)")
     
+    if failed_log_path is None:
         failed_log_path = os.path.join(os.path.dirname(genbank_full_xml_path), "genbank_failed_batches.log")
     if os.path.exists(failed_log_path):
         os.remove(failed_log_path)
@@ -4201,71 +4413,346 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
     if not accessions:
         raise ValueError("No accessions provided for GenBank metadata retrieval")
     
-    logger.info("Fetching GenBank metadata for %d accessions using E-utilities", len(accessions))
+    logger.info("Fetching GenBank metadata for %d accessions using E-utilities (EPost+EFetch method)", len(accessions))
     logger.debug("First 5 accessions: %s", accessions[:5])
     
     # Log initial memory state
     _log_memory_usage("GenBank fetch start")
+    
+    # Initialize tracking variables
+    all_metadata = {}
+    failed_batches = []
+    
+    # Create a temp file to write XML incrementally (saves memory)
+    temp_xml_path = genbank_full_xml_path + ".tmp"
+    xml_file = None
+    xml_written = False
+    
+    # For large datasets, use the EPost+EFetch workflow which allows larger batch sizes
+    # EPost uploads IDs to history server, then EFetch retrieves using WebEnv/query_key
+    use_epost_method = len(accessions) > 100  # Use EPost for any significant number
+    optimized_batch_size = 500 if use_epost_method else batch_size  # EPost method allows larger batches
+    
     # Optimize delay based on API key: 10 req/sec with key vs 3 req/sec without
     # With API key: 0.1s delay allows ~10 req/sec
     # Without API key: 0.35s delay allows ~3 req/sec
     effective_delay = 0.1 if api_key else delay
     logger.info("Using delay of %.2fs between requests (API key: %s)", 
                effective_delay, "yes" if api_key else "no")
-        try:
-            # Fetch GenBank XML data using E-utilities efetch
-            batch_metadata, batch_xml_text = _fetch_genbank_batch(batch_accessions, failed_log_path=failed_log_path)
-            
-            if batch_metadata:
-                all_metadata.update(batch_metadata)
-
-            if batch_xml_text:
-                # Clean XML before concatenating using helper function
-                cleaned_xml = _clean_xml_declarations(batch_xml_text)
-                
-                # Add to the global XML string
-                all_xml_text += cleaned_xml + "\n"
-                
-                logger.info("Batch %d: Successfully retrieved metadata for %d accessions", 
-                           batch_num, len(batch_metadata))
-            else:
-                # Batch failed, add to failed_batches for retry
-                logger.warning("Batch %d returned no data, will retry later", batch_num)
-                failed_batches.append(batch_accessions)
-            
-            # Add delay between requests to be respectful to NCBI servers
-            if batch_num < len(batches) and delay > 0:
-                logger.debug("Adding %.1f second delay before next batch", delay)
-                time.sleep(delay)  # Uses the delay parameter passed to the function
-                
-        except Exception as e:
-            logger.error("⚠️ Batch %d failed: %s", batch_num, e)
-            failed_batches.append(batch_accessions)
-            logger.info("Added batch %d to retry list", batch_num)
-            # Continue with remaining batches rather than failing completely
-            continue
     
-    # Retry failed batches at the end
-    if failed_batches:
-        logger.info("Retrying %d failed batches", len(failed_batches))
-        retry_success = []
-        for batch_accessions in failed_batches:
-            try:
-                meta, xml = _fetch_genbank_batch(batch_accessions, failed_log_path=failed_log_path)
-                if meta:
-                    all_metadata.update(meta)
-                    retry_success.append(batch_accessions)
-                if xml:
-                    # Clean XML using helper function
-                    cleaned_xml = _clean_xml_declarations(xml)
-                    all_xml_text += cleaned_xml + "\n"
-                    logger.info("Successfully retried batch with %d accessions", len(batch_accessions))
-            except Exception as e:
-                logger.warning("Final retry failed for batch: %s", batch_accessions)
+    try:
+        # Open temp file for incremental XML writing
+        xml_file = open(temp_xml_path, 'w', encoding='utf-8')
+        xml_file.write("<AllGBSets>\n")
         
-        if retry_success:
-            logger.info("Successfully recovered %d/%d failed batches on retry", len(retry_success), len(failed_batches))
+        if use_epost_method:
+            # ===== EPost + EFetch with History Server =====
+            EPOST_CHUNK_SIZE = 2000  # Tuned to avoid History Server session timeout
+            
+            if len(accessions) > EPOST_CHUNK_SIZE:
+                epost_chunks = [accessions[i:i + EPOST_CHUNK_SIZE] 
+                               for i in range(0, len(accessions), EPOST_CHUNK_SIZE)]
+            else:
+                epost_chunks = [accessions]
+            
+            logger.info("Using optimized EPost+EFetch workflow (efetch_batch=%d, epost_chunks=%d of up to %d each)",
+                        optimized_batch_size, len(epost_chunks), EPOST_CHUNK_SIZE)
+            
+            # Calculate total EFetch batches across all EPost chunks for progress tracking
+            overall_batch_num = 0
+            total_batches_all_chunks = sum(
+                (len(chunk) + optimized_batch_size - 1) // optimized_batch_size 
+                for chunk in epost_chunks
+            )
+            
+            # Determine GC and memory logging frequency based on total batches
+            gc_frequency = max(20, total_batches_all_chunks // 20)
+            memory_log_frequency = max(50, total_batches_all_chunks // 10)
+            
+            epost_failures = []  # Track chunks that fail EPost for direct-URL fallback
+            
+            for chunk_idx, chunk_accessions in enumerate(epost_chunks):
+                logger.info("EPost chunk %d/%d: uploading %d accessions to History Server...",
+                           chunk_idx + 1, len(epost_chunks), len(chunk_accessions))
+                
+                # Step 1: Upload this chunk to NCBI History Server via EPost
+                web_env, query_key = _epost_accessions(chunk_accessions, api_key=api_key)
+                
+                if web_env and query_key:
+                    logger.info("✅ EPost chunk %d/%d successful: uploaded %d accessions",
+                               chunk_idx + 1, len(epost_chunks), len(chunk_accessions))
+                    
+                    # Step 2: Fetch data for this chunk using WebEnv/query_key with pagination
+                    chunk_total = len(chunk_accessions)
+                    num_batches = (chunk_total + optimized_batch_size - 1) // optimized_batch_size
+                    
+                    for batch_num in range(num_batches):
+                        overall_batch_num += 1
+                        retstart = batch_num * optimized_batch_size
+                        logger.info("Processing GenBank batch %d/%d (chunk %d/%d, retstart=%d, retmax=%d)",
+                                   overall_batch_num, total_batches_all_chunks,
+                                   chunk_idx + 1, len(epost_chunks),
+                                   retstart, optimized_batch_size)
+                        
+                        try:
+                            batch_metadata, batch_xml_text = _efetch_with_history(
+                                web_env=web_env,
+                                query_key=query_key,
+                                retstart=retstart,
+                                retmax=optimized_batch_size,
+                                api_key=api_key,
+                                failed_log_path=failed_log_path
+                            )
+                            
+                            if batch_metadata:
+                                all_metadata.update(batch_metadata)
+                            
+                            if batch_xml_text:
+                                cleaned_xml = _clean_xml_declarations(batch_xml_text)
+                                xml_file.write(cleaned_xml + "\n")
+                                xml_file.flush()
+                                xml_written = True
+                                del batch_xml_text
+                                del cleaned_xml
+                                logger.info("Batch %d/%d: Successfully retrieved metadata for %d accessions",
+                                           overall_batch_num, total_batches_all_chunks,
+                                           len(batch_metadata) if batch_metadata else 0)
+                            else:
+                                logger.warning("Batch %d/%d returned no data", 
+                                              overall_batch_num, total_batches_all_chunks)
+                                # Track failed accessions for potential retry
+                                batch_start = batch_num * optimized_batch_size
+                                batch_end = min(batch_start + optimized_batch_size, chunk_total)
+                                failed_batches.append(chunk_accessions[batch_start:batch_end])
+                            
+                            # Periodic garbage collection
+                            if overall_batch_num % gc_frequency == 0:
+                                _force_garbage_collection(f"after batch {overall_batch_num}/{total_batches_all_chunks}")
+                            
+                            # Periodic memory logging
+                            if overall_batch_num % memory_log_frequency == 0:
+                                _log_memory_usage(f"GenBank batch {overall_batch_num}/{total_batches_all_chunks}")
+                            
+                            # Delay between requests (respect NCBI rate limits)
+                            if overall_batch_num < total_batches_all_chunks and effective_delay > 0:
+                                time.sleep(effective_delay)
+                                
+                        except Exception as e:
+                            logger.error("⚠️ Batch %d/%d failed: %s", 
+                                        overall_batch_num, total_batches_all_chunks, e)
+                            batch_start = batch_num * optimized_batch_size
+                            batch_end = min(batch_start + optimized_batch_size, chunk_total)
+                            failed_batches.append(chunk_accessions[batch_start:batch_end])
+                            continue
+                    
+                    # Brief delay between EPost chunks to be respectful to NCBI
+                    if chunk_idx < len(epost_chunks) - 1:
+                        time.sleep(1.0)
+                        
+                else:
+                    logger.warning("EPost chunk %d/%d failed, will use direct fetch for %d accessions",
+                                  chunk_idx + 1, len(epost_chunks), len(chunk_accessions))
+                    epost_failures.extend(chunk_accessions)
+            
+            # If any EPost chunks failed entirely, fall back to direct URL method for those
+            if epost_failures:
+                logger.info("Falling back to direct URL method for %d accessions from failed EPost chunks", 
+                           len(epost_failures))
+                direct_batches = [epost_failures[i:i + batch_size] 
+                                 for i in range(0, len(epost_failures), batch_size)]
+                for dbatch_num, dbatch_accessions in enumerate(direct_batches, 1):
+                    try:
+                        batch_metadata, batch_xml_text = _fetch_genbank_batch(
+                            dbatch_accessions, failed_log_path=failed_log_path)
+                        if batch_metadata:
+                            all_metadata.update(batch_metadata)
+                        if batch_xml_text:
+                            cleaned_xml = _clean_xml_declarations(batch_xml_text)
+                            xml_file.write(cleaned_xml + "\n")
+                            xml_file.flush()
+                            xml_written = True
+                            del batch_xml_text
+                            del cleaned_xml
+                        if dbatch_num < len(direct_batches) and effective_delay > 0:
+                            time.sleep(effective_delay)
+                    except Exception as e:
+                        logger.error("⚠️ Direct fallback batch %d failed: %s", dbatch_num, e)
+                        failed_batches.append(dbatch_accessions)
+                        continue
+            
+            # Check if we got ANY data from EPost method
+            if not all_metadata and not epost_failures:
+                logger.warning("EPost method returned no data, falling back to direct fetch method")
+                use_epost_method = False  # Fall through to traditional method
+        
+        if not use_epost_method:
+            # ===== FALLBACK METHOD: Traditional direct URL batching =====
+            logger.info("Using traditional direct URL method (batch_size=%d)", batch_size)
+            
+            # Split accessions into batches to avoid URL length limits
+            if len(accessions) > batch_size:
+                batches = [accessions[i:i + batch_size] for i in range(0, len(accessions), batch_size)]
+                logger.info("Processing %d accessions in %d batches of size %d", 
+                           len(accessions), len(batches), batch_size)
+            else:
+                batches = [accessions]
+                logger.info("Processing %d accessions in 1 batch", len(accessions))
+            
+            # Determine GC and memory logging frequency based on total batches
+            gc_frequency = max(50, len(batches) // 20)  # GC roughly every 5% of batches
+            memory_log_frequency = max(100, len(batches) // 10)  # Log memory every 10%
+            
+            # Process each batch
+            for batch_num, batch_accessions in enumerate(batches, 1):
+                logger.info("Processing GenBank batch %d/%d (%d accessions)", 
+                           batch_num, len(batches), len(batch_accessions))
+                
+                try:
+                    # Fetch GenBank XML data using E-utilities efetch
+                    batch_metadata, batch_xml_text = _fetch_genbank_batch(batch_accessions, failed_log_path=failed_log_path)
+                    
+                    if batch_metadata:
+                        all_metadata.update(batch_metadata)
 
+                    if batch_xml_text:
+                        # Clean XML and write directly to file (not accumulating in memory)
+                        cleaned_xml = _clean_xml_declarations(batch_xml_text)
+                        xml_file.write(cleaned_xml + "\n")
+                        xml_file.flush()  # Ensure data is written to disk
+                        xml_written = True
+                        
+                        # Clear batch_xml_text from memory
+                        del batch_xml_text
+                        del cleaned_xml
+                        
+                        logger.info("Batch %d: Successfully retrieved metadata for %d accessions", 
+                                   batch_num, len(batch_metadata))
+                    else:
+                        # Batch failed, add to failed_batches for retry
+                        logger.warning("Batch %d returned no data, will retry later", batch_num)
+                        failed_batches.append(batch_accessions)
+                    
+                    # Periodic garbage collection to prevent memory buildup
+                    if batch_num % gc_frequency == 0:
+                        _force_garbage_collection(f"after batch {batch_num}/{len(batches)}")
+                    
+                    # Periodic memory logging
+                    if batch_num % memory_log_frequency == 0:
+                        _log_memory_usage(f"GenBank batch {batch_num}/{len(batches)}")
+                    
+                    # Add delay between requests to be respectful to NCBI servers
+                    if batch_num < len(batches) and effective_delay > 0:
+                        logger.debug("Adding %.1f second delay before next batch", effective_delay)
+                        time.sleep(effective_delay)
+                    
+                except Exception as e:
+                    logger.error("⚠️ Batch %d failed: %s", batch_num, e)
+                    failed_batches.append(batch_accessions)
+                    logger.info("Added batch %d to retry list", batch_num)
+                    continue
+        
+        # Retry failed batches at the end
+        if failed_batches:
+            logger.info("Retrying %d failed batches", len(failed_batches))
+            _log_memory_usage("before retry")
+            retry_success = []
+            for batch_accessions in failed_batches:
+                try:
+                    meta, xml = _fetch_genbank_batch(batch_accessions, failed_log_path=failed_log_path)
+                    if meta:
+                        all_metadata.update(meta)
+                        retry_success.append(batch_accessions)
+                    if xml:
+                        cleaned_xml = _clean_xml_declarations(xml)
+                        xml_file.write(cleaned_xml + "\n")
+                        xml_file.flush()
+                        xml_written = True
+                        del xml
+                        del cleaned_xml
+                        logger.info("Successfully retried batch with %d accessions", len(batch_accessions))
+                except Exception as e:
+                    logger.warning("Final retry failed for batch: %s", batch_accessions)
+            
+            if retry_success:
+                logger.info("Successfully recovered %d/%d failed batches on retry", len(retry_success), len(failed_batches))
+
+        # ===== DETECT AND RETRY SILENTLY DROPPED ACCESSIONS =====
+        # The NCBI history server sometimes silently drops individual accessions from batch responses without raising errors. Detect these and retry them individually with direct URL fetch to maximize completeness.
+        # This also catches accessions lost due to EPost/EFetch position mismatch (server internal ordering differs from posting order) after batch retries.
+        silently_dropped = set(accessions) - set(all_metadata.keys())
+        if silently_dropped:
+            logger.info("🔄 Detected %d accessions silently dropped by NCBI history server — retrying with direct fetch",
+                       len(silently_dropped))
+            dropped_list = sorted(silently_dropped)
+            # Use batch size of 200 for direct URL retry (efficient for large sets, small enough to avoid URL length limits ~8KB for 200 accessions)
+            direct_batch_size = min(200, len(dropped_list))
+            direct_batches = [dropped_list[i:i + direct_batch_size] 
+                             for i in range(0, len(dropped_list), direct_batch_size)]
+            recovered_count = 0
+            for dbatch_num, dbatch_accessions in enumerate(direct_batches, 1):
+                try:
+                    meta, xml = _fetch_genbank_batch(dbatch_accessions, failed_log_path=failed_log_path)
+                    if meta:
+                        all_metadata.update(meta)
+                        recovered_count += len(meta)
+                    if xml:
+                        cleaned_xml = _clean_xml_declarations(xml)
+                        xml_file.write(cleaned_xml + "\n")
+                        xml_file.flush()
+                        xml_written = True
+                        del xml
+                        del cleaned_xml
+                    if dbatch_num < len(direct_batches) and effective_delay > 0:
+                        time.sleep(effective_delay)
+                except Exception as e:
+                    logger.warning("Direct retry failed for dropped accessions %s: %s", 
+                                  dbatch_accessions, e)
+            if recovered_count:
+                logger.info("✅ Recovered %d/%d silently dropped accessions via direct fetch",
+                           recovered_count, len(silently_dropped))
+            else:
+                logger.warning("Could not recover any of the %d silently dropped accessions",
+                              len(silently_dropped))
+
+        # Close XML wrapper
+        xml_file.write("</AllGBSets>\n")
+        xml_file.close()
+        xml_file = None
+        
+        # Move temp file to final location
+        if xml_written:
+            shutil.move(temp_xml_path, genbank_full_xml_path)
+            logger.debug("Saved full GenBank XML to: %s", genbank_full_xml_path)
+            
+            # Convert XML to CSV (memory-efficient chunked processing)
+            _log_memory_usage("before XML to CSV conversion")
+            _genbank_xml_to_csv(genbank_full_xml_path, genbank_full_csv_path)
+            _log_memory_usage("after XML to CSV conversion")
+        else:
+            logger.warning("No GenBank XML content retrieved to save")
+            if os.path.exists(temp_xml_path):
+                os.remove(temp_xml_path)
+                
+    except Exception as e:
+        logger.error("Error during GenBank metadata fetch: %s", e)
+        raise
+    finally:
+        # Clean up file handle if still open
+        if xml_file is not None:
+            try:
+                xml_file.close()
+            except:
+                pass
+        # Clean up temp file if it exists
+        if os.path.exists(temp_xml_path):
+            try:
+                os.remove(temp_xml_path)
+            except:
+                pass
+
+    logger.info("GenBank metadata retrieval complete: %d/%d accessions processed", 
+                len(all_metadata), len(accessions))
+    
     # Final memory log and GC
     _force_garbage_collection("GenBank fetch complete")
     _log_memory_usage("GenBank fetch complete")
@@ -4348,9 +4835,12 @@ def _fetch_genbank_batch(accessions, failed_log_path=None):
             logger.debug("Request URL: %s", NCBI_EUTILS_BASE)
             logger.debug("Request parameters: %s", {k: (v[:50] + '...' if isinstance(v, str) and len(v) > 50 else v) for k, v in params.items()})
 
-            response = session.get(NCBI_EUTILS_BASE, params=params, timeout=EUTILS_TIMEOUT, headers=headers)
+            # Use POST instead of GET for EFetch to avoid 414 URI Too Long errors.
+            # NCBI E-utilities supports POST for all requests, and POST puts the
+            # accession list in the request body instead of the URL.
+            response = session.post(NCBI_EUTILS_BASE, data=params, timeout=EUTILS_TIMEOUT, headers=headers)
             efetch_url = response.url  # Capture the full URL for logging
-            logger.debug("explicit URL requested: %s", response.url)
+            logger.debug("POST request sent to: %s", NCBI_EUTILS_BASE)
             response.raise_for_status()
 
             # Verify we got XML data
