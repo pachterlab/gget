@@ -720,6 +720,268 @@ def _parse_accession_input(accession_input):
     }
 
 
+def _parse_baseline_file(baseline_path):
+    """
+    Parse a baseline metadata file to extract accession numbers for deduplication.
+    
+    Supports multiple file formats:
+    - CSV: Looks for 'accession' column (case-insensitive)
+    - JSONL: Looks for 'accession' key in each JSON object
+    - JSON: Looks for 'accession' key in a list of objects
+    - Text: Treats each non-empty line as an accession number
+    
+    Accession numbers are normalized (stripped, lowercased) for consistent comparison.
+    
+    Args:
+        baseline_path (str): Path to the baseline metadata file.
+        
+    Returns:
+        set: Set of normalized accession numbers from the baseline file.
+        
+    Raises:
+        FileNotFoundError: If the baseline file does not exist.
+        ValueError: If no accessions could be extracted.
+    """
+    if not baseline_path or not os.path.exists(baseline_path):
+        raise FileNotFoundError(f"Baseline file not found: {baseline_path}")
+    
+    baseline_accessions = set()
+    file_ext = os.path.splitext(baseline_path)[1].lower()
+
+    logger.info("Parsing baseline file: %s (format: %s)", baseline_path, file_ext or "auto-detect")
+    
+    try:
+        if file_ext == '.csv':
+            # CSV format: look for 'accession' column
+            df = pd.read_csv(baseline_path, low_memory=False)
+            # Case-insensitive column name search
+            acc_col = None
+            for col in df.columns:
+                if col.strip().lower() == 'accession':
+                    acc_col = col
+                    break
+            if acc_col is None:
+                raise ValueError(
+                    f"Baseline CSV file '{baseline_path}' has no 'accession' column. "
+                    f"Available columns: {list(df.columns)}"
+                )
+            baseline_accessions = set(
+                str(acc).strip().lower() for acc in df[acc_col].dropna() if str(acc).strip()
+            )
+            
+        elif file_ext == '.jsonl':
+            # JSONL format: one JSON object per line
+            with open(baseline_path, 'r', encoding='utf-8') as f:
+                for line_num, line in enumerate(f, 1):
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        record = json.loads(line)
+                        acc = record.get('accession', '')
+                        if acc and str(acc).strip():
+                            baseline_accessions.add(str(acc).strip().lower())
+                    except json.JSONDecodeError:
+                        logger.debug("Skipping invalid JSON on line %d of baseline file", line_num)
+                        
+        elif file_ext == '.json':
+            # JSON format: list of objects
+            with open(baseline_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            if isinstance(data, list):
+                for record in data:
+                    if isinstance(record, dict):
+                        acc = record.get('accession', '')
+                        if acc and str(acc).strip():
+                            baseline_accessions.add(str(acc).strip().lower())
+            elif isinstance(data, dict):
+                # Single object or dict of accession -> metadata
+                for key in data:
+                    baseline_accessions.add(str(key).strip().lower())
+
+        else:
+            # Text format or unknown: try CSV first, then fall back to line-per-accession
+            try:
+                df = pd.read_csv(baseline_path, low_memory=False)
+                acc_col = None
+                for col in df.columns:
+                    if col.strip().lower() == 'accession':
+                        acc_col = col
+                        break
+                if acc_col is not None:
+                    baseline_accessions = set(
+                        str(acc).strip().lower() for acc in df[acc_col].dropna() if str(acc).strip()
+                    )
+                    logger.debug("Auto-detected CSV format with 'accession' column")
+                else:
+                    raise ValueError("No accession column found, trying text format")
+            except (ValueError, pd.errors.ParserError):
+                # Fall back to text format: one accession per line
+                with open(baseline_path, 'r', encoding='utf-8') as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith('#'):
+                            # Take first whitespace-delimited token as accession
+                            acc = line.split()[0]
+                            baseline_accessions.add(acc.lower())
+                logger.debug("Parsed as text format (one accession per line)")
+    
+    except (FileNotFoundError, ValueError):
+        raise
+    except Exception as e:
+        raise ValueError(f"Failed to parse baseline file '{baseline_path}': {e}") from e
+    
+    if not baseline_accessions:
+        raise ValueError(
+            f"No accessions found in baseline file '{baseline_path}'. "
+            f"Ensure the file contains accession numbers."
+        )
+    
+    logger.info("✅ Loaded %d accessions from baseline file", len(baseline_accessions))
+    return baseline_accessions
+
+
+def _deduplicate_metadata_against_baseline(metadata_dict, baseline_accessions):
+    """
+    Remove metadata records whose accessions are already in the baseline set.
+    
+    Args:
+        metadata_dict (dict): Dictionary mapping accession -> metadata.
+        baseline_accessions (set): Set of normalized accession numbers from baseline.
+        
+    Returns:
+        tuple: (new_metadata_dict, skipped_count)
+    """
+    new_metadata = {}
+    skipped_count = 0
+
+    for acc, meta in metadata_dict.items():
+        if acc.strip().lower() in baseline_accessions:
+            skipped_count += 1
+        else:
+            new_metadata[acc] = meta
+
+    logger.info("Deduplication results: %d new, %d skipped (already in baseline)",
+               len(new_metadata), skipped_count)
+    return new_metadata, skipped_count
+
+
+def _save_partial_metadata(metadata_dict, outfolder, virus_clean, reason="api_failure"):
+    """
+    Save partial metadata to CSV for recovery via --baseline.
+
+    Args:
+        metadata_dict (dict): Dictionary mapping accession -> metadata.
+        outfolder (str): Output folder for the partial file.
+        virus_clean (str): Sanitized virus name for the filename.
+        reason (str): Reason for saving (for the filename).
+
+    Returns:
+        str or None: Path to the saved partial metadata file.
+    """
+    if not metadata_dict:
+        return None
+
+    os.makedirs(outfolder, exist_ok=True)
+    partial_file = os.path.join(outfolder, f"{virus_clean}_partial_{timestamp}.csv")
+
+    try:
+        rows = []
+        for acc, meta in metadata_dict.items():
+            row = {'accession': acc}
+            for key in ['virus_name', 'length', 'completeness', 'releaseDate',
+                        'location', 'sourceDatabase', 'isolateName']:
+                if key in meta:
+                    row[key] = meta[key]
+            host_info = meta.get('host', {})
+            if isinstance(host_info, dict):
+                row['host'] = host_info.get('organism_name', '')
+            elif host_info:
+                row['host'] = str(host_info)
+            rows.append(row)
+
+        df = pd.DataFrame(rows)
+        df.to_csv(partial_file, index=False)
+        logger.info("Partial metadata saved: %s (%d records)", partial_file, len(df))
+        return partial_file
+    except Exception as e:
+        logger.warning("Failed to save partial metadata: %s", e)
+        return None
+
+
+def _merge_baseline_with_new(baseline_path, new_metadata_list, output_path):
+    """
+    Merge baseline metadata with newly fetched metadata into a single CSV.
+
+    Args:
+        baseline_path (str): Path to the baseline metadata file.
+        new_metadata_list (list): List of new metadata dictionaries.
+        output_path (str): Path for the merged CSV output.
+
+    Returns:
+        bool: True if merge was successful, False otherwise.
+    """
+    try:
+        # Load baseline data
+        file_ext = os.path.splitext(baseline_path)[1].lower()
+        
+        if file_ext == '.csv':
+            baseline_df = pd.read_csv(baseline_path, low_memory=False)
+        elif file_ext == '.jsonl':
+            records = []
+            with open(baseline_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if line:
+                        try:
+                            records.append(json.loads(line))
+                        except json.JSONDecodeError:
+                            continue
+            baseline_df = pd.DataFrame(records)
+        elif file_ext == '.json':
+            with open(baseline_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            if isinstance(data, list):
+                baseline_df = pd.DataFrame(data)
+            elif isinstance(data, dict):
+                baseline_df = pd.DataFrame(list(data.values()) if all(isinstance(v, dict) for v in data.values()) else [data])
+            else:
+                baseline_df = pd.DataFrame()
+        else:
+            accessions = []
+            with open(baseline_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if line and not line.startswith('#'):
+                        accessions.append(line.split()[0])
+            baseline_df = pd.DataFrame({'accession': accessions})
+        
+        # Create new DataFrame from new metadata
+        if new_metadata_list:
+            new_df = pd.DataFrame(new_metadata_list)
+        else:
+            new_df = pd.DataFrame()
+        
+        # Merge: concatenate baseline + new
+        merged_df = pd.concat([baseline_df, new_df], ignore_index=True, sort=False)
+
+        acc_col = None
+        for col in merged_df.columns:
+            if col.strip().lower() == 'accession':
+                acc_col = col
+                break
+        if acc_col:
+            merged_df = merged_df.drop_duplicates(subset=[acc_col], keep='last')
+        
+        merged_df.to_csv(output_path, index=False)
+        logger.info("Merged output saved: %s (%d total records)", output_path, len(merged_df))
+        return True
+        
+    except Exception as e:
+        logger.error("❌ Failed to merge baseline with new metadata: %s", e)
+        return False
+
+
 def _calculate_max_accessions_per_batch(base_url_length):
     """
     Calculate the maximum number of accessions that can fit in a single API URL.
@@ -6216,6 +6478,8 @@ def virus(
     download_all_accessions=False,
     _skip_cache=False,
     api_key=None,
+    baseline_metadata=None,
+    merge_results=True,
     verbose=True,
     ):
     """
@@ -6464,6 +6728,31 @@ def virus(
     genbank_full_csv_path = os.path.join(outfolder, f"{virus_clean}_genbank_metadata_full.csv")
     output_api_metadata_jsonl = os.path.join(outfolder, f"{virus_clean}_api_metadata.jsonl")
     
+    # SECTION 1b: BASELINE METADATA LOADING FOR DEDUPLICATION
+    # If a baseline file is provided, load accessions for deduplication
+    baseline_accessions = None
+    baseline_skipped_count = 0
+    partial_metadata_file = None  # Will be set if API fails and partial metadata is saved
+    
+    if baseline_metadata is not None:
+        logger.info("=" * 60)
+        logger.info("STEP 1b: LOADING BASELINE METADATA FOR DEDUPLICATION")
+        logger.info("=" * 60)
+        try:
+            baseline_accessions = _parse_baseline_file(baseline_metadata)
+            logger.info("Baseline loaded: %d accessions from %s", len(baseline_accessions), baseline_metadata)
+            if merge_results:
+                logger.info("Output mode: --merge-results (combined baseline + new)")
+            else:
+                logger.info("Output mode: --no-merge (new sequences only)")
+        except FileNotFoundError:
+            logger.warning("⚠️ Baseline file not found: %s", baseline_metadata)
+            logger.warning("Continuing without baseline deduplication.")
+            baseline_accessions = None
+        except ValueError as e:
+            logger.warning("⚠️ Could not parse baseline file: %s", e)
+            logger.warning("Continuing without baseline deduplication.")
+            baseline_accessions = None
 
     # SECTION 2: CHECKING FOR CACHED DATA PROCESSING
     logger.info("=" * 60)
@@ -6617,6 +6906,16 @@ def virus(
             # Update metadata_dict and accessions for next steps
             metadata_dict = {acc: md for acc, md in zip(filtered_accessions_step3, filtered_metadata_step3)}
             logger.info("After post-cached-download filtering: %d records remain", len(metadata_dict))
+            
+            # Baseline deduplication for cached path
+            baseline_skipped_count = 0
+            if baseline_accessions is not None and metadata_dict:
+                logger.info("Deduplicating cached metadata against baseline (%d accessions)...", len(baseline_accessions))
+                metadata_dict, baseline_skipped_count = _deduplicate_metadata_against_baseline(
+                    metadata_dict, baseline_accessions
+                )
+                logger.info("After baseline deduplication: %d new records (skipped %d)", 
+                           len(metadata_dict), baseline_skipped_count)
             
         else:
             # Regular API metadata fetch
@@ -6776,6 +7075,55 @@ def virus(
                 logger.info("✅ Saved API metadata JSONL: %s", output_api_metadata_jsonl)
             except Exception as e:
                 logger.warning("❌ Failed to save API metadata JSONL: %s", e)
+
+    # SECTION 3b: BASELINE DEDUPLICATION
+        # If baseline accessions were loaded, remove them from the metadata
+        baseline_skipped_count = 0
+        if baseline_accessions is not None and metadata_dict:
+            logger.info("=" * 60)
+            logger.info("STEP 3b: DEDUPLICATING AGAINST BASELINE")
+            logger.info("=" * 60)
+            logger.info("API returned %d records. Comparing against %d baseline accessions...",
+                        len(metadata_dict), len(baseline_accessions))
+            
+            metadata_dict, baseline_skipped_count = _deduplicate_metadata_against_baseline(
+                metadata_dict, baseline_accessions
+            )
+            
+            logger.info("Deduplication complete:")
+            logger.info("  - Total from API: %d", total_api_records)
+            logger.info("  - Already in baseline (skipped): %d", baseline_skipped_count)
+            logger.info("  - New accessions to process: %d", len(metadata_dict))
+            
+            if not metadata_dict:
+                logger.warning("All API records already exist in the baseline file.")
+                logger.info("No new sequences to download.")
+                
+                if merge_results and baseline_metadata:
+                    # Copy baseline to output as the merged result
+                    merged_output = os.path.join(outfolder, f"{virus_clean}_merged.csv")
+                    import shutil as _shutil
+                    _shutil.copy2(baseline_metadata, merged_output)
+                    logger.info("✅ Baseline copied as merged output: %s", merged_output)
+                    output_files_dict['Merged Metadata'] = merged_output
+                
+                save_command_summary(
+                    outfolder=outfolder,
+                    command_line=command_line,
+                    total_api_records=total_api_records,
+                    total_after_metadata_filter=0,
+                    total_final_sequences=0,
+                    output_files=output_files_dict,
+                    filtered_metadata=[],
+                    datasets_version=datasets_version,
+                    success=True,
+                    error_message="All records already exist in baseline (0 new sequences)",
+                    failed_commands=failed_commands,
+                    baseline_file=baseline_metadata,
+                    baseline_accession_count=len(baseline_accessions),
+                    baseline_skipped_count=baseline_skipped_count,
+                )
+                return
 
     # SECTION 4: METADATA-ONLY FILTERING
         logger.info("=" * 60)
@@ -6979,6 +7327,40 @@ def virus(
             except Exception as e:
                 logger.error("❌ Failed to save CSV metadata file: %s", e)
                 raise
+            
+            # SECTION 7b: BASELINE MERGE/NO-MERGE OUTPUT
+            if baseline_accessions is not None and baseline_metadata:
+                logger.info("=" * 60)
+                logger.info("STEP 7b: Baseline merge/split output")
+                logger.info("=" * 60)
+                
+                if merge_results:
+                    # Merge new results with baseline into a single file
+                    merged_csv_path = os.path.join(outfolder, f"{virus_clean}_merged.csv")
+                    merge_success = _merge_baseline_with_new(
+                        baseline_metadata, filtered_metadata_final, merged_csv_path
+                    )
+                    if merge_success:
+                        output_files_dict['Merged Metadata (CSV)'] = merged_csv_path
+                        logger.info("✅ Merged CSV: %s", merged_csv_path)
+                    else:
+                        logger.warning("⚠️ Merge failed. New-only output is available at: %s", output_metadata_csv)
+                else:
+                    # No-merge mode: label the new-only output clearly
+                    new_csv_path = os.path.join(outfolder, f"{virus_clean}_new.csv")
+                    baseline_ref_path = os.path.join(outfolder, f"{virus_clean}_baseline_provided.csv")
+                    
+                    # Rename existing CSV to _new
+                    if os.path.exists(output_metadata_csv):
+                        shutil.copy2(output_metadata_csv, new_csv_path)
+                        output_files_dict['New Metadata (CSV)'] = new_csv_path
+                        logger.info("✅ New-only CSV: %s (%d sequences)", new_csv_path, len(filtered_metadata_final))
+                    
+                    # Copy baseline as reference
+                    shutil.copy2(baseline_metadata, baseline_ref_path)
+                    output_files_dict['Baseline Provided (CSV)'] = baseline_ref_path
+                    logger.info("✅ Baseline reference: %s", baseline_ref_path)
+
         else:
             logger.info("Skipping this step since no sequences passed all filters")
         
@@ -7104,6 +7486,10 @@ def virus(
                 success=True,
                 error_message=None,
                 failed_commands=failed_commands,
+                baseline_file=baseline_metadata,
+                baseline_accession_count=len(baseline_accessions) if baseline_accessions else None,
+                baseline_skipped_count=baseline_skipped_count if baseline_accessions is not None else None,
+                runtime_seconds=time.time() - _virus_start_time,
                 memory_info=_get_memory_usage(),
             )
         else:
