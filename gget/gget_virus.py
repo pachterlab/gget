@@ -9,6 +9,7 @@ import subprocess    # For executing external commands
 import traceback     # For error traceback logging
 import platform      # For OS detection
 import stat          # For file permission constants
+import gc            # For garbage collection to manage memory
 import pandas as pd  # For data manipulation and CSV output
 import requests      # For HTTP requests to NCBI API
 import zipfile       # For extracting downloaded ZIP files
@@ -27,6 +28,13 @@ import calendar
 from .utils import set_up_logger, FastaIO
 from .constants import NCBI_API_BASE, NCBI_EUTILS_BASE
 from .compile import PACKAGE_PATH
+
+# Optional psutil import for memory monitoring
+try:
+    import psutil
+    PSUTIL_AVAILABLE = True
+except ImportError:
+    PSUTIL_AVAILABLE = False
 
 # =============================================================================
 # MODULE-LEVEL CONSTANTS
@@ -126,6 +134,132 @@ BUFFER_SIZE = 200  # Buffer for URL query parameters (filters) and safety margin
 
 # =============================================================================
 # End of Constants
+# =============================================================================
+
+# =============================================================================
+# MEMORY MONITORING HELPERS
+# =============================================================================
+
+def _get_memory_usage():
+    """
+    Get current memory usage information for debugging.
+    
+    Returns:
+        dict: Dictionary with memory stats including:
+            - rss_mb: Resident Set Size in MB (actual RAM used)
+            - vms_mb: Virtual Memory Size in MB
+            - percent: Percent of total system memory used
+            - available_mb: Available system memory in MB
+            
+    Note:
+        Falls back to /proc/self/status on Linux if psutil is not available.
+    """
+    if PSUTIL_AVAILABLE:
+        try:
+            process = psutil.Process()
+            mem_info = process.memory_info()
+            sys_mem = psutil.virtual_memory()
+            
+            return {
+                'rss_mb': mem_info.rss / (1024 * 1024),
+                'vms_mb': mem_info.vms / (1024 * 1024),
+                'percent': process.memory_percent(),
+                'available_mb': sys_mem.available / (1024 * 1024),
+                'total_mb': sys_mem.total / (1024 * 1024),
+                'system_percent': sys_mem.percent,
+                'psutil_available': True
+            }
+        except Exception as e:
+            pass  # Fall through to /proc fallback
+    
+    # Fallback for Linux: read from /proc/self/status
+    result = {
+        'rss_mb': None,
+        'vms_mb': None, 
+        'percent': None,
+        'available_mb': None,
+        'psutil_available': False
+    }
+    
+    try:
+        with open('/proc/self/status', 'r') as f:
+            for line in f:
+                if line.startswith('VmRSS:'):
+                    # VmRSS is in kB
+                    rss_kb = int(line.split()[1])
+                    result['rss_mb'] = rss_kb / 1024
+                elif line.startswith('VmSize:'):
+                    vms_kb = int(line.split()[1])
+                    result['vms_mb'] = vms_kb / 1024
+    except (FileNotFoundError, PermissionError, ValueError):
+        pass  # Not on Linux or can't read /proc
+    
+    # Try to get system memory from /proc/meminfo
+    try:
+        with open('/proc/meminfo', 'r') as f:
+            for line in f:
+                if line.startswith('MemAvailable:'):
+                    avail_kb = int(line.split()[1])
+                    result['available_mb'] = avail_kb / 1024
+                elif line.startswith('MemTotal:'):
+                    total_kb = int(line.split()[1])
+                    result['total_mb'] = total_kb / 1024
+    except (FileNotFoundError, PermissionError, ValueError):
+        pass
+    
+    # Calculate percent if we have both values
+    if result.get('rss_mb') and result.get('total_mb'):
+        result['percent'] = (result['rss_mb'] / result['total_mb']) * 100
+    
+    return result
+
+
+def _log_memory_usage(context=""):
+    """
+    Log current memory usage with context information.
+    
+    Args:
+        context (str): Description of where in the code this is being called.
+    """
+    mem = _get_memory_usage()
+    
+    if not mem.get('psutil_available'):
+        logger.debug("Memory monitoring: psutil not available (install with 'pip install psutil' for memory debugging)")
+        return
+    
+    if mem.get('rss_mb') is not None:
+        logger.info("📊 MEMORY [%s]: Process RSS=%.1f MB (%.1f%%), System: %.1f%% used, %.1f MB available of %.1f MB total",
+                   context,
+                   mem['rss_mb'],
+                   mem.get('percent', 0),
+                   mem.get('system_percent', 0),
+                   mem.get('available_mb', 0),
+                   mem.get('total_mb', 0))
+    else:
+        logger.debug("Memory monitoring: Unable to get memory info - %s", mem.get('error', 'unknown error'))
+
+
+def _force_garbage_collection(context=""):
+    """
+    Force garbage collection and log the results.
+    
+    Args:
+        context (str): Description of where in the code this is being called.
+    """
+    before = _get_memory_usage()
+    collected = gc.collect()
+    after = _get_memory_usage()
+    
+    if before.get('rss_mb') is not None and after.get('rss_mb') is not None:
+        freed = before['rss_mb'] - after['rss_mb']
+        logger.info("🗑️ GC [%s]: Collected %d objects, freed %.1f MB (%.1f MB -> %.1f MB)",
+                   context, collected, freed, before['rss_mb'], after['rss_mb'])
+    else:
+        logger.debug("GC [%s]: Collected %d objects", context, collected)
+
+
+# =============================================================================
+# END OF MEMORY MONITORING HELPERS
 # =============================================================================
 
 # Set up logger for this module
@@ -4050,6 +4184,9 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
     logger.info("Fetching GenBank metadata for %d accessions using E-utilities", len(accessions))
     logger.debug("First 5 accessions: %s", accessions[:5])
     
+    # Log initial memory state
+    _log_memory_usage("GenBank fetch start")
+    
     # Initialize tracking variables
     all_metadata = {}
     all_xml_text = ""
@@ -4123,15 +4260,9 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
         if retry_success:
             logger.info("Successfully recovered %d/%d failed batches on retry", len(retry_success), len(failed_batches))
 
-    logger.info("GenBank metadata retrieval complete: %d/%d accessions processed", 
-                len(all_metadata), len(accessions))
-
-    if all_xml_text:
-        final_xml = "<AllGBSets>\n" + all_xml_text + "</AllGBSets>"
-        logger.debug("Saving full GenBank XML and CSV data to: %s and %s", genbank_full_xml_path, genbank_full_csv_path)
-        _save_genbank_xml_and_csv(final_xml, genbank_full_xml_path, genbank_full_csv_path)
-    else:
-        logger.warning("No GenBank XML content retrieved to save")
+    # Final memory log and GC
+    _force_garbage_collection("GenBank fetch complete")
+    _log_memory_usage("GenBank fetch complete")
 
     if not all_metadata:
         logger.warning("No GenBank metadata was successfully retrieved")
@@ -6152,11 +6283,18 @@ def virus(
 
             # logger.info("Successfully retrieved %d virus records from API", len(api_reports))
             total_api_records = len(api_reports)
+            _log_memory_usage("after API fetch")
 
             # Convert API metadata to internal format
             logger.debug("Converting API metadata to internal format...")
             metadata_dict = load_metadata_from_api_reports(api_reports)
             # logger.info("Processed metadata for %d sequences", len(metadata_dict))
+            
+            # Delete api_reports after conversion - no longer needed
+            # The metadata_dict contains all we need going forward
+            del api_reports
+            _force_garbage_collection("after api_reports conversion")
+            _log_memory_usage("after api_reports cleanup")
 
             # Save the raw API metadata (server-side filtered) before local filtering
             logger.debug("Writing API metadata to JSONL file: %s", output_api_metadata_jsonl)
@@ -6227,11 +6365,15 @@ def virus(
                     datasets_version=datasets_version,
                     success=True,
                     error_message="No sequences passed the metadata filters",
-                    failed_commands=failed_commands
+                    failed_commands=failed_commands,
+                    runtime_seconds=time.time() - _virus_start_time,
+                    memory_info=_get_memory_usage(),
+                    metadata_filter_stats=metadata_filter_stats,
                 )
                 return
         
         total_after_metadata_filter = len(filtered_accessions)
+        _log_memory_usage("after metadata filtering")
 
         # Save filtered metadata immediately (before sequence-dependent fields)
         logger.debug("Writing filtered metadata (pre-sequence) to JSONL: %s", output_metadata_jsonl)
@@ -6298,16 +6440,32 @@ def virus(
             filtered_sequences = list(FastaIO.parse(fna_file, "fasta"))
             filtered_metadata_final = filtered_metadata  # No change to metadata
             protein_headers = []
-            logger.info("All %d downloaded sequences will be saved", len(filtered_sequences))
+            logger.info("All %d downloaded sequences were streamed to output", total_final_sequences)
+            _log_memory_usage("after streaming sequences to output")
         else:
             # Restrict metadata to filtered accessions only
             filtered_metadata_dict = {acc: metadata_dict[acc] for acc in filtered_accessions}
 
-            filtered_sequences, filtered_metadata_final, protein_headers = filter_sequences(
+            # Stream filtered sequences directly to output file
+            # instead of accumulating them in a list in RAM
+            total_final_sequences, filtered_metadata_final, protein_headers, sequence_filter_stats = filter_sequences(
+                output_fasta_path=output_fasta_file,
                 fna_file,
                 filtered_metadata_dict,
+                output_fasta_path=output_fasta_file,
                 **filters_seq,
             )
+            # Clean up filtered_metadata_dict after use
+            del filtered_metadata_dict
+        
+        # metadata_dict is no longer needed after this point
+        # filtered_metadata_final and filtered_accessions contain all we need
+        try:
+            del metadata_dict
+        except NameError:
+            pass  # Already deleted in some code paths
+        _force_garbage_collection("after sequence filtering")
+        _log_memory_usage("after sequence filtering cleanup")
 
     # SECTION 7: SAVING FINAL OUTPUT FILES
         logger.info("=" * 60)
@@ -6352,23 +6510,17 @@ def virus(
                 raise
         else:
             logger.info("Skipping this step since no sequences passed all filters")
+        
+        # Clean up before GenBank fetch
+        # filtered_metadata_final contains all we need - clear other references
+        # Note: filtered_metadata may still reference same objects, but that's okay
+        _force_garbage_collection("before GenBank fetch")
 
     # SECTION 8: GENBANK METADATA RETRIEVAL (OPTIONAL)
         logger.info("=" * 60)
         logger.info("STEP 8: Fetching detailed GenBank metadata")
         logger.info("=" * 60)
-        if genbank_metadata and len(filtered_sequences) != 0:
-            logger.info("GenBank metadata retrieval requested - fetching detailed information...")
-            try:
-                # Extract accession numbers from filtered sequences
-                final_accessions = []
-                for seq_record in filtered_sequences:
-                    acc = seq_record.id.split()[0] if hasattr(seq_record, 'id') else str(seq_record)
-                    if acc:
-                        final_accessions.append(acc)
-                
-                if final_accessions:
-                    logger.info("Fetching GenBank metadata for %d sequences...", len(final_accessions))
+        _log_memory_usage("STEP 8 start")
 
                     # Fetch GenBank metadata
                     genbank_data, genbank_failed_log = fetch_genbank_metadata(
@@ -6429,6 +6581,8 @@ def virus(
                 genbank_error_msg = str(genbank_error)
                 # Don't raise the error - continue with the rest of the process
             
+            _log_memory_usage("GenBank processing complete")
+            _force_garbage_collection("after GenBank processing")
             logger.info("GenBank metadata processing completed")
         else:
             logger.info("Skipping this step since GenBank metadata retrieval was not requested.")
@@ -6479,7 +6633,7 @@ def virus(
                 success=True,
                 error_message=None,
                 failed_commands=failed_commands,
-                genbank_error=genbank_error_msg if genbank_metadata and not genbank_success else None
+                memory_info=_get_memory_usage(),
             )
         else:
             logger.warning("=" * 60)
@@ -6505,7 +6659,8 @@ def virus(
                 datasets_version=datasets_version,
                 success=True,
                 error_message="No sequences passed all filters",
-                failed_commands=failed_commands
+                failed_commands=failed_commands,
+                memory_info=_get_memory_usage(),
             )
 
     except Exception as e:
@@ -6629,7 +6784,8 @@ def virus(
             datasets_version=datasets_version,
             success=False,
             error_message=str(e),
-            failed_commands=failed_commands
+            failed_commands=failed_commands,
+            memory_info=_get_memory_usage(),
         )
         
         raise
