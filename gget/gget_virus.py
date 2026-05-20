@@ -53,6 +53,7 @@ PAGE_SIZE_FALLBACK_DECREMENT = 100  # Decrease page size by this amount on retry
 EUTILS_TIMEOUT = 300  # Timeout in seconds for E-utilities requests
 EUTILS_DEFAULT_BATCH_SIZE = 200  # Default batch size for E-utilities requests
 EUTILS_INTER_BATCH_DELAY = 0.5  # Delay in seconds between batch requests
+EUTILS_INTER_BATCH_DELAY_WITH_KEY = 0.11  # Delay when using API key (10 req/sec allowed)
 EUTILS_MIN_BATCH_SIZE_FOR_SPLIT = 50  # Minimum batch size before giving up on splitting
 
 # GenBank Configuration
