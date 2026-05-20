@@ -4353,7 +4353,11 @@ def save_command_summary(
                     f.write("   1. Copy the URL from above and paste it into your browser\n")
                     f.write("   2. Save the downloaded file manually\n")
                     f.write("   3. Retry the command with updated filters (e.g., stricter date ranges)\n")
-                    f.write("   4. If the issue persists, NCBI servers may be temporarily unavailable\n\n")
+                    f.write("   4. If the issue persists, NCBI servers may be temporarily unavailable\n")
+                    if partial_metadata_file:
+                        f.write(f"\n   5. RESUME with baseline deduplication:\n")
+                        f.write(f"      {recovery_command}\n")
+                    f.write("\n")
             
             # Footer
             f.write("=" * 80 + "\n")
