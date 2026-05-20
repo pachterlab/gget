@@ -143,6 +143,10 @@ ACCESSION_URL_ENCODING = "%2C"  # URL-encoded comma for joining accessions
 ACCESSION_AVG_LENGTH = 11  # Average length of an accession number (e.g., "NC_045512.2")
 BUFFER_SIZE = 200  # Buffer for URL query parameters (filters) and safety margin
 
+# Batched Processing Configuration
+METADATA_CSV_CHUNK_SIZE = 50000  # Number of metadata records to process per chunk for CSV output
+FASTA_STREAM_LOG_INTERVAL = 100000  # Log progress every N sequences during FASTA streaming
+
 # =============================================================================
 # End of Constants
 # =============================================================================
@@ -3775,24 +3779,33 @@ def filter_sequences(
     protein/feature analysis). Metadata-only filters should be applied by
     filter_metadata_only before downloading sequences.
     
+    When output_fasta_path is provided, filtered sequences are streamed directly
+    to the output file instead of accumulating in memory. This is critical for
+    large datasets (millions of sequences) that would otherwise exhaust system RAM.
+    
     Args:
         fna_file (str): Path to FASTA file containing sequences.
         metadata_dict (dict): Dictionary mapping accession numbers to metadata.
         max_ambiguous_chars (int, optional): Maximum ambiguous nucleotides allowed.
         has_proteins (str/list, optional): Required proteins/genes filter.
         proteins_complete (bool): Whether proteins must be complete.
+        output_fasta_path (str, optional): Path to write filtered sequences directly.
+            When provided, sequences are streamed to disk instead of held in memory.
         
     Returns:
-        tuple: (filtered_sequences, filtered_metadata, protein_headers)
+        tuple: (filtered_count, filtered_metadata, protein_headers)
+            - filtered_count (int): Number of sequences that passed all filters.
+            - filtered_metadata (list): Metadata dicts for sequences passing filters.
+            - protein_headers (list): Protein/segment info from FASTA headers.
     """
     logger.info("Applying sequence-dependent filters...")
-    logger.debug("Sequence filters: max_ambiguous=%s, proteins=%s, complete=%s",
-                max_ambiguous_chars, has_proteins, proteins_complete)
+    logger.debug("Sequence filters: max_ambiguous=%s, complete=%s, streaming=%s",
+                max_ambiguous_chars, proteins_complete, output_fasta_path is not None)
     
-    # Initialize lists to store filtered results
-    filtered_sequences = []    # Will store FastaRecord objects that pass filters
+    # Initialize lists to store filtered results (metadata is small, kept in memory)
     filtered_metadata = []     # Will store corresponding metadata dictionaries
     protein_headers = []       # Will store protein/segment information from FASTA headers
+    filtered_count = 0         # Count of sequences passing all filters
     
     # Counters for logging filter statistics
     total_sequences = 0
@@ -3803,52 +3816,57 @@ def filter_sequences(
     }
 
     # Read and process sequences from the FASTA file
+    # When output_fasta_path is set, write passing records directly to disk
     logger.info("Reading sequences from FASTA file: %s", fna_file)
-    for record in FastaIO.parse(fna_file, "fasta"):
-        total_sequences += 1
-        record_passes = True
+    output_handle = None
+    try:
+        if output_fasta_path:
+            output_handle = open(output_fasta_path, 'w', encoding='utf-8')
+            logger.info("Streaming filtered sequences directly to: %s", output_fasta_path)
         
-        # Normalize accession by taking only the first part (before space)
-        record_accession = record.id.split()[0] if hasattr(record, 'id') else str(record)
-        # logger.debug("Processing sequence: %s", record_accession)
-        # logger.debug("record id: %s", record.id)
+        for record in FastaIO.parse(fna_file, "fasta"):
+            total_sequences += 1
+            record_passes = True
             
-        # Count ambiguous characters (N's)
-        if max_ambiguous_chars is not None:
-            ambiguous_count = record.seq.upper().count('N')
-            if ambiguous_count > max_ambiguous_chars:
-                filter_stats['ambiguous_chars'] += 1
-                record_passes = False
-                continue
-        
-        # Get metadata for this record to check protein information
-        record_metadata = metadata_dict.get(record_accession, {})
-        
-        # Check protein requirements if specified
-        if has_proteins is not None or proteins_complete:
-            protein_check_passed = _check_protein_requirements(
-                record, 
-                record_metadata, 
-                has_proteins, 
-                proteins_complete
-            )
+            # Normalize accession by taking only the first part (before space)
+            record_accession = record.id.split()[0] if hasattr(record, 'id') else str(record)
+                
+            # Count ambiguous characters (N's)
+            if max_ambiguous_chars is not None:
+                ambiguous_count = record.seq.upper().count('N')
+                if ambiguous_count > max_ambiguous_chars:
+                    filter_stats['ambiguous_chars'] += 1
+                    record_passes = False
+                    continue
             
-            if not protein_check_passed:
-                filter_stats['proteins'] += 1
-                record_passes = False
-                logger.debug("Sequence %s failed protein requirements", record.id)
-                continue
-        
-        # If sequence passed all filters, keep it and its metadata
-        if record_passes:
-            filtered_sequences.append(record)
-            filtered_metadata.append(record_metadata)
+            # Get metadata for this record to check protein information
+            record_metadata = metadata_dict.get(record_accession, {})
             
-            # Extract protein/segment information from FASTA header for CSV output
-            # This is useful for segmented viruses like influenza
-            # Pass metadata to enable splitting on isolate name (Laura_OG logic)
-            protein_info = _extract_protein_info_from_header(record.description, record_metadata)
-            protein_headers.append(protein_info)
+            if proteins_complete:
+                protein_count = record_metadata.get("proteinCount", 0)
+                gene_count = record_metadata.get("geneCount", 0)
+                if protein_count is None or protein_count == 0:
+                    if gene_count is None or gene_count == 0:
+                        logger.debug("Sequence %s has no protein/gene annotations", record.id)
+                        record_passes = False
+                        filter_stats['proteins'] += 1
+                        continue
+            
+            # If sequence passed all filters, keep it and its metadata
+            if record_passes:
+                filtered_count += 1
+                filtered_metadata.append(record_metadata)
+                
+                # Write directly to output file if streaming (memory-efficient)
+                if output_handle:
+                    _write_fasta_record(output_handle, record)
+                
+                if filtered_count % FASTA_STREAM_LOG_INTERVAL == 0:
+                    logger.debug("Processed %d sequences, %d passed filters so far...",
+                                total_sequences, filtered_count)
+    finally:
+        if output_handle:
+            output_handle.close()
 
     # Log filtering results
     logger.info("Sequence filter results:")
@@ -3856,9 +3874,9 @@ def filter_sequences(
     logger.info("- Filtered out because of sequence length: %d", filter_stats['seq_length'])
     logger.info("- Filtered out because of number of ambiguous characters: %d", filter_stats['ambiguous_chars'])
     logger.info("- Filtered out because of protein requirements: %d", filter_stats['proteins'])
-    logger.info("- Sequences passing all filters: %d", len(filtered_sequences))
+    logger.info("- Sequences passing all filters: %d", filtered_count)
     
-    return filtered_sequences, filtered_metadata, protein_headers
+    return filtered_count, filtered_metadata, protein_headers, filter_stats
 
 
 def save_command_summary(
@@ -4401,16 +4419,15 @@ def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_fil
 
     logger.debug("Using column order: %s", columns)
 
-    # Prepare data for DataFrame creation
-    data_for_df = []
+    # Process metadata in chunks for memory efficiency on large datasets
+    total_records = len(filtered_metadata)
+    chunk_size = METADATA_CSV_CHUNK_SIZE
     
-    logger.info("Processing metadata records...")
-    for i, metadata in enumerate(filtered_metadata):
-        logger.debug("Processing metadata record %d/%d", i+1, len(filtered_metadata))
-
-        # Build the row dictionary with all required columns
-        # Use pd.NA for missing values to ensure proper CSV handling
-        row = {
+    logger.info("Processing %d metadata records (chunk_size=%d)...", total_records, chunk_size)
+    
+    def _build_row(i, metadata):
+        """Build a single row dictionary from metadata."""
+        return {
             # Primary identifiers
             "accession": metadata.get("accession", pd.NA),
             "Organism Name": metadata.get("virus", {}).get("organism_name", pd.NA),
@@ -4420,7 +4437,7 @@ def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_fil
             "Submitters": ", ".join(metadata.get("submitter", {}).get("names", [])) if metadata.get("submitter", {}).get("names") else pd.NA,
             "Organization": metadata.get("submitter", {}).get("affiliation", pd.NA),
             "Submitter Country": metadata.get("submitter", {}).get("country", pd.NA),
-            "Release date": metadata.get("releaseDate", "").split("T")[0] if metadata.get("releaseDate") else pd.NA,  # Remove time component
+            "Release date": metadata.get("releaseDate", "").split("T")[0] if metadata.get("releaseDate") else pd.NA,
             
             # Sample and isolate information
             "Isolate": metadata.get("isolate", {}).get("name", pd.NA),
@@ -4476,22 +4493,39 @@ def save_metadata_to_csv(filtered_metadata, protein_headers, output_metadata_fil
             "reference_count": pd.NA,
             "comment": pd.NA,
         }
-        
-        data_for_df.append(row)
 
-    logger.info("Creating DataFrame with %d rows and %d columns", len(data_for_df), len(columns))
-
-    # Create DataFrame with the specified column order
-    df = pd.DataFrame(data_for_df, columns=columns)
-    
-    # logger.debug("DataFrame shape: %s", df.shape)
-    # logger.debug("DataFrame columns: %s", list(df.columns))
-
-    # Write DataFrame to CSV file
+    # Write CSV in chunks to avoid building a single massive DataFrame
     try:
-        df.to_csv(output_metadata_file, index=False)
+        first_chunk = True
+        rows_written = 0
+        
+        for chunk_start in range(0, total_records, chunk_size):
+            chunk_end = min(chunk_start + chunk_size, total_records)
+            chunk_data = []
+            
+            for i in range(chunk_start, chunk_end):
+                chunk_data.append(_build_row(i, filtered_metadata[i]))
+            
+            df_chunk = pd.DataFrame(chunk_data, columns=columns)
+            
+            # First chunk writes header, subsequent chunks append without header
+            if first_chunk:
+                df_chunk.to_csv(output_metadata_file, index=False, mode='w')
+                first_chunk = False
+            else:
+                df_chunk.to_csv(output_metadata_file, index=False, mode='a', header=False)
+            
+            rows_written += len(df_chunk)
+            
+            # Free chunk memory
+            del chunk_data
+            del df_chunk
+            
+            if total_records > chunk_size:
+                logger.debug("CSV progress: %d/%d rows written", rows_written, total_records)
+        
         logger.info("Successfully saved metadata CSV to: %s", output_metadata_file)
-        logger.debug("CSV file contains %d rows and %d columns", len(df), len(df.columns))
+        logger.debug("CSV file contains %d rows and %d columns", rows_written, len(columns))
     except Exception as e:
         logger.error("❌ Failed to save CSV file: %s", e)
         raise
