@@ -3764,8 +3764,9 @@ def filter_sequences(
     fna_file,
     metadata_dict,
     max_ambiguous_chars=None,
-    has_proteins=None,
+    # has_proteins=None,
     proteins_complete=False,
+    output_fasta_path=None,
 ):
     """
     Apply sequence-dependent filters to downloaded sequences.
@@ -3873,7 +3874,19 @@ def save_command_summary(
     error_message=None,
     failed_commands=None,
     genbank_error=None,
-    gget_version=None
+    gget_version=None,
+    baseline_file=None,
+    baseline_accession_count=None,
+    baseline_skipped_count=None,
+    partial_metadata_file=None,
+    recovery_command=None,
+    runtime_seconds=None,
+    memory_info=None,
+    metadata_filter_stats=None,
+    genbank_filter_stats=None,
+    sequence_filter_stats=None,
+    total_after_genbank_filter=None,
+    total_after_sequence_filter=None,
 ):
     """
     Save a summary file documenting the command execution and results.
@@ -3928,6 +3941,39 @@ def save_command_summary(
                 f.write("✗ Command failed\n")
                 if error_message:
                     f.write(f"Error: {error_message}\n\n")
+            
+            # Runtime
+            if runtime_seconds is not None:
+                f.write("-" * 80 + "\n")
+                f.write("RUNTIME\n")
+                f.write("-" * 80 + "\n")
+                hours, remainder = divmod(int(runtime_seconds), 3600)
+                minutes, seconds = divmod(remainder, 60)
+                if hours > 0:
+                    f.write(f"Total wall-clock time: {hours}h {minutes}m {seconds}s ({runtime_seconds:.1f} seconds)\n\n")
+                elif minutes > 0:
+                    f.write(f"Total wall-clock time: {minutes}m {seconds}s ({runtime_seconds:.1f} seconds)\n\n")
+                else:
+                    f.write(f"Total wall-clock time: {runtime_seconds:.1f} seconds\n\n")
+            
+            # Memory usage
+            if memory_info:
+                f.write("-" * 80 + "\n")
+                f.write("MEMORY USAGE\n")
+                f.write("-" * 80 + "\n")
+                if memory_info.get('rss_mb') is not None:
+                    f.write(f"Process RSS (resident memory): {memory_info['rss_mb']:.1f} MB\n")
+                if memory_info.get('vms_mb') is not None:
+                    f.write(f"Process VMS (virtual memory): {memory_info['vms_mb']:.1f} MB\n")
+                if memory_info.get('percent') is not None:
+                    f.write(f"Process memory percent: {memory_info['percent']:.1f}%\n")
+                if memory_info.get('total_mb') is not None:
+                    f.write(f"System total memory: {memory_info['total_mb']:.0f} MB\n")
+                if memory_info.get('available_mb') is not None:
+                    f.write(f"System available memory: {memory_info['available_mb']:.0f} MB\n")
+                if memory_info.get('system_percent') is not None:
+                    f.write(f"System memory used: {memory_info['system_percent']:.1f}%\n")
+                f.write("\n")
             
             # Statistics
             f.write("-" * 80 + "\n")
@@ -7865,6 +7911,7 @@ def virus(
                 success=True,
                 error_message="No sequences passed all filters",
                 failed_commands=failed_commands,
+                runtime_seconds=time.time() - _virus_start_time,
                 memory_info=_get_memory_usage(),
             )
 
@@ -7990,6 +8037,7 @@ def virus(
             success=False,
             error_message=str(e),
             failed_commands=failed_commands,
+            runtime_seconds=time.time() - _virus_start_time,
             memory_info=_get_memory_usage(),
         )
         
