@@ -3980,8 +3980,66 @@ def save_command_summary(
             f.write("SEQUENCE STATISTICS\n")
             f.write("-" * 80 + "\n")
             f.write(f"Total records from API: {total_api_records}\n")
+            if baseline_file:
+                f.write(f"Baseline file: {baseline_file}\n")
+                if baseline_accession_count is not None:
+                    f.write(f"Baseline accessions: {baseline_accession_count}\n")
+                if baseline_skipped_count is not None:
+                    f.write(f"Skipped (already in baseline): {baseline_skipped_count}\n")
+                f.write(f"New accessions processed: {total_after_metadata_filter}\n")
             f.write(f"After metadata filtering: {total_after_metadata_filter}\n")
+            if total_after_genbank_filter is not None:
+                f.write(f"After GenBank metadata filtering: {total_after_genbank_filter}\n")
+            if total_after_sequence_filter is not None:
+                f.write(f"After sequence filtering: {total_after_sequence_filter}\n")
             f.write(f"Final sequences (after all filters): {total_final_sequences}\n\n")
+            
+            # Filter breakdown by stage
+            any_filter_stats = (metadata_filter_stats or genbank_filter_stats or sequence_filter_stats)
+            if any_filter_stats:
+                f.write("-" * 80 + "\n")
+                f.write("FILTER BREAKDOWN BY STAGE\n")
+                f.write("-" * 80 + "\n")
+                
+                if metadata_filter_stats:
+                    active_meta = {k: v for k, v in metadata_filter_stats.items() if v > 0}
+                    if active_meta:
+                        f.write("\nMetadata filtering (records excluded):\n")
+                        for filter_name, count in sorted(active_meta.items(), key=lambda x: -x[1]):
+                            f.write(f"  {filter_name}: {count}\n")
+                    else:
+                        f.write("\nMetadata filtering: no records excluded\n")
+                
+                if genbank_filter_stats:
+                    active_gb = {k: v for k, v in genbank_filter_stats.items() if v > 0}
+                    if active_gb:
+                        f.write("\nGenBank metadata filtering (records excluded):\n")
+                        for filter_name, count in sorted(active_gb.items(), key=lambda x: -x[1]):
+                            f.write(f"  {filter_name}: {count}\n")
+                    else:
+                        f.write("\nGenBank metadata filtering: no records excluded\n")
+                
+                if sequence_filter_stats:
+                    active_seq = {k: v for k, v in sequence_filter_stats.items() if v > 0}
+                    if active_seq:
+                        f.write("\nSequence filtering (records excluded):\n")
+                        for filter_name, count in sorted(active_seq.items(), key=lambda x: -x[1]):
+                            f.write(f"  {filter_name}: {count}\n")
+                    else:
+                        f.write("\nSequence filtering: no records excluded\n")
+                
+                f.write("\n")
+            
+            # Partial metadata recovery information
+            if partial_metadata_file:
+                f.write("-" * 80 + "\n")
+                f.write("💾 PARTIAL METADATA RECOVERY\n")
+                f.write("-" * 80 + "\n")
+                f.write(f"Partial metadata saved: {partial_metadata_file}\n")
+                if recovery_command:
+                    f.write(f"\nRecovery command:\n")
+                    f.write(f"  {recovery_command}\n")
+                f.write("\n")
             
             # Detailed statistics from metadata
             if filtered_metadata and len(filtered_metadata) > 0:
@@ -6884,6 +6942,9 @@ def virus(
     # Capture the command line for summary
     command_line = " ".join(sys.argv) if len(sys.argv) > 0 else "virus (called programmatically)"
     
+    # Track wall-clock runtime
+    _virus_start_time = time.time()
+    
     # Initialize variables for tracking results
     total_api_records = 0
     total_after_metadata_filter = 0
@@ -6893,6 +6954,12 @@ def virus(
     filtered_sequences = []  
     refseq_only = False
 
+    # Initialize filter stats for each stage (populated by filter functions)
+    metadata_filter_stats = {}
+    genbank_filter_stats = {}
+    sequence_filter_stats = {}
+    total_after_genbank_filter = None
+    total_after_sequence_filter = None
     
     # Initialize failed commands tracker for tracking all types of failures
     failed_commands = {
@@ -7885,6 +7952,11 @@ def virus(
                 baseline_skipped_count=baseline_skipped_count if baseline_accessions is not None else None,
                 runtime_seconds=time.time() - _virus_start_time,
                 memory_info=_get_memory_usage(),
+                metadata_filter_stats=metadata_filter_stats,
+                genbank_filter_stats=genbank_filter_stats,
+                sequence_filter_stats=sequence_filter_stats,
+                total_after_genbank_filter=total_after_genbank_filter,
+                total_after_sequence_filter=total_after_sequence_filter,
             )
         else:
             logger.warning("=" * 60)
@@ -7913,6 +7985,9 @@ def virus(
                 failed_commands=failed_commands,
                 runtime_seconds=time.time() - _virus_start_time,
                 memory_info=_get_memory_usage(),
+                metadata_filter_stats=metadata_filter_stats,
+                genbank_filter_stats=genbank_filter_stats,
+                sequence_filter_stats=sequence_filter_stats,
             )
 
     except Exception as e:
@@ -8039,6 +8114,9 @@ def virus(
             failed_commands=failed_commands,
             runtime_seconds=time.time() - _virus_start_time,
             memory_info=_get_memory_usage(),
+            metadata_filter_stats=metadata_filter_stats,
+            genbank_filter_stats=genbank_filter_stats,
+            sequence_filter_stats=sequence_filter_stats,
         )
         
         raise
