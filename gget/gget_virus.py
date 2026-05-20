@@ -1355,6 +1355,10 @@ def fetch_virus_metadata(
     metadata_file = None
     temp_metadata_file = None
     
+    # Save original filter values before URL encoding (for deferred local filtering)
+    original_geographic_location = geographic_location
+    original_host = host
+    
     # Choose the appropriate API endpoint based on whether we're querying by accession or taxon
     if accession:
         # For accession numbers (e.g., NC_045512.2), use the accession-specific endpoint
@@ -1495,14 +1499,14 @@ def fetch_virus_metadata(
             # STRATEGY 1: If geo_location filter exists, try without it (keeping host)
             if not success and geographic_location:
                 logger.warning("🔄 FETCH FAILED - ATTEMPTING WITHOUT GEOGRAPHIC FILTER")
-                logger.warning("Retrying without the geographic_location filter '%s' (will be applied later)...", geographic_location)
+                logger.warning("Retrying without the geographic_location filter '%s' (will be applied later)...", original_geographic_location)
                 close_temp_files()
                 
                 try:
                     retry_reports, _ = fetch_virus_metadata(
                         virus=virus,
                         accession=accession,
-                        host=host,  # Keep host filter
+                        host=original_host,  # Keep host filter (original value)
                         geographic_location=None,  # Remove geo filter
                         annotated=annotated,
                         complete_only=complete_only,
@@ -1513,10 +1517,15 @@ def fetch_virus_metadata(
                         temp_output_dir=temp_output_dir,
                     )
                     
-                    if retry_reports is not None:
-                        logger.info("✅ Successfully retrieved %d records without geographic filter", len(retry_reports))
-                        logger.info("Geographic location filter '%s' will be applied during metadata filtering", geographic_location)
-                        return retry_reports, {'geographic_location': geographic_location}
+                    # Handle None return (signals chunking needed) - propagate it
+                    if retry_result is None:
+                        logger.warning("Retry without geographic filter returned None (dataset too large for single request)")
+                    else:
+                        retry_reports = retry_result[0] if isinstance(retry_result, tuple) else retry_result
+                        if retry_reports is not None:
+                            logger.info("✅ Successfully retrieved %d records without geographic filter", len(retry_reports))
+                            logger.info("Geographic location filter '%s' will be applied during metadata filtering", original_geographic_location)
+                            return retry_reports, {'geographic_location': original_geographic_location}
                 except Exception as retry_error:
                     logger.warning("❌ Retry without geographic filter failed: %s", retry_error)
             
@@ -1541,18 +1550,23 @@ def fetch_virus_metadata(
                         temp_output_dir=temp_output_dir,
                     )
                     
-                    if retry_reports is not None:
-                        logger.info("✅ Successfully retrieved %d records without geographic and host filters", len(retry_reports))
-                        logger.info("Geographic location filter '%s' will be applied during metadata filtering", geographic_location)
-                        logger.info("Host filter '%s' will be applied during metadata filtering", host)
-                        return retry_reports, {'geographic_location': geographic_location, 'host': host}
+                    # Handle None return (signals chunking needed) - propagate it
+                    if retry_result is None:
+                        logger.warning("Retry without both filters returned None (dataset too large for single request)")
+                    else:
+                        retry_reports = retry_result[0] if isinstance(retry_result, tuple) else retry_result
+                        if retry_reports is not None:
+                            logger.info("✅ Successfully retrieved %d records without geographic and host filters", len(retry_reports))
+                            logger.info("Geographic location filter '%s' will be applied during metadata filtering", original_geographic_location)
+                            logger.info("Host filter '%s' will be applied during metadata filtering", original_host)
+                            return retry_reports, {'geographic_location': original_geographic_location, 'host': original_host}
                 except Exception as retry_error:
                     logger.warning("❌ Retry without both filters failed: %s", retry_error)
             
             # STRATEGY 3: If host filter exists (whether or not geo_location was tried), try without host only
             if not success and host:
                 logger.warning("🔄 ATTEMPTING WITHOUT HOST FILTER ONLY")
-                logger.warning("Retrying without the host filter '%s' (will be applied later)...", host)
+                logger.warning("Retrying without the host filter '%s' (will be applied later)...", original_host)
                 close_temp_files()
                 
                 try:
@@ -1560,7 +1574,7 @@ def fetch_virus_metadata(
                         virus=virus,
                         accession=accession,
                         host=None,  # Remove host filter
-                        geographic_location=geographic_location,  # Keep geo filter if present
+                        geographic_location=original_geographic_location,  # Keep geo filter if present (original value)
                         annotated=annotated,
                         complete_only=complete_only,
                         min_release_date=min_release_date,
@@ -1570,10 +1584,15 @@ def fetch_virus_metadata(
                         temp_output_dir=temp_output_dir,
                     )
                     
-                    if retry_reports is not None:
-                        logger.info("✅ Successfully retrieved %d records without host filter", len(retry_reports))
-                        logger.info("Host filter '%s' will be applied during metadata filtering", host)
-                        return retry_reports, {'host': host}
+                    # Handle None return (signals chunking needed) - propagate it
+                    if retry_result is None:
+                        logger.warning("Retry without host filter returned None (dataset too large for single request)")
+                    else:
+                        retry_reports = retry_result[0] if isinstance(retry_result, tuple) else retry_result
+                        if retry_reports is not None:
+                            logger.info("✅ Successfully retrieved %d records without host filter", len(retry_reports))
+                            logger.info("Host filter '%s' will be applied during metadata filtering", original_host)
+                            return retry_reports, {'host': original_host}
                 except Exception as retry_error:
                     logger.warning("❌ Retry without host filter failed: %s", retry_error)
             
@@ -1685,6 +1704,87 @@ def fetch_virus_metadata(
                     loop = False
                     break
                 else:
+                    # First page returned empty - before failing, try fallback strategies
+                    # (same logic as when success=False but for empty data case)
+                    if _retry_attempt == 0:
+                        # Helper to close temp files before retry
+                        if pages_pbar:
+                            pages_pbar.close()
+                            pages_pbar = None
+                        if metadata_file:
+                            try:
+                                metadata_file.close()
+                            except:
+                                pass
+                        
+                        # FALLBACK 1: If geo_location filter exists, try without it
+                        if geographic_location:
+                            logger.warning("🔄 EMPTY RESPONSE - ATTEMPTING WITHOUT GEOGRAPHIC FILTER")
+                            logger.warning("Retrying without the geographic_location filter '%s' (will be applied locally)...", original_geographic_location)
+                            
+                            try:
+                                retry_result = fetch_virus_metadata(
+                                    virus=virus,
+                                    accession=accession,
+                                    host=original_host,  # Keep host filter (original value)
+                                    geographic_location=None,  # Remove geo filter
+                                    annotated=annotated,
+                                    complete_only=complete_only,
+                                    min_release_date=min_release_date,
+                                    refseq_only=refseq_only,
+                                    failed_commands=failed_commands,
+                                    _retry_attempt=1,  # Mark as retry to prevent infinite loops
+                                    temp_output_dir=temp_output_dir,
+                                )
+                                
+                                # Handle None return (signals chunking needed) - propagate it
+                                if retry_result is None:
+                                    logger.warning("Retry without geographic filter returned None (dataset too large for single request)")
+                                else:
+                                    retry_reports = retry_result[0] if isinstance(retry_result, tuple) else retry_result
+                                    if retry_reports is not None and len(retry_reports) > 0:
+                                        logger.info("✅ Successfully retrieved %d records without geographic filter", len(retry_reports))
+                                        logger.info("Geographic location filter '%s' will be applied during metadata filtering", original_geographic_location)
+                                        return retry_reports, {'geographic_location': original_geographic_location}
+                            except Exception as retry_error:
+                                logger.warning("❌ Retry without geographic filter failed: %s", retry_error)
+                        
+                        # FALLBACK 2: If host filter exists and geo retry failed or wasn't tried
+                        if host:
+                            logger.warning("🔄 ATTEMPTING WITHOUT HOST FILTER")
+                            logger.warning("Retrying without the host filter '%s' (will be applied locally)...", original_host)
+                            
+                            try:
+                                retry_result = fetch_virus_metadata(
+                                    virus=virus,
+                                    accession=accession,
+                                    host=None,  # Remove host filter
+                                    geographic_location=None if geographic_location else None,  # Also remove geo if present
+                                    annotated=annotated,
+                                    complete_only=complete_only,
+                                    min_release_date=min_release_date,
+                                    refseq_only=refseq_only,
+                                    failed_commands=failed_commands,
+                                    _retry_attempt=1,
+                                    temp_output_dir=temp_output_dir,
+                                )
+                                
+                                # Handle None return (signals chunking needed) - propagate it
+                                if retry_result is None:
+                                    logger.warning("Retry without host filter returned None (dataset too large for single request)")
+                                else:
+                                    retry_reports = retry_result[0] if isinstance(retry_result, tuple) else retry_result
+                                    if retry_reports is not None and len(retry_reports) > 0:
+                                        deferred = {'host': original_host}
+                                        if geographic_location:
+                                            deferred['geographic_location'] = original_geographic_location
+                                        logger.info("✅ Successfully retrieved %d records without filters", len(retry_reports))
+                                        logger.info("Deferred filters will be applied during metadata filtering: %s", list(deferred.keys()))
+                                        return retry_reports, deferred
+                            except Exception as retry_error:
+                                logger.warning("❌ Retry without host filter failed: %s", retry_error)
+                    
+                    # All fallback strategies exhausted or we're already in retry mode
                     error_msg = f"API request returned no data for {virus}. The dataset may be empty or unavailable. Please verify the virus name and filters, or try again later."
                     if failed_commands is not None:
                         failed_commands['empty_response'] = {'error': error_msg}
@@ -3253,9 +3353,9 @@ def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_
                         'id': accession_string,
                         'rettype': 'fasta',
                         'retmode': 'text'
+                    }
                     if api_key:
                         params['api_key'] = api_key
-                    }
                     response = requests.get(NCBI_EUTILS_BASE, params=params, timeout=EUTILS_TIMEOUT)
                     response.raise_for_status()
                     
