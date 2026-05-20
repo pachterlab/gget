@@ -2781,6 +2781,16 @@ def main():
         help="Save all output files, including intermediate files.",
     )
     parser_virus.add_argument(
+        "--api_key",
+        type=str,
+        required=False,
+        default=None,
+        help="NCBI API key for higher E-utilities rate limits (10 requests/sec vs 3/sec without).\n"
+             "Obtain a free key from https://www.ncbi.nlm.nih.gov/account/settings/\n"
+             "Can also be set via the NCBI_API_KEY environment variable.\n"
+             "If not provided, requests continue at the lower default rate limit.",
+    )
+    parser_virus.add_argument(
         "-q",
         "--quiet",
         default=True,
@@ -3906,5 +3916,6 @@ def main():
             genbank_batch_size=args.genbank_batch_size,
             download_all_accessions=args.download_all_accessions,
             _skip_cache=args._skip_cache,
+            api_key=args.api_key,
             verbose=args.quiet,
         )

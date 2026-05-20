@@ -63,6 +63,12 @@ GENBANK_RETRY_ATTEMPTS = 5  # Number of retry attempts for GenBank requests
 GENBANK_XML_CHUNK_SIZE = 10000  # Rows to process before writing to CSV
 GENBANK_COMPLEXITY = 1 # Complexity level with only the accessions requested. All levels explained here: https://www.ncbi.nlm.nih.gov/books/NBK25499/#chapter4.EFetch
 
+# Resolve API key from environment variable NCBI_API_KEY.
+# Users can also pass an api_key argument directly to the virus() function / CLI --api_key.
+# Without an API key, NCBI E-utilities rate limit is 3 requests/sec;
+# with a key it increases to 10 requests/sec.
+API_KEY = os.environ.get("NCBI_API_KEY")
+
 # Subprocess and Download Configuration
 SUBPROCESS_VERSION_TIMEOUT = 5  # Timeout for version check commands
 DOWNLOAD_OVERALL_TIMEOUT = 1800  # Maximum total download time (30 minutes)
@@ -2743,7 +2749,7 @@ def download_alphainfluenza_optimized(
     )
 
 
-def download_sequences_by_accessions(accessions, outdir=None, batch_size=200, failed_commands=None):
+def download_sequences_by_accessions(accessions, outdir=None, batch_size=200, failed_commands=None, api_key=None):
     """
     Download virus genome sequences for a specific list of accession numbers.
     
@@ -2756,6 +2762,7 @@ def download_sequences_by_accessions(accessions, outdir=None, batch_size=200, fa
         outdir (str, optional): Output directory for downloaded files.
         batch_size (int): Maximum number of accessions per batch. Defaults to 200.
         failed_commands (dict, optional): Dictionary to track failed operations.
+        api_key (str, optional): NCBI API key for higher rate limits (10 req/sec vs 3).
         
     Returns:
         str: Path to the downloaded FASTA file containing sequences.
@@ -2791,10 +2798,10 @@ def download_sequences_by_accessions(accessions, outdir=None, batch_size=200, fa
         return _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_size, failed_commands)
     
     # For smaller requests, use single request
-    return _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE, fasta_path, failed_commands)
+    return _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE, fasta_path, failed_commands, api_key=api_key)
 
 
-def _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE, fasta_path, failed_commands=None):
+def _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE, fasta_path, failed_commands=None, api_key=None):
     """
     Download sequences in a single E-utilities request with exponential backoff retries.
     
@@ -2836,6 +2843,8 @@ def _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE, fasta_path, f
             'rettype': 'fasta',
             'retmode': 'text'
         }
+        if api_key:
+            params['api_key'] = api_key
         logger.debug("E-utilities URL: %s", NCBI_EUTILS_BASE)
         response = requests.get(NCBI_EUTILS_BASE, params=params, timeout=EUTILS_TIMEOUT)
         response.raise_for_status()
@@ -2865,7 +2874,7 @@ def _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE, fasta_path, f
         if "414" in error_msg or "Request-URI Too Long" in error_msg:
             logger.info("URL too long error detected. Retrying with batch processing...")
             # Retry with smaller batches (half of default)
-            return _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_size=EUTILS_DEFAULT_BATCH_SIZE // 2, failed_commands=failed_commands)
+            return _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_size=EUTILS_DEFAULT_BATCH_SIZE // 2, failed_commands=failed_commands, api_key=api_key)
         
         # Log and track the failure
         logger.error("❌ E-utilities request failed after %d retries: %s", API_MAX_RETRIES, error_msg)
@@ -2904,7 +2913,7 @@ def _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE, fasta_path, f
         raise RuntimeError(f"❌ Failed to save downloaded sequences: {e}") from e
 
 
-def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_size, failed_commands=None):
+def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_size, failed_commands=None, api_key=None):
     """
     Download sequences using multiple batched E-utilities requests with incremental file writing.
     
@@ -2926,6 +2935,7 @@ def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_
         fasta_path (str): Path where FASTA file should be saved.
         batch_size (int): Number of accessions per batch.
         failed_commands (dict, optional): Dictionary to track failed operations.
+        api_key (str, optional): NCBI API key for higher rate limits (10 req/sec vs 3).
         
     Returns:
         str: Path to the saved FASTA file containing all downloaded sequences
@@ -2972,6 +2982,8 @@ def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_
                         'id': accession_string,
                         'rettype': 'fasta',
                         'retmode': 'text'
+                    if api_key:
+                        params['api_key'] = api_key
                     }
                     response = requests.get(NCBI_EUTILS_BASE, params=params, timeout=EUTILS_TIMEOUT)
                     response.raise_for_status()
@@ -3020,7 +3032,7 @@ def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_
                         temp_batch_path = f"temp_batch_{batch_num}.fasta"
                         try:
                             _download_sequences_batched(
-                                batch_accessions, NCBI_EUTILS_BASE, temp_batch_path, batch_size // 2, failed_commands
+                                batch_accessions, NCBI_EUTILS_BASE, temp_batch_path, batch_size // 2, failed_commands, api_key=api_key
                             )
                             # Read the temporary file and append to main file
                             with open(temp_batch_path, 'r', encoding='utf-8') as temp_f:
@@ -4168,12 +4180,19 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
         batch_size (int): Maximum accessions per API request (default: 200).
         delay (float): Delay in seconds between batch requests (default: 0.5).
         failed_log_path (str, optional): Path to log file for failed batches.
+        api_key (str, optional): NCBI API key for higher rate limits (10 req/sec vs 3). Falls back to NCBI_API_KEY env var if not provided.
         
     Returns:
         tuple: (metadata_dict, failed_log_path) where metadata_dict maps accession
                numbers to their GenBank metadata.
     """
     if failed_log_path is None:
+    # Use module-level API_KEY (from NCBI_API_KEY env var) if not provided directly
+    if api_key is None:
+        api_key = API_KEY
+        if api_key:
+            logger.debug("Using NCBI API key from environment for higher rate limits (10 req/sec)")
+    
         failed_log_path = os.path.join(os.path.dirname(genbank_full_xml_path), "genbank_failed_batches.log")
     if os.path.exists(failed_log_path):
         os.remove(failed_log_path)
@@ -4186,26 +4205,12 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
     
     # Log initial memory state
     _log_memory_usage("GenBank fetch start")
-    
-    # Initialize tracking variables
-    all_metadata = {}
-    all_xml_text = ""
-    failed_batches = []
-    
-    # Split accessions into batches to avoid URL length limits and server overload
-    if len(accessions) > batch_size:
-        batches = [accessions[i:i + batch_size] for i in range(0, len(accessions), batch_size)]
-        logger.info("Processing %d accessions in %d batches of size %d", 
-                   len(accessions), len(batches), batch_size)
-    else:
-        batches = [accessions]
-        logger.info("Processing %d accessions in 1 batch", len(accessions))
-    
-    # Process each batch
-    for batch_num, batch_accessions in enumerate(batches, 1):
-        logger.info("Processing GenBank batch %d/%d (%d accessions)", 
-                   batch_num, len(batches), len(batch_accessions))
-        
+    # Optimize delay based on API key: 10 req/sec with key vs 3 req/sec without
+    # With API key: 0.1s delay allows ~10 req/sec
+    # Without API key: 0.35s delay allows ~3 req/sec
+    effective_delay = 0.1 if api_key else delay
+    logger.info("Using delay of %.2fs between requests (API key: %s)", 
+               effective_delay, "yes" if api_key else "no")
         try:
             # Fetch GenBank XML data using E-utilities efetch
             batch_metadata, batch_xml_text = _fetch_genbank_batch(batch_accessions, failed_log_path=failed_log_path)
@@ -5719,6 +5724,7 @@ def virus(
     genbank_batch_size=GENBANK_DEFAULT_BATCH_SIZE,
     download_all_accessions=False,
     _skip_cache=False,
+    api_key=None,
     verbose=True,
     ):
     """
@@ -5732,47 +5738,21 @@ def virus(
     4) Download sequences for the filtered accession list only
     5) Apply sequence-dependent filters and save outputs
     6) Optionally fetch detailed GenBank metadata and save to CSV
-    
-    Args:
-        virus (str): Virus taxon name/ID or accession number
-        is_accession (bool): Whether virus parameter is an accession number
-        outfolder (str): Output directory for files
-        host (str): Host organism name filter
-        min_seq_length (int): Minimum sequence length filter
-        max_seq_length (int): Maximum sequence length filter
-        min_gene_count (int): Minimum gene count filter
-        max_gene_count (int): Maximum gene count filter
-        nuc_completeness (str): Nucleotide completeness filter ('complete' or 'partial')
-        has_proteins (str/list): Required proteins/genes filter
-        proteins_complete (bool): Whether proteins must be complete
-        lab_passaged (bool): Lab passaging status filter
-        geographic_location (str): Geographic location filter
-        submitter_country (str): Submitter country filter
-        min_collection_date (str): Minimum collection date filter (YYYY-MM-DD)
-        max_collection_date (str): Maximum collection date filter (YYYY-MM-DD)
-        annotated (bool): Annotation status filter
-        min_release_date (str): Minimum release date filter (YYYY-MM-DD)
-        max_release_date (str): Maximum release date filter (YYYY-MM-DD)
-        min_mature_peptide_count (int): Minimum mature peptide count filter
-        max_mature_peptide_count (int): Maximum mature peptide count filter
-        min_protein_count (int): Minimum protein count filter
-        max_protein_count (int): Maximum protein count filter
-        max_ambiguous_chars (int): Maximum ambiguous nucleotide character filter
-        is_sars_cov2 (bool): Flag to indicate if the accession is for SARS-CoV-2, enabling optimized download method (default: False)
-        is_alphainfluenza (bool): Flag to indicate if the query is for Alphainfluenza, enabling optimized download method (default: False)
-        segment (str/list): Virus segment filter (e.g., 'HA', 'NA', or 'HA,NA')
-        is_vaccine_strain (bool): Filter for vaccine strains only. If True, only sequences marked as vaccine strains will be returned (default: False)
-        lineage (str): Virus lineage filter (SARS-CoV-2 specific)
-        genbank_metadata (bool): Whether to fetch detailed GenBank metadata (default: False)
-        genbank_batch_size (int): Batch size for GenBank API requests (default: 200)
-        keep_temp (bool): Flag to indicate if all output files should be saved, including intermediate files (default: False)
-        refseq_only (bool): Whether to restrict to RefSeq sequences only
-        verbose (bool): Whether to print progress information. (default: True)
-        _skip_cache (bool): Internal/hidden parameter. If True, bypass cached download pathway and use API method. For testing/internal use only. (default: False)
-
-    Returns:
-        None: Files are saved to the output directory
     """
+    # Resolve NCBI API key: argument > environment variable.
+    # NCBI E-utilities allows 10 requests/sec with an API key vs 3/sec without.
+    # Users can provide a key via:
+    #   1. api_key argument (highest priority)
+    #   2. NCBI_API_KEY environment variable (standard NCBI convention)
+    # If no key is provided, the process continues at the lower rate limit.
+    if api_key is None:
+        api_key = os.environ.get("NCBI_API_KEY")
+    if api_key:
+        logger.info("Using NCBI API key for higher rate limits (10 req/sec)")
+    else:
+        logger.info("No NCBI API key provided. Using default rate limit (3 req/sec). "
+                    "Set NCBI_API_KEY env var or pass --api_key for faster requests.")
+
     # Save the original logger level and set it based on verbose parameter
     original_logger_level = logger.level
     if not verbose:
