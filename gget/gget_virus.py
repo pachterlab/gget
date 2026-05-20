@@ -6437,7 +6437,318 @@ def filter_metadata_only(
                 if count > 0:
                     logger.info("  %s: %d records", filter_name, count)
     
-    return filtered_accessions, filtered_metadata_list
+    return filtered_accessions, filtered_metadata_list, filter_stats
+
+
+def filter_genbank_metadata(
+    genbank_metadata,
+    min_gene_count=None,
+    max_gene_count=None,
+    min_mature_peptide_count=None,
+    max_mature_peptide_count=None,
+    provirus=None,
+    genotype=None,
+    has_proteins=None,
+    gen_mol_type=None,
+    env_source=None,
+):
+    """
+    Filter accessions based on GenBank-specific metadata fields.
+    
+    This function filters accessions using metadata extracted from GenBank XML
+    that is not available in the standard NCBI Datasets API. These fields require
+    fetching full GenBank records via E-utilities.
+    
+    Filtering is done using the parsed genbank_metadata dictionary where each
+    accession maps to metadata containing a 'genbank_data' sub-dictionary with:
+        - gene_count: Number of gene features
+        - mature_peptide_count: Number of mat_peptide features
+        - proviral: Boolean indicating proviral annotation
+        - genotype: From serotype or note qualifier (determines virus subtype)
+        - products: List of product names from CDS/mat_peptide features
+        - mol_type: Molecule type (e.g., 'genomic RNA', 'genomic DNA')
+        - isolation_source: Sample isolation source (for env_source filter)
+        - host: Host information (used to determine env_source when empty)
+        - comment: GenBank comment field (may contain env_source keywords)
+    
+    Args:
+        genbank_metadata (dict): Dictionary mapping accession numbers to metadata
+            with 'genbank_data' sub-dictionary from _parse_genbank_xml.
+        min_gene_count (int, optional): Minimum number of gene features required.
+        max_gene_count (int, optional): Maximum number of gene features allowed.
+        min_mature_peptide_count (int, optional): Minimum mat_peptide features.
+        max_mature_peptide_count (int, optional): Maximum mat_peptide features.
+        provirus (bool, optional): If True, keep only proviral sequences.
+            If False, exclude proviral sequences. None means no filtering.
+        genotype (str or list, optional): Required genotype(s) to match.
+            Can be single string (e.g., 'H5N1') or list (e.g., ['H5N1', 'H3N2']).
+        has_proteins (str or list, optional): Required protein/product name(s).
+            Filters for sequences containing at least one of the specified proteins.
+        gen_mol_type (str, optional): Required molecule type (e.g., 'genomic RNA').
+        env_source (str or list, optional): Environmental source keywords to match.
+            Searches isolation_source and note fields for keywords like 'sewage',
+            'ocean water', 'sea', etc. when host is empty or not human.
+        
+    Returns:
+        list: List of accession numbers that passed all GenBank-based filters.
+        
+    Example:
+        >>> genbank_filtered = filter_genbank_metadata(
+        ...     genbank_metadata=genbank_data,
+        ...     min_gene_count=5,
+        ...     provirus=False,
+        ...     genotype=['H5N1', 'H5N8'],
+        ...     has_proteins='hemagglutinin',
+        ... )
+    """
+    
+    logger.info("Starting GenBank metadata filtering...")
+    logger.debug("GenBank filters: gene_count(%s-%s), mature_peptide(%s-%s), provirus=%s, genotype=%s, has_proteins=%s, mol_type=%s, env_source=%s",
+                min_gene_count, max_gene_count, min_mature_peptide_count, max_mature_peptide_count,
+                provirus, genotype, has_proteins, gen_mol_type, env_source)
+    
+    if not genbank_metadata:
+        logger.warning("No GenBank metadata provided for filtering")
+        return []
+    
+    # Convert single string filters to lists for uniform processing
+    if isinstance(genotype, str):
+        genotype = [genotype]
+    if isinstance(has_proteins, str):
+        has_proteins = [has_proteins]
+    if isinstance(env_source, str):
+        env_source = [env_source]
+    
+    # Environmental source keywords to search for
+    env_keywords = ['sewage', 'wastewater', 'ocean', 'sea', 'river', 'lake', 
+                    'pond', 'water', 'soil', 'environment', 'feces', 'fecal',
+                    'stool', 'manure', 'avian', 'bird', 'poultry', 'swine', 'pig']
+    
+    # Filter statistics
+    filter_stats = {
+        'gene_count': 0,
+        'mature_peptide_count': 0,
+        'provirus': 0,
+        'genotype': 0,
+        'has_proteins': 0,
+        'mol_type': 0,
+        'env_source': 0,
+        'no_genbank_data': 0,
+    }
+    
+    filtered_accessions = []
+    total_sequences = len(genbank_metadata)
+    
+    for accession, metadata in genbank_metadata.items():
+        # Get genbank_data sub-dictionary
+        gb_data = metadata.get('genbank_data', {})
+        if not gb_data:
+            logger.debug("Skipping %s: no genbank_data", accession)
+            filter_stats['no_genbank_data'] += 1
+            continue
+        
+        # FILTER 1: Gene count
+        if min_gene_count is not None or max_gene_count is not None:
+            gene_count = gb_data.get('gene_count', 0)
+            
+            if min_gene_count is not None and gene_count < min_gene_count:
+                logger.debug("Skipping %s: gene count %d < min %d", accession, gene_count, min_gene_count)
+                filter_stats['gene_count'] += 1
+                continue
+                
+            if max_gene_count is not None and gene_count > max_gene_count:
+                logger.debug("Skipping %s: gene count %d > max %d", accession, gene_count, max_gene_count)
+                filter_stats['gene_count'] += 1
+                continue
+        
+        # FILTER 2: Mature peptide count
+        if min_mature_peptide_count is not None or max_mature_peptide_count is not None:
+            mat_count = gb_data.get('mature_peptide_count', 0)
+            
+            if min_mature_peptide_count is not None and mat_count < min_mature_peptide_count:
+                logger.debug("Skipping %s: mature peptide count %d < min %d", accession, mat_count, min_mature_peptide_count)
+                filter_stats['mature_peptide_count'] += 1
+                continue
+                
+            if max_mature_peptide_count is not None and mat_count > max_mature_peptide_count:
+                logger.debug("Skipping %s: mature peptide count %d > max %d", accession, mat_count, max_mature_peptide_count)
+                filter_stats['mature_peptide_count'] += 1
+                continue
+        
+        # FILTER 3: Proviral status
+        if provirus is not None:
+            is_proviral = gb_data.get('proviral', False)
+            
+            if provirus and not is_proviral:
+                logger.debug("Skipping %s: not proviral (required)", accession)
+                filter_stats['provirus'] += 1
+                continue
+            
+            if provirus is False and is_proviral:
+                logger.debug("Skipping %s: is proviral (excluded)", accession)
+                filter_stats['provirus'] += 1
+                continue
+        
+        # FILTER 4: Genotype (from serotype or note field)
+        if genotype is not None:
+            record_genotype = (gb_data.get('genotype', '') or '').lower().strip()
+            
+            if not record_genotype:
+                logger.debug("Skipping %s: missing genotype", accession)
+                filter_stats['genotype'] += 1
+                continue
+            
+            # Check if any requested genotype matches (case-insensitive, partial match)
+            genotype_match = False
+            for g in genotype:
+                g_lower = g.lower().strip()
+                if g_lower in record_genotype or record_genotype in g_lower:
+                    genotype_match = True
+                    break
+            
+            if not genotype_match:
+                logger.debug("Skipping %s: genotype '%s' not in required %s", accession, record_genotype, genotype)
+                filter_stats['genotype'] += 1
+                continue
+        
+        # FILTER 5: Has proteins (check product names)
+        if has_proteins is not None:
+            products = gb_data.get('products', [])
+            products_lower = [p.lower() for p in products]
+            
+            # Check that AT LEAST ONE required protein is present
+            any_protein_found = False
+            for protein in has_proteins:
+                protein_lower = protein.lower().strip()
+                for prod in products_lower:
+                    if protein_lower in prod or prod in protein_lower:
+                        any_protein_found = True
+                        break
+                if any_protein_found:
+                    break
+            
+            if not any_protein_found:
+                logger.debug("Skipping %s: none of required proteins %s found in %s", 
+                           accession, has_proteins, products[:5])
+                filter_stats['has_proteins'] += 1
+                continue
+        
+        # FILTER 6: Molecule type (gen_mol_type)
+        if gen_mol_type is not None:
+            mol_type = (gb_data.get('mol_type', '') or '').lower().strip()
+            
+            if not mol_type:
+                logger.debug("Skipping %s: missing mol_type", accession)
+                filter_stats['mol_type'] += 1
+                continue
+            
+            gen_mol_type_lower = gen_mol_type.lower().strip()
+            
+            # Define molecule type mappings for common aliases
+            # dsDNA/ssRNA etc are structural classifications while GenBank uses "genomic DNA/RNA"
+            mol_type_mappings = {
+                'dsdna': ['genomic dna', 'dna'],
+                'ssdna': ['genomic dna', 'dna'],
+                'dsrna': ['genomic rna', 'rna'],
+                'ssrna': ['genomic rna', 'rna', 'mrna', 'viral crna'],
+                'dna': ['genomic dna', 'dna'],
+                'rna': ['genomic rna', 'rna', 'mrna', 'viral crna'],
+                'genomic dna': ['genomic dna', 'dna'],
+                'genomic rna': ['genomic rna', 'rna'],
+            }
+            
+            # Check if the filter matches directly or via mapping
+            mol_type_match = False
+            
+            # First check direct/partial match
+            if gen_mol_type_lower in mol_type or mol_type in gen_mol_type_lower:
+                mol_type_match = True
+            else:
+                # Check via mappings
+                mapped_values = mol_type_mappings.get(gen_mol_type_lower, [])
+                for mapped_val in mapped_values:
+                    if mapped_val in mol_type:
+                        mol_type_match = True
+                        break
+            
+            if not mol_type_match:
+                logger.debug("Skipping %s: mol_type '%s' != required '%s'", accession, mol_type, gen_mol_type)
+                filter_stats['mol_type'] += 1
+                continue
+        
+        # FILTER 7: Environmental source (env_source)
+        if env_source is not None:
+            # Get isolation_source, note, and check host
+            isolation_source = (gb_data.get('isolation_source', '') or '').lower()
+            host = (gb_data.get('host', '') or '').lower()
+            comment = (gb_data.get('comment', '') or '').lower()
+            all_features = gb_data.get('all_features', {})
+            
+            # Get note from source feature
+            source_feature = all_features.get('source', {})
+            if isinstance(source_feature, list):
+                source_feature = source_feature[0]
+            note = (source_feature.get('note', '') or '').lower()
+            
+            # Combine all text to search
+            search_text = f"{isolation_source} {note} {comment}"
+            
+            # If host is specified and is human, skip env_source filtering
+            # (env_source is for non-human/environmental samples)
+            is_human_host = 'human' in host or 'homo sapiens' in host
+            
+            env_match = False
+            for env_term in env_source:
+                env_term_lower = env_term.lower().strip()
+                if env_term_lower in search_text:
+                    env_match = True
+                    break
+                # Also check against common environmental keywords
+                for keyword in env_keywords:
+                    if keyword in env_term_lower and keyword in search_text:
+                        env_match = True
+                        break
+                if env_match:
+                    break
+            
+            # Only filter out if explicitly looking for environmental and not found
+            if not env_match and not is_human_host:
+                logger.debug("Skipping %s: env_source '%s' not found in isolation_source/note", 
+                           accession, env_source)
+                filter_stats['env_source'] += 1
+                continue
+        
+        # If we reach here, the record passed all filters
+        filtered_accessions.append(accession)
+        logger.debug("GenBank metadata %s passed all filters", accession)
+    
+    # Log filtering summary
+    num_filtered = len(filtered_accessions)
+    
+    if num_filtered == 0:
+        logger.info("=================================")
+        logger.info("GenBank filtering complete: 0 of %d records passed filters", total_sequences)
+        total_excluded = sum(filter_stats.values())
+        if total_excluded > 0:
+            logger.info("Filter statistics (records excluded):")
+            for filter_name, count in filter_stats.items():
+                if count > 0:
+                    logger.info("  %s: %d records", filter_name, count)
+    else:
+        logger.info("✅ GenBank metadata filtering complete.")
+        logger.info("=================================")
+        logger.info("GenBank filtering complete:")
+        logger.info("  Total GenBank records: %d", total_sequences)
+        logger.info("  Records passing filters: %d", num_filtered)
+        
+        total_excluded = sum(filter_stats.values())
+        if total_excluded > 0:
+            logger.info("Filter statistics (records excluded):")
+            for filter_name, count in filter_stats.items():
+                if count > 0:
+                    logger.info("  %s: %d records", filter_name, count)
+    
+    return filtered_accessions, filter_stats
 
 
 def virus(
@@ -6477,6 +6788,15 @@ def virus(
     genbank_batch_size=GENBANK_DEFAULT_BATCH_SIZE,
     download_all_accessions=False,
     _skip_cache=False,
+    provirus=None,
+    isolate=None,
+    genotype=None,
+    isolation_source=None,
+    env_source=None,  
+    submitter_name=None,
+    submitter_institution=None,
+    gen_mol_type=None, 
+    # assembly_completeness=None,
     api_key=None,
     baseline_metadata=None,
     merge_results=True,
@@ -6553,8 +6873,8 @@ def virus(
 
     logger.info("Query parameters: virus='%s', is_accession=%s, outfolder='%s'",
                 virus, is_accession, outfolder)
-    # logger.debug("Applied filters: host=%s, seq_length=(%s-%s), gene_count=(%s-%s), completeness=%s, annotated=%s, source_db(%s), keep_temp=%s, lab_passaged=%s, geographic_location=%s, submitter_country=%s, submitter_name=%s, submitter_institution=%s, collection_date=(%s-%s), release_date=(%s-%s), protein_count=(%s-%s), mature_peptide_count=(%s-%s), max_ambiguous=%s, has_proteins=%s, proteins_complete=%s, segment=%s, vaccine_strain=%s, lineage=%s, provirus=%s, isolate=%s, genotype=%s, isolation_source=%s, env_source=%s, gen_mol_type=%s, genbank_metadata=%s, genbank_batch_size=%s",
-    # host, min_seq_length, max_seq_length, min_gene_count, max_gene_count, nuc_completeness, annotated, refseq_only, keep_temp, lab_passaged, geographic_location, submitter_country, min_collection_date, max_collection_date, min_release_date, max_release_date, min_protein_count, max_protein_count, min_mature_peptide_count, max_mature_peptide_count, max_ambiguous_chars, has_proteins, proteins_complete, segment, vaccine_strain, genbank_metadata, genbank_batch_size)
+    logger.debug("Applied filters: host=%s, seq_length=(%s-%s), gene_count=(%s-%s), completeness=%s, annotated=%s, source_db(%s), keep_temp=%s, lab_passaged=%s, geographic_location=%s, submitter_country=%s, submitter_name=%s, submitter_institution=%s, collection_date=(%s-%s), release_date=(%s-%s), protein_count=(%s-%s), mature_peptide_count=(%s-%s), max_ambiguous=%s, has_proteins=%s, proteins_complete=%s, segment=%s, vaccine_strain=%s, lineage=%s, provirus=%s, isolate=%s, genotype=%s, isolation_source=%s, env_source=%s, gen_mol_type=%s, genbank_metadata=%s, genbank_batch_size=%s",
+    host, min_seq_length, max_seq_length, min_gene_count, max_gene_count, nuc_completeness, annotated, source_database, keep_temp, lab_passaged, geographic_location, submitter_country, submitter_name, submitter_institution, min_collection_date, max_collection_date, min_release_date, max_release_date, min_protein_count, max_protein_count, min_mature_peptide_count, max_mature_peptide_count, max_ambiguous_chars, has_proteins, proteins_complete, segment, vaccine_strain, lineage, provirus, isolate, genotype, isolation_source, env_source, gen_mol_type, genbank_metadata, genbank_batch_size)
 
     # SECTION 1: INPUT VALIDATION AND OUTPUT DIRECTORY SETUP
     # Validate and normalize input arguments before proceeding
@@ -6567,6 +6887,10 @@ def virus(
         raise ValueError(
             "Argument 'virus' must be a non-empty string (virus name, taxon ID, or accession number)."
         )
+    
+    # Validate that both host and env_source filters are not used together, as they are mutually exclusive
+    if host is not None and env_source is not None:
+        raise ValueError("Both 'host' and 'env_source' filters are specified. If there is a host, there is no environmental source. Use only one of these filters for results.")
     
     # Normalize host parameter: convert "human" to "Homo sapiens" for NCBI API compatibility
     if host is not None and host.strip().lower() == "human":
@@ -6635,10 +6959,10 @@ def virus(
             "Argument 'vaccine_strain' must be a boolean (True or False) or None."
         )
 
-    # if provirus is not None and not isinstance(provirus, bool):
-    #     raise TypeError(
-    #         "Argument 'provirus' must be a boolean (True or False) or None."
-    #     )
+    if provirus is not None and not isinstance(provirus, bool):
+        raise TypeError(
+            "Argument 'provirus' must be a boolean (True or False) or None."
+        )
     
     if genbank_batch_size is not None:
         if not isinstance(genbank_batch_size, int) or genbank_batch_size <= 0:
@@ -6651,7 +6975,26 @@ def virus(
     if genbank_metadata:
         logger.info("GenBank metadata retrieval enabled (batch_size=%d)", genbank_batch_size)
     else:
-        logger.debug("GenBank metadata retrieval disabled")
+        # Check if any GenBank-dependent filters are specified
+        genbank_dependent_filters = {
+            'provirus': provirus,
+            'genotype': genotype,
+            'has_proteins': has_proteins,
+            'gen_mol_type': gen_mol_type,
+            'env_source': env_source,
+            'min_gene_count': min_gene_count,
+            'max_gene_count': max_gene_count,
+            'min_mature_peptide_count': min_mature_peptide_count,
+            'max_mature_peptide_count': max_mature_peptide_count,
+        }
+        active_genbank_filters = [k for k, v in genbank_dependent_filters.items() if v is not None]
+        
+        if active_genbank_filters:
+            logger.info("GenBank-dependent filters detected: %s", ', '.join(active_genbank_filters))
+            logger.info("Automatically enabling GenBank metadata retrieval (-g flag)")
+            genbank_metadata = True
+        else:
+            logger.debug("GenBank metadata retrieval disabled")
 
     
     # Convert integer virus identifiers to strings for API compatibility
@@ -7133,8 +7476,8 @@ def virus(
         filters = {
             "min_seq_length": min_seq_length,
             "max_seq_length": max_seq_length,
-            "min_gene_count": min_gene_count,
-            "max_gene_count": max_gene_count,
+            # "min_gene_count": min_gene_count,
+            # "max_gene_count": max_gene_count,
             "nuc_completeness": nuc_completeness if nuc_completeness and nuc_completeness.lower() == 'partial' else None, #only for partial cases
             "lab_passaged": lab_passaged,
             "submitter_country": submitter_country,
@@ -7142,14 +7485,19 @@ def virus(
             "max_collection_date": max_collection_date,
             "source_database": source_database if source_database and source_database.lower() == 'genbank' else None,
             "max_release_date": max_release_date,
-            "min_mature_peptide_count": min_mature_peptide_count,
-            "max_mature_peptide_count": max_mature_peptide_count,
+            # "min_mature_peptide_count": min_mature_peptide_count,
+            # "max_mature_peptide_count": max_mature_peptide_count,
             "min_protein_count": min_protein_count,
             "max_protein_count": max_protein_count,
             # annotated=False needs client-side filtering (annotated=True is handled server-side)
             "annotated": annotated if annotated is False else None,
             "segment": segment,
             "vaccine_strain": vaccine_strain,
+            "submitter_name": submitter_name,
+            "submitter_institution": submitter_institution,
+            "isolate": isolate,
+            "isolation_source": isolation_source,
+            # Add deferred filters if server-side filter failed
             "geographic_location": deferred_filters.get('geographic_location') if deferred_filters else None,
             "host": deferred_filters.get('host') if deferred_filters else None,
         }
@@ -7167,7 +7515,7 @@ def virus(
             filtered_metadata = list(metadata_dict.values())
             logger.info("All %d sequences will proceed to sequence download", len(filtered_accessions))
         else:
-            filtered_accessions, filtered_metadata = filter_metadata_only(metadata_dict, **filters)
+            filtered_accessions, filtered_metadata, metadata_filter_stats = filter_metadata_only(metadata_dict, **filters)
             if not filtered_accessions:
                 pass  # No sequences passed metadata filters
                 total_after_metadata_filter = 0
@@ -7250,11 +7598,11 @@ def virus(
 
         filters_seq={
             "max_ambiguous_chars": max_ambiguous_chars,
-            "has_proteins": has_proteins,
+            # "has_proteins": has_proteins,
             "proteins_complete": proteins_complete,
         }
 
-        if filters_seq["max_ambiguous_chars"] is None and filters_seq["has_proteins"] is None and not filters_seq["proteins_complete"]:
+        if filters_seq["max_ambiguous_chars"] is None and not filters_seq["proteins_complete"]:
             logger.info("No sequence-dependent filters specified, skipping this step.")
             filtered_sequences = list(FastaIO.parse(fna_file, "fasta"))
             filtered_metadata_final = filtered_metadata  # No change to metadata
