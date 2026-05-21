@@ -1,4 +1,4 @@
-Pytest results (Python 3.12) - 2026-05-18T17:03:36Z
+Pytest results (Python 3.12) - 2026-05-21T16:59:59Z
 
 ============================= test session starts ==============================
 platform linux -- Python 3.12.13, pytest-9.0.3, pluggy-1.6.0 -- /opt/hostedtoolcache/Python/3.12.13/x64/bin/python
@@ -59,7 +59,7 @@ tests/test_cbio.py::TestCbio::test_error_cbio_download PASSED            [ 18%]
 tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata PASSED      [ 19%]
 tests/test_cellxgene.py::TestCellxgene::test_cellxgene_metadata PASSED   [ 19%]
 tests/test_compile.py::TestCompilerWindows::test_compiler_windows PASSED [ 19%]
-tests/test_cosmic.py::TestCosmicWorkflow::test_cosmic_defaults PASSED    [ 20%]
+tests/test_cosmic.py::TestCosmicWorkflow::test_cosmic_defaults ERROR     [ 20%]
 tests/test_diamond.py::TestDiamond::test_diamond_JSON_out PASSED         [ 20%]
 tests/test_diamond.py::TestDiamond::test_diamond_both_files PASSED       [ 21%]
 tests/test_diamond.py::TestDiamond::test_diamond_query_file PASSED       [ 21%]
@@ -265,6 +265,57 @@ tests/test_virus.py::TestVirus::test_virus_with_multiple_filters PASSED  [ 99%]
 tests/test_virus.py::TestVirus::test_virus_with_protein_count_filters PASSED [ 99%]
 tests/test_virus.py::TestVirus::test_virus_with_source_database_filter PASSED [100%]
 
+==================================== ERRORS ====================================
+__________ ERROR at setup of TestCosmicWorkflow.test_cosmic_defaults ___________
+
+cls = <class 'tests.test_cosmic.TestCosmicWorkflow'>
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        time.sleep(sleep_time)
+    
+        # Download data if it doesn't already exist
+        mut_class, grch_version, file_name, version = arg_combinations[0]
+    
+        if mut_class == "cancer_example":
+            cls.tarred_folder = f"example_GRCh{grch_version}"
+        else:
+            cls.tarred_folder = f"{file_name}_Tsv_v{version}_GRCh{grch_version}"
+    
+        cls.file_name = file_name
+        cls.grch_version = grch_version
+        cls.cosmic_version = version
+    
+        expected_file = os.path.join(cls.tarred_folder, f"{file_name}_v{version}_GRCh{grch_version}.tsv")
+    
+        if not os.path.exists(expected_file):
+            cosmic(
+                searchterm=None,
+                download_cosmic=True,
+                cosmic_project=mut_class,
+                cosmic_version=version,
+                grch_version=grch_version,
+                gget_mutate=True,
+            )
+    
+        # Check that files were downloaded correctly
+        contained_file = f"{file_name}_v{version}_GRCh{grch_version}.tsv"
+        gm_file = f"{file_name}_v{version}_GRCh{grch_version}_mutation_workflow.csv"
+    
+        path1 = pl.Path(os.path.abspath(os.path.join(cls.tarred_folder, contained_file)))
+        path2 = pl.Path(os.path.abspath(os.path.join(cls.tarred_folder, gm_file)))
+    
+        if not path1.is_file() or not path2.is_file():
+>           raise FileNotFoundError("Expected COSMIC files were not found after download.")
+E           FileNotFoundError: Expected COSMIC files were not found after download.
+
+tests/test_cosmic.py:79: FileNotFoundError
+------------------------------ Captured log setup ------------------------------
+INFO     gget.utils:gget_cosmic.py:391 NOTE: Licence fees apply for the commercial use of COSMIC (https://www.cosmickb.org/licensing).
+INFO     gget.utils:gget_cosmic.py:185 Extracted tar file to /home/runner/work/gget/gget/example_GRCh37
+INFO     gget.utils:gget_cosmic.py:441 Creating modified mutations file for use with gget mutate...
+INFO     gget.utils:gget_cosmic.py:659 Modified mutations file for use with gget mutate created at /home/runner/work/gget/gget/example_GRCh37/CancerMutationCensus_AllData_v104_GRCh37_mutation_workflow.csv
 =================================== FAILURES ===================================
 __________________________ TestPDB.test_pdb_assembly ___________________________
 
@@ -490,10 +541,6 @@ tests/test_cosmic.py::TestCosmicWorkflow::test_cosmic_defaults
   /home/runner/work/gget/gget/gget/gget_cosmic.py:183: DeprecationWarning: Python 3.14 will, by default, filter extracted tar archives and reject files or modify their metadata. Use the filter argument to control this behavior.
     tar.extractall(path=tar_folder_path)
 
-tests/test_cosmic.py::TestCosmicWorkflow::test_cosmic_defaults
-  /home/runner/work/gget/gget/tests/from_json.py:69: FutureWarning: Downcasting behavior in `replace` is deprecated and will be removed in a future version. To retain the old behavior, explicitly call `result.infer_objects(copy=False)`. To opt-in to the future behavior, set `pd.set_option('future.no_silent_downcasting', True)`
-    expected_result = expected_result.replace({None: np.nan})
-
 tests/test_mutate.py: 29 warnings
   /home/runner/work/gget/gget/gget/gget_mutate.py:663: UserWarning: This pattern is interpreted as a regular expression, and has match groups. To actually get the groups, use str.extract.
     mask = mutations[mut_column].str.contains(combined_pattern)
@@ -557,11 +604,11 @@ gget/gget_8cube.py            83     28    66%   26-27, 34-43, 93, 105, 112, 115
 gget/gget_alphafold.py       362    321    11%   86-108, 115-116, 123-149, 181-186, 233-867
 gget/gget_archs4.py           79     13    84%   75-78, 84, 107, 123-126, 139-142, 148, 170, 198-201, 207
 gget/gget_bgee.py             56      6    89%   60, 83, 103, 130, 154, 175
-gget/gget_blast.py           127     36    72%   92, 124-142, 163-165, 204, 207, 251-255, 296-299, 302-303, 322-325, 332-333, 336-341, 346, 351-354
+gget/gget_blast.py           127     36    72%   92, 124-142, 163-165, 204, 207, 246-248, 296-299, 302-303, 322-325, 332-333, 336-341, 346, 351-354
 gget/gget_blat.py             86     10    88%   58-62, 95, 136, 139, 168, 232-233, 239
 gget/gget_cbio.py            524    400    24%   28, 39-67, 77-87, 136-137, 143, 154-157, 161, 164, 172-177, 208, 226, 265, 271-275, 278, 282-294, 296, 322-331, 334, 376-389, 393-416, 420-441, 447-450, 454-473, 477, 494-537, 540-757, 760-789, 802-1164, 1218-1254
 gget/gget_cellxgene.py        53      9    83%   21-22, 140-149, 176, 215, 231, 247
-gget/gget_cosmic.py          277    153    45%   24-26, 30-82, 94-109, 112-114, 117-119, 122-126, 131-135, 140-142, 155-168, 189-202, 220, 242-243, 283-308, 311, 396-398, 410, 416, 424, 427-429, 454-472, 496-621, 637-646, 649, 651, 653, 852-855, 868-870, 879-891, 896-901
+gget/gget_cosmic.py          277    198    29%   24-26, 30-82, 94-109, 112-114, 117-119, 122-126, 131-135, 140-142, 155-168, 189-202, 215-249, 256-313, 396-398, 410, 416, 424, 427-429, 454-472, 496-621, 637-646, 649, 651, 653, 851-904
 gget/gget_diamond.py          98     26    73%   16, 69, 75, 77, 95, 98-99, 105, 111, 117-121, 130-132, 145, 147, 160, 162, 181, 184, 216-217, 223
 gget/gget_elm.py             158     22    86%   128, 278, 301, 325-332, 353, 420-423, 426, 436, 490, 503, 506-515, 519-520
 gget/gget_enrichr.py         213     42    80%   39-42, 48, 172, 226-237, 254-255, 263-264, 290, 310, 316-322, 336, 364-374, 403-418, 439, 451-453, 555, 564-565, 575-576, 583
@@ -579,19 +626,20 @@ gget/gget_virus.py          2921   1659    43%   138, 198, 239-247, 261, 265, 27
 gget/main.py                 857    857     0%   1-3872
 gget/utils.py                448     80    82%   31, 36-42, 72, 95, 119, 122, 186, 193, 245, 257, 285, 296, 347, 367, 378, 411-412, 452-453, 468-469, 476-478, 494-495, 501-502, 623-639, 647-650, 676, 695, 757, 797, 837, 953, 961, 969-989, 994, 999, 1005-1006, 1024-1025, 1116, 1140-1141, 1156, 1164
 --------------------------------------------------------
-TOTAL                       8233   4309    48%
+TOTAL                       8233   4354    47%
 ============================= slowest 10 durations =============================
-78.85s call     tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
-73.60s call     tests/test_blast.py::TestBlast::test_blast_nt
-52.49s call     tests/test_search.py::TestSearch::test_search_gene_two_sw_limit
-35.22s call     tests/test_virus.py::TestVirus::test_virus_integer_virus_id
-28.23s call     tests/test_virus.py::TestVirus::test_virus_with_source_database_filter
-27.61s call     tests/test_virus.py::TestVirus::test_virus_with_has_proteins_filter
-26.50s call     tests/test_virus.py::TestVirus::test_virus_with_lab_passaged_filter
-25.09s call     tests/test_virus.py::TestVirus::test_virus_with_max_ambiguous_chars_filter
-24.03s call     tests/test_virus.py::TestVirus::test_virus_with_annotated_filter
-22.74s call     tests/test_virus.py::TestVirus::test_virus_with_protein_count_filters
+427.71s call     tests/test_blast.py::TestBlast::test_blast_nt
+44.23s call     tests/test_search.py::TestSearch::test_search_gene_two_sw_limit
+36.27s call     tests/test_cellxgene.py::TestCellxgene::test_cellxgene_adata
+32.50s call     tests/test_virus.py::TestVirus::test_virus_with_source_database_filter
+32.11s call     tests/test_virus.py::TestVirus::test_virus_with_has_proteins_filter
+30.59s call     tests/test_virus.py::TestVirus::test_virus_integer_virus_id
+28.88s call     tests/test_virus.py::TestVirus::test_virus_with_max_ambiguous_chars_filter
+27.70s call     tests/test_virus.py::TestVirus::test_virus_with_lab_passaged_filter
+27.10s call     tests/test_virus.py::TestVirus::test_virus_with_protein_count_filters
+25.08s call     tests/test_virus.py::TestVirus::test_virus_with_annotated_filter
 =========================== short test summary info ============================
+ERROR tests/test_cosmic.py::TestCosmicWorkflow::test_cosmic_defaults - FileNotFoundError: Expected COSMIC files were not found after download.
 FAILED tests/test_pdb.py::TestPDB::test_pdb_assembly - AssertionError: {'pdb[458 chars]atrix_1_1': 1.0, 'matrix_1_2': 0.0, 'matrix_1_[2910 chars]2.2'} != {'pdb[458 chars]atrix11': 1.0, 'matrix12': 0.0, 'matrix13': 0.[2864 chars]2.2'}
   {'pdbx_struct_assembly': {'details': 'author_and_software_defined_assembly',
                             'id': '1',
@@ -760,4 +808,4 @@ FAILED tests/test_pdb.py::TestPDB::test_pdb_assembly - AssertionError: {'pdb[458
                                      'id': 'Global Symmetry.Cyclic',
                                      'name': 'Cyclic'}],
    'rcsb_struct_symmetry_provenance_code': 'biojava-7.2.2'}
-=========== 1 failed, 255 passed, 273 warnings in 797.76s (0:13:17) ============
+====== 1 failed, 254 passed, 272 warnings, 1 error in 1165.57s (0:19:25) =======
