@@ -3582,11 +3582,11 @@ def _parse_partial_date_for_range_check(date_str, for_min_comparison=True, filte
     we need to handle them based on the comparison direction:
     
     - For min_collection_date comparisons: use the END of the partial range
-      (e.g., "2015" -> 2015-12-31, "2015-06" -> 2015-06-30)
+      (e.g., "2015" -> 2015-12-31, "2015-06" -> 2015-06-30, "2021/2022" -> 2022-12-31)
       This ensures records from that year/month are included if they COULD be >= min.
       
     - For max_collection_date comparisons: use the START of the partial range
-      (e.g., "2015" -> 2015-01-01, "2015-06" -> 2015-06-01)
+      (e.g., "2015" -> 2015-01-01, "2015-06" -> 2015-06-01, "2021/2022" -> 2021-01-01)
       This ensures records from that year/month are included if they COULD be <= max.
     
     Args:
@@ -3606,18 +3606,61 @@ def _parse_partial_date_for_range_check(date_str, for_min_comparison=True, filte
     date_str = date_str.strip()
     
     # Detect date precision based on format
-    # Year-only: "2015" or "2015" (4 digits)
+    # Year-only: "2015" (4 digits)
+    # Year-range: "2021/2022" or "2021-2022" (two 4-digit years)
     # Year-month: "2015-06", "2015/06", "Jun 2015", etc.
     # Full date: "2015-06-15", "2015/06/15", "Jun 15, 2015", etc.
     
     year_only_pattern = r'^(\d{4})$'
     year_month_pattern = r'^(\d{4})[-/](\d{1,2})$'
+    year_range_pattern = r'^(\d{4})[-/](\d{4})$'
+    # NCBI API returns date ranges as "[2021 TO 2022]" or "[2021-06 TO 2022-03]"
+    bracket_range_pattern = r'^\[(.+?)\s+TO\s+(.+?)\]$'
     
     year_match = re.match(year_only_pattern, date_str)
     year_month_match = re.match(year_month_pattern, date_str)
+    year_range_match = re.match(year_range_pattern, date_str)
+    bracket_range_match = re.match(bracket_range_pattern, date_str, re.IGNORECASE)
     
     try:
-        if year_match:
+        if bracket_range_match:
+            # Bracket range from NCBI API like "[2021 TO 2022]" or "[2021-06 TO 2022-03]"
+            range_start_str = bracket_range_match.group(1).strip()
+            range_end_str = bracket_range_match.group(2).strip()
+            if for_min_comparison:
+                # For min comparison, use the END of the range
+                end_result = _parse_partial_date_for_range_check(
+                    range_end_str, for_min_comparison=True, filtername=filtername
+                )
+                logger.debug("Parsed bracket-range date '%s' as %s (end of range for min comparison)",
+                           date_str, end_result)
+                return end_result
+            else:
+                # For max comparison, use the START of the range
+                start_result = _parse_partial_date_for_range_check(
+                    range_start_str, for_min_comparison=False, filtername=filtername
+                )
+                logger.debug("Parsed bracket-range date '%s' as %s (start of range for max comparison)",
+                           date_str, start_result)
+                return start_result
+
+        elif year_range_match:
+            # Year range like "2021/2022" — collection spans multiple years
+            year_start = int(year_range_match.group(1))
+            year_end = int(year_range_match.group(2))
+            if for_min_comparison:
+                # For min comparison, use end of the range (Dec 31 of end year)
+                result = datetime(year_end, 12, 31)
+                logger.debug("Parsed year-range date '%s' as %s (end of range for min comparison)", 
+                           date_str, result)
+            else:
+                # For max comparison, use start of the range (Jan 1 of start year)
+                result = datetime(year_start, 1, 1)
+                logger.debug("Parsed year-range date '%s' as %s (start of range for max comparison)", 
+                           date_str, result)
+            return result
+
+        elif year_match:
             # Year-only date like "2015"
             year = int(year_match.group(1))
             if for_min_comparison:
