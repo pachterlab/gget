@@ -43,11 +43,12 @@ except ImportError:
 # API and Network Configuration
 API_PAGE_SIZE = 1000  # Maximum records per API request (NCBI limit)
 API_REQUEST_TIMEOUT = 120  # Timeout in seconds for API requests (increased for large pages)
-API_MAX_RETRIES = 2  # Maximum retry attempts for failed API requests
-API_INITIAL_RETRY_DELAY = 2.0  # Initial delay in seconds between retries
-API_RETRY_BACKOFF_MULTIPLIER = 3.0  # Multiplier for exponential backoff
+API_MAX_RETRIES = 5  # Maximum retry attempts for failed API requests
+API_INITIAL_RETRY_DELAY = 3.0  # Initial delay in seconds between retries
+API_RETRY_BACKOFF_MULTIPLIER = 2.0  # Multiplier for exponential backoff
+MAX_RETRY_DELAY = 30  # Maximum delay in seconds between retries (caps exponential growth)
 MIN_PAGE_SIZE_FALLBACK = 20  # Minimum page size to try before giving up
-PAGE_SIZE_FALLBACK_DECREMENT = 100  # Decrease page size by this amount on retry
+PAGE_SIZE_FALLBACK_DECREMENT = 50  # Decrease page size by this amount on retry
 
 # E-utilities Configuration
 EUTILS_TIMEOUT = 300  # Timeout in seconds for E-utilities requests
@@ -62,7 +63,7 @@ EFETCH_FASTA_RETMAX = 500  # Records per EFetch call when downloading FASTA via 
 
 # GenBank Configuration
 GENBANK_DEFAULT_BATCH_SIZE = 200  # Default batch size for GenBank requests
-GENBANK_INTER_BATCH_DELAY = 0.5  # Delay in seconds between GenBank batch requests
+GENBANK_INTER_BATCH_DELAY = 0.35  # Delay in seconds between GenBank batch requests
 GENBANK_MAX_BATCH_SIZE_WARNING = 500  # Warn user if batch size exceeds this
 GENBANK_RETRY_ATTEMPTS = 5  # Number of retry attempts for GenBank requests
 GENBANK_XML_CHUNK_SIZE = 10000  # Rows to process before writing to CSV
@@ -305,6 +306,7 @@ def _retry_with_exponential_backoff(
     max_retries=API_MAX_RETRIES,
     initial_delay=API_INITIAL_RETRY_DELAY,
     backoff_multiplier=API_RETRY_BACKOFF_MULTIPLIER,
+    max_delay=MAX_RETRY_DELAY,
     retryable_exceptions=(requests.exceptions.ConnectionError, requests.exceptions.HTTPError),
     failed_commands=None,
 ):
@@ -347,11 +349,12 @@ def _retry_with_exponential_backoff(
                 is_retryable = 500 <= e.response.status_code < 600
             
             if attempt < max_retries - 1 and is_retryable:
+                capped_delay = min(retry_delay, max_delay)
                 logger.warning(
                     "⚠️ %s failed (attempt %d/%d): %s. Retrying in %.1f seconds...",
-                    operation_name, attempt + 1, max_retries, e, retry_delay
+                    operation_name, attempt + 1, max_retries, e, capped_delay
                 )
-                time.sleep(retry_delay)
+                time.sleep(capped_delay)
                 retry_delay *= backoff_multiplier
                 continue
             else:
