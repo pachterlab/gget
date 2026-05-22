@@ -1547,7 +1547,7 @@ def fetch_virus_metadata(
                             logger.info("Geographic location filter '%s' will be applied during metadata filtering", original_geographic_location)
                             return retry_reports, {'geographic_location': original_geographic_location}
                 except Exception as retry_error:
-                    logger.warning("❌ Retry without geographic filter failed: %s", retry_error)
+                    logger.warning("Retry without geographic filter failed: %s", retry_error)
             
             # STRATEGY 2: If BOTH geo_location and host filters exist, try without both
             # Skip this strategy for "all viruses" (taxon 10239) since downloading ~15M unfiltered records is not viable as a retry strategy - chunked download handles it
@@ -1582,7 +1582,7 @@ def fetch_virus_metadata(
                             logger.info("Host filter '%s' will be applied during metadata filtering", original_host)
                             return retry_reports, {'geographic_location': original_geographic_location, 'host': original_host}
                 except Exception as retry_error:
-                    logger.warning("❌ Retry without both filters failed: %s", retry_error)
+                    logger.warning("Retry without both filters failed: %s", retry_error)
             elif not success and geographic_location and host and virus == NCBI_ALL_VIRUSES_TAXID:
                 logger.info("Skipping unfiltered retry for 'all viruses' taxon (dataset too large) - will use chunked download")
             
@@ -1772,7 +1772,7 @@ def fetch_virus_metadata(
                                         logger.info("Geographic location filter '%s' will be applied during metadata filtering", original_geographic_location)
                                         return retry_reports, {'geographic_location': original_geographic_location}
                             except Exception as retry_error:
-                                logger.warning("❌ Retry without geographic filter failed: %s", retry_error)
+                                logger.warning("Retry without geographic filter failed: %s", retry_error)
                         
                         # FALLBACK 2: If host filter exists and geo retry failed or wasn't tried
                         if host:
@@ -1807,7 +1807,7 @@ def fetch_virus_metadata(
                                         logger.info("Deferred filters will be applied during metadata filtering: %s", list(deferred.keys()))
                                         return retry_reports, deferred
                             except Exception as retry_error:
-                                logger.warning("❌ Retry without host filter failed: %s", retry_error)
+                                logger.warning("Retry without host filter failed: %s", retry_error)
                     
                     # All fallback strategies exhausted or we're already in retry mode
                     error_msg = f"API request returned no data for {virus}. The dataset may be empty or unavailable. Please verify the virus name and filters, or try again later."
@@ -1853,7 +1853,7 @@ def fetch_virus_metadata(
                     
                     # Log the timeout error before raising
                     logger.error("=" * 80)
-                    logger.error("❌ REQUEST TIMEOUT")
+                    logger.error("REQUEST TIMEOUT")
                     logger.error("=" * 80)
                     logger.error(error_msg)
                     logger.error("=" * 80)
@@ -1911,7 +1911,7 @@ def fetch_virus_metadata(
                     # Log the connection error before raising
                     error_msg = f"Connection error while fetching virus metadata: {last_exception.get('error', 'Unknown')}"
                     logger.error("=" * 80)
-                    logger.error("❌ CONNECTION ERROR")
+                    logger.error("CONNECTION ERROR")
                     logger.error("=" * 80)
                     logger.error(error_msg)
                     logger.error("Please check your internet connection and try again.")
@@ -2013,7 +2013,7 @@ def fetch_virus_metadata(
                     
                     # Log the error details before raising
                     logger.error("=" * 80)
-                    logger.error("❌ API REQUEST FAILED")
+                    logger.error("API REQUEST FAILED")
                     logger.error("=" * 80)
                     logger.error(error_msg)
                     logger.error("=" * 80)
@@ -2050,9 +2050,9 @@ def fetch_virus_metadata(
                     loop = False
                     break
                 else:
-                    error_msg = f"❌ Failed to fetch virus metadata: {last_exception.get('error', 'Unknown')}"
+                    error_msg = f"Failed to fetch virus metadata: {last_exception.get('error', 'Unknown')}"
                     logger.error("=" * 80)
-                    logger.error("❌ REQUEST FAILED")
+                    logger.error("REQUEST FAILED")
                     logger.error("=" * 80)
                     logger.error(error_msg)
                     logger.error("=" * 80)
@@ -2104,9 +2104,7 @@ def fetch_virus_metadata_chunked(
     """
     Fetch virus metadata using a chunked date-range strategy for very large datasets.
     
-    This function is used as a fallback when the standard fetch_virus_metadata fails
-    due to dataset size limitations. It breaks down the request into yearly chunks
-    starting from a reasonable start date or user's min_release_date to the present.
+    This function is used as a fallback when the standard fetch_virus_metadata fails due to dataset size limitations. It breaks down the request into yearly chunks starting from a reasonable start date or user's min_release_date to the present.
     
     Because the NCBI API currently cannot handle broad taxon queries (e.g., taxon 10239 for all viruses) with server-side filters like host or geographic_location, this function makes UNFILTERED requests and tracks those filters as deferred, to be applied later during metadata filtering.
     
@@ -2351,9 +2349,7 @@ def process_cached_download(zip_file, virus_type="virus"):
     """
     Process a cached download ZIP file and extract sequences with metadata.
     
-    This helper function extracts sequences from a cached ZIP download and loads the
-    rich metadata from data_report.jsonl (if available). The metadata is essential 
-    for post-download filtering operations.
+    This helper function extracts sequences from a cached ZIP download and loads the rich metadata from data_report.jsonl (if available). The metadata is essential for post-download filtering operations.
     
     NCBI cached downloads typically include:
         - genomic.fna: FASTA sequences
@@ -2835,16 +2831,16 @@ def _download_optimized_cached(
                 return zip_path, applied_filters, missing_filters
             else:
                 # Strategy failed, prepare error message
-                error_msg = f"❌ {strategy_name} failed with return code {result.returncode}"
+                error_msg = f"{strategy_name} failed with return code {result.returncode}"
                 if result.stderr:
                     error_msg += f": {result.stderr.strip()}"
-                logger.warning("❌ %s", error_msg)
+                logger.warning("%s", error_msg)
                 last_error = error_msg
                 
                 # If this was an accession download that failed, provide specific guidance
                 if use_accession:
                     error_msg = (
-                        f"❌ Failed to download {virus_type} sequence for accession '{accession}'. "
+                        f"Failed to download {virus_type} sequence for accession '{accession}'. "
                         f"Please verify that this is a valid {virus_type} accession number. "
                         f"If you're not sure, try without the is_{virus_type.lower().replace('-', '_').replace(' ', '_')} flag."
                     )
@@ -2860,19 +2856,19 @@ def _download_optimized_cached(
                 
         except subprocess.TimeoutExpired:
             error_msg = f"{strategy_name} timed out after 30 minutes"
-            logger.warning("❌ %s", error_msg)
+            logger.warning("%s", error_msg)
             last_error = error_msg
             continue
             
         except subprocess.CalledProcessError as e:
             error_msg = f"{strategy_name} execution failed: {e}"
-            logger.warning("❌ %s", error_msg)
+            logger.warning("%s", error_msg)
             last_error = error_msg
             continue
             
         except Exception as e:
             error_msg = f"{strategy_name} unexpected error: {e}"
-            logger.warning("❌ %s", error_msg)
+            logger.warning("%s", error_msg)
             last_error = error_msg
             continue
     
@@ -2895,7 +2891,7 @@ def _download_optimized_cached(
     
     # Raise error with the last failure details
     raise RuntimeError(
-        f"❌ All {virus_type} cached download strategies failed. "
+        f"All {virus_type} cached download strategies failed. "
         f"Last error: {last_error}. "
         f"Consider using the general API method instead."
     )
@@ -6199,7 +6195,7 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
         logger.error("Error during GenBank metadata fetch: %s", e)
         raise
     finally:
-        # Clean up file handle if still open
+        # Clean up file handles if still open
         if xml_file is not None:
             try:
                 xml_file.close()
@@ -8539,7 +8535,7 @@ def virus(
                 logger.debug("Applied filters: %s", applied_filters)
                 logger.debug("Missing filters (to apply in Step 3b): %s", missing_filters)
         except Exception as cache_error:
-            logger.warning("❌ SARS-CoV-2 cached download failed after all strategies: %s", cache_error)
+            logger.warning("SARS-CoV-2 cached download failed after all strategies: %s", cache_error)
             logger.info("🔄 Retrying with normal API download method (_skip_cache=True)...")
             # Retry the entire virus() call with _skip_cache=True to use the normal API pathway
             _virus_func = globals()['virus']
@@ -8630,7 +8626,7 @@ def virus(
                 logger.debug("Applied filters: %s", applied_filters)
                 logger.debug("Missing filters (to apply in Step 3b): %s", missing_filters)
         except Exception as cache_error:
-            logger.warning("❌ Alphainfluenza cached download failed after all strategies: %s", cache_error)
+            logger.warning("Alphainfluenza cached download failed after all strategies: %s", cache_error)
             logger.info("🔄 Retrying with normal API download method (_skip_cache=True)...")
             # Retry the entire virus() call with _skip_cache=True to use the normal API pathway
             # Note: We use globals()['virus'] because the local parameter 'virus' (a string)
@@ -9820,7 +9816,7 @@ def virus(
         # Check if this is a server-side issue that we can provide guidance for
         if any(indicator in error_msg.lower() for indicator in ['timeout', '500 server error', 'internal server error']):
             logger.error("=" * 80)
-            logger.error("❌ SERVER-SIDE ERROR DETECTED")
+            logger.error("SERVER-SIDE ERROR DETECTED")
             logger.error("=" * 80)
             logger.error("The NCBI API is experiencing server-side issues.")
             logger.error("This is not a problem with your query or parameters.")
@@ -9958,7 +9954,7 @@ def virus(
                     os.remove(output_metadata_csv)
                 logger.debug("✅ Cleaned up temporary directory: %s", temp_dir)
             except Exception as e:
-                logger.warning("❌ Failed to clean up temporary directory %s: %s", temp_dir, e)
+                logger.warning("Failed to clean up temporary directory %s: %s", temp_dir, e)
         
         # Clean up cached download files (zip file and extracted directory)
         # This ensures the folder structure is identical whether using cached or API-based downloads
@@ -9977,7 +9973,7 @@ def virus(
                     shutil.rmtree(cached_extract_dir)
                     logger.debug("✅ Cleaned up cached extracted directory: %s", cached_extract_dir)
             except Exception as e:
-                logger.warning("❌ Failed to clean up cached download files: %s", e)
+                logger.warning("Failed to clean up cached download files: %s", e)
         elif cached_zip_file and keep_temp:
             logger.debug("Preserving cached download files as per user request: %s", cached_zip_file)
         
@@ -9992,7 +9988,7 @@ def virus(
                 os.remove(output_api_metadata_jsonl)
                 logger.debug("Removed filtered metadata JSONL due to no passing sequences: %s", output_api_metadata_jsonl)
             except Exception as e:
-                logger.warning("❌ Failed to remove filtered metadata JSONL even though no sequence passed all filters: %s", e)
+                logger.warning("Failed to remove filtered metadata JSONL even though no sequence passed all filters: %s", e)
 
                 
                 
