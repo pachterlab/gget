@@ -3662,6 +3662,57 @@ def _parse_partial_date_for_range_check(date_str, for_min_comparison=True, filte
         raise ValueError(error_msg) from exc
 
 
+def _write_fasta_record(handle, record):
+    """
+    Write a single FASTA record to an open file handle.
+    
+    Args:
+        handle: Open file handle for writing.
+        record: FastaRecord object with id, description, and seq attributes.
+    """
+    if hasattr(record, 'description') and record.description:
+        handle.write(f">{record.id} {record.description}\n")
+    else:
+        handle.write(f">{record.id}\n")
+    seq_str = str(record.seq)
+    for i in range(0, len(seq_str), 70):
+        handle.write(seq_str[i:i+70] + '\n')
+
+
+def _stream_copy_fasta(input_path, output_path, accession_set=None):
+    """
+    Stream-copy FASTA records from input to output, optionally filtering by accession set.
+    
+    This avoids loading all sequences into RAM — only one record at a time is in memory.
+    For large datasets (millions of sequences), this is critical to avoid out-of-memory errors.
+    
+    Args:
+        input_path (str): Path to input FASTA file.
+        output_path (str): Path to output FASTA file.
+        accession_set (set, optional): If provided, only copy records whose ID is in this set.
+        
+    Returns:
+        int: Number of records written.
+    """
+    count = 0
+    skipped = 0
+    with open(output_path, 'w', encoding='utf-8') as out_handle:
+        for record in FastaIO.parse(input_path, "fasta"):
+            if accession_set is not None and record.id not in accession_set:
+                skipped += 1
+                continue
+            _write_fasta_record(out_handle, record)
+            count += 1
+            if count % FASTA_STREAM_LOG_INTERVAL == 0:
+                logger.debug("Streamed %d FASTA records so far...", count)
+    
+    if accession_set is not None:
+        logger.info("Stream-copied %d FASTA records (%d skipped by accession filter)", count, skipped)
+    else:
+        logger.info("Stream-copied %d FASTA records", count)
+    return count
+
+
 def load_metadata_from_api_reports(api_reports):
     """
     Load metadata from API response reports into a dictionary.
@@ -8439,7 +8490,9 @@ def virus(
 
         if filters_seq["max_ambiguous_chars"] is None and not filters_seq["proteins_complete"]:
             logger.info("No sequence-dependent filters specified, skipping this step.")
-            filtered_sequences = list(FastaIO.parse(fna_file, "fasta"))
+            # Stream-copy FASTA directly to output instead of loading all into RAM
+            # For large datasets (millions of sequences), this avoids OOM errors
+            total_final_sequences = _stream_copy_fasta(fna_file, output_fasta_file)
             filtered_metadata_final = filtered_metadata  # No change to metadata
             protein_headers = []
             logger.info("All %d downloaded sequences were streamed to output", total_final_sequences)
@@ -8451,7 +8504,6 @@ def virus(
             # Stream filtered sequences directly to output file
             # instead of accumulating them in a list in RAM
             total_final_sequences, filtered_metadata_final, protein_headers, sequence_filter_stats = filter_sequences(
-                output_fasta_path=output_fasta_file,
                 fna_file,
                 filtered_metadata_dict,
                 output_fasta_path=output_fasta_file,
@@ -8473,19 +8525,17 @@ def virus(
         logger.info("=" * 60)
         logger.info("STEP 7: Saving final output files")
         logger.info("=" * 60)
-        if filtered_sequences:
-            logger.info("Saving %d filtered sequences and their metadata...", len(filtered_sequences))
+        if total_final_sequences > 0:
+            logger.info("Saving metadata for %d filtered sequences...", total_final_sequences)
 
-            # Save FASTA
-            FastaIO.write(filtered_sequences, output_fasta_file, "fasta")
+            # FASTA was already written during Section 6 (streaming to output_fasta_file)
             if os.path.exists(output_fasta_file):
                 logger.info("✅ FASTA file saved: %s (%.2f MB)", output_fasta_file, os.path.getsize(output_fasta_file) / 1024 / 1024)
                 output_files_dict['FASTA Sequences'] = output_fasta_file
             else:
-                logger.error("❌ Failed to create FASTA file: %s", output_fasta_file)
+                logger.error("❌ FASTA file not found at expected location: %s", output_fasta_file)
             
-            # Track final counts and metadata for summary
-            total_final_sequences = len(filtered_sequences)
+            # Track final metadata for summary
             final_metadata_for_summary = filtered_metadata_final
 
             # Overwrite JSONL with final filtered metadata (includes only sequences that passed all filters)
@@ -8767,14 +8817,14 @@ def virus(
 
     # SECTION 9: FINAL SUMMARY
         # Provide comprehensive summary of the results
-        if filtered_sequences:
+        if total_final_sequences > 0:
             logger.info("=" * 60)
             logger.info("PROCESS COMPLETED SUCCESSFULLY")
             logger.info("=" * 60)
             logger.info("Results summary:")
-            logger.info("  Total sequences (API metadata): %d", len(metadata_dict))
+            logger.info("  Total sequences (API metadata): %d", total_api_records)
             logger.info("  After metadata-only filtering: %d", len(filtered_accessions))
-            logger.info("  After all filters (final): %d", len(filtered_sequences))
+            logger.info("  After all filters (final): %d", total_final_sequences)
             logger.info("")
             logger.info("Output files saved to: %s", outfolder)
             logger.info("  📄 Sequences (FASTA): %s", os.path.basename(output_fasta_file))
@@ -9029,7 +9079,7 @@ def virus(
             if genbank_metadata and genbank_success and os.path.exists(genbank_csv_path):
                 shutil.move(output_metadata_csv, os.path.join(temp_dir, os.path.basename(output_metadata_csv)))
 
-        if len(filtered_sequences) == 0 and os.path.exists(output_api_metadata_jsonl):
+        if total_final_sequences == 0 and os.path.exists(output_api_metadata_jsonl):
             try:
                 os.remove(output_api_metadata_jsonl)
                 logger.debug("Removed filtered metadata JSONL due to no passing sequences: %s", output_api_metadata_jsonl)
