@@ -1155,6 +1155,23 @@ def _fetch_metadata_for_accession_list(
                 # Backward compatibility if result is just a list
                 batch_reports = batch_result
         
+        # If batch_reports is a file path (string), read reports from it
+        # This happens when fetch_virus_metadata streams to disk
+        if isinstance(batch_reports, str) and os.path.isfile(batch_reports):
+            file_reports = []
+            try:
+                with open(batch_reports, 'r', encoding='utf-8') as bf:
+                    for line in bf:
+                        line = line.strip()
+                        if line:
+                            try:
+                                file_reports.append(json.loads(line))
+                            except json.JSONDecodeError:
+                                continue
+            except IOError:
+                file_reports = []
+            batch_reports = file_reports
+        
         if success and batch_reports:
             all_reports.extend(batch_reports)
             # Track deferred filters (should be the same across all batches if any)
@@ -1419,7 +1436,7 @@ def fetch_virus_metadata(
     logger.debug("Set page size to maximum: %d records per request", API_PAGE_SIZE)
     
     # Initialize variables for handling paginated results
-    all_reports = []      # Will store all metadata records across all pages
+    total_records_streamed = 0  # Counter for records written to temp file (NOT held in RAM)
     page_token = None     # Token for accessing subsequent pages
     page_count = 0        # Track number of pages processed for logging
     pages_pbar = None     # Progress bar for pagination (created when we know total pages)
@@ -1526,7 +1543,7 @@ def fetch_virus_metadata(
                     else:
                         retry_reports = retry_result[0] if isinstance(retry_result, tuple) else retry_result
                         if retry_reports is not None:
-                            logger.info("✅ Successfully retrieved %d records without geographic filter", len(retry_reports))
+                            logger.info("✅ Successfully retrieved records without geographic filter")
                             logger.info("Geographic location filter '%s' will be applied during metadata filtering", original_geographic_location)
                             return retry_reports, {'geographic_location': original_geographic_location}
                 except Exception as retry_error:
@@ -1560,7 +1577,7 @@ def fetch_virus_metadata(
                     else:
                         retry_reports = retry_result[0] if isinstance(retry_result, tuple) else retry_result
                         if retry_reports is not None:
-                            logger.info("✅ Successfully retrieved %d records without geographic and host filters", len(retry_reports))
+                            logger.info("✅ Successfully retrieved records without geographic and host filters")
                             logger.info("Geographic location filter '%s' will be applied during metadata filtering", original_geographic_location)
                             logger.info("Host filter '%s' will be applied during metadata filtering", original_host)
                             return retry_reports, {'geographic_location': original_geographic_location, 'host': original_host}
@@ -1597,7 +1614,7 @@ def fetch_virus_metadata(
                     else:
                         retry_reports = retry_result[0] if isinstance(retry_result, tuple) else retry_result
                         if retry_reports is not None:
-                            logger.info("✅ Successfully retrieved %d records without host filter", len(retry_reports))
+                            logger.info("✅ Successfully retrieved records without host filter")
                             logger.info("Host filter '%s' will be applied during metadata filtering", original_host)
                             return retry_reports, {'host': original_host}
                 except Exception as retry_error:
@@ -1673,7 +1690,7 @@ def fetch_virus_metadata(
                 pages_pbar = tqdm(total=max(total_pages, 1), desc="Fetching pages", unit="page", leave=False)
             if pages_pbar:
                 pages_pbar.update(1)
-                pages_pbar.set_postfix({"records": len(all_reports)})
+                pages_pbar.set_postfix({"records": total_records_streamed})
             
             # Stream reports to temporary file if available
             if metadata_file and reports:
@@ -1685,8 +1702,8 @@ def fetch_virus_metadata(
                 except IOError as e:
                     logger.warning("Error writing to temporary metadata file: %s", e)
             
-            # Add this page's reports to our complete collection
-            all_reports.extend(reports)
+            # Track count only - records are on disk, NOT held in RAM
+            total_records_streamed += len(reports)
             
             # Check if there are more pages to retrieve
             next_page_token = page_data.get('next_page_token')
@@ -1707,8 +1724,8 @@ def fetch_virus_metadata(
                 # Success=True but no data returned - this shouldn't happen in normal operation
                 # but we should handle it gracefully
                 logger.warning("⚠️ API request succeeded but returned no data (page %d)", page_count)
-                if all_reports:
-                    logger.info("Continuing with %d records collected so far...", len(all_reports))
+                if total_records_streamed > 0:
+                    logger.info("Continuing with %d records collected so far...", total_records_streamed)
                     loop = False
                     break
                 else:
@@ -1750,8 +1767,8 @@ def fetch_virus_metadata(
                                     logger.warning("Retry without geographic filter returned None (dataset too large for single request)")
                                 else:
                                     retry_reports = retry_result[0] if isinstance(retry_result, tuple) else retry_result
-                                    if retry_reports is not None and len(retry_reports) > 0:
-                                        logger.info("✅ Successfully retrieved %d records without geographic filter", len(retry_reports))
+                                    if retry_reports is not None:
+                                        logger.info("✅ Successfully retrieved records without geographic filter")
                                         logger.info("Geographic location filter '%s' will be applied during metadata filtering", original_geographic_location)
                                         return retry_reports, {'geographic_location': original_geographic_location}
                             except Exception as retry_error:
@@ -1782,11 +1799,11 @@ def fetch_virus_metadata(
                                     logger.warning("Retry without host filter returned None (dataset too large for single request)")
                                 else:
                                     retry_reports = retry_result[0] if isinstance(retry_result, tuple) else retry_result
-                                    if retry_reports is not None and len(retry_reports) > 0:
+                                    if retry_reports is not None:
                                         deferred = {'host': original_host}
                                         if geographic_location:
                                             deferred['geographic_location'] = original_geographic_location
-                                        logger.info("✅ Successfully retrieved %d records without filters", len(retry_reports))
+                                        logger.info("✅ Successfully retrieved records without filters")
                                         logger.info("Deferred filters will be applied during metadata filtering: %s", list(deferred.keys()))
                                         return retry_reports, deferred
                             except Exception as retry_error:
@@ -1803,10 +1820,10 @@ def fetch_virus_metadata(
             
             if isinstance(last_exception.get('exception_type'), str) and last_exception['exception_type'] == 'Timeout':
                 # For pagination timeouts, we can continue with partial results
-                if page_count > 1 and all_reports:
+                if page_count > 1 and total_records_streamed > 0:
                     # We have collected some pages already
                     logger.warning("⚠️ Request timed out while fetching additional pages (page %d)", page_count)
-                    logger.info("Continuing with %d records collected so far...", len(all_reports))
+                    logger.info("Continuing with %d records collected so far...", total_records_streamed)
                     
                     # Track timeout in failed_commands for user reference
                     if failed_commands is not None:
@@ -1816,7 +1833,7 @@ def fetch_virus_metadata(
                             'page': page_count,
                             'error': 'API request timeout',
                             'url': url,
-                            'records_retrieved': len(all_reports),
+                            'records_retrieved': total_records_streamed,
                         })
                     
                     # Break pagination loop and return partial results
@@ -1854,9 +1871,9 @@ def fetch_virus_metadata(
                 
             elif last_exception.get('exception_type') == 'ConnectionError':
                 # For pagination connection errors, continue with partial results if available
-                if page_count > 1 and all_reports:
+                if page_count > 1 and total_records_streamed > 0:
                     logger.warning("⚠️ Connection error while fetching additional pages (page %d)", page_count)
-                    logger.info("Continuing with %d records collected so far...", len(all_reports))
+                    logger.info("Continuing with %d records collected so far...", total_records_streamed)
                     
                     # Track error in failed_commands
                     if failed_commands is not None:
@@ -1866,7 +1883,7 @@ def fetch_virus_metadata(
                             'page': page_count,
                             'error_type': 'ConnectionError',
                             'error': last_exception.get('error', 'Unknown'),
-                            'records_retrieved': len(all_reports),
+                            'records_retrieved': total_records_streamed,
                         })
                     
                     loop = False
@@ -1911,9 +1928,9 @@ def fetch_virus_metadata(
                 
             elif last_exception.get('exception_type') == 'HTTPError':
                 # For pagination HTTP errors, continue with partial results if available
-                if page_count > 1 and all_reports:
+                if page_count > 1 and total_records_streamed > 0:
                     logger.warning("⚠️ HTTP error while fetching additional pages (page %d): %s", page_count, last_exception.get('error'))
-                    logger.info("Continuing with %d records collected so far...", len(all_reports))
+                    logger.info("Continuing with %d records collected so far...", total_records_streamed)
                     
                     # Track error in failed_commands
                     if failed_commands is not None:
@@ -1923,7 +1940,7 @@ def fetch_virus_metadata(
                             'page': page_count,
                             'error_type': 'HTTPError',
                             'error': last_exception.get('error', 'Unknown'),
-                            'records_retrieved': len(all_reports),
+                            'records_retrieved': total_records_streamed,
                         })
                     
                     loop = False
@@ -2013,9 +2030,9 @@ def fetch_virus_metadata(
             else:
                 # Handle any other request-related errors
                 # For pagination errors with partial results, continue
-                if page_count > 1 and all_reports:
+                if page_count > 1 and total_records_streamed > 0:
                     logger.warning("⚠️ Error while fetching additional pages (page %d): %s", page_count, last_exception.get('error'))
-                    logger.info("Continuing with %d records collected so far...", len(all_reports))
+                    logger.info("Continuing with %d records collected so far...", total_records_streamed)
                     
                     # Track error in failed_commands
                     if failed_commands is not None:
@@ -2025,7 +2042,7 @@ def fetch_virus_metadata(
                             'page': page_count,
                             'error_type': last_exception.get('exception_type', 'Unknown'),
                             'error': last_exception.get('error', 'Unknown'),
-                            'records_retrieved': len(all_reports),
+                            'records_retrieved': total_records_streamed,
                         })
                     
                     if pages_pbar:
@@ -2061,13 +2078,14 @@ def fetch_virus_metadata(
     
     # Log the final results summary
     logger.info("Successfully retrieved %d virus records from NCBI API across %d pages", 
-                len(all_reports), page_count)
+                total_records_streamed, page_count)
     
     if temp_metadata_file and os.path.exists(temp_metadata_file):
         file_size_mb = os.path.getsize(temp_metadata_file) / (1024 * 1024)
         logger.info("Temporary metadata file size: %.2f MB", file_size_mb)
     
-    return all_reports, None  # (reports, deferred_filters) - None means no deferred filters
+    # Return the temp file path instead of holding all records in RAM. The caller will stream from this file to build metadata_dict.
+    return temp_metadata_file, None  # (temp_file_path, deferred_filters) - None means no deferred filters
 
 
 def fetch_virus_metadata_chunked(
@@ -2148,6 +2166,8 @@ def fetch_virus_metadata_chunked(
             end_year = current_year
     
     all_reports = []
+    chunk_temp_files = []  # Track temp file paths from each chunk
+    total_records_count = 0  # Track total records without holding in RAM
     total_chunks = end_year - start_year + 1
     
     logger.info(f"Will process {total_chunks} year(s) from {start_year} to {end_year}")
@@ -2202,10 +2222,26 @@ def fetch_virus_metadata_chunked(
                         deferred_filters[k] = v
                         logger.debug("Chunk %d added deferred filter: %s=%s", chunk_num, k, v)
             
-            chunk_count = len(chunk_reports)
-            all_reports.extend(chunk_reports)
+            # Handle chunk_reports which can be a file path (string) or a list
+            if isinstance(chunk_reports, str) and os.path.isfile(chunk_reports):
+                # Count records in the chunk file without loading into RAM
+                chunk_count = 0
+                try:
+                    with open(chunk_reports, 'r', encoding='utf-8') as cf:
+                        for line in cf:
+                            if line.strip():
+                                chunk_count += 1
+                except IOError:
+                    chunk_count = 0
+                chunk_temp_files.append(chunk_reports)
+                total_records_count += chunk_count
+            else:
+                # chunk_reports is a list (small dataset)
+                chunk_count = len(chunk_reports)
+                all_reports.extend(chunk_reports)
+                total_records_count += chunk_count
             
-            tqdm.write(f"✅ Chunk {chunk_num}/{total_chunks}: Retrieved {chunk_count:,} records (total: {len(all_reports):,})")
+            tqdm.write(f"✅ Chunk {chunk_num}/{total_chunks}: Retrieved {chunk_count:,} records (total: {total_records_count:,})")
             
             # Add a small delay between chunks to be respectful to NCBI servers
             if year < end_year:
@@ -2218,11 +2254,32 @@ def fetch_virus_metadata_chunked(
     logger.info("")
     logger.info("=" * 80)
     logger.info(f"✅ CHUNKED DOWNLOAD COMPLETE")
-    logger.info(f"   Total records retrieved: {len(all_reports):,}")
+    logger.info(f"   Total records retrieved: {total_records_count:,}")
     logger.info(f"   Total chunks processed: {total_chunks}")
     if deferred_filters:
         logger.info("   Deferred filters to apply: %s", deferred_filters)
     logger.info("=" * 80)
+    
+    # If we have chunk temp files, merge them into a single JSONL and return the path
+    if chunk_temp_files:
+        # Create a merged temp file path
+        merged_temp_file = os.path.join(temp_output_dir, f"gget_metadata_chunked_{timestamp}_{random_suffix}.jsonl")
+        try:
+            with open(merged_temp_file, 'w', encoding='utf-8') as outf:
+                # First, write any in-memory reports (from small chunks)
+                for report in all_reports:
+                    outf.write(json.dumps(report) + '\n')
+                # Then append contents of chunk temp files
+                for chunk_file in chunk_temp_files:
+                    with open(chunk_file, 'r', encoding='utf-8') as inf:
+                        for line in inf:
+                            if line.strip():
+                                outf.write(line if line.endswith('\n') else line + '\n')
+            logger.info("Merged %d chunk files into: %s", len(chunk_temp_files), merged_temp_file)
+            return merged_temp_file, deferred_filters if deferred_filters else None
+        except IOError as e:
+            logger.warning("Failed to merge chunk files: %s. Falling back to in-memory.", e)
+            # Fall through to return all_reports if merge fails
     
     return all_reports, deferred_filters if deferred_filters else None
 
@@ -2341,121 +2398,121 @@ def process_cached_download(zip_file, virus_type="virus"):
             elif file.endswith(('.fasta', '.fa', '.fna')):
                 fasta_files.append(os.path.join(root, file))
     
-    # Load rich metadata from data_report.jsonl if available
-    cached_metadata_dict = {}
+    # Write rich metadata from data_report.jsonl to a temp JSONL file (memory-efficient)
+    # Instead of building a dict of millions of records in RAM, we stream to disk and let the caller load/filter from the file with _load_metadata_dict_from_temp_jsonl
+    cached_metadata_jsonl_path = None
+    cached_metadata_record_count = 0
     if metadata_files:
         logger.info("Found %d metadata file(s) in cached download", len(metadata_files))
-        for metadata_file in metadata_files:
-            try:
-                # Get file size for progress bar estimation
-                file_size = os.path.getsize(metadata_file)
-                file_size_mb = file_size / BYTES_PER_MB
-                logger.debug("Loading metadata file: %s (%.1f MB)", metadata_file, file_size_mb)
-                
-                # Track record count for logging during progress
-                record_count = 0
-                
-                with open(metadata_file, 'r', encoding='utf-8') as f:
-                    # Use tqdm to show progress while reading the file
-                    # Total is file size in bytes, updated as we read lines
-                    pbar = tqdm(
-                        total=file_size,
-                        unit='B',
-                        unit_scale=True,
-                        unit_divisor=1024,
-                        desc="Processing metadata",
-                        ncols=80,
-                        leave=True
-                    )
-                    
-                    for line in f:
-                        if line.strip():
-                            # Update progress based on bytes read
-                            pbar.update(len(line.encode('utf-8')))
+        # Create temp JSONL path next to the zip file
+        cached_metadata_jsonl_path = os.path.join(extract_dir, "_cached_metadata_internal.jsonl")
+        
+        try:
+            with open(cached_metadata_jsonl_path, 'w', encoding='utf-8') as out_jsonl:
+                for metadata_file in metadata_files:
+                    try:
+                        # Get file size for progress bar estimation
+                        file_size = os.path.getsize(metadata_file)
+                        file_size_mb = file_size / BYTES_PER_MB
+                        logger.debug("Streaming metadata file to temp JSONL: %s (%.1f MB)", metadata_file, file_size_mb)
+                        
+                        with open(metadata_file, 'r', encoding='utf-8') as f:
+                            # Use tqdm to show progress while reading the file
+                            pbar = tqdm(
+                                total=file_size,
+                                unit='B',
+                                unit_scale=True,
+                                unit_divisor=1024,
+                                desc="Processing metadata",
+                                ncols=80,
+                                leave=True
+                            )
                             
-                            report = json.loads(line)
-                            # Extract accession from the report
-                            accession = report.get('accession', '')
-                            if not accession:
-                                continue
-                            
-                            record_count += 1
-                            
-                            # Update progress bar description with record count
-                            pbar.set_description(f"Processing metadata ({record_count:,} records)")
-                            
-                            # Transform the NCBI report format to our internal metadata format
-                            # This mirrors the logic in load_metadata_from_api_reports
-                            metadata = {
-                                'accession': accession,
-                                'length': report.get('length'),
-                                # 'source': 'cached_data_report',
-                                'geneCount': report.get('geneCount'),
-                                'completeness': report.get('completeness', '').lower(),
-                            }
-                            
-                            # Extract virus info
-                            virus_info = report.get('virus', {})
-                            metadata['virusName'] = virus_info.get('organismName')
-                            metadata['virusTaxId'] = virus_info.get('taxId')
-                            metadata['virusPangolinClassification'] = virus_info.get('pangolinClassification')
-                            
-                            # Extract host info
-                            host_info = report.get('host', {})
-                            metadata['hostName'] = host_info.get('organismName') 
-                            # metadata['hostCommonName'] = host_info.get('commonName')  # May not exist, but try anyway
-                            metadata['hostTaxId'] = host_info.get('taxId') 
-                            
-                            # Extract biosample info
-                            # metadata['biosampleAccession'] = report.get('biosample') # May not exist, but try anyway
-                            
-                            # Extract isolate info 
-                            isolate_info = report.get('isolate', {})
-                            metadata['isolateName'] = isolate_info.get('name')
-                            # Store isolate as nested dict to match filter_metadata_only expectations
-                            metadata['isolate'] = {
-                                # 'name': isolate_info.get('name'),
-                                'collectionDate': isolate_info.get('collectionDate'),  
-                                'source': isolate_info.get('source'),
-                            }
-                            
-                            # Extract location info
-                            location_info = report.get('location', {})
-                            metadata['location'] = location_info.get('geographicLocation')
-                            metadata['region'] = location_info.get('geographicRegion')
-                            # metadata['usa_state'] = location_info.get('usaState') # May not exist, but try anyway
-                                                        
-                            # Extract other fields
-                            metadata['releaseDate'] = report.get('releaseDate')
-                            # metadata['updateDate'] = report.get('updateDate')
-                            metadata['isAnnotated'] = report.get('isAnnotated', False)
-                            # metadata['isRefSeq'] = report.get('isRefSeq', False)
-                            metadata['sourceDatabase'] = report.get('sourceDatabase')
-                            metadata['isLabHost'] = report.get('isLabHost', False)
-                            
-                            # Gene and protein counts
-                            metadata['proteinCount'] = report.get('proteinCount')
-                            metadata['maturePeptideCount'] = report.get('maturePeptideCount')
-                            
-                            # Extract segment
-                            metadata['segment'] = report.get('segment')
-                            
-                            # Extract vaccine strain flag
-                            metadata['isVaccineStrain'] = report.get('isVaccineStrain', False)
+                            for line in f:
+                                if line.strip():
+                                    # Update progress based on bytes read
+                                    pbar.update(len(line.encode('utf-8')))
+                                    
+                                    report = json.loads(line)
+                                    # Extract accession from the report
+                                    accession = report.get('accession', '')
+                                    if not accession:
+                                        continue
+                                    
+                                    cached_metadata_record_count += 1
+                                    
+                                    # Update progress bar description with record count
+                                    if cached_metadata_record_count % 10000 == 0:
+                                        pbar.set_description(f"Processing metadata ({cached_metadata_record_count:,} records)")
+                                    
+                                    # Transform the NCBI report format to our internal metadata format
+                                    # This mirrors the logic in load_metadata_from_api_reports
+                                    metadata = {
+                                        'accession': accession,
+                                        'length': report.get('length'),
+                                        'geneCount': report.get('geneCount'),
+                                        'completeness': report.get('completeness', '').lower(),
+                                    }
+                                    
+                                    # Extract virus info
+                                    virus_info = report.get('virus', {})
+                                    metadata['virusName'] = virus_info.get('organismName')
+                                    metadata['virusTaxId'] = virus_info.get('taxId')
+                                    metadata['virusPangolinClassification'] = virus_info.get('pangolinClassification')
+                                    
+                                    # Extract host info
+                                    host_info = report.get('host', {})
+                                    metadata['hostName'] = host_info.get('organismName') 
+                                    metadata['hostTaxId'] = host_info.get('taxId') 
+                                    
+                                    # Extract isolate info 
+                                    isolate_info = report.get('isolate', {})
+                                    metadata['isolateName'] = isolate_info.get('name')
+                                    # Store isolate as nested dict to match filter_metadata_only expectations
+                                    metadata['isolate'] = {
+                                        'collectionDate': isolate_info.get('collectionDate'),  
+                                        'source': isolate_info.get('source'),
+                                    }
+                                    
+                                    # Extract location info
+                                    location_info = report.get('location', {})
+                                    metadata['location'] = location_info.get('geographicLocation')
+                                    metadata['region'] = location_info.get('geographicRegion')
+                                                                
+                                    # Extract other fields
+                                    metadata['releaseDate'] = report.get('releaseDate')
+                                    metadata['isAnnotated'] = report.get('isAnnotated', False)
+                                    metadata['sourceDatabase'] = report.get('sourceDatabase')
+                                    metadata['isLabHost'] = report.get('isLabHost', False)
+                                    
+                                    # Gene and protein counts
+                                    metadata['proteinCount'] = report.get('proteinCount')
+                                    metadata['maturePeptideCount'] = report.get('maturePeptideCount')
+                                    
+                                    # Extract segment
+                                    metadata['segment'] = report.get('segment')
+                                    
+                                    # Extract vaccine strain flag
+                                    metadata['isVaccineStrain'] = report.get('isVaccineStrain', False)
 
-                            submitter_info = report.get('submitter', {})
-                            metadata['submitterName'] = submitter_info.get('names')
-                            metadata['submitterCountry'] = submitter_info.get('country')
-                            metadata['submitterInstitution'] = submitter_info.get('affiliation')
+                                    submitter_info = report.get('submitter', {})
+                                    metadata['submitterName'] = submitter_info.get('names')
+                                    metadata['submitterCountry'] = submitter_info.get('country')
+                                    metadata['submitterInstitution'] = submitter_info.get('affiliation')
+                                    
+                                    # Write transformed record to temp JSONL (one line per record)
+                                    out_jsonl.write(json.dumps(metadata) + "\\n")
                             
-                            cached_metadata_dict[accession] = metadata
-                    
-                    pbar.close()
-                    
-                logger.info("✅ Loaded %d metadata records from %s", len(cached_metadata_dict), metadata_file)
-            except Exception as e:
-                logger.warning("❌ Failed to load metadata file %s: %s", metadata_file, e)
-                continue
+                            pbar.close()
+                            
+                        logger.info("✅ Streamed %d metadata records from %s to temp JSONL", 
+                                   cached_metadata_record_count, metadata_file)
+                    except Exception as e:
+                        logger.warning("❌ Failed to process metadata file %s: %s", metadata_file, e)
+                        continue
+        except Exception as e:
+            logger.warning("❌ Failed to create cached metadata JSONL: %s", e)
+            cached_metadata_jsonl_path = None
     else:
         logger.warning("No data_report.jsonl found in cached download. Post-download filters may be limited.")
     
@@ -2472,82 +2529,95 @@ def process_cached_download(zip_file, virus_type="virus"):
             logger.info("✅ Cached FASTA file available for streaming: %s (%.1f MB)", fasta_file, file_size_mb)
     
     # If no rich metadata was loaded, create minimal metadata from FASTA headers
-    if not cached_metadata_dict:
+    if not cached_metadata_jsonl_path or cached_metadata_record_count == 0:
         logger.info("Creating basic metadata from FASTA headers (no data_report.jsonl available)")
         logger.info("Streaming FASTA files to extract minimal metadata...")
         
-        for fasta_file in fasta_files:
-            try:
-                file_size = os.path.getsize(fasta_file)
-                
-                with open(fasta_file, 'r', encoding='utf-8') as f:
-                    pbar = tqdm(
-                        total=file_size,
-                        unit='B',
-                        unit_scale=True,
-                        unit_divisor=1024,
-                        desc="Extracting FASTA metadata",
-                        ncols=80,
-                        leave=True
-                    )
-                    
-                    current_accession = None
-                    sequence_length = 0
-                    description = ""
-                    
-                    for line in f:
-                        pbar.update(len(line.encode('utf-8')))
+        cached_metadata_jsonl_path = os.path.join(extract_dir, "_cached_metadata_internal.jsonl")
+        cached_metadata_record_count = 0
+        seen_fasta_accessions = set()
+        
+        try:
+            with open(cached_metadata_jsonl_path, 'w', encoding='utf-8') as out_jsonl:
+                for fasta_file in fasta_files:
+                    try:
+                        file_size = os.path.getsize(fasta_file)
                         
-                        if line.startswith('>'):
-                            # Save previous sequence if exists
-                            if current_accession and current_accession not in cached_metadata_dict:
-                                cached_metadata_dict[current_accession] = {
+                        with open(fasta_file, 'r', encoding='utf-8') as f:
+                            pbar = tqdm(
+                                total=file_size,
+                                unit='B',
+                                unit_scale=True,
+                                unit_divisor=1024,
+                                desc="Extracting FASTA metadata",
+                                ncols=80,
+                                leave=True
+                            )
+                            
+                            current_accession = None
+                            sequence_length = 0
+                            description = ""
+                            
+                            for line in f:
+                                pbar.update(len(line.encode('utf-8')))
+                                
+                                if line.startswith('>'):
+                                    # Save previous sequence if exists
+                                    if current_accession and current_accession not in seen_fasta_accessions:
+                                        seen_fasta_accessions.add(current_accession)
+                                        metadata = {
+                                            'accession': current_accession,
+                                            'description': description,
+                                            'length': sequence_length,
+                                            'source': 'cached_fasta_header'
+                                        }
+                                        out_jsonl.write(json.dumps(metadata) + "\\n")
+                                        cached_metadata_record_count += 1
+                                    
+                                    # Parse new header
+                                    header = line[1:].strip()
+                                    current_accession = header.split()[0]
+                                    description = header
+                                    sequence_length = 0
+                                    
+                                else:
+                                    # Count bases in sequence (not including whitespace)
+                                    sequence_length += len(line.strip())
+                            
+                            # Save last sequence
+                            if current_accession and current_accession not in seen_fasta_accessions:
+                                seen_fasta_accessions.add(current_accession)
+                                metadata = {
                                     'accession': current_accession,
                                     'description': description,
                                     'length': sequence_length,
                                     'source': 'cached_fasta_header'
                                 }
+                                out_jsonl.write(json.dumps(metadata) + "\\n")
+                                cached_metadata_record_count += 1
                             
-                            # Parse new header
-                            header = line[1:].strip()
-                            current_accession = header.split()[0]
-                            description = header
-                            sequence_length = 0
+                            pbar.close()
                             
-                        else:
-                            # Count bases in sequence (not including whitespace)
-                            sequence_length += len(line.strip())
-                    
-                    # Save last sequence
-                    if current_accession and current_accession not in cached_metadata_dict:
-                        cached_metadata_dict[current_accession] = {
-                            'accession': current_accession,
-                            'description': description,
-                            'length': sequence_length,
-                            'source': 'cached_fasta_header'
-                        }
-                    
-                    pbar.close()
-                    
-                logger.info("✅ Extracted metadata for %d sequences from %s", 
-                           len([acc for acc in cached_metadata_dict if cached_metadata_dict[acc].get('source') == 'cached_fasta_header']), 
-                           fasta_file)
-                
-            except Exception as e:
-                logger.warning("❌ Failed to extract metadata from FASTA %s: %s", fasta_file, e)
-                continue
-        
-        logger.info("Created basic metadata for %d sequences", len(cached_metadata_dict))
+                        logger.info("✅ Extracted metadata for sequences from %s", fasta_file)
+                        
+                    except Exception as e:
+                        logger.warning("❌ Failed to extract metadata from FASTA %s: %s", fasta_file, e)
+                        continue
+            
+            logger.info("Created basic metadata for %d sequences", cached_metadata_record_count)
+        except Exception as e:
+            logger.warning("❌ Failed to create FASTA metadata JSONL: %s", e)
+            cached_metadata_jsonl_path = None
     
     logger.info("🎉 CACHED DATA LOADING SUCCESSFUL!")
     logger.debug("Cached %s sequences will be streamed on-demand (not loaded to RAM)", virus_type)
     if metadata_files:
         logger.info("Rich metadata available from data_report.jsonl for post-download filtering")
     
-    # Return the cached FASTA file path (not the sequences themselves)
-    # Sequences will be streamed on-demand when needed
+    # Return the cached FASTA file path and the path to the metadata JSONL (not loaded to RAM)
+    # Sequences and metadata will be streamed on-demand when needed
     cached_fasta_file = fasta_files[0] if fasta_files else None
-    return cached_fasta_file, cached_metadata_dict, True
+    return cached_fasta_file, cached_metadata_jsonl_path, True
 
 
 def _monitor_subprocess_with_progress(process, cmd, timeout=None, progress_timeout=None):
@@ -3967,6 +4037,329 @@ def _stream_copy_fasta(input_path, output_path, accession_set=None):
     else:
         logger.info("Stream-copied %d FASTA records", count)
     return count
+
+
+def _load_metadata_dict_from_temp_jsonl(temp_file_path):
+    """
+    Stream metadata records from a temporary JSONL file and build metadata_dict directly.
+    
+    This function reads the JSONL file line-by-line, converting each raw API report to the internal metadata format. This avoids loading the entire raw API response list into memory at once.
+    
+    The conversion logic mirrors load_metadata_from_api_reports() but processes
+    records one at a time from disk.
+    
+    Args:
+        temp_file_path (str): Path to the temporary JSONL file containing raw API reports.
+        
+    Returns:
+        dict: Dictionary mapping accession numbers to metadata dictionaries.
+              Same format as load_metadata_from_api_reports().
+    """
+    metadata_dict = {}
+    processed_count = 0
+    skipped_count = 0
+    
+    if not temp_file_path or not os.path.exists(temp_file_path):
+        logger.warning("Temporary metadata file not found: %s", temp_file_path)
+        return metadata_dict
+    
+    file_size_mb = os.path.getsize(temp_file_path) / (1024 * 1024)
+    logger.info("Loading metadata from temp file: %s (%.2f MB)", temp_file_path, file_size_mb)
+    
+    with open(temp_file_path, 'r', encoding='utf-8') as f:
+        for line_num, line in enumerate(f, 1):
+            line = line.strip()
+            if not line:
+                continue
+            
+            try:
+                report = json.loads(line)
+            except json.JSONDecodeError:
+                skipped_count += 1
+                logger.debug("Skipping malformed JSON at line %d", line_num)
+                continue
+            
+            # Extract the accession number
+            accession = report.get("accession")
+            
+            if accession:
+                processed_count += 1
+                
+                # Transform API report format to internal format (same as load_metadata_from_api_reports)
+                metadata = {
+                    "accession": accession,
+                    "length": report.get("length"),
+                    "geneCount": report.get("gene_count"),
+                    "completeness": (report.get("completeness") or "").lower(),
+                    "host": report.get("host", {}),
+                    "hostName": report.get("host", {}).get("organism_name", ""),
+                    "hostTaxId": report.get("host", {}).get("tax_id", None),
+                    "isLabHost": report.get("is_lab_host", False),
+                    "labHost": report.get("is_lab_host", False),
+                    "location": report.get("location", {}).get("geographic_location", None),
+                    "region": report.get("location", {}).get("geographic_region", None),
+                    "submitter": report.get("submitters", [{}])[0] if report.get("submitters") else {},
+                    "sourceDatabase": report.get("source_database", ""),
+                    "isolateName": report.get("isolate", {}).get("name", ""),
+                    "isolate": {
+                        'collectionDate': report.get("isolate", {}).get("collection_date", ""),
+                        'source': report.get("isolate", {}).get("source", ""),
+                    },
+                    "virusTaxId": report.get("virus", {}).get("tax_id", None),
+                    "virusName": report.get("virus", {}).get("organism_name", ""),
+                    "isAnnotated": report.get("is_annotated", False),
+                    "releaseDate": report.get("release_date", ""),
+                    "proteinCount": report.get("protein_count"),
+                    "maturePeptideCount": report.get("mature_peptide_count"),
+                    "segment": report.get("segment"),
+                    "isVaccineStrain": report.get("is_vaccine_strain", False),
+                    "virusPangolinClassification": report.get("virus", {}).get("pangolin_classification", {}),
+                    "submitterName": report.get("submitter", {}).get("names", ""),
+                    "submitterCountry": report.get("submitter", {}).get("country", ""),
+                    "submitterInstitution": report.get("submitter", {}).get("affiliation", ""),
+                }
+                
+                metadata_dict[accession] = metadata
+            else:
+                skipped_count += 1
+            
+            # Log progress for large files
+            if processed_count > 0 and processed_count % 500000 == 0:
+                logger.info("  ... processed %d records from temp file", processed_count)
+    
+    logger.info("Loaded %d metadata records from temp file (skipped %d)", 
+                processed_count, skipped_count)
+    
+    return metadata_dict
+
+
+def _load_cached_metadata_from_jsonl(jsonl_path):
+    """
+    Load cached metadata from a JSONL file where records are already in internal format.
+    
+    Unlike _load_metadata_dict_from_temp_jsonl (which transforms raw API format), this function loads records that are already transformed (from process_cached_download). Each line is a JSON object with 'accession' key and all metadata fields directly.
+    
+    Args:
+        jsonl_path (str): Path to the cached metadata JSONL file.
+        
+    Returns:
+        dict: Dictionary mapping accession numbers to metadata dictionaries.
+    """
+    metadata_dict = {}
+    processed_count = 0
+    
+    if not jsonl_path or not os.path.exists(jsonl_path):
+        logger.warning("Cached metadata JSONL file not found: %s", jsonl_path)
+        return metadata_dict
+    
+    file_size_mb = os.path.getsize(jsonl_path) / (1024 * 1024)
+    logger.info("Loading cached metadata from JSONL: %s (%.2f MB)", jsonl_path, file_size_mb)
+    
+    with open(jsonl_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            
+            try:
+                metadata = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            
+            accession = metadata.get("accession")
+            if accession:
+                metadata_dict[accession] = metadata
+                processed_count += 1
+                
+                if processed_count % 500000 == 0:
+                    logger.info("  ... loaded %d cached metadata records", processed_count)
+    
+    logger.info("Loaded %d cached metadata records from JSONL", processed_count)
+    return metadata_dict
+
+
+def _stream_filter_cached_metadata_from_jsonl(
+    jsonl_path,
+    host=None,
+    complete_only=None,
+    annotated=None,
+    lineage=None,
+    geographic_location=None,
+    refseq_only=None,
+    min_release_date=None,
+    applied_strategy_filters=None,
+):
+    """
+    Stream cached metadata from a JSONL file, applying filters on-the-fly.
+    
+    This is the memory-efficient equivalent of loading ALL records into a dict
+    and then calling filter_cached_metadata_for_unused_filters(). Only records
+    that pass ALL filters are kept in memory.
+    
+    Args:
+        jsonl_path (str): Path to the cached metadata JSONL file.
+        host (str, optional): Host organism filter.
+        complete_only (bool, optional): Complete genome filter.
+        annotated (bool, optional): Annotation filter.
+        lineage (str, optional): Lineage filter.
+        geographic_location (str, optional): Geographic location filter.
+        refseq_only (bool, optional): RefSeq only filter.
+        min_release_date (str, optional): Minimum release date filter.
+        applied_strategy_filters (list, optional): Filters already applied server-side.
+        
+    Returns:
+        tuple: (metadata_dict, total_records, filter_stats)
+            - metadata_dict: dict mapping accession to metadata (only passing records)
+            - total_records: total number of records scanned
+            - filter_stats: dict with counts of records filtered by each category
+    """
+    if applied_strategy_filters is None:
+        applied_strategy_filters = []
+    
+    # Determine which filters to actually apply
+    filters_active = {}
+    if 'host' not in applied_strategy_filters and host:
+        filters_active['host'] = host
+    if 'complete-only' not in applied_strategy_filters and complete_only:
+        filters_active['complete_only'] = True
+    if 'annotated' not in applied_strategy_filters and annotated:
+        filters_active['annotated'] = True
+    if 'lineage' not in applied_strategy_filters and lineage:
+        filters_active['lineage'] = lineage
+    if geographic_location:
+        filters_active['geographic_location'] = geographic_location
+    if refseq_only:
+        filters_active['refseq_only'] = True
+    if min_release_date:
+        filters_active['min_release_date'] = min_release_date
+    
+    # Parse min_release_date once
+    min_release_date_parsed = None
+    if 'min_release_date' in filters_active:
+        min_release_date_parsed = _parse_date(min_release_date, filtername="min_release_date")
+    
+    metadata_dict = {}
+    total_records = 0
+    filter_stats = {
+        'host': 0,
+        'complete_only': 0,
+        'annotated': 0,
+        'lineage': 0,
+        'geographic_location': 0,
+        'refseq_only': 0,
+        'min_release_date': 0,
+    }
+    
+    if not jsonl_path or not os.path.exists(jsonl_path):
+        logger.warning("Cached metadata JSONL not found for streaming filter: %s", jsonl_path)
+        return metadata_dict, 0, filter_stats
+    
+    file_size_mb = os.path.getsize(jsonl_path) / (1024 * 1024)
+    logger.info("Stream-filtering cached metadata from JSONL: %s (%.2f MB)", jsonl_path, file_size_mb)
+    if filters_active:
+        logger.info("Active filters: %s", list(filters_active.keys()))
+    else:
+        logger.info("No filters to apply — loading all records")
+    
+    with open(jsonl_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            
+            try:
+                metadata = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            
+            accession = metadata.get("accession")
+            if not accession:
+                continue
+            
+            total_records += 1
+            
+            # Apply filters — skip record if any filter fails
+            skip = False
+            
+            # Host filter
+            if not skip and 'host' in filters_active:
+                host_name = metadata.get('hostName', '')
+                if not host_name or host.lower() not in host_name.lower():
+                    filter_stats['host'] += 1
+                    skip = True
+            
+            # Complete-only filter
+            if not skip and 'complete_only' in filters_active:
+                completeness = metadata.get('completeness', '')
+                if not completeness or completeness.lower() != 'complete':
+                    filter_stats['complete_only'] += 1
+                    skip = True
+            
+            # Annotated filter
+            if not skip and 'annotated' in filters_active:
+                is_annotated = metadata.get('isAnnotated', False)
+                if not is_annotated:
+                    filter_stats['annotated'] += 1
+                    skip = True
+            
+            # Lineage filter
+            if not skip and 'lineage' in filters_active:
+                virus_pangolin = metadata.get('virusPangolinClassification', '')
+                if not virus_pangolin or lineage.lower() not in str(virus_pangolin).lower():
+                    filter_stats['lineage'] += 1
+                    skip = True
+            
+            # Geographic location filter
+            if not skip and 'geographic_location' in filters_active:
+                geo_loc = metadata.get('location', '') or ''
+                geo_region = metadata.get('region', '') or ''
+                virus_name = metadata.get('virusName', '') or ''
+                geo_filter = geographic_location.lower()
+                loc_matches = geo_loc and geo_filter in geo_loc.lower()
+                region_matches = geo_region and geo_filter in geo_region.lower()
+                virus_name_matches = virus_name and geo_filter in virus_name.lower()
+                if not loc_matches and not region_matches and not virus_name_matches:
+                    filter_stats['geographic_location'] += 1
+                    skip = True
+            
+            # RefSeq only filter
+            if not skip and 'refseq_only' in filters_active:
+                is_refseq = metadata.get('sourceDatabase', '').lower() == 'refseq'
+                if not is_refseq:
+                    filter_stats['refseq_only'] += 1
+                    skip = True
+            
+            # Minimum release date filter
+            if not skip and 'min_release_date' in filters_active and min_release_date_parsed:
+                release_date_str = metadata.get('releaseDate', '')
+                if not release_date_str:
+                    filter_stats['min_release_date'] += 1
+                    skip = True
+                else:
+                    try:
+                        release_date = _parse_date(release_date_str, filtername="releaseDate")
+                        if release_date and release_date < min_release_date_parsed:
+                            filter_stats['min_release_date'] += 1
+                            skip = True
+                    except (ValueError, TypeError):
+                        filter_stats['min_release_date'] += 1
+                        skip = True
+            
+            if not skip:
+                metadata_dict[accession] = metadata
+            
+            # Log progress every 1M records
+            if total_records % 1000000 == 0:
+                logger.info("  ... scanned %d records, %d passing filters so far", 
+                           total_records, len(metadata_dict))
+    
+    logger.info("Stream-filter complete: scanned %d records, %d passed all filters",
+               total_records, len(metadata_dict))
+    if any(v > 0 for v in filter_stats.values()):
+        logger.info("Filter statistics: %s", 
+                   {k: v for k, v in filter_stats.items() if v > 0})
+    
+    return metadata_dict, total_records, filter_stats
 
 
 def load_metadata_from_api_reports(api_reports):
@@ -5442,13 +5835,19 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
     _log_memory_usage("GenBank fetch start")
     
     # Initialize tracking variables
-    all_metadata = {}
+    all_metadata = {}  # Only used for final return; populated from temp JSONL at end
     failed_batches = []
+    total_metadata_written = 0  # Counter for metadata records streamed to disk
     
     # Create a temp file to write XML incrementally (saves memory)
     temp_xml_path = genbank_full_xml_path + ".tmp"
     xml_file = None
     xml_written = False
+    
+    # Create a temp JSONL file to write parsed GenBank metadata incrementally
+    temp_metadata_jsonl_path = genbank_full_xml_path + ".metadata.jsonl.tmp"
+    metadata_jsonl_file = None
+    seen_accessions = set()  # Lightweight set to track which accessions have been fetched
     
     # For large datasets, use the EPost+EFetch workflow which allows larger batch sizes
     # EPost uploads IDs to history server, then EFetch retrieves using WebEnv/query_key
@@ -5466,6 +5865,9 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
         # Open temp file for incremental XML writing
         xml_file = open(temp_xml_path, 'w', encoding='utf-8')
         xml_file.write("<AllGBSets>\n")
+        
+        # Open temp JSONL file for incremental metadata writing
+        metadata_jsonl_file = open(temp_metadata_jsonl_path, 'w', encoding='utf-8')
         
         if use_epost_method:
             # ===== EPost + EFetch with History Server =====
@@ -5527,7 +5929,16 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
                             )
                             
                             if batch_metadata:
-                                all_metadata.update(batch_metadata)
+                                # Stream parsed metadata to temp JSONL (not held in RAM)
+                                for acc, meta in batch_metadata.items():
+                                    metadata_jsonl_file.write(json.dumps({"accession": acc, "metadata": meta}) + "\n")
+                                    total_metadata_written += 1
+                                    seen_accessions.add(acc)
+                                metadata_jsonl_file.flush()
+                                batch_count = len(batch_metadata)
+                                del batch_metadata
+                            else:
+                                batch_count = 0
                             
                             if batch_xml_text:
                                 cleaned_xml = _clean_xml_declarations(batch_xml_text)
@@ -5538,7 +5949,7 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
                                 del cleaned_xml
                                 logger.info("Batch %d/%d: Successfully retrieved metadata for %d accessions",
                                            overall_batch_num, total_batches_all_chunks,
-                                           len(batch_metadata) if batch_metadata else 0)
+                                           batch_count)
                             else:
                                 logger.warning("Batch %d/%d returned no data", 
                                               overall_batch_num, total_batches_all_chunks)
@@ -5587,7 +5998,12 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
                         batch_metadata, batch_xml_text = _fetch_genbank_batch(
                             dbatch_accessions, failed_log_path=failed_log_path)
                         if batch_metadata:
-                            all_metadata.update(batch_metadata)
+                            for acc, meta in batch_metadata.items():
+                                metadata_jsonl_file.write(json.dumps({"accession": acc, "metadata": meta}) + "\n")
+                                total_metadata_written += 1
+                                seen_accessions.add(acc)
+                            metadata_jsonl_file.flush()
+                            del batch_metadata
                         if batch_xml_text:
                             cleaned_xml = _clean_xml_declarations(batch_xml_text)
                             xml_file.write(cleaned_xml + "\n")
@@ -5603,7 +6019,7 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
                         continue
             
             # Check if we got ANY data from EPost method
-            if not all_metadata and not epost_failures:
+            if total_metadata_written == 0 and not epost_failures:
                 logger.warning("EPost method returned no data, falling back to direct fetch method")
                 use_epost_method = False  # Fall through to traditional method
         
@@ -5634,7 +6050,16 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
                     batch_metadata, batch_xml_text = _fetch_genbank_batch(batch_accessions, failed_log_path=failed_log_path)
                     
                     if batch_metadata:
-                        all_metadata.update(batch_metadata)
+                        # Stream parsed metadata to temp JSONL (not held in RAM)
+                        for acc, meta in batch_metadata.items():
+                            metadata_jsonl_file.write(json.dumps({"accession": acc, "metadata": meta}) + "\n")
+                            total_metadata_written += 1
+                            seen_accessions.add(acc)
+                        metadata_jsonl_file.flush()
+                        batch_count = len(batch_metadata)
+                        del batch_metadata
+                    else:
+                        batch_count = 0
 
                     if batch_xml_text:
                         # Clean XML and write directly to file (not accumulating in memory)
@@ -5648,7 +6073,7 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
                         del cleaned_xml
                         
                         logger.info("Batch %d: Successfully retrieved metadata for %d accessions", 
-                                   batch_num, len(batch_metadata))
+                                   batch_num, batch_count)
                     else:
                         # Batch failed, add to failed_batches for retry
                         logger.warning("Batch %d returned no data, will retry later", batch_num)
@@ -5682,8 +6107,13 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
                 try:
                     meta, xml = _fetch_genbank_batch(batch_accessions, failed_log_path=failed_log_path)
                     if meta:
-                        all_metadata.update(meta)
+                        for acc, m in meta.items():
+                            metadata_jsonl_file.write(json.dumps({"accession": acc, "metadata": m}) + "\n")
+                            total_metadata_written += 1
+                            seen_accessions.add(acc)
+                        metadata_jsonl_file.flush()
                         retry_success.append(batch_accessions)
+                        del meta
                     if xml:
                         cleaned_xml = _clean_xml_declarations(xml)
                         xml_file.write(cleaned_xml + "\n")
@@ -5701,7 +6131,7 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
         # ===== DETECT AND RETRY SILENTLY DROPPED ACCESSIONS =====
         # The NCBI history server sometimes silently drops individual accessions from batch responses without raising errors. Detect these and retry them individually with direct URL fetch to maximize completeness.
         # This also catches accessions lost due to EPost/EFetch position mismatch (server internal ordering differs from posting order) after batch retries.
-        silently_dropped = set(accessions) - set(all_metadata.keys())
+        silently_dropped = set(accessions) - seen_accessions
         if silently_dropped:
             logger.info("🔄 Detected %d accessions silently dropped by NCBI history server — retrying with direct fetch",
                        len(silently_dropped))
@@ -5715,8 +6145,13 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
                 try:
                     meta, xml = _fetch_genbank_batch(dbatch_accessions, failed_log_path=failed_log_path)
                     if meta:
-                        all_metadata.update(meta)
+                        for acc, m in meta.items():
+                            metadata_jsonl_file.write(json.dumps({"accession": acc, "metadata": m}) + "\n")
+                            total_metadata_written += 1
+                            seen_accessions.add(acc)
+                        metadata_jsonl_file.flush()
                         recovered_count += len(meta)
+                        del meta
                     if xml:
                         cleaned_xml = _clean_xml_declarations(xml)
                         xml_file.write(cleaned_xml + "\n")
@@ -5740,6 +6175,11 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
         xml_file.write("</AllGBSets>\n")
         xml_file.close()
         xml_file = None
+        
+        # Close metadata JSONL file
+        if metadata_jsonl_file is not None:
+            metadata_jsonl_file.close()
+            metadata_jsonl_file = None
         
         # Move temp file to final location
         if xml_written:
@@ -5765,7 +6205,12 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
                 xml_file.close()
             except:
                 pass
-        # Clean up temp file if it exists
+        if metadata_jsonl_file is not None:
+            try:
+                metadata_jsonl_file.close()
+            except:
+                pass
+        # Clean up temp XML file if it exists
         if os.path.exists(temp_xml_path):
             try:
                 os.remove(temp_xml_path)
@@ -5773,7 +6218,34 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
                 pass
 
     logger.info("GenBank metadata retrieval complete: %d/%d accessions processed", 
-                len(all_metadata), len(accessions))
+                total_metadata_written, len(accessions))
+    
+    # Load all metadata from temp JSONL file into dict for return
+    # This is fine because GenBank metadata is fetched only for the post-filter subset
+    # (typically 1K-50K records, not millions)
+    all_metadata = {}
+    if os.path.exists(temp_metadata_jsonl_path) and total_metadata_written > 0:
+        try:
+            with open(temp_metadata_jsonl_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    record = json.loads(line)
+                    acc = record.get("accession")
+                    meta = record.get("metadata")
+                    if acc and meta:
+                        all_metadata[acc] = meta
+            logger.info("Loaded %d GenBank metadata records from temp file", len(all_metadata))
+        except Exception as e:
+            logger.error("Failed to load GenBank metadata from temp JSONL: %s", e)
+    
+    # Clean up temp JSONL file
+    if os.path.exists(temp_metadata_jsonl_path):
+        try:
+            os.remove(temp_metadata_jsonl_path)
+        except:
+            pass
     
     # Final memory log and GC
     _force_garbage_collection("GenBank fetch complete")
@@ -8224,40 +8696,62 @@ def virus(
             logger.info("STEP 3: Applying metadata filters for cached download")
             logger.info("=" * 60)
             logger.info("Using metadata from cached download (skipping API metadata fetch)")
-            metadata_dict = cached_metadata_dict
-            total_api_records = len(metadata_dict)
-            logger.info("Loaded %d metadata records from cached download", total_api_records)
             
-            # Save the cached metadata as API metadata for consistency
-            logger.debug("Writing cached metadata to JSONL file: %s", output_api_metadata_jsonl)
-            try:
-                with open(output_api_metadata_jsonl, "w", encoding="utf-8") as f:
-                    for md in metadata_dict.values():
-                        f.write(json.dumps(md) + "\n")
-                logger.info("✅ Saved cached metadata JSONL: %s", output_api_metadata_jsonl)
-            except Exception as e:
-                logger.warning("❌ Failed to save cached metadata JSONL: %s", e)
+            # cached_metadata_dict is now a file path (not a dict)
+            # Use streaming filter to load only records passing filters into memory
+            if isinstance(cached_metadata_dict, str) and os.path.isfile(cached_metadata_dict):
+                logger.info("Memory-efficient path: streaming cached metadata JSONL with on-the-fly filtering")
+                
+                metadata_dict, total_api_records, cache_filter_stats = _stream_filter_cached_metadata_from_jsonl(
+                    cached_metadata_dict,
+                    host=host,
+                    complete_only=(nuc_completeness == "complete"),
+                    annotated=annotated,
+                    lineage=lineage,
+                    geographic_location=geographic_location,
+                    refseq_only=refseq_only,
+                    min_release_date=min_release_date,
+                    applied_strategy_filters=applied_filters,
+                )
+                logger.info("Loaded %d records passing filters (from %d total in cache)", 
+                           len(metadata_dict), total_api_records)
+                
+                # Copy the cached JSONL to the output API metadata location for consistency
+                try:
+                    shutil.copy(cached_metadata_dict, output_api_metadata_jsonl)
+                    logger.info("✅ Saved cached metadata JSONL: %s", output_api_metadata_jsonl)
+                except Exception as e:
+                    logger.warning("❌ Failed to copy cached metadata JSONL: %s", e)
+            else:
+                # Fallback: cached_metadata_dict is already a dict (legacy path)
+                metadata_dict = cached_metadata_dict
+                total_api_records = len(metadata_dict)
+                logger.info("Loaded %d metadata records from cached download", total_api_records)
+                
+                # Save metadata JSONL for consistency
+                try:
+                    with open(output_api_metadata_jsonl, "w", encoding="utf-8") as f:
+                        for md in metadata_dict.values():
+                            f.write(json.dumps(md) + "\n")
+                    logger.info("✅ Saved cached metadata JSONL: %s", output_api_metadata_jsonl)
+                except Exception as e:
+                    logger.warning("❌ Failed to save cached metadata JSONL: %s", e)
+                
+                # Apply post-cached-download filters (legacy in-memory path)
+                logger.debug("Using applied_filters from cached strategy: %s", applied_filters)
+                filtered_accessions_step3, filtered_metadata_step3 = filter_cached_metadata_for_unused_filters(
+                    metadata_dict,
+                    host=host,
+                    complete_only=(nuc_completeness == "complete"),
+                    annotated=annotated,
+                    lineage=lineage,
+                    geographic_location=geographic_location,
+                    refseq_only=refseq_only,
+                    min_release_date=min_release_date,
+                    applied_strategy_filters=applied_filters,
+                )
+                metadata_dict = {acc: md for acc, md in zip(filtered_accessions_step3, filtered_metadata_step3)}
             
-            # STEP 3b: Apply filters that were not used in the cached strategy
-            # Use the applied_filters from the cached download execution
-            # These are the filters that were successfully applied server-side
-            logger.debug("Using applied_filters from cached strategy: %s", applied_filters)
-            
-            # Apply post-cached-download filters (unused server-side filters + API-only filters)
-            filtered_accessions_step3, filtered_metadata_step3 = filter_cached_metadata_for_unused_filters(
-                metadata_dict,
-                host=host,
-                complete_only=(nuc_completeness == "complete"),
-                annotated=annotated,
-                lineage=lineage,
-                geographic_location=geographic_location,
-                refseq_only=refseq_only,
-                min_release_date=min_release_date,
-                applied_strategy_filters=applied_filters,
-            )
-            
-            # Update metadata_dict and accessions for next steps
-            metadata_dict = {acc: md for acc, md in zip(filtered_accessions_step3, filtered_metadata_step3)}
             logger.info("After post-cached-download filtering: %d records remain", len(metadata_dict))
             
             # Baseline deduplication for cached path
@@ -8450,18 +8944,43 @@ def virus(
                 )
                 return
 
-            # logger.info("Successfully retrieved %d virus records from API", len(api_reports))
-            total_api_records = len(api_reports)
-            _log_memory_usage("after API fetch")
-
             # Convert API metadata to internal format
+            # api_reports can be either:
+            #   - A string (file path to JSONL) when streaming was used for large datasets
+            #   - A list of report dicts for smaller/accession-based queries
+            _log_memory_usage("after API fetch")
             logger.debug("Converting API metadata to internal format...")
-            metadata_dict = load_metadata_from_api_reports(api_reports)
-            # logger.info("Processed metadata for %d sequences", len(metadata_dict))
             
-            # Delete api_reports after conversion - no longer needed
-            # The metadata_dict contains all we need going forward
-            del api_reports
+            if isinstance(api_reports, str) and os.path.isfile(api_reports):
+                # Stream from temp JSONL file - avoids loading raw API reports into RAM
+                logger.info("Loading metadata from streamed temp file (memory-efficient path)...")
+                metadata_dict = _load_metadata_dict_from_temp_jsonl(api_reports)
+                total_api_records = len(metadata_dict)
+                # Check if file was actually empty
+                if not metadata_dict:
+                    logger.warning("No virus records found matching the specified criteria.")
+                    logger.info("Consider relaxing your filter criteria or checking your virus identifier.")
+                    save_command_summary(
+                        outfolder=outfolder,
+                        command_line=command_line,
+                        total_api_records=0,
+                        total_after_metadata_filter=0,
+                        total_final_sequences=0,
+                        output_files={},
+                        filtered_metadata=[],
+                        datasets_version=datasets_version,
+                        success=True,
+                        error_message="No virus records found matching the specified criteria (API returned 0 records)",
+                        failed_commands=failed_commands
+                    )
+                    return
+            else:
+                # api_reports is a list (accession-based or small queries)
+                total_api_records = len(api_reports)
+                metadata_dict = load_metadata_from_api_reports(api_reports)
+                # Delete api_reports after conversion - no longer needed
+                del api_reports
+            
             _force_garbage_collection("after api_reports conversion")
             _log_memory_usage("after api_reports cleanup")
 
