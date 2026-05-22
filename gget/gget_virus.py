@@ -5935,6 +5935,9 @@ def _parse_genbank_xml(xml_content):
             
             # Extract features (collection_date, geographic location, host, etc.)
             features_data = {}
+            gene_count = 0
+            mature_peptide_count = 0
+            products = []
             
             for feature in gbseq.findall('.//GBFeature'):
                 feature_key_elem = feature.find('GBFeature_key')
@@ -5943,22 +5946,49 @@ def _parse_genbank_xml(xml_content):
                     
                 feature_key = feature_key_elem.text
                 
+                # Count genes and mature peptides
+                if feature_key == 'gene':
+                    gene_count += 1
+                elif feature_key == 'mat_peptide':
+                    mature_peptide_count += 1
+                
                 # Extract qualifiers for this feature
                 feature_qualifiers = {}
+                has_proviral = False
                 for qual in feature.findall('.//GBQualifier'):
                     qual_name_elem = qual.find('GBQualifier_name')
                     qual_value_elem = qual.find('GBQualifier_value')
                     
-                    if qual_name_elem is not None and qual_value_elem is not None:
+                    if qual_name_elem is not None:
                         qual_name = qual_name_elem.text
-                        qual_value = qual_value_elem.text
+                        # Handle qualifiers without values (e.g., proviral)
+                        qual_value = qual_value_elem.text if qual_value_elem is not None else ""
                         feature_qualifiers[qual_name] = qual_value
+                        
+                        # Track proviral flag (presence indicates proviral)
+                        if qual_name == 'proviral':
+                            has_proviral = True
+                        
+                        # Collect product names for has_proteins filter
+                        if qual_name == 'product' and qual_value:
+                            products.append(qual_value)
+                
+                if has_proviral:
+                    feature_qualifiers['_has_proviral'] = True
                 
                 if feature_qualifiers:
-                    features_data[feature_key] = feature_qualifiers
+                    # Store multiple features of same type (e.g., multiple CDS)
+                    if feature_key not in features_data:
+                        features_data[feature_key] = feature_qualifiers
+                    elif isinstance(features_data[feature_key], list):
+                        features_data[feature_key].append(feature_qualifiers)
+                    else:
+                        features_data[feature_key] = [features_data[feature_key], feature_qualifiers]
             
             # Extract specific fields of interest from source feature
             source_feature = features_data.get('source', {})
+            if isinstance(source_feature, list):
+                source_feature = source_feature[0]  # Use first source if multiple
             
             metadata['genbank_data']['collection_date'] = source_feature.get('collection_date', '')
             metadata['genbank_data']['geographic_location'] = source_feature.get('geo_loc_name', '')
@@ -5968,6 +5998,26 @@ def _parse_genbank_xml(xml_content):
             metadata['genbank_data']['isolate'] = source_feature.get('isolate', '')
             # metadata['genbank_data']['collected_by'] = source_feature.get('collected_by', '')
             # metadata['genbank_data']['specimen_voucher'] = source_feature.get('specimen_voucher', '')
+            
+            # Extract additional GenBank-specific fields for filtering
+            metadata['genbank_data']['proviral'] = source_feature.get('_has_proviral', False) or 'proviral' in source_feature
+            metadata['genbank_data']['mol_type'] = source_feature.get('mol_type', '')
+            metadata['genbank_data']['serotype'] = source_feature.get('serotype', '')
+            metadata['genbank_data']['gene_count'] = gene_count
+            metadata['genbank_data']['mature_peptide_count'] = mature_peptide_count
+            metadata['genbank_data']['products'] = products
+            
+            # Extract genotype from note field or serotype
+            genotype = ''
+            note_value = source_feature.get('note', '')
+            if note_value:
+                # Look for genotype pattern in note (e.g., "genotype: IV" or "genotype=H5N1")
+                genotype_match = re.search(r'genotype[:\s=]+([^\s;,]+)', note_value, re.IGNORECASE)
+                if genotype_match:
+                    genotype = genotype_match.group(1).strip()
+            if not genotype and source_feature.get('serotype'):
+                genotype = source_feature.get('serotype', '')
+            metadata['genbank_data']['genotype'] = genotype
             
             # Store all features for potential future use
             metadata['genbank_data']['all_features'] = features_data
@@ -6374,8 +6424,8 @@ def filter_metadata_only(
     metadata_dict,
     min_seq_length=None,
     max_seq_length=None,
-    min_gene_count=None,
-    max_gene_count=None,
+    # min_gene_count=None,
+    # max_gene_count=None,
     nuc_completeness=None,
     lab_passaged=None,
     submitter_country=None,
@@ -6383,13 +6433,17 @@ def filter_metadata_only(
     max_collection_date=None,
     source_database=None,
     max_release_date=None,
-    min_mature_peptide_count=None,
-    max_mature_peptide_count=None,
+    # min_mature_peptide_count=None,
+    # max_mature_peptide_count=None,
     min_protein_count=None,
     max_protein_count=None,
     annotated=None,
     segment=None,
     vaccine_strain=None,
+    submitter_name=None,
+    submitter_institution=None,
+    isolate=None,
+    isolation_source=None,
     geographic_location=None,
     host=None,
 ):
@@ -6409,7 +6463,7 @@ def filter_metadata_only(
     """
     
     logger.info("Starting metadata-only filtering process...")
-    logger.debug("Applying metadata-only filters: seq_length(%s-%s), gene_count(%s-%s), completeness(%s), lab_passaged(%s), annotated(%s), submitter_country(%s), collection_date(%s-%s), source_database(%s), max_release_date(%s), peptide_count(%s-%s), protein_count(%s-%s), segment(%s), vaccine_strain(%s)", min_seq_length, max_seq_length, min_gene_count, max_gene_count, nuc_completeness, lab_passaged, annotated, submitter_country, min_collection_date, max_collection_date, source_database, max_release_date, min_mature_peptide_count, max_mature_peptide_count, min_protein_count, max_protein_count, segment, vaccine_strain)
+    logger.debug("Applying metadata-only filters: seq_length(%s-%s), completeness(%s), lab_passaged(%s), annotated(%s), submitter_country(%s), collection_date(%s-%s), source_database(%s), max_release_date(%s), protein_count(%s-%s), segment(%s), vaccine_strain(%s), submitter_name(%s), submitter_institution(%s), isolate(%s)", min_seq_length, max_seq_length, nuc_completeness, lab_passaged, annotated, submitter_country, min_collection_date, max_collection_date, source_database, max_release_date, min_protein_count, max_protein_count, segment, vaccine_strain, submitter_name, submitter_institution, isolate)
 
     # Convert date filters to datetime objects for proper comparison
     # Parse user-provided filter dates with appropriate partial date handling:
@@ -6446,7 +6500,7 @@ def filter_metadata_only(
     total_sequences = len(metadata_dict)
     filter_stats = {
         'seq_length': 0,
-        'gene_count': 0,
+        # 'gene_count': 0,
         'completeness': 0,
         'lab_passaged': 0,
         'annotated': 0,
@@ -6454,10 +6508,14 @@ def filter_metadata_only(
         'collection_date': 0,
         'source_database': 0,
         'release_date': 0,
-        'mature_peptide_count': 0,
+        # 'mature_peptide_count': 0,
         'protein_count': 0,
         'segment': 0,
         'vaccine_strain': 0,
+        'submitter_name': 0,
+        'submitter_institution': 0,
+        'isolate': 0,
+        'isolation_source': 0,
         'geographic_location': 0,
         'host': 0,
     }
@@ -6489,22 +6547,22 @@ def filter_metadata_only(
                 continue
 
         # FILTER 2: Gene count filters
-        if min_gene_count is not None or max_gene_count is not None:
-            gene_count = metadata.get("geneCount")
-            if gene_count is None:
-                logger.debug("Skipping %s: missing gene count metadata", accession)
-                filter_stats['gene_count'] += 1
-                continue
+        # if min_gene_count is not None or max_gene_count is not None:
+        #     gene_count = metadata.get("geneCount")
+        #     if gene_count is None:
+        #         logger.debug("Skipping %s: missing gene count metadata", accession)
+        #         filter_stats['gene_count'] += 1
+        #         continue
                 
-            if min_gene_count is not None and gene_count < min_gene_count:
-                logger.debug("Skipping %s: gene count %d < min %d", accession, gene_count, min_gene_count)
-                filter_stats['gene_count'] += 1
-                continue
+        #     if min_gene_count is not None and gene_count < min_gene_count:
+        #         logger.debug("Skipping %s: gene count %d < min %d", accession, gene_count, min_gene_count)
+        #         filter_stats['gene_count'] += 1
+        #         continue
                 
-            if max_gene_count is not None and gene_count > max_gene_count:
-                logger.debug("Skipping %s: gene count %d > max %d", accession, gene_count, max_gene_count)
-                filter_stats['gene_count'] += 1
-                continue
+        #     if max_gene_count is not None and gene_count > max_gene_count:
+        #         logger.debug("Skipping %s: gene count %d > max %d", accession, gene_count, max_gene_count)
+        #         filter_stats['gene_count'] += 1
+        #         continue
 
         # FILTER 3: Nucleotide completeness filter
         if nuc_completeness is not None and not nuc_completeness.lower() == "complete":
@@ -6562,7 +6620,100 @@ def filter_metadata_only(
                 filter_stats['submitter_country'] += 1
                 continue
 
-        # FILTER 7: Collection date range filter
+        # FILTER 7: Submitter name filter
+        if submitter_name is not None:
+            # Convert submitter_name to list if it's a string
+            submitter_name_list = [submitter_name] if isinstance(submitter_name, str) else submitter_name
+            
+            # Get submitter name from metadata
+            metadata_submitter_name = metadata.get("submitterName", "")
+
+            if not metadata_submitter_name:
+                filter_stats['submitter_name'] += 1
+                continue
+            
+            # Build set of acceptable submitter name values (case-insensitive)
+            acceptable_names = {s.lower().strip() for s in submitter_name_list}
+            
+            # Check if metadata submitter name matches any acceptable value (case-insensitive)
+            metadata_submitter_name_lower = str(metadata_submitter_name).lower().strip()
+            if metadata_submitter_name_lower not in acceptable_names:
+                logger.debug("Skipping %s: submitter name '%s' not in required list %s", 
+                           accession, metadata_submitter_name, submitter_name_list)
+                filter_stats['submitter_name'] += 1
+                continue
+
+        # FILTER 8: Submitter institution filter
+        if submitter_institution is not None:
+            # Convert submitter_institution to list if it's a string
+            submitter_institution_list = [submitter_institution] if isinstance(submitter_institution, str) else submitter_institution
+            
+            # Get submitter institution from metadata
+            metadata_submitter_institution = metadata.get("submitterInstitution", "")
+
+            if not metadata_submitter_institution:
+                filter_stats['submitter_institution'] += 1
+                continue
+            
+            # Build set of acceptable submitter institution values (case-insensitive)
+            acceptable_institutions = {s.lower().strip() for s in submitter_institution_list}
+            
+            # Check if metadata submitter institution matches any acceptable value (case-insensitive)
+            metadata_submitter_institution_lower = str(metadata_submitter_institution).lower().strip()
+            if metadata_submitter_institution_lower not in acceptable_institutions:
+                logger.debug("Skipping %s: submitter institution '%s' not in required list %s", 
+                           accession, metadata_submitter_institution, submitter_institution_list)
+                filter_stats['submitter_institution'] += 1
+                continue
+
+        # FILTER 9: isolate filter
+        if isolate is not None:
+            # Convert isolate to list if it's a string
+            isolate_list = [isolate] if isinstance(isolate, str) else isolate
+            
+            # Get isolate from metadata
+            metadata_isolate = metadata.get("isolateName", "")
+
+            if not metadata_isolate:
+                filter_stats['isolate'] += 1
+                continue
+            
+            # Build set of acceptable isolate values (case-insensitive)
+            acceptable_isolates = {s.lower().strip() for s in isolate_list}
+            
+            # Check if metadata isolate matches any acceptable value (case-insensitive)
+            metadata_isolate_lower = str(metadata_isolate).lower().strip()
+            if metadata_isolate_lower not in acceptable_isolates:
+                logger.debug("Skipping %s: isolate '%s' not in required list %s", 
+                           accession, metadata_isolate, isolate_list)
+                filter_stats['isolate'] += 1
+                continue
+
+        # FILTER 10: isolation source filter
+        if isolation_source is not None:
+            # Convert isolation_source to list if it's a string
+            isolation_source_list = [isolation_source] if isinstance(isolation_source, str) else isolation_source
+            
+            # Get isolation source from metadata
+            metadata_isolation_source = metadata.get("isolate", {}).get("source", "")
+
+            if not metadata_isolation_source:
+                filter_stats['isolation_source'] += 1
+                continue
+            
+            # Build set of acceptable isolation source values (case-insensitive)
+            acceptable_isolation_sources = {s.lower().strip() for s in isolation_source_list}
+            
+            # Check if metadata isolation source matches any acceptable value (case-insensitive)
+            metadata_isolation_source_lower = str(metadata_isolation_source).lower().strip()
+            if metadata_isolation_source_lower not in acceptable_isolation_sources:
+                logger.debug("Skipping %s: isolation source '%s' not in required list %s", 
+                           accession, metadata_isolation_source, isolation_source_list)
+                filter_stats['isolation_source'] += 1
+                continue
+
+
+        # FILTER 11: Collection date range filter
         if min_collection_date is not None or max_collection_date is not None:
             date_str = metadata.get("isolate", {}).get("collectionDate", "")
             
@@ -6625,7 +6776,7 @@ def filter_metadata_only(
             if skip_record:
                 continue
 
-        # FILTER 8: Maximum release date filter
+        # FILTER 12: Maximum release date filter
         if max_release_date is not None:
             release_date_str = metadata.get("releaseDate")
             
@@ -6659,30 +6810,30 @@ def filter_metadata_only(
                 filter_stats['release_date'] += 1
                 continue
 
-        # FILTER 9: Mature peptide count filters
-        if min_mature_peptide_count is not None or max_mature_peptide_count is not None:
-            mature_peptide_count = metadata.get("maturePeptideCount")
+        # FILTER 13: Mature peptide count filters
+        # if min_mature_peptide_count is not None or max_mature_peptide_count is not None:
+        #     mature_peptide_count = metadata.get("maturePeptideCount")
             
-            if mature_peptide_count is None:
-                logger.debug("Skipping %s: missing mature peptide count", accession)
-                filter_stats['mature_peptide_count'] += 1
-                continue
+        #     if mature_peptide_count is None:
+        #         logger.debug("Skipping %s: missing mature peptide count", accession)
+        #         filter_stats['mature_peptide_count'] += 1
+        #         continue
                 
-            if (min_mature_peptide_count is not None and 
-                mature_peptide_count < min_mature_peptide_count):
-                logger.debug("Skipping %s: mature peptide count %d < min %d", 
-                           accession, mature_peptide_count, min_mature_peptide_count)
-                filter_stats['mature_peptide_count'] += 1
-                continue
+        #     if (min_mature_peptide_count is not None and 
+        #         mature_peptide_count < min_mature_peptide_count):
+        #         logger.debug("Skipping %s: mature peptide count %d < min %d", 
+        #                    accession, mature_peptide_count, min_mature_peptide_count)
+        #         filter_stats['mature_peptide_count'] += 1
+        #         continue
                 
-            if (max_mature_peptide_count is not None and 
-                mature_peptide_count > max_mature_peptide_count):
-                logger.debug("Skipping %s: mature peptide count %d > max %d", 
-                           accession, mature_peptide_count, max_mature_peptide_count)
-                filter_stats['mature_peptide_count'] += 1
-                continue
+        #     if (max_mature_peptide_count is not None and 
+        #         mature_peptide_count > max_mature_peptide_count):
+        #         logger.debug("Skipping %s: mature peptide count %d > max %d", 
+        #                    accession, mature_peptide_count, max_mature_peptide_count)
+        #         filter_stats['mature_peptide_count'] += 1
+        #         continue
 
-        # FILTER 10: Protein count filters
+        # FILTER 14: Protein count filters
         if min_protein_count is not None or max_protein_count is not None:
             protein_count = metadata.get("proteinCount")
             
@@ -6703,7 +6854,7 @@ def filter_metadata_only(
                 filter_stats['protein_count'] += 1
                 continue
 
-        # FILTER 11: Segment filter - simple case-insensitive matching
+        # FILTER 15: Segment filter - simple case-insensitive matching
         if segment is not None:
             # Convert segment to list if it's a string
             segment_list = [segment] if isinstance(segment, str) else segment
@@ -6726,7 +6877,7 @@ def filter_metadata_only(
                 filter_stats['segment'] += 1
                 continue
 
-        # FILTER 12: Vaccine strain filter
+        # FILTER 16: Vaccine strain filter
         if vaccine_strain is not None:
             is_vaccine = metadata.get("isVaccineStrain", metadata.get("is_vaccine_strain", False))
             if vaccine_strain:
@@ -7798,6 +7949,7 @@ def virus(
                         annotated=api_annotated_filter,
                         complete_only=api_complete_filter,
                         min_release_date=min_release_date,
+                        max_release_date=max_release_date,
                         refseq_only=refseq_only,
                         failed_commands=failed_commands,
                         temp_output_dir=temp_dir,
@@ -8016,6 +8168,225 @@ def virus(
         except Exception as e:
             logger.warning("❌ Failed to save filtered metadata JSONL: %s", e)
 
+    # SECTION 4.5: EARLY GENBANK METADATA FETCHING AND FILTERING
+    # This step fetches GenBank metadata and applies GenBank-dependent filters BEFORE downloading sequences, dramatically reducing the number of sequences to download.
+        
+        # Track GenBank data for later steps (saving to CSV)
+        genbank_data_prefetch = None
+        genbank_prefetch_done = False
+        
+        # Check if any GenBank-dependent filters are specified
+        genbank_dependent_filters_active = any([
+            provirus is not None,
+            genotype is not None,
+            has_proteins is not None,
+            gen_mol_type is not None,
+            env_source is not None,
+            min_gene_count is not None,
+            max_gene_count is not None,
+            min_mature_peptide_count is not None,
+            max_mature_peptide_count is not None,
+        ])
+        
+        if genbank_dependent_filters_active and filtered_accessions:
+            logger.info("=" * 60)
+            logger.info("STEP 4.5: Early GenBank metadata fetch and filtering (OPTIMIZATION)")
+            logger.info("=" * 60)
+            logger.info("GenBank-dependent filters detected. Fetching GenBank metadata BEFORE")
+            logger.info("sequence download to reduce the number of sequences to download.")
+            logger.info("This can dramatically speed up processing for large datasets.")
+            _log_memory_usage("before early GenBank fetch")
+            
+            try:
+                # Create temp paths for GenBank data
+                genbank_prefetch_xml = os.path.join(temp_dir, f"{virus_clean}_genbank_prefetch.xml")
+                genbank_prefetch_csv = os.path.join(temp_dir, f"{virus_clean}_genbank_prefetch.csv")
+            
+                # ESearch pre-filtering
+                accessions_to_fetch = list(set(filtered_accessions))
+                
+                # Get virus taxid from metadata for ESearch query
+                virus_taxid_for_esearch = None
+                if filtered_metadata:
+                    virus_taxid_for_esearch = filtered_metadata[0].get('virusTaxId')
+                    if not virus_taxid_for_esearch:
+                        # Try to get from nested virus dict
+                        virus_dict = filtered_metadata[0].get('virus', {})
+                        if isinstance(virus_dict, dict):
+                            virus_taxid_for_esearch = virus_dict.get('tax_id')
+                
+                # Only attempt ESearch pre-filtering if we have enough accessions
+                # to make it worthwhile (>1000) and we have GenBank-dependent filters
+                esearch_prefilter_threshold = 1000
+                if len(accessions_to_fetch) > esearch_prefilter_threshold and virus_taxid_for_esearch:
+                    logger.info("=" * 60)
+                    logger.info("ESearch PRE-FILTERING: Narrowing %d accessions to likely candidates",
+                               len(accessions_to_fetch))
+                    logger.info("This avoids fetching full GenBank XML for all %d accessions",
+                               len(accessions_to_fetch))
+                    logger.info("=" * 60)
+                    
+                    esearch_candidates = _esearch_prefilter_genbank(
+                        virus_taxid=virus_taxid_for_esearch,
+                        metadata_filtered_accessions=accessions_to_fetch,
+                        provirus=provirus,
+                        has_proteins=has_proteins,
+                        genotype=genotype,
+                        gen_mol_type=gen_mol_type,
+                        min_seq_length=min_seq_length,
+                        max_seq_length=max_seq_length,
+                        api_key=api_key,
+                    )
+                    
+                    if esearch_candidates is not None:
+                        if len(esearch_candidates) == 0:
+                            # ESearch says NO accessions match
+                            logger.warning("ESearch pre-filter: NO accessions match GenBank criteria.")
+                            logger.warning("No sequences will pass the GenBank-based filters.")
+                            filtered_accessions = []
+                            filtered_metadata = []
+                            genbank_data_prefetch = {}
+                            
+                            save_command_summary(
+                                outfolder=outfolder,
+                                command_line=command_line,
+                                total_api_records=total_api_records,
+                                total_after_metadata_filter=total_after_metadata_filter,
+                                total_final_sequences=0,
+                                output_files=output_files_dict,
+                                filtered_metadata=[],
+                                datasets_version=datasets_version,
+                                success=True,
+                                error_message="ESearch pre-filter: No accessions match GenBank criteria (provirus/has_proteins/genotype)",
+                                failed_commands=failed_commands,
+                                runtime_seconds=time.time() - _virus_start_time,
+                                memory_info=_get_memory_usage(),
+                                metadata_filter_stats=metadata_filter_stats,
+                                genbank_filter_stats={},
+                                total_after_genbank_filter=0,
+                            )
+                            if not keep_temp and os.path.isdir(temp_dir):
+                                try:
+                                    shutil.rmtree(temp_dir)
+                                except Exception:
+                                    pass
+                            return
+                        else:
+                            # Narrow to only the candidates
+                            accessions_to_fetch = list(esearch_candidates)
+                            logger.info("✅ ESearch pre-filter successful: narrowed from %d to %d accessions",
+                                       len(filtered_accessions), len(accessions_to_fetch))
+                    else:
+                        logger.info("ESearch pre-filter: could not pre-filter, using full accession list")
+                
+                logger.info("Fetching GenBank metadata for %d accessions...", len(accessions_to_fetch))
+                
+                # Fetch GenBank metadata
+                genbank_data_prefetch, genbank_failed_log = fetch_genbank_metadata(
+                    accessions=accessions_to_fetch,
+                    genbank_full_xml_path=genbank_prefetch_xml,
+                    genbank_full_csv_path=genbank_prefetch_csv,
+                    batch_size=genbank_batch_size,
+                    delay=GENBANK_INTER_BATCH_DELAY,
+                    api_key=api_key
+                )
+                
+                if genbank_data_prefetch:
+                    genbank_prefetch_done = True
+                    logger.info("Successfully retrieved GenBank metadata for %d accessions", len(genbank_data_prefetch))
+                    _log_memory_usage("after early GenBank fetch")
+                    
+                    # Apply GenBank-dependent filters
+                    logger.info("Applying GenBank-dependent filters...")
+                    filters_genbank_early = {
+                        "provirus": provirus,
+                        "has_proteins": has_proteins,
+                        "genotype": genotype,
+                        "gen_mol_type": gen_mol_type,
+                        "env_source": env_source,
+                        "min_gene_count": min_gene_count,
+                        "max_gene_count": max_gene_count,
+                        "min_mature_peptide_count": min_mature_peptide_count,
+                        "max_mature_peptide_count": max_mature_peptide_count,
+                    }
+                    
+                    genbank_filtered_accessions_early, genbank_filter_stats = filter_genbank_metadata(
+                        genbank_metadata=genbank_data_prefetch,
+                        **filters_genbank_early,
+                    )
+                    
+                    if genbank_filtered_accessions_early:
+                        # Calculate reduction
+                        before_count = len(filtered_accessions)
+                        after_count = len(genbank_filtered_accessions_early)
+                        reduction_pct = ((before_count - after_count) / before_count) * 100 if before_count > 0 else 0
+                        
+                        logger.info("=" * 60)
+                        logger.info("🎯 EARLY GENBANK FILTERING RESULTS:")
+                        logger.info("   Before GenBank filters: %d accessions", before_count)
+                        logger.info("   After GenBank filters:  %d accessions", after_count)
+                        logger.info("   Reduction: %.1f%% (%d accessions filtered out)", reduction_pct, before_count - after_count)
+                        logger.info("   This means we'll download %d sequences instead of %d!", after_count, before_count)
+                        logger.info("=" * 60)
+                        
+                        # Update filtered_accessions and filtered_metadata
+                        genbank_filtered_set_early = set(genbank_filtered_accessions_early)
+                        filtered_accessions = [acc for acc in filtered_accessions if acc in genbank_filtered_set_early]
+                        filtered_metadata = [md for md in filtered_metadata if md['accession'] in genbank_filtered_set_early]
+                        
+                        # Also filter genbank_data_prefetch to only include passing accessions
+                        genbank_data_prefetch = {acc: genbank_data_prefetch[acc] for acc in genbank_filtered_accessions_early if acc in genbank_data_prefetch}
+                        
+                        # Update total_after_metadata_filter to reflect GenBank filtering
+                        # Note: This is now total after BOTH metadata + GenBank filtering
+                        total_after_genbank_filter = len(filtered_accessions)
+                        
+                        _force_garbage_collection("after early GenBank filtering")
+                        _log_memory_usage("after early GenBank filtering cleanup")
+                    else:
+                        logger.warning("No sequences passed the GenBank-based filters.")
+                        # Clear outputs - no sequences to process
+                        filtered_accessions = []
+                        filtered_metadata = []
+                        genbank_data_prefetch = {}
+                        
+                        # Save command summary and return early
+                        save_command_summary(
+                            outfolder=outfolder,
+                            command_line=command_line,
+                            total_api_records=total_api_records,
+                            total_after_metadata_filter=total_after_metadata_filter,
+                            total_final_sequences=0,
+                            output_files=output_files_dict,
+                            filtered_metadata=[],
+                            datasets_version=datasets_version,
+                            success=True,
+                            error_message="No sequences passed the GenBank-based filters (provirus/has_proteins/genotype/etc.)",
+                            failed_commands=failed_commands,
+                            runtime_seconds=time.time() - _virus_start_time,
+                            memory_info=_get_memory_usage(),
+                            metadata_filter_stats=metadata_filter_stats,
+                            genbank_filter_stats=genbank_filter_stats,
+                            total_after_genbank_filter=0,
+                        )
+                        # Cleanup before return
+                        if not keep_temp and os.path.isdir(temp_dir):
+                            try:
+                                shutil.rmtree(temp_dir)
+                            except Exception:
+                                pass
+                        return
+                else:
+                    logger.warning("Failed to retrieve GenBank metadata. Proceeding without early filtering.")
+                    logger.warning("GenBank-dependent filters will be applied after sequence download (slower).")
+                    genbank_prefetch_done = False
+                    
+            except Exception as e:
+                logger.warning("Early GenBank fetch failed: %s", e)
+                logger.warning("Proceeding without early GenBank filtering. Filters will be applied after sequence download.")
+                genbank_prefetch_done = False
+                genbank_data_prefetch = None
+
     # SECTION 5: DOWNLOAD SEQUENCES FOR FILTERED ACCESSIONS ONLY
         logger.info("=" * 60)
         logger.info("STEP 5: Downloading sequences for filtered accessions")
@@ -8186,65 +8557,207 @@ def virus(
         logger.info("STEP 8: Fetching detailed GenBank metadata")
         logger.info("=" * 60)
         _log_memory_usage("STEP 8 start")
-
-                    # Fetch GenBank metadata
-                    genbank_data, genbank_failed_log = fetch_genbank_metadata(
-                        accessions=list(set(final_accessions)),  # Remove duplicates
-                        genbank_full_xml_path=genbank_full_xml_path, genbank_full_csv_path=genbank_full_csv_path,
-                        batch_size=genbank_batch_size,
-                        delay=0.5  # Be respectful to NCBI servers
+        if genbank_metadata and total_final_sequences > 0:
+            logger.info("GenBank metadata retrieval requested...")
+            
+            # Check if we already have GenBank data from early pre-fetch (Step 4.5)
+            if genbank_prefetch_done and genbank_data_prefetch:
+                logger.info("Using pre-fetched GenBank data from Step 4.5 (no re-fetch needed)")
+                genbank_data = genbank_data_prefetch
+                
+                # Save GenBank metadata to final output location
+                try:
+                    # Copy temp XML to final location if it exists
+                    genbank_prefetch_xml = os.path.join(temp_dir, f"{virus_clean}_genbank_prefetch.xml")
+                    genbank_prefetch_csv = os.path.join(temp_dir, f"{virus_clean}_genbank_prefetch.csv")
+                    
+                    if os.path.exists(genbank_prefetch_xml):
+                        shutil.copy(genbank_prefetch_xml, genbank_full_xml_path)
+                    if os.path.exists(genbank_prefetch_csv):
+                        shutil.copy(genbank_prefetch_csv, genbank_full_csv_path)
+                    
+                    # Save GenBank metadata to CSV
+                    save_genbank_metadata_to_csv(
+                        genbank_metadata=genbank_data,
+                        output_file=genbank_csv_path,
+                        virus_metadata=filtered_metadata_final
                     )
+                    logger.info("✅ GenBank metadata CSV saved: %s (%.2f MB)", 
+                                genbank_csv_path, os.path.getsize(genbank_csv_path) / 1024 / 1024)
                     
-                    # Parse GenBank failed batches log if it exists
-                    if genbank_failed_log and os.path.exists(genbank_failed_log):
-                        try:
-                            with open(genbank_failed_log, 'r') as flog:
-                                content = flog.read()
-                                # Parse the log file to extract failed batch information
-                                batch_pattern = r'FAILED_BATCH: \[([^\]]+)\][\s\S]*?URL: ([^\n]+)'
-                                matches = re.findall(batch_pattern, content)
-                                for accessions_str, url in matches:
-                                    # Clean up accessions string
-                                    batch_accessions = [acc.strip().strip("'").strip('"') for acc in accessions_str.split(',')]
-                                    failed_commands['genbank_batches'].append({
-                                        'accessions': batch_accessions,
-                                        'retry_url': url.strip()
-                                    })
-                        except Exception as parse_error:
-                            logger.debug("Could not parse GenBank failed batches log: %s", parse_error)
+                    # Merge with standard metadata CSV if it exists
+                    if os.path.exists(output_metadata_csv):
+                        merge_metadata_csvs(genbank_csv_path, output_metadata_csv)
                     
-                    if genbank_data:
-                        # Save GenBank metadata to CSV
-                        save_genbank_metadata_to_csv(
-                            genbank_metadata=genbank_data,
-                            output_file=genbank_csv_path,
-                            virus_metadata=filtered_metadata_final
+                    output_files_dict['GenBank CSV Metadata'] = genbank_csv_path
+                    if os.path.exists(genbank_full_xml_path):
+                        output_files_dict['GenBank Full XML'] = genbank_full_xml_path
+                    if os.path.exists(genbank_full_csv_path):
+                        output_files_dict['GenBank Full CSV'] = genbank_full_csv_path
+                    genbank_success = True
+                    
+                except Exception as e:
+                    logger.error("❌ Failed to save pre-fetched GenBank data: %s", e)
+                    genbank_error_msg = str(e)
+            else:
+                # No pre-fetch available - fetch GenBank data now
+                logger.info("Fetching GenBank metadata (no pre-fetch available)...")
+                try:
+                    # Use filtered_accessions (from metadata) instead of iterating
+                    # in-memory sequences - avoids loading all sequences into RAM
+                    final_accessions = list(filtered_accessions)
+                    
+                    if final_accessions:
+                        logger.info("Fetching GenBank metadata for %d sequences...", len(final_accessions))
+
+                        # Fetch GenBank metadata
+                        genbank_data, genbank_failed_log = fetch_genbank_metadata(
+                            accessions=list(set(final_accessions)),  # Remove duplicates
+                            genbank_full_xml_path=genbank_full_xml_path, genbank_full_csv_path=genbank_full_csv_path,
+                            batch_size=genbank_batch_size,
+                            delay=GENBANK_INTER_BATCH_DELAY,
+                            api_key=api_key
                         )
-                        logger.info("✅ GenBank metadata CSV saved: %s (%.2f MB)", 
-                                    genbank_csv_path, os.path.getsize(genbank_csv_path) / 1024 / 1024)
                         
-                        # Merge with standard metadata CSV if it exists
-                        if os.path.exists(output_metadata_csv):
-                            merge_metadata_csvs(genbank_csv_path, output_metadata_csv)
+                        # Parse GenBank failed batches log if it exists
+                        if genbank_failed_log and os.path.exists(genbank_failed_log):
+                            try:
+                                with open(genbank_failed_log, 'r') as flog:
+                                    content = flog.read()
+                                    # Parse the log file to extract failed batch information
+                                    batch_pattern = r'FAILED_BATCH: \[([^\]]+)\][\s\S]*?URL: ([^\n]+)'
+                                    matches = re.findall(batch_pattern, content)
+                                    for accessions_str, url in matches:
+                                        # Clean up accessions string
+                                        batch_accessions = [acc.strip().strip("'").strip('"') for acc in accessions_str.split(',')]
+                                        failed_commands['genbank_batches'].append({
+                                            'accessions': batch_accessions,
+                                            'retry_url': url.strip()
+                                        })
+                            except Exception as parse_error:
+                                logger.debug("Could not parse GenBank failed batches log: %s", parse_error)
                         
-                        output_files_dict['GenBank CSV Metadata'] = genbank_csv_path
-                        if os.path.exists(genbank_full_xml_path):
-                            output_files_dict['GenBank Full XML'] = genbank_full_xml_path
-                        if os.path.exists(genbank_full_csv_path):
-                            output_files_dict['GenBank Full CSV'] = genbank_full_csv_path
-                        genbank_success = True
+                        if genbank_data and not genbank_dependent_filters_active:
+                            # No GenBank filters - just save the data
+                            save_genbank_metadata_to_csv(
+                                genbank_metadata=genbank_data,
+                                output_file=genbank_csv_path,
+                                virus_metadata=filtered_metadata_final
+                            )
+                            logger.info("✅ GenBank metadata CSV saved: %s (%.2f MB)", 
+                                        genbank_csv_path, os.path.getsize(genbank_csv_path) / 1024 / 1024)
+                            
+                            # Merge with standard metadata CSV if it exists
+                            if os.path.exists(output_metadata_csv):
+                                merge_metadata_csvs(genbank_csv_path, output_metadata_csv)
+                            
+                            output_files_dict['GenBank CSV Metadata'] = genbank_csv_path
+                            if os.path.exists(genbank_full_xml_path):
+                                output_files_dict['GenBank Full XML'] = genbank_full_xml_path
+                            if os.path.exists(genbank_full_csv_path):
+                                output_files_dict['GenBank Full CSV'] = genbank_full_csv_path
+                            genbank_success = True
+                        elif genbank_data and genbank_dependent_filters_active:
+                            # GenBank filters needed - this is the fallback path when pre-fetch failed
+                            logger.info("GenBank metadata retrieved. Applying filters (fallback path)...")
+                            _log_memory_usage("before fallback GenBank filtering")
+                            _force_garbage_collection("before fallback filtering")
+                            
+                            filters_genbank={
+                                "provirus": provirus,
+                                "has_proteins": has_proteins,
+                                "genotype": genotype,
+                                "gen_mol_type": gen_mol_type,
+                                "env_source": env_source,
+                                "min_gene_count": min_gene_count,
+                                "max_gene_count": max_gene_count,
+                                "min_mature_peptide_count": min_mature_peptide_count,
+                                "max_mature_peptide_count": max_mature_peptide_count,
+                            }
+
+                            try:
+                                genbank_filtered_accessions, genbank_filter_stats = filter_genbank_metadata(
+                                    genbank_metadata=genbank_data,
+                                    **filters_genbank,
+                                )
+
+                                if genbank_filtered_accessions:
+                                    logger.info("After applying GenBank-based filters, %d sequences remain", len(genbank_filtered_accessions))
+                                    
+                                    genbank_filtered_set = set(genbank_filtered_accessions)
+                                    total_after_genbank_filter = len(genbank_filtered_accessions)
+                                    # Re-filter FASTA by streaming from output
+                                    # file through accession filter, instead of holding all sequences in RAM
+                                    temp_refiltered_fasta = output_fasta_file + ".tmp"
+                                    refiltered_count = _stream_copy_fasta(output_fasta_file, temp_refiltered_fasta, genbank_filtered_set)
+                                    shutil.move(temp_refiltered_fasta, output_fasta_file)
+                                    total_final_sequences = refiltered_count
+                                    
+                                    filtered_metadata_final = [md for md in filtered_metadata_final if md['accession'] in genbank_filtered_set]
+                                    genbank_data_filtered = {acc: genbank_data[acc] for acc in genbank_filtered_accessions if acc in genbank_data}
+                                    
+                                    del genbank_data
+                                    _force_garbage_collection("after fallback GenBank filtering")
+
+                                    save_metadata_to_csv(filtered_metadata_final, protein_headers, output_metadata_csv)
+                                    
+                                    try:
+                                        with open(output_metadata_jsonl, "w", encoding="utf-8") as f:
+                                            for md in filtered_metadata_final:
+                                                f.write(json.dumps(md) + "\n")
+                                    except Exception as e:
+                                        logger.warning("❌ Failed to update JSONL metadata file: %s", e)
+                                    
+                                    save_genbank_metadata_to_csv(
+                                        genbank_metadata=genbank_data_filtered,
+                                        output_file=genbank_csv_path,
+                                        virus_metadata=filtered_metadata_final
+                                    )
+                                    logger.info("✅ GenBank metadata CSV saved: %s (%.2f MB)", 
+                                                genbank_csv_path, os.path.getsize(genbank_csv_path) / 1024 / 1024)
+                                    
+                                    if os.path.exists(output_metadata_csv):
+                                        merge_metadata_csvs(genbank_csv_path, output_metadata_csv)
+                                    
+                                    output_files_dict['FASTA Sequences'] = output_fasta_file
+                                    output_files_dict['CSV Metadata'] = output_metadata_csv
+                                    output_files_dict['GenBank CSV Metadata'] = genbank_csv_path
+                                    if os.path.exists(genbank_full_xml_path):
+                                        output_files_dict['GenBank Full XML'] = genbank_full_xml_path
+                                    if os.path.exists(genbank_full_csv_path):
+                                        output_files_dict['GenBank Full CSV'] = genbank_full_csv_path
+
+                                    final_metadata_for_summary = filtered_metadata_final
+                                    genbank_success = True
+                                    
+                                    del genbank_data_filtered
+                                    del genbank_filtered_accessions
+                                    del genbank_filtered_set
+                                else:
+                                    logger.warning("No sequences passed the GenBank-based filters.")
+                                    del genbank_data
+                                    filtered_metadata_final = []
+                                    total_final_sequences = 0
+                                    if os.path.exists(output_fasta_file):
+                                        os.remove(output_fasta_file)
+                                    if os.path.exists(output_metadata_csv):
+                                        os.remove(output_metadata_csv)
+                                    if os.path.exists(output_metadata_jsonl):
+                                        os.remove(output_metadata_jsonl)
+                            except Exception as e:
+                                logger.error("❌ Failed to apply GenBank-based filters: %s", e)
+                                logger.warning("Continuing with previously filtered results without GenBank-based filtering.")
+                        else:
+                            logger.warning("No GenBank metadata was retrieved")
+                            genbank_error_msg = "No GenBank metadata was retrieved"
                     else:
-                        logger.warning("No GenBank metadata was retrieved")
-                        genbank_error_msg = "No GenBank metadata was retrieved"
-                else:
-                    logger.warning("No accession numbers found for GenBank metadata lookup")
-                    genbank_error_msg = "No accession numbers found for GenBank metadata lookup"
-                    
-            except Exception as genbank_error:
-                logger.error("❌ GenBank metadata retrieval failed: %s", genbank_error)
-                logger.warning("Continuing without GenBank metadata - standard output files are still available")
-                genbank_error_msg = str(genbank_error)
-                # Don't raise the error - continue with the rest of the process
+                        logger.warning("No accession numbers found for GenBank metadata lookup")
+                        genbank_error_msg = "No accession numbers found for GenBank metadata lookup"
+                        
+                except Exception as genbank_error:
+                    logger.error("❌ GenBank metadata retrieval failed: %s", genbank_error)
+                    logger.warning("Continuing without GenBank metadata - standard output files are still available")
+                    genbank_error_msg = str(genbank_error)
             
             _log_memory_usage("GenBank processing complete")
             _force_garbage_collection("after GenBank processing")
@@ -8298,6 +8811,7 @@ def virus(
                 success=True,
                 error_message=None,
                 failed_commands=failed_commands,
+                genbank_error=genbank_error_msg if genbank_metadata and not genbank_success else None,
                 baseline_file=baseline_metadata,
                 baseline_accession_count=len(baseline_accessions) if baseline_accessions else None,
                 baseline_skipped_count=baseline_skipped_count if baseline_accessions is not None else None,
