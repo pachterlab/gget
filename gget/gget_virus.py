@@ -26,7 +26,7 @@ import calendar
 
 # Internal imports for logging, unique ID generation, and FASTA parsing
 from .utils import set_up_logger, FastaIO
-from .constants import NCBI_API_BASE, NCBI_EUTILS_BASE
+from .constants import NCBI_API_BASE, NCBI_EUTILS_BASE_EFETCH, NCBI_EUTILS_BASE_ESEARCH
 from .compile import PACKAGE_PATH
 
 # Optional psutil import for memory monitoring
@@ -3169,10 +3169,10 @@ def download_sequences_by_accessions(accessions, outdir=None, batch_size=200, fa
         return _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_size, failed_commands)
     
     # For smaller requests, use single request
-    return _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE, fasta_path, failed_commands, api_key=api_key)
+    return _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE_EFETCH, fasta_path, failed_commands, api_key=api_key)
 
 
-def _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE, fasta_path, failed_commands=None, api_key=None):
+def _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE_EFETCH, fasta_path, failed_commands=None, api_key=None):
     """
     Download sequences in a single E-utilities request with exponential backoff retries.
     
@@ -3183,7 +3183,7 @@ def _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE, fasta_path, f
     
     Args:
         accessions (list): List of accession numbers to download.
-        NCBI_EUTILS_BASE (str): Base URL for NCBI E-utilities API.
+        NCBI_EUTILS_BASE_EFETCH (str): Base URL for NCBI E-utilities API.
         fasta_path (str): Path where FASTA file should be saved.
         failed_commands (dict, optional): Dictionary to track failed operations.
         
@@ -3216,8 +3216,8 @@ def _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE, fasta_path, f
         }
         if api_key:
             params['api_key'] = api_key
-        logger.debug("E-utilities URL: %s", NCBI_EUTILS_BASE)
-        response = requests.get(NCBI_EUTILS_BASE, params=params, timeout=EUTILS_TIMEOUT)
+        logger.debug("E-utilities URL: %s", NCBI_EUTILS_BASE_EFETCH)
+        response = requests.get(NCBI_EUTILS_BASE_EFETCH, params=params, timeout=EUTILS_TIMEOUT)
         response.raise_for_status()
         
         # Verify we got FASTA data
@@ -3245,13 +3245,13 @@ def _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE, fasta_path, f
         if "414" in error_msg or "Request-URI Too Long" in error_msg:
             logger.info("URL too long error detected. Retrying with batch processing...")
             # Retry with smaller batches (half of default)
-            return _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_size=EUTILS_DEFAULT_BATCH_SIZE // 2, failed_commands=failed_commands, api_key=api_key)
+            return _download_sequences_batched(accessions, NCBI_EUTILS_BASE_EFETCH, fasta_path, batch_size=EUTILS_DEFAULT_BATCH_SIZE // 2, failed_commands=failed_commands, api_key=api_key)
         
         # Log and track the failure
         logger.error("❌ E-utilities request failed after %d retries: %s", API_MAX_RETRIES, error_msg)
         
         # Track failed operation for later reporting in command summary
-        retry_url = f"{NCBI_EUTILS_BASE}?db=nucleotide&id={accession_string}&rettype=fasta&retmode=text"
+        retry_url = f"{NCBI_EUTILS_BASE_EFETCH}?db=nucleotide&id={accession_string}&rettype=fasta&retmode=text"
         _track_failed_operation(
             failed_commands, 
             'sequence_fetch',
@@ -3284,7 +3284,7 @@ def _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE, fasta_path, f
         raise RuntimeError(f"❌ Failed to save downloaded sequences: {e}") from e
 
 
-def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_size, failed_commands=None, api_key=None):
+def _download_sequences_batched(accessions, NCBI_EUTILS_BASE_EFETCH, fasta_path, batch_size, failed_commands=None, api_key=None):
     """
     Download sequences using multiple batched E-utilities requests with incremental file writing.
     
@@ -3302,7 +3302,7 @@ def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_
     
     Args:
         accessions (list): List of accession numbers to download.
-        NCBI_EUTILS_BASE (str): Base URL for NCBI E-utilities API.
+        NCBI_EUTILS_BASE_EFETCH (str): Base URL for NCBI E-utilities API.
         fasta_path (str): Path where FASTA file should be saved.
         batch_size (int): Number of accessions per batch.
         failed_commands (dict, optional): Dictionary to track failed operations.
@@ -3356,7 +3356,7 @@ def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_
                     }
                     if api_key:
                         params['api_key'] = api_key
-                    response = requests.get(NCBI_EUTILS_BASE, params=params, timeout=EUTILS_TIMEOUT)
+                    response = requests.get(NCBI_EUTILS_BASE_EFETCH, params=params, timeout=EUTILS_TIMEOUT)
                     response.raise_for_status()
                     
                     # Verify we got FASTA data
@@ -3403,7 +3403,7 @@ def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_
                         temp_batch_path = f"temp_batch_{batch_num}.fasta"
                         try:
                             _download_sequences_batched(
-                                batch_accessions, NCBI_EUTILS_BASE, temp_batch_path, batch_size // 2, failed_commands, api_key=api_key
+                                batch_accessions, NCBI_EUTILS_BASE_EFETCH, temp_batch_path, batch_size // 2, failed_commands, api_key=api_key
                             )
                             # Read the temporary file and append to main file
                             with open(temp_batch_path, 'r', encoding='utf-8') as temp_f:
@@ -3428,7 +3428,7 @@ def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_
                                     'batch_num': batch_num,
                                     'accession_count': len(batch_accessions),
                                     'accessions': batch_accessions,
-                                    'retry_url': f"{NCBI_EUTILS_BASE}?db=nucleotide&id={accession_string}&rettype=fasta&retmode=text",
+                                    'retry_url': f"{NCBI_EUTILS_BASE_EFETCH}?db=nucleotide&id={accession_string}&rettype=fasta&retmode=text",
                                 },
                                 error_info
                             )
@@ -3443,7 +3443,7 @@ def _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_
                                 'batch_num': batch_num,
                                 'accession_count': len(batch_accessions),
                                 'accessions': batch_accessions,
-                                'retry_url': f"{NCBI_EUTILS_BASE}?db=nucleotide&id={accession_string}&rettype=fasta&retmode=text",
+                                'retry_url': f"{NCBI_EUTILS_BASE_EFETCH}?db=nucleotide&id={accession_string}&rettype=fasta&retmode=text",
                             },
                             error_info
                         )
@@ -4675,6 +4675,181 @@ def check_min_max(min_val, max_val, filtername, date=False):
 
 
 # =============================================================================
+# ESEARCH PRE-FILTERING 
+# =============================================================================
+
+def _esearch_prefilter_genbank(
+    virus_taxid,
+    metadata_filtered_accessions,
+    provirus=None,
+    has_proteins=None,
+    genotype=None,
+    gen_mol_type=None,
+    min_seq_length=None,
+    max_seq_length=None,
+    api_key=None,
+):
+    """
+    Use NCBI ESearch to pre-filter accessions BEFORE fetching full GenBank XML.
+    
+    Instead of fetching full GenBank XML for ALL metadata-filtered accessions, we use ESearch to find only the subset that might pass the GenBank-    dependent filters. This typically reduces the set from hundreds of thousands to a few hundred, making the GenBank fetch near-instant.
+    
+    Strategy: Build an ESearch query that is a SUPERSET of what the exact GenBank XML parsing will select. Use broad matching to avoid false negatives. Then intersect with the metadata-filtered accessions and fetch GenBank XML only for the intersection.
+    
+    Args:
+        virus_taxid (str/int): NCBI taxonomy ID for the virus (e.g. 11676 for HIV-1).
+        metadata_filtered_accessions (list): Accessions that passed metadata filters.
+        provirus (bool, optional): If True, search for proviral sequences.
+        has_proteins (str, optional): Protein name to search for (e.g. "gag polyprotein").
+        genotype (str, optional): Genotype/subtype to search for.
+        gen_mol_type (str, optional): Molecule type qualifier.
+        min_seq_length (int, optional): Minimum sequence length.
+        max_seq_length (int, optional): Maximum sequence length.
+        api_key (str, optional): NCBI API key for higher rate limits.
+        
+    Returns:
+        set: Set of accession numbers that might pass GenBank filters,
+             or None if pre-filtering couldn't be performed (fall back to full fetch).
+    """
+    # Build ESearch query terms
+    query_parts = []
+    
+    # Always include organism constraint
+    if virus_taxid:
+        query_parts.append(f"txid{virus_taxid}[Organism]")
+    
+    # NOTE: We deliberately do NOT use "proviral" as an ESearch term here.
+    # ESearch free-text "proviral" only matches sequences that contain the WORD
+    # "proviral" in their GenBank text (title, comment, keywords). Many sequences that ARE proviral (especially complete genomes like AF004394.1, U69593.1) do NOT contain this word in their text. The NCBI Virus web interface uses a different mechanism (structured metadata/mol_type qualifier) to identify proviral sequences. 
+    # The provirus filter is correctly applied later in filter_genbank_metadata() by checking the actual GenBank XML features/qualifiers.
+    
+    # Has_proteins filter: search for protein name
+    if has_proteins:
+        # Use broad "All Fields" matching for protein name to ensure superset
+        # The exact filtering will happen later on the GenBank XML
+        query_parts.append(f'"{has_proteins}"')
+    
+    # Genotype filter: search for genotype string
+    if genotype:
+        query_parts.append(f'"{genotype}"')
+    
+    # Molecule type filter
+    if gen_mol_type:
+        query_parts.append(f'"{gen_mol_type}"[Molecule Type]')
+    
+    # Sequence length filter
+    if min_seq_length and max_seq_length:
+        query_parts.append(f"{min_seq_length}:{max_seq_length}[SLEN]")
+    elif min_seq_length:
+        query_parts.append(f"{min_seq_length}:99999999[SLEN]")
+    elif max_seq_length:
+        query_parts.append(f"1:{max_seq_length}[SLEN]")
+    
+    # Need at least organism + one GenBank filter for pre-filtering to be useful
+    if len(query_parts) < 2:
+        logger.info("ESearch pre-filter: not enough filter criteria for useful pre-filtering")
+        return None
+    
+    search_query = " AND ".join(query_parts)
+    logger.info("ESearch pre-filter query: %s", search_query)
+    
+    try:
+        # Step 1: ESearch to get count and WebEnv
+        params = {
+            'db': 'nucleotide',
+            'term': search_query,
+            'retmax': 0,
+            'usehistory': 'y',
+        }
+        if api_key:
+            params['api_key'] = api_key
+        
+        response = requests.get(NCBI_EUTILS_BASE_ESEARCH, params=params, timeout=60,
+                               headers={'User-Agent': 'gget/1.0'})
+        response.raise_for_status()
+        root = ET.fromstring(response.text)
+        
+        count_elem = root.find('.//Count')
+        web_env_elem = root.find('.//WebEnv')
+        query_key_elem = root.find('.//QueryKey')
+        
+        if count_elem is None or web_env_elem is None:
+            logger.warning("ESearch pre-filter: could not parse response")
+            return None
+        
+        total_count = int(count_elem.text)
+        web_env = web_env_elem.text
+        query_key = query_key_elem.text
+        
+        logger.info("ESearch pre-filter: found %d accessions matching GenBank criteria", total_count)
+        
+        # If the pre-filter results are TOO large (>50K), it's not useful
+        # Fall back to the full fetch method
+        if total_count > 50000:
+            logger.info("ESearch pre-filter: %d results is too large for effective pre-filtering (>50K), skipping", total_count)
+            return None
+        
+        if total_count == 0:
+            logger.info("ESearch pre-filter: NO accessions match the GenBank criteria")
+            return set()
+        
+        # Step 2: Fetch all matching accessions using EFetch rettype=acc (lightweight!)
+        all_esearch_accessions = []
+        batch_size = 10000
+        
+        for retstart in range(0, total_count, batch_size):
+            time.sleep(0.35 if not api_key else 0.1)
+            
+            fetch_params = {
+                'db': 'nucleotide',
+                'WebEnv': web_env,
+                'query_key': query_key,
+                'retmax': batch_size,
+                'retstart': retstart,
+                'rettype': 'acc',
+                'retmode': 'text',
+            }
+            if api_key:
+                fetch_params['api_key'] = api_key
+            
+            resp = requests.get(NCBI_EUTILS_BASE_EFETCH, params=fetch_params, timeout=120,
+                               headers={'User-Agent': 'gget/1.0'})
+            resp.raise_for_status()
+            
+            batch_accs = [a.strip() for a in resp.text.strip().split('\n') if a.strip()]
+            all_esearch_accessions.extend(batch_accs)
+            logger.debug("ESearch pre-filter: fetched %d accessions (retstart=%d)", 
+                        len(batch_accs), retstart)
+        
+        logger.info("ESearch pre-filter: retrieved %d accession numbers total", len(all_esearch_accessions))
+        
+        # Step 3: Intersect with our metadata-filtered accessions
+        esearch_set = set(all_esearch_accessions)
+        metadata_set = set(metadata_filtered_accessions)
+        intersection = esearch_set & metadata_set
+        
+        logger.info("ESearch pre-filter RESULTS:")
+        logger.info("  ESearch matches: %d", len(esearch_set))
+        logger.info("  Metadata-filtered: %d", len(metadata_set))
+        logger.info("  Intersection (candidates): %d", len(intersection))
+        logger.info("  Reduction: %.1f%% (from %d to %d accessions for GenBank fetch)",
+                   (1 - len(intersection) / len(metadata_set)) * 100 if metadata_set else 0,
+                   len(metadata_set), len(intersection))
+        
+        return intersection
+        
+    except requests.exceptions.RequestException as e:
+        logger.warning("ESearch pre-filter failed (network error): %s. Falling back to full fetch.", e)
+        return None
+    except ET.ParseError as e:
+        logger.warning("ESearch pre-filter failed (parse error): %s. Falling back to full fetch.", e)
+        return None
+    except Exception as e:
+        logger.warning("ESearch pre-filter failed (unexpected): %s. Falling back to full fetch.", e)
+        return None
+
+
+# =============================================================================
 # EPOST + EFETCH HELPER FUNCTIONS (NCBI-recommended for large datasets)
 # =============================================================================
 
@@ -4829,7 +5004,7 @@ def _efetch_with_history(web_env, query_key, retstart, retmax, api_key=None, fai
             logger.debug("EFetch with history: retstart=%d, retmax=%d (attempt %d)", 
                         retstart, retmax, attempt + 1)
             
-            response = session.get(NCBI_EUTILS_BASE, params=params, timeout=EUTILS_TIMEOUT, headers=headers)
+            response = session.get(NCBI_EUTILS_BASE_EFETCH, params=params, timeout=EUTILS_TIMEOUT, headers=headers)
             response.raise_for_status()
             
             # Verify we got XML data
@@ -5267,9 +5442,11 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
     missing_accessions = set(accessions) - set(all_metadata.keys())
     if missing_accessions:
         logger.info("❌ The following accessions could not be downloaded:")
-        for acc in missing_accessions:
-            efetch_url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nucleotide&id={acc}&rettype=gb&retmode=xml"
+        for acc in list(missing_accessions)[:10]:  # Only log first 10
+            efetch_url = f"{NCBI_EUTILS_BASE_EFETCH}?db=nucleotide&id={acc}&rettype=gb&retmode=xml"
             logger.info(f"  {acc}: {efetch_url}")
+        if len(missing_accessions) > 10:
+            logger.info(f"  ... and {len(missing_accessions) - 10} more")
         logger.info(f"A log of failed batches and efetch URLs is saved at: {failed_log_path}")
     
     # Return both metadata and the path to the failed batches log for summary tracking
@@ -5336,15 +5513,15 @@ def _fetch_genbank_batch(accessions, failed_log_path=None):
     while attempt < max_attempts:
         try:
             logger.debug("Making E-utilities request for %d accessions (attempt %d)", len(accessions), attempt + 1)
-            logger.debug("Request URL: %s", NCBI_EUTILS_BASE)
+            logger.debug("Request URL: %s", NCBI_EUTILS_BASE_EFETCH)
             logger.debug("Request parameters: %s", {k: (v[:50] + '...' if isinstance(v, str) and len(v) > 50 else v) for k, v in params.items()})
 
             # Use POST instead of GET for EFetch to avoid 414 URI Too Long errors.
             # NCBI E-utilities supports POST for all requests, and POST puts the
             # accession list in the request body instead of the URL.
-            response = session.post(NCBI_EUTILS_BASE, data=params, timeout=EUTILS_TIMEOUT, headers=headers)
+            response = session.post(NCBI_EUTILS_BASE_EFETCH, data=params, timeout=EUTILS_TIMEOUT, headers=headers)
             efetch_url = response.url  # Capture the full URL for logging
-            logger.debug("POST request sent to: %s", NCBI_EUTILS_BASE)
+            logger.debug("POST request sent to: %s", NCBI_EUTILS_BASE_EFETCH)
             response.raise_for_status()
 
             # Verify we got XML data
@@ -5411,7 +5588,7 @@ def _fetch_genbank_batch(accessions, failed_log_path=None):
         # Build the URL for manual download
         if efetch_url is None:
             # Construct URL if we never got a response
-            base_url = f"{NCBI_EUTILS_BASE}?db=nucleotide&id={accession_string}&rettype=gb&retmode=xml"
+            base_url = f"{NCBI_EUTILS_BASE_EFETCH}?db=nucleotide&id={accession_string}&rettype=gb&retmode=xml"
             efetch_url = base_url
         
         with open(failed_log_path, "a") as flog:
@@ -5419,7 +5596,7 @@ def _fetch_genbank_batch(accessions, failed_log_path=None):
             flog.write(f"URL: {efetch_url}\n")
             flog.write(f"Individual URLs:\n")
             for acc in accessions:
-                individual_url = f"{NCBI_EUTILS_BASE}?db=nucleotide&id={acc}&rettype=gb&retmode=xml"
+                individual_url = f"{NCBI_EUTILS_BASE_EFETCH}?db=nucleotide&id={acc}&rettype=gb&retmode=xml"
                 flog.write(f"  {acc}: {individual_url}\n")
             flog.write("\n")
         logger.error(f"Failed to fetch GenBank metadata for batch: {accessions[:5]}... Logged to {failed_log_path}")
