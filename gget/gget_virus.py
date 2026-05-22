@@ -4296,10 +4296,11 @@ def save_command_summary(
                 
                 # Check for API timeouts
                 if failed_commands.get('api_timeout'):
+                    if not has_failures:
+                        f.write("-" * 80 + "\n")
+                        f.write("⚠️ FAILED OPERATIONS - MANUAL RETRY REQUIRED\n")
+                        f.write("-" * 80 + "\n")
                     has_failures = True
-                    f.write("-" * 80 + "\n")
-                    f.write("⚠️ FAILED OPERATIONS - MANUAL RETRY REQUIRED\n")
-                    f.write("-" * 80 + "\n")
                     timeout_info = failed_commands['api_timeout']
                     f.write(f"\n📍 API TIMEOUT:\n")
                     f.write(f"   Error: {timeout_info.get('error', 'Unknown')}\n")
@@ -4308,11 +4309,11 @@ def save_command_summary(
                 
                 # Check for empty API response
                 if failed_commands.get('empty_response'):
-                    has_failures = True
                     if not has_failures:
                         f.write("-" * 80 + "\n")
                         f.write("⚠️ FAILED OPERATIONS - MANUAL RETRY REQUIRED\n")
                         f.write("-" * 80 + "\n")
+                    has_failures = True
                     empty_resp_info = failed_commands['empty_response']
                     f.write(f"\n📍 EMPTY API RESPONSE:\n")
                     f.write(f"   Error: {empty_resp_info.get('error', 'Unknown')}\n")
@@ -4320,12 +4321,11 @@ def save_command_summary(
                 
                 # Check for failed API batches
                 if failed_commands.get('api_batches'):
-                    has_failures = True
                     if not has_failures:
                         f.write("-" * 80 + "\n")
                         f.write("⚠️ FAILED OPERATIONS - MANUAL RETRY REQUIRED\n")
                         f.write("-" * 80 + "\n")
-                        has_failures = True
+                    has_failures = True
                     f.write(f"\n📍 FAILED METADATA BATCHES ({len(failed_commands['api_batches'])} batches):\n")
                     for batch_info in failed_commands['api_batches'][:5]:  # Show first 5
                         f.write(f"\n   Batch {batch_info.get('batch_num', '?')}: {batch_info.get('accession_count', '?')} accessions\n")
