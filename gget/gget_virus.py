@@ -7811,13 +7811,56 @@ def virus(
                 logger.debug("Applied filters: %s", applied_filters)
                 logger.debug("Missing filters (to apply in Step 3b): %s", missing_filters)
         except Exception as cache_error:
-            logger.warning("❌ SARS-CoV-2 cached download failed: %s", cache_error)
-            logger.info("Falling back to regular API workflow...")
-            # Reset cached download state to ensure regular API workflow is used
-            cached_zip_file = None
-            cached_fasta_file = None
-            cached_metadata_dict = None
-            used_cached_download = False
+            logger.warning("❌ SARS-CoV-2 cached download failed after all strategies: %s", cache_error)
+            logger.info("🔄 Retrying with normal API download method (_skip_cache=True)...")
+            # Retry the entire virus() call with _skip_cache=True to use the normal API pathway
+            _virus_func = globals()['virus']
+            return _virus_func(
+                virus=virus,
+                is_accession=is_accession,
+                outfolder=outfolder,
+                host=host,
+                min_seq_length=min_seq_length,
+                max_seq_length=max_seq_length,
+                min_gene_count=min_gene_count,
+                max_gene_count=max_gene_count,
+                nuc_completeness=nuc_completeness,
+                has_proteins=has_proteins,
+                proteins_complete=proteins_complete,
+                lab_passaged=lab_passaged,
+                geographic_location=geographic_location,
+                submitter_country=submitter_country,
+                min_collection_date=min_collection_date,
+                max_collection_date=max_collection_date,
+                source_database=source_database,
+                annotated=annotated,
+                keep_temp=keep_temp,
+                min_release_date=min_release_date,
+                max_release_date=max_release_date,
+                min_mature_peptide_count=min_mature_peptide_count,
+                max_mature_peptide_count=max_mature_peptide_count,
+                min_protein_count=min_protein_count,
+                max_protein_count=max_protein_count,
+                max_ambiguous_chars=max_ambiguous_chars,
+                is_sars_cov2=is_sars_cov2,
+                is_alphainfluenza=is_alphainfluenza,
+                segment=segment,
+                vaccine_strain=vaccine_strain,
+                lineage=lineage,
+                genbank_metadata=genbank_metadata,
+                genbank_batch_size=genbank_batch_size,
+                download_all_accessions=download_all_accessions,
+                _skip_cache=True,
+                provirus=provirus,
+                isolate=isolate,
+                genotype=genotype,
+                isolation_source=isolation_source,
+                env_source=env_source,
+                submitter_name=submitter_name,
+                submitter_institution=submitter_institution,
+                gen_mol_type=gen_mol_type,
+                verbose=verbose,
+            )
     else:
         logger.info("No SARS-CoV-2 query detected.")
 
@@ -7859,13 +7902,58 @@ def virus(
                 logger.debug("Applied filters: %s", applied_filters)
                 logger.debug("Missing filters (to apply in Step 3b): %s", missing_filters)
         except Exception as cache_error:
-            logger.warning("❌ Alphainfluenza cached download failed: %s", cache_error)
-            logger.info("Falling back to regular API workflow...")
-            # Reset cached download state to ensure regular API workflow is used
-            cached_zip_file = None
-            cached_fasta_file = None
-            cached_metadata_dict = None
-            used_cached_download = False
+            logger.warning("❌ Alphainfluenza cached download failed after all strategies: %s", cache_error)
+            logger.info("🔄 Retrying with normal API download method (_skip_cache=True)...")
+            # Retry the entire virus() call with _skip_cache=True to use the normal API pathway
+            # Note: We use globals()['virus'] because the local parameter 'virus' (a string)
+            # shadows the function name in this scope.
+            _virus_func = globals()['virus']
+            return _virus_func(
+                virus=virus,
+                is_accession=is_accession,
+                outfolder=outfolder,
+                host=host,
+                min_seq_length=min_seq_length,
+                max_seq_length=max_seq_length,
+                min_gene_count=min_gene_count,
+                max_gene_count=max_gene_count,
+                nuc_completeness=nuc_completeness,
+                has_proteins=has_proteins,
+                proteins_complete=proteins_complete,
+                lab_passaged=lab_passaged,
+                geographic_location=geographic_location,
+                submitter_country=submitter_country,
+                min_collection_date=min_collection_date,
+                max_collection_date=max_collection_date,
+                source_database=source_database,
+                annotated=annotated,
+                keep_temp=keep_temp,
+                min_release_date=min_release_date,
+                max_release_date=max_release_date,
+                min_mature_peptide_count=min_mature_peptide_count,
+                max_mature_peptide_count=max_mature_peptide_count,
+                min_protein_count=min_protein_count,
+                max_protein_count=max_protein_count,
+                max_ambiguous_chars=max_ambiguous_chars,
+                is_sars_cov2=is_sars_cov2,
+                is_alphainfluenza=is_alphainfluenza,
+                segment=segment,
+                vaccine_strain=vaccine_strain,
+                lineage=lineage,
+                genbank_metadata=genbank_metadata,
+                genbank_batch_size=genbank_batch_size,
+                download_all_accessions=download_all_accessions,
+                _skip_cache=True,
+                provirus=provirus,
+                isolate=isolate,
+                genotype=genotype,
+                isolation_source=isolation_source,
+                env_source=env_source,
+                submitter_name=submitter_name,
+                submitter_institution=submitter_institution,
+                gen_mol_type=gen_mol_type,
+                verbose=verbose,
+            )
     else:
         logger.info("No Alphainfluenza query detected.")
     
