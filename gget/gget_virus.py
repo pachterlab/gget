@@ -1605,59 +1605,59 @@ def fetch_virus_metadata(
             
             # STRATEGY 4: If all filter removal strategies failed, try reducing page size
             # Skip for all-viruses taxon since the issue is query scope, not page size
-            if not success and params['page_size'] > MIN_PAGE_SIZE_FALLBACK and virus != NCBI_ALL_VIRUSES_TAXID:
-                logger.info("All filter removal strategies failed. Trying smaller page sizes...")
+        if not success and params['page_size'] > MIN_PAGE_SIZE_FALLBACK and virus != NCBI_ALL_VIRUSES_TAXID:
+            logger.info("All filter removal strategies failed. Trying smaller page sizes...")
+            
+            # Re-open temp file for continued attempts
+            try:
+                metadata_file = open(temp_metadata_file, 'a', encoding='utf-8')
+            except IOError:
+                metadata_file = None
+            
+            current_page_size = params['page_size']
+            page_size_retry_count = 0
+            
+            while not success and current_page_size > MIN_PAGE_SIZE_FALLBACK:
+                # Decrease page size for next retry
+                current_page_size = max(MIN_PAGE_SIZE_FALLBACK, current_page_size - PAGE_SIZE_FALLBACK_DECREMENT)
+                page_size_retry_count += 1
                 
-                # Re-open temp file for continued attempts
-                try:
-                    metadata_file = open(temp_metadata_file, 'a', encoding='utf-8')
-                except IOError:
-                    metadata_file = None
+                logger.debug("📉 Attempting retry #%d with page_size=%d (page %d)", 
+                            page_size_retry_count, current_page_size, page_count)
                 
-                current_page_size = params['page_size']
-                page_size_retry_count = 0
+                # Update params with new page size
+                params['page_size'] = current_page_size
                 
-                while not success and current_page_size > MIN_PAGE_SIZE_FALLBACK:
-                    # Decrease page size for next retry
-                    current_page_size = max(MIN_PAGE_SIZE_FALLBACK, current_page_size - PAGE_SIZE_FALLBACK_DECREMENT)
-                    page_size_retry_count += 1
-                    
-                    logger.debug("📉 Attempting retry #%d with page_size=%d (page %d)", 
-                               page_size_retry_count, current_page_size, page_count)
-                    
-                    # Update params with new page size
+                # Retry the fetch with the smaller page size
+                success, page_data, error_info = _retry_with_exponential_backoff(
+                    operation_name=f"API page {page_count} (page_size={current_page_size})",
+                    operation_func=fetch_single_page,
+                    max_retries=API_MAX_RETRIES,
+                    initial_delay=API_INITIAL_RETRY_DELAY,
+                    backoff_multiplier=API_RETRY_BACKOFF_MULTIPLIER,
+                    retryable_exceptions=(requests.exceptions.ConnectionError, requests.exceptions.HTTPError, requests.exceptions.Timeout),
+                    failed_commands=failed_commands,
+                )
+                
+                if success:
+                    logger.debug("✅ Successfully fetched page with page_size=%d after %d retry attempt(s)", 
+                                current_page_size, page_size_retry_count)
+                    # Update the global page_size for remaining pages if successful
                     params['page_size'] = current_page_size
                     
-                    # Retry the fetch with the smaller page size
-                    success, page_data, error_info = _retry_with_exponential_backoff(
-                        operation_name=f"API page {page_count} (page_size={current_page_size})",
-                        operation_func=fetch_single_page,
-                        max_retries=API_MAX_RETRIES,
-                        initial_delay=API_INITIAL_RETRY_DELAY,
-                        backoff_multiplier=API_RETRY_BACKOFF_MULTIPLIER,
-                        retryable_exceptions=(requests.exceptions.ConnectionError, requests.exceptions.HTTPError, requests.exceptions.Timeout),
-                        failed_commands=failed_commands,
-                    )
-                    
-                    if success:
-                        logger.debug("✅ Successfully fetched page with page_size=%d after %d retry attempt(s)", 
-                                   current_page_size, page_size_retry_count)
-                        # Update the global page_size for remaining pages if successful
-                        params['page_size'] = current_page_size
-                        
-                        # If progress bar exists, recalculate total pages based on new page size
-                        if pages_pbar is not None and page_data:
-                            total_count = page_data.get('total_count', 0)
-                            if total_count > 0:
-                                new_total_pages = (total_count + current_page_size - 1) // current_page_size
-                                logger.debug("📊 Recalculating progress bar: page_size changed to %d, total pages now: %d", 
-                                           current_page_size, new_total_pages)
-                                pages_pbar.total = new_total_pages
-                        break
-                
-                # If still failed after trying all page sizes down to minimum
-                if not success:
-                    logger.warning("⚠️ All page size fallback attempts failed (page %d)", page_count)
+                    # If progress bar exists, recalculate total pages based on new page size
+                    if pages_pbar is not None and page_data:
+                        total_count = page_data.get('total_count', 0)
+                        if total_count > 0:
+                            new_total_pages = (total_count + current_page_size - 1) // current_page_size
+                            logger.debug("📊 Recalculating progress bar: page_size changed to %d, total pages now: %d", 
+                                        current_page_size, new_total_pages)
+                            pages_pbar.total = new_total_pages
+                    break
+            
+            # If still failed after trying all page sizes down to minimum
+            if not success:
+                logger.warning("⚠️ All page size fallback attempts failed (page %d)", page_count)
         
         # Handle page fetch result
         if success and page_data:
@@ -3198,14 +3198,227 @@ def download_sequences_by_accessions(accessions, outdir=None, batch_size=200, fa
     fasta_path = os.path.join(outdir, f"virus_sequences_{timestamp}_{random_suffix}.fasta")
     logger.debug("Saving sequences to: %s", fasta_path)
     
-    # If we have many accessions, split into batches to avoid URL length limits
+    # For large datasets, prefer the EPost + EFetch History Server pipeline
+    # This is NCBI's recommended approach and is significantly faster
     if len(accessions) > batch_size:
-        logger.info("Large request detected (%d accessions). Using batch processing with batch size %d", 
-                   len(accessions), batch_size)
-        return _download_sequences_batched(accessions, NCBI_EUTILS_BASE, fasta_path, batch_size, failed_commands)
+        logger.info("Large request detected (%d accessions). Trying EPost+EFetch History Server pipeline...", 
+                   len(accessions))
+        try:
+            _download_sequences_epost_efetch(accessions, fasta_path, failed_commands)
+        except Exception as epost_error:
+            logger.warning("EPost+EFetch pipeline failed: %s", epost_error)
+            logger.info("Falling back to direct batched E-utilities requests...")
+            # Reset the file in case partial data was written
+            if os.path.exists(fasta_path):
+                os.remove(fasta_path)
+            return _download_sequences_batched(accessions, NCBI_EUTILS_BASE_EFETCH, fasta_path, batch_size, failed_commands, api_key=api_key)
+        
+        # Check for missing sequences and retry them via direct batched download
+        downloaded_accs = set()
+        try:
+            with open(fasta_path, 'r', encoding='utf-8') as f:
+                for line in f:
+                    if line.startswith('>'):
+                        acc = line[1:].split()[0].strip()
+                        downloaded_accs.add(acc)
+        except IOError:
+            pass
+        
+        requested_set = set(accessions)
+        missing_accs = requested_set - downloaded_accs
+        
+        if missing_accs:
+            logger.warning("⚠️ EPost+EFetch pipeline missed %d/%d sequences. "
+                          "Retrying missing accessions via direct batched download...",
+                          len(missing_accs), len(accessions))
+            
+            # Retry the missing accessions by appending to the existing FASTA file
+            temp_retry_path = fasta_path + ".retry_tmp"
+            try:
+                _download_sequences_batched(
+                    list(missing_accs), NCBI_EUTILS_BASE_EFETCH, 
+                    temp_retry_path, batch_size, failed_commands, api_key=api_key
+                )
+                # Append recovered sequences to the main FASTA file
+                if os.path.exists(temp_retry_path) and os.path.getsize(temp_retry_path) > 0:
+                    with open(fasta_path, 'a', encoding='utf-8') as main_f:
+                        with open(temp_retry_path, 'r', encoding='utf-8') as retry_f:
+                            main_f.write(retry_f.read())
+                    # Count recovered sequences
+                    recovered = 0
+                    with open(temp_retry_path, 'r', encoding='utf-8') as retry_f:
+                        for line in retry_f:
+                            if line.startswith('>'):
+                                recovered += 1
+                    logger.info("✅ Recovered %d/%d missing sequences via direct download",
+                               recovered, len(missing_accs))
+            except Exception as retry_error:
+                logger.warning("⚠️ Retry of missing sequences failed: %s. "
+                              "Proceeding with %d/%d sequences.",
+                              retry_error, len(downloaded_accs), len(accessions))
+            finally:
+                if os.path.exists(temp_retry_path):
+                    os.remove(temp_retry_path)
+        
+        return fasta_path
     
     # For smaller requests, use single request
     return _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE_EFETCH, fasta_path, failed_commands, api_key=api_key)
+
+
+def _download_sequences_epost_efetch(accessions, fasta_path, failed_commands=None, api_key=None):
+    """
+    Download FASTA sequences using NCBI EPost + EFetch History Server pipeline.
+    
+    This is NCBI's recommended approach for large datasets. It uploads accession
+    IDs to the History Server via EPost, then retrieves FASTA sequences in batches
+    using the WebEnv/query_key reference. This avoids URL length limitations and
+    is significantly faster than individual batched requests.
+    
+    Args:
+        accessions (list): List of accession numbers to download.
+        fasta_path (str): Path where FASTA file should be saved.
+        failed_commands (dict, optional): Dictionary to track failed operations.
+        api_key (str, optional): NCBI API key for higher rate limits (10 req/sec vs 3).
+        
+    Returns:
+        str: Path to the saved FASTA file.
+        
+    Raises:
+        RuntimeError: If EPost fails or no sequences are retrieved.
+    """
+    # Resolve API key: argument > module-level env var
+    if api_key is None:
+        api_key = API_KEY
+
+    logger.info("Starting EPost+EFetch pipeline for %d accessions", len(accessions))
+
+    # Step 1: Upload accessions to NCBI History Server via EPost
+    web_env, query_key = _epost_accessions(accessions, api_key=api_key)
+    
+    if not web_env or not query_key:
+        raise RuntimeError(
+            "EPost failed: could not upload accessions to NCBI History Server. "
+            "The server may be temporarily unavailable."
+        )
+    
+    # Step 2: Fetch FASTA sequences in batches using the History Server reference
+    total = len(accessions)
+    retmax = EFETCH_FASTA_RETMAX
+    total_downloaded = 0
+    batch_failures = 0
+    
+    # Determine inter-batch delay based on API key availability
+    delay = EUTILS_INTER_BATCH_DELAY_WITH_KEY if api_key else EUTILS_INTER_BATCH_DELAY
+    
+    logger.info("Fetching FASTA sequences in batches of %d (total: %d)", retmax, total)
+    
+    try:
+        with open(fasta_path, 'w', encoding='utf-8') as fasta_handle:
+            for retstart in range(0, total, retmax):
+                batch_num = (retstart // retmax) + 1
+                total_batches = (total + retmax - 1) // retmax
+                
+                logger.debug("EFetch FASTA batch %d/%d (retstart=%d, retmax=%d)",
+                            batch_num, total_batches, retstart, retmax)
+                
+                # Define the fetch operation for retry helper
+                def _fetch_fasta_batch(rs=retstart):
+                    params = {
+                        'db': 'nucleotide',
+                        'WebEnv': web_env,
+                        'query_key': query_key,
+                        'retstart': rs,
+                        'retmax': retmax,
+                        'rettype': 'fasta',
+                        'retmode': 'text',
+                    }
+                    if api_key:
+                        params['api_key'] = api_key
+                    
+                    response = requests.get(
+                        NCBI_EUTILS_BASE_EFETCH,
+                        params=params,
+                        timeout=EUTILS_TIMEOUT,
+                        headers={'User-Agent': 'gget/1.0'}
+                    )
+                    response.raise_for_status()
+                    
+                    # Validate FASTA content
+                    text = response.text.strip()
+                    if not text or not text.startswith('>'):
+                        raise RuntimeError(
+                            f"Invalid FASTA response for batch at retstart={rs}: "
+                            f"response starts with '{text[:50]}'"
+                        )
+                    return text
+                
+                # Use exponential backoff retry
+                success, fasta_text, error_info = _retry_with_exponential_backoff(
+                    operation_name=f"EFetch FASTA batch {batch_num}/{total_batches}",
+                    operation_func=_fetch_fasta_batch,
+                    max_retries=API_MAX_RETRIES,
+                    initial_delay=API_INITIAL_RETRY_DELAY,
+                    backoff_multiplier=API_RETRY_BACKOFF_MULTIPLIER,
+                    retryable_exceptions=(
+                        requests.exceptions.ConnectionError,
+                        requests.exceptions.HTTPError,
+                        requests.exceptions.Timeout,
+                        requests.exceptions.ChunkedEncodingError,
+                    ),
+                    failed_commands=failed_commands,
+                )
+                
+                if success:
+                    # Write FASTA data to file
+                    fasta_handle.write(fasta_text)
+                    if not fasta_text.endswith('\n'):
+                        fasta_handle.write('\n')
+                    
+                    seq_count = fasta_text.count('>')
+                    total_downloaded += seq_count
+                    logger.debug("Batch %d/%d: wrote %d sequences (total: %d)",
+                                batch_num, total_batches, seq_count, total_downloaded)
+                else:
+                    batch_failures += 1
+                    logger.warning("❌ Batch %d/%d failed after retries: %s",
+                                  batch_num, total_batches, 
+                                  error_info.get('error', 'unknown'))
+                    
+                    # Track the failure
+                    _track_failed_operation(
+                        failed_commands,
+                        'sequence_batches',
+                        {'batch_num': batch_num, 'retstart': retstart, 'retmax': retmax},
+                        error_info if error_info else {'error': 'unknown'}
+                    )
+                
+                # Respect NCBI rate limits
+                if retstart + retmax < total:
+                    time.sleep(delay)
+    
+    except IOError as e:
+        raise RuntimeError(f"Failed to write FASTA file {fasta_path}: {e}") from e
+    
+    # Validate results
+    if total_downloaded == 0:
+        # Clean up empty file
+        if os.path.exists(fasta_path):
+            os.remove(fasta_path)
+        raise RuntimeError(
+            f"EPost+EFetch pipeline downloaded 0 sequences out of {total} requested. "
+            f"All {batch_failures} batches failed."
+        )
+    
+    file_size_mb = os.path.getsize(fasta_path) / BYTES_PER_MB
+    logger.info("✅ EPost+EFetch pipeline complete: %d sequences downloaded (%.2f MB)",
+               total_downloaded, file_size_mb)
+    
+    if batch_failures > 0:
+        logger.warning("⚠️ %d batch(es) failed during download. %d/%d sequences retrieved.",
+                      batch_failures, total_downloaded, total)
+    
+    return fasta_path
 
 
 def _download_sequences_single_batch(accessions, NCBI_EUTILS_BASE_EFETCH, fasta_path, failed_commands=None, api_key=None):
