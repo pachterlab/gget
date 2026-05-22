@@ -1506,7 +1506,7 @@ def fetch_virus_metadata(
                 close_temp_files()
                 
                 try:
-                    retry_reports, _ = fetch_virus_metadata(
+                    retry_result = fetch_virus_metadata(
                         virus=virus,
                         accession=accession,
                         host=original_host,  # Keep host filter (original value)
@@ -1533,13 +1533,14 @@ def fetch_virus_metadata(
                     logger.warning("❌ Retry without geographic filter failed: %s", retry_error)
             
             # STRATEGY 2: If BOTH geo_location and host filters exist, try without both
-            if not success and geographic_location and host:
+            # Skip this strategy for "all viruses" (taxon 10239) since downloading ~15M unfiltered records is not viable as a retry strategy - chunked download handles it
+            if not success and geographic_location and host and virus != NCBI_ALL_VIRUSES_TAXID:
                 logger.warning("🔄 ATTEMPTING WITHOUT BOTH GEOGRAPHIC AND HOST FILTERS")
                 logger.warning("Retrying without both filters (will be applied later)...")
                 close_temp_files()
                 
                 try:
-                    retry_reports, _ = fetch_virus_metadata(
+                    retry_result = fetch_virus_metadata(
                         virus=virus,
                         accession=accession,
                         host=None,  # Remove host filter
@@ -1565,15 +1566,18 @@ def fetch_virus_metadata(
                             return retry_reports, {'geographic_location': original_geographic_location, 'host': original_host}
                 except Exception as retry_error:
                     logger.warning("❌ Retry without both filters failed: %s", retry_error)
+            elif not success and geographic_location and host and virus == NCBI_ALL_VIRUSES_TAXID:
+                logger.info("Skipping unfiltered retry for 'all viruses' taxon (dataset too large) - will use chunked download")
             
             # STRATEGY 3: If host filter exists (whether or not geo_location was tried), try without host only
-            if not success and host:
+            # Skip for "all viruses" taxon - the API also fails with just geo filter for this taxon
+            if not success and host and virus != NCBI_ALL_VIRUSES_TAXID:
                 logger.warning("🔄 ATTEMPTING WITHOUT HOST FILTER ONLY")
                 logger.warning("Retrying without the host filter '%s' (will be applied later)...", original_host)
                 close_temp_files()
                 
                 try:
-                    retry_reports, _ = fetch_virus_metadata(
+                    retry_result = fetch_virus_metadata(
                         virus=virus,
                         accession=accession,
                         host=None,  # Remove host filter
@@ -1600,7 +1604,8 @@ def fetch_virus_metadata(
                     logger.warning("❌ Retry without host filter failed: %s", retry_error)
             
             # STRATEGY 4: If all filter removal strategies failed, try reducing page size
-            if not success and params['page_size'] > MIN_PAGE_SIZE_FALLBACK:
+            # Skip for all-viruses taxon since the issue is query scope, not page size
+            if not success and params['page_size'] > MIN_PAGE_SIZE_FALLBACK and virus != NCBI_ALL_VIRUSES_TAXID:
                 logger.info("All filter removal strategies failed. Trying smaller page sizes...")
                 
                 # Re-open temp file for continued attempts
@@ -2073,6 +2078,7 @@ def fetch_virus_metadata_chunked(
     annotated=None,
     complete_only=False,
     min_release_date=None,
+    max_release_date=None,
     refseq_only=False,
     failed_commands=None,
     temp_output_dir=None
@@ -2082,13 +2088,15 @@ def fetch_virus_metadata_chunked(
     
     This function is used as a fallback when the standard fetch_virus_metadata fails
     due to dataset size limitations. It breaks down the request into yearly chunks
-    starting from a reasonable start date (2000-01-01 or user's min_release_date) to the present.
+    starting from a reasonable start date or user's min_release_date to the present.
+    
+    Because the NCBI API currently cannot handle broad taxon queries (e.g., taxon 10239 for all viruses) with server-side filters like host or geographic_location, this function makes UNFILTERED requests and tracks those filters as deferred, to be applied later during metadata filtering.
     
     Args:
         Same as fetch_virus_metadata.
         
     Returns:
-        list: Combined list of virus metadata records from all date chunks.
+        tuple: (list of virus metadata records, dict of deferred_filters or None)
         
     Raises:
         RuntimeError: If any chunk fails to download.
@@ -2101,6 +2109,18 @@ def fetch_virus_metadata_chunked(
     logger.info("Splitting download into yearly chunks to ensure successful completion.")
     logger.info("This may take a while, but ensures all data is retrieved.")
     logger.info("=" * 80)
+    
+    # Since the API cannot handle broad taxon queries with filters (returns 500), we make unfiltered requests and track filters as deferred for post-hoc application.
+    deferred_filters = {}
+    if host:
+        deferred_filters['host'] = host
+        logger.info("Host filter '%s' will be deferred and applied during metadata filtering", host)
+    if geographic_location:
+        deferred_filters['geographic_location'] = geographic_location
+        logger.info("Geographic location filter '%s' will be deferred and applied during metadata filtering", geographic_location)
+    
+    if deferred_filters:
+        logger.info("Filters deferred to post-download filtering: %s", list(deferred_filters.keys()))
     
     # Define date range for chunking
     # If user specified min_release_date, use it; otherwise start from default year
@@ -2116,14 +2136,24 @@ def fetch_virus_metadata_chunked(
     current_date = datetime.now()
     current_year = current_date.year
     
-    all_reports = []
-    aggregated_deferred_filters = None  # Track deferred filters from chunks
-    total_chunks = current_year - start_year + 1
+    # If max_release_date is specified, limit the end year to avoid downloading unnecessary data
+    end_year = current_year
+    if max_release_date:
+        try:
+            end_year = int(max_release_date.split('-')[0])
+            logger.info("Limiting chunked download to year %d based on max_release_date '%s'", end_year, max_release_date)
+            # max_release_date will be applied by the caller's metadata filtering step (already in the filters dict), so no need to add it to deferred_filters here
+        except (ValueError, IndexError):
+            logger.warning("Could not parse max_release_date '%s' for year limit, downloading to current year", max_release_date)
+            end_year = current_year
     
-    logger.info(f"Will process {total_chunks} year(s) from {start_year} to {current_year}")
+    all_reports = []
+    total_chunks = end_year - start_year + 1
+    
+    logger.info(f"Will process {total_chunks} year(s) from {start_year} to {end_year}")
     logger.info("=" * 80)
     
-    for year in tqdm(range(start_year, current_year + 1), total=total_chunks, desc="Fetching yearly chunks", unit="year"):
+    for year in tqdm(range(start_year, end_year + 1), total=total_chunks, desc="Fetching yearly chunks", unit="year"):
         chunk_start = f"{year}-01-01"
         chunk_end = f"{year}-12-31"
         
@@ -2135,12 +2165,13 @@ def fetch_virus_metadata_chunked(
         tqdm.write(f"📥 Chunk {chunk_num}/{total_chunks}: Fetching data for year {year} ({chunk_start} to {chunk_end})")
         
         try:
-            # Fetch metadata for this date chunk
+            # Fetch metadata for this date chunk WITHOUT host/geo filters
+            # (the API currently cannot handle them for broad taxon queries)
             chunk_result = fetch_virus_metadata(
                 virus=virus,
                 accession=accession,
-                host=host,
-                geographic_location=geographic_location,
+                host=None,  # Deferred - will be applied post-download
+                geographic_location=None,  # Deferred - will be applied post-download
                 annotated=annotated,
                 complete_only=complete_only,
                 min_release_date=chunk_start,
@@ -2158,16 +2189,18 @@ def fetch_virus_metadata_chunked(
                 else:
                     chunk_reports = chunk_result
             
-            # If we got None, it means even this chunk is too large (shouldn't happen for yearly chunks)
+            # If we got None, it means even this chunk is too large
             if chunk_reports is None:
-                logger.error(f"❌ Chunk for year {year} is too large even for NCBI to handle")
+                logger.error(f"❌ Chunk for year {year} returned None (dataset too large even for yearly chunk)")
                 logger.error("This is unexpected and may indicate an API issue")
                 raise RuntimeError(f"Year {year} chunk failed - dataset too large even when split by year")
             
-            # Track deferred filters (should be the same across all chunks if any)
-            if chunk_deferred_filters and aggregated_deferred_filters is None:
-                aggregated_deferred_filters = chunk_deferred_filters
-                logger.debug("Chunk %d has deferred filters: %s", chunk_num, chunk_deferred_filters)
+            # Merge any deferred filters from the chunk itself (e.g., if annotated was deferred)
+            if chunk_deferred_filters:
+                for k, v in chunk_deferred_filters.items():
+                    if k not in deferred_filters:
+                        deferred_filters[k] = v
+                        logger.debug("Chunk %d added deferred filter: %s=%s", chunk_num, k, v)
             
             chunk_count = len(chunk_reports)
             all_reports.extend(chunk_reports)
@@ -2175,7 +2208,7 @@ def fetch_virus_metadata_chunked(
             tqdm.write(f"✅ Chunk {chunk_num}/{total_chunks}: Retrieved {chunk_count:,} records (total: {len(all_reports):,})")
             
             # Add a small delay between chunks to be respectful to NCBI servers
-            if year < current_year:
+            if year < end_year:
                 time.sleep(CHUNKED_DOWNLOAD_INTER_CHUNK_DELAY)
                 
         except Exception as e:
@@ -2187,11 +2220,11 @@ def fetch_virus_metadata_chunked(
     logger.info(f"✅ CHUNKED DOWNLOAD COMPLETE")
     logger.info(f"   Total records retrieved: {len(all_reports):,}")
     logger.info(f"   Total chunks processed: {total_chunks}")
-    if aggregated_deferred_filters:
-        logger.info("   Deferred filters to apply: %s", aggregated_deferred_filters)
+    if deferred_filters:
+        logger.info("   Deferred filters to apply: %s", deferred_filters)
     logger.info("=" * 80)
     
-    return all_reports, aggregated_deferred_filters
+    return all_reports, deferred_filters if deferred_filters else None
 
 
 def is_sars_cov2_query(virus, accession=False):
