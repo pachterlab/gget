@@ -7983,9 +7983,9 @@ def virus(
                 logger.warning("❌ Failed to save cached metadata JSONL: %s", e)
             
             # STEP 3b: Apply filters that were not used in the cached strategy
-            # Use the missing_filters directly from the cached download execution
-            # These are the filters that were requested but not applied by the strategy
-            logger.debug("Using missing_filters from cached strategy: %s", missing_filters)
+            # Use the applied_filters from the cached download execution
+            # These are the filters that were successfully applied server-side
+            logger.debug("Using applied_filters from cached strategy: %s", applied_filters)
             
             # Apply post-cached-download filters (unused server-side filters + API-only filters)
             filtered_accessions_step3, filtered_metadata_step3 = filter_cached_metadata_for_unused_filters(
@@ -7997,7 +7997,7 @@ def virus(
                 geographic_location=geographic_location,
                 refseq_only=refseq_only,
                 min_release_date=min_release_date,
-                applied_strategy_filters=missing_filters,
+                applied_strategy_filters=applied_filters,
             )
             
             # Update metadata_dict and accessions for next steps
@@ -8113,12 +8113,55 @@ def virus(
                 os.makedirs(outfolder, exist_ok=True)
                 logger.debug("Ensured output folder exists for error summary: %s", outfolder)
                 
+                # Save partial metadata if any was collected before the failure
+                # Check for streaming temp file from fetch_virus_metadata
+                partial_metadata_dict = {}
+                temp_metadata_glob = os.path.join(temp_dir, "gget_metadata_*.jsonl")
+                import glob as _glob
+                temp_metadata_files = _glob.glob(temp_metadata_glob)
+                for tmf in temp_metadata_files:
+                    try:
+                        with open(tmf, 'r', encoding='utf-8') as f:
+                            for line in f:
+                                line = line.strip()
+                                if line:
+                                    try:
+                                        record = json.loads(line)
+                                        acc = record.get('accession', {})
+                                        if isinstance(acc, dict):
+                                            acc = acc.get('accession', '')
+                                        if acc:
+                                            partial_metadata_dict[str(acc)] = record
+                                    except json.JSONDecodeError:
+                                        continue
+                    except Exception:
+                        continue
+                
+                if partial_metadata_dict:
+                    # Convert raw API reports to internal format
+                    try:
+                        partial_internal = load_metadata_from_api_reports(list(partial_metadata_dict.values()))
+                    except Exception:
+                        partial_internal = {acc: {'accession': acc} for acc in partial_metadata_dict}
+                    
+                    partial_metadata_file = _save_partial_metadata(partial_internal, outfolder, virus_clean, reason="api_failure")
+                    if partial_metadata_file:
+                        logger.info("=" * 60)
+                        logger.info("💾 PARTIAL METADATA SAVED FOR RECOVERY")
+                        logger.info("   File: %s", partial_metadata_file)
+                        logger.info("   Records: %d", len(partial_internal))
+                        logger.info("")
+                        logger.info("   Recovery command:")
+                        logger.info("   gget virus %s --baseline %s --merge-results -o %s", 
+                                   virus, partial_metadata_file, outfolder)
+                        logger.info("=" * 60)
+                
                 # Save a summary file documenting the failure, then exit gracefully
                 logger.error("Failed to fetch virus metadata from NCBI API")
                 save_command_summary(
                     outfolder=outfolder,
                     command_line=command_line,
-                    total_api_records=0,
+                    total_api_records=len(partial_metadata_dict) if partial_metadata_dict else 0,
                     total_after_metadata_filter=0,
                     total_final_sequences=0,
                     output_files={},
@@ -8127,6 +8170,8 @@ def virus(
                     success=False,
                     error_message=str(e),
                     failed_commands=failed_commands,
+                    partial_metadata_file=partial_metadata_file if partial_metadata_dict else None,
+                    recovery_command=f"gget virus {virus} --baseline {partial_metadata_file} --merge-results -o {outfolder}" if partial_metadata_dict and partial_metadata_file else None,
                 )
                 return None
 
@@ -8560,7 +8605,7 @@ def virus(
                 raise RuntimeError(f"Failed to process cached FASTA file: {e}") from e
         else:
             # Regular sequence download
-            fna_file = download_sequences_by_accessions(filtered_accessions, outdir=temp_dir, failed_commands=failed_commands)
+            fna_file = download_sequences_by_accessions(filtered_accessions, outdir=temp_dir, failed_commands=failed_commands, api_key=api_key)
             if not os.path.exists(fna_file):
                 raise RuntimeError(f"❌ Download failed: FASTA file not found at {fna_file}")
             logger.info("Downloaded FASTA file: %s (%.2f MB)", fna_file, os.path.getsize(fna_file) / 1024 / 1024)
