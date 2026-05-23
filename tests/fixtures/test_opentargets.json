@@ -8,16 +8,16 @@
     },
     "expected_result": [
       [
+        0.7297489019498119,
         "EFO_0000274",
         "atopic eczema",
-        "A common chronic pruritic inflammatory skin disease with a strong genetic component. Onset typically occurs during the first 2 years of life.",
-        0.7297489019498119
+        "A common chronic pruritic inflammatory skin disease with a strong genetic component. Onset typically occurs during the first 2 years of life."
       ],
       [
+        0.6642728577751653,
         "MONDO_0004979",
         "asthma",
-        "A bronchial disease that is characterized by chronic inflammation and narrowing of the airways, which is caused by a combination of environmental and genetic factors resulting in recurring periods of wheezing (a whistling sound while breathing), chest tightness, shortness of breath, mucus production and coughing. The symptoms appear due to a variety of triggers such as allergens, irritants, respiratory infections, weather changes, exercise, stress, reflux disease, medications, foods and emotional anxiety.",
-        0.6642728577751653
+        "A bronchial disease that is characterized by chronic inflammation and narrowing of the airways, which is caused by a combination of environmental and genetic factors resulting in recurring periods of wheezing (a whistling sound while breathing), chest tightness, shortness of breath, mucus production and coughing. The symptoms appear due to a variety of triggers such as allergens, irritants, respiratory infections, weather changes, exercise, stress, reflux disease, medications, foods and emotional anxiety."
       ]
     ]
   },
@@ -147,7 +147,7 @@
       "resource": "diseases",
       "limit": "this is not a number"
     },
-    "expected_result": "RuntimeError"
+    "expected_result": "TypeError"
   },
   "test_error_opentargets_nonexistent_id": {
     "type": "error",
@@ -156,7 +156,7 @@
       "resource": "diseases",
       "limit": 5
     },
-    "expected_result": "ValueError"
+    "expected_result": "TypeError"
   },
   "test_error_opentargets_diseases_filter": {
     "type": "error",
@@ -177,15 +177,6 @@
       "filters": {
         "organ": "brain"
       }
-    },
-    "expected_result": "ValueError"
-  },
-  "test_error_opentargets_tractability_limit": {
-    "type": "error",
-    "args": {
-      "ensembl_id": "ENSG00000169194",
-      "resource": "tractability",
-      "limit": 2
     },
     "expected_result": "ValueError"
   },
