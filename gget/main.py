@@ -2552,18 +2552,18 @@ def main():
         required=False,
         help="Submitter country filter.",
     )
-    # parser_virus.add_argument(
-    #     "--submitter_name",
-    #     type=str,
-    #     required=False,
-    #     help="Submitter name filter. Can be a single name (e.g., 'John Doe') or comma-separated list (e.g., 'John Doe,Jane Smith'). Any matching name will keep the sequence.",
-    # )
-    # parser_virus.add_argument(
-    #     "--submitter_institution",
-    #     type=str,
-    #     required=False,
-    #     help="Submitter institution filter. Can be a single institution name (e.g., 'CDC') or comma-separated list (e.g., 'CDC,NIH,WHO'). Any matching institution will keep the sequence.",
-    # )
+    parser_virus.add_argument(
+        "--submitter_name",
+        type=str,
+        required=False,
+        help="Submitter name filter. Can be a single name (e.g., 'John Doe') or comma-separated list (e.g., 'John Doe,Jane Smith'). Any matching name will keep the sequence.",
+    )
+    parser_virus.add_argument(
+        "--submitter_institution",
+        type=str,
+        required=False,
+        help="Submitter institution filter. Can be a single institution name (e.g., 'CDC') or comma-separated list (e.g., 'CDC,NIH,WHO'). Any matching institution will keep the sequence.",
+    )
     parser_virus.add_argument(
         "--annotated",
         type=str_to_bool_or_none,
@@ -2650,7 +2650,7 @@ def main():
         "--has_proteins",
         type=str,
         required=False,
-        help="Filter for sequences containing specific protein(s)/gene(s). Can be a single protein name (e.g., 'spike') or comma-separated list (e.g., 'hemagglutinin,neuraminidase'). Searches in FASTA headers.",
+        help="Filter for sequences containing specific protein(s)/gene(s). Can be a single protein name (e.g., 'spike') or comma-separated list (e.g., 'hemagglutinin,neuraminidase'). Any matching protein will keep the sequence.",
     )
     parser_virus.add_argument(
         "--proteins_complete",
@@ -2664,6 +2664,12 @@ def main():
         type=str,
         required=False,
         help="Filter for sequences with specific segment(s). Can be a single segment name (e.g., 'HA') or comma-separated list (e.g., 'HA,NA,PB1'). Any matching segment will keep the sequence.",
+    )
+    parser_virus.add_argument(
+        "--isolate",
+        type=str,
+        required=False,
+        help="Isolate name filter. Can be a single isolate name (e.g., 'Wuhan-hu-1') or comma-separated list (e.g., 'Wuhan-hu-1,LASV_3609'). Any matching isolate will keep the sequence.",
     )
     parser_virus.add_argument(
         "--vaccine_strain",
@@ -2683,39 +2689,39 @@ def main():
         default=None,
         help="Lab passaging status filter: 'true' or 'false' or None. True will only keep sequences that have been lab passaged. False filters out sequences that have been lab passaged. None (Default) will not filter based on lab passaging status.",
     )
-    # parser_virus.add_argument(
-    #     "--provirus",
-    #     type=str_to_bool_or_none,
-    #     nargs='?',
-    #     const=True,
-    #     required=False,
-    #     default=None,
-    #     help="Proviral or integrated status filter: 'true' or 'false' or None. True will only keep proviral sequences. False filters out proviral sequences. None (Default) will not filter based on proviral status.",
-    # )
-    # parser_virus.add_argument(
-    #     "--isolation_source",
-    #     type=str,
-    #     required=False,
-    #     help="Isolation source filter, or 'Tissue/ Specimen / Source' filter, e.g. 'blood'. Can be a single source name (e.g., 'blood') or comma-separated list (e.g., 'blood,serum,plasma'). Any matching source will keep the sequence.",
-    # )
-    # parser_virus.add_argument(
-    #     "--env_source",
-    #     type=str,
-    #     required=False,
-    #     help="Environmental source filter, e.g. 'water' or 'sewage'. Excludes any sequences with named hosts. Do NOT combine with host filter. Can be a single source name (e.g., 'water') or comma-separated list (e.g., 'water,soil,air'). Any matching source will keep the sequence.",
-    # )
-    # parser_virus.add_argument(
-    #     "--genotype",
-    #     type=str,
-    #     required=False,
-    #     help="Genotype filter, e.g. 'H5N1'. Can be a single genotype (e.g., 'H5N1') or comma-separated list (e.g., 'H5N1,H3N2'). Any matching genotype will keep the sequence.",
-    # )
-    # parser_virus.add_argument(
-    #     "--gen_mol_type",
-    #     type=str,
-    #     required=False,
-    #     help="Genomic molecule type filter. Can be a single type name (e.g., 'dsDNA') or comma-separated list (e.g., 'RNA,dsRNA'). Any matching molecule type will keep the sequence.",
-    # )
+    parser_virus.add_argument(
+        "--provirus",
+        type=str_to_bool_or_none,
+        nargs='?',
+        const=True,
+        required=False,
+        default=None,
+        help="Proviral or integrated status filter: 'true' or 'false' or None. True will only keep proviral sequences. False filters out proviral sequences. None (Default) will not filter based on proviral status.",
+    )
+    parser_virus.add_argument(
+        "--isolation_source",
+        type=str,
+        required=False,
+        help="Isolation source filter, or 'Tissue/ Specimen / Source' filter, e.g. 'blood'. Can be a single source name (e.g., 'blood') or comma-separated list (e.g., 'blood,serum,plasma'). Any matching source will keep the sequence.",
+    )
+    parser_virus.add_argument(
+        "--env_source",
+        type=str,
+        required=False,
+        help="Environmental source filter, e.g. 'water' or 'sewage'. Excludes any sequences with named hosts. Do NOT combine with host filter. Can be a single source name (e.g., 'water') or comma-separated list (e.g., 'water,soil,air'). Any matching source will keep the sequence.",
+    )
+    parser_virus.add_argument(
+        "--genotype",
+        type=str,
+        required=False,
+        help="Genotype filter, e.g. 'H5N1'. Can be a single genotype (e.g., 'H5N1') or comma-separated list (e.g., 'H5N1,H3N2'). Any matching genotype will keep the sequence.",
+    )
+    parser_virus.add_argument(
+        "--gen_mol_type",
+        type=str,
+        required=False,
+        help="Genomic molecule type filter. Can be a single type name (e.g., 'dsDNA') or comma-separated list (e.g., 'RNA,dsRNA'). Any matching molecule type will keep the sequence.",
+    )
     parser_virus.add_argument(
         "-g",
         "--genbank_metadata",
@@ -2773,6 +2779,44 @@ def main():
         action="store_true",
         required=False,
         help="Save all output files, including intermediate files.",
+    )
+    parser_virus.add_argument(
+        "--baseline",
+        type=str,
+        required=False,
+        default=None,
+        dest="baseline_metadata",
+        help="Path to a baseline metadata file (CSV/JSONL/JSON/text) containing accessions to skip.\n"
+             "Only new accessions (not in baseline) will be downloaded.\n"
+             "Useful for incremental updates or resuming after API failures.\n"
+             "CSV files must have an 'accession' column. Text files: one accession per line.",
+    )
+    parser_virus.add_argument(
+        "--merge-results",
+        default=True,
+        action="store_true",
+        dest="merge_results",
+        required=False,
+        help="When using --baseline, merge new results with baseline into a single output file (default behavior).",
+    )
+    parser_virus.add_argument(
+        "--no-merge",
+        default=False,
+        action="store_true",
+        dest="no_merge",
+        required=False,
+        help="When using --baseline, output new results separately from baseline.\n"
+             "Creates {virus}_new.csv (new sequences only) and {virus}_baseline_provided.csv (reference).",
+    )
+    parser_virus.add_argument(
+        "--api_key",
+        type=str,
+        required=False,
+        default=None,
+        help="NCBI API key for higher E-utilities rate limits (10 requests/sec vs 3/sec without).\n"
+             "Obtain a free key from https://www.ncbi.nlm.nih.gov/account/settings/\n"
+             "Can also be set via the NCBI_API_KEY environment variable.\n"
+             "If not provided, requests continue at the lower default rate limit.",
     )
     parser_virus.add_argument(
         "-q",
@@ -3839,12 +3883,48 @@ def main():
         segment_arg = args.segment
         if segment_arg and ',' in segment_arg:
             segment_arg = [s.strip() for s in segment_arg.split(',')]
+
+        isolate_arg = args.isolate
+        if isolate_arg and ',' in isolate_arg:
+            isolate_arg = [i.strip() for i in isolate_arg.split(',')]
+
+        submitter_name_arg = args.submitter_name
+        if submitter_name_arg and ',' in submitter_name_arg:
+            submitter_name_arg = [a.strip() for a in submitter_name_arg.split(',')]
+
+        submitter_institution_arg = args.submitter_institution
+        if submitter_institution_arg and ',' in submitter_institution_arg:
+            submitter_institution_arg = [i.strip() for i in submitter_institution_arg.split(',')]
+
         submitter_country_arg = args.submitter_country
         if submitter_country_arg and ',' in submitter_country_arg:
             submitter_country_arg = [c.strip() for c in submitter_country_arg.split(',')]
+        
+        env_source_arg = args.env_source
+        if env_source_arg and ',' in env_source_arg:
+            env_source_arg = [e.strip() for e in env_source_arg.split(',')]
+
         lineage_arg = args.lineage
         if lineage_arg and ',' in lineage_arg:
             lineage_arg = [l.strip() for l in lineage_arg.split(',')]
+
+        genotype_arg = args.genotype
+        if genotype_arg and ',' in genotype_arg:
+            genotype_arg = [g.strip() for g in genotype_arg.split(',')]
+
+        isolation_source_arg = args.isolation_source
+        if isolation_source_arg and ',' in isolation_source_arg:
+            isolation_source_arg = [i.strip() for i in isolation_source_arg.split(',')]
+
+        gen_mol_type_arg = args.gen_mol_type
+        if gen_mol_type_arg and ',' in gen_mol_type_arg:
+            gen_mol_type_arg = [g.strip() for g in gen_mol_type_arg.split(',')]
+
+        # Determine merge_results: --no-merge overrides --merge-results
+        merge_results_arg = True  # default
+        if args.no_merge:
+            merge_results_arg = False
+
         virus(
             virus=args.virus,
             is_accession=args.is_accession,
@@ -3882,5 +3962,16 @@ def main():
             genbank_batch_size=args.genbank_batch_size,
             download_all_accessions=args.download_all_accessions,
             _skip_cache=args._skip_cache,
+            provirus=args.provirus,
+            isolate=isolate_arg,
+            genotype=genotype_arg,
+            isolation_source=isolation_source_arg,
+            env_source=env_source_arg,
+            submitter_name=submitter_name_arg,
+            submitter_institution=submitter_institution_arg,
+            gen_mol_type=gen_mol_type_arg,
+            baseline_metadata=args.baseline_metadata,
+            merge_results=merge_results_arg,
+            api_key=args.api_key,
             verbose=args.quiet,
         )
