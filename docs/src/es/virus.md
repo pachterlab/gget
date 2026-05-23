@@ -78,7 +78,8 @@ Python: `has_proteins="spike"` o `has_proteins=["spike", "ORF1ab"]`
 **Nota:** El uso de este filtro habilita automáticamente la obtención de metadatos de GenBank (`-g`).
 
 `--segment`  
-Filtra por secuencias con segmento(s) específico(s) (p. ej. 'HA', 'NA'). Puede ser un solo nombre de segmento o una lista de nombres de segmentos.
+Filtra por secuencias con segmento(s) específico(s) (p. ej. 'HA', 'NA'). Puede ser un solo nombre de segmento o una lista de nombres de segmentos. Cualquier segmento que coincida mantendrá la secuencia.  
+Línea de comandos: `--segment HA` o `--segment HA,NA,PB1` (separados por comas, sin espacios)  
 Python: `segment="HA"` o `segment=["HA", "NA", "PB1"]`
 
 `--annotated`  
@@ -102,6 +103,7 @@ Línea de comandos: `--provirus true` para obtener solo secuencias provirales, o
 Python: `provirus=True` o `provirus=False` (`provirus=None` para no aplicar ningún filtro).  
 **Nota:** El uso de este filtro habilita automáticamente la obtención de metadatos de GenBank (`-g`).
 
+
 _Filtros de fecha_  
 
 `--min_collection_date`  
@@ -122,15 +124,19 @@ _Filtros de ubicación y remitente_
 Filtra por ubicación geográfica de la recolección de la muestra (p. ej. 'USA', 'Asia').
 
 `--submitter_name`  
-Filtra por el nombre del autor remitente. Puede ser un solo nombre (p. ej. 'John Doe') o una lista de nombres.
+Filtra por el nombre del autor remitente. Puede ser un solo nombre o una lista de nombres. Cualquier nombre que coincida mantendrá la secuencia.  
+Línea de comandos: `--submitter_name "John Doe"` o `--submitter_name "John Doe,Jane Smith"` (separados por comas)  
 Python: `submitter_name="John Doe"` o `submitter_name=["John Doe", "Jane Smith"]`
 
 `--submitter_institution`  
-Filtra por la institución del remitente. Puede ser una sola institución (p. ej. 'CDC') o una lista de instituciones.
+Filtra por la institución del remitente. Puede ser una sola institución o una lista de instituciones. Cualquier institución que coincida mantendrá la secuencia.  
+Línea de comandos: `--submitter_institution CDC` o `--submitter_institution CDC,NIH,WHO` (separados por comas, sin espacios)  
 Python: `submitter_institution="CDC"` o `submitter_institution=["CDC", "NIH", "WHO"]`
 
 `--submitter_country`  
-Filtra por el país del remitente de la secuencia. Puede ser un solo país o una lista separada por comas.
+Filtra por el país del remitente de la secuencia. Puede ser un solo país o una lista de países.  
+Línea de comandos: `--submitter_country USA` o `--submitter_country USA,Germany,Japan` (separados por comas, sin espacios)  
+Python: `submitter_country="USA"` o `submitter_country=["USA", "Germany", "Japan"]`
 
 `--source_database`  
 Filtra por base de datos de origen. Uno de: 'genbank' o 'refseq'.
@@ -138,15 +144,17 @@ Filtra por base de datos de origen. Uno de: 'genbank' o 'refseq'.
 _Filtros de muestra y aislado_
 
 `--isolate`  
-Filtra por nombre de aislado (p. ej. 'Wuhan-hu-1'). Puede ser un solo nombre de aislado o una lista de nombres de aislados.
+Filtra por nombre de aislado (p. ej. 'Wuhan-hu-1'). Puede ser un solo nombre de aislado o una lista de nombres de aislados. Cualquier aislado que coincida mantendrá la secuencia.  
+Línea de comandos: `--isolate Wuhan-hu-1` o `--isolate Wuhan-hu-1,LASV_3609` (separados por comas, sin espacios)  
 Python: `isolate="Wuhan-hu-1"` o `isolate=["Wuhan-hu-1", "LASV_3609"]`
 
 `--isolation_source`  
-Filtra por fuente de aislamiento (tejido/espécimen/fuente) (p. ej. 'blood', 'serum'). Puede ser una sola fuente o una lista de fuentes.
+Filtra por fuente de aislamiento (tejido/espécimen/fuente) (p. ej. 'blood', 'serum'). Puede ser una sola fuente o una lista de fuentes. Cualquier fuente que coincida mantendrá la secuencia.  
+Línea de comandos: `--isolation_source blood` o `--isolation_source blood,serum,plasma` (separados por comas, sin espacios)  
 Python: `isolation_source="blood"` o `isolation_source=["blood", "serum", "plasma"]`
 
 `--env_source`  
-Filtra por fuente ambiental (p. ej. 'water', 'sewage'). Excluye cualquier secuencia con hospedadores nombrados. NO combinar con el filtro `--host`. Puede ser una sola fuente o una lista de fuentes.  
+Filtra por fuente ambiental (p. ej. 'water', 'sewage'). Excluye cualquier secuencia con hospedadores nombrados. NO combinar con el filtro `--host`. Puede ser una sola fuente o una lista de fuentes. Cualquier fuente que coincida mantendrá la secuencia.  
 Línea de comandos: `--env_source water` o `--env_source water,soil,air` (separados por comas, sin espacios)  
 Python: `env_source="water"` o `env_source=["water", "soil", "air"]`  
 **Nota:** El uso de este filtro habilita automáticamente la obtención de metadatos de GenBank (`-g`).
@@ -154,13 +162,13 @@ Python: `env_source="water"` o `env_source=["water", "soil", "air"]`
 _Filtros de clasificación viral_
 
 `--genotype`  
-Filtra por genotipo (p. ej. 'H5N1', 'H3N2'). Puede ser un solo genotipo o una lista de genotipos.  
+Filtra por genotipo (p. ej. 'H5N1', 'H3N2'). Puede ser un solo genotipo o una lista de genotipos. Cualquier genotipo que coincida mantendrá la secuencia.  
 Línea de comandos: `--genotype H5N1` o `--genotype H5N1,H3N2` (separados por comas, sin espacios)  
 Python: `genotype="H5N1"` o `genotype=["H5N1", "H3N2"]`  
 **Nota:** El uso de este filtro habilita automáticamente la obtención de metadatos de GenBank (`-g`).
 
 `--gen_mol_type`  
-Filtra por tipo de molécula genómica (p. ej. 'dsDNA', 'RNA'). Puede ser un solo tipo o una lista de tipos.  
+Filtra por tipo de molécula genómica (p. ej. 'dsDNA', 'RNA'). Puede ser un solo tipo o una lista de tipos. Cualquier tipo de molécula que coincida mantendrá la secuencia.  
 Línea de comandos: `--gen_mol_type dsDNA` o `--gen_mol_type RNA,dsRNA` (separados por comas, sin espacios)  
 Python: `gen_mol_type="dsDNA"` o `gen_mol_type=["RNA", "dsRNA"]`  
 **Nota:** El uso de este filtro habilita automáticamente la obtención de metadatos de GenBank (`-g`).
@@ -168,7 +176,8 @@ Python: `gen_mol_type="dsDNA"` o `gen_mol_type=["RNA", "dsRNA"]`
 _Filtros específicos de SARS-CoV-2_
 
 `--lineage`  
-Filtra por linaje de SARS-CoV-2 (p. ej. 'B.1.1.7', 'P.1'). Puede ser un solo linaje o una lista de linajes.
+Filtra por linaje Pango de SARS-CoV-2 (p. ej. 'B.1.1.7', 'P.1'). Puede ser un solo linaje o una lista de linajes. Cualquier linaje que coincida mantendrá la secuencia.  
+Línea de comandos: `--lineage B.1.1.7` o `--lineage B.1.1.7,P.1` (separados por comas, sin espacios)  
 Python: `lineage="B.1.1.7"` o `lineage=["B.1.1.7", "P.1"]`
 
 _Configuración del pipeline_
@@ -352,9 +361,7 @@ Cada ejecución de `gget virus` genera un archivo `command_summary.txt` en la ca
 **Ejemplo de `command_summary.txt` para una ejecución exitosa:**
 
 ```
-================================================================================
 GGET VIRUS COMMAND SUMMARY
-================================================================================
 
 Execution Date: 2026-03-15 14:30:22
 Output Folder: /home/user/zika_data
@@ -431,9 +438,7 @@ FASTA Sequences: Zika_virus_sequences.fasta (16.02 MB)
 CSV Metadata: Zika_virus_metadata.csv (1.85 MB)
 JSONL Metadata: Zika_virus_metadata.jsonl (3.41 MB)
 
-================================================================================
 END OF SUMMARY
-================================================================================
 ```
 
 <br>
@@ -441,9 +446,7 @@ END OF SUMMARY
 **Ejemplo de `command_summary.txt` después de un error del servidor de la API:**
 
 ```
-================================================================================
 GGET VIRUS COMMAND SUMMARY
-================================================================================
 
 Execution Date: 2026-03-19 21:03:22
 Output Folder: /home/user/11632_20260319_210251
@@ -477,9 +480,7 @@ OUTPUT FILES
 --------------------------------------------------------------------------------
 No output files generated
 
-================================================================================
 END OF SUMMARY
-================================================================================
 ```
 
 <br>
@@ -487,9 +488,7 @@ END OF SUMMARY
 **Ejemplo de `command_summary.txt` con lotes de metadatos fallidos e instrucciones de recuperación:**
 
 ```
-================================================================================
 GGET VIRUS COMMAND SUMMARY
-================================================================================
 
 Execution Date: 2026-04-01 10:15:33
 Output Folder: /home/user/hiv_data
@@ -552,9 +551,7 @@ OUTPUT FILES
 --------------------------------------------------------------------------------
 No output files generated
 
-================================================================================
 END OF SUMMARY
-================================================================================
 ```
 
 <br>
@@ -562,9 +559,7 @@ END OF SUMMARY
 **Ejemplo de `command_summary.txt` completado con advertencias de GenBank y lotes de secuencias fallidos:**
 
 ```
-================================================================================
 GGET VIRUS COMMAND SUMMARY
-================================================================================
 
 Execution Date: 2026-03-20 08:45:11
 Output Folder: /home/user/ebola_data
@@ -640,9 +635,7 @@ FASTA Sequences: Ebola_virus_sequences.fasta (24.31 MB)
 CSV Metadata: Ebola_virus_metadata.csv (2.10 MB)
 JSONL Metadata: Ebola_virus_metadata.jsonl (4.56 MB)
 
-================================================================================
 END OF SUMMARY
-================================================================================
 ```
 
 El archivo de resumen rastrea los siguientes tipos de fallos, cada uno con detalles accionables (mensajes de error, URLs para reintento manual, comandos de recuperación):
@@ -655,6 +648,7 @@ El archivo de resumen rastrea los siguientes tipos de fallos, cada uno con detal
 - **Fallos de obtención de secuencias** — Operaciones individuales de descarga de secuencias fallaron.
 - **Errores de metadatos de GenBank** — La obtención de metadatos de GenBank falló (el comando aún se completa con una advertencia).
 - **Recuperación parcial de metadatos** — Cuando la API falla a mitad de descarga, los metadatos parciales se guardan en un archivo JSONL con un comando de recuperación para reanudar usando `--baseline`.
+
 
 #### [Más ejemplos](https://github.com/pachterlab/gget_examples/tree/main/gget_virus)
 

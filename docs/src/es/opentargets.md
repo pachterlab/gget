@@ -34,40 +34,8 @@ Nota: No es compatible con los recursos `tractability` y `depmap`.
 Ruta al archivo JSON donde se guardarán los resultados, por ejemplo, path/to/directory/results.json. Predeterminado: Salida estándar.  
 Python: `save=True` guardará la salida en el directorio de trabajo actual.
 
-**Argumentos opcionales de filtrado**
-
-`-fd` `--filter_disease` `disease_id`  
-Filtrar por ID de enfermedad, por ejemplo, 'EFO_0000274'. *Válido solo para el recurso `drugs`.*
-
-`-fc` `--filter_drug` `drug_id`  
-Filtrar por ID de fármaco, por ejemplo, 'CHEMBL1743081'. *Válido solo para el recurso `pharmacogenetics`.*
-
-`-ft` `--filter_tissue` `tissue_id`  
-Filtrar por ID de tejido, por ejemplo, 'UBERON_0000473'. *Válido solo para los recursos `expression` y `depmap`.*
-
-`-fa` `--filter_anat_sys`  
-Filtrar por sistema anatómico, por ejemplo, 'sistema nervioso'. *Válido solo para el recurso `expression`.*
-
-`-fo` `--filter_organ` `anatomical_system`  
-Filtrar por órgano, por ejemplo, 'cerebro'. *Válido solo para el recurso `expression`.*
-
-`-fpa` `--filter_protein_a` `protein_a_id`  
-Filtrar por ID de la primera proteína en la interacción, por ejemplo, 'ENSP00000304915'. *Válido solo para el recurso `interactions`.*
-
-`-fpb` `--filter_protein_b` `protein_b_id`  
-Filtrar por ID de la segunda proteína en la interacción, por ejemplo, 'ENSP00000379111'. *Válido solo para el recurso `interactions`.*
-
-`-fgb` `--filter_gene_b` `gene_b_id`  
-Filtrar por ID de gen de la segunda proteína en la interacción, por ejemplo, 'ENSG00000077238'. *Válido solo para el recurso `interactions`.*
-
-`filters`  
-Solo para Python. Un diccionario de filtros, por ejemplo:
-```python
-{'disease_id': ['EFO_0000274', 'HP_0000964']}
-
-`filter_mode`  
-Solo para Python. `filter_mode='or'` combina filtros de diferentes IDs con lógica OR.  
-`filter_mode='and'` combina filtros de diferentes IDs con lógica AND (predeterminado).
+`--filters`  
+Filtrar resultados por igualdad exacta usando nombres de columnas de OpenTargets devueltos. Pase múltiples filtros repitiendo la bandera, p. ej. '--filter disease.id=EFO_0000274 --filter drug.id=CHEMBL1743081'. Los campos anidados usan notación de punto, coincidiendo con los nombres de columna devueltos por la API.
 
 **Banderas**   
 `-csv` `--csv`  
