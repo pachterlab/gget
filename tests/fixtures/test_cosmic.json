@@ -3,7 +3,7 @@
     "type": "assert_equal",
     "args": {
       "searchterm": "EGFR",
-      "cosmic_tsv_path": "example_GRCh37/CancerMutationCensus_AllData_v103_GRCh37.tsv",
+      "cosmic_tsv_path": "example_GRCh37/CancerMutationCensus_AllData_v104_GRCh37.tsv",
       "limit": 5
     },
     "expected_result": [[

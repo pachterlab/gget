@@ -171,7 +171,7 @@ query target($ensemblId: String!) {
 }
 """
 
-RESOURCES = {"diseases", "drugs", "tractability", "pharmacogenetics", "expression", "depmap", "interactions"}
+OPENTARGETS_RESOURCES = {"diseases", "drugs", "tractability", "pharmacogenetics", "expression", "depmap", "interactions"}
 
 def _collapse_singletons(obj):
     """
@@ -296,7 +296,7 @@ def opentargets(
         query_string = QUERY_STRING_INTERACTIONS
         rows_path = ["interactions", "rows"]
     else:
-        raise ValueError(f"'resource' argument specified as {resource}. Expected one of: {', '.join(RESOURCES)}")
+        raise ValueError(f"'resource' argument specified as {resource}. Expected one of: {', '.join(OPENTARGETS_RESOURCES)}")
 
     variables = {"ensemblId": ensembl_id}
 

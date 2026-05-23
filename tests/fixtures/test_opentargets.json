@@ -27,7 +27,7 @@
       "ensembl_id": "ENSG00000169194",
       "resource": "expression"
     },
-    "expected_result": "4024b12c2134734ce8f952fdd7155135"
+    "expected_result": "7d32780ec48250553246c816d80b93ee"
   },
   "test_opentargets_depmap": {
     "type": "assert_equal_json_hash",
@@ -35,7 +35,7 @@
       "ensembl_id": "ENSG00000169194",
       "resource": "depmap"
     },
-    "expected_result": "4c550571d29a7e0136e12e2fa9297655"
+    "expected_result": "c335cc9c9b3167e8c5b3084e339c88a7"
   },
   "test_opentargets_depmap_filter": {
     "type": "assert_equal",
@@ -43,28 +43,28 @@
       "ensembl_id": "ENSG00000169194",
       "resource": "depmap",
       "filters": {
-        "tissue_id": "UBERON_0002367"
+        "tissueId": "UBERON_0002367"
       },
       "limit": 2
     },
     "expected_result": [
       [
-        "ACH-000979",
-        0.034343916922807693,
-        -0.14336788654327393,
         "UBERON_0002367",
         "prostate gland",
         "DU 145",
-        "Prostate Adenocarcinoma"
+        0.034343916922807693,
+        "Prostate Adenocarcinoma",
+        "ACH-000979",
+        -0.14336788654327393
       ],
       [
-        "ACH-001422",
-        0.0291899424046278,
-        0.06934770196676254,
         "UBERON_0002367",
         "prostate gland",
         "WPE1-NA22",
-        "Non-Cancerous"
+        0.0291899424046278,
+        "Non-Cancerous",
+        "ACH-001422",
+        0.06934770196676254
       ]
     ]
   },
@@ -74,7 +74,7 @@
       "ensembl_id": "ENSG00000169194",
       "resource": "interactions"
     },
-    "expected_result": "441f1d3e9deedd7bba797f8aa7ddad61"
+    "expected_result": "fa95d278c2d31ded3731e154d65fcda5"
   },
   "test_opentargets_interactions_simple_filter": {
     "type": "assert_equal",
