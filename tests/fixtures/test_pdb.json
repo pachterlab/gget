@@ -39,21 +39,21 @@
             "pdbx_struct_oper_list": [
                 {
                     "id": "1",
-                    "matrix11": 1.0,
-                    "matrix12": 0.0,
-                    "matrix13": 0.0,
-                    "matrix21": 0.0,
-                    "matrix22": 1.0,
-                    "matrix23": 0.0,
-                    "matrix31": 0.0,
-                    "matrix32": 0.0,
-                    "matrix33": 1.0,
+                    "matrix_1_1": 1.0,
+                    "matrix_1_2": 0.0,
+                    "matrix_1_3": 0.0,
+                    "matrix_2_1": 0.0,
+                    "matrix_2_2": 1.0,
+                    "matrix_2_3": 0.0,
+                    "matrix_3_1": 0.0,
+                    "matrix_3_2": 0.0,
+                    "matrix_3_3": 1.0,
                     "name": "1_555",
                     "symmetry_operation": "x,y,z",
                     "type": "identity operation",
-                    "vector1": 0.0,
-                    "vector2": 0.0,
-                    "vector3": 0.0
+                    "vector_1": 0.0,
+                    "vector_2": 0.0,
+                    "vector_3": 0.0
                 }
             ],
             "rcsb_assembly_container_identifiers": {
@@ -61,8 +61,8 @@
                 "entry_id": "1RH7",
                 "interface_ids": [
                     "1",
-                    "2",
-                    "3"
+                    "3",
+                    "2"
                 ],
                 "rcsb_id": "1RH7-1"
             },
@@ -74,6 +74,7 @@
                 "branched_entity_instance_count": 0,
                 "deuterated_water_count": 0,
                 "entry_id": "1RH7",
+                "formula_weight": 27.08,
                 "hydrogen_atom_count": 0,
                 "modeled_polymer_monomer_count": 243,
                 "na_polymer_entity_types": "Other",
@@ -92,14 +93,14 @@
                 "polymer_atom_count": 1658,
                 "polymer_composition": "homomeric protein",
                 "polymer_entity_count": 1,
-                "polymer_entity_count_dna": 0,
-                "polymer_entity_count_rna": 0,
+                "polymer_entity_count_DNA": 0,
+                "polymer_entity_count_RNA": 0,
                 "polymer_entity_count_nucleic_acid": 0,
                 "polymer_entity_count_nucleic_acid_hybrid": 0,
                 "polymer_entity_count_protein": 1,
                 "polymer_entity_instance_count": 3,
-                "polymer_entity_instance_count_dna": 0,
-                "polymer_entity_instance_count_rna": 0,
+                "polymer_entity_instance_count_DNA": 0,
+                "polymer_entity_instance_count_RNA": 0,
                 "polymer_entity_instance_count_nucleic_acid": 0,
                 "polymer_entity_instance_count_nucleic_acid_hybrid": 0,
                 "polymer_entity_instance_count_protein": 3,

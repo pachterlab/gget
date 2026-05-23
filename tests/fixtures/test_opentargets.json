@@ -82,51 +82,24 @@
       "ensembl_id": "ENSG00000169194",
       "resource": "interactions",
       "filters": {
-        "protein_a_id": "P35225",
-        "gene_b_id": "ENSG00000077238"
+        "intA": "ENSP00000304915",
+        "targetB.id": "ENSG00000077238"
       }
     },
     "expected_result": [
       [
-        1,
-        "intact",
-        "P35225",
-        "ENSG00000169194",
-        "IL13",
-        "unspecified role",
-        134,
-        "P24394",
-        "ENSG00000077238",
-        "IL4R",
-        "unspecified role",
-        134
-      ],
-      [
-        2,
-        "signor",
-        "P35225",
-        "ENSG00000169194",
-        "IL13",
-        "regulator",
-        134,
-        "P24394",
-        "ENSG00000077238",
-        "IL4R",
-        "regulator target",
-        134
-      ],
-      [
+        0.999,
         3,
-        "reactome",
-        "P35225",
+        "string",
+        "ENSP00000304915",
+        "unspecified role",
+        "ENSP00000379111",
+        "unspecified role",
         "ENSG00000169194",
         "IL13",
-        "unspecified role",
         134,
-        "P24394",
         "ENSG00000077238",
         "IL4R",
-        "unspecified role",
         134
       ]
     ]
