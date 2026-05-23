@@ -7,14 +7,25 @@ Descargue secuencias nucleotídicas virales, junto con metadatos ricos y vincula
 
 Formato de salida: archivos FASTA, CSV y JSONL guardados en una carpeta de salida.  
 
+[Cuaderno de Google Colab sin código y compartible para descargar secuencias virales.](https://colab.research.google.com/github/pachterlab/gget_examples/blob/main/gget_virus/gget_virus_colab.ipynb)
+
 Este módulo fue escrito por [Ferdous Nasri](https://github.com/ferbsx).
 
 **Nota**: Para consultas de SARS-CoV-2 y Alphainfluenza (Influenza A), `gget virus` utiliza los paquetes de datos optimizados en caché de NCBI mediante la [NCBI datasets CLI](https://www.ncbi.nlm.nih.gov/datasets/docs/v2/download-and-install/). El binario de la CLI de datasets se incluye con gget para las principales plataformas—no se requiere instalación adicional. Si ya tienes la CLI `datasets` instalada en tu sistema, gget usará automáticamente tu instalación existente.
 
 **Argumento posicional**  
-`virus`  
-Nombre del taxón del virus (p. ej. 'Zika virus'), ID taxonómico (p. ej. 2697049), número de acceso (p. ej. 'NC\_045512.2'), lista de accesiones separadas por espacios (p. ej. 'NC\_045512.2 MN908947.3 MT020781.1'), o ruta a un archivo de texto que contiene números de acceso (uno por línea, cuando se combina con `--is_accession`).  
-Use la bandera `--download_all_accessions` para aplicar filtros sin buscar un virus específico.
+`virus`
+Nombre del taxón viral (p. ej., 'Zika virus'), ID de taxón (p. ej., '2697049'), número de acceso de NCBI (p. ej., 'NC_045512.2'), lista de números de acceso separados por espacios (p. ej., 'NC_045512.2 MN908947.3 MT020781.1') o ruta a un archivo de texto que contenga números de acceso (uno por línea) (p. ej., 'path/to/text.txt').
+
+Añada `--is_accession` al proporcionar un número de acceso de NCBI. Añada `--is_sars_cov2` o `--is_alphainfluenza` para la descarga optimizada de secuencias de SARS-CoV-2 o Alphainfluenza, respectivamente.
+
+Para descargas en caché de SARS-CoV-2 y Alphainfluenza, se admite:
+
+* Acceso único: `NC_045512.2`
+* Lista separada por espacios: `NC_045512.2 MN908947.3 MT020781.1`
+* Ruta a archivo de texto: `accessions.txt` (un número de acceso por línea)
+
+Use la opción `--download_all_accessions` para aplicar filtros sin buscar un virus específico.
 
 **Argumentos opcionales**   
 
@@ -184,10 +195,7 @@ Python: `merge_results=False`
 
 **Banderas**  
 `-a` `--is_accession`  
-Bandera para indicar que el argumento posicional `virus` es un número de acceso, una lista de accesiones separadas por espacios, o una ruta a un archivo de texto que contiene números de acceso (uno por línea). Para descargas en caché de SARS-CoV-2 y Alphainfluenza, soporta:
-  - Acceso único: `NC_045512.2`
-  - Lista separada por espacios: `NC_045512.2 MN908947.3 MT020781.1`
-  - Ruta de archivo de texto: `accessions.txt` (uno por línea)
+Bandera para indicar que el argumento posicional `virus` es un número de acceso, una lista de accesiones separadas por espacios, o una ruta a un archivo de texto que contiene números de acceso (uno por línea).
 
 `--download_all_accessions`  
 Use esta bandera al aplicar filtros sin buscar un virus específico (deje el argumento `virus` vacío).  
@@ -648,6 +656,8 @@ El archivo de resumen rastrea los siguientes tipos de fallos, cada uno con detal
 - **Errores de metadatos de GenBank** — La obtención de metadatos de GenBank falló (el comando aún se completa con una advertencia).
 - **Recuperación parcial de metadatos** — Cuando la API falla a mitad de descarga, los metadatos parciales se guardan en un archivo JSONL con un comando de recuperación para reanudar usando `--baseline`.
 
+#### [Más ejemplos](https://github.com/pachterlab/gget_examples/tree/main/gget_virus)
+
 # Citar
 
 Si utilizas `gget virus` en una publicación, por favor cita los siguientes artículos:
@@ -656,5 +666,4 @@ Si utilizas `gget virus` en una publicación, por favor cita los siguientes art�
 
   - Luebbert, L., & Pachter, L. (2023). Efficient querying of genomic reference databases with gget. Bioinformatics. [https://doi.org/10.1093/bioinformatics/btac836](https://doi.org/10.1093/bioinformatics/btac836)
 
-  - O’Leary, N.A., Cox, E., Holmes, J.B. et al (2024). Exploring and retrieving sequence and metadata for species across the tree of life with NCBI Datasets. Sci Data 11, 732. [https://doi.org/10.1038/s41597-024-03571-y](https://doi.org/10.1038/s41597-024-03571-y)
-
+  - O'Leary, N.A., Cox, E., Holmes, J.B. et al (2024). Exploring and retrieving sequence and metadata for species across the tree of life with NCBI Datasets. Sci Data 11, 732. [https://doi.org/10.1038/s41597-024-03571-y](https://doi.org/10.1038/s41597-024-03571-y)

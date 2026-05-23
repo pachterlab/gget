@@ -1,14 +1,14 @@
 [<kbd> View page source on GitHub </kbd>](https://github.com/pachterlab/gget/blob/main/docs/src/en/updates.md)
 
 ## ✨ What's new
-**Version ≥ 0.30.4** (XXX XX, 2026):
+**Version ≥ 0.30.4** (May 23, 2026):
 - [`gget opentargets`](opentargets.md): Rewrote this module to reflect the new Open Targets API structure
   - some output column/key names may differ to reflect the new API structure
   - Removed the `--filter_mode` argument
 - [`gget blast`](blast.md): Fixed compatibility with newer pandas versions (≥ 2.0) where `pd.read_html()` no longer accepts raw HTML strings directly, causing a `FileNotFoundError` / `OSError: Filename too long` error when parsing BLAST results
 - [`gget cosmic`](cosmic.md): Added overwrite and gzip arguments to internals.
 
-**Version ≥ 0.30.3** (Feb 22, 2026):  
+**Version ≥ 0.30.3** (Feb 26, 2026):  
 - [`gget virus`](virus.md): New filtering options, quiet mode, and improved download reliability
   - Added `--segment` filter for segmented viruses (e.g., Influenza A segments like 'HA', 'NA', 'PB1')
   - Added `--vaccine_strain` filter to include or exclude vaccine strain sequences

@@ -7,6 +7,8 @@ Download viral nucleotide sequences, along with rich, linked metadata, from acro
 
 Return format: FASTA, CSV, and JSONL files saved to an output folder.  
 
+[No-code, shareable Google Colab notebook for querying viral sequences.](https://colab.research.google.com/github/pachterlab/gget_examples/blob/main/gget_virus/gget_virus_colab.ipynb)
+
 This module was written by [Ferdous Nasri](https://github.com/ferbsx).
 
 **Note**: For SARS-CoV-2 and Alphainfluenza (Influenza A) queries, `gget virus` uses NCBI's optimized cached data packages via the [NCBI datasets CLI](https://www.ncbi.nlm.nih.gov/datasets/docs/v2/reference-docs/command-line/datasets/). The datasets CLI binary is bundled with gget for all major platforms—no additional installation required. If you already have the NCBI datasets CLI installed on your system, gget will automatically use your existing installation.
@@ -14,7 +16,14 @@ This module was written by [Ferdous Nasri](https://github.com/ferbsx).
 **Positional argument**  
 `virus`  
 Virus taxon name (e.g. 'Zika virus'), taxon ID (e.g. '2697049'), NCBI accession number (e.g. 'NC\_045512.2'), space-separated list of accessions (e.g. 'NC\_045512.2 MN908947.3 MT020781.1'), or path to a text file containing accession numbers (one per line) (e.g. 'path/to/text.txt').  
+
 Add `--is_accession` when passing an NCBI accession number. Add `--is_sars_cov2` or `is_alphainfluenza` for optimized download of SARS-CoV2 or Alphainfluenza sequences, respectively.  
+
+For SARS-CoV-2 and Alphainfluenza cached downloads, supports:  
+  - Single accession: `NC_045512.2`  
+  - Space-separated list: `NC_045512.2 MN908947.3 MT020781.1`   
+  - Text file path: `accessions.txt` (one accession per line)  
+
 Use flag `--download_all_accessions` to apply filters without searching for a specific virus.  
 
 **Optional arguments**   
@@ -128,7 +137,7 @@ Filter by the country of the sequence submitter. Can be a single country or a li
 Command line: `--submitter_country USA` or `--submitter_country USA,Germany,Japan` (comma-separated, no spaces)  
 Python: `submitter_country="USA"` or `submitter_country=["USA", "Germany", "Japan"]`
 
-`--source_database`
+`--source_database`  
 Filter by source database. One of: 'genbank' or 'refseq'.
 
 _Sample & Isolate filters_
@@ -194,10 +203,7 @@ Python: `merge_results=False`
 
 **Flags**  
 `-a` `--is_accession`  
-Flag to indicate that the `virus` positional argument is an accession number, a space-separated list of accessions, or a path to a text file containing accession numbers (one per line). For SARS-CoV-2 and Alphainfluenza cached downloads, supports:  
-  - Single accession: `NC_045512.2`  
-  - Space-separated list: `NC_045512.2 MN908947.3 MT020781.1`  
-  - Text file path: `accessions.txt` (one accession per line)
+Flag to indicate that the `virus` positional argument is an accession number, a space-separated list of accessions, or a path to a text file containing accession numbers (one per line).  
 
 `--download_all_accessions`   
 Use this flag when applying filters without searching for a specific virus (leave `virus` argument empty).     
@@ -354,9 +360,7 @@ Every `gget virus` run generates a `command_summary.txt` file in the output fold
 **Example `command_summary.txt` for a successful run:**
 
 ```
-================================================================================
 GGET VIRUS COMMAND SUMMARY
-================================================================================
 
 Execution Date: 2026-03-15 14:30:22
 Output Folder: /home/user/zika_data
@@ -433,9 +437,7 @@ FASTA Sequences: Zika_virus_sequences.fasta (16.02 MB)
 CSV Metadata: Zika_virus_metadata.csv (1.85 MB)
 JSONL Metadata: Zika_virus_metadata.jsonl (3.41 MB)
 
-================================================================================
 END OF SUMMARY
-================================================================================
 ```
 
 <br>
@@ -443,9 +445,7 @@ END OF SUMMARY
 **Example `command_summary.txt` after an API server error:**
 
 ```
-================================================================================
 GGET VIRUS COMMAND SUMMARY
-================================================================================
 
 Execution Date: 2026-03-19 21:03:22
 Output Folder: /home/user/11632_20260319_210251
@@ -479,9 +479,7 @@ OUTPUT FILES
 --------------------------------------------------------------------------------
 No output files generated
 
-================================================================================
 END OF SUMMARY
-================================================================================
 ```
 
 <br>
@@ -489,9 +487,7 @@ END OF SUMMARY
 **Example `command_summary.txt` with failed metadata batches and recovery instructions:**
 
 ```
-================================================================================
 GGET VIRUS COMMAND SUMMARY
-================================================================================
 
 Execution Date: 2026-04-01 10:15:33
 Output Folder: /home/user/hiv_data
@@ -554,9 +550,7 @@ OUTPUT FILES
 --------------------------------------------------------------------------------
 No output files generated
 
-================================================================================
 END OF SUMMARY
-================================================================================
 ```
 
 <br>
@@ -564,9 +558,7 @@ END OF SUMMARY
 **Example `command_summary.txt` completed with GenBank warnings and failed sequence batches:**
 
 ```
-================================================================================
 GGET VIRUS COMMAND SUMMARY
-================================================================================
 
 Execution Date: 2026-03-20 08:45:11
 Output Folder: /home/user/ebola_data
@@ -642,9 +634,7 @@ FASTA Sequences: Ebola_virus_sequences.fasta (24.31 MB)
 CSV Metadata: Ebola_virus_metadata.csv (2.10 MB)
 JSONL Metadata: Ebola_virus_metadata.jsonl (4.56 MB)
 
-================================================================================
 END OF SUMMARY
-================================================================================
 ```
 
 The summary file tracks the following failure types, each with actionable details (error messages, URLs for manual retry, recovery commands):
@@ -659,6 +649,7 @@ The summary file tracks the following failure types, each with actionable detail
 - **Partial Metadata Recovery** — When the API fails mid-download, partial metadata is saved to a JSONL file with a recovery command to resume using `--baseline`.
 
 
+#### [More examples](https://github.com/pachterlab/gget_examples/tree/main/gget_virus)
 
 # References
 
