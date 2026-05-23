@@ -131,6 +131,11 @@ def pdb(pdb_id, resource="pdb", identifier=None, save=False):
     if resource != "pdb":
         # Read json formatted results
         results = json.load(r)
+
+        # Sort list-valued ID fields for deterministic output
+        ids = (results.get("rcsb_assembly_container_identifiers") or {}).get("interface_ids")
+        if ids is not None:
+            ids.sort()
     else:
         # Read PDB file
         results = r.read().decode()
