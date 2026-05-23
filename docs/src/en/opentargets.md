@@ -34,41 +34,8 @@ Note: Not compatible with the `tractability` and `depmap` resources.
 Path to the JSON file the results will be saved in, e.g. path/to/directory/results.json. Default: Standard out.  
 Python: `save=True` will save the output in the current working directory.
 
-**Optional filter arguments**
-
-`-fd` `--filter_disease` `disease_id`  
-Filter by disease ID, e.g. 'EFO_0000274'. *Only valid for the `drugs` resource.*
-
-`-fc` `--filter_drug` `drug_id`  
-Filter by drug ID, e.g. 'CHEMBL1743081'. *Only valid for the `pharmacogenetics` resource.*
-
-`-ft` `--filter_tissue` `tissue_id`  
-Filter by tissue ID, e.g. 'UBERON_0000473'. *Only valid for the `expression` and `depmap` resources.*
-
-`-fa` `--filter_anat_sys`  
-Filter by anatomical system, e.g. 'nervous system'. *Only valid for the `expression` resource.*
-
-`-fo` `--filter_organ` `anatomical_system`  
-Filter by organ, e.g. 'brain'. *Only valid for the `expression` resource.*
-
-`-fpa` `--filter_protein_a` `protein_a_id`  
-Filter by the protein ID of the first protein in the interaction, e.g. 'ENSP00000304915'. *Only valid for the `interactions` resource.*
-
-`-fpb` `--filter_protein_b` `protein_b_id`  
-Filter by the protein ID of the second protein in the interaction, e.g. 'ENSP00000379111'. *Only valid for the `interactions` resource.*
-
-`-fgb` `--filter_gene_b` `gene_b_id`  
-Filter by the gene ID of the second protein in the interaction, e.g. 'ENSG00000077238'. *Only valid for the `interactions` resource.*
-
-`filters`  
-Python only. A dictionary of filters, e.g.
-```python
-{'disease_id': ['EFO_0000274', 'HP_0000964']}
-```
-
-`filter_mode`  
-Python only. `filter_mode='or'` combines filters of different IDs with OR logic.
-`filter_mode='and'` combines filters of different IDs with AND logic (default).
+`--filters`  
+Filter results by exact equality using returned OpenTargets column names. Pass multiple filters by repeating the flag, e.g. '--filter disease.id=EFO_0000274 --filter drug.id=CHEMBL1743081'. Nested fields use dot notation, matching the column names returned by the API.
 
 **Flags**   
 `-csv` `--csv`  

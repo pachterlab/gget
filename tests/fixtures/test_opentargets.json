@@ -45,28 +45,60 @@
             "filters": {
                 "tissue_id": "UBERON_0002367"
             },
-            "limit": 2
-        },
-        "expected_result": [
-            [
-                "ACH-000979",
-                0.034343916922807693,
-                -0.14336788654327393,
-                "UBERON_0002367",
-                "prostate gland",
-                "DU 145",
-                "Prostate Adenocarcinoma"
-            ],
-            [
-                "ACH-001422",
-                0.0291899424046278,
-                0.06934770196676254,
-                "UBERON_0002367",
-                "prostate gland",
-                "WPE1-NA22",
-                "Non-Cancerous"
+            {
+                "id": "MONDO_0004979",
+                "name": "asthma"
+            },
+            {
+                "id": "HP_0000964",
+                "name": "Eczematoid dermatitis"
+            },
+            {
+                "id": "EFO_0000341",
+                "name": "chronic obstructive pulmonary disease"
+            },
+            {
+                "id": "EFO_0000183",
+                "name": "Hodgkins lymphoma"
+            },
+            {
+                "id": "MONDO_0004784",
+                "name": "allergic asthma"
+            }
             ]
+        },
+        {
+            "drug.id": "CHEMBL1742985",
+            "drug.name": "ANRUKINZUMAB",
+            "drug.drugType": "Antibody",
+            "drug.mechanismsOfAction.rows": "Interleukin-13 inhibitor",
+            "drug.description": "Antibody drug with a maximum clinical stage of Phase 2 (across all indications), with 2 investigational indications.",
+            "drug.synonyms": [
+            "Anrukinzumab",
+            "IMA-638"
+            ],
+            "drug.tradeNames": null,
+            "drug.maximumClinicalStage": "PHASE_2",
+            "drug.indications.rows": [
+            {
+                "id": "MONDO_0004979",
+                "name": "asthma"
+            },
+            {
+                "id": "EFO_0000729",
+                "name": "ulcerative colitis"
+            }
+            ]
+        }
         ]
+  },
+  "test_opentargets_expression": {
+    "function_call_to_reproduce": "output = opentargets(ensembl_id='ENSG00000169194', resource='expression', limit=2, json=True, verbose=False); print(json.dumps(output, indent=2))",
+    "type": "assert_equal_json_with_keys",
+    "args": {
+      "ensembl_id": "ENSG00000169194",
+      "resource": "expression",
+      "limit": 2
     },
     "test_opentargets_interactions_no_limit": {
         "type": "assert_equal_json_hash",
@@ -147,46 +179,126 @@
             "resource": "diseases",
             "limit": "this is not a number"
         },
-        "expected_result": "RuntimeError"
+        {
+            "tissue.id": "UBERON_0002113",
+            "tissue.label": "kidney",
+            "tissue.anatomicalSystems": [
+            "renal system"
+            ],
+            "tissue.organs": [
+            "kidney"
+            ],
+            "rna.zscore": -1,
+            "rna.value": 0.0,
+            "rna.unit": "",
+            "rna.level": -1
+        }
+    ]
+  },
+  "test_opentargets_interactions": {
+    "function_call_to_reproduce": "output = opentargets(ensembl_id='ENSG00000169194', resource='interactions', limit=2, json=True, verbose=False); print(json.dumps(output, indent=2))",
+    "type": "assert_equal_json_with_keys",
+    "args": {
+      "ensembl_id": "ENSG00000169194",
+      "resource": "interactions",
+      "limit": 2
     },
-    "test_error_opentargets_nonexistent_id": {
-        "type": "error",
-        "args": {
-            "ensembl_id": "NON EXISTENT ID",
-            "resource": "diseases",
-            "limit": 5
+    "expected_result": [
+        {
+            "score": 0.999,
+            "count": 3,
+            "sourceDatabase": "string",
+            "intA": "ENSP00000304915",
+            "intABiologicalRole": "unspecified role",
+            "intB": "ENSP00000361004",
+            "intBBiologicalRole": "unspecified role",
+            "targetA.id": "ENSG00000169194",
+            "targetA.approvedSymbol": "IL13",
+            "speciesA.taxonId": 134,
+            "targetB.id": "ENSG00000123496",
+            "targetB.approvedSymbol": "IL13RA2",
+            "speciesB.taxonId": 134
         },
-        "expected_result": "ValueError"
+        {
+            "score": 0.999,
+            "count": 3,
+            "sourceDatabase": "string",
+            "intA": "ENSP00000304915",
+            "intABiologicalRole": "unspecified role",
+            "intB": "ENSP00000360730",
+            "intBBiologicalRole": "unspecified role",
+            "targetA.id": "ENSG00000169194",
+            "targetA.approvedSymbol": "IL13",
+            "speciesA.taxonId": 134,
+            "targetB.id": "ENSG00000131724",
+            "targetB.approvedSymbol": "IL13RA1",
+            "speciesB.taxonId": 134
+        }
+        ]
+  },
+  "test_opentargets_pharmacogenetics": {
+    "function_call_to_reproduce": "output = opentargets(ensembl_id='ENSG00000169194', resource='pharmacogenetics', limit=2, json=True, verbose=False); print(json.dumps(output, indent=2))",
+    "type": "assert_equal_json_with_keys",
+    "args": {
+      "ensembl_id": "ENSG00000169194",
+      "resource": "pharmacogenetics",
+      "limit": 2
     },
-    "test_error_opentargets_diseases_filter": {
-        "type": "error",
-        "args": {
-            "ensembl_id": "ENSG00000169194",
-            "resource": "diseases",
-            "filters": {
-                "disease_id": "EFO_0000274"
-            }
+    "expected_result": [
+        {
+            "variantId": "5_132657117_C_T",
+            "genotypeId": "5_132657117_C_C,T",
+            "genotype": "CT",
+            "drugs": {
+            "id": "CHEMBL535",
+            "name": "SUNITINIB"
+            },
+            "phenotypeText": "decreased severity of drug-induced toxicity",
+            "genotypeAnnotationText": "Patients with renal cell carcinoma and the CT genotype may have a decreased severity of drug-induced toxicity when administered sunitinib as compared to patients with the TT genotype. Other clinical and genetic factors may also influence severity of drug-induced toxicity in patients with renal cell carcinoma who are administered sunitinib.",
+            "pgxCategory": "toxicity",
+            "isDirectTarget": false,
+            "evidenceLevel": "3",
+            "datasourceId": "clinpgx",
+            "literature": "26387812",
+            "variantFunctionalConsequence.id": "SO:0001631",
+            "variantFunctionalConsequence.label": "upstream_gene_variant"
         },
-        "expected_result": "ValueError"
+        {
+            "variantId": "5_132660151_T_C",
+            "genotypeId": "5_132660151_T_C,C",
+            "genotype": "CC",
+            "drugs": null,
+            "phenotypeText": "decreased risk for non-immune response",
+            "genotypeAnnotationText": "Patients with the CC genotype may be at decreased risk for non-immune response to the hepatitis B vaccine, as compared to patients with the TT genotype. Other genetic and clinical factors may also influence risk of non-immune response in patients receiving the hepatitis B vaccine.",
+            "pgxCategory": "efficacy",
+            "isDirectTarget": false,
+            "evidenceLevel": "3",
+            "datasourceId": "clinpgx",
+            "literature": "21111021",
+            "variantFunctionalConsequence.id": "SO:0001627",
+            "variantFunctionalConsequence.label": "intron_variant"
+        }
+        ]
+  },
+  "test_opentargets_tractability": {
+    "function_call_to_reproduce": "output = opentargets(ensembl_id='ENSG00000169194', resource='tractability', limit=2, json=True, verbose=False); print(json.dumps(output, indent=2))",
+    "type": "assert_equal_json_with_keys",
+    "args": {
+      "ensembl_id": "ENSG00000169194",
+      "resource": "tractability",
+      "limit": 2
     },
-    "test_error_opentargets_drugs_invalid_filter": {
-        "type": "error",
-        "args": {
-            "ensembl_id": "ENSG00000169194",
-            "resource": "drugs",
-            "filters": {
-                "organ": "brain"
-            }
+    "expected_result": [
+        {
+            "modality": "SM",
+            "label": "Approved Drug",
+            "value": false
         },
-        "expected_result": "ValueError"
-    },
-    "test_error_opentargets_tractability_limit": {
-        "type": "error",
-        "args": {
-            "ensembl_id": "ENSG00000169194",
-            "resource": "tractability",
-            "limit": 2
-        },
-        "expected_result": "ValueError"
-    }
+        {
+            "modality": "SM",
+            "label": "Advanced Clinical",
+            "value": false
+        }
+      ]
+  }
 }

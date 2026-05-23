@@ -1,3 +1,5 @@
+from io import StringIO
+
 import pandas as pd
 import json as json_package
 import time
@@ -324,7 +326,7 @@ def blast(
                 )
                 return
 
-            results_df = pd.read_html(str(dsc_table))[0]
+            results_df = pd.read_html(StringIO(str(dsc_table)))[0]
             # Drop the first column
             results_df = results_df.iloc[:, 1:]
 

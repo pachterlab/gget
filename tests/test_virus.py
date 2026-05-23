@@ -1,12 +1,13 @@
 """Unit tests for gget virus module.
 
-This test module provides comprehensive validation of the virus function,
-which downloads viral sequences and metadata from NCBI's virus database.
+This test module provides comprehensive validation of the virus function
+and all helper functions, covering downloads, filtering, parsing, and
+error handling for viral sequences and metadata from NCBI's virus database.
 
 Test Structure:
 ---------------
 The test suite uses a hybrid approach combining JSON-defined tests (for input
-validation) and code-defined tests (for functional and data quality checks).
+validation) and code-defined tests (for functional, unit, and data quality checks).
 
 1. JSON-Defined Tests (19 tests):
    - Loaded from tests/fixtures/test_virus.json
@@ -26,160 +27,164 @@ validation) and code-defined tests (for functional and data quality checks).
    - Detect API/data source changes
 
 4. Multi-Accession Functionality Tests (9 tests):
-   - Test parsing of single accessions
-   - Test parsing of space-separated accessions
-   - Test parsing of file-based accessions (one per line)
-   - Test error handling for empty and invalid files
+   - Test parsing of single, space-separated, and file-based accessions
    - Test URL batching for large accession lists (1000+ accessions)
-   - Test URL length calculations and batch sizing
-   - Test integration of multi-accession input with virus() function
-   - Test CLI handling of space-separated and file-based accessions
+   - Test integration with virus() function
 
 5. Datasets CLI Tests (3 tests):
-   - Test _get_datasets_path() returns valid path when CLI is available
-   - Test _get_datasets_path() uses bundled binary when system CLI is missing
-   - Test datasets CLI version output validation
+   - Test _get_datasets_path(), bundled binary fallback, version output
 
 6. Exponential Backoff Helper Function Tests (6 tests):
-   - Test successful operation on first attempt
-   - Test retry mechanism with success after initial failure
-   - Test exponential backoff timing and delay calculations
-   - Test error_info dict tracking for failed operations
-   - Test non-retryable exceptions fail immediately
-   - Test custom retryable exception configurations
+   - Test success, retry, backoff timing, error tracking, non-retryable exceptions
 
-Parameters Tested:
-------------------
-Core Parameters:
-  ✓ virus (str/int) - validated, functional tests
-  ✓ is_accession (bool) - type validation, functional tests, multi-accession tests
-  ✓ outfolder (str) - implicit in all tests
+7. Virus Name Modification Tests (7 tests):
+   - _get_modified_virus_name: parentheses removal, virus suffix, spacing, edge cases
 
-Sequence Filters:
-  ✓ min_seq_length (int) - min/max validation, functional test
-  ✓ max_seq_length (int) - min/max validation, functional test
-  ✓ nuc_completeness (str) - value validation, functional test
-  ✓ host (str) - functional test with verification
-  ✓ annotated (bool) - type validation, functional test
+8. Error Tracking Tests (3 tests):
+   - _track_failed_operation: key creation, appending, None handling
 
-Count Filters:
-  ✓ min_gene_count (int) - min/max validation, functional test
-  ✓ max_gene_count (int) - min/max validation, functional test
-  ✓ min_protein_count (int) - min/max validation, functional test
-  ✓ max_protein_count (int) - min/max validation, functional test
-  ✓ min_mature_peptide_count (int) - min/max validation
-  ✓ max_mature_peptide_count (int) - min/max validation
+9. Binary Validation Tests (3 tests):
+   - _validate_datasets_binary: empty, nonexistent, and valid paths
 
-Date Filters:
-  ✓ min_release_date (str) - min/max validation, functional test with API verification
-  ✓ max_release_date (str) - min/max validation
-  ✓ min_collection_date (str) - min/max validation, functional test
-  ✓ max_collection_date (str) - min/max validation, functional test
+10. Version Retrieval Tests (2 tests):
+    - _get_datasets_version, _get_gget_version
 
-Advanced Filters:
-  ✓ source_database (str) - functional test
-  ✓ lab_passaged (bool) - type validation, functional test
-  ✓ proteins_complete (bool) - type validation only
-  ✓ keep_temp (bool) - type validation only
-  ✓ genbank_metadata (bool) - type validation, functional test
-  ✓ genbank_batch_size (int) - type validation, functional test
-  ✓ geographic_location (str) - functional test
-  ✓ max_ambiguous_chars (int) - functional test
-  ✓ has_proteins (str/list) - functional test
+11. SARS-CoV-2 / Alphainfluenza Detection Tests (6 tests):
+    - is_sars_cov2_query, is_alphainfluenza_query: common names, negatives, accession mode
 
-Multi-Accession Features:
-  ✓ Single accession parsing - dedicated unit test
-  ✓ Space-separated accessions - parsing and CLI tests
-  ✓ File-based accessions - parsing and CLI tests
-  ✓ URL batching for large lists - dedicated unit tests
-  ✓ Max accessions per batch calculation - dedicated unit test
-  ✓ Error handling for invalid files - dedicated unit tests
+12. Date Parsing Tests (9 tests):
+    - _parse_date: full date, various formats, invalid input
+    - _parse_partial_date_for_range_check: year-only, year-month, full date, empty
 
-Parameters NOT Tested:
-  ✗ submitter_country (str) - similar to geographic_location, not critical
-  ✗ is_sars_cov2 (bool) - special mode requiring specific test setup
-  ✗ is_alphainfluenza (bool) - special mode requiring specific test setup
-  ✗ lineage (str) - SARS-CoV-2 specific, requires special test setup
-  ✗ download_all_accessions (bool) - would download entire database (impractical for tests)
+13. Check Min/Max Validation Tests (6 tests):
+    - check_min_max: valid, equal, invalid, None, date valid, date invalid
 
-What These Tests Catch:
------------------------
-✓ Input validation errors and type checking
-✓ File creation and basic functionality
-✓ Data consistency between FASTA/CSV/JSONL outputs
-✓ Filter effectiveness (host, release date, completeness, location, protein counts)
-✓ API schema changes (missing columns, field renames)
-✓ Data loss or format conversion bugs
-✓ Date filter accuracy with API verification
-✓ GenBank metadata retrieval functionality
-✓ Protein and gene filtering
-✓ Geographic location filtering
-✓ Quality filters (ambiguous characters)
-✓ NCBI datasets CLI detection (system or bundled binary)
-✓ Bundled binary fallback when system CLI is not installed
-✓ Multi-accession input parsing (single, space-separated, file-based)
-✓ URL length limit enforcement for large accession lists
-✓ Batch size calculations and accession batching
-✓ Error handling for invalid accession inputs
-✓ Command summary generation even with no API results
+14. XML Helper Tests (4 tests):
+    - _clean_xml_declarations, _local_name: namespace stripping
 
-What These Tests Don't Catch:
------------------------------
-✗ Exact sequence counts (database is ever-changing)
-✗ Specific sequence content validation
-✗ Complete API failures (would need integration tests)
-✗ Network-related errors (outside test scope)
-✗ Special modes (SARS-CoV-2, Alphainfluenza optimization paths)
-✗ Download all accessions mode (too large for unit tests)
-✗ Submitter country filter (similar to geographic location)
+15. Unzip File Tests (3 tests):
+    - _unzip_file: valid extraction, bad ZIP, nonexistent file
 
-Test Coverage Summary:
-----------------------
-- Total parameters: 34
-- Tested (validation or functional): 31 (91%)
-- Type/value validation: 21 (62%)
-- Functional tests: 27 (79%)
-- Multi-accession tests: 9 (new)
-- Not tested: 3 (9%)
+16. Memory Monitoring Tests (2 tests):
+    - _get_memory_usage, _force_garbage_collection
 
-Total: 58 tests (19 JSON validation + 18 functional + 6 data quality + 9 multi-accession + 3 datasets CLI + 6 retry helper)
+17. Baseline File Parsing Tests (7 tests):
+    - _parse_baseline_file: CSV, JSONL, JSON, text, nonexistent, empty, None
 
-Test Coverage by Category:
-- Input validation: 19 tests
-- Basic functionality: 18 tests
-- Data quality verification: 6 tests
-- Multi-accession functionality: 9 tests
-- NCBI datasets CLI: 3 tests
-- Exponential backoff retry helper: 6 tests (core infrastructure testing)
+18. Deduplication Tests (3 tests):
+    - _deduplicate_metadata_against_baseline: normal, empty baseline, all existing
 
-Accession Input Handling Tests:
-- test_parse_accession_input_single
-- test_parse_accession_input_space_separated
-- test_parse_accession_input_from_file
-- test_parse_accession_input_empty_file_raises_error
-- test_parse_accession_input_nonexistent_file_raises_error
-- test_calculate_max_accessions_per_batch
-- test_batch_accessions_for_url
-- test_virus_multi_accession_space_separated
-- test_virus_multi_accession_file_input
+19. Save Partial Metadata Tests (2 tests):
+    - _save_partial_metadata: normal save, empty dict
 
-Notes:
-------
-- Special modes (SARS-CoV-2, Alphainfluenza) require specific test infrastructure
-  and are tested separately in dedicated test modules
-- download_all_accessions is impractical for unit tests (would download entire database)
-- submitter_country is intentionally not tested (similar to geographic_location)
-- Multi-accession support has been comprehensively tested with both unit tests and integration tests using actual CLI commands and API calls
+20. Merge Baseline Tests (3 tests):
+    - _merge_baseline_with_new: merge, deduplication, empty new records
+
+21. Load Metadata from API Reports Tests (4 tests):
+    - load_metadata_from_api_reports: basic, missing accession, empty, multiple
+
+22. filter_metadata_only Tests (22 tests):
+    - All filter parameters tested individually and combined:
+      min/max_seq_length, lab_passaged, annotated, source_database,
+      collection_date, protein_count, segment, vaccine_strain,
+      submitter_country, submitter_name, submitter_institution,
+      isolate, isolation_source, geographic_location, host,
+      max_release_date, combined filters
+
+23. filter_genbank_metadata Tests (14 tests):
+    - GenBank-specific filters: gene_count, mature_peptide_count,
+      provirus, genotype, has_proteins, gen_mol_type, env_source, combined
+
+24. filter_cached_metadata_for_unused_filters Tests (8 tests):
+    - Cached download post-filtering: host, complete_only, annotated,
+      geographic_location, refseq_only, min_release_date, strategy skipping
+
+25. FASTA Writing/Streaming Tests (5 tests):
+    - _write_fasta_record: with/without description, line wrapping
+    - _stream_copy_fasta: all records, accession filtering
+
+26. filter_sequences Tests (3 tests):
+    - max_ambiguous_chars, no filters, proteins_complete
+
+27. save_command_summary Tests (2 tests):
+    - Basic file creation, error recording
+
+28. merge_metadata_csvs Tests (3 tests):
+    - Fill missing, missing file, no overwrite
+
+29. save_metadata_to_csv Tests (2 tests):
+    - Basic creation, empty metadata
+
+30. _parse_genbank_xml Tests (3 tests):
+    - Basic extraction, invalid XML, empty set
+
+31. _genbank_xml_to_csv Tests (1 test):
+    - Basic XML to CSV conversion
+
+32. save_genbank_metadata_to_csv Tests (2 tests):
+    - Basic creation, empty input
+
+33. Additional filter_metadata_only Tests (2 tests):
+    - nuc_completeness='partial', annotated=True (server-side)
+
+Total: 186 tests
 """
 import unittest
 import json
 import os
+import re
 import shutil
 import subprocess
 import tempfile
 import time
 import functools
-from gget.gget_virus import virus, _get_datasets_path, _clear_datasets_cache
+import zipfile
+import calendar
+from datetime import datetime
+
+import pandas as pd
+
+from gget.gget_virus import (
+    virus,
+    _get_datasets_path,
+    _clear_datasets_cache,
+    _get_modified_virus_name,
+    _track_failed_operation,
+    _validate_datasets_binary,
+    _get_datasets_version,
+    _get_gget_version,
+    _parse_accession_input,
+    _parse_baseline_file,
+    _deduplicate_metadata_against_baseline,
+    _save_partial_metadata,
+    _merge_baseline_with_new,
+    _calculate_max_accessions_per_batch,
+    _batch_accessions_for_url,
+    _retry_with_exponential_backoff,
+    _parse_date,
+    _parse_partial_date_for_range_check,
+    _clean_xml_declarations,
+    _local_name,
+    _unzip_file,
+    _get_memory_usage,
+    _force_garbage_collection,
+    is_sars_cov2_query,
+    is_alphainfluenza_query,
+    load_metadata_from_api_reports,
+    check_min_max,
+    filter_metadata_only,
+    filter_genbank_metadata,
+    filter_cached_metadata_for_unused_filters,
+    _write_fasta_record,
+    _stream_copy_fasta,
+    filter_sequences,
+    save_command_summary,
+    merge_metadata_csvs,
+    save_metadata_to_csv,
+    _genbank_xml_to_csv,
+    _parse_genbank_xml,
+    save_genbank_metadata_to_csv,
+)
 from .from_json import from_json
 
 
@@ -1737,6 +1742,1530 @@ class TestVirus(unittest.TestCase, metaclass=from_json(virus_dict, virus)):
         
         self.assertTrue(success, "Expected retry to succeed with Timeout in retryable_exceptions")
         self.assertEqual(attempt_count[0], 2, f"Expected 2 attempts, got {attempt_count[0]}")
+
+    # =========================================================================
+    # VIRUS NAME MODIFICATION TESTS
+    # =========================================================================
+
+    def test_get_modified_virus_name_remove_parentheses(self):
+        """Test attempt=1 removes parenthetical content."""
+        result = _get_modified_virus_name("Lassa virus (LASV)", attempt=1)
+        self.assertEqual(result, "Lassa virus")
+
+    def test_get_modified_virus_name_no_parentheses_returns_none(self):
+        """Test attempt=1 returns None when no parentheses."""
+        result = _get_modified_virus_name("Dengue", attempt=1)
+        self.assertIsNone(result)
+
+    def test_get_modified_virus_name_add_virus_suffix(self):
+        """Test attempt=2 appends ' virus' when not present."""
+        result = _get_modified_virus_name("Dengue", attempt=2)
+        self.assertEqual(result, "Dengue virus")
+
+    def test_get_modified_virus_name_add_space_before_virus(self):
+        """Test attempt=2 adds space before 'virus' when missing."""
+        result = _get_modified_virus_name("Denguevirus", attempt=2)
+        self.assertEqual(result, "Dengue virus")
+
+    def test_get_modified_virus_name_already_correct_returns_none(self):
+        """Test attempt=2 returns None when 'virus' is already correctly spaced."""
+        result = _get_modified_virus_name("Dengue virus", attempt=2)
+        self.assertIsNone(result)
+
+    def test_get_modified_virus_name_empty_returns_none(self):
+        """Test empty/None input returns None."""
+        self.assertIsNone(_get_modified_virus_name("", attempt=1))
+        self.assertIsNone(_get_modified_virus_name(None, attempt=1))
+
+    def test_get_modified_virus_name_invalid_attempt_returns_none(self):
+        """Test invalid attempt number returns None."""
+        self.assertIsNone(_get_modified_virus_name("Dengue", attempt=3))
+
+    # =========================================================================
+    # TRACK FAILED OPERATION TESTS
+    # =========================================================================
+
+    def test_track_failed_operation_creates_key(self):
+        """Test _track_failed_operation creates new operation_type key."""
+        failed = {}
+        _track_failed_operation(failed, "metadata_batch", {"batch": 1}, {"error": "timeout"})
+        self.assertIn("metadata_batch", failed)
+        self.assertEqual(len(failed["metadata_batch"]), 1)
+        self.assertEqual(failed["metadata_batch"][0]["batch"], 1)
+        self.assertEqual(failed["metadata_batch"][0]["error"], "timeout")
+
+    def test_track_failed_operation_appends(self):
+        """Test _track_failed_operation appends to existing key."""
+        failed = {"metadata_batch": [{"batch": 0}]}
+        _track_failed_operation(failed, "metadata_batch", {"batch": 1}, {"error": "timeout"})
+        self.assertEqual(len(failed["metadata_batch"]), 2)
+
+    def test_track_failed_operation_none_dict(self):
+        """Test _track_failed_operation is a no-op when failed_commands is None."""
+        _track_failed_operation(None, "metadata_batch", {"batch": 1}, {"error": "timeout"})
+        # Should not raise
+
+    # =========================================================================
+    # VALIDATE DATASETS BINARY TESTS
+    # =========================================================================
+
+    def test_validate_datasets_binary_empty_path(self):
+        """Test _validate_datasets_binary returns False for empty path."""
+        self.assertFalse(_validate_datasets_binary(""))
+        self.assertFalse(_validate_datasets_binary(None))
+
+    def test_validate_datasets_binary_nonexistent(self):
+        """Test _validate_datasets_binary returns False for nonexistent path."""
+        self.assertFalse(_validate_datasets_binary("/nonexistent/binary"))
+
+    def test_validate_datasets_binary_valid(self):
+        """Test _validate_datasets_binary returns True for valid binary."""
+        datasets_path = _get_datasets_path()
+        self.assertTrue(_validate_datasets_binary(datasets_path))
+
+    # =========================================================================
+    # VERSION RETRIEVAL TESTS
+    # =========================================================================
+
+    def test_get_datasets_version_returns_string_or_none(self):
+        """Test _get_datasets_version returns a version string or None."""
+        version = _get_datasets_version()
+        if version is not None:
+            self.assertIsInstance(version, str)
+            self.assertTrue(len(version) > 0)
+
+    def test_get_gget_version_returns_string(self):
+        """Test _get_gget_version returns a version string."""
+        version = _get_gget_version()
+        self.assertIsInstance(version, str)
+        self.assertTrue(len(version) > 0)
+
+    # =========================================================================
+    # SARS-CoV-2 / ALPHAINFLUENZA DETECTION TESTS
+    # =========================================================================
+
+    def test_is_sars_cov2_query_common_names(self):
+        """Test is_sars_cov2_query detects common SARS-CoV-2 names."""
+        self.assertTrue(is_sars_cov2_query("SARS-CoV-2"))
+        self.assertTrue(is_sars_cov2_query("sarscov2"))
+        self.assertTrue(is_sars_cov2_query("COVID-19"))
+        self.assertTrue(is_sars_cov2_query("covid"))
+        self.assertTrue(is_sars_cov2_query("2697049"))
+
+    def test_is_sars_cov2_query_negative(self):
+        """Test is_sars_cov2_query returns False for non-SARS-CoV-2."""
+        self.assertFalse(is_sars_cov2_query("Zika virus"))
+        self.assertFalse(is_sars_cov2_query("Influenza A"))
+
+    def test_is_sars_cov2_query_accession_mode(self):
+        """Test is_sars_cov2_query returns False in accession mode."""
+        self.assertFalse(is_sars_cov2_query("2697049", accession=True))
+
+    def test_is_alphainfluenza_query_common_names(self):
+        """Test is_alphainfluenza_query detects Alphainfluenza names."""
+        self.assertTrue(is_alphainfluenza_query("Influenza A virus"))
+        self.assertTrue(is_alphainfluenza_query("influenzaa"))
+        self.assertTrue(is_alphainfluenza_query("Alphainfluenzavirus"))
+        self.assertTrue(is_alphainfluenza_query("11320"))
+        self.assertTrue(is_alphainfluenza_query("197911"))
+
+    def test_is_alphainfluenza_query_negative(self):
+        """Test is_alphainfluenza_query returns False for non-Influenza."""
+        self.assertFalse(is_alphainfluenza_query("Zika virus"))
+        self.assertFalse(is_alphainfluenza_query("SARS-CoV-2"))
+
+    def test_is_alphainfluenza_query_accession_mode(self):
+        """Test is_alphainfluenza_query returns False in accession mode."""
+        self.assertFalse(is_alphainfluenza_query("11320", accession=True))
+
+    # =========================================================================
+    # DATE PARSING TESTS
+    # =========================================================================
+
+    def test_parse_date_full(self):
+        """Test _parse_date with full date string."""
+        result = _parse_date("2024-01-15")
+        self.assertEqual(result.year, 2024)
+        self.assertEqual(result.month, 1)
+        self.assertEqual(result.day, 15)
+
+    def test_parse_date_various_formats(self):
+        """Test _parse_date with various date formats."""
+        # ISO format
+        result = _parse_date("2024-06-30")
+        self.assertEqual(result.year, 2024)
+        self.assertEqual(result.month, 6)
+        self.assertEqual(result.day, 30)
+
+    def test_parse_date_invalid_raises(self):
+        """Test _parse_date raises ValueError on invalid date."""
+        with self.assertRaises(ValueError):
+            _parse_date("not-a-date")
+
+    def test_parse_partial_date_year_only_min_comparison(self):
+        """Test _parse_partial_date_for_range_check with year-only for min comparison."""
+        result = _parse_partial_date_for_range_check("2015", for_min_comparison=True)
+        self.assertEqual(result, datetime(2015, 12, 31))
+
+    def test_parse_partial_date_year_only_max_comparison(self):
+        """Test _parse_partial_date_for_range_check with year-only for max comparison."""
+        result = _parse_partial_date_for_range_check("2015", for_min_comparison=False)
+        self.assertEqual(result, datetime(2015, 1, 1))
+
+    def test_parse_partial_date_year_month_min(self):
+        """Test _parse_partial_date_for_range_check with year-month for min."""
+        result = _parse_partial_date_for_range_check("2015-06", for_min_comparison=True)
+        _, last_day = calendar.monthrange(2015, 6)
+        self.assertEqual(result, datetime(2015, 6, last_day))
+
+    def test_parse_partial_date_year_month_max(self):
+        """Test _parse_partial_date_for_range_check with year-month for max."""
+        result = _parse_partial_date_for_range_check("2015-06", for_min_comparison=False)
+        self.assertEqual(result, datetime(2015, 6, 1))
+
+    def test_parse_partial_date_full_date(self):
+        """Test _parse_partial_date_for_range_check with full date."""
+        result = _parse_partial_date_for_range_check("2015-06-15", for_min_comparison=True)
+        self.assertEqual(result.year, 2015)
+        self.assertEqual(result.month, 6)
+        self.assertEqual(result.day, 15)
+
+    def test_parse_partial_date_empty_raises(self):
+        """Test _parse_partial_date_for_range_check raises on empty string."""
+        with self.assertRaises(ValueError):
+            _parse_partial_date_for_range_check("", for_min_comparison=True)
+
+    # =========================================================================
+    # CHECK MIN/MAX VALIDATION TESTS
+    # =========================================================================
+
+    def test_check_min_max_valid(self):
+        """Test check_min_max passes with valid min < max."""
+        check_min_max(100, 200, "sequence length")  # Should not raise
+
+    def test_check_min_max_equal(self):
+        """Test check_min_max passes when min == max."""
+        check_min_max(100, 100, "sequence length")  # Should not raise
+
+    def test_check_min_max_invalid_raises(self):
+        """Test check_min_max raises ValueError when min > max."""
+        with self.assertRaises(ValueError):
+            check_min_max(200, 100, "sequence length")
+
+    def test_check_min_max_none_values(self):
+        """Test check_min_max is a no-op when either value is None."""
+        check_min_max(None, 200, "sequence length")  # Should not raise
+        check_min_max(100, None, "sequence length")  # Should not raise
+        check_min_max(None, None, "sequence length")  # Should not raise
+
+    def test_check_min_max_date_valid(self):
+        """Test check_min_max with valid date range."""
+        check_min_max("2020-01-01", "2024-12-31", "release date", date=True)
+
+    def test_check_min_max_date_invalid_raises(self):
+        """Test check_min_max raises ValueError when min date > max date."""
+        with self.assertRaises(ValueError):
+            check_min_max("2024-12-31", "2020-01-01", "release date", date=True)
+
+    # =========================================================================
+    # XML HELPER TESTS
+    # =========================================================================
+
+    def test_clean_xml_declarations(self):
+        """Test _clean_xml_declarations removes XML and DOCTYPE declarations."""
+        xml = '<?xml version="1.0"?>\n<!DOCTYPE GBSet>\n<GBSet><GBSeq>data</GBSeq></GBSet>'
+        result = _clean_xml_declarations(xml)
+        self.assertNotIn("<?xml", result)
+        self.assertNotIn("<!DOCTYPE", result)
+        self.assertIn("<GBSet>", result)
+
+    def test_clean_xml_declarations_no_declarations(self):
+        """Test _clean_xml_declarations with no declarations to remove."""
+        xml = '<GBSet><GBSeq>data</GBSeq></GBSet>'
+        result = _clean_xml_declarations(xml)
+        self.assertEqual(result, xml)
+
+    def test_local_name_with_namespace(self):
+        """Test _local_name strips namespace from XML tag."""
+        self.assertEqual(_local_name("{http://www.ncbi.nlm.nih.gov}GBSeq"), "GBSeq")
+
+    def test_local_name_without_namespace(self):
+        """Test _local_name returns tag as-is without namespace."""
+        self.assertEqual(_local_name("GBSeq"), "GBSeq")
+
+    # =========================================================================
+    # UNZIP FILE TESTS
+    # =========================================================================
+
+    def test_unzip_file_valid(self):
+        """Test _unzip_file extracts files correctly."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Create a test ZIP file
+            zip_path = os.path.join(tmpdir, "test.zip")
+            extract_path = os.path.join(tmpdir, "extracted")
+            with zipfile.ZipFile(zip_path, "w") as zf:
+                zf.writestr("test.txt", "hello world")
+            _unzip_file(zip_path, extract_path)
+            extracted_file = os.path.join(extract_path, "test.txt")
+            self.assertTrue(os.path.exists(extracted_file))
+            with open(extracted_file) as f:
+                self.assertEqual(f.read(), "hello world")
+
+    def test_unzip_file_bad_zip_raises(self):
+        """Test _unzip_file raises on invalid ZIP file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            bad_zip = os.path.join(tmpdir, "bad.zip")
+            with open(bad_zip, "w") as f:
+                f.write("not a zip file")
+            with self.assertRaises(zipfile.BadZipFile):
+                _unzip_file(bad_zip, os.path.join(tmpdir, "out"))
+
+    def test_unzip_file_nonexistent_raises(self):
+        """Test _unzip_file raises on nonexistent file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            with self.assertRaises(FileNotFoundError):
+                _unzip_file("/nonexistent/file.zip", tmpdir)
+
+    # =========================================================================
+    # MEMORY MONITORING TESTS
+    # =========================================================================
+
+    def test_get_memory_usage_returns_dict(self):
+        """Test _get_memory_usage returns a dictionary with expected keys."""
+        mem = _get_memory_usage()
+        self.assertIsInstance(mem, dict)
+        self.assertIn("rss_mb", mem)
+        self.assertIn("vms_mb", mem)
+
+    def test_force_garbage_collection_runs(self):
+        """Test _force_garbage_collection executes without error."""
+        _force_garbage_collection(context="test")
+
+    # =========================================================================
+    # BASELINE FILE PARSING TESTS
+    # =========================================================================
+
+    def test_parse_baseline_file_csv(self):
+        """Test _parse_baseline_file with CSV format."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write("accession,length,host\n")
+            f.write("NC_045512.2,29903,human\n")
+            f.write("MN908947.3,29903,human\n")
+            path = f.name
+        try:
+            result = _parse_baseline_file(path)
+            self.assertIsInstance(result, set)
+            self.assertEqual(len(result), 2)
+            self.assertIn("nc_045512.2", result)
+            self.assertIn("mn908947.3", result)
+        finally:
+            os.unlink(path)
+
+    def test_parse_baseline_file_jsonl(self):
+        """Test _parse_baseline_file with JSONL format."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False) as f:
+            f.write('{"accession": "NC_045512.2", "length": 29903}\n')
+            f.write('{"accession": "MN908947.3", "length": 29903}\n')
+            path = f.name
+        try:
+            result = _parse_baseline_file(path)
+            self.assertEqual(len(result), 2)
+            self.assertIn("nc_045512.2", result)
+        finally:
+            os.unlink(path)
+
+    def test_parse_baseline_file_json(self):
+        """Test _parse_baseline_file with JSON array format."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            import json as json_mod
+            json_mod.dump([
+                {"accession": "NC_045512.2"},
+                {"accession": "MN908947.3"}
+            ], f)
+            path = f.name
+        try:
+            result = _parse_baseline_file(path)
+            self.assertEqual(len(result), 2)
+        finally:
+            os.unlink(path)
+
+    def test_parse_baseline_file_text(self):
+        """Test _parse_baseline_file with plain text format."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+            f.write("NC_045512.2\n")
+            f.write("MN908947.3\n")
+            f.write("# comment line\n")
+            f.write("MT020781.1\n")
+            path = f.name
+        try:
+            result = _parse_baseline_file(path)
+            self.assertEqual(len(result), 3)
+            # Comments should be skipped
+            self.assertNotIn("# comment line", result)
+        finally:
+            os.unlink(path)
+
+    def test_parse_baseline_file_nonexistent_raises(self):
+        """Test _parse_baseline_file raises for nonexistent file."""
+        with self.assertRaises(FileNotFoundError):
+            _parse_baseline_file("/nonexistent/baseline.csv")
+
+    def test_parse_baseline_file_empty_raises(self):
+        """Test _parse_baseline_file raises for empty file."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+            f.write("accession\n")  # header only, no data
+            path = f.name
+        try:
+            with self.assertRaises(ValueError):
+                _parse_baseline_file(path)
+        finally:
+            os.unlink(path)
+
+    def test_parse_baseline_file_none_raises(self):
+        """Test _parse_baseline_file raises for None path."""
+        with self.assertRaises(FileNotFoundError):
+            _parse_baseline_file(None)
+
+    # =========================================================================
+    # DEDUPLICATION TESTS
+    # =========================================================================
+
+    def test_deduplicate_metadata_against_baseline(self):
+        """Test _deduplicate_metadata_against_baseline removes existing accessions."""
+        metadata_dict = {
+            "NC_045512.2": {"length": 29903},
+            "MN908947.3": {"length": 29903},
+            "NEW_001.1": {"length": 10000},
+        }
+        baseline = {"nc_045512.2", "mn908947.3"}
+        new_meta, skipped = _deduplicate_metadata_against_baseline(metadata_dict, baseline)
+        self.assertEqual(skipped, 2)
+        self.assertEqual(len(new_meta), 1)
+        self.assertIn("NEW_001.1", new_meta)
+
+    def test_deduplicate_empty_baseline(self):
+        """Test _deduplicate_metadata_against_baseline with empty baseline."""
+        metadata_dict = {"ACC1": {"length": 100}, "ACC2": {"length": 200}}
+        new_meta, skipped = _deduplicate_metadata_against_baseline(metadata_dict, set())
+        self.assertEqual(skipped, 0)
+        self.assertEqual(len(new_meta), 2)
+
+    def test_deduplicate_all_existing(self):
+        """Test _deduplicate_metadata_against_baseline when all accessions exist."""
+        metadata_dict = {"ACC1": {"length": 100}}
+        baseline = {"acc1"}
+        new_meta, skipped = _deduplicate_metadata_against_baseline(metadata_dict, baseline)
+        self.assertEqual(skipped, 1)
+        self.assertEqual(len(new_meta), 0)
+
+    # =========================================================================
+    # SAVE PARTIAL METADATA TESTS
+    # =========================================================================
+
+    def test_save_partial_metadata(self):
+        """Test _save_partial_metadata saves a CSV file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            metadata_dict = {
+                "NC_045512.2": {
+                    "virus_name": "SARS-CoV-2",
+                    "length": 29903,
+                    "completeness": "complete",
+                    "releaseDate": "2024-01-01",
+                    "host": {"organism_name": "human"},
+                },
+            }
+            result = _save_partial_metadata(metadata_dict, tmpdir, "test_virus", reason="test")
+            self.assertIsNotNone(result)
+            self.assertTrue(os.path.exists(result))
+            df = pd.read_csv(result)
+            self.assertEqual(len(df), 1)
+            self.assertIn("accession", df.columns)
+
+    def test_save_partial_metadata_empty(self):
+        """Test _save_partial_metadata returns None for empty dict."""
+        result = _save_partial_metadata({}, "/tmp", "test_virus")
+        self.assertIsNone(result)
+
+    # =========================================================================
+    # MERGE BASELINE WITH NEW TESTS
+    # =========================================================================
+
+    def test_merge_baseline_with_new_csv(self):
+        """Test _merge_baseline_with_new merges CSV baseline with new records."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            baseline_path = os.path.join(tmpdir, "baseline.csv")
+            output_path = os.path.join(tmpdir, "merged.csv")
+            # Create baseline CSV
+            pd.DataFrame([
+                {"accession": "ACC1", "length": 100},
+                {"accession": "ACC2", "length": 200},
+            ]).to_csv(baseline_path, index=False)
+            # New metadata
+            new_records = [
+                {"accession": "ACC3", "length": 300},
+            ]
+            result = _merge_baseline_with_new(baseline_path, new_records, output_path)
+            self.assertTrue(result)
+            self.assertTrue(os.path.exists(output_path))
+            df = pd.read_csv(output_path)
+            self.assertEqual(len(df), 3)
+
+    def test_merge_baseline_with_new_deduplicates(self):
+        """Test _merge_baseline_with_new removes duplicates (keeps new)."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            baseline_path = os.path.join(tmpdir, "baseline.csv")
+            output_path = os.path.join(tmpdir, "merged.csv")
+            pd.DataFrame([
+                {"accession": "ACC1", "length": 100},
+            ]).to_csv(baseline_path, index=False)
+            new_records = [{"accession": "ACC1", "length": 999}]
+            _merge_baseline_with_new(baseline_path, new_records, output_path)
+            df = pd.read_csv(output_path)
+            self.assertEqual(len(df), 1)
+            self.assertEqual(df.iloc[0]["length"], 999)  # New takes priority
+
+    def test_merge_baseline_with_new_empty_new(self):
+        """Test _merge_baseline_with_new with empty new records."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            baseline_path = os.path.join(tmpdir, "baseline.csv")
+            output_path = os.path.join(tmpdir, "merged.csv")
+            pd.DataFrame([{"accession": "ACC1"}]).to_csv(baseline_path, index=False)
+            result = _merge_baseline_with_new(baseline_path, [], output_path)
+            self.assertTrue(result)
+            df = pd.read_csv(output_path)
+            self.assertEqual(len(df), 1)
+
+    # =========================================================================
+    # LOAD METADATA FROM API REPORTS TESTS
+    # =========================================================================
+
+    def test_load_metadata_from_api_reports_basic(self):
+        """Test load_metadata_from_api_reports transforms API reports correctly."""
+        api_reports = [
+            {
+                "accession": "NC_045512.2",
+                "length": 29903,
+                "gene_count": 11,
+                "completeness": "COMPLETE",
+                "host": {"organism_name": "Homo sapiens", "tax_id": 9606},
+                "is_lab_host": False,
+                "location": {"geographic_location": "China", "geographic_region": "Asia"},
+                "source_database": "GenBank",
+                "isolate": {"name": "Wuhan-Hu-1", "collection_date": "2019-12-30"},
+                "virus": {"tax_id": 2697049, "organism_name": "SARS-CoV-2"},
+                "is_annotated": True,
+                "release_date": "2020-01-13",
+                "protein_count": 12,
+                "mature_peptide_count": 16,
+                "segment": None,
+                "is_vaccine_strain": False,
+            }
+        ]
+        result = load_metadata_from_api_reports(api_reports)
+        self.assertIn("NC_045512.2", result)
+        meta = result["NC_045512.2"]
+        self.assertEqual(meta["accession"], "NC_045512.2")
+        self.assertEqual(meta["length"], 29903)
+        self.assertEqual(meta["completeness"], "complete")
+        self.assertEqual(meta["hostName"], "Homo sapiens")
+        self.assertTrue(meta["isAnnotated"])
+        self.assertEqual(meta["proteinCount"], 12)
+        self.assertEqual(meta["sourceDatabase"], "GenBank")
+
+    def test_load_metadata_from_api_reports_missing_accession(self):
+        """Test load_metadata_from_api_reports skips reports without accession."""
+        api_reports = [{"length": 100}]  # No accession
+        result = load_metadata_from_api_reports(api_reports)
+        self.assertEqual(len(result), 0)
+
+    def test_load_metadata_from_api_reports_empty(self):
+        """Test load_metadata_from_api_reports with empty list."""
+        result = load_metadata_from_api_reports([])
+        self.assertEqual(len(result), 0)
+
+    def test_load_metadata_from_api_reports_multiple(self):
+        """Test load_metadata_from_api_reports with multiple reports."""
+        api_reports = [
+            {"accession": "ACC1", "length": 100, "completeness": "COMPLETE",
+             "host": {}, "location": {}, "isolate": {}, "virus": {}},
+            {"accession": "ACC2", "length": 200, "completeness": "PARTIAL",
+             "host": {}, "location": {}, "isolate": {}, "virus": {}},
+        ]
+        result = load_metadata_from_api_reports(api_reports)
+        self.assertEqual(len(result), 2)
+        self.assertIn("ACC1", result)
+        self.assertIn("ACC2", result)
+
+    # =========================================================================
+    # FILTER METADATA ONLY TESTS
+    # =========================================================================
+
+    def _make_test_metadata(self):
+        """Helper to create a test metadata dict."""
+        return {
+            "ACC1": {
+                "accession": "ACC1",
+                "length": 29903,
+                "completeness": "complete",
+                "hostName": "Homo sapiens",
+                "isLabHost": False,
+                "labHost": False,
+                "isAnnotated": True,
+                "submitterCountry": "United States",
+                "submitterName": "CDC",
+                "submitterInstitution": "Centers for Disease Control",
+                "isolateName": "Wuhan-Hu-1",
+                "isolate": {"collectionDate": "2020-01-15", "source": "nasopharyngeal swab"},
+                "sourceDatabase": "genbank",
+                "releaseDate": "2020-02-01",
+                "proteinCount": 12,
+                "segment": "HA",
+                "isVaccineStrain": False,
+                "location": "China",
+                "region": "Asia",
+                "virusName": "SARS-CoV-2",
+            },
+            "ACC2": {
+                "accession": "ACC2",
+                "length": 5000,
+                "completeness": "partial",
+                "hostName": "Mus musculus",
+                "isLabHost": True,
+                "labHost": True,
+                "isAnnotated": False,
+                "submitterCountry": "Germany",
+                "submitterName": "RKI",
+                "submitterInstitution": "Robert Koch Institute",
+                "isolateName": "mouse-strain-1",
+                "isolate": {"collectionDate": "2023-06-01", "source": "lab culture"},
+                "sourceDatabase": "refseq",
+                "releaseDate": "2023-07-01",
+                "proteinCount": 5,
+                "segment": "NA",
+                "isVaccineStrain": True,
+                "location": "Germany",
+                "region": "Europe",
+                "virusName": "SARS-CoV-2 isolate lab",
+            },
+            "ACC3": {
+                "accession": "ACC3",
+                "length": 15000,
+                "completeness": "complete",
+                "hostName": "Homo sapiens",
+                "isLabHost": False,
+                "labHost": False,
+                "isAnnotated": True,
+                "submitterCountry": "Brazil",
+                "submitterName": "FIOCRUZ",
+                "submitterInstitution": "Oswaldo Cruz Foundation",
+                "isolateName": "BRA/2021",
+                "isolate": {"collectionDate": "2021-03-15", "source": "blood"},
+                "sourceDatabase": "genbank",
+                "releaseDate": "2021-04-01",
+                "proteinCount": 8,
+                "segment": None,
+                "isVaccineStrain": False,
+                "location": "Brazil",
+                "region": "South America",
+                "virusName": "Zika virus",
+            },
+        }
+
+    def test_filter_metadata_only_no_filters(self):
+        """Test filter_metadata_only with no filters returns all records."""
+        meta = self._make_test_metadata()
+        accs, metas, _ = filter_metadata_only(meta)
+        self.assertEqual(len(accs), 3)
+
+    def test_filter_metadata_only_min_seq_length(self):
+        """Test filter_metadata_only with min_seq_length."""
+        meta = self._make_test_metadata()
+        accs, metas, _ = filter_metadata_only(meta, min_seq_length=10000)
+        self.assertEqual(len(accs), 2)
+        self.assertIn("ACC1", accs)
+        self.assertIn("ACC3", accs)
+
+    def test_filter_metadata_only_max_seq_length(self):
+        """Test filter_metadata_only with max_seq_length."""
+        meta = self._make_test_metadata()
+        accs, metas, _ = filter_metadata_only(meta, max_seq_length=10000)
+        self.assertEqual(len(accs), 1)
+        self.assertIn("ACC2", accs)
+
+    def test_filter_metadata_only_lab_passaged_false(self):
+        """Test filter_metadata_only excludes lab-passaged when False."""
+        meta = self._make_test_metadata()
+        accs, metas, _ = filter_metadata_only(meta, lab_passaged=False)
+        self.assertEqual(len(accs), 2)
+        self.assertNotIn("ACC2", accs)
+
+    def test_filter_metadata_only_lab_passaged_true(self):
+        """Test filter_metadata_only keeps only lab-passaged when True."""
+        meta = self._make_test_metadata()
+        accs, metas, _ = filter_metadata_only(meta, lab_passaged=True)
+        self.assertEqual(len(accs), 1)
+        self.assertIn("ACC2", accs)
+
+    def test_filter_metadata_only_annotated_false(self):
+        """Test filter_metadata_only excludes annotated when False."""
+        meta = self._make_test_metadata()
+        accs, metas, _ = filter_metadata_only(meta, annotated=False)
+        self.assertEqual(len(accs), 1)
+        self.assertIn("ACC2", accs)
+
+    def test_filter_metadata_only_source_database(self):
+        """Test filter_metadata_only by source database."""
+        meta = self._make_test_metadata()
+        accs, metas, _ = filter_metadata_only(meta, source_database="GenBank")
+        self.assertEqual(len(accs), 2)
+        self.assertIn("ACC1", accs)
+        self.assertIn("ACC3", accs)
+
+    def test_filter_metadata_only_collection_date_range(self):
+        """Test filter_metadata_only with collection date range."""
+        meta = self._make_test_metadata()
+        accs, metas, _ = filter_metadata_only(
+            meta, min_collection_date="2021-01-01", max_collection_date="2021-12-31"
+        )
+        self.assertEqual(len(accs), 1)
+        self.assertIn("ACC3", accs)
+
+    def test_filter_metadata_only_protein_count(self):
+        """Test filter_metadata_only with protein count filters."""
+        meta = self._make_test_metadata()
+        accs, metas, _ = filter_metadata_only(meta, min_protein_count=10)
+        self.assertEqual(len(accs), 1)
+        self.assertIn("ACC1", accs)
+
+    def test_filter_metadata_only_segment(self):
+        """Test filter_metadata_only by segment."""
+        meta = self._make_test_metadata()
+        accs, metas, _ = filter_metadata_only(meta, segment="HA")
+        self.assertEqual(len(accs), 1)
+        self.assertIn("ACC1", accs)
+
+    def test_filter_metadata_only_vaccine_strain_true(self):
+        """Test filter_metadata_only keeps only vaccine strains."""
+        meta = self._make_test_metadata()
+        accs, metas, _ = filter_metadata_only(meta, vaccine_strain=True)
+        self.assertEqual(len(accs), 1)
+        self.assertIn("ACC2", accs)
+
+    def test_filter_metadata_only_vaccine_strain_false(self):
+        """Test filter_metadata_only excludes vaccine strains."""
+        meta = self._make_test_metadata()
+        accs, metas, _ = filter_metadata_only(meta, vaccine_strain=False)
+        self.assertEqual(len(accs), 2)
+        self.assertNotIn("ACC2", accs)
+
+    def test_filter_metadata_only_submitter_country(self):
+        """Test filter_metadata_only by submitter country."""
+        meta = self._make_test_metadata()
+        accs, metas, _ = filter_metadata_only(meta, submitter_country="Germany")
+        self.assertEqual(len(accs), 1)
+        self.assertIn("ACC2", accs)
+
+    def test_filter_metadata_only_submitter_name(self):
+        """Test filter_metadata_only by submitter name."""
+        meta = self._make_test_metadata()
+        accs, metas, _ = filter_metadata_only(meta, submitter_name="CDC")
+        self.assertEqual(len(accs), 1)
+        self.assertIn("ACC1", accs)
+
+    def test_filter_metadata_only_submitter_institution(self):
+        """Test filter_metadata_only by submitter institution."""
+        meta = self._make_test_metadata()
+        accs, metas, _ = filter_metadata_only(meta, submitter_institution="Robert Koch Institute")
+        self.assertEqual(len(accs), 1)
+        self.assertIn("ACC2", accs)
+
+    def test_filter_metadata_only_isolate(self):
+        """Test filter_metadata_only by isolate name."""
+        meta = self._make_test_metadata()
+        accs, metas, _ = filter_metadata_only(meta, isolate="Wuhan-Hu-1")
+        self.assertEqual(len(accs), 1)
+        self.assertIn("ACC1", accs)
+
+    def test_filter_metadata_only_isolation_source(self):
+        """Test filter_metadata_only by isolation source."""
+        meta = self._make_test_metadata()
+        accs, metas, _ = filter_metadata_only(meta, isolation_source="blood")
+        self.assertEqual(len(accs), 1)
+        self.assertIn("ACC3", accs)
+
+    def test_filter_metadata_only_geographic_location(self):
+        """Test filter_metadata_only by geographic location."""
+        meta = self._make_test_metadata()
+        accs, metas, _ = filter_metadata_only(meta, geographic_location="Brazil")
+        self.assertEqual(len(accs), 1)
+        self.assertIn("ACC3", accs)
+
+    def test_filter_metadata_only_host(self):
+        """Test filter_metadata_only by host."""
+        meta = self._make_test_metadata()
+        accs, metas, _ = filter_metadata_only(meta, host="Homo sapiens")
+        self.assertEqual(len(accs), 2)
+        self.assertIn("ACC1", accs)
+        self.assertIn("ACC3", accs)
+
+    def test_filter_metadata_only_max_release_date(self):
+        """Test filter_metadata_only with max_release_date."""
+        meta = self._make_test_metadata()
+        accs, metas, _ = filter_metadata_only(meta, max_release_date="2020-12-31")
+        self.assertEqual(len(accs), 1)
+        self.assertIn("ACC1", accs)
+
+    def test_filter_metadata_only_combined_filters(self):
+        """Test filter_metadata_only with multiple filters combined."""
+        meta = self._make_test_metadata()
+        accs, metas, _ = filter_metadata_only(
+            meta,
+            min_seq_length=10000,
+            source_database="GenBank",
+            host="Homo sapiens",
+        )
+        self.assertEqual(len(accs), 2)
+        self.assertIn("ACC1", accs)
+        self.assertIn("ACC3", accs)
+
+    # =========================================================================
+    # FILTER GENBANK METADATA TESTS
+    # =========================================================================
+
+    def _make_genbank_metadata(self):
+        """Helper to create test GenBank metadata."""
+        return {
+            "ACC1": {
+                "genbank_data": {
+                    "gene_count": 11,
+                    "mature_peptide_count": 16,
+                    "proviral": False,
+                    "genotype": "H5N1",
+                    "products": ["hemagglutinin", "neuraminidase", "polymerase"],
+                    "mol_type": "genomic RNA",
+                    "isolation_source": "nasopharyngeal swab",
+                    "host": "Homo sapiens",
+                    "comment": "",
+                    "all_features": {"source": {"note": ""}},
+                },
+            },
+            "ACC2": {
+                "genbank_data": {
+                    "gene_count": 3,
+                    "mature_peptide_count": 2,
+                    "proviral": True,
+                    "genotype": "H3N2",
+                    "products": ["matrix protein", "nucleoprotein"],
+                    "mol_type": "genomic DNA",
+                    "isolation_source": "sewage",
+                    "host": "",
+                    "comment": "environmental sample",
+                    "all_features": {"source": {"note": "wastewater sample"}},
+                },
+            },
+            "ACC3": {
+                "genbank_data": {
+                    "gene_count": 8,
+                    "mature_peptide_count": 5,
+                    "proviral": False,
+                    "genotype": "H5N1",
+                    "products": ["hemagglutinin", "nucleoprotein", "spike"],
+                    "mol_type": "genomic RNA",
+                    "isolation_source": "",
+                    "host": "chicken",
+                    "comment": "",
+                    "all_features": {"source": {"note": ""}},
+                },
+            },
+        }
+
+    def test_filter_genbank_metadata_empty(self):
+        """Test filter_genbank_metadata with empty input."""
+        result = filter_genbank_metadata({})
+        self.assertEqual(len(result), 0)
+
+    def test_filter_genbank_metadata_no_filters(self):
+        """Test filter_genbank_metadata with no filters returns all."""
+        meta = self._make_genbank_metadata()
+        result, _ = filter_genbank_metadata(meta)
+        self.assertEqual(len(result), 3)
+
+    def test_filter_genbank_metadata_min_gene_count(self):
+        """Test filter_genbank_metadata with min_gene_count."""
+        meta = self._make_genbank_metadata()
+        result, _ = filter_genbank_metadata(meta, min_gene_count=5)
+        self.assertEqual(len(result), 2)
+        self.assertIn("ACC1", result)
+        self.assertIn("ACC3", result)
+
+    def test_filter_genbank_metadata_max_gene_count(self):
+        """Test filter_genbank_metadata with max_gene_count."""
+        meta = self._make_genbank_metadata()
+        result, _ = filter_genbank_metadata(meta, max_gene_count=5)
+        self.assertEqual(len(result), 1)
+        self.assertIn("ACC2", result)
+
+    def test_filter_genbank_metadata_provirus_true(self):
+        """Test filter_genbank_metadata keeps only proviral."""
+        meta = self._make_genbank_metadata()
+        result, _ = filter_genbank_metadata(meta, provirus=True)
+        self.assertEqual(len(result), 1)
+        self.assertIn("ACC2", result)
+
+    def test_filter_genbank_metadata_provirus_false(self):
+        """Test filter_genbank_metadata excludes proviral."""
+        meta = self._make_genbank_metadata()
+        result, _ = filter_genbank_metadata(meta, provirus=False)
+        self.assertEqual(len(result), 2)
+        self.assertNotIn("ACC2", result)
+
+    def test_filter_genbank_metadata_genotype(self):
+        """Test filter_genbank_metadata by genotype."""
+        meta = self._make_genbank_metadata()
+        result, _ = filter_genbank_metadata(meta, genotype="H5N1")
+        self.assertEqual(len(result), 2)
+        self.assertIn("ACC1", result)
+        self.assertIn("ACC3", result)
+
+    def test_filter_genbank_metadata_genotype_list(self):
+        """Test filter_genbank_metadata by genotype list."""
+        meta = self._make_genbank_metadata()
+        result, _ = filter_genbank_metadata(meta, genotype=["H3N2"])
+        self.assertEqual(len(result), 1)
+        self.assertIn("ACC2", result)
+
+    def test_filter_genbank_metadata_has_proteins(self):
+        """Test filter_genbank_metadata by has_proteins."""
+        meta = self._make_genbank_metadata()
+        result, _ = filter_genbank_metadata(meta, has_proteins="hemagglutinin")
+        self.assertEqual(len(result), 2)
+        self.assertIn("ACC1", result)
+        self.assertIn("ACC3", result)
+
+    def test_filter_genbank_metadata_gen_mol_type(self):
+        """Test filter_genbank_metadata by molecule type."""
+        meta = self._make_genbank_metadata()
+        result, _ = filter_genbank_metadata(meta, gen_mol_type="genomic RNA")
+        self.assertEqual(len(result), 2)
+        self.assertIn("ACC1", result)
+        self.assertIn("ACC3", result)
+
+    def test_filter_genbank_metadata_mature_peptide_count(self):
+        """Test filter_genbank_metadata by mature peptide count range."""
+        meta = self._make_genbank_metadata()
+        result, _ = filter_genbank_metadata(meta, min_mature_peptide_count=10)
+        self.assertEqual(len(result), 1)
+        self.assertIn("ACC1", result)
+
+    def test_filter_genbank_metadata_env_source(self):
+        """Test filter_genbank_metadata by environmental source."""
+        meta = self._make_genbank_metadata()
+        result, _ = filter_genbank_metadata(meta, env_source="sewage")
+        # ACC2 has sewage in isolation_source and non-human host
+        # ACC1 has human host so env_source check is skipped
+        # ACC3 has chicken host and no env match
+        self.assertIn("ACC1", result)
+        self.assertIn("ACC2", result)
+
+    def test_filter_genbank_metadata_combined(self):
+        """Test filter_genbank_metadata with multiple filters."""
+        meta = self._make_genbank_metadata()
+        result, _ = filter_genbank_metadata(
+            meta, min_gene_count=5, genotype="H5N1", has_proteins="hemagglutinin"
+        )
+        self.assertEqual(len(result), 2)
+        self.assertIn("ACC1", result)
+        self.assertIn("ACC3", result)
+
+    # =========================================================================
+    # FILTER CACHED METADATA FOR UNUSED FILTERS TESTS
+    # =========================================================================
+
+    def test_filter_cached_no_filters(self):
+        """Test filter_cached_metadata_for_unused_filters with no filters."""
+        meta = self._make_test_metadata()
+        accs, metas = filter_cached_metadata_for_unused_filters(meta)
+        self.assertEqual(len(accs), 3)
+
+    def test_filter_cached_host_not_in_strategy(self):
+        """Test filter_cached_metadata_for_unused_filters applies host when not in strategy."""
+        meta = self._make_test_metadata()
+        accs, metas = filter_cached_metadata_for_unused_filters(
+            meta, host="Homo sapiens", applied_strategy_filters=[]
+        )
+        self.assertEqual(len(accs), 2)
+        self.assertIn("ACC1", accs)
+        self.assertIn("ACC3", accs)
+
+    def test_filter_cached_host_in_strategy_skipped(self):
+        """Test filter_cached_metadata_for_unused_filters skips host if already in strategy."""
+        meta = self._make_test_metadata()
+        accs, metas = filter_cached_metadata_for_unused_filters(
+            meta, host="Homo sapiens", applied_strategy_filters=["host"]
+        )
+        # Host filter should NOT be applied since it was in strategy
+        self.assertEqual(len(accs), 3)
+
+    def test_filter_cached_complete_only(self):
+        """Test filter_cached_metadata_for_unused_filters with complete_only."""
+        meta = self._make_test_metadata()
+        accs, metas = filter_cached_metadata_for_unused_filters(
+            meta, complete_only=True, applied_strategy_filters=[]
+        )
+        self.assertEqual(len(accs), 2)  # ACC1 and ACC3 are complete
+
+    def test_filter_cached_annotated(self):
+        """Test filter_cached_metadata_for_unused_filters with annotated."""
+        meta = self._make_test_metadata()
+        accs, metas = filter_cached_metadata_for_unused_filters(
+            meta, annotated=True, applied_strategy_filters=[]
+        )
+        self.assertEqual(len(accs), 2)
+        self.assertNotIn("ACC2", accs)
+
+    def test_filter_cached_geographic_location(self):
+        """Test filter_cached_metadata_for_unused_filters with geographic_location."""
+        meta = self._make_test_metadata()
+        accs, metas = filter_cached_metadata_for_unused_filters(
+            meta, geographic_location="China", applied_strategy_filters=[]
+        )
+        self.assertEqual(len(accs), 1)
+        self.assertIn("ACC1", accs)
+
+    def test_filter_cached_refseq_only(self):
+        """Test filter_cached_metadata_for_unused_filters with refseq_only."""
+        meta = self._make_test_metadata()
+        accs, metas = filter_cached_metadata_for_unused_filters(
+            meta, refseq_only=True, applied_strategy_filters=[]
+        )
+        self.assertEqual(len(accs), 1)
+        self.assertIn("ACC2", accs)
+
+    def test_filter_cached_min_release_date(self):
+        """Test filter_cached_metadata_for_unused_filters with min_release_date."""
+        meta = self._make_test_metadata()
+        accs, metas = filter_cached_metadata_for_unused_filters(
+            meta, min_release_date="2023-01-01", applied_strategy_filters=[]
+        )
+        self.assertEqual(len(accs), 1)
+        self.assertIn("ACC2", accs)
+
+    # =========================================================================
+    # FILTER METADATA ONLY - ADDITIONAL COVERAGE
+    # =========================================================================
+
+    def test_filter_metadata_only_nuc_completeness_partial(self):
+        """Test filter_metadata_only with nuc_completeness='partial'."""
+        meta = self._make_test_metadata()
+        accs, metas, _ = filter_metadata_only(meta, nuc_completeness="partial")
+        # ACC2 has completeness='partial', ACC1 and ACC3 have 'complete'
+        self.assertEqual(len(accs), 1)
+        self.assertIn("ACC2", accs)
+
+    def test_filter_metadata_only_annotated_true(self):
+        """Test filter_metadata_only with annotated=True passes all (handled server-side).
+        
+        Note: annotated=True is handled server-side by the API, so the client-side
+        filter_metadata_only does NOT filter on annotated=True. All records pass.
+        """
+        meta = self._make_test_metadata()
+        accs, metas, _ = filter_metadata_only(meta, annotated=True)
+        # annotated=True is NOT applied client-side (server handles it)
+        self.assertEqual(len(accs), 3)
+
+    # =========================================================================
+    # WRITE FASTA RECORD TESTS
+    # =========================================================================
+
+    def test_write_fasta_record_with_description(self):
+        """Test _write_fasta_record writes correct FASTA format with description."""
+        from gget.utils import FastaRecord
+        import io
+
+        record = FastaRecord(seq="ATCGATCGATCG", id="ACC001", description="Test virus isolate")
+        handle = io.StringIO()
+        _write_fasta_record(handle, record)
+        output = handle.getvalue()
+
+        self.assertTrue(output.startswith(">ACC001 Test virus isolate\n"))
+        self.assertIn("ATCGATCGATCG", output)
+
+    def test_write_fasta_record_without_description(self):
+        """Test _write_fasta_record writes correct FASTA format without description."""
+        from gget.utils import FastaRecord
+        import io
+
+        record = FastaRecord(seq="ATCG", id="ACC002", description="")
+        handle = io.StringIO()
+        _write_fasta_record(handle, record)
+        output = handle.getvalue()
+
+        self.assertTrue(output.startswith(">ACC002\n"))
+        self.assertIn("ATCG", output)
+
+    def test_write_fasta_record_long_sequence_wraps(self):
+        """Test _write_fasta_record wraps long sequences at 70 characters."""
+        from gget.utils import FastaRecord
+        import io
+
+        # Create a sequence longer than 70 characters
+        long_seq = "A" * 150
+        record = FastaRecord(seq=long_seq, id="ACC003", description="")
+        handle = io.StringIO()
+        _write_fasta_record(handle, record)
+        lines = handle.getvalue().strip().split('\n')
+
+        # First line is header, then sequence lines
+        self.assertEqual(lines[0], ">ACC003")
+        self.assertEqual(len(lines[1]), 70)  # First seq line is 70 chars
+        self.assertEqual(len(lines[2]), 70)  # Second seq line is 70 chars
+        self.assertEqual(len(lines[3]), 10)  # Remaining 10 chars
+
+    # =========================================================================
+    # STREAM COPY FASTA TESTS
+    # =========================================================================
+
+    def test_stream_copy_fasta_all_records(self):
+        """Test _stream_copy_fasta copies all records when no filter set."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = os.path.join(tmpdir, "input.fasta")
+            output_path = os.path.join(tmpdir, "output.fasta")
+
+            with open(input_path, 'w') as f:
+                f.write(">ACC1\nATCGATCG\n>ACC2\nGGGGAAAA\n>ACC3\nTTTTCCCC\n")
+
+            count = _stream_copy_fasta(input_path, output_path)
+            self.assertEqual(count, 3)
+            self.assertTrue(os.path.exists(output_path))
+
+            # Verify output has all 3 records
+            with open(output_path) as f:
+                headers = [l for l in f if l.startswith('>')]
+            self.assertEqual(len(headers), 3)
+
+    def test_stream_copy_fasta_with_accession_filter(self):
+        """Test _stream_copy_fasta filters by accession set."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = os.path.join(tmpdir, "input.fasta")
+            output_path = os.path.join(tmpdir, "output.fasta")
+
+            with open(input_path, 'w') as f:
+                f.write(">ACC1\nATCGATCG\n>ACC2\nGGGGAAAA\n>ACC3\nTTTTCCCC\n")
+
+            count = _stream_copy_fasta(input_path, output_path, accession_set={"ACC1", "ACC3"})
+            self.assertEqual(count, 2)
+
+            with open(output_path) as f:
+                content = f.read()
+            self.assertIn(">ACC1", content)
+            self.assertIn(">ACC3", content)
+            self.assertNotIn(">ACC2", content)
+
+    # =========================================================================
+    # FILTER SEQUENCES TESTS
+    # =========================================================================
+
+    def test_filter_sequences_max_ambiguous_chars(self):
+        """Test filter_sequences filters by max ambiguous characters."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            fasta_path = os.path.join(tmpdir, "test.fasta")
+            output_path = os.path.join(tmpdir, "filtered.fasta")
+
+            # ACC1 has 0 N's, ACC2 has 5 N's, ACC3 has 20 N's
+            with open(fasta_path, 'w') as f:
+                f.write(">ACC1\nATCGATCGATCG\n")
+                f.write(">ACC2\nATNNNNNCG\n")
+                f.write(">ACC3\n" + "N" * 20 + "\n")
+
+            metadata_dict = {
+                "ACC1": {"accession": "ACC1", "length": 12},
+                "ACC2": {"accession": "ACC2", "length": 9},
+                "ACC3": {"accession": "ACC3", "length": 20},
+            }
+
+            count, filtered_meta, protein_headers, stats = filter_sequences(
+                fasta_path, metadata_dict,
+                max_ambiguous_chars=10,
+                output_fasta_path=output_path,
+            )
+
+            self.assertEqual(count, 2)  # ACC1 and ACC2 pass
+            self.assertEqual(stats['ambiguous_chars'], 1)  # ACC3 filtered out
+
+    def test_filter_sequences_no_filters(self):
+        """Test filter_sequences passes all records when no filters applied."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            fasta_path = os.path.join(tmpdir, "test.fasta")
+            output_path = os.path.join(tmpdir, "filtered.fasta")
+
+            with open(fasta_path, 'w') as f:
+                f.write(">ACC1\nATCGATCG\n>ACC2\nGGGGAAAA\n")
+
+            metadata_dict = {
+                "ACC1": {"accession": "ACC1"},
+                "ACC2": {"accession": "ACC2"},
+            }
+
+            count, filtered_meta, protein_headers, stats = filter_sequences(
+                fasta_path, metadata_dict,
+                output_fasta_path=output_path,
+            )
+
+            self.assertEqual(count, 2)
+
+    def test_filter_sequences_proteins_complete(self):
+        """Test filter_sequences with proteins_complete=True."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            fasta_path = os.path.join(tmpdir, "test.fasta")
+            output_path = os.path.join(tmpdir, "filtered.fasta")
+
+            with open(fasta_path, 'w') as f:
+                f.write(">ACC1\nATCGATCG\n>ACC2\nGGGGAAAA\n")
+
+            metadata_dict = {
+                "ACC1": {"accession": "ACC1", "proteinCount": 10, "geneCount": 5},
+                "ACC2": {"accession": "ACC2", "proteinCount": 0, "geneCount": 0},
+            }
+
+            count, filtered_meta, protein_headers, stats = filter_sequences(
+                fasta_path, metadata_dict,
+                proteins_complete=True,
+                output_fasta_path=output_path,
+            )
+
+            self.assertEqual(count, 1)  # Only ACC1 has proteins
+            self.assertEqual(stats['proteins'], 1)  # ACC2 filtered out
+
+    # =========================================================================
+    # SAVE COMMAND SUMMARY TESTS
+    # =========================================================================
+
+    def test_save_command_summary_creates_file(self):
+        """Test save_command_summary creates a summary text file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            save_command_summary(
+                outfolder=tmpdir,
+                command_line="gget virus 'Zika virus'",
+                total_api_records=100,
+                total_after_metadata_filter=80,
+                total_final_sequences=75,
+                output_files={"fasta": "test.fasta", "csv": "test.csv"},
+                filtered_metadata=[],
+                datasets_version="16.0.0",
+                gget_version="1.0.0",
+            )
+
+            summary_path = os.path.join(tmpdir, "command_summary.txt")
+            self.assertTrue(os.path.exists(summary_path))
+            with open(summary_path) as f:
+                content = f.read()
+            self.assertIn("GGET VIRUS COMMAND SUMMARY", content)
+            self.assertIn("Zika virus", content)
+            self.assertIn("16.0.0", content)
+
+    def test_save_command_summary_with_error(self):
+        """Test save_command_summary records error information."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            save_command_summary(
+                outfolder=tmpdir,
+                command_line="gget virus 'test'",
+                total_api_records=0,
+                total_after_metadata_filter=0,
+                total_final_sequences=0,
+                output_files={},
+                filtered_metadata=[],
+                datasets_version=None,
+                success=False,
+                error_message="API connection failed",
+            )
+
+            summary_path = os.path.join(tmpdir, "command_summary.txt")
+            self.assertTrue(os.path.exists(summary_path))
+            with open(summary_path) as f:
+                content = f.read()
+            self.assertIn("API connection failed", content)
+
+    # =========================================================================
+    # MERGE METADATA CSVS TESTS
+    # =========================================================================
+
+    def test_merge_metadata_csvs_fills_missing(self):
+        """Test merge_metadata_csvs fills missing values from standard CSV."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            genbank_path = os.path.join(tmpdir, "genbank.csv")
+            standard_path = os.path.join(tmpdir, "standard.csv")
+
+            # GenBank CSV with missing host
+            pd.DataFrame([
+                {"accession": "ACC1", "Host": "", "Length": "29903"},
+            ]).to_csv(genbank_path, index=False)
+
+            # Standard CSV with host data
+            pd.DataFrame([
+                {"accession": "ACC1", "Host": "Homo sapiens", "Length": "29903"},
+            ]).to_csv(standard_path, index=False)
+
+            result = merge_metadata_csvs(genbank_path, standard_path)
+            self.assertTrue(result)
+
+            # Verify the merged result has host filled in
+            df = pd.read_csv(genbank_path)
+            self.assertEqual(df.iloc[0]["Host"], "Homo sapiens")
+
+    def test_merge_metadata_csvs_missing_standard_file(self):
+        """Test merge_metadata_csvs returns False when standard CSV missing."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            genbank_path = os.path.join(tmpdir, "genbank.csv")
+            pd.DataFrame([{"accession": "ACC1"}]).to_csv(genbank_path, index=False)
+
+            result = merge_metadata_csvs(genbank_path, "/nonexistent/standard.csv")
+            self.assertFalse(result)
+
+    def test_merge_metadata_csvs_no_overwrite(self):
+        """Test merge_metadata_csvs does not overwrite existing GenBank data."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            genbank_path = os.path.join(tmpdir, "genbank.csv")
+            standard_path = os.path.join(tmpdir, "standard.csv")
+
+            pd.DataFrame([
+                {"accession": "ACC1", "Host": "chicken", "Length": "29903"},
+            ]).to_csv(genbank_path, index=False)
+
+            pd.DataFrame([
+                {"accession": "ACC1", "Host": "human", "Length": "29903"},
+            ]).to_csv(standard_path, index=False)
+
+            merge_metadata_csvs(genbank_path, standard_path)
+
+            df = pd.read_csv(genbank_path)
+            # Existing data should NOT be overwritten
+            self.assertEqual(df.iloc[0]["Host"], "chicken")
+
+    # =========================================================================
+    # SAVE METADATA TO CSV TESTS
+    # =========================================================================
+
+    def test_save_metadata_to_csv_basic(self):
+        """Test save_metadata_to_csv creates a valid CSV file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "metadata.csv")
+
+            filtered_metadata = [
+                {
+                    "accession": "ACC1",
+                    "virus": {"organism_name": "SARS-CoV-2"},
+                    "sourceDatabase": "GenBank",
+                    "length": 29903,
+                    "completeness": "complete",
+                    "host": {"organism_name": "Homo sapiens"},
+                    "releaseDate": "2020-01-13T00:00:00",
+                    "isolate": {"name": "Wuhan-Hu-1", "collection_date": "2019-12-30"},
+                    "submitter": {"names": ["Author1"], "affiliation": "CDC", "country": "USA"},
+                    "isAnnotated": True,
+                    "proteinCount": 12,
+                },
+            ]
+
+            save_metadata_to_csv(filtered_metadata, [], output_path)
+
+            self.assertTrue(os.path.exists(output_path))
+            df = pd.read_csv(output_path)
+            self.assertEqual(len(df), 1)
+            self.assertEqual(df.iloc[0]["accession"], "ACC1")
+            self.assertEqual(df.iloc[0]["Length"], 29903)
+            self.assertIn("Host", df.columns)
+            self.assertIn("Release date", df.columns)
+
+    def test_save_metadata_to_csv_empty_metadata(self):
+        """Test save_metadata_to_csv handles empty metadata list without error."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "metadata.csv")
+            # Empty metadata should not raise - function completes gracefully
+            save_metadata_to_csv([], [], output_path)
+
+    # =========================================================================
+    # PARSE GENBANK XML TESTS
+    # =========================================================================
+
+    def test_parse_genbank_xml_basic(self):
+        """Test _parse_genbank_xml extracts metadata from valid XML."""
+        xml_content = """<?xml version="1.0"?>
+<GBSet>
+  <GBSeq>
+    <GBSeq_accession-version>NC_045512.2</GBSeq_accession-version>
+    <GBSeq_length>29903</GBSeq_length>
+    <GBSeq_organism>SARS-CoV-2</GBSeq_organism>
+    <GBSeq_definition>Severe acute respiratory syndrome coronavirus 2 isolate Wuhan-Hu-1</GBSeq_definition>
+    <GBSeq_taxonomy>Viruses; Riboviria</GBSeq_taxonomy>
+    <GBSeq_create-date>2020-01-13</GBSeq_create-date>
+    <GBSeq_update-date>2020-07-17</GBSeq_update-date>
+    <GBSeq_references>
+      <GBReference>
+        <GBReference_title>A new coronavirus</GBReference_title>
+        <GBReference_authors><GBAuthor>Wu F</GBAuthor><GBAuthor>Zhao S</GBAuthor></GBReference_authors>
+        <GBReference_journal>Nature 579(7798)</GBReference_journal>
+        <GBReference_pubmed>32015508</GBReference_pubmed>
+      </GBReference>
+    </GBSeq_references>
+    <GBSeq_feature-table>
+      <GBFeature>
+        <GBFeature_key>source</GBFeature_key>
+        <GBFeature_location>1..29903</GBFeature_location>
+        <GBFeature_quals>
+          <GBQualifier><GBQualifier_name>host</GBQualifier_name><GBQualifier_value>Homo sapiens</GBQualifier_value></GBQualifier>
+          <GBQualifier><GBQualifier_name>collection_date</GBQualifier_name><GBQualifier_value>2019-12-30</GBQualifier_value></GBQualifier>
+          <GBQualifier><GBQualifier_name>geo_loc_name</GBQualifier_name><GBQualifier_value>China: Wuhan</GBQualifier_value></GBQualifier>
+          <GBQualifier><GBQualifier_name>mol_type</GBQualifier_name><GBQualifier_value>genomic RNA</GBQualifier_value></GBQualifier>
+          <GBQualifier><GBQualifier_name>isolation_source</GBQualifier_name><GBQualifier_value>bronchoalveolar lavage fluid</GBQualifier_value></GBQualifier>
+        </GBFeature_quals>
+      </GBFeature>
+      <GBFeature>
+        <GBFeature_key>gene</GBFeature_key>
+        <GBFeature_location>266..21555</GBFeature_location>
+        <GBFeature_quals>
+          <GBQualifier><GBQualifier_name>gene</GBQualifier_name><GBQualifier_value>ORF1ab</GBQualifier_value></GBQualifier>
+        </GBFeature_quals>
+      </GBFeature>
+      <GBFeature>
+        <GBFeature_key>gene</GBFeature_key>
+        <GBFeature_location>21563..25384</GBFeature_location>
+        <GBFeature_quals>
+          <GBQualifier><GBQualifier_name>gene</GBQualifier_name><GBQualifier_value>S</GBQualifier_value></GBQualifier>
+        </GBFeature_quals>
+      </GBFeature>
+      <GBFeature>
+        <GBFeature_key>CDS</GBFeature_key>
+        <GBFeature_location>21563..25384</GBFeature_location>
+        <GBFeature_quals>
+          <GBQualifier><GBQualifier_name>product</GBQualifier_name><GBQualifier_value>spike glycoprotein</GBQualifier_value></GBQualifier>
+        </GBFeature_quals>
+      </GBFeature>
+    </GBSeq_feature-table>
+    <GBSeq_comment>Assembly Name :: ASM985889v3</GBSeq_comment>
+  </GBSeq>
+</GBSet>"""
+
+        result = _parse_genbank_xml(xml_content)
+
+        self.assertIn("NC_045512.2", result)
+        meta = result["NC_045512.2"]
+        self.assertEqual(meta["accession"], "NC_045512.2")
+        gb = meta["genbank_data"]
+        self.assertEqual(gb["sequence_length"], 29903)
+        self.assertEqual(gb["organism"], "SARS-CoV-2")
+        self.assertEqual(gb["host"], "Homo sapiens")
+        self.assertEqual(gb["collection_date"], "2019-12-30")
+        self.assertEqual(gb["geographic_location"], "China: Wuhan")
+        self.assertEqual(gb["mol_type"], "genomic RNA")
+        self.assertEqual(gb["isolation_source"], "bronchoalveolar lavage fluid")
+        self.assertEqual(gb["gene_count"], 2)
+        self.assertIn("spike glycoprotein", gb["products"])
+        self.assertEqual(gb["assembly_name"], "ASM985889v3")
+        self.assertEqual(len(gb["references"]), 1)
+        self.assertIn("Wu F", gb["references"][0]["authors"])
+
+    def test_parse_genbank_xml_invalid_raises(self):
+        """Test _parse_genbank_xml raises RuntimeError on invalid XML."""
+        with self.assertRaises(RuntimeError):
+            _parse_genbank_xml("<invalid>xml<<broken")
+
+    def test_parse_genbank_xml_empty_set(self):
+        """Test _parse_genbank_xml returns empty dict for XML with no records."""
+        xml_content = '<?xml version="1.0"?><GBSet></GBSet>'
+        result = _parse_genbank_xml(xml_content)
+        self.assertEqual(len(result), 0)
+
+    # =========================================================================
+    # GENBANK XML TO CSV TESTS
+    # =========================================================================
+
+    def test_genbank_xml_to_csv_basic(self):
+        """Test _genbank_xml_to_csv converts XML to CSV correctly."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            xml_path = os.path.join(tmpdir, "test.xml")
+            csv_path = os.path.join(tmpdir, "test.csv")
+
+            xml_content = """<?xml version="1.0"?>
+<GBSet>
+  <GBSeq>
+    <GBSeq_accession-version>NC_045512.2</GBSeq_accession-version>
+    <GBSeq_sequence>ATCGATCG</GBSeq_sequence>
+    <GBSeq_feature-table>
+      <GBFeature>
+        <GBFeature_key>source</GBFeature_key>
+        <GBFeature_location>1..8</GBFeature_location>
+        <GBFeature_quals>
+          <GBQualifier><GBQualifier_name>organism</GBQualifier_name><GBQualifier_value>SARS-CoV-2</GBQualifier_value></GBQualifier>
+          <GBQualifier><GBQualifier_name>host</GBQualifier_name><GBQualifier_value>Homo sapiens</GBQualifier_value></GBQualifier>
+        </GBFeature_quals>
+      </GBFeature>
+    </GBSeq_feature-table>
+  </GBSeq>
+</GBSet>"""
+            with open(xml_path, 'w') as f:
+                f.write(xml_content)
+
+            _genbank_xml_to_csv(xml_path, csv_path)
+
+            self.assertTrue(os.path.exists(csv_path))
+            df = pd.read_csv(csv_path)
+            self.assertGreater(len(df), 0)
+            self.assertIn("accession", df.columns)
+            self.assertEqual(df.iloc[0]["accession"], "NC_045512.2")
+
+    # =========================================================================
+    # SAVE GENBANK METADATA TO CSV TESTS
+    # =========================================================================
+
+    def test_save_genbank_metadata_to_csv_basic(self):
+        """Test save_genbank_metadata_to_csv creates valid CSV output."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "genbank_metadata.csv")
+
+            genbank_metadata = {
+                "NC_045512.2": {
+                    "accession": "NC_045512.2",
+                    "genbank_data": {
+                        "organism": "SARS-CoV-2",
+                        "sequence_length": 29903,
+                        "definition": "SARS-CoV-2 complete genome",
+                        "host": "Homo sapiens",
+                        "collection_date": "2019-12-30",
+                        "geographic_location": "China: Wuhan",
+                        "isolation_source": "bronchoalveolar lavage",
+                        "strain": "Wuhan-Hu-1",
+                        "isolate": "IVDC-HB-01",
+                        "mol_type": "genomic RNA",
+                        "create_date": "2020-01-13",
+                        "update_date": "2020-07-17",
+                        "assembly_name": "ASM985889v3",
+                        "taxonomy": "Viruses; Riboviria",
+                        "comment": "",
+                        "references": [
+                            {"title": "Paper", "authors": "Wu F", "journal": "Nature", "pubmed_id": "123"}
+                        ],
+                    },
+                },
+            }
+
+            save_genbank_metadata_to_csv(genbank_metadata, output_path)
+
+            self.assertTrue(os.path.exists(output_path))
+            df = pd.read_csv(output_path)
+            self.assertEqual(len(df), 1)
+            self.assertEqual(df.iloc[0]["accession"], "NC_045512.2")
+            self.assertEqual(df.iloc[0]["Organism Name"], "SARS-CoV-2")
+            self.assertEqual(df.iloc[0]["Length"], 29903)
+
+    def test_save_genbank_metadata_to_csv_empty(self):
+        """Test save_genbank_metadata_to_csv handles empty input."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "genbank_metadata.csv")
+            save_genbank_metadata_to_csv({}, output_path)
+            self.assertTrue(os.path.exists(output_path))
+            df = pd.read_csv(output_path)
+            self.assertEqual(len(df), 0)
+
 
 if __name__ == '__main__':
     unittest.main()

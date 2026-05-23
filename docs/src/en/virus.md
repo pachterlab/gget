@@ -46,10 +46,12 @@ Filter by minimum sequence length.
 Filter by maximum sequence length.
 
 `--min_gene_count`  
-Filter by minimum number of genes.
+Filter by minimum number of genes.  
+**Note:** Using this filter automatically enables GenBank metadata retrieval (`-g`).
 
 `--max_gene_count`  
-Filter by maximum number of genes.
+Filter by maximum number of genes.  
+**Note:** Using this filter automatically enables GenBank metadata retrieval (`-g`).
 
 `--min_protein_count`  
 Filter by minimum number of proteins.
@@ -58,17 +60,26 @@ Filter by minimum number of proteins.
 Filter by maximum number of proteins.
 
 `--min_mature_peptide_count`  
-Filter by minimum number of mature peptides.
+Filter by minimum number of mature peptides.  
+**Note:** Using this filter automatically enables GenBank metadata retrieval (`-g`).
 
 `--max_mature_peptide_count`  
-Filter by maximum number of mature peptides.
+Filter by maximum number of mature peptides.  
+**Note:** Using this filter automatically enables GenBank metadata retrieval (`-g`).
 
 `--max_ambiguous_chars`  
 Filter by maximum number of ambiguous nucleotide characters (N's).
 
 `--has_proteins`  
-Filter for sequences containing specific proteins or genes (e.g., 'spike', 'ORF1ab'). Can be a single protein name or a list of protein names.  
-Python: `has_proteins="spike"` or `has_proteins=["spike", "ORF1ab"]`
+Filter for sequences containing specific proteins or genes (e.g., 'spike', 'ORF1ab'). Can be a single protein name or a list of protein names. Any matching protein will keep the sequence.  
+Command line: `--has_proteins spike` or `--has_proteins hemagglutinin,neuraminidase` (comma-separated, no spaces)  
+Python: `has_proteins="spike"` or `has_proteins=["spike", "ORF1ab"]`  
+**Note:** Using this filter automatically enables GenBank metadata retrieval (`-g`).
+
+`--segment`  
+Filter for sequences with specific segment(s) (e.g. 'HA', 'NA'). Can be a single segment name or a list of segment names. Any matching segment will keep the sequence.  
+Command line: `--segment HA` or `--segment HA,NA,PB1` (comma-separated, no spaces)  
+Python: `segment="HA"` or `segment=["HA", "NA", "PB1"]`
 
 `--annotated`  
 'true' or 'false'. Filter for sequences that have been annotated with gene/protein information.  
@@ -85,9 +96,12 @@ Filter for or against vaccine strain sequences.
 Command line: `--vaccine_strain true` to fetch only vaccine strains, or `--vaccine_strain false` to exclude them.  
 Python: `vaccine_strain=True` or `vaccine_strain=False` (`vaccine_strain=None` for no filter).
 
-`--segment`  
-Filter for sequences with specific segment(s) (e.g. 'HA', 'NA'). Can be a single segment name or a list of segment names.
-Python: `segment="HA"` or `segment=["HA", "NA", "PB1"]`
+`--provirus`  
+Filter for or against proviral/integrated sequences.  
+Command line: `--provirus true` to fetch only proviral sequences, or `--provirus false` to exclude them.  
+Python: `provirus=True` or `provirus=False` (`provirus=None` for no filter).  
+**Note:** Using this filter automatically enables GenBank metadata retrieval (`-g`).
+
 
 _Date filters_  
 
@@ -108,16 +122,61 @@ _Location & Submitter filters_
 `--geographic_location`  
 Filter by geographic location of sample collection (e.g., 'USA', 'Asia').
 
+`--submitter_name`  
+Filter by submitter author name. Can be a single name or a list of names. Any matching name will keep the sequence.  
+Command line: `--submitter_name "John Doe"` or `--submitter_name "John Doe,Jane Smith"` (comma-separated)  
+Python: `submitter_name="John Doe"` or `submitter_name=["John Doe", "Jane Smith"]`
+
+`--submitter_institution`  
+Filter by submitter institution. Can be a single institution or a list of institutions. Any matching institution will keep the sequence.  
+Command line: `--submitter_institution CDC` or `--submitter_institution CDC,NIH,WHO` (comma-separated, no spaces)  
+Python: `submitter_institution="CDC"` or `submitter_institution=["CDC", "NIH", "WHO"]`
+
 `--submitter_country`  
-Filter by the country of the sequence submitter. Can be a single country or a comma-separated list.
+Filter by the country of the sequence submitter. Can be a single country or a list of countries.  
+Command line: `--submitter_country USA` or `--submitter_country USA,Germany,Japan` (comma-separated, no spaces)  
+Python: `submitter_country="USA"` or `submitter_country=["USA", "Germany", "Japan"]`
 
 `--source_database`  
 Filter by source database. One of: 'genbank' or 'refseq'.
 
+_Sample & Isolate filters_
+
+`--isolate`  
+Filter by isolate name (e.g. 'Wuhan-hu-1'). Can be a single isolate name or a list of isolate names. Any matching isolate will keep the sequence.  
+Command line: `--isolate Wuhan-hu-1` or `--isolate Wuhan-hu-1,LASV_3609` (comma-separated, no spaces)  
+Python: `isolate="Wuhan-hu-1"` or `isolate=["Wuhan-hu-1", "LASV_3609"]`
+
+`--isolation_source`  
+Filter by isolation source (tissue/specimen/source) (e.g. 'blood', 'serum'). Can be a single source or a list of sources. Any matching source will keep the sequence.  
+Command line: `--isolation_source blood` or `--isolation_source blood,serum,plasma` (comma-separated, no spaces)  
+Python: `isolation_source="blood"` or `isolation_source=["blood", "serum", "plasma"]`
+
+`--env_source`  
+Filter by environmental source (e.g. 'water', 'sewage'). Excludes any sequences with named hosts. Do NOT combine with `--host` filter. Can be a single source or a list of sources. Any matching source will keep the sequence.  
+Command line: `--env_source water` or `--env_source water,soil,air` (comma-separated, no spaces)  
+Python: `env_source="water"` or `env_source=["water", "soil", "air"]`  
+**Note:** Using this filter automatically enables GenBank metadata retrieval (`-g`).
+
+_Virus Classification filters_
+
+`--genotype`  
+Filter by genotype (e.g. 'H5N1', 'H3N2'). Can be a single genotype or a list of genotypes. Any matching genotype will keep the sequence.  
+Command line: `--genotype H5N1` or `--genotype H5N1,H3N2` (comma-separated, no spaces)  
+Python: `genotype="H5N1"` or `genotype=["H5N1", "H3N2"]`  
+**Note:** Using this filter automatically enables GenBank metadata retrieval (`-g`).
+
+`--gen_mol_type`  
+Filter by genomic molecule type (e.g. 'dsDNA', 'RNA'). Can be a single type or a list of types. Any matching molecule type will keep the sequence.  
+Command line: `--gen_mol_type dsDNA` or `--gen_mol_type RNA,dsRNA` (comma-separated, no spaces)  
+Python: `gen_mol_type="dsDNA"` or `gen_mol_type=["RNA", "dsRNA"]`  
+**Note:** Using this filter automatically enables GenBank metadata retrieval (`-g`).
+
 _SARS-CoV-2 specific filters_
 
 `--lineage`  
-Filter by SARS-CoV-2 lineage (e.g. 'B.1.1.7', 'P.1'). Can be a single lineage or a list of lineages.
+Filter by SARS-CoV-2 Pango lineage (e.g. 'B.1.1.7', 'P.1'). Can be a single lineage or a list of lineages. Any matching lineage will keep the sequence.  
+Command line: `--lineage B.1.1.7` or `--lineage B.1.1.7,P.1` (comma-separated, no spaces)  
 Python: `lineage="B.1.1.7"` or `lineage=["B.1.1.7", "P.1"]`
 
 _Workflow configurations_
@@ -126,8 +185,21 @@ _Workflow configurations_
 Batch size for GenBank metadata API requests. Default: 200. Larger batches are faster but may be more prone to timeouts.  
 
 `-o` `--out`  
-Path to the folder where results will be saved. Default: current working directory.  
+Path to the folder where results will be saved. Default: `./gget_virus_output/{virus}_{timestamp}/` in the current working directory.  
 Python: `outfolder="path/to/folder"`
+
+`--baseline`  
+Path to a baseline metadata file (CSV, JSONL, JSON, or text) containing accessions to skip. Only new accessions not found in the baseline will be downloaded. Useful for incremental updates or resuming after API failures.  
+CSV files must have an 'accession' column. Text files should have one accession per line.  
+Python: `baseline_metadata="path/to/previous_metadata.csv"`
+
+`--merge-results`  
+When using `--baseline`, merge new results with the baseline into a single combined output file. This is the default behavior.  
+Python: `merge_results=True` (default)
+
+`--no-merge`  
+When using `--baseline`, output new results separately from baseline instead of merging. Creates `{virus}_new.csv` (new sequences only) and preserves baseline as a reference.  
+Python: `merge_results=False`
 
 **Flags**  
 `-a` `--is_accession`  
@@ -144,7 +216,8 @@ Use NCBI's optimized cached data packages for a SARS-CoV-2 query. This provides 
 Use NCBI's optimized cached data packages for an Alphainfluenza (Influenza A virus) query. This provides faster and more reliable downloads for large Influenza A datasets. The system can auto-detect Alphainfluenza taxon-name queries, but for accession-based queries, you must set this flag explicitly.
 
 `-g` `--genbank_metadata`  
-Fetch and save additional detailed metadata from GenBank, including collection dates, host details, and publication references, in a separate `{virus}_genbank_metadata.csv` file (plus full XML/CSV dumps).
+Fetch and save additional detailed metadata from GenBank, including collection dates, host details, and publication references, in a separate `{virus}_genbank_metadata.csv` file (plus full XML/CSV dumps).  
+**Note:** This flag is automatically enabled when using any of the following GenBank-dependent filters: `--has_proteins`, `--gen_mol_type`, `--env_source`, `--genotype`, `--provirus`, `--min_gene_count`, `--max_gene_count`, `--min_mature_peptide_count`, `--max_mature_peptide_count`.
 
 `--proteins_complete`  
 Flag to only include sequences where all annotated proteins are complete.  
@@ -240,6 +313,341 @@ gget.virus(
 ```
 
 → Uses NCBI's cached data packages for Alphainfluenza to download complete Influenza A genomes from human hosts much faster than the standard API method, then applies the sequence length filter and fetches GenBank metadata.
+
+<br><br>
+**Resume a failed download using baseline deduplication:**
+
+```bash
+gget virus "SARS-CoV-2" --host human --nuc_completeness complete --baseline previous_run/SARS_CoV_2_metadata.csv --merge-results -o covid_update
+```
+
+```python
+# Python
+import gget
+
+gget.virus(
+  "SARS-CoV-2",
+  host="human",
+  nuc_completeness="complete",
+  baseline_metadata="previous_run/SARS_CoV_2_metadata.csv",
+  merge_results=True,
+  outfolder="covid_update"
+)
+```
+
+→ Loads accessions from a previous run's metadata file, skips those already downloaded, and merges new results with the baseline into a single combined output.
+
+---
+
+### Output files
+
+`gget virus` saves results in the specified output folder (default: `./gget_virus_output/{virus}_{timestamp}/`). The standard output files are:
+
+| File | Description |
+|------|-------------|
+| `{virus}_sequences.fasta` | Nucleotide sequences in FASTA format |
+| `{virus}_metadata.csv` | Metadata for all sequences in CSV format |
+| `{virus}_metadata.jsonl` | Metadata in JSONL format (one JSON object per line) |
+| `{virus}_genbank_metadata.csv` | Detailed GenBank metadata (only when `-g` is used or auto-enabled) |
+| `{virus}_genbank_metadata_full.xml` | Full GenBank XML dump (only when `-g` is used) |
+| `{virus}_genbank_metadata_full.csv` | Full GenBank CSV dump - readable XML format (only when `-g` is used) |
+| `command_summary.txt` | Execution summary with statistics, output files, and any errors |
+
+### Command summary file
+
+Every `gget virus` run generates a `command_summary.txt` file in the output folder, providing a complete record of the execution, including the exact command used, dataset statistics, output files with sizes, and details of any errors or failed operations. This is useful for reproducibility, debugging, and manual recovery after partial failures.
+
+**Example `command_summary.txt` for a successful run:**
+
+```
+GGET VIRUS COMMAND SUMMARY
+
+Execution Date: 2026-03-15 14:30:22
+Output Folder: /home/user/zika_data
+
+--------------------------------------------------------------------------------
+SOFTWARE VERSIONS
+--------------------------------------------------------------------------------
+gget version: 0.28.10
+NCBI datasets version: 16.40.2
+
+--------------------------------------------------------------------------------
+COMMAND LINE
+--------------------------------------------------------------------------------
+gget virus "Zika virus" --nuc_completeness complete --host human --out zika_data
+
+--------------------------------------------------------------------------------
+EXECUTION STATUS
+--------------------------------------------------------------------------------
+✅ Command completed successfully
+
+--------------------------------------------------------------------------------
+RUNTIME
+--------------------------------------------------------------------------------
+Total wall-clock time: 4m 12s (252.3 seconds)
+
+--------------------------------------------------------------------------------
+MEMORY USAGE
+--------------------------------------------------------------------------------
+Process RSS (resident memory): 512.4 MB
+Process VMS (virtual memory): 1024.8 MB
+Process memory percent: 3.2%
+System total memory: 16384 MB
+System available memory: 12288 MB
+System memory used: 25.0%
+
+--------------------------------------------------------------------------------
+SEQUENCE STATISTICS
+--------------------------------------------------------------------------------
+Total records from API: 1523
+After metadata filtering: 1523
+Final sequences (after all filters): 1523
+
+--------------------------------------------------------------------------------
+FILTER BREAKDOWN BY STAGE
+--------------------------------------------------------------------------------
+
+No records were filtered out at any stage.
+
+--------------------------------------------------------------------------------
+DETAILED STATISTICS
+--------------------------------------------------------------------------------
+Unique hosts: 1
+  - Homo sapiens
+
+Unique geographic locations: 42
+  - Brazil
+  - Colombia
+  - ...
+
+Sequence length range: 10217 - 10839 bp
+Average sequence length: 10708 bp
+
+Completeness breakdown:
+  - complete: 1523
+
+Source database breakdown:
+  - GenBank: 1510
+  - RefSeq: 13
+
+--------------------------------------------------------------------------------
+OUTPUT FILES
+--------------------------------------------------------------------------------
+FASTA Sequences: Zika_virus_sequences.fasta (16.02 MB)
+CSV Metadata: Zika_virus_metadata.csv (1.85 MB)
+JSONL Metadata: Zika_virus_metadata.jsonl (3.41 MB)
+
+END OF SUMMARY
+```
+
+<br>
+
+**Example `command_summary.txt` after an API server error:**
+
+```
+GGET VIRUS COMMAND SUMMARY
+
+Execution Date: 2026-03-19 21:03:22
+Output Folder: /home/user/11632_20260319_210251
+
+--------------------------------------------------------------------------------
+COMMAND LINE
+--------------------------------------------------------------------------------
+gget virus 11632 --nuc_completeness complete --geographic_location Gabon --host human
+
+--------------------------------------------------------------------------------
+EXECUTION STATUS
+--------------------------------------------------------------------------------
+✗ Command failed
+Error: HTTP error while fetching virus metadata: 500 Server Error: Internal Server
+Error for url: https://api.ncbi.nlm.nih.gov/datasets/v2/virus/taxon/11632/dataset_report
+?filter.complete_only=true&filter.host=human&filter.geo_location=Gabon&page_size=1000
+
+🔧 SERVER ERROR DETECTED: NCBI's API is experiencing temporary server-side issues.
+This is not a problem with your query.
+Try again in a few minutes, or consider using more specific filters to reduce the dataset size.
+
+--------------------------------------------------------------------------------
+SEQUENCE STATISTICS
+--------------------------------------------------------------------------------
+Total records from API: 0
+After metadata filtering: 0
+Final sequences (after all filters): 0
+
+--------------------------------------------------------------------------------
+OUTPUT FILES
+--------------------------------------------------------------------------------
+No output files generated
+
+END OF SUMMARY
+```
+
+<br>
+
+**Example `command_summary.txt` with failed metadata batches and recovery instructions:**
+
+```
+GGET VIRUS COMMAND SUMMARY
+
+Execution Date: 2026-04-01 10:15:33
+Output Folder: /home/user/hiv_data
+
+--------------------------------------------------------------------------------
+COMMAND LINE
+--------------------------------------------------------------------------------
+gget virus "HIV-1" --host human --nuc_completeness complete
+
+--------------------------------------------------------------------------------
+EXECUTION STATUS
+--------------------------------------------------------------------------------
+✗ Command failed
+Error: HTTP error while fetching virus metadata after 15 retries
+
+--------------------------------------------------------------------------------
+SEQUENCE STATISTICS
+--------------------------------------------------------------------------------
+Total records from API: 8500
+After metadata filtering: 0
+Final sequences (after all filters): 0
+
+--------------------------------------------------------------------------------
+💾 PARTIAL METADATA RECOVERY
+--------------------------------------------------------------------------------
+Partial metadata saved: /home/user/hiv_data/HIV_1_partial_metadata_api_failure.jsonl
+
+Recovery command:
+  gget virus HIV-1 --baseline /home/user/hiv_data/HIV_1_partial_metadata_api_failure.jsonl --merge-results -o /home/user/hiv_data
+
+--------------------------------------------------------------------------------
+⚠️ FAILED OPERATIONS - MANUAL RETRY REQUIRED
+--------------------------------------------------------------------------------
+
+📍 FAILED METADATA BATCHES (2 batches):
+
+   Batch 3: 1000 accessions
+   Error: 500 Server Error: Internal Server Error
+   API URL: https://api.ncbi.nlm.nih.gov/datasets/v2/virus/taxon/11676/dataset_report?...
+
+   Batch 7: 1000 accessions
+   Error: ConnectionError: Connection reset by peer
+   API URL: https://api.ncbi.nlm.nih.gov/datasets/v2/virus/taxon/11676/dataset_report?...
+
+📍 PAGINATION TIMEOUTS (1 pages):
+   Page 5: 4000 records retrieved
+   Error: ReadTimeout: HTTPSConnectionPool read timed out
+
+💡 RECOVERY INSTRUCTIONS:
+   1. Copy the URL from above and paste it into your browser
+   2. Save the downloaded file manually
+   3. Retry the command with updated filters (e.g., stricter date ranges)
+   4. If the issue persists, NCBI servers may be temporarily unavailable
+
+   5. RESUME with baseline deduplication:
+      gget virus HIV-1 --baseline /home/user/hiv_data/HIV_1_partial_metadata_api_failure.jsonl --merge-results -o /home/user/hiv_data
+
+--------------------------------------------------------------------------------
+OUTPUT FILES
+--------------------------------------------------------------------------------
+No output files generated
+
+END OF SUMMARY
+```
+
+<br>
+
+**Example `command_summary.txt` completed with GenBank warnings and failed sequence batches:**
+
+```
+GGET VIRUS COMMAND SUMMARY
+
+Execution Date: 2026-03-20 08:45:11
+Output Folder: /home/user/ebola_data
+
+--------------------------------------------------------------------------------
+COMMAND LINE
+--------------------------------------------------------------------------------
+gget virus "Ebola virus" --host human --genbank_metadata --out ebola_data
+
+--------------------------------------------------------------------------------
+EXECUTION STATUS
+--------------------------------------------------------------------------------
+Command completed with warnings
+⚠️ GenBank metadata retrieval failed: Connection timed out after 5 retries
+
+--------------------------------------------------------------------------------
+RUNTIME
+--------------------------------------------------------------------------------
+Total wall-clock time: 12m 45s (765.2 seconds)
+
+--------------------------------------------------------------------------------
+MEMORY USAGE
+--------------------------------------------------------------------------------
+Process RSS (resident memory): 1024.5 MB
+Process VMS (virtual memory): 2048.3 MB
+Process memory percent: 6.3%
+System total memory: 16384 MB
+System available memory: 10240 MB
+System memory used: 37.5%
+
+--------------------------------------------------------------------------------
+SEQUENCE STATISTICS
+--------------------------------------------------------------------------------
+Total records from API: 2150
+After metadata filtering: 2150
+After GenBank metadata filtering: 2130
+Final sequences (after all filters): 2130
+
+--------------------------------------------------------------------------------
+FILTER BREAKDOWN BY STAGE
+--------------------------------------------------------------------------------
+
+GenBank metadata filtering (records excluded):
+  genbank_fetch_failed: 20
+
+--------------------------------------------------------------------------------
+⚠️ FAILED OPERATIONS - MANUAL RETRY AVAILABLE
+--------------------------------------------------------------------------------
+
+📍 FAILED SEQUENCE DOWNLOAD BATCHES (1 batches):
+
+   Batch 4
+   Error: 503 Service Unavailable
+   Retry URL: https://api.ncbi.nlm.nih.gov/datasets/v2/virus/genome/download?accessions=...
+
+📍 SEQUENCE FETCH FAILURES (1 operations):
+
+   Operation: batch_sequence_download
+   Accessions: 20
+   Error: ReadTimeout: HTTPSConnectionPool read timed out
+   Retry URL: https://api.ncbi.nlm.nih.gov/datasets/v2/virus/genome/download?accessions=...
+
+💡 RECOVERY INSTRUCTIONS:
+   1. Copy the URL from above and paste it into your browser
+   2. Save the downloaded file manually
+   3. Retry the command with updated filters (e.g., stricter date ranges)
+   4. If the issue persists, NCBI servers may be temporarily unavailable
+
+--------------------------------------------------------------------------------
+OUTPUT FILES
+--------------------------------------------------------------------------------
+FASTA Sequences: Ebola_virus_sequences.fasta (24.31 MB)
+CSV Metadata: Ebola_virus_metadata.csv (2.10 MB)
+JSONL Metadata: Ebola_virus_metadata.jsonl (4.56 MB)
+
+END OF SUMMARY
+```
+
+The summary file tracks the following failure types, each with actionable details (error messages, URLs for manual retry, recovery commands):
+
+- **API Timeout** — The NCBI API timed out during the initial metadata fetch.
+- **Empty API Response** — The API returned no results for the given query.
+- **Failed Metadata Batches** — One or more paginated API requests for metadata failed after retries.
+- **Pagination Timeouts/Errors** — Specific pages of results timed out or returned errors during pagination.
+- **Failed Sequence Download Batches** — One or more batches of sequence downloads (FASTA) failed.
+- **Sequence Fetch Failures** — Individual sequence download operations failed.
+- **GenBank Metadata Errors** — GenBank metadata retrieval failed (command still completes with a warning).
+- **Partial Metadata Recovery** — When the API fails mid-download, partial metadata is saved to a JSONL file with a recovery command to resume using `--baseline`.
+
 
 #### [More examples](https://github.com/pachterlab/gget_examples/tree/main/gget_virus)
 

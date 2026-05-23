@@ -26,7 +26,7 @@ def is_valid_email(email):
     return re.match(email_pattern, email) is not None
 
 
-def download_reference(download_link, tar_folder_path, file_path, verbose, email = None, password = None):
+def download_reference(download_link, tar_folder_path, file_path, verbose, email = None, password = None, unzip = False):
     if not email:
         email = input("Please enter your COSMIC email: ")
     if not is_valid_email(email):
@@ -75,15 +75,16 @@ def download_reference(download_link, tar_folder_path, file_path, verbose, email
         if verbose:
             logger.info(f"Extracted tar file to {tar_folder_path}")
 
-    with gzip.open(f"{file_path}.gz", "rb") as f_in:
-        with open(file_path, "wb") as f_out:
-            shutil.copyfileobj(f_in, f_out)
-        if verbose:
-            logger.info(f"Unzipped file to {file_path}")
+    if unzip:
+        with gzip.open(f"{file_path}.gz", "rb") as f_in:
+            with open(file_path, "wb") as f_out:
+                shutil.copyfileobj(f_in, f_out)
+            if verbose:
+                logger.info(f"Unzipped file to {file_path}")
 
 
 def select_reference(
-    cosmic_project, reference_dir, grch_version, cosmic_version, verbose, email = None, password = None
+    cosmic_project, reference_dir, grch_version, cosmic_version, verbose, email = None, password = None, unzip = True, overwrite = None
 ):
     # if cosmic_project == "transcriptome":
     #     download_link = f"https://cancer.sanger.ac.uk/api/mono/products/v1/downloads/scripted?path=grch{grch_version}/cosmic/v{cosmic_version}/Cosmic_Genes_Fasta_v{cosmic_version}_GRCh{grch_version}.tar&bucket=downloads"
@@ -149,10 +150,11 @@ def select_reference(
 
     tar_folder_path = os.path.join(reference_dir, tarred_folder)
     file_path = os.path.join(tar_folder_path, contained_file)
+    if not unzip:
+        file_path += ".gz"
 
-    overwrite = True
     if os.path.exists(file_path):
-        if not email and not password:
+        if overwrite is None:
             proceed = (
                 input(
                     "The requested COSMIC database already exists at the destination. Would you like to overwrite the existing files (y/n)? "
@@ -160,48 +162,47 @@ def select_reference(
                 .strip()
                 .lower()
             )
+            overwrite = proceed in ["yes", "y"]
+        if overwrite:
+            logger.info(f"Overwriting existing COSMIC database at {file_path}...")
         else:
+            logger.info(f"Using existing COSMIC database at {file_path}...")
+            return file_path, overwrite
+
+    # Only the example database can be downloaded directly (without an account)
+    if cosmic_project == "cancer_example":
+        curl_command = [
+            "curl",
+            "-L",
+            "--output",
+            f"{tar_folder_path}.tar",
+            download_link,
+        ]
+        result = subprocess.run(curl_command, capture_output=True, text=True)
+
+        with tarfile.open(f"{tar_folder_path}.tar", "r") as tar:
+            tar.extractall(path=tar_folder_path)
+            if verbose:
+                logger.info(f"Extracted tar file to {tar_folder_path}")
+
+    # Download full databases
+    else:
+        if email and password:
             proceed = "yes"
+        else:
+            proceed = (
+                input(
+                    "Downloading complete databases from COSMIC requires an account (https://cancer.sanger.ac.uk/cosmic/register; free for academic use, license for commercial use).\nWould you like to proceed (y/n)? "
+                )
+                .strip()
+                .lower()
+            )
         if proceed in ["yes", "y"]:
-            overwrite = True
+            download_reference(download_link, tar_folder_path, file_path, verbose, email = email, password = password, unzip = unzip)
         else:
-            overwrite = False
-
-    if overwrite:
-        # Only the example database can be downloaded directly (without an account)
-        if cosmic_project == "cancer_example":
-            curl_command = [
-                "curl",
-                "-L",
-                "--output",
-                f"{tar_folder_path}.tar",
-                download_link,
-            ]
-            result = subprocess.run(curl_command, capture_output=True, text=True)
-
-            with tarfile.open(f"{tar_folder_path}.tar", "r") as tar:
-                tar.extractall(path=tar_folder_path)
-                if verbose:
-                    logger.info(f"Extracted tar file to {tar_folder_path}")
-
-        # Download full databases
-        else:
-            if email and password:
-                proceed = "yes"
-            else:
-                proceed = (
-                    input(
-                        "Downloading complete databases from COSMIC requires an account (https://cancer.sanger.ac.uk/cosmic/register; free for academic use, license for commercial use).\nWould you like to proceed (y/n)? "
-                    )
-                    .strip()
-                    .lower()
-                )
-            if proceed in ["yes", "y"]:
-                download_reference(download_link, tar_folder_path, file_path, verbose, email = email, password = password)
-            else:
-                raise KeyboardInterrupt(
-                    f"Database download canceled. Learn more about COSMIC at https://cancer.sanger.ac.uk/cosmic/download/cosmic."
-                )
+            raise KeyboardInterrupt(
+                f"Database download canceled. Learn more about COSMIC at https://cancer.sanger.ac.uk/cosmic/download/cosmic."
+            )
 
     return file_path, overwrite
 
