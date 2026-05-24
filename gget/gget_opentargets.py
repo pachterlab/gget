@@ -3,7 +3,7 @@ import textwrap
 import pandas as pd
 import requests
 
-from .constants import OPENTARGETS_GRAPHQL_API
+from .constants import OPENTARGETS_GRAPHQL_API, DEFAULT_REQUESTS_TIMEOUT
 from .utils import set_up_logger
 
 logger = set_up_logger()  # export GGET_LOGLEVEL=DEBUG
@@ -307,6 +307,7 @@ def opentargets(
     r = requests.post(
         OPENTARGETS_GRAPHQL_API,
         json={"query": query_string, "variables": variables},
+        timeout=DEFAULT_REQUESTS_TIMEOUT,
     )
 
     api_response = json_.loads(r.text)

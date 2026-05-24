@@ -2,6 +2,12 @@
 
 ## ✨ What's new
 **Version ≥ 0.30.6** (XXX XX, 2026):
+- Bug fixes:
+  - [`gget cosmic`](cosmic.md): Fixed misleading error message when the download step fails — was reporting the previous command's return code/stderr instead of the failing command's.
+  - [`gget cosmic`](cosmic.md): Narrowed the JSON parse exception handler to `json.JSONDecodeError` so unrelated `ValueError`s are no longer masked by the "Failed to download file" message.
+  - `gget --version`, `gget --help`, `gget` invoked with no arguments, and `gget <module>` with no further arguments now all exit with status 0 instead of 1, so CI scripts and shell pipelines no longer treat these informational outputs as failures.
+  - Added request timeouts to previously-unguarded `requests` calls in [`gget ref`](ref.md), [`gget info`](info.md), [`gget 8cube`](8cube.md), [`gget enrichr`](enrichr.md), and [`gget opentargets`](opentargets.md). Default is 10s connect / 60s read; configurable via the new `DEFAULT_REQUESTS_TIMEOUT` constant.
+  - Narrowed a bare `except:` in `utils.get_uniprot_seqs` to `(KeyError, IndexError, TypeError)` so unrelated errors (including `KeyboardInterrupt`) are no longer swallowed.
 
 **Version ≥ 0.30.5** (May 23, 2026):
 - [`gget opentargets`](opentargets.md): Rewrote this module to reflect the new Open Targets API structure

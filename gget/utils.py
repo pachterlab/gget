@@ -334,7 +334,7 @@ def get_uniprot_seqs(server, ensembl_ids):
                     gene_names.append(
                         json["results"][i]["genes"][0]["geneName"]["value"]
                     )
-                except:
+                except (KeyError, IndexError, TypeError):
                     gene_names.append(np.nan)
             df["gene_name"] = gene_names
             df["query"] = id_
