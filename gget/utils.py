@@ -7,6 +7,7 @@ import json
 import re
 import os
 import uuid
+import functools
 import pandas as pd
 import numpy as np
 from IPython.display import display, HTML
@@ -322,8 +323,9 @@ def get_uniprot_seqs(server, ensembl_ids):
     if type(ensembl_ids) == str:
         ensembl_ids = [ensembl_ids]
 
-    # Initiate data frame so empty df will be returned if no matches are found
-    master_df = pd.DataFrame()
+    # Collect per-ID DataFrames in a list and concat once at the end.
+    # Avoids the O(n^2) cost of growing a DataFrame inside the loop.
+    per_id_dfs = []
 
     for id_ in ensembl_ids:
         # API documentation: https://www.uniprot.org/help/api_queries
@@ -377,24 +379,25 @@ def get_uniprot_seqs(server, ensembl_ids):
 
             # Add gene name and query columns
             gene_names = []
-            for i in np.arange(len(json["results"])):
+            for result in json["results"]:
                 try:
                     gene_names.append(
-                        json["results"][i]["genes"][0]["geneName"]["value"]
+                        result["genes"][0]["geneName"]["value"]
                     )
                 except (KeyError, IndexError, TypeError):
                     gene_names.append(np.nan)
             df["gene_name"] = gene_names
             df["query"] = id_
 
-            # Append results for this ID to master data frame
-            master_df = pd.concat([master_df, df], axis=0)
+            per_id_dfs.append(df)
 
         else:
             # If no results were found, warn user and do nothing -> returns empty df
             logger.warning(f"No UniProt sequences were found for ID {id_}.")
 
-    return master_df
+    if per_id_dfs:
+        return pd.concat(per_id_dfs, ignore_index=True)
+    return pd.DataFrame()
 
 
 def get_uniprot_info(server, ensembl_id, verbose=True):
@@ -774,12 +777,16 @@ def graphql_query(server, query, variables):
     return r.json()
 
 
+@functools.lru_cache(maxsize=None)
 def find_latest_ens_rel(database=ENSEMBL_FTP_URL):
     """
     Returns the latest Ensembl release number.
 
     Args:
     - database    Link to Ensembl database.
+
+    Cached for the lifetime of the Python process — the latest-release
+    number is stable across a single CLI invocation.
     """
     # html = requests.get(database)
 
@@ -810,6 +817,7 @@ def find_latest_ens_rel(database=ENSEMBL_FTP_URL):
     return ENS_rel
 
 
+@functools.lru_cache(maxsize=None)
 def search_species_options(database=ENSEMBL_FTP_URL, release=None):
     """
     Function to find all available species core databases for gget search.
@@ -818,7 +826,8 @@ def search_species_options(database=ENSEMBL_FTP_URL, release=None):
     - release   Ensembl release for which the databases are fetched.
                 (Default: latest release.)
 
-    Returns list of available core databases.
+    Returns list of available core databases. Cached per (database, release)
+    since the underlying Ensembl listings are static within a release.
     """
     # Find latest Ensembl release
     ENS_rel = find_latest_ens_rel(database)
@@ -874,6 +883,7 @@ def search_species_options(database=ENSEMBL_FTP_URL, release=None):
     return databases
 
 
+@functools.lru_cache(maxsize=None)
 def find_nv_kingdom(species, release):
     kds = ["plants", "protists", "metazoa", "fungi"]
     for kingdom in kds:
@@ -898,6 +908,7 @@ def find_nv_kingdom(species, release):
             return kingdom
 
 
+@functools.lru_cache(maxsize=None)
 def ref_species_options(which, database=ENSEMBL_FTP_URL, release=None):
     """
     Function to find all available species for gget ref.
@@ -908,7 +919,8 @@ def ref_species_options(which, database=ENSEMBL_FTP_URL, release=None):
     - database  Link to Ensembl database.
     - release   Ensembl release for which available species should be fetched.
 
-    Returns list of available species.
+    Returns list of available species. Cached per (which, database, release)
+    since the underlying Ensembl listings are static within a release.
     """
     # Find latest Ensembl release
     ENS_rel = find_latest_ens_rel(database)

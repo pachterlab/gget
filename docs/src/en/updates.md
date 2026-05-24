@@ -10,6 +10,10 @@
   - Narrowed a bare `except:` in `utils.get_uniprot_seqs` to `(KeyError, IndexError, TypeError)` so unrelated errors (including `KeyboardInterrupt`) are no longer swallowed.
   - Added `utils.http_json()` and `utils.dig()` helpers that issue a request and parse JSON / walk a nested response path with consistent error reporting. Migrated [`gget bgee`](bgee.md), [`gget opentargets`](opentargets.md), and one `.json()` callsite in [`gget virus`](virus.md) to use them; remaining modules will migrate opportunistically. Upstream HTML error pages, malformed JSON, and missing response keys now surface as clear `RuntimeError`s naming the failing service instead of cryptic `JSONDecodeError` / `KeyError` tracebacks.
   - [`gget virus`](virus.md): Replaced 11 bare `except: pass` blocks around `file.close()` / `os.remove()` cleanup calls with narrowed `except OSError` handlers that log the failure at `DEBUG`. Previously, real I/O issues during cleanup (disk full, permissions) were silently dropped and the cleanup path also swallowed `KeyboardInterrupt`.
+  - [`gget cbio`](cbio.md): Fixed a code path in `cbio_plot` that called the removed-in-pandas-2.0 `DataFrame.append()` inside a loop when filling missing CNA genes — the entire branch crashed on modern pandas. It now builds a single DataFrame of missing rows and concatenates once.
+- Performance:
+  - `utils.get_uniprot_seqs`: Collect per-ID DataFrames in a list and `pd.concat(..., ignore_index=True)` once at the end, avoiding the O(n²) cost of growing a DataFrame inside the request loop.
+  - Cached `utils.find_latest_ens_rel`, `utils.search_species_options`, `utils.ref_species_options`, and `utils.find_nv_kingdom` with `functools.lru_cache`. These hit Ensembl FTP listings that are stable for a release; repeated calls within one Python process are now free.
 
 **Version ≥ 0.30.5** (May 23, 2026):
 - [`gget opentargets`](opentargets.md): Rewrote this module to reflect the new Open Targets API structure
