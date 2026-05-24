@@ -1,7 +1,7 @@
 [<kbd> Ver el codigo fuente de la pagina en GitHub </kbd>](https://github.com/pachterlab/gget/blob/main/docs/src/es/updates.md)
 
 ## ✨ ¡Lo más reciente!  
-**Versión ≥ 0.30.4** (23 de mayo de 2026):
+**Versión ≥ 0.30.5** (23 de mayo de 2026):
 - [`gget opentargets`](opentargets.md): Se reescribió este módulo para reflejar la nueva estructura de la API de Open Targets
   - algunos nombres de columnas/claves de salida pueden diferir para reflejar la nueva estructura de la API
   - Se eliminó el argumento `--filter_mode`
