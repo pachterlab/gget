@@ -9,6 +9,7 @@
   - Added request timeouts to previously-unguarded `requests` calls in [`gget ref`](ref.md), [`gget info`](info.md), [`gget 8cube`](8cube.md), [`gget enrichr`](enrichr.md), and [`gget opentargets`](opentargets.md). Default is 10s connect / 60s read; configurable via the new `DEFAULT_REQUESTS_TIMEOUT` constant.
   - Narrowed a bare `except:` in `utils.get_uniprot_seqs` to `(KeyError, IndexError, TypeError)` so unrelated errors (including `KeyboardInterrupt`) are no longer swallowed.
   - Added `utils.http_json()` and `utils.dig()` helpers that issue a request and parse JSON / walk a nested response path with consistent error reporting. Migrated [`gget bgee`](bgee.md), [`gget opentargets`](opentargets.md), and one `.json()` callsite in [`gget virus`](virus.md) to use them; remaining modules will migrate opportunistically. Upstream HTML error pages, malformed JSON, and missing response keys now surface as clear `RuntimeError`s naming the failing service instead of cryptic `JSONDecodeError` / `KeyError` tracebacks.
+  - [`gget virus`](virus.md): Replaced 11 bare `except: pass` blocks around `file.close()` / `os.remove()` cleanup calls with narrowed `except OSError` handlers that log the failure at `DEBUG`. Previously, real I/O issues during cleanup (disk full, permissions) were silently dropped and the cleanup path also swallowed `KeyboardInterrupt`.
 
 **Version ≥ 0.30.5** (May 23, 2026):
 - [`gget opentargets`](opentargets.md): Rewrote this module to reflect the new Open Targets API structure

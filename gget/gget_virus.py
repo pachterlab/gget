@@ -1518,8 +1518,8 @@ def fetch_virus_metadata(
                 if metadata_file:
                     try:
                         metadata_file.close()
-                    except:
-                        pass
+                    except OSError as e:
+                        logger.debug("Failed to clean up metadata_file: %s", e)
             
             # STRATEGY 1: If geo_location filter exists, try without it (keeping host)
             if not success and geographic_location:
@@ -1744,8 +1744,8 @@ def fetch_virus_metadata(
                         if metadata_file:
                             try:
                                 metadata_file.close()
-                            except:
-                                pass
+                            except OSError as e:
+                                logger.debug("Failed to clean up metadata_file: %s", e)
                         
                         # FALLBACK 1: If geo_location filter exists, try without it
                         if geographic_location:
@@ -1869,8 +1869,8 @@ def fetch_virus_metadata(
                     if metadata_file:
                         try:
                             metadata_file.close()
-                        except:
-                            pass
+                        except OSError as e:
+                            logger.debug("Failed to clean up metadata_file: %s", e)
                             
                     raise RuntimeError(error_msg) from None
                 
@@ -1926,8 +1926,8 @@ def fetch_virus_metadata(
                     if metadata_file:
                         try:
                             metadata_file.close()
-                        except:
-                            pass
+                        except OSError as e:
+                            logger.debug("Failed to clean up metadata_file: %s", e)
                             
                     raise RuntimeError(error_msg) from None
                 
@@ -1970,8 +1970,8 @@ def fetch_virus_metadata(
                             if metadata_file:
                                 try:
                                     metadata_file.close()
-                                except:
-                                    pass
+                                except OSError as e:
+                                    logger.debug("Failed to clean up metadata_file: %s", e)
                             
                             # Return None to signal that chunking is needed
                             # The calling function will handle the chunking strategy
@@ -2027,8 +2027,8 @@ def fetch_virus_metadata(
                     if metadata_file:
                         try:
                             metadata_file.close()
-                        except:
-                            pass
+                        except OSError as e:
+                            logger.debug("Failed to clean up metadata_file: %s", e)
                     
                     raise RuntimeError(error_msg) from None
                 
@@ -2066,8 +2066,8 @@ def fetch_virus_metadata(
                     if metadata_file:
                         try:
                             metadata_file.close()
-                        except:
-                            pass
+                        except OSError as e:
+                            logger.debug("Failed to clean up metadata_file: %s", e)
                     
                     raise RuntimeError(error_msg) from None
     
@@ -6204,19 +6204,19 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
         if xml_file is not None:
             try:
                 xml_file.close()
-            except:
-                pass
+            except OSError as e:
+                logger.debug("Failed to clean up xml_file: %s", e)
         if metadata_jsonl_file is not None:
             try:
                 metadata_jsonl_file.close()
-            except:
-                pass
+            except OSError as e:
+                logger.debug("Failed to clean up metadata_jsonl_file: %s", e)
         # Clean up temp XML file if it exists
         if os.path.exists(temp_xml_path):
             try:
                 os.remove(temp_xml_path)
-            except:
-                pass
+            except OSError as e:
+                logger.debug("Failed to clean up temp_xml_path (os.remove): %s", e)
 
     logger.info("GenBank metadata retrieval complete: %d/%d accessions processed", 
                 total_metadata_written, len(accessions))
@@ -6245,8 +6245,8 @@ def fetch_genbank_metadata(accessions, genbank_full_xml_path, genbank_full_csv_p
     if os.path.exists(temp_metadata_jsonl_path):
         try:
             os.remove(temp_metadata_jsonl_path)
-        except:
-            pass
+        except OSError as e:
+            logger.debug("Failed to clean up temp_metadata_jsonl_path (os.remove): %s", e)
     
     # Final memory log and GC
     _force_garbage_collection("GenBank fetch complete")
