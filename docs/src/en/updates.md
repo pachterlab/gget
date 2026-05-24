@@ -14,6 +14,7 @@
 - Performance:
   - `utils.get_uniprot_seqs`: Collect per-ID DataFrames in a list and `pd.concat(..., ignore_index=True)` once at the end, avoiding the O(n²) cost of growing a DataFrame inside the request loop.
   - Cached `utils.find_latest_ens_rel`, `utils.search_species_options`, `utils.ref_species_options`, and `utils.find_nv_kingdom` with `functools.lru_cache`. These hit Ensembl FTP listings that are stable for a release; repeated calls within one Python process are now free.
+  - Added `utils.parallel_map`, a thin `ThreadPoolExecutor` wrapper for I/O-bound work. Used to fan out `utils.get_uniprot_seqs` across the input ID list — looking up N IDs is now bounded by ~`N / pool_size` UniProt round-trips instead of `N`. Pool size defaults to 8 and can be overridden via the `GGET_MAX_WORKERS` environment variable.
 
 **Version ≥ 0.30.5** (May 23, 2026):
 - [`gget opentargets`](opentargets.md): Rewrote this module to reflect the new Open Targets API structure

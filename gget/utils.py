@@ -3,6 +3,7 @@ import requests
 
 # from requests.adapters import HTTPAdapter, Retry
 # import time
+import concurrent.futures
 import json
 import re
 import os
@@ -67,6 +68,32 @@ def flatten(xss):
     Function to flatten a list of lists.
     """
     return [x for xs in xss for x in xs]
+
+
+def parallel_map(fn, items, *, max_workers=None):
+    """
+    Apply `fn` to each item using a thread pool and return the results
+    in input order. Designed for I/O-bound work — typically per-ID HTTP
+    calls — where the per-call latency is dominated by network RTT.
+
+    Pool size defaults to 8 (capped at len(items)). Override with the
+    `GGET_MAX_WORKERS` environment variable, or pass `max_workers`
+    explicitly. Exceptions inside `fn` propagate to the caller.
+    """
+    items = list(items)
+    if not items:
+        return []
+    if max_workers is None:
+        env_val = os.getenv("GGET_MAX_WORKERS")
+        try:
+            max_workers = int(env_val) if env_val else 8
+        except ValueError:
+            max_workers = 8
+    max_workers = max(1, min(max_workers, len(items)))
+    if max_workers == 1:
+        return [fn(item) for item in items]
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        return list(executor.map(fn, items))
 
 
 def http_json(method, url, *, context="", timeout=DEFAULT_REQUESTS_TIMEOUT, **kwargs):
@@ -308,6 +335,58 @@ def aa_colors(amino_acid):
     return f"\033[38;5;{textcolor}m\033[48;5;{bkg_color}m{amino_acid}\033[0;0m"
 
 
+def _fetch_uniprot_for_id(server, id_):
+    """Per-ID body of get_uniprot_seqs. Returns a DataFrame or None."""
+    r = requests.get(server + id_ + "+AND+reviewed:true")
+    if not r.ok:
+        logger.error(
+            f"UniProt server request returned with error status code: {r.status_code}. Please double-check arguments or try again later."
+        )
+    payload = r.json()
+
+    if not len(payload["results"]) > 0:
+        r = requests.get(server + id_)
+        if not r.ok:
+            logger.error(
+                f"UniProt server request returned with error status code: {r.status_code}. Please double-check arguments or try again later."
+            )
+        payload = r.json()
+        if len(payload["results"]) > 0:
+            logger.warning(
+                f"No reviewed UniProt results were found for ID {id_}. Returning all unreviewed results."
+            )
+
+    if not len(payload["results"]) > 0:
+        logger.warning(f"No UniProt sequences were found for ID {id_}.")
+        return None
+
+    df = pd.json_normalize(payload["results"])
+    df = df[
+        [
+            "primaryAccession",
+            "organism.scientificName",
+            "sequence.value",
+            "sequence.length",
+        ]
+    ]
+    df.columns = [
+        "uniprot_id",
+        "organism",
+        "sequence",
+        "sequence_length",
+    ]
+
+    gene_names = []
+    for result in payload["results"]:
+        try:
+            gene_names.append(result["genes"][0]["geneName"]["value"])
+        except (KeyError, IndexError, TypeError):
+            gene_names.append(np.nan)
+    df["gene_name"] = gene_names
+    df["query"] = id_
+    return df
+
+
 def get_uniprot_seqs(server, ensembl_ids):
     """
     Retrieve UniProt sequences based on Ensemsbl, WormBase or FlyBase identifiers.
@@ -323,78 +402,13 @@ def get_uniprot_seqs(server, ensembl_ids):
     if type(ensembl_ids) == str:
         ensembl_ids = [ensembl_ids]
 
-    # Collect per-ID DataFrames in a list and concat once at the end.
-    # Avoids the O(n^2) cost of growing a DataFrame inside the loop.
-    per_id_dfs = []
-
-    for id_ in ensembl_ids:
-        # API documentation: https://www.uniprot.org/help/api_queries
-        # Submit server request
-        r = requests.get(server + id_ + "+AND+reviewed:true")
-        if not r.ok:
-            logger.error(
-                f"UniProt server request returned with error status code: {r.status_code}. Please double-check arguments or try again later."
-            )
-        # Convert to json
-        json = r.json()
-
-        # If no reviewed results were found, try again for unreviewed results
-        if not len(json["results"]) > 0:
-            # Submit server request
-            r = requests.get(server + id_)
-            if not r.ok:
-                logger.error(
-                    f"UniProt server request returned with error status code: {r.status_code}. Please double-check arguments or try again later."
-                )
-            # Convert to json
-            json = r.json()
-
-            # Warn user if unreviewed results were found
-            if len(json["results"]) > 0:
-                logger.warning(
-                    f"No reviewed UniProt results were found for ID {id_}. Returning all unreviewed results."
-                )
-
-        if len(json["results"]) > 0:
-            # Convert results to data frame
-            df = pd.json_normalize(json["results"])
-
-            # Remove non-relevant columns
-            df = df[
-                [
-                    "primaryAccession",
-                    "organism.scientificName",
-                    "sequence.value",
-                    "sequence.length",
-                ]
-            ]
-
-            # Rename columns
-            df.columns = [
-                "uniprot_id",
-                "organism",
-                "sequence",
-                "sequence_length",
-            ]
-
-            # Add gene name and query columns
-            gene_names = []
-            for result in json["results"]:
-                try:
-                    gene_names.append(
-                        result["genes"][0]["geneName"]["value"]
-                    )
-                except (KeyError, IndexError, TypeError):
-                    gene_names.append(np.nan)
-            df["gene_name"] = gene_names
-            df["query"] = id_
-
-            per_id_dfs.append(df)
-
-        else:
-            # If no results were found, warn user and do nothing -> returns empty df
-            logger.warning(f"No UniProt sequences were found for ID {id_}.")
-
+    # Fan out per-ID requests across a thread pool. Each call is independent
+    # and entirely I/O-bound, so the wall-clock saving on a list of IDs is
+    # roughly the pool size. Override with GGET_MAX_WORKERS env var.
+    results = parallel_map(
+        lambda id_: _fetch_uniprot_for_id(server, id_), ensembl_ids
+    )
+    per_id_dfs = [df for df in results if df is not None]
     if per_id_dfs:
         return pd.concat(per_id_dfs, ignore_index=True)
     return pd.DataFrame()
