@@ -8,6 +8,7 @@
   - `gget --version`, `gget --help`, `gget` invoked with no arguments, and `gget <module>` with no further arguments now all exit with status 0 instead of 1, so CI scripts and shell pipelines no longer treat these informational outputs as failures.
   - Added request timeouts to previously-unguarded `requests` calls in [`gget ref`](ref.md), [`gget info`](info.md), [`gget 8cube`](8cube.md), [`gget enrichr`](enrichr.md), and [`gget opentargets`](opentargets.md). Default is 10s connect / 60s read; configurable via the new `DEFAULT_REQUESTS_TIMEOUT` constant.
   - Narrowed a bare `except:` in `utils.get_uniprot_seqs` to `(KeyError, IndexError, TypeError)` so unrelated errors (including `KeyboardInterrupt`) are no longer swallowed.
+  - Added `utils.http_json()` and `utils.dig()` helpers that issue a request and parse JSON / walk a nested response path with consistent error reporting. Migrated [`gget bgee`](bgee.md), [`gget opentargets`](opentargets.md), and one `.json()` callsite in [`gget virus`](virus.md) to use them; remaining modules will migrate opportunistically. Upstream HTML error pages, malformed JSON, and missing response keys now surface as clear `RuntimeError`s naming the failing service instead of cryptic `JSONDecodeError` / `KeyError` tracebacks.
 
 **Version ≥ 0.30.5** (May 23, 2026):
 - [`gget opentargets`](opentargets.md): Rewrote this module to reflect the new Open Targets API structure

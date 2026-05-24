@@ -3,6 +3,7 @@ import requests
 
 # from requests.adapters import HTTPAdapter, Retry
 # import time
+import json
 import re
 import os
 import uuid
@@ -21,6 +22,7 @@ from .constants import (
     ENSEMBL_FTP_URL_NV,
     ENS_TO_PDB_API,
     COSMIC_RELEASE_URL,
+    DEFAULT_REQUESTS_TIMEOUT,
 )
 
 
@@ -64,6 +66,52 @@ def flatten(xss):
     Function to flatten a list of lists.
     """
     return [x for xs in xss for x in xs]
+
+
+def http_json(method, url, *, context="", timeout=DEFAULT_REQUESTS_TIMEOUT, **kwargs):
+    """
+    Issue an HTTP request and return the parsed JSON body, raising a
+    RuntimeError with consistent context if the request fails or the body
+    is not valid JSON.
+
+    `context` is a short human-readable label (e.g. "Bgee API") used in
+    error messages so users can identify which upstream service failed.
+    All other keyword arguments are forwarded to `requests.request`.
+    """
+    response = requests.request(method, url, timeout=timeout, **kwargs)
+    label = context or url
+    if not response.ok:
+        body = response.text[:200] if response.text else ""
+        raise RuntimeError(
+            f"{label} returned HTTP {response.status_code}. Body: {body}"
+        )
+    try:
+        return response.json()
+    except json.JSONDecodeError as e:
+        body = response.text[:200] if response.text else ""
+        raise RuntimeError(
+            f"{label} returned non-JSON response (HTTP {response.status_code}): {body}"
+        ) from e
+
+
+def dig(obj, *path, context=""):
+    """
+    Walk a nested key path through `obj` and return the resulting value.
+    Raises RuntimeError with `context` if any intermediate key is missing
+    or any intermediate value is not a dict. Use to make
+    `response["data"]["target"]`-style access fail with a clear message
+    when an upstream API changes shape.
+    """
+    cur = obj
+    for i, key in enumerate(path):
+        if not isinstance(cur, dict) or key not in cur:
+            traversed = ".".join(path[:i]) or "<root>"
+            label = f"{context}: " if context else ""
+            raise RuntimeError(
+                f"{label}expected key '{key}' under {traversed} in response."
+            )
+        cur = cur[key]
+    return cur
 
 
 def get_latest_cosmic():

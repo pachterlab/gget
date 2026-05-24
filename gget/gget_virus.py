@@ -1482,9 +1482,14 @@ def fetch_virus_metadata(
             
             # Raise an exception if the HTTP request failed (4xx or 5xx status codes)
             response.raise_for_status()
-            
+
             # Parse the JSON response
-            data = response.json()
+            try:
+                data = response.json()
+            except json.JSONDecodeError as e:
+                raise RuntimeError(
+                    f"NCBI API returned non-JSON response (HTTP {response.status_code}): {response.text[:200]}"
+                ) from e
             logger.debug("Received response with %d bytes", len(response.content))
             
             return data
