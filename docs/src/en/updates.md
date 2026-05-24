@@ -1,6 +1,8 @@
 [<kbd> View page source on GitHub </kbd>](https://github.com/pachterlab/gget/blob/main/docs/src/en/updates.md)
 
 ## ✨ What's new
+**Version ≥ 0.30.6** (XXX XX, 2026):
+
 **Version ≥ 0.30.5** (May 23, 2026):
 - [`gget opentargets`](opentargets.md): Rewrote this module to reflect the new Open Targets API structure
   - some output column/key names may differ to reflect the new API structure
