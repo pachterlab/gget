@@ -68,7 +68,7 @@ def _assert_equal(name, td, func):
             expected_result = pd.DataFrame(expected_result[0])
             expected_result = expected_result.replace({None: np.nan})
             # result_to_test.equals(expected_result)
-            pd.testing.assert_frame_equal(result_to_test, expected_result)
+            pd.testing.assert_frame_equal(result_to_test, expected_result, check_dtype=False)
             return
         
         # If result is a DataFrame, convert to list

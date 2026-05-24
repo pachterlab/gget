@@ -436,7 +436,7 @@ def cosmic(
             cosmic_project, out, grch_version, cosmic_version, verbose, email = email, password = password
         )
 
-        if gget_mutate and overwrite:
+        if gget_mutate and overwrite is not False:
             ## Create copy of results formatted for further use by gget mutate
             if verbose:
                 logger.info(
